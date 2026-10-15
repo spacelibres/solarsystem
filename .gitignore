@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+build/
+dist/
+
+# Local artifacts and scratch
+artifacts/
+*.tsbuildinfo
+*.log
+npm-debug.log*
+.DS_Store
+.env
+.env.*
+!.env.example
+
+# Tooling output (captured NASA research data stays out of the repo)
+tools/out/

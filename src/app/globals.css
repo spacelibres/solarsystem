@@ -1,0 +1,69 @@
+/**
+ * Global styles and spacelibre VI design tokens.
+ *
+ * Palette roles are injected at runtime as `--sl-*` custom properties; the
+ * fallbacks here match the default `01-electric-orbit` preset so the first paint
+ * is already on-brand before hydration.
+ */
+
+:root {
+  --sl-primary: #007bff;
+  --sl-secondary: #ff3733;
+  --sl-accent: #f4f764;
+  --sl-deep: #0d1721;
+  --sl-surface: #f1f5f9;
+  --sl-ink: #122a44;
+  --sl-card: #fcfdfe;
+  --sl-muted: #627180;
+  --sl-line: #c9d0d8;
+  --sl-success: #176e55;
+  --sl-warning: #845a0b;
+  --sl-danger: #c01c34;
+  --sl-primary-on-light: #006ce0;
+  --sl-primary-on-dark: #007bff;
+  --sl-planet-on-light: #e00400;
+  --sl-planet-on-dark: #ff3733;
+
+  /* 8px spacing rhythm. */
+  --sl-space-1: 8px;
+  --sl-space-2: 16px;
+  --sl-space-3: 24px;
+  --sl-space-4: 32px;
+  --sl-space-6: 48px;
+  --sl-space-8: 64px;
+
+  --sl-radius: 12px;
+  --sl-radius-sm: 8px;
+  --sl-font: Arial, "Helvetica Neue", "PingFang SC", "Microsoft YaHei",
+    system-ui, sans-serif;
+  --sl-mono: Consolas, "SFMono-Regular", "Roboto Mono", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--sl-deep);
+  color: #fff;
+  font-family: var(--sl-font);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  overflow: hidden;
+}
+
+#__next,
+main {
+  height: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}

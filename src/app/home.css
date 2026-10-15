@@ -1,0 +1,82 @@
+/* Home layout for the solar-system explorer, following the VI 8px rhythm. */
+
+.sl-home {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  background: var(--sl-deep);
+}
+
+.sl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sl-space-2) var(--sl-space-3);
+  z-index: 2;
+}
+
+.sl-header__tag {
+  font: 12px/1 var(--sl-mono);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--sl-primary-on-dark);
+}
+
+.sl-stage {
+  position: relative;
+  overflow: hidden;
+}
+
+.sl-stage__caption {
+  position: absolute;
+  left: var(--sl-space-3);
+  bottom: var(--sl-space-3);
+  z-index: 2;
+  pointer-events: none;
+  max-width: min(60ch, 80vw);
+}
+
+.sl-stage__title {
+  margin: 0 0 var(--sl-space-1);
+  font: 700 clamp(28px, 4vw, 44px) / 1.05 var(--sl-font);
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.sl-stage__subtitle {
+  margin: 0;
+  font: 14px/1.5 var(--sl-font);
+  color: rgba(255, 255, 255, 0.66);
+  letter-spacing: 0.02em;
+}
+
+.sl-footer {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sl-space-2);
+  padding: var(--sl-space-2) var(--sl-space-3);
+  z-index: 2;
+}
+
+.sl-footer__version {
+  font: 11px/1 var(--sl-mono);
+  letter-spacing: 0.08em;
+  color: var(--sl-primary-on-dark);
+  white-space: nowrap;
+}
+
+.sl-footer__credit {
+  margin: 0;
+  font: 11px/1.6 var(--sl-font);
+  color: rgba(255, 255, 255, 0.45);
+  max-width: 90ch;
+}
+
+@media (max-width: 640px) {
+  .sl-stage__caption {
+    left: var(--sl-space-2);
+    bottom: var(--sl-space-2);
+  }
+}

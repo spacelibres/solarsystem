@@ -1,0 +1,108 @@
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, expect, it } from 'vitest';
+
+import { parseDyn } from '../src/lib/dynamo/parse';
+import { quatLength, rotateByQuat } from '../src/lib/dynamo/math';
+import { nearestPoint, orbPositionAt, solveEccentricAnomaly } from '../src/lib/dynamo/orbit';
+import type { OrbPoint } from '../src/lib/dynamo/parse';
+
+const fixture = (name: string) =>
+  parseDyn(new Uint8Array(readFileSync(join(__dirname, 'fixtures', name))));
+
+describe('parseDyn header', () => {
+  it('reads Earth´s heliocentric orbit header', () => {
+    const file = fixture('earth-sun-orb.dyn');
+    expect(file.header.version).toBe(2);
+    expect(file.header.pointType).toBe('orb');
+    expect(file.header.numberOfDigits).toBe(4);
+    // Earth μ and Sun μ, the exact values NASA ships.
+    expect(file.header.gravitationalParameter1).toBeCloseTo(398600.4355070226, 6);
+    expect(file.header.gravitationalParameter2).toBeCloseTo(132712440041.27939, 3);
+  });
+
+  it('reads an orientation-only file with no gravity header', () => {
+    const file = fixture('earth-ori.dyn');
+    expect(file.header.pointType).toBe('ori');
+    expect(file.header.gravitationalParameter1).toBeUndefined();
+    expect(file.points).toHaveLength(3);
+    expect(file.points[0].kind).toBe('ori');
+  });
+});
+
+describe('parseDyn point blocks', () => {
+  it('consumes the Earth orbit file exactly (429 × 72 bytes)', () => {
+    const file = fixture('earth-sun-orb.dyn');
+    expect(file.points).toHaveLength(429);
+    expect(file.interval).not.toBeNull();
+    // ~±100 years around J2000.
+    expect(file.interval!.min).toBeLessThan(-3.1e9);
+    expect(file.interval!.max).toBeGreaterThan(3.1e9);
+  });
+
+  it('produces physically valid elements for every Earth sample', () => {
+    const file = fixture('earth-sun-orb.dyn');
+    const pts = file.points as OrbPoint[];
+    for (const p of pts) {
+      expect(p.semiMajorAxis).toBeGreaterThan(1.4e8); // ~1 AU in km
+      expect(p.semiMajorAxis).toBeLessThan(1.6e8);
+      expect(p.eccentricity).toBeGreaterThanOrEqual(0);
+      expect(p.eccentricity).toBeLessThan(0.1);
+      expect(p.meanAngularMotion).toBeGreaterThan(0);
+      expect(quatLength(p.orientation)).toBeCloseTo(1, 6);
+    }
+  });
+
+  it('keeps sample times strictly increasing', () => {
+    const file = fixture('earth-sun-orb.dyn');
+    for (let i = 1; i < file.points.length; i++) {
+      expect(file.points[i].time).toBeGreaterThan(file.points[i - 1].time);
+    }
+  });
+
+  it('parses Mercury and Jupiter with the same stride', () => {
+    expect(fixture('mercury-sun-orb.dyn').points).toHaveLength(37);
+    expect(fixture('jupiter-sun-orb.dyn').points).toHaveLength(35);
+    const jupiter = fixture('jupiter-sun-orb.dyn');
+    // Jupiter μ, sanity-checking the gravity header per file.
+    expect(jupiter.header.gravitationalParameter1).toBeGreaterThan(1.2e8);
+    expect(jupiter.header.gravitationalParameter1).toBeLessThan(1.3e8);
+  });
+
+  it('rejects a truncated point block instead of reading garbage', () => {
+    const raw = new Uint8Array(readFileSync(join(__dirname, 'fixtures', 'mercury-sun-orb.dyn')));
+    // Drop 8 bytes: the count still claims 37 points, so the size check must fail.
+    expect(() => parseDyn(raw.slice(0, raw.length - 8))).toThrow(/size mismatch/);
+  });
+
+  it('rejects a bogus point type', () => {
+    const bad = new Uint8Array([2, 0, 0x78, 0x78, 0x78, 0, 0, 0, 0, 0, 0]);
+    expect(() => parseDyn(bad)).toThrow(/invalid dynamo point type/);
+  });
+});
+
+describe('orbit geometry', () => {
+  it('solves Kepler´s equation for a circular orbit', () => {
+    // e = 0 ⇒ E = M exactly.
+    const M = 1.234;
+    expect(solveEccentricAnomaly(M, 0)).toBeCloseTo(M, 9);
+  });
+
+  it('places Earth at roughly one AU for a mid-range epoch', () => {
+    const AU_KM = 149_597_870.7;
+    const pts = fixture('earth-sun-orb.dyn').points as OrbPoint[];
+    // Pick the sample nearest J2000 and evaluate at its own epoch.
+    const p = nearestPoint(pts, 0)!;
+    const r = orbPositionAt(p, p.time);
+    const distance = Math.hypot(r.x, r.y, r.z);
+    expect(distance / AU_KM).toBeGreaterThan(0.97);
+    expect(distance / AU_KM).toBeLessThan(1.03);
+  });
+
+  it('rotates by a unit quaternion without changing length', () => {
+    const q = { x: 0.6134625094429162, y: 0.1273131201926585, z: -0.1584199438136041, w: 0.7631240006295859 };
+    const v = { x: 3, y: -4, z: 12 };
+    const out = rotateByQuat(v, q);
+    expect(Math.hypot(out.x, out.y, out.z)).toBeCloseTo(13, 9);
+  });
+});
