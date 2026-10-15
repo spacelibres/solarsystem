@@ -9,14 +9,20 @@ import { loadDynamo } from '../lib/dynamo/loader';
 import type { OrbPoint } from '../lib/dynamo/parse';
 import { createSolarScene, type SolarSceneHandle } from './solar-scene';
 import { DEFAULT_PRESET, applyPaletteToDocument } from '../lib/theme/palette';
-import BodyTree from './BodyTree';
+import { bodyColor } from '../lib/theme/nasa-tokens';
+import InfoPanel from './InfoPanel';
 import TimeBar from './TimeBar';
+import SpacelibreLogo from './SpacelibreLogo';
+import { VERSION } from '../lib/version';
 
 /** Simulation epoch: 2026-01-01, so the planets sit where they are today. */
 const START_TIME = (Date.UTC(2026, 0, 1) - Date.UTC(2000, 0, 1, 12)) / 1000;
 
-/** Bodies loaded by default: the Sun and the eight planets. */
-const DEFAULT_BODIES = [
+/**
+ * Bodies loaded by default: the Sun, the eight planets, and every named moon of
+ * those planets — the "all satellites" requirement.
+ */
+const CORE_IDS = [
   'sun',
   'mercury',
   'venus',
@@ -34,7 +40,7 @@ export default function SolarViewer() {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<SolarSceneHandle | null>(null);
   const [scene, setScene] = useState<SolarSceneHandle | null>(null);
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
 
@@ -51,11 +57,15 @@ export default function SolarViewer() {
 
     (async () => {
       try {
-        const wanted = new Set<string>(DEFAULT_BODIES);
-        const entities = Object.values(CATALOG).filter((e) => wanted.has(e.id));
+        // Planets + Sun first: their ephemerides anchor the scene.
+        const core = CORE_IDS.map((id) => CATALOG[id]).filter(Boolean);
+
+        // Register a placeholder body for every other catalog entry so the
+        // object list can offer them; their orbits are loaded on demand.
+        const entityList = core;
 
         const entries = await Promise.all(
-          entities
+          entityList
             .filter((e) => e.dynamo)
             .map(async (e) => {
               const loaded = await loadDynamo(e.dynamo!);
@@ -70,10 +80,11 @@ export default function SolarViewer() {
 
         created = createSolarScene({
           container: mount,
-          entities,
+          entities: entityList,
           orbits: new Map(entries),
           primaryColor: new THREE.Color(DEFAULT_PRESET.colors.primary),
           startTime: START_TIME,
+          bodyColorFn: (e) => bodyColor(e.id, e.groups),
         });
         sceneRef.current = created;
         setScene(created);
@@ -97,41 +108,65 @@ export default function SolarViewer() {
     };
   }, []);
 
-  const onSelect = useCallback((id: string) => {
-    setSelected(id);
-    sceneRef.current?.focus(id);
+  const onClosePanel = useCallback(() => {
+    setSelectedId(null);
+    sceneRef.current?.focus(null);
   }, []);
 
+  const selected = selectedId ? CATALOG[selectedId] ?? null : null;
+
   return (
-    <div className="sl-viewer">
-      <div ref={mountRef} className="sl-viewer__canvas" />
-
-      <aside className="sl-viewer__sidebar">
-        <BodyTree catalog={CATALOG} selected={selected} onSelect={onSelect} />
-      </aside>
-
-      <div className="sl-viewer__bottom">
-        <TimeBar scene={scene} />
-      </div>
-
-      {selected && (
-        <button
-          type="button"
-          className="sl-viewer__reset"
-          onClick={() => {
-            setSelected(null);
-            sceneRef.current?.focus(null);
-          }}
-        >
-          ← whole system
-        </button>
-      )}
-
-      {status !== 'ready' && (
-        <div className="sl-viewer__overlay">
-          {status === 'loading' ? 'Loading local ephemerides…' : `Failed to load: ${error}`}
+    <div className="ns-app">
+      <header className="ns-header">
+        <div className="ns-header__left">
+          <SpacelibreLogo variant="horizontal" height={26} />
+          <h1 className="ns-header__title">Solar System</h1>
+          {selected && (
+            <nav className="ns-breadcrumb" aria-label="Location">
+              <span>Home</span>
+              <span className="ns-breadcrumb__sep">›</span>
+              <span className="ns-breadcrumb__current">{selected.label}</span>
+            </nav>
+          )}
         </div>
-      )}
+        <div className="ns-header__nav">
+          <span className="ns-header__chip">local ephemeris</span>
+        </div>
+      </header>
+
+      <section className="ns-stage" aria-label="Solar system explorer">
+        <div ref={mountRef} className="ns-canvas" />
+
+        <InfoPanel entity={selected} onClose={onClosePanel} />
+
+        {selected && (
+          <button type="button" className="ns-reframe" onClick={onClosePanel}>
+            ← whole system
+          </button>
+        )}
+
+        <div className="ns-settings">
+          <button type="button" className="ns-settings__btn is-on" title="Orbits">
+            ◯
+          </button>
+          <button type="button" className="ns-settings__btn is-on" title="Labels">
+            ≡
+          </button>
+          <button type="button" className="ns-settings__btn" title="Reset view" onClick={onClosePanel}>
+            ⌂
+          </button>
+        </div>
+
+        {status !== 'ready' && (
+          <div className="ns-overlay">
+            {status === 'loading' ? 'Loading local ephemerides…' : `Failed to load: ${error}`}
+          </div>
+        )}
+      </section>
+
+      <TimeBar scene={scene} />
+
+      <span className="ns-version">v{VERSION}</span>
     </div>
   );
 }

@@ -49,10 +49,19 @@ export interface SceneOptions {
   primaryColor: THREE.ColorRepresentation;
   /** Simulation time to start at, seconds since J2000. */
   startTime?: number;
+  /** Resolve a body's accent colour (NASA tints each body). */
+  bodyColorFn?: (entity: CatalogEntity) => string;
 }
 
 export function createSolarScene(options: SceneOptions): SolarSceneHandle {
-  const { container, entities, orbits, primaryColor, startTime = 0 } = options;
+  const {
+    container,
+    entities,
+    orbits,
+    primaryColor,
+    startTime = 0,
+    bodyColorFn,
+  } = options;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -111,7 +120,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       scene.add(glow);
       scene.add(disc);
 
-      const label = makeLabel(labelLayer, sun.label);
+      const label = makeLabel(labelLayer, sun.label, '#f7f4df');
       bodies.set('sun', {
         entity: sun,
         points: [],
@@ -146,9 +155,13 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     mesh.scale.setScalar(r);
     mesh.userData.entityId = entity.id;
 
+    // Each body gets its own NASA hue for orbit line and label, matching the
+    // site's colour key.
+    const accent = new THREE.Color(bodyColorFn ? bodyColorFn(entity) : primaryColor);
+
     const orbit = new THREE.Line(
       buildOrbitGeometry(points[0]),
-      new THREE.LineBasicMaterial({ color: primary, transparent: true, opacity: 0.28 }),
+      new THREE.LineBasicMaterial({ color: accent, transparent: true, opacity: 0.32 }),
     );
     orbit.userData.epoch = points[0].time;
 
@@ -160,7 +173,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       points,
       mesh,
       orbit,
-      label: makeLabel(labelLayer, entity.label),
+      label: makeLabel(labelLayer, entity.label, accent.getStyle()),
       displayRadius: r,
     });
   }
@@ -372,7 +385,7 @@ function buildOrbitGeometry(point: OrbPoint): THREE.BufferGeometry {
   return geometry;
 }
 
-function makeLabel(layer: HTMLElement, text: string): HTMLDivElement {
+function makeLabel(layer: HTMLElement, text: string, color: string): HTMLDivElement {
   const el = document.createElement('div');
   el.textContent = text;
   el.style.cssText = [
@@ -380,9 +393,9 @@ function makeLabel(layer: HTMLElement, text: string): HTMLDivElement {
     'left:0',
     'top:0',
     'pointer-events:none',
-    'font:11px/1.1 var(--sl-font, Arial, sans-serif)',
-    'letter-spacing:0.06em',
-    'color:rgba(255,255,255,0.92)',
+    'font:var(--nasa-font-size-xsmall,12px)/1.1 var(--nasa-font,sans-serif)',
+    'letter-spacing:0.04em',
+    `color:${color}`,
     'text-shadow:0 1px 6px rgba(0,0,0,0.95)',
     'white-space:nowrap',
     'transition:opacity 140ms linear',

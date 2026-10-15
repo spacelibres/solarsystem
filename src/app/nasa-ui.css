@@ -1,0 +1,643 @@
+/* NASA Eyes design tokens, transcribed from apps/solar-system/app.css.
+   These drive the whole interface so the replica matches the original. */
+
+:root {
+  /* Chrome greys */
+  --nasa-black: #000;
+  --nasa-white: #fff;
+  --nasa-gray: #95959d;
+  --nasa-gray-dark: #252527;
+  --nasa-gray-alpha: rgba(37, 37, 39, 0.6);
+  --nasa-gray-dark-alpha: rgba(37, 37, 39, 0.8);
+  --nasa-panel-bg: #181818;
+  --nasa-tab-border: #606060;
+
+  /* Blue-grey family */
+  --nasa-gb-bg: #151a1d;
+  --nasa-gb-button: #425571;
+  --nasa-gb-divider: #25282b;
+  --nasa-gb-light: #d2e1e8;
+  --nasa-gb-med: #a4bac1;
+  --nasa-gb-text: #83959b;
+  --nasa-gb-white: #f0f8fc;
+
+  /* Semantic */
+  --nasa-live: #47da84;
+  --nasa-live-alpha: rgba(71, 218, 132, 0.35);
+  --nasa-paused: #ff9a42;
+  --nasa-paused-alpha: rgba(255, 154, 66, 0.35);
+  --nasa-settings: #0d67ff;
+  --nasa-nasa-blue: #288bff;
+  --nasa-cta-blue: #3e63dd;
+  --nasa-error: #d55033;
+
+  /* Gradient overlays */
+  --nasa-bg-dark: rgba(0, 0, 0, 0.85);
+  --nasa-bg-med: rgba(0, 0, 0, 0.75);
+  --nasa-bg-gradient: linear-gradient(180deg, #2c2c2e 0%, #1a1a1c 100%);
+  --nasa-menu-gradient: linear-gradient(180deg, #252527 0%, #181818 100%);
+
+  /* Layout metrics */
+  --nasa-header-h: 70px;
+  --nasa-offset-right: 0px;
+  --nasa-offset-up: 18vh;
+  --nasa-collapsible-bottom-margin: 1em;
+  --nasa-font-size: 16px;
+  --nasa-font-size-large: 18px;
+  --nasa-font-size-small: 14px;
+  --nasa-font-size-xsmall: 12px;
+  --nasa-font-size-tiny: 10px;
+
+  --nasa-ease-out: cubic-bezier(0.2, 0.2, 0, 1);
+
+  --nasa-font: Metropolis, Inter, "Helvetica Neue", Arial, sans-serif;
+  --nasa-font-panel: Inter, Metropolis, sans-serif;
+  --nasa-font-mono: DMMono, Consolas, "SFMono-Regular", monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--nasa-black);
+  color: var(--nasa-white);
+  font-family: var(--nasa-font);
+  font-size: var(--nasa-font-size);
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  overflow: hidden;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   App grid: mirrors #dynamic-ui's named areas
+   head | main (12 cols) | foot
+   --------------------------------------------------------------------------- */
+
+.ns-app {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  grid-template-rows: minmax(70px, max-content) 1fr minmax(min(13vh, 70px), auto);
+  grid-template-areas: 'head' 'main' 'foot';
+  background: var(--nasa-black);
+}
+
+/* Top gradient scrim behind the header, as NASA does. */
+.ns-app::before {
+  content: '';
+  grid-area: head;
+  inset: 0 0 auto 0;
+  height: calc(var(--nasa-header-h) + 6vh);
+  background-image: linear-gradient(to bottom, var(--nasa-bg-dark) 70%, var(--nasa-bg-med) 100%);
+  -webkit-mask-image: linear-gradient(180deg, #fff 0, transparent);
+  mask-image: linear-gradient(180deg, #fff 0, transparent);
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ns-header {
+  grid-area: head;
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 1rem;
+  height: var(--nasa-header-h);
+  padding: 0 20px;
+}
+
+.ns-header__left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.ns-header__title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.64px;
+  color: var(--nasa-gb-med);
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding-left: 14px;
+  border-left: 1px solid var(--nasa-gray-dark);
+}
+
+.ns-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-family: var(--nasa-font-panel);
+  justify-self: end;
+}
+
+.ns-header__chip {
+  display: grid;
+  place-items: center;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border-radius: 0.375rem;
+  background: var(--nasa-gray-alpha);
+  color: var(--nasa-gb-light);
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  border: 0;
+}
+
+.ns-header__chip:hover {
+  filter: brightness(1.2);
+}
+
+/* Breadcrumb: home › body */
+.ns-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: var(--nasa-font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.64px;
+  color: var(--nasa-gb-med);
+  text-transform: uppercase;
+}
+
+.ns-breadcrumb__sep {
+  opacity: 0.5;
+}
+
+.ns-breadcrumb__current {
+  color: var(--nasa-white);
+}
+
+/* ---------------------------------------------------------------------------
+   Stage
+   --------------------------------------------------------------------------- */
+
+.ns-stage {
+  grid-area: main;
+  position: relative;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.ns-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------------------------------------------------------------------------
+   Info panel (left): mirrors .content-panel-container
+   --------------------------------------------------------------------------- */
+
+.ns-panel {
+  position: absolute;
+  left: 0;
+  top: calc(var(--nasa-header-h) + 1rem);
+  bottom: 0;
+  width: 22rem;
+  max-width: 88vw;
+  background: var(--nasa-panel-bg);
+  font-family: var(--nasa-font-panel);
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(calc(-100% - 20px));
+  transition: transform 0.4s var(--nasa-ease-out);
+  pointer-events: auto;
+}
+
+.ns-panel.is-open {
+  transform: translateX(0);
+  transition: transform 0.8s cubic-bezier(0.2, 0.75, 0, 1) 0.2s;
+}
+
+.ns-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.1rem 0.6rem;
+  border-bottom: 1px solid var(--nasa-gray-dark);
+}
+
+.ns-panel__name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.ns-panel__kind {
+  font-size: var(--nasa-font-size-xsmall);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nasa-gb-text);
+}
+
+.ns-panel__close {
+  background: none;
+  border: 0;
+  color: var(--nasa-gb-med);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.ns-panel__close:hover {
+  background: var(--nasa-gray-dark);
+  color: #fff;
+}
+
+.ns-panel__body {
+  overflow-y: auto;
+  padding: 1rem 1.1rem 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.ns-panel__body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.ns-panel__body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+.ns-facts {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  font-size: var(--nasa-font-size-small);
+}
+
+.ns-facts dt {
+  color: var(--nasa-gb-text);
+}
+
+.ns-facts dd {
+  margin: 0;
+  font-family: var(--nasa-font-mono);
+  font-size: var(--nasa-font-size-xsmall);
+  letter-spacing: 0.02em;
+}
+
+/* ---------------------------------------------------------------------------
+   Return-to-system button
+   --------------------------------------------------------------------------- */
+
+.ns-reframe {
+  position: absolute;
+  top: 1rem;
+  right: 20px;
+  z-index: 20;
+  font-family: var(--nasa-font-mono);
+  font-size: var(--nasa-font-size-tiny);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--nasa-cta-blue);
+  background: var(--nasa-gray-alpha);
+  border: 1px solid var(--nasa-gray-dark);
+  border-radius: 999px;
+  padding: 8px 14px;
+}
+
+.ns-reframe:hover {
+  color: #fff;
+  border-color: var(--nasa-cta-blue);
+}
+
+/* ---------------------------------------------------------------------------
+   Settings rail (right): mirrors .settings
+   --------------------------------------------------------------------------- */
+
+.ns-settings {
+  position: absolute;
+  right: 12px;
+  bottom: 118px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 3px;
+  background: var(--nasa-bg-gradient);
+}
+
+.ns-settings__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: 0;
+  border-radius: 4px;
+  color: var(--nasa-gb-light);
+  font-size: 13px;
+  opacity: 0.55;
+  transition: opacity 0.1s ease-out;
+}
+
+.ns-settings__btn:hover {
+  opacity: 1;
+}
+
+.ns-settings__btn.is-on {
+  opacity: 1;
+  color: var(--nasa-cta-blue);
+}
+
+/* ---------------------------------------------------------------------------
+   Time controls (foot): mirrors nav.c-menu-container + nav.time-controls
+   --------------------------------------------------------------------------- */
+
+.ns-time {
+  grid-area: foot;
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 20px var(--nasa-collapsible-bottom-margin);
+  gap: 4px;
+}
+
+/* Bottom gradient scrim, as NASA masks its footer. */
+.ns-time::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--nasa-offset-up));
+  background-image: linear-gradient(to top, var(--nasa-bg-dark) 70%, var(--nasa-bg-med) 100%);
+  -webkit-mask-image: linear-gradient(0deg, #fff 0, transparent);
+  mask-image: linear-gradient(0deg, #fff 0, transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+.ns-time__rate {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--nasa-live);
+  filter: drop-shadow(0 0 2px var(--nasa-live-alpha));
+}
+
+.ns-time__rate.is-paused {
+  color: var(--nasa-paused);
+  filter: drop-shadow(0 0 2px var(--nasa-paused-alpha));
+}
+
+.ns-time__controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 80%;
+  max-width: 160px;
+}
+
+.ns-time__btn {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--nasa-bg-gradient);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+.ns-time__btn:hover {
+  filter: brightness(1.4);
+}
+
+.ns-time__btn:active {
+  box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Track + draggable knob, matching NASA's slider geometry. */
+.ns-time__track {
+  position: relative;
+  width: 100%;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.ns-time__range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  margin: 0;
+  border-radius: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--nasa-live) 0%,
+    var(--nasa-live) var(--progress, 50%),
+    rgba(255, 255, 255, 0.22) var(--progress, 50%),
+    rgba(255, 255, 255, 0.22) 100%
+  );
+  outline: none;
+  cursor: grab;
+}
+
+.ns-time__range:active {
+  cursor: grabbing;
+}
+
+.ns-time__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  border: 0;
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    var(--nasa-live) 36.72%,
+    #262627 51.3%,
+    #505052 55.99%,
+    #252525 79.43%,
+    #19191b 100%
+  );
+  box-shadow: 0 0 12px 4px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+
+.ns-time__range::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 16px;
+  background: radial-gradient(50% 50% at 50% 50%, var(--nasa-live) 36.72%, #262627 100%);
+  box-shadow: 0 0 12px 4px rgba(0, 0, 0, 0.4);
+  cursor: grab;
+}
+
+.ns-time__range.is-paused::-webkit-slider-thumb {
+  background: radial-gradient(
+    50% 50% at 50% 50%,
+    var(--nasa-paused) 36.72%,
+    #262627 51.3%,
+    #505052 55.99%,
+    #252525 79.43%,
+    #19191b 100%
+  );
+}
+
+.ns-time__range::-moz-range-thumb {
+  background: radial-gradient(50% 50% at 50% 50%, var(--nasa-paused) 36.72%, #262627 100%);
+}
+
+/* Date + speed readout */
+.ns-time__readout {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: var(--nasa-font-size-xsmall);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--nasa-gb-med);
+}
+
+.ns-time__date {
+  font-family: var(--nasa-font-mono);
+  color: var(--nasa-gb-light);
+}
+
+.ns-time__speeds {
+  display: flex;
+  gap: 2px;
+}
+
+.ns-time__speed {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 4px;
+  background: none;
+  color: var(--nasa-gb-text);
+  font-family: var(--nasa-font-mono);
+  font-size: var(--nasa-font-size-tiny);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.ns-time__speed:hover {
+  color: #fff;
+}
+
+.ns-time__speed.is-active {
+  color: #05070d;
+  background: var(--nasa-live);
+}
+
+/* ---------------------------------------------------------------------------
+   Loading / error overlay
+   --------------------------------------------------------------------------- */
+
+.ns-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--nasa-font-size-small);
+  letter-spacing: 0.04em;
+  color: var(--nasa-gb-med);
+  pointer-events: none;
+  z-index: 30;
+}
+
+.ns-version {
+  position: fixed;
+  right: 10px;
+  top: 6px;
+  z-index: 60;
+  font-family: var(--nasa-font-mono);
+  font-size: var(--nasa-font-size-tiny);
+  letter-spacing: 0.08em;
+  color: var(--nasa-gb-text);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Responsive: headline breakpoints from NASA's stylesheet
+   --------------------------------------------------------------------------- */
+
+@media (min-width: 1025px) and (min-height: 600px) {
+  :root {
+    --nasa-offset-right: 12vw;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ns-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    max-width: none;
+    height: 52vh;
+    transform: translateY(100%);
+  }
+  .ns-panel.is-open {
+    transform: translateY(0);
+  }
+  .ns-settings {
+    bottom: 150px;
+  }
+}
+
+@media (max-width: 640px) {
+  .ns-header__title,
+  .ns-breadcrumb {
+    display: none;
+  }
+  .ns-time__speeds {
+    display: none;
+  }
+  .ns-time__controls {
+    width: 60%;
+  }
+}
+
+@media (pointer: coarse) {
+  .ns-time__btn {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -3,6 +3,46 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.1 - 2026-10-15
+
+Adopt NASA Eyes' own design tokens and layout, transcribed from its stylesheet.
+
+### Added
+
+- `src/lib/theme/nasa-tokens.ts` — the site's real colour, typography and
+  layout values, extracted from `apps/solar-system/app.css`: the grey and
+  blue-grey families, semantic state colours (`live` #47da84, `paused` #ff9a42),
+  typography (Metropolis / Inter / DMMono), the `#dynamic-ui` grid rows, and the
+  **per-body hues** NASA uses as a colour key (#9768ac mercury, #b07919 venus,
+  #0099cc earth, #9a4e19 mars, #da8b72 jupiter, #d5c187 saturn, #68ccda uranus,
+  #708ce3 neptune, #f7f4df sun, #b6acac moon, #cd9745 spacecraft).
+- `src/app/nasa-ui.css` — the interface rebuilt on those tokens: header scrim,
+  breadcrumb, draggable time slider with a 36px radial knob tinted by state,
+  settings rail, and the responsive breakpoints NASA actually uses
+  (320 / 641 / 1025).
+- `src/components/InfoPanel.tsx` — the left information column, mirroring
+  `.content-panel-container` (22rem, Inter, `z-index: 40`).
+- `tools/dump-dom.cjs` — dumps the live site's rendered DOM, computed styles and
+  shell HTML, so layout decisions come from the original rather than guesses.
+
+### Changed
+
+- Scene colours every orbit and label with its body's NASA hue.
+- Time controls show a live/paused rate readout and a real scrubber; the readout
+  polls the scene clock so the two cannot drift.
+- Header now carries the spacelibre wordmark, a breadcrumb, and a state chip.
+
+### Removed
+
+- `src/app/home.css` and `src/components/BodyTree.tsx`, replaced by the
+  token-driven layout above.
+
+### Verified
+
+- `npm test` (21/21), `npm run check` and `npm run build` all pass.
+- Headless render: no exceptions, no failed requests, **0 requests to
+  nasa.gov**.
+
 ## 0.2.0 - 2026-10-15
 
 Full local mirror, a real scale model, and the NASA Eyes interaction layer.

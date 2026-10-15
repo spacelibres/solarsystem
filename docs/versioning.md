@@ -8,13 +8,17 @@ This repository follows one rule above all others: **every commit pushed to
 A release is a single commit that contains:
 
 1. A **PATCH bump** applied with the repository script — never hand-edited:
+1. Bump **PATCH by one** with the repository script — never hand-edit versions:
 
    ```bash
    node scripts/set-version.mjs <MAJOR.MINOR.PATCH>
    ```
 
-   The script keeps `package.json`, `package-lock.json`, `VERSION` and the
-   version labels in the UI in sync.
+   The PATCH component is the "smallest" number and is the one that advances,
+   by exactly one, on every release: `0.2.0 → 0.2.1 → 0.2.2`. Do not jump
+   MINOR or MAJOR for ordinary work, and never reuse or invent a number. The
+   script keeps `package.json`, `package-lock.json`, `VERSION` and the UI
+   version label in sync.
 
 2. A new **CHANGELOG.md** section, prepended above the previous entry:
 
