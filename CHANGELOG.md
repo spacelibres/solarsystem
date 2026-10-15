@@ -3,6 +3,23 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.1.1 - 2026-10-15
+
+Fix the release workflow so tagged releases publish their notes.
+
+### Fixed
+
+- `release.yml` matched the CHANGELOG heading exactly (`## <version>`), but
+  entries carry a date (`## <version> - <date>`), so note extraction failed and
+  the job exited. The `awk` matcher now matches the version as a heading prefix,
+  and the job fails clearly if no entry is found.
+
+### Verified
+
+- `npm test`, `npm run check` and `npm run build` all pass.
+- `verify` workflow on the repository is green; this release re-runs both
+  workflows and publishes the GitHub Release for `v0.1.1`.
+
 ## 0.1.0 - 2026-10-15
 
 Initial proof of concept: a solar system explorer on real NASA Eyes data.
