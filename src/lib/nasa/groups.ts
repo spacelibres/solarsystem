@@ -1,6 +1,7 @@
 /**
- * Catalog helpers for the UI: group bodies into the same buckets NASA Eyes
- * uses, and expose a stable display order.
+ * Catalog helpers for the UI: group bodies into recognisable buckets and format
+ * simulation time. Parenting is time-segmented, so "which planet does this moon
+ * belong to" is answered by the *first* segment's parent.
  */
 
 import type { CatalogEntity } from './catalog';
@@ -8,7 +9,6 @@ import type { CatalogEntity } from './catalog';
 export interface BodyGroup {
   id: string;
   label: string;
-  /** Entity ids in display order. */
   ids: string[];
 }
 
@@ -25,10 +25,14 @@ export const CORE_IDS = [
   'neptune',
 ] as const;
 
-/**
- * Build the sidebar groups: core bodies first, then notable moons grouped by
- * their parent planet. This mirrors how NASA Eyes presents the object list.
- */
+/** The parent a body is attached to at the start of its table (its "home"). */
+export function homeParent(entity: CatalogEntity): string | null {
+  if (!entity.parents.length) return null;
+  const name = entity.parents[0][1];
+  return name === '' ? null : name;
+}
+
+/** Build sidebar groups: core bodies, then moons by planet, then dwarfs. */
 export function buildGroups(catalog: Record<string, CatalogEntity>): BodyGroup[] {
   const groups: BodyGroup[] = [];
 
@@ -42,7 +46,7 @@ export function buildGroups(catalog: Record<string, CatalogEntity>): BodyGroup[]
   for (const parent of MOON_PARENTS) {
     const label = catalog[parent]?.label ?? parent;
     const ids = Object.values(catalog)
-      .filter((e) => e.groups.includes('moons') && e.parents.includes(parent))
+      .filter((e) => e.groups.includes('moons') && homeParent(e) === parent)
       .map((e) => e.id)
       .sort((a, b) => (catalog[a]?.label ?? a).localeCompare(catalog[b]?.label ?? b));
     if (ids.length) groups.push({ id: `moons-${parent}`, label: `${label} moons`, ids });
@@ -53,6 +57,12 @@ export function buildGroups(catalog: Record<string, CatalogEntity>): BodyGroup[]
     .map((e) => e.id)
     .sort();
   if (dwarfs.length) groups.push({ id: 'dwarfs', label: 'Dwarf planets', ids: dwarfs });
+
+  const spacecraft = Object.values(catalog)
+    .filter((e) => e.groups.includes('spacecraft'))
+    .map((e) => e.id)
+    .sort();
+  if (spacecraft.length) groups.push({ id: 'spacecraft', label: 'Spacecraft', ids: spacecraft });
 
   return groups;
 }

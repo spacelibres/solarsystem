@@ -120,6 +120,47 @@ export const BREAKPOINTS = {
   large: 1300,
 } as const;
 
+/**
+ * Body label metrics, transcribed from `.pioneer-label-div` in the stylesheet.
+ *
+ * Planets and the Sun use wide letter-spacing and bold uppercase text; the icon
+ * sits to the LEFT of the text (negative `iconOffset`), which is why the names
+ * read as a legend against the orbits.
+ */
+export const LABEL = {
+  /** Base font size below the desktop breakpoint. */
+  fontSizeSmall: 14,
+  /** Base font size at `min-width: 1025px`. */
+  fontSize: 16,
+  /** The Sun is one step larger. */
+  fontSizeSun: 18,
+  letterSpacingPlanet: '0.3em',
+  weightPlanet: 600,
+  /** Horizontal offset of the label origin, per kind. */
+  offsetPlanet: 18,
+  offsetSun: 20,
+  offsetSpacecraft: 14,
+  offsetDefault: 12,
+  /** Vertical nudge, per kind. */
+  topPlanet: -6,
+  topSun: 8,
+  topDefault: -4,
+  /** Icon box, per kind. */
+  iconPlanet: 20,
+  iconSpacecraft: 14,
+  iconDefault: 16,
+  /** Icon centre sits this far left of the text origin. */
+  iconGap: 12,
+} as const;
+
+/** Constellation labels: monospace, wide tracking, with a glow. */
+export const CONSTELLATION_LABEL = {
+  fontSize: 20,
+  weight: 300,
+  letterSpacing: '0.5em',
+  color: BODY_COLORS.constellation,
+} as const;
+
 /** Resolve a body's accent colour, falling back by category. */
 export function bodyColor(id: string, groups: string[] = []): string {
   if (BODY_COLORS[id]) return BODY_COLORS[id];

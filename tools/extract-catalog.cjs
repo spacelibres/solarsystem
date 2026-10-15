@@ -1,14 +1,18 @@
 /**
- * Extract NASA Eyes entity definitions from the downloaded `app.js` bundle.
+ * Extract NASA Eyes entity definitions, preserving the fields the renderer
+ * actually needs.
  *
- * NASA ships every entity as a large object literal keyed by entity id. The
- * values contain functions and library references, so evaluating the whole map
- * is brittle. Instead we scan for top-level `id:{ ... }` entries by brace
- * balancing, then pull the handful of fields the explorer needs with targeted
- * regular expressions. This keeps the extractor robust against bundle changes
- * that do not alter the fields we care about.
+ * An earlier pass flattened `parents` to a list of names, which loses the
+ * *time-segmented parenting table* that drives "launch from Earth → heliocentric
+ * cruise → capture at Jupiter". This version keeps:
  *
- * Usage: node tools/extract-catalog.cjs <path-to-app.js> <out.json>
+ *   parents       [[startTime, parentName], ...]   (time-sorted, may end with "")
+ *   systemRadius  visual radius of the whole sub-system (km)
+ *   extentsRadius overrides for picking/framing (spacecraft use tiny values)
+ *   occlusionRadius overrides for occlusion tests
+ *   spheroid      equatorial/polar radii and the planetographic flag
+ *
+ * Usage: node tools/extract-catalog.cjs <app.js> <out.json>
  */
 const fs = require('fs');
 const path = require('path');
@@ -16,11 +20,7 @@ const path = require('path');
 const [, , appPath = '/tmp/js_app.js', outPath = 'src/data/catalog.json'] = process.argv;
 const src = fs.readFileSync(appPath, 'utf8');
 
-/**
- * Find every `X.register({ ... })` block and return the object-literal bodies.
- * NASA spreads its entity definitions across many such calls (top-level bodies
- * in one, moons in another, spacecraft in several), so all must be scanned.
- */
+/** Collect every `X.register({ ... })` object body. */
 function findRegisterBlocks(source) {
   const blocks = [];
   const re = /[A-Za-z_$][A-Za-z0-9_$]*\.register\(\{/g;
@@ -42,20 +42,15 @@ function findRegisterBlocks(source) {
   return blocks;
 }
 
-const bodies = findRegisterBlocks(src).join(',');
-
-/** Split the map body into `id -> object-literal` entries by brace balancing. */
+/** Split a map body into `id -> object literal` entries by brace balancing. */
 function splitEntries(text) {
   const entries = [];
   let i = 0;
-  const isIdChar = (c) => /[A-Za-z0-9_]/.test(c);
   while (i < text.length) {
-    // Match `id:{` at a top level position; keys may be quoted (e.g. "1_ceres").
     const m = /"?([A-Za-z0-9_]+)"?:\{/g;
     m.lastIndex = i;
     const found = m.exec(text);
     if (!found) break;
-    const id = found[1];
     const open = found.index + found[0].length - 1;
     let d = 0;
     let j = open;
@@ -64,17 +59,60 @@ function splitEntries(text) {
       else if (text[j] === '}') { d--; if (d === 0) break; }
     }
     const literal = text.slice(open, j + 1);
-    // Only accept entries that look like entity configs.
     if (/\b(groups|radius|label|controllers|parents)\b/.test(literal)) {
-      entries.push({ id, literal });
+      entries.push({ id: found[1], literal });
     }
     i = j + 1;
-    void isIdChar;
   }
   return entries;
 }
 
-const num = (v) => (v === undefined ? null : Number(v));
+const bodies = findRegisterBlocks(src).join(',');
+
+const numOr = (v) => {
+  if (v === undefined) return null;
+  const n = Number(v);
+  return Number.isNaN(n) ? null : n;
+};
+
+/** Parse the time-segmented parenting table: [[t,"name"],...]. */
+function parseParents(literal) {
+  // NUL-safe: capture everything between `parents:[` and its matching `]`.
+  const at = literal.indexOf('parents:[');
+  if (at < 0) return [];
+  let depth = 0;
+  let end = -1;
+  for (let i = at + 'parents:'.length; i < literal.length; i++) {
+    const c = literal[i];
+    if (c === '[') depth++;
+    else if (c === ']') {
+      depth--;
+      if (depth === 0) { end = i; break; }
+    }
+  }
+  if (end < 0) return [];
+  const body = literal.slice(at + 'parents:'.length + 1, end);
+
+  const out = [];
+  // Time may be `Number.NEGATIVE_INFINITY` / `Number.POSITIVE_INFINITY` or a literal.
+  const segRe =
+    /\[\s*(Number\.NEGATIVE_INFINITY|Number\.POSITIVE_INFINITY|-?Infinity|-?\d+(?:\.\d+)?(?:e-?\d+)?)\s*,\s*"([^"]*)"\s*\]/g;
+  let s;
+  while ((s = segRe.exec(body))) {
+    const raw = s[1];
+    const t = raw.includes('NEGATIVE')
+      ? Number.NEGATIVE_INFINITY
+      : raw.includes('POSITIVE')
+        ? Number.POSITIVE_INFINITY
+        : raw === '-Infinity'
+          ? Number.NEGATIVE_INFINITY
+          : Number(raw);
+    out.push([t, s[2]]);
+  }
+  // Keep the table time-sorted; NASA inserts in order but be defensive.
+  out.sort((a, b) => a[0] - b[0]);
+  return out;
+}
 
 function parseEntry(id, literal) {
   const groups = (literal.match(/groups:\[([^\]]*)\]/) || [, ''])[1]
@@ -82,51 +120,86 @@ function parseEntry(id, literal) {
     .map((s) => s.trim().replace(/["']/g, ''))
     .filter(Boolean);
 
-  const radius = num((literal.match(/[,{]radius:([-\d.eE]+)/) || [,])[1]);
   const label = (literal.match(/label:"([^"]*)"/) || [, id])[1];
 
-  // parents:[[n,"sun"],...] -> ["sun"]
-  const parentsRaw = (literal.match(/parents:\[([^\]]*(?:\][^\]]*)*?)\](?=,)/) || [, ''])[1];
-  const parents = [...parentsRaw.matchAll(/"([A-Za-z0-9_]+)"/g)]
-    .map((m) => m[1])
-    .filter((p) => p !== 'milky_way' && p !== 'observable_universe');
+  const parents = parseParents(literal);
 
-  // Texture roles: within the spheroidLOD block, find role:{url:"...",sizes:[...]}
+  const radius = numOr((literal.match(/[,{]radius:([-\d.eE]+)/) || [,])[1]);
+  const systemRadius = numOr((literal.match(/systemRadius:([-\d.eE]+)/) || [,])[1]);
+  const extentsRadius = numOr((literal.match(/extentsRadius:([-\d.eE]+)/) || [,])[1]);
+  const occlusionRadius = numOr((literal.match(/occlusionRadius:([-\d.eE]+)/) || [,])[1]);
+
+  const eq = (literal.match(/equatorialRadius:([-\d.eE]+)/) || [,])[1];
+  const pol = (literal.match(/polarRadius:([-\d.eE]+)/) || [,])[1];
+  const pg = (literal.match(/planetographic:(!0|!1|true|false)/) || [,])[1];
+  const spheroid = eq
+    ? {
+        equatorialRadius: Number(eq),
+        polarRadius: pol ? Number(pol) : Number(eq),
+        planetographic: pg === '!0' || pg === 'true',
+      }
+    : null;
+
+  // Textures within the spheroidLOD block.
   const textures = {};
   const lodStart = literal.indexOf('spheroidLOD:');
   if (lodStart >= 0) {
     const lod = literal.slice(lodStart);
     const texRe = /([A-Za-z0-9_]+):\{url:"([^"]+)",sizes:\[([^\]]*)\]\}/g;
-    for (const m of lod.matchAll(texRe)) {
-      textures[m[1]] = {
-        url: m[2],
-        sizes: m[3].split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n)),
+    for (const t of lod.matchAll(texRe)) {
+      textures[t[1]] = {
+        url: t[2],
+        sizes: t[3].split(',').map((s) => Number(s.trim())).filter((n) => !Number.isNaN(n)),
       };
     }
   }
 
   const dynamo = [...literal.matchAll(/type:"dynamo",url:"([^"]+)"/g)].map((m) => m[1]);
 
+  // Model components (spacecraft meshes).
+  const modelM = literal.match(/model:\{url:"([^"]+)"/);
+  const modelUrl = modelM ? modelM[1] : null;
+
   return {
     id,
     label,
     groups,
     radius,
+    systemRadius,
+    extentsRadius,
+    occlusionRadius,
+    spheroid,
     parents,
     dynamo: dynamo[0] ? `${dynamo[0]}/def.dyn` : null,
     allDynamo: dynamo.map((u) => `${u}/def.dyn`),
+    modelUrl,
     textures,
   };
 }
 
-const entries = splitEntries(bodies);
 const catalog = {};
-for (const { id, literal } of entries) catalog[id] = parseEntry(id, literal);
+for (const { id, literal } of splitEntries(bodies)) catalog[id] = parseEntry(id, literal);
+
+// JSON cannot represent Infinity; NASA writes -Infinity for "always". Encode it
+// as a finite sentinel far before any real epoch so consumers stay numeric.
+const NEG_INF_SENTINEL = -1e18;
+const POS_INF_SENTINEL = 1e18;
+for (const entity of Object.values(catalog)) {
+  entity.parents = entity.parents.map(([t, name]) => [
+    t === Number.NEGATIVE_INFINITY ? NEG_INF_SENTINEL : t === Number.POSITIVE_INFINITY ? POS_INF_SENTINEL : t,
+    name,
+  ]);
+}
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, JSON.stringify(catalog, null, 2) + '\n');
 
-const withDynamo = Object.values(catalog).filter((e) => e.dynamo).length;
-const withTex = Object.values(catalog).filter((e) => Object.keys(e.textures).length).length;
-console.log(`entities: ${Object.keys(catalog).length}, with dynamo: ${withDynamo}, with textures: ${withTex}`);
+const all = Object.values(catalog);
+const segmented = all.filter((e) => e.parents.length > 1).length;
+const withModel = all.filter((e) => e.modelUrl).length;
+console.log(`entities: ${all.length}`);
+console.log(`segmented parents (multi-phase): ${segmented}`);
+console.log(`with dynamo: ${all.filter((e) => e.dynamo).length}`);
+console.log(`with model: ${withModel}`);
+console.log(`with textures: ${all.filter((e) => Object.keys(e.textures).length).length}`);
 console.log('wrote', outPath);

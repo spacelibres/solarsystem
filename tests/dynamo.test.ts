@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { parseDyn } from '../src/lib/dynamo/parse';
+import { parseDyn, parseDynSegment } from '../src/lib/dynamo/parse';
 import { quatLength, rotateByQuat } from '../src/lib/dynamo/math';
 import { nearestPoint, orbPositionAt, solveEccentricAnomaly } from '../src/lib/dynamo/orbit';
 import type { OrbPoint } from '../src/lib/dynamo/parse';
@@ -78,6 +78,39 @@ describe('parseDyn point blocks', () => {
   it('rejects a bogus point type', () => {
     const bad = new Uint8Array([2, 0, 0x78, 0x78, 0x78, 0, 0, 0, 0, 0, 0]);
     expect(() => parseDyn(bad)).toThrow(/invalid dynamo point type/);
+  });
+});
+
+describe('parseDynSegment', () => {
+  it('reads a header-less segment (no version, no gravity block)', () => {
+    // Build a segment by hand: hasPoints=1, count=2, then two orb records.
+    const count = 2;
+    const buf = new ArrayBuffer(5 + count * 72);
+    const dv = new DataView(buf);
+    dv.setUint8(0, 1);
+    dv.setInt32(1, count, true);
+    let o = 5;
+    const put = (v: number) => { dv.setFloat64(o, v, true); o += 8; };
+    for (let i = 0; i < count; i++) {
+      put(100 + i); // time
+      put(1.5e8); // a
+      put(0.017); // e
+      put(1.99e-7); // n
+      put(0.1 * i); // M0
+      put(0); put(0); put(0); put(1); // quaternion
+    }
+    const pts = parseDynSegment(new Uint8Array(buf), 'orb');
+    expect(pts).toHaveLength(count);
+    expect(pts[0].kind).toBe('orb');
+    expect(pts[1].time).toBe(101);
+  });
+
+  it('rejects a segment whose size does not match its count', () => {
+    const buf = new ArrayBuffer(5 + 72 * 2 - 8);
+    const dv = new DataView(buf);
+    dv.setUint8(0, 1);
+    dv.setInt32(1, 2, true);
+    expect(() => parseDynSegment(new Uint8Array(buf), 'orb')).toThrow(/size mismatch/);
   });
 });
 

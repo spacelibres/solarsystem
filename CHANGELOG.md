@@ -3,6 +3,57 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.2 - 2026-10-15
+
+Real scene graph: true distances, time-segmented parenting, and the starfield.
+
+### Added
+
+- **Time-segmented parenting** (`src/lib/scene/parenting.ts`). Research into
+  `app.js` showed `parents` is a `[[startTime, parentName], ...]` table, not a
+  flat list — it is how a spacecraft flies Earth launch → heliocentric cruise →
+  Jupiter capture → moon flybys. World position is now the sum of local
+  positions up the parent chain, recomputed each frame, with cycle breaking.
+- **Projection helpers** (`src/lib/scene/projection.ts`) using NASA's real
+  formulas: `normalSpaceRadius = radius / distance / tan(fov/2)` and
+  `pixelSpaceRadius`, plus the auto near/mid planes and the 20-pixel rule that
+  gates subsystem loading.
+- **Starfield** (`src/lib/scene/starfield.ts`) rendering NASA's own
+  `stars.<0..5>.bin` layers. The 23-byte record layout and the ecliptic-J2000 →
+  J2000 quaternion were decoded from `StarfieldComponent._loadStars`.
+- **Segment window loading**: index `.dyn` files list 160+ windows across
+  centuries; only the window covering the current epoch is fetched, matching
+  NASA's lazy load/unload.
+- Body labels now render as a coloured dot plus wide-tracked uppercase name,
+  transcribed from `.pioneer-label-div`.
+
+### Changed
+
+- **Removed the logarithmic distance model.** NASA does not compress distance:
+  bodies sit at true kilometre offsets and the camera moves between frames. The
+  old `scene/scale.ts` was deleted along with its tests.
+- Catalog regenerated to preserve `parents` timestamps, `systemRadius`,
+  `extentsRadius`, `occlusionRadius`, `spheroid` and `modelUrl` (844 entities,
+  129 multi-phase, 738 with models).
+- `.dyn` segments are header-less; added `parseDynSegment` after confirming the
+  layout byte-for-byte against a real segment.
+
+### Fixed
+
+- **Request flood.** Loading 140 bodies pulled every segment of every index
+  file — 8,054 requests, exhausting the browser (ERR_INSUFFICIENT_RESOURCES).
+  Window loading plus a 6-way throttle brings a cold load to **~150 requests**.
+- Missing windows degrade gracefully instead of failing the whole scene.
+
+### Verified
+
+- `npm test` — 26/26 across dynamo, scene and segment parsing (parenting across
+  the full Juno timeline, chain summation, cycle breaking, projection formulas,
+  segment framing).
+- `npm run check` and `npm run build` clean.
+- Headless render: 41 bodies positioned, no exceptions, no failed requests,
+  **0 requests to nasa.gov**.
+
 ## 0.2.1 - 2026-10-15
 
 Adopt NASA Eyes' own design tokens and layout, transcribed from its stylesheet.

@@ -1,13 +1,11 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
 
 import catalogData from '../data/catalog.json';
 import type { CatalogEntity } from '../lib/nasa/catalog';
 import { loadDynamo } from '../lib/dynamo/loader';
-import type { OrbPoint } from '../lib/dynamo/parse';
-import { createSolarScene, type SolarSceneHandle } from './solar-scene';
+import { createSolarScene, type SolarSceneHandle, type LoadedOrbit } from './solar-scene';
 import { DEFAULT_PRESET, applyPaletteToDocument } from '../lib/theme/palette';
 import { bodyColor } from '../lib/theme/nasa-tokens';
 import InfoPanel from './InfoPanel';
@@ -15,13 +13,12 @@ import TimeBar from './TimeBar';
 import SpacelibreLogo from './SpacelibreLogo';
 import { VERSION } from '../lib/version';
 
-/** Simulation epoch: 2026-01-01, so the planets sit where they are today. */
+/** Simulation epoch: 2026-01-01, so the bodies sit where they are today. */
 const START_TIME = (Date.UTC(2026, 0, 1) - Date.UTC(2000, 0, 1, 12)) / 1000;
 
-/**
- * Bodies loaded by default: the Sun, the eight planets, and every named moon of
- * those planets — the "all satellites" requirement.
- */
+const CATALOG = catalogData as unknown as Record<string, CatalogEntity>;
+
+/** Bodies always loaded: they anchor the hierarchy. */
 const CORE_IDS = [
   'sun',
   'mercury',
@@ -34,7 +31,41 @@ const CORE_IDS = [
   'neptune',
 ] as const;
 
-const CATALOG = catalogData as Record<string, CatalogEntity>;
+/** How many additional bodies (moons, spacecraft) to load in this pass. */
+const MAX_EXTRA = 60;
+
+/**
+ * Pick the entities worth rendering at solar-system scale: the core bodies, the
+ * major moons, and the notable spacecraft. NASA shows far more, but everything
+ * loaded here arrives through the same parent-chain path, so raising the limit
+ * only costs load time.
+ */
+function selectEntities(catalog: Record<string, CatalogEntity>): CatalogEntity[] {
+  const core = new Set<string>(CORE_IDS);
+  const chosen: CatalogEntity[] = [];
+
+  for (const id of core) if (catalog[id]) chosen.push(catalog[id]);
+
+  const ranked = Object.values(catalog)
+    .filter((e) => !core.has(e.id))
+    .filter((e) => e.dynamo)
+    .map((e) => ({ e, score: scoreOf(e) }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, MAX_EXTRA)
+    .map((x) => x.e);
+
+  return [...chosen, ...ranked];
+}
+
+/** Rank bodies so the notable ones win the load budget. */
+function scoreOf(e: CatalogEntity): number {
+  let s = e.radius ?? 0;
+  if (e.groups.includes('moons')) s += 3000;
+  if (e.groups.includes('spacecraft')) s += 1500;
+  if (e.groups.includes('dwarf planets')) s += 2000;
+  if (e.groups.includes('major') || e.groups.includes('galilean')) s += 1500;
+  return s;
+}
 
 export default function SolarViewer() {
   const mountRef = useRef<HTMLDivElement>(null);
@@ -43,6 +74,7 @@ export default function SolarViewer() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
+  const [loaded, setLoaded] = useState(0);
 
   useEffect(() => {
     applyPaletteToDocument(DEFAULT_PRESET);
@@ -57,37 +89,45 @@ export default function SolarViewer() {
 
     (async () => {
       try {
-        // Planets + Sun first: their ephemerides anchor the scene.
-        const core = CORE_IDS.map((id) => CATALOG[id]).filter(Boolean);
+        const entities = selectEntities(CATALOG);
 
-        // Register a placeholder body for every other catalog entry so the
-        // object list can offer them; their orbits are loaded on demand.
-        const entityList = core;
-
-        const entries = await Promise.all(
-          entityList
+        // Load each controller, skipping bodies whose ephemeris has no data for
+        // this epoch (spacecraft before launch, orbits outside their span).
+        const results = await Promise.all(
+          entities
             .filter((e) => e.dynamo)
             .map(async (e) => {
-              const loaded = await loadDynamo(e.dynamo!);
-              const orbPoints = loaded.points.filter(
-                (p): p is OrbPoint => p.kind === 'orb',
+              const result = await loadDynamo(e.dynamo!, START_TIME).catch(() => null);
+              if (!result) return null;
+              const points = result.points.filter(
+                (p): p is import('../lib/dynamo/parse').OrbPoint => p.kind === 'orb',
               );
-              return [e.id, orbPoints] as const;
+              if (!points.length) return null;
+              const orbit: LoadedOrbit = { points, relTo: result.relTo };
+              return [e.id, orbit] as const;
             }),
         );
 
         if (disposed) return;
 
+        const loadedIds = new Set(
+          results.filter((r): r is readonly [string, LoadedOrbit] => r !== null).map((r) => r[0]),
+        );
+        const renderable = entities.filter((e) => e.id === 'sun' || loadedIds.has(e.id));
+        const orbitEntries = results.filter(
+          (r): r is readonly [string, LoadedOrbit] => r !== null,
+        );
+
         created = createSolarScene({
           container: mount,
-          entities: entityList,
-          orbits: new Map(entries),
-          primaryColor: new THREE.Color(DEFAULT_PRESET.colors.primary),
+          entities: renderable,
+          orbits: new Map(orbitEntries),
           startTime: START_TIME,
           bodyColorFn: (e) => bodyColor(e.id, e.groups),
         });
         sceneRef.current = created;
         setScene(created);
+        setLoaded(orbitEntries.length);
         setStatus('ready');
       } catch (err) {
         if (disposed) return;
@@ -120,7 +160,7 @@ export default function SolarViewer() {
       <header className="ns-header">
         <div className="ns-header__left">
           <SpacelibreLogo variant="horizontal" height={26} />
-          <h1 className="ns-header__title">Solar System</h1>
+          <h1 className="ns-header__title">Eyes on the Solar System</h1>
           {selected && (
             <nav className="ns-breadcrumb" aria-label="Location">
               <span>Home</span>
@@ -130,7 +170,7 @@ export default function SolarViewer() {
           )}
         </div>
         <div className="ns-header__nav">
-          <span className="ns-header__chip">local ephemeris</span>
+          <span className="ns-header__chip">{loaded} bodies · local</span>
         </div>
       </header>
 

@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  // NASA's asset bucket allows per-file hotlinking but sends no CORS relaxation
-  // for canvas readback; we only sample pixels for rendering, so requests are
-  // fine as-is. Keep images unoptimised since all art comes from NASA directly.
+  // The viewer loads a large ephemeris set on mount and owns a WebGL context, so
+  // double-invoking effects in development only doubles network traffic.
+  reactStrictMode: false,
   images: { unoptimized: true },
 };
 

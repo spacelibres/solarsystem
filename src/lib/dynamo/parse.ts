@@ -252,3 +252,41 @@ const quatFrom = (r: Reader): Quat => ({
   z: r.readFloat64(),
   w: r.readFloat64(),
 });
+
+/**
+ * Parse a dynamo *segment* file (`<kind>/<NNN>.dyn`).
+ *
+ * Segments carry no header: the index file already supplied the point type,
+ * version and gravity parameters, so these files are just
+ *
+ *   u8  hasPoints (always 1)
+ *   i32 count
+ *   count × <point record>
+ *
+ * Verified against `ganymede/jupiter/orb/122.dyn`: byte 0 = 1, count = 23, and
+ * 5 + 23 × 72 equals the 1661-byte file exactly.
+ */
+export function parseDynSegment(
+  data: ArrayBuffer | Uint8Array,
+  type: PointType,
+): DynPoint[] {
+  const reader = new Reader(data);
+  const hasPoints = reader.readByte() === 1;
+  if (!hasPoints) {
+    throw new DynParseError('segment file unexpectedly contains an index');
+  }
+  const count = reader.readInt32();
+  if (count < 0) throw new DynParseError(`negative point count ${count}`);
+
+  const stride = POINT_STRIDE[type];
+  if (reader.remaining !== count * stride) {
+    throw new DynParseError(
+      `segment size mismatch: expected ${count * stride} bytes for ` +
+        `${count} × ${type} (stride ${stride}), found ${reader.remaining}`,
+    );
+  }
+
+  const points: DynPoint[] = new Array(count);
+  for (let i = 0; i < count; i++) points[i] = readPoint(reader, type);
+  return points;
+}
