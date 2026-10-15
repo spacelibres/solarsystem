@@ -1,16 +1,17 @@
-// Screenshot a local page via CDP and report console errors + failed requests.
+// Capture a screenshot and report every request host, to prove the app is
+// fully local (no eyes.nasa.gov requests at runtime).
 const http = require('http');
 const { spawn } = require('child_process');
 const fs = require('fs');
 const WS = require('ws');
 
-const [, , url = 'http://localhost:4310', out = '/tmp/shot.png', waitMs = '12000'] = process.argv;
-const PORT = 9335;
+const [, , url = 'http://localhost:4310', out = '/tmp/shot.png', waitMs = '14000'] = process.argv;
+const PORT = 9336;
 const chrome = spawn('/usr/bin/google-chrome', [
   '--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run',
   '--use-gl=swiftshader', '--enable-unsafe-swiftshader',
   `--remote-debugging-port=${PORT}`,
-  '--user-data-dir=/tmp/shot-profile',
+  '--user-data-dir=/tmp/shot-profile-local',
   '--window-size=1440,900',
   'about:blank',
 ], { stdio: 'ignore' });
@@ -29,27 +30,35 @@ const getJSON = (p, m = 'GET') => new Promise((res, rej) => {
   let id = 0; const pending = new Map();
   const send = (method, params = {}) => new Promise((res) => { const i = ++id; pending.set(i, res); ws.send(JSON.stringify({ id: i, method, params })); });
   await new Promise((r) => ws.on('open', r));
-  const logs = []; const failed = [];
+
+  const hosts = new Map();
+  const errors = [];
+  const failed = [];
   ws.on('message', (m) => {
     const msg = JSON.parse(m);
     if (msg.id && pending.has(msg.id)) { pending.get(msg.id)(msg); pending.delete(msg.id); }
-    if (msg.method === 'Runtime.consoleAPICalled') {
-      logs.push(msg.params.args.map((a) => a.value ?? a.description ?? '').join(' '));
+    if (msg.method === 'Network.responseReceived') {
+      try { const h = new URL(msg.params.response.url).host; hosts.set(h, (hosts.get(h) || 0) + 1); } catch {}
     }
     if (msg.method === 'Runtime.exceptionThrown') {
-      logs.push('EXCEPTION: ' + (msg.params.exceptionDetails?.exception?.description || msg.params.exceptionDetails?.text));
+      errors.push(msg.params.exceptionDetails?.exception?.description || msg.params.exceptionDetails?.text);
     }
-    if (msg.method === 'Network.loadingFailed') failed.push(msg.params.errorText + ' ' + (msg.params.requestId || ''));
+    if (msg.method === 'Network.loadingFailed') failed.push(msg.params.errorText);
   });
+
   await send('Runtime.enable');
   await send('Network.enable');
   await send('Page.enable');
   await send('Page.navigate', { url });
   await sleep(Number(waitMs));
-  const shot = await send('Page.captureScreenshot', { format: 'png' });
+
+  const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
   fs.writeFileSync(out, Buffer.from(shot.result.data, 'base64'));
+
   console.log('screenshot ->', out);
-  console.log('console:', logs.length ? logs.slice(0, 20).join('\n') : '(none)');
-  console.log('failed requests:', failed.length ? failed.slice(0, 10).join('\n') : '(none)');
+  console.log('request hosts:', JSON.stringify([...hosts.entries()]));
+  console.log('nasa requests:', [...hosts.keys()].filter((h) => /nasa\.gov/.test(h)).length);
+  console.log('exceptions:', errors.length ? errors.slice(0, 5) : '(none)');
+  console.log('failed requests:', failed.length ? failed.slice(0, 5) : '(none)');
   chrome.kill(); process.exit(0);
 })().catch((e) => { console.error('ERR', e.message); chrome.kill(); process.exit(1); });

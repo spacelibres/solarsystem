@@ -1,193 +1,197 @@
 /**
  * The solar-system scene.
  *
- * Design notes
- * ------------
- * - Distances are in kilometres and rendered with a *logarithmic* radial scale
- *   so Mercury and Neptune can share a viewport, mirroring how NASA Eyes keeps
- *   inner and outer planets legible at once.
- * - Positions come from dynamo `orb` ephemerides, evaluated at the current
- *   simulation time; planet meshes are real spheres so they are readable when
- *   zoomed, using NASA's own map textures.
- * - Orbits are drawn as ellipses sampled from the same osculating elements, and
- *   are tinted with the spacelibre `primary` role so the brand carries through.
+ * Renders bodies from NASA Eyes dynamo ephemerides on a compressed radial scale
+ * (see `lib/scene/scale.ts`) so the whole system is legible at once while every
+ * orbit keeps its true shape and inclination.
+ *
+ * Responsibilities are deliberately split:
+ *   - this file owns Three.js objects, materials and the frame loop;
+ *   - `lib/scene/scale.ts` owns the distance/radius compression;
+ *   - `lib/dynamo/*` owns parsing and orbital mechanics.
  */
 
 import * as THREE from 'three';
+
 import type { CatalogEntity } from '../lib/nasa/catalog';
 import { SPRITES, pickSize, textureUrl } from '../lib/nasa/assets';
 import type { OrbPoint } from '../lib/dynamo/parse';
 import { orbPositionAt } from '../lib/dynamo/orbit';
+import { projectToScene, scaleRadius, PLANET_EXTENT } from '../lib/scene/scale';
 
-const AU_KM = 149_597_870.7;
-
-/** Compress kilometres into scene units with a logarithmic radial mapping. */
-function sceneRadius(km: number): number {
-  // 1 AU → ~24 units; keeps inner planets separated without losing the outer ones.
-  return 24 * Math.log10(1 + km / (0.05 * AU_KM));
-}
-
-export interface ScenePlanet {
+export interface SceneBody {
   entity: CatalogEntity;
   points: OrbPoint[];
   mesh: THREE.Mesh;
-  orbit: THREE.Line;
+  orbit: THREE.Line | null;
   label: HTMLDivElement;
+  /** Radius in scene units, used for picking and camera framing. */
+  displayRadius: number;
 }
 
 export interface SolarSceneHandle {
-  /** Set the simulation clock (seconds since J2000). */
   setTime(time: number): void;
-  /** Current simulation clock. */
   getTime(): number;
   resize(width: number, height: number): void;
   dispose(): void;
-  planets: Map<string, ScenePlanet>;
+  bodies: Map<string, SceneBody>;
+  /** Frame a body by id, or the whole system when null. */
+  focus(id: string | null): void;
+  /** Real elapsed-time rate, in simulated days per real second. */
+  setTimeScale(daysPerSecond: number): void;
+  getTimeScale(): number;
 }
 
 export interface SceneOptions {
   container: HTMLElement;
   entities: CatalogEntity[];
-  /** Function returning the parsed orbit points for an entity id. */
   orbits: Map<string, OrbPoint[]>;
   primaryColor: THREE.ColorRepresentation;
+  /** Simulation time to start at, seconds since J2000. */
+  startTime?: number;
 }
 
 export function createSolarScene(options: SceneOptions): SolarSceneHandle {
-  const { container, entities, orbits, primaryColor } = options;
+  const { container, entities, orbits, primaryColor, startTime = 0 } = options;
 
   const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(container.clientWidth, container.clientHeight);
-  renderer.setClearColor(0x0d1721, 1);
+  renderer.setClearColor(0x05070d, 1);
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.01, 5000);
-  camera.position.set(0, 26, 46);
-  camera.lookAt(0, 0, 0);
+  const camera = new THREE.PerspectiveCamera(
+    42,
+    container.clientWidth / container.clientHeight,
+    0.01,
+    20000,
+  );
 
-  // Ambient + point light at the Sun so textures read on the night side too.
-  scene.add(new THREE.AmbientLight(0xffffff, 0.18));
-  const sunLight = new THREE.PointLight(0xffffff, 3.2, 0, 0.6);
+  scene.add(new THREE.AmbientLight(0xffffff, 0.14));
+  const sunLight = new THREE.PointLight(0xfff4e0, 3.4, 0, 0.55);
   scene.add(sunLight);
 
-  const textureLoader = new THREE.TextureLoader();
-  textureLoader.setCrossOrigin('anonymous');
-
-  const planets = new Map<string, ScenePlanet>();
-  const labels: HTMLDivElement[] = [];
-
-  // The Sun: a glowing billboard sprite plus a bright sphere.
-  const sunEntity = entities.find((e) => e.id === 'sun');
-  if (sunEntity) {
-    const glow = new THREE.Sprite(
-      new THREE.SpriteMaterial({
-        map: textureLoader.load(SPRITES.sunGlow),
-        color: 0xffffff,
-        transparent: true,
-        depthWrite: false,
-        blending: THREE.AdditiveBlending,
-      }),
-    );
-    glow.scale.setScalar(14);
-    scene.add(glow);
-    labels.push(createLabel(container, sunEntity.label, 0xffffff));
-  }
+  const loader = new THREE.TextureLoader();
+  const bodies = new Map<string, SceneBody>();
+  const labelLayer = document.createElement('div');
+  labelLayer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
+  container.appendChild(labelLayer);
 
   const primary = new THREE.Color(primaryColor);
 
+  // --- Sun -----------------------------------------------------------------
+  {
+    const sun = entities.find((e) => e.id === 'sun');
+    if (sun) {
+      const r = scaleRadius(sun.radius ?? 695500);
+      const glow = new THREE.Sprite(
+        new THREE.SpriteMaterial({
+          map: loader.load(SPRITES.sunGlow),
+          transparent: true,
+          depthWrite: false,
+          blending: THREE.AdditiveBlending,
+        }),
+      );
+      glow.scale.setScalar(r * 8);
+
+      const disc = new THREE.Mesh(
+        new THREE.SphereGeometry(r, 64, 48),
+        new THREE.MeshBasicMaterial({ color: 0xffd9a0 }),
+      );
+      const colorDesc = sun.textures.color;
+      if (colorDesc) {
+        const t = loader.load(textureUrl(colorDesc, pickSize(colorDesc.sizes, 512), 0), (tex) => {
+          tex.colorSpace = THREE.SRGBColorSpace;
+        });
+        (disc.material as THREE.MeshBasicMaterial).map = t;
+      }
+
+      scene.add(glow);
+      scene.add(disc);
+
+      const label = makeLabel(labelLayer, sun.label);
+      bodies.set('sun', {
+        entity: sun,
+        points: [],
+        mesh: disc,
+        orbit: null,
+        label,
+        displayRadius: r,
+      });
+    }
+  }
+
+  // --- Planets and everything with an orbit --------------------------------
   for (const entity of entities) {
     if (entity.id === 'sun') continue;
     const points = orbits.get(entity.id);
     if (!points || points.length === 0) continue;
 
-    const geometry = new THREE.SphereGeometry(1, 48, 32);
-    const material = new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      roughness: 0.92,
-      metalness: 0.0,
-    });
-
+    const r = scaleRadius(entity.radius ?? 1000);
+    const material = new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
     const colorDesc = entity.textures.color;
     if (colorDesc) {
-      const size = pickSize(colorDesc.sizes, 1024);
-      const tex = textureLoader.load(textureUrl(colorDesc, size, 0), (t) => {
+      const size = pickSize(colorDesc.sizes, 2048);
+      material.map = loader.load(textureUrl(colorDesc, size, 0), (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
+        t.anisotropy = renderer.capabilities.getMaxAnisotropy();
       });
-      material.map = tex;
     } else {
-      // No map available: tint with the brand planet role.
       material.color = primary;
     }
 
-    const mesh = new THREE.Mesh(geometry, material);
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), material);
+    mesh.scale.setScalar(r);
     mesh.userData.entityId = entity.id;
 
-    // Orbit line, initialised from the first sample and refreshed as the
-    // simulation clock moves between samples so the drawn ellipse stays
-    // consistent with the planet's own osculating elements.
     const orbit = new THREE.Line(
       buildOrbitGeometry(points[0]),
-      new THREE.LineBasicMaterial({ color: primary, transparent: true, opacity: 0.35 }),
+      new THREE.LineBasicMaterial({ color: primary, transparent: true, opacity: 0.28 }),
     );
+    orbit.userData.epoch = points[0].time;
 
     scene.add(mesh);
     scene.add(orbit);
 
-    const label = createLabel(container, entity.label, 0xffffff);
-    labels.push(label);
-
-    planets.set(entity.id, { entity, points, mesh, orbit, label });
+    bodies.set(entity.id, {
+      entity,
+      points,
+      mesh,
+      orbit,
+      label: makeLabel(labelLayer, entity.label),
+      displayRadius: r,
+    });
   }
 
-  let simTime = 0; // seconds since J2000, advanced for a lively default view
+  let simTime = startTime;
+  let daysPerSecond = 1;
+  let focusedId: string | null = null;
+  const focusTarget = new THREE.Vector3();
 
   function updatePositions(): void {
-    for (const planet of planets.values()) {
-      const p = nearestSample(planet.points, simTime);
-      const posKm = orbPositionAt(p, simTime);
-      const r = sceneRadius(Math.hypot(posKm.x, posKm.y, posKm.z));
-      const dir = new THREE.Vector3(posKm.x, posKm.y, posKm.z).normalize();
-      planet.mesh.position.copy(dir.multiplyScalar(r));
+    for (const body of bodies.values()) {
+      if (body.points.length === 0) continue;
 
-      // Refresh the orbit line only when we cross into a new sample epoch; doing
-      // it every frame would rebuild 512 vertices needlessly.
-      if (planet.orbit.userData.epoch !== p.time) {
-        planet.orbit.geometry.dispose();
-        planet.orbit.geometry = buildOrbitGeometry(p);
-        planet.orbit.userData.epoch = p.time;
+      const p = nearestSample(body.points, simTime);
+      const km = orbPositionAt(p, simTime);
+      const pos = projectToScene(km);
+      body.mesh.position.set(pos.x, pos.y, pos.z);
+
+      if (body.orbit && body.orbit.userData.epoch !== p.time) {
+        body.orbit.geometry.dispose();
+        body.orbit.geometry = buildOrbitGeometry(p);
+        body.orbit.userData.epoch = p.time;
       }
-
-      // Display radius: exaggerate tiny bodies so they are visible at AU scale,
-      // but keep planets visually distinct without swallowing their orbits.
-      const radiusKm = planet.entity.radius ?? 1000;
-      const display = 0.22 + 0.9 * Math.log10(1 + radiusKm / 1500);
-      planet.mesh.scale.setScalar(display);
     }
   }
 
-  function projectLabels(): void {
-    const rect = container.getBoundingClientRect();
-    for (const planet of planets.values()) {
-      const v = planet.mesh.position.clone();
-      // Offset labels above each body.
-      v.y += 0.6;
-      v.project(camera);
-      const x = (v.x * 0.5 + 0.5) * rect.width;
-      const y = (-v.y * 0.5 + 0.5) * rect.height;
-      const visible = v.z < 1;
-      planet.label.style.transform = `translate(-50%, -50%) translate(${x}px, ${y}px)`;
-      planet.label.style.opacity = visible ? '0.92' : '0';
-    }
-  }
-
-  let frame = 0;
-
-  // --- Camera orbit controls (drag to rotate, wheel to zoom) ---------------
-  let camTheta = Math.PI * 0.32;
-  let camPhi = Math.PI * 0.30;
-  let camDist = 62;
+  // --- Camera controls: orbit, zoom, focus ---------------------------------
+  let camTheta = Math.PI * 0.35;
+  let camPhi = Math.PI * 0.33;
+  // Frame the whole planetary system on load; the outermost orbit sets it.
+  let camDist = PLANET_EXTENT * 1.9;
   let dragging = false;
   let lastX = 0;
   let lastY = 0;
@@ -195,47 +199,88 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   function applyCamera(): void {
     const sinPhi = Math.sin(camPhi);
     camera.position.set(
-      camDist * sinPhi * Math.sin(camTheta),
-      camDist * Math.cos(camPhi),
-      camDist * sinPhi * Math.cos(camTheta),
+      focusTarget.x + camDist * sinPhi * Math.sin(camTheta),
+      focusTarget.y + camDist * Math.cos(camPhi),
+      focusTarget.z + camDist * sinPhi * Math.cos(camTheta),
     );
-    camera.lookAt(0, 0, 0);
+    camera.lookAt(focusTarget);
   }
 
-  const onPointerDown = (e: PointerEvent) => {
+  const el = renderer.domElement;
+  const onDown = (e: PointerEvent) => {
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
-    renderer.domElement.setPointerCapture(e.pointerId);
+    el.setPointerCapture(e.pointerId);
   };
-  const onPointerMove = (e: PointerEvent) => {
+  const onMove = (e: PointerEvent) => {
     if (!dragging) return;
     camTheta -= (e.clientX - lastX) * 0.006;
-    camPhi = Math.min(Math.PI * 0.92, Math.max(Math.PI * 0.08, camPhi - (e.clientY - lastY) * 0.006));
+    camPhi = clamp(camPhi - (e.clientY - lastY) * 0.006, Math.PI * 0.06, Math.PI * 0.94);
     lastX = e.clientX;
     lastY = e.clientY;
   };
-  const onPointerUp = (e: PointerEvent) => {
+  const onUp = (e: PointerEvent) => {
     dragging = false;
-    if (renderer.domElement.hasPointerCapture(e.pointerId)) {
-      renderer.domElement.releasePointerCapture(e.pointerId);
-    }
+    if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
   };
   const onWheel = (e: WheelEvent) => {
     e.preventDefault();
-    camDist = Math.min(400, Math.max(6, camDist * (1 + Math.sign(e.deltaY) * 0.08)));
+    camDist = clamp(camDist * (1 + Math.sign(e.deltaY) * 0.09), 0.4, 4000);
   };
 
-  renderer.domElement.addEventListener('pointerdown', onPointerDown);
-  renderer.domElement.addEventListener('pointermove', onPointerMove);
-  renderer.domElement.addEventListener('pointerup', onPointerUp);
-  renderer.domElement.addEventListener('wheel', onWheel, { passive: false });
+  el.addEventListener('pointerdown', onDown);
+  el.addEventListener('pointermove', onMove);
+  el.addEventListener('pointerup', onUp);
+  el.addEventListener('wheel', onWheel, { passive: false });
+
+  function projectLabels(): void {
+    const rect = container.getBoundingClientRect();
+    const placed: { x: number; y: number }[] = [];
+
+    // Draw the most important bodies' labels first so they win the space, then
+    // skip any label that would collide with one already placed.
+    const order = [...bodies.values()].sort(
+      (a, b) => (b.entity.radius ?? 0) - (a.entity.radius ?? 0),
+    );
+
+    for (const body of order) {
+      const v = body.mesh.position.clone();
+      v.y += body.displayRadius + 0.35;
+      v.project(camera);
+
+      const inFrame = v.z < 1 && v.x > -0.98 && v.x < 0.98 && v.y > -0.98 && v.y < 0.98;
+      const x = (v.x * 0.5 + 0.5) * rect.width;
+      const y = (-v.y * 0.5 + 0.5) * rect.height;
+
+      const collides = placed.some((p) => Math.abs(p.x - x) < 64 && Math.abs(p.y - y) < 14);
+      const show = inFrame && !collides;
+      if (show) placed.push({ x, y });
+
+      const s = body.label.style;
+      s.transform = `translate(-50%, -100%) translate(${x}px, ${y}px)`;
+      s.opacity = show ? '0.9' : '0';
+    }
+  }
+
+  let frame = 0;
+  let lastT = performance.now();
 
   function animate(): void {
     frame = requestAnimationFrame(animate);
-    simTime += 60 * 60 * 6; // advance 6 hours per frame for visible motion
-    if (!dragging) camTheta += 0.0009; // gentle idle rotation
+    const now = performance.now();
+    const dt = Math.min(0.1, (now - lastT) / 1000);
+    lastT = now;
+
+    simTime += dt * daysPerSecond * 86400;
+    if (!dragging) camTheta += 0.0006;
+
     updatePositions();
+
+    // Ease toward the focused body's position each frame.
+    const focus = focusedId ? bodies.get(focusedId) : null;
+    if (focus) focusTarget.lerp(focus.mesh.position, 0.12);
+
     applyCamera();
     projectLabels();
     renderer.render(scene, camera);
@@ -246,35 +291,53 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   animate();
 
   return {
-    setTime(time: number) {
-      simTime = time;
+    bodies,
+    setTime(t) {
+      simTime = t;
       updatePositions();
     },
     getTime() {
       return simTime;
     },
-    resize(w: number, h: number) {
+    resize(w, h) {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     },
+    focus(id) {
+      focusedId = id;
+      if (!id) {
+        focusTarget.set(0, 0, 0);
+        camDist = PLANET_EXTENT * 1.9;
+        return;
+      }
+      const body = bodies.get(id);
+      if (!body) return;
+      focusTarget.copy(body.mesh.position);
+      camDist = Math.max(1.2, body.displayRadius * 9);
+    },
+    setTimeScale(days) {
+      daysPerSecond = days;
+    },
+    getTimeScale() {
+      return daysPerSecond;
+    },
     dispose() {
       cancelAnimationFrame(frame);
-      renderer.domElement.removeEventListener('pointerdown', onPointerDown);
-      renderer.domElement.removeEventListener('pointermove', onPointerMove);
-      renderer.domElement.removeEventListener('pointerup', onPointerUp);
-      renderer.domElement.removeEventListener('wheel', onWheel);
-      for (const label of labels) label.remove();
-      for (const planet of planets.values()) {
-        planet.mesh.geometry.dispose();
-        (planet.mesh.material as THREE.Material).dispose();
-        planet.orbit.geometry.dispose();
-        (planet.orbit.material as THREE.Material).dispose();
+      el.removeEventListener('pointerdown', onDown);
+      el.removeEventListener('pointermove', onMove);
+      el.removeEventListener('pointerup', onUp);
+      el.removeEventListener('wheel', onWheel);
+      labelLayer.remove();
+      for (const body of bodies.values()) {
+        body.mesh.geometry.dispose();
+        (body.mesh.material as THREE.Material).dispose();
+        body.orbit?.geometry.dispose();
+        (body.orbit?.material as THREE.Material | undefined)?.dispose();
       }
       renderer.dispose();
-      renderer.domElement.remove();
+      el.remove();
     },
-    planets,
   };
 }
 
@@ -291,42 +354,43 @@ function nearestSample(points: OrbPoint[], time: number): OrbPoint {
     : points[hi];
 }
 
-/** Sample a full ellipse from one osculating element set. */
+/** Sample one full period of an osculating orbit into a line geometry. */
 function buildOrbitGeometry(point: OrbPoint): THREE.BufferGeometry {
-  const SEGMENTS = 512;
+  const SEGMENTS = 720;
   const positions = new Float32Array((SEGMENTS + 1) * 3);
-  const period = (2 * Math.PI) / Math.abs(point.meanAngularMotion);
+  const period = (2 * Math.PI) / Math.abs(point.meanAngularMotion || 1e-12);
   for (let i = 0; i <= SEGMENTS; i++) {
     const t = point.time + (i / SEGMENTS) * period;
-    const p = orbPositionAt(point, t);
-    const r = sceneRadius(Math.hypot(p.x, p.y, p.z));
-    const dir = new THREE.Vector3(p.x, p.y, p.z).normalize();
-    positions[i * 3] = dir.x * r;
-    positions[i * 3 + 1] = dir.y * r;
-    positions[i * 3 + 2] = dir.z * r;
+    const km = orbPositionAt(point, t);
+    const p = projectToScene(km);
+    positions[i * 3] = p.x;
+    positions[i * 3 + 1] = p.y;
+    positions[i * 3 + 2] = p.z;
   }
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
   return geometry;
 }
 
-function createLabel(
-  container: HTMLElement,
-  text: string,
-  color: number,
-): HTMLDivElement {
+function makeLabel(layer: HTMLElement, text: string): HTMLDivElement {
   const el = document.createElement('div');
   el.textContent = text;
-  el.style.position = 'absolute';
-  el.style.left = '0';
-  el.style.top = '0';
-  el.style.pointerEvents = 'none';
-  el.style.font = '12px/1 var(--sl-font, Arial, sans-serif)';
-  el.style.letterSpacing = '0.04em';
-  el.style.color = `#${color.toString(16).padStart(6, '0')}`;
-  el.style.textShadow = '0 1px 4px rgba(0,0,0,0.9)';
-  el.style.whiteSpace = 'nowrap';
-  el.style.transition = 'opacity 120ms linear';
-  container.appendChild(el);
+  el.style.cssText = [
+    'position:absolute',
+    'left:0',
+    'top:0',
+    'pointer-events:none',
+    'font:11px/1.1 var(--sl-font, Arial, sans-serif)',
+    'letter-spacing:0.06em',
+    'color:rgba(255,255,255,0.92)',
+    'text-shadow:0 1px 6px rgba(0,0,0,0.95)',
+    'white-space:nowrap',
+    'transition:opacity 140ms linear',
+  ].join(';');
+  layer.appendChild(el);
   return el;
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
 }

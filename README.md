@@ -13,12 +13,33 @@ library, presented with the [spacelibre visual standard](../spacelibre-vi).
   ephemeris format, covering the `orb`, `pos`, `lin`, `ori` and `quat` point
   types, the little-endian header, the gravitational-parameter block, and
   multi-segment index files.
+- **A local asset mirror**: every referenced NASA asset (~1,914 files) is
+  downloaded once by `tools/download-mirror.cjs` and served from `data/mirror/`
+  by the `/nasa/[...path]` route. **No runtime requests to NASA.**
 - **A catalog of 844 NASA bodies** (`src/data/catalog.json`), extracted directly
   from NASA's own bundle by `tools/extract-catalog.cjs` — radii, parents,
   dynamo controllers and texture maps.
-- **A live 3D scene** rendering the Sun and eight planets on real heliocentric
-  orbits with real NASA map textures, an interactive orbit camera, and the
-  spacelibre wordmark and palette.
+- **A scale model** (`src/lib/scene/scale.ts`) that makes the whole system
+  legible at once while keeping every orbit's true shape and inclination.
+- **A live 3D scene** of the Sun and eight planets on real heliocentric orbits
+  with real NASA map textures.
+- **The NASA Eyes interaction layer**: an object sidebar grouping the Sun,
+  planets and moons by system, and a time bar with play/pause, day stepping,
+  date readout and speed presets from 1 h/s to 1 y/s.
+
+## Getting the assets
+
+The bytes are **not** in this repository — only the scripts that fetch them.
+After cloning:
+
+```bash
+node tools/build-manifest.cjs /path/to/nasa-app.js   # regenerate the inventory
+node tools/download-mirror.cjs                       # fetch into data/mirror/
+```
+
+The mirror is git-ignored (see `.gitignore`); the library is not redistributed
+here. If a request 404s at runtime, the missing path is printed — re-run the
+downloader.
 
 ## The `.dyn` format
 
@@ -50,18 +71,20 @@ an exact multiple of the stride before trusting a file.
 
 ## Data endpoints
 
-```
-static   https://eyes.nasa.gov/assets/static
-dynamic  https://eyes.nasa.gov/assets/dynamic
+The app uses the mirror, laid out to match NASA's URL structure:
 
-ephemeris   $DYNAMIC/dynamo/<entity>/<ref>/<kind>/def.dyn
-textures    $STATIC/maps/<body>/<map>_<size>_<face>.png   (size 4..4096, face 0..5)
-starfield   $STATIC/stars/stars.<0..5>.bin
-sprites     $STATIC/sprites/<name>.png
+```
+mirror    data/mirror/static/...        served at /nasa/static/...
+mirror    data/mirror/dynamic/...       served at /nasa/dynamic/...
+
+ephemeris   /nasa/dynamic/dynamo/<entity>/<ref>/<kind>/def.dyn
+textures    /nasa/static/maps/<body>/<map>_<size>_<face>.png   (size 4..4096, face 0..5)
+starfield   /nasa/static/stars/stars.<0..5>.bin
+sprites     /nasa/static/sprites/<name>.png
 ```
 
-NASA's bucket forbids directory listings but serves individual files, so the app
-references assets by exact URL and never mirrors the library.
+These paths mirror `https://eyes.nasa.gov/assets/...`, so the same layout works
+against either the mirror or the live site by changing one prefix.
 
 ## Development
 

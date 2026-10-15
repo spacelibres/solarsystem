@@ -1,20 +1,40 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 import catalogData from '../data/catalog.json';
-import { PLANET_IDS, type CatalogEntity } from '../lib/nasa/catalog';
+import type { CatalogEntity } from '../lib/nasa/catalog';
 import { loadDynamo } from '../lib/dynamo/loader';
 import type { OrbPoint } from '../lib/dynamo/parse';
 import { createSolarScene, type SolarSceneHandle } from './solar-scene';
 import { DEFAULT_PRESET, applyPaletteToDocument } from '../lib/theme/palette';
+import BodyTree from './BodyTree';
+import TimeBar from './TimeBar';
 
-const PLANET_SET = new Set<string>(['sun', ...PLANET_IDS]);
+/** Simulation epoch: 2026-01-01, so the planets sit where they are today. */
+const START_TIME = (Date.UTC(2026, 0, 1) - Date.UTC(2000, 0, 1, 12)) / 1000;
+
+/** Bodies loaded by default: the Sun and the eight planets. */
+const DEFAULT_BODIES = [
+  'sun',
+  'mercury',
+  'venus',
+  'earth',
+  'mars',
+  'jupiter',
+  'saturn',
+  'uranus',
+  'neptune',
+] as const;
+
+const CATALOG = catalogData as Record<string, CatalogEntity>;
 
 export default function SolarViewer() {
   const mountRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<SolarSceneHandle | null>(null);
+  const [scene, setScene] = useState<SolarSceneHandle | null>(null);
+  const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
 
@@ -27,15 +47,13 @@ export default function SolarViewer() {
     if (!mount) return;
 
     let disposed = false;
-    let scene: SolarSceneHandle | null = null;
-    const controller = new AbortController();
+    let created: SolarSceneHandle | null = null;
 
     (async () => {
       try {
-        const catalog = catalogData as Record<string, CatalogEntity>;
-        const entities = Object.values(catalog).filter((e) => PLANET_SET.has(e.id));
+        const wanted = new Set<string>(DEFAULT_BODIES);
+        const entities = Object.values(CATALOG).filter((e) => wanted.has(e.id));
 
-        // Load the primary dynamo controller for each body in parallel.
         const entries = await Promise.all(
           entities
             .filter((e) => e.dynamo)
@@ -50,14 +68,15 @@ export default function SolarViewer() {
 
         if (disposed) return;
 
-        const orbits = new Map(entries);
-        scene = createSolarScene({
+        created = createSolarScene({
           container: mount,
           entities,
-          orbits,
+          orbits: new Map(entries),
           primaryColor: new THREE.Color(DEFAULT_PRESET.colors.primary),
+          startTime: START_TIME,
         });
-        sceneRef.current = scene;
+        sceneRef.current = created;
+        setScene(created);
         setStatus('ready');
       } catch (err) {
         if (disposed) return;
@@ -66,45 +85,53 @@ export default function SolarViewer() {
       }
     })();
 
-    const onResize = () => scene?.resize(mount.clientWidth, mount.clientHeight);
+    const onResize = () => created?.resize(mount.clientWidth, mount.clientHeight);
     window.addEventListener('resize', onResize);
 
     return () => {
       disposed = true;
-      controller.abort();
       window.removeEventListener('resize', onResize);
-      scene?.dispose();
+      created?.dispose();
       sceneRef.current = null;
+      setScene(null);
     };
   }, []);
 
-  return (
-    <div style={{ position: 'absolute', inset: 0 }}>
-      <div ref={mountRef} style={{ position: 'absolute', inset: 0 }} />
-      {status !== 'ready' && (
-        <Overlay>
-          {status === 'loading' ? 'Loading ephemerides…' : `Failed to load: ${error}`}
-        </Overlay>
-      )}
-    </div>
-  );
-}
+  const onSelect = useCallback((id: string) => {
+    setSelected(id);
+    sceneRef.current?.focus(id);
+  }, []);
 
-function Overlay({ children }: { children: React.ReactNode }) {
   return (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        display: 'grid',
-        placeItems: 'center',
-        font: '14px/1.4 var(--sl-font, Arial, sans-serif)',
-        color: 'rgba(255,255,255,0.8)',
-        letterSpacing: '0.04em',
-        pointerEvents: 'none',
-      }}
-    >
-      {children}
+    <div className="sl-viewer">
+      <div ref={mountRef} className="sl-viewer__canvas" />
+
+      <aside className="sl-viewer__sidebar">
+        <BodyTree catalog={CATALOG} selected={selected} onSelect={onSelect} />
+      </aside>
+
+      <div className="sl-viewer__bottom">
+        <TimeBar scene={scene} />
+      </div>
+
+      {selected && (
+        <button
+          type="button"
+          className="sl-viewer__reset"
+          onClick={() => {
+            setSelected(null);
+            sceneRef.current?.focus(null);
+          }}
+        >
+          ← whole system
+        </button>
+      )}
+
+      {status !== 'ready' && (
+        <div className="sl-viewer__overlay">
+          {status === 'loading' ? 'Loading local ephemerides…' : `Failed to load: ${error}`}
+        </div>
+      )}
     </div>
   );
 }

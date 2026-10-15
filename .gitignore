@@ -4,6 +4,10 @@ out/
 build/
 dist/
 
+# Local NASA asset mirror: fetched by tools/download-mirror.cjs, never committed
+# (see docs/versioning.md and AGENTS.md — the library is not redistributed here).
+data/mirror/
+
 # Local artifacts and scratch
 artifacts/
 *.tsbuildinfo

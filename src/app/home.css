@@ -1,4 +1,6 @@
-/* Home layout for the solar-system explorer, following the VI 8px rhythm. */
+/* Solar-system explorer layout, following the VI 8px rhythm.
+   Structure mirrors NASA Eyes: header, object sidebar on the left, the scene
+   filling the stage, and a time bar across the bottom. */
 
 .sl-home {
   position: fixed;
@@ -12,42 +14,299 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--sl-space-2) var(--sl-space-3);
-  z-index: 2;
+  gap: var(--sl-space-2);
+  padding: var(--sl-space-1) var(--sl-space-3);
+  z-index: 5;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sl-header__title {
+  font: 700 15px/1 var(--sl-font);
+  letter-spacing: 0.02em;
+  color: #fff;
+  margin: 0 0 0 var(--sl-space-2);
+  padding-left: var(--sl-space-2);
+  border-left: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.sl-header__left {
+  display: flex;
+  align-items: center;
 }
 
 .sl-header__tag {
-  font: 12px/1 var(--sl-mono);
+  font: 11px/1 var(--sl-mono);
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--sl-primary-on-dark);
 }
 
+/* Scene + overlays */
 .sl-stage {
   position: relative;
   overflow: hidden;
 }
 
+.sl-viewer {
+  position: absolute;
+  inset: 0;
+}
+
+.sl-viewer__canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.sl-viewer__sidebar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 232px;
+  padding: var(--sl-space-2) var(--sl-space-1) var(--sl-space-2) var(--sl-space-2);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.18) transparent;
+  z-index: 3;
+  background: linear-gradient(
+    90deg,
+    rgba(5, 7, 13, 0.92) 0%,
+    rgba(5, 7, 13, 0.72) 70%,
+    rgba(5, 7, 13, 0) 100%
+  );
+}
+
+.sl-viewer__sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.sl-viewer__sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+}
+
+.sl-viewer__sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sl-viewer__bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+  padding: var(--sl-space-1) var(--sl-space-2) var(--sl-space-2);
+  pointer-events: none;
+}
+
+.sl-viewer__bottom > * {
+  pointer-events: auto;
+}
+
+.sl-viewer__reset {
+  position: absolute;
+  top: var(--sl-space-2);
+  right: var(--sl-space-3);
+  z-index: 4;
+  font: 11px/1 var(--sl-mono);
+  letter-spacing: 0.08em;
+  color: var(--sl-primary-on-dark);
+  background: rgba(5, 7, 13, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.sl-viewer__reset:hover {
+  border-color: var(--sl-primary-on-dark);
+}
+
+.sl-viewer__overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font: 13px/1.4 var(--sl-font);
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 0.04em;
+  pointer-events: none;
+}
+
+/* Object tree */
+.sl-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font: 12px/1.3 var(--sl-font);
+}
+
+.sl-tree__header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 8px;
+  background: none;
+  border: 0;
+  border-radius: var(--sl-radius-sm);
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-align: left;
+}
+
+.sl-tree__header:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sl-tree__chevron {
+  display: inline-block;
+  font-size: 9px;
+  color: var(--sl-primary-on-dark);
+  transition: transform 120ms ease;
+}
+
+.sl-tree__chevron.is-open {
+  transform: rotate(90deg);
+}
+
+.sl-tree__count {
+  margin-left: auto;
+  font: 10px/1 var(--sl-mono);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.sl-tree__list {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0 0 0 14px;
+}
+
+.sl-tree__item {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  background: none;
+  border: 0;
+  border-radius: var(--sl-radius-sm);
+  color: rgba(255, 255, 255, 0.7);
+  font: 12px/1.2 var(--sl-font);
+  cursor: pointer;
+  text-align: left;
+}
+
+.sl-tree__item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.sl-tree__item.is-selected {
+  color: #fff;
+  background: color-mix(in srgb, var(--sl-primary) 26%, transparent);
+  box-shadow: inset 2px 0 0 var(--sl-primary);
+}
+
+/* Time bar */
+.sl-timebar {
+  display: flex;
+  align-items: center;
+  gap: var(--sl-space-1);
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(5, 7, 13, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+}
+
+.sl-timebar__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: none;
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  line-height: 1;
+}
+
+.sl-timebar__btn:hover {
+  border-color: var(--sl-primary-on-dark);
+  color: var(--sl-primary-on-dark);
+}
+
+.sl-timebar__btn--play {
+  width: 36px;
+  height: 36px;
+  font-size: 12px;
+  background: color-mix(in srgb, var(--sl-primary) 22%, transparent);
+}
+
+.sl-timebar__date {
+  min-width: 168px;
+  text-align: center;
+  font: 12px/1 var(--sl-mono);
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sl-timebar__speeds {
+  display: flex;
+  gap: 2px;
+  margin-left: var(--sl-space-1);
+  padding-left: var(--sl-space-1);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.sl-timebar__speed {
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 0;
+  background: none;
+  color: rgba(255, 255, 255, 0.55);
+  font: 10px/1 var(--sl-mono);
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sl-timebar__speed:hover {
+  color: #fff;
+}
+
+.sl-timebar__speed.is-active {
+  color: #05070d;
+  background: var(--sl-primary-on-dark);
+}
+
 .sl-stage__caption {
   position: absolute;
-  left: var(--sl-space-3);
-  bottom: var(--sl-space-3);
+  right: var(--sl-space-3);
+  bottom: 74px;
   z-index: 2;
   pointer-events: none;
-  max-width: min(60ch, 80vw);
+  max-width: min(38ch, 60vw);
+  text-align: right;
 }
 
 .sl-stage__title {
-  margin: 0 0 var(--sl-space-1);
-  font: 700 clamp(28px, 4vw, 44px) / 1.05 var(--sl-font);
+  margin: 0 0 4px;
+  font: 700 clamp(20px, 2.4vw, 30px) / 1.1 var(--sl-font);
   color: #fff;
   letter-spacing: -0.01em;
 }
 
 .sl-stage__subtitle {
   margin: 0;
-  font: 14px/1.5 var(--sl-font);
-  color: rgba(255, 255, 255, 0.66);
+  font: 12px/1.5 var(--sl-font);
+  color: rgba(255, 255, 255, 0.6);
   letter-spacing: 0.02em;
 }
 
@@ -56,27 +315,38 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--sl-space-2);
-  padding: var(--sl-space-2) var(--sl-space-3);
-  z-index: 2;
+  padding: var(--sl-space-1) var(--sl-space-3);
+  z-index: 5;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sl-footer__credit {
+  margin: 0;
+  font: 10px/1.6 var(--sl-font);
+  color: rgba(255, 255, 255, 0.4);
+  max-width: 100ch;
 }
 
 .sl-footer__version {
-  font: 11px/1 var(--sl-mono);
+  font: 10px/1 var(--sl-mono);
   letter-spacing: 0.08em;
   color: var(--sl-primary-on-dark);
   white-space: nowrap;
 }
 
-.sl-footer__credit {
-  margin: 0;
-  font: 11px/1.6 var(--sl-font);
-  color: rgba(255, 255, 255, 0.45);
-  max-width: 90ch;
-}
-
-@media (max-width: 640px) {
+@media (max-width: 820px) {
+  .sl-viewer__sidebar {
+    width: 180px;
+    padding-right: 0;
+  }
   .sl-stage__caption {
-    left: var(--sl-space-2);
-    bottom: var(--sl-space-2);
+    display: none;
+  }
+  .sl-timebar__date {
+    min-width: 132px;
+    font-size: 11px;
+  }
+  .sl-timebar__speeds {
+    display: none;
   }
 }

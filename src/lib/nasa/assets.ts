@@ -1,13 +1,19 @@
 /**
- * NASA Eyes asset endpoints.
+ * Asset URL builders.
  *
- * NASA's S3 bucket forbids directory listings but serves individual files, so
- * we reference assets by exact URL. Keep every path template in one place: the
- * extractor writes `$SIZE` / `$FACE` placeholders and these helpers resolve them.
+ * Every path points at the local mirror served by the `/nasa/[...path]` route,
+ * not at NASA. The mirror is produced by `tools/download-mirror.cjs`; the app
+ * never reaches the network at runtime.
+ *
+ * Mirror layout (mirrors NASA's URL structure):
+ *   static   <prefix>/static/...    e.g. /nasa/static/maps/earth/color_512_0.png
+ *   dynamic  <prefix>/dynamic/...   e.g. /nasa/dynamic/dynamo/earth/sun/orb/def.dyn
  */
 
-export const STATIC_ASSETS_URL = 'https://eyes.nasa.gov/assets/static';
-export const DYNAMIC_ASSETS_URL = 'https://eyes.nasa.gov/assets/dynamic';
+export const MIRROR_URL_PREFIX = '/nasa';
+
+export const STATIC_ASSETS_URL = `${MIRROR_URL_PREFIX}/static`;
+export const DYNAMIC_ASSETS_URL = `${MIRROR_URL_PREFIX}/dynamic`;
 
 /**
  * Build a texture URL from a catalog entry's `{url, sizes}` descriptor.
@@ -53,3 +59,8 @@ export function starfieldUrl(layer: number): string {
 
 export const GALAXIES_URL = `${STATIC_ASSETS_URL}/stars/galaxies.0.bin`;
 export const CONSTELLATIONS_URL = `${STATIC_ASSETS_URL}/stars/constellations.bin`;
+
+/** A model URL from a catalog-relative path, e.g. `models/jupiter/0/jupiter_0.gltf`. */
+export function modelUrl(path: string): string {
+  return `${STATIC_ASSETS_URL}/${path}`;
+}
