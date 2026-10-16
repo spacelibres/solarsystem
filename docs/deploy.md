@@ -94,3 +94,18 @@ it resumes where it left off.
 
 **DNS.** `solarsystem.spacelibre.cn` must resolve to the host before Caddy can
 issue a certificate. Caddy retries automatically once it does.
+
+## Live deployment
+
+| | |
+|---|---|
+| URL | https://solarsystem.spacelibre.cn |
+| host | 176.122.171.38, Ubuntu 26.04, 3 vCPU, 2 GB RAM + 1 GB swap |
+| app port | `127.0.0.1:4310` (Caddy fronts it) |
+| webhook | `http://176.122.171.38:9100/hooks/deploy` |
+| certificate | Let's Encrypt, issued automatically by Caddy |
+
+The host was already serving another Next.js app on port 3000 for
+`tile2.spacexway.com`; that site was left untouched. The Caddy configuration is
+shared: this site lives in `/etc/caddy/sites/solarsystem.caddy` and is pulled in
+by an `import sites/*.caddy` line.

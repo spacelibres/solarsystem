@@ -3,6 +3,40 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.18 - 2026-10-16
+
+The viewer is live, and pushes to `main` deploy themselves.
+
+### Added
+
+- **Live deployment at <https://solarsystem.spacelibre.cn>.**
+  - host 176.122.171.38, Ubuntu 26.04, 3 vCPU, 2 GB RAM plus a 1 GB swapfile;
+  - the app binds `127.0.0.1:4310` and is reached only through Caddy;
+  - a Let's Encrypt certificate was issued automatically, and HTTP redirects to
+    HTTPS with a 308.
+- **A GitHub webhook** at `http://176.122.171.38:9100/hooks/deploy`, wired via the
+  API with `push` events and a shared secret. Verified end to end: GitHub's test
+  delivery returns **200 OK** and the listener logs `ping received`.
+- `docs/deploy.md` now records the live details, so the runbook and reality match.
+
+### Notes
+
+- The host already served another Next.js app on port 3000 for
+  `tile2.spacexway.com`. That site was left untouched: this one uses a different
+  port, and the shared Caddy configuration was **added to** — a new file under
+  `/etc/caddy/sites/` plus one `import` line, with the existing `Caddyfile`
+  backed up first and `caddy validate` run before any reload.
+- NASA's asset mirror is 1.6 GB and git-ignored, so the host fetched it once
+  (1,916 base assets plus 105,939 ephemeris segments). Re-deploys skip it.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 147 tests across
+eleven files. On the live host: `solarsystem`, `solarsystem-webhook` and `caddy`
+are all active and enabled; the site returns 200 over HTTPS; `/nasa/` serves
+NASA's textures and ephemerides through the proxy; and the security headers and
+immutable cache policy are applied.
+
 ## 0.2.17 - 2026-10-16
 
 One-command deployment and automatic redeploys from GitHub.
