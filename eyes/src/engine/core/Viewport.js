@@ -2,6 +2,7 @@
 // Recovered from app.js:234498-237822.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 class Viewport extends PioneerPublicApi.CollectionItem {
+  /* 建立 CSS 定位容器，并在尚无活动视口时交给 Input。构造时 bounds 会减去 rootDiv 偏移，逐帧更新直接读 div 偏移；这里保留既有坐标基准差异。 */
   constructor(viewportName, engine) {
     super(viewportName, engine);
     this._enabled = true;
@@ -41,6 +42,7 @@ class Viewport extends PioneerPublicApi.CollectionItem {
   getCamera() {
     return this._camera;
   }
+  /* 先解除旧相机的反向 viewport 引用，再连接新相机；相机的屏幕比例与拾取范围通过这条关联更新。 */
   setCamera(camera) {
     if (null !== this._camera) {
       this._camera.__setViewport(null);
@@ -61,11 +63,13 @@ class Viewport extends PioneerPublicApi.CollectionItem {
       this._div.style.display = "none";
     }
   }
+  /* 输入为视口所在 DOM 坐标系的像素，输出 NDC：左上为 (-1,+1)，z=-1 选择投影近平面；这不是实体世界坐标。 */
   getNormalSpacePositionFromPixelSpacePosition(output, pixelPosition) {
     output.x = 2 * (pixelPosition.x - this._bounds.origin.x) / this._bounds.size.x - 1;
     output.y = 1 - 2 * (pixelPosition.y - this._bounds.origin.y) / this._bounds.size.y;
     output.z = -1;
   }
+  /* 只接受严格位于 (-1,1) 的投影深度；边界与背后点输出 NaN，供标签/拾取调用方跳过。 */
   getPixelSpacePositionFromNormalSpacePosition(output, normalPosition) {
     if (-1 < normalPosition.z && normalPosition.z < 1) {
       output.x = this._bounds.size.x * (normalPosition.x + 1) / 2 + this._bounds.origin.x;
@@ -80,6 +84,7 @@ class Viewport extends PioneerPublicApi.CollectionItem {
   getNormalSpaceRadiusFromPixelSpaceRadius(pixelRadius) {
     return pixelRadius / Math.max(this._bounds.size.x, this._bounds.size.y);
   }
+  /* 先把像素映射到近平面，再用自定义相机逆投影及实体朝向恢复方向。输出仍使用世界轴，原点是相机位置。 */
   getDirectionOfCursor(output) {
     const camera = this.getCamera();
     if (null === camera) return void output.copy(PioneerPublicApi.Vector3.NaN);
@@ -96,6 +101,7 @@ class Viewport extends PioneerPublicApi.CollectionItem {
     super.__destroy();
     this._div.remove();
   }
+  /* 先更新 DOM bounds，再通知连接场景的相机计算投影与实体屏幕位置；这一阶段发生在组件 LOD 更新之前。 */
   __updateViewportVariables() {
     if (this._enabled) {
       this._bounds.set(this._div.offsetLeft, this._div.offsetTop, this._div.offsetWidth, this._div.offsetHeight);
@@ -104,6 +110,7 @@ class Viewport extends PioneerPublicApi.CollectionItem {
       }
     }
   }
+  /* CSS 视口从顶部计 y，WebGL viewport/scissor 从底部计 y；宽高仍为逻辑像素，renderer 按 pixelRatio 转物理像素。Camera 的 composer 负责真正绘制。 */
   __render() {
     if (!this._enabled) return;
     const renderer = this.getEngine().__getThreeJsRenderer();

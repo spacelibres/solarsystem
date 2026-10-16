@@ -6,6 +6,7 @@ import * as OutlinePass from "../../vendor/modules/OutlinePass.js";
 import * as RenderPass from "../../vendor/modules/RenderPass.js";
 import * as UnrealBloomPass from "../../vendor/modules/UnrealBloomPass.js";
 class CameraComponent extends PioneerPublicApi.BaseComponent {
+  /* PerspectiveCamera 只作为 Three 相机载体，后续以 +Y 前向自定义矩阵覆盖默认投影。后处理顺序为 RenderPass → OutlinePass → UnrealBloomPass，后两项默认禁用。 */
   constructor(componentName, entity) {
     super(componentName, entity);
     this._viewport = null;
@@ -42,9 +43,11 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
   getFieldOfView() {
     return this._fieldOfView;
   }
+  /* _fieldOfView 是较长屏幕轴的角度，单位为弧度；横屏直接作为水平角，竖屏按宽高比缩小水平角。 */
   getHorizontalFieldOfView() {
     return this._aspectRatio >= 1 ? this._fieldOfView : 2 * Math.atan(Math.tan(this._fieldOfView / 2) * this._aspectRatio);
   }
+  /* 横屏按宽高比缩小垂直角，竖屏直接使用 _fieldOfView。不要把它当 Three.PerspectiveCamera 的固定垂直 degree fov。 */
   getVerticalFieldOfView() {
     return this._aspectRatio > 1 ? 2 * Math.atan(Math.tan(this._fieldOfView / 2) / this._aspectRatio) : this._fieldOfView;
   }
@@ -75,6 +78,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
   getAutoMidDistance() {
     return this._autoMidDistance;
   }
+  /* 输入只去掉相机平移、仍沿世界轴；先乘实体朝向的逆得到 +Y 前向坐标，再按投影矩阵的列主序 elements[0/9/6/14] 求 NDC。 */
   getNormalSpacePositionFromCameraSpacePosition(output, cameraPosition) {
     const framePosition = PioneerPublicApi.Vector3.pool.get();
     framePosition.rotateInverse(this.getEntity().getOrientation(), cameraPosition);
@@ -86,6 +90,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
   getNormalSpaceRadiusFromRadius(radius, distance) {
     return radius / Math.abs(distance) / Math.tan(this._fieldOfView / 2);
   }
+  /* 与正向公式共用同一深度系数，恢复 +Y 前向坐标后再乘相机实体朝向。池向量在 copy 完成后归还，允许 output 与输入别名。 */
   getCameraSpacePositionFromNormalSpacePosition(output, normalPosition) {
     const framePosition = PioneerPublicApi.Vector3.pool.get();
     framePosition.y = this._threeJsCamera.projectionMatrix.elements[14] / (normalPosition.z - this._threeJsCamera.projectionMatrix.elements[6]);
@@ -97,6 +102,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
   getRadiusFromNormalSpaceRadius(normalRadius, distance) {
     return normalRadius * Math.abs(distance) * Math.tan(this._fieldOfView / 2);
   }
+  /* 先让目标实体把本相机的显示状态/矩阵写到 Three 对象；Three.Raycaster 返回的是相机平移原点下的坐标，再还原为命中实体局部帧。只去重同对象、同面顶点索引的连续命中。 */
   getRaycast(rayOrigin, rayDirection, entity) {
     const raycaster = new PioneerPublicApi.THREE.Raycaster();
     const threeOrigin = new PioneerPublicApi.THREE.Vector3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
@@ -132,6 +138,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     return hits;
   }
   // 对同面连续命中去重后逐个纹理 uniform 采样；保留原来的像素跨距和 UV 取整规则。
+  /* canvas.getImageData 总是 RGBA 字节；原实现却按 texture.format 选择 3/4 跨距，且没有按 texture.transformUv 处理。这里保留原采样算法，准确取样仍待专门修复与验证。 */
   getRaycastColor(rayOrigin, rayDirection, entity) {
     const raycaster = new PioneerPublicApi.THREE.Raycaster();
     const threeOrigin = new PioneerPublicApi.THREE.Vector3(rayOrigin.x, rayOrigin.y, rayOrigin.z);
@@ -218,6 +225,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     this._threeJsUnrealBloomPass.enabled = strength > 0;
     this._threeJsUnrealBloomPass.strength = strength;
   }
+  /* 只收直接挂在当前 THREE.Scene 的根对象，或按名称精确选择一个子对象；可见边颜色用原色，遮挡边为四分之一强度。 */
   setOutline(color, component, objectName) {
     this._outlinePass.enabled = null !== component;
     if (null !== component) {
@@ -243,6 +251,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     for (let entityIndex = 0; entityIndex < this._occludingEntities.length; entityIndex++) if (this._occludingEntities[entityIndex] === entity) return;
     this._occludingEntities.push(entity);
   }
+  /* 本方法只解除视口/实体相机缓存，没有调用 composer.dispose；不能据此认为 render targets 与 passes 已全部释放。 */
   __destroy() {
     super.__destroy();
     this.getEntity().getScene().__removeCameraDependents(this);
@@ -250,6 +259,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
       this._viewport.setCamera(null);
     }
   }
+  /* DOM 尺寸决定 composer 尺寸与投影宽高比；自动 near/mid 结合父实体外接半径和地表距离收紧。mid/invertDepth 后续交给自定义 shader，不能替换成标准 far plane。 */
   __updateCameraVariablesForConnectedScene() {
     if (this._viewport) {
       const viewportSize = this._viewport.getBounds().size;
@@ -298,6 +308,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
       }
     }
   }
+  /* 多个视口复用同一批 Three 对象，所以每个相机绘制前都重新准备可见状态与 camera-relative 位姿，随后按需更新动态环境贴图。 */
   __prepareForRender() {
     const scene = this.getEntity().getScene();
     for (let entityIndex = 0; entityIndex < scene.getNumEntities(); entityIndex++) {
@@ -311,6 +322,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
       environmentMap.__render();
     }
   }
+  /* 渲染相机只设置朝向；实体对象已经相对相机平移，不应再给 Three 相机写同一大尺度世界位置。Composer 运行 Render/Outline/Bloom 通道。 */
   __render() {
     const entityOrientation = this.getEntity().getOrientation();
     const orientation = PioneerPublicApi.Quaternion.threeJsPool.get();
@@ -323,6 +335,7 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     this._viewport = viewport;
   }
   // 这里采用 Y 前向的投影排列，转换函数读取 elements[0/9/6/14]；逆矩阵必须同步更新。
+  /* 采用 +Y 前向、+Z 上向和远端趋于 1 的投影，Three.Matrix4.set 按行传参、elements 按列读取。显式写投影及其逆，不能调用标准 updateProjectionMatrix 覆盖。fov 上限 180 的旧判断仍保留，尽管三角函数用弧度。 */
   _updateProjectionMatrix() {
     if (0 < this._fieldOfView && this._fieldOfView < 180 && this._aspectRatio > 0) {
       const halfFovTangent = Math.tan(this._fieldOfView / 2);

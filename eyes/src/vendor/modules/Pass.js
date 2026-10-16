@@ -1,4 +1,5 @@
 // Recovered from vendors.js:882328-883224.
+// Upstream correspondence: Three.js r185 examples/jsm/postprocessing/Pass.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 class Pass {
   constructor() {
@@ -18,20 +19,20 @@ class FullscreenTriangleGeometry extends ThreeCore.BufferGeometry {
 }
 const fullscreenTriangleGeometry = new FullscreenTriangleGeometry();
 class FullScreenQuad {
-  constructor(e) {
-    this._mesh = new ThreeCore.Mesh(fullscreenTriangleGeometry, e);
+  constructor(material) {
+    this._mesh = new ThreeCore.Mesh(fullscreenTriangleGeometry, material);
   }
   dispose() {
     this._mesh.geometry.dispose();
   }
-  render(e) {
-    e.render(this._mesh, orthographicCamera);
+  render(renderer) {
+    renderer.render(this._mesh, orthographicCamera);
   }
   get material() {
     return this._mesh.material;
   }
-  set material(e) {
-    this._mesh.material = e;
+  set material(value) {
+    this._mesh.material = value;
   }
 }
 export { FullScreenQuad };

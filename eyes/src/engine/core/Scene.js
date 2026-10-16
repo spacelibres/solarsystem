@@ -2,6 +2,7 @@
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 // 场景持有实体集合与控制器依赖图；实体先保存上一帧状态及切换父级，再由依赖图按顺序更新控制器。
 class Scene extends PioneerPublicApi.CollectionItem {
+  /* Pioneer 实体树与 THREE.Scene 分开存储；THREE.Scene 仅容纳渲染对象，不能替代父级切换、覆盖区间或控制器依赖图。 */
   constructor(sceneName, engine) {
     super(sceneName, engine);
     this._entities = new PioneerPublicApi.Collection(this);
@@ -120,9 +121,11 @@ class Scene extends PioneerPublicApi.CollectionItem {
     super.__destroy();
     this._entities.__destroy();
   }
+  /* 这里只返回渲染容器；太阳系层级位姿依赖仍在 Entity，而不是直接依靠 Three.Object3D 父子变换。 */
   getThreeJsScene() {
     return this._threeJsScene;
   }
+  /* 先备份实体状态并按仿真时刻切换父级/覆盖区间，再执行拓扑排序后的控制器；Three 在这一步不计算星历。 */
   __update() {
     const time = this.getEngine().getTime();
     for (let entityIndex = this._entities.getSize() - 1; entityIndex >= 0; entityIndex--) {
@@ -133,17 +136,23 @@ class Scene extends PioneerPublicApi.CollectionItem {
     }
     this._controllerDependencyGraph.update();
   }
+  /* 仅有位置覆盖且启用的实体更新视觉状态；此阶段早于各视口 __render，组件可以据屏幕尺寸安排 LOD 加载。 */
   __updateVisuals() {
     for (let entityIndex = this._entities.getSize() - 1; entityIndex >= 0; entityIndex--) {
       const entity = this._entities.getAt(entityIndex);
-      entity.isInPositionCoverage() && entity.isEnabled() && entity.__updateVisuals();
+      if (entity.isInPositionCoverage() && entity.isEnabled()) {
+        entity.__updateVisuals();
+      }
     }
   }
+  /* 相机销毁时删除每实体/组件保存的相机相关缓存，避免长生命周期场景保留已移除的相机键。 */
   __removeCameraDependents(camera) {
     for (let entityIndex = this._entities.getSize() - 1; entityIndex >= 0; entityIndex--) this._entities.getAt(entityIndex).__removeCameraDependents(camera);
   }
   static _updateController(controller) {
-    controller.getEntity().isEnabled() && controller.getCoverage().contains(controller.getEntity().getScene().getEngine().getTime()) && controller.isEnabled() && controller.__update();
+    if (controller.getEntity().isEnabled() && controller.getCoverage().contains(controller.getEntity().getScene().getEngine().getTime()) && controller.isEnabled()) {
+      controller.__update();
+    }
   }
   // 同实体按集合顺序；跨实体按父级状态及显式 dependent-state 排序，禁用或时间不相交的控制器不建立边。
   static _compareControllers(dependentController, precedingController) {

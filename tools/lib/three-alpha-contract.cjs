@@ -37,9 +37,14 @@ function canonicalThreeSource(source){
  traverse(tree,{Scope(path){for(const binding of Object.values(path.scope.bindings))if(!seen.has(binding)){seen.add(binding);bindings.push(binding);}},Identifier(path){identifiers.add(path.node.name);}});
  let prefix='__eyesLexicalBinding';while([...identifiers].some(name=>name.startsWith(prefix)))prefix+='_';
  const labels=new Map(bindings.map((binding,index)=>[binding,prefix+index])),changes=new Map();
+ // Declaration identifiers belong to their collected Binding, not necessarily
+ // the scope visible at the declaration path (a nested same-name function can
+ // shadow that name inside the outer function's body).
+ for(const binding of bindings)changes.set(binding.identifier,labels.get(binding));
  // Resolve every reference against the original scope graph before changing any
  // identifier, so nested shadows and writes cannot bind to an earlier rename.
  traverse(tree,{Identifier(path){
+  if(changes.has(path.node))return;
   const parent=path.parentPath;
   if(parent.isExportSpecifier()&&path.key==='exported')return;
   if((parent.isObjectProperty()||parent.isObjectMethod()||parent.isClassMethod()||parent.isClassProperty())&&path.key==='key'&&!parent.node.computed)return;
@@ -51,7 +56,7 @@ function canonicalThreeSource(source){
  }});
  let missedDeclarations=0,missedReferences=0,assignmentsAndUpdates=0,missedAssignmentTargets=0;
  const publicExportNames=[];
- for(const binding of bindings){if(!changes.has(binding.identifier))missedDeclarations++;for(const reference of binding.referencePaths)if(!changes.has(reference.node))missedReferences++;}
+ for(const binding of bindings){if(changes.get(binding.identifier)!==labels.get(binding))missedDeclarations++;for(const reference of binding.referencePaths)if(changes.get(reference.node)!==labels.get(binding))missedReferences++;}
  traverse(tree,{
   ExportSpecifier(path){publicExportNames.push(path.node.exported.name);},
   'AssignmentExpression|UpdateExpression'(path){const target=path.isAssignmentExpression()?path.node.left:path.node.argument;const targets=types.getBindingIdentifiers(target);let localWrite=false;for(const identifier of Object.values(targets)){if(!labels.has(path.scope.getBinding(identifier.name)))continue;localWrite=true;if(!changes.has(identifier))missedAssignmentTargets++;}if(localWrite)assignmentsAndUpdates++;}

@@ -34,7 +34,10 @@ const baselines = {
   "RandomString.js": "338ea7135d2e90b1948709bce82acc8ca7665eab7a59e040c6df81526abfd832",
   "SceneHelpers.js": "6e4963306686c60309d36929b80f1bf67598254fd6bd394cabfd45eba9695205",
   "SpriteParticles.js": "374ac655749a0c92aa9f529ef4ef8ed15052eb1d4f051003232a6f3263c41f36",
-  "ThreeJsHelper.js": "f4767f7bea908fe440c7d973020556f0079df8c9003455dcbdbed38de2032faa",
+  // v0.2.33 intentionally fixes recursive GL context and Points/Line disposal;
+  // semantic-three-bridge pins all other methods to v0.2.32 and integration
+  // checks exercise the cleanup changes against actual local Three objects.
+  "ThreeJsHelper.js": "527cce99a01fc7445475b096098d6a0a707682eea258b8538dcf864d397c71b8",
   "Tile.js": "ea4a0758daf092818e41b3eb30f569e734cf6067063c8befbd017bcab913f8b7",
   "Types-1075.js": "538eb54221192cd94def6219618c978c056e21a660a5d633deb4d0e7b67e0dc0",
   "Types-754.js": "132d32a5e065184a6a4688a9de992d7b85f46af628bfef44507ff4869dd3f776",

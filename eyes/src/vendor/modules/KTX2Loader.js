@@ -1,4 +1,5 @@
 // Recovered from vendors.js:792719-811296.
+// Upstream correspondence: Three.js r185 examples/jsm/loaders/KTX2Loader.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 import * as WorkerPool from "./WorkerPool.js";
 import * as Ci from "./Ci.js";
@@ -12,35 +13,35 @@ const c = new URL(Unidentified78, document.baseURI).toString(),
 let d,
   h = 0;
 class KTX2Loader extends ThreeCore.Loader {
-  constructor(e) {
-    super(e), this.transcoderPath = "", this.transcoderBinary = null, this.transcoderPending = null, this.workerPool = new WorkerPool.WorkerPool(), this.workerSourceURL = "", this.workerConfig = null, "undefined" != typeof MSC_TRANSCODER && console.warn('THREE.KTX2Loader: Please update to latest "basis_transcoder". "msc_basis_transcoder" is no longer supported in three.js r125+.');
+  constructor(manager) {
+    super(manager), this.transcoderPath = "", this.transcoderBinary = null, this.transcoderPending = null, this.workerPool = new WorkerPool.WorkerPool(), this.workerSourceURL = "", this.workerConfig = null, "undefined" != typeof MSC_TRANSCODER && console.warn('THREE.KTX2Loader: Please update to latest "basis_transcoder". "msc_basis_transcoder" is no longer supported in three.js r125+.');
   }
-  setTranscoderPath(transcoderPath) {
-    return this.transcoderPath = transcoderPath, this;
+  setTranscoderPath(path) {
+    return this.transcoderPath = path, this;
   }
-  setWorkerLimit(e) {
-    return this.workerPool.setWorkerLimit(e), this;
+  setWorkerLimit(workerLimit) {
+    return this.workerPool.setWorkerLimit(workerLimit), this;
   }
-  async detectSupportAsync(e) {
-    return console.warn('KTX2Loader: "detectSupportAsync()" has been deprecated. Use "detectSupport()" and "await renderer.init();" when creating the renderer.'), await e.init(), this.detectSupport(e);
+  async detectSupportAsync(renderer) {
+    return console.warn('KTX2Loader: "detectSupportAsync()" has been deprecated. Use "detectSupport()" and "await renderer.init();" when creating the renderer.'), await renderer.init(), this.detectSupport(renderer);
   }
-  detectSupport(e) {
-    return !0 === e.isWebGPURenderer ? this.workerConfig = {
-      astcSupported: e.hasFeature("texture-compression-astc"),
+  detectSupport(renderer) {
+    return !0 === renderer.isWebGPURenderer ? this.workerConfig = {
+      astcSupported: renderer.hasFeature("texture-compression-astc"),
       astcHDRSupported: !1,
-      etc1Supported: e.hasFeature("texture-compression-etc1"),
-      etc2Supported: e.hasFeature("texture-compression-etc2"),
-      dxtSupported: e.hasFeature("texture-compression-s3tc"),
-      bptcSupported: e.hasFeature("texture-compression-bc"),
-      pvrtcSupported: e.hasFeature("texture-compression-pvrtc")
+      etc1Supported: renderer.hasFeature("texture-compression-etc1"),
+      etc2Supported: renderer.hasFeature("texture-compression-etc2"),
+      dxtSupported: renderer.hasFeature("texture-compression-s3tc"),
+      bptcSupported: renderer.hasFeature("texture-compression-bc"),
+      pvrtcSupported: renderer.hasFeature("texture-compression-pvrtc")
     } : (this.workerConfig = {
-      astcSupported: e.extensions.has("WEBGL_compressed_texture_astc"),
-      astcHDRSupported: e.extensions.has("WEBGL_compressed_texture_astc") && e.extensions.get("WEBGL_compressed_texture_astc").getSupportedProfiles().includes("hdr"),
-      etc1Supported: e.extensions.has("WEBGL_compressed_texture_etc1"),
-      etc2Supported: e.extensions.has("WEBGL_compressed_texture_etc"),
-      dxtSupported: e.extensions.has("WEBGL_compressed_texture_s3tc"),
-      bptcSupported: e.extensions.has("EXT_texture_compression_bptc"),
-      pvrtcSupported: e.extensions.has("WEBGL_compressed_texture_pvrtc") || e.extensions.has("WEBKIT_WEBGL_compressed_texture_pvrtc")
+      astcSupported: renderer.extensions.has("WEBGL_compressed_texture_astc"),
+      astcHDRSupported: renderer.extensions.has("WEBGL_compressed_texture_astc") && renderer.extensions.get("WEBGL_compressed_texture_astc").getSupportedProfiles().includes("hdr"),
+      etc1Supported: renderer.extensions.has("WEBGL_compressed_texture_etc1"),
+      etc2Supported: renderer.extensions.has("WEBGL_compressed_texture_etc"),
+      dxtSupported: renderer.extensions.has("WEBGL_compressed_texture_s3tc"),
+      bptcSupported: renderer.extensions.has("EXT_texture_compression_bptc"),
+      pvrtcSupported: renderer.extensions.has("WEBGL_compressed_texture_pvrtc") || renderer.extensions.has("WEBKIT_WEBGL_compressed_texture_pvrtc")
     }, "undefined" != typeof navigator && void 0 !== navigator.platform && void 0 !== navigator.userAgent && navigator.platform.indexOf("Linux") >= 0 && navigator.userAgent.indexOf("Android") < 0 && this.workerConfig.astcSupported && this.workerConfig.etc2Supported && this.workerConfig.bptcSupported && this.workerConfig.dxtSupported && (this.workerConfig.astcSupported = !1, this.workerConfig.etc1Supported = !1, this.workerConfig.etc2Supported = !1)), this;
   }
   init() {
@@ -65,21 +66,21 @@ class KTX2Loader extends ThreeCore.Loader {
     }
     return this.transcoderPending;
   }
-  load(e, t, n, i) {
+  load(url, onLoad, onProgress, onError) {
     if (null === this.workerConfig) throw new Error("THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.");
     const fileLoader = new ThreeCore.FileLoader(this.manager);
-    fileLoader.setPath(this.path), fileLoader.setCrossOrigin(this.crossOrigin), fileLoader.setWithCredentials(this.withCredentials), fileLoader.setRequestHeader(this.requestHeader), fileLoader.setResponseType("arraybuffer"), fileLoader.load(e, e => {
-      this.parse(e, t, i);
-    }, n, i);
+    fileLoader.setPath(this.path), fileLoader.setCrossOrigin(this.crossOrigin), fileLoader.setWithCredentials(this.withCredentials), fileLoader.setRequestHeader(this.requestHeader), fileLoader.setResponseType("arraybuffer"), fileLoader.load(url, e => {
+      this.parse(e, onLoad, onError);
+    }, onProgress, onError);
   }
-  parse(e, t, n) {
+  parse(buffer, onLoad, onError) {
     if (null === this.workerConfig) throw new Error("THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.");
-    if (weakMap.has(e)) {
-      return weakMap.get(e).promise.then(t).catch(n);
+    if (weakMap.has(buffer)) {
+      return weakMap.get(buffer).promise.then(onLoad).catch(onError);
     }
-    this._createTexture(e).then(e => t ? t(e) : null).catch(n);
+    this._createTexture(buffer).then(e => onLoad ? onLoad(e) : null).catch(onError);
   }
-  _createTextureFrom(e, t) {
+  _createTextureFrom(transcodeResult, container) {
     const {
       type: type,
       error: error,
@@ -91,17 +92,17 @@ class KTX2Loader extends ThreeCore.Loader {
         type: u,
         dfdFlags: dfdFlags
       }
-    } = e;
+    } = transcodeResult;
     if ("error" === type) return Promise.reject(error);
     let h;
-    if (6 === t.faceCount) h = new ThreeCore.CompressedCubeTexture(faces, format, u);else {
+    if (6 === container.faceCount) h = new ThreeCore.CompressedCubeTexture(faces, format, u);else {
       const e = faces[0].mipmaps;
-      h = t.layerCount > 1 ? new ThreeCore.CompressedArrayTexture(e, width, height, t.layerCount, format, u) : new ThreeCore.CompressedTexture(e, width, height, format, u);
+      h = container.layerCount > 1 ? new ThreeCore.CompressedArrayTexture(e, width, height, container.layerCount, format, u) : new ThreeCore.CompressedTexture(e, width, height, format, u);
     }
-    return h.minFilter = 1 === faces[0].mipmaps.length ? ThreeCore.LinearFilter : ThreeCore.LinearMipmapLinearFilter, h.magFilter = ThreeCore.LinearFilter, h.generateMipmaps = !1, h.needsUpdate = !0, h.colorSpace = _(t), h.premultiplyAlpha = !!(dfdFlags & Ci.KHR_DF_FLAG_ALPHA_PREMULTIPLIED), h;
+    return h.minFilter = 1 === faces[0].mipmaps.length ? ThreeCore.LinearFilter : ThreeCore.LinearMipmapLinearFilter, h.magFilter = ThreeCore.LinearFilter, h.generateMipmaps = !1, h.needsUpdate = !0, h.colorSpace = parseColorSpace(container), h.premultiplyAlpha = !!(dfdFlags & Ci.KHR_DF_FLAG_ALPHA_PREMULTIPLIED), h;
   }
-  async _createTexture(e, t = {}) {
-    const n = (0, Ci.read)(new Uint8Array(e)),
+  async _createTexture(buffer, t = {}) {
+    const n = (0, Ci.read)(new Uint8Array(buffer)),
       i = n.vkFormat === Ci.VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK_EXT && 167 === n.dataFormatDescriptor[0].colorModel;
     if (!(n.vkFormat === Ci.VK_FORMAT_UNDEFINED || i && !this.workerConfig.astcHDRSupported)) return async function (e) {
       const {
@@ -138,15 +139,15 @@ class KTX2Loader extends ThreeCore.Loader {
         if (e.pixelDepth > 0) throw new Error("THREE.KTX2Loader: Unsupported pixelDepth.");
         c = new ThreeCore.CompressedTexture(i, e.pixelWidth, e.pixelHeight), c.minFilter = o ? ThreeCore.LinearMipmapLinearFilter : ThreeCore.LinearFilter, c.magFilter = ThreeCore.LinearFilter;
       }
-      return c.mipmaps = i, c.type = M[vkFormat], c.format = m[vkFormat], c.colorSpace = _(e), c.needsUpdate = !0, Promise.resolve(c);
+      return c.mipmaps = i, c.type = M[vkFormat], c.format = m[vkFormat], c.colorSpace = parseColorSpace(e), c.needsUpdate = !0, Promise.resolve(c);
     }(n);
     const o = t,
       c = this.init().then(() => this.workerPool.postMessage({
         type: "transcode",
-        buffer: e,
+        buffer: buffer,
         taskConfig: o
-      }, [e])).then(e => this._createTextureFrom(e.data, n));
-    return weakMap.set(e, {
+      }, [buffer])).then(e => this._createTextureFrom(e.data, n));
+    return weakMap.set(buffer, {
       promise: c
     }), c;
   }
@@ -524,8 +525,8 @@ const set = new Set([ThreeCore.RGBAFormat, ThreeCore.RGBFormat, ThreeCore.RGForm
     [Ci.VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG]: ThreeCore.UnsignedByteType,
     [Ci.VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG]: ThreeCore.UnsignedByteType
   };
-function _(e) {
-  const t = e.dataFormatDescriptor[0];
+function parseColorSpace(container) {
+  const t = container.dataFormatDescriptor[0];
   return t.colorPrimaries === Ci.KHR_DF_PRIMARIES_BT709 ? t.transferFunction === Ci.KHR_DF_TRANSFER_SRGB ? ThreeCore.SRGBColorSpace : ThreeCore.LinearSRGBColorSpace : t.colorPrimaries === Ci.KHR_DF_PRIMARIES_DISPLAYP3 ? t.transferFunction === Ci.KHR_DF_TRANSFER_SRGB ? DisplayP3ColorSpace.DisplayP3ColorSpace : DisplayP3ColorSpace.LinearDisplayP3ColorSpace : (t.colorPrimaries === Ci.KHR_DF_PRIMARIES_UNSPECIFIED || console.warn(`THREE.KTX2Loader: Unsupported color primaries, "${t.colorPrimaries}"`), ThreeCore.NoColorSpace);
 }
 export { KTX2Loader };

@@ -2,12 +2,51 @@
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 // 引擎拥有渲染器、下载器与资源管理器；每帧先推进场景状态，再更新视口、视觉资源，最后渲染并执行回调。
 class Engine {
+  /* 渲染器来自恢复应用的 THREE 导出，不是根项目 npm three。一个 WebGL2 canvas 由多个 Viewport 用 scissor 分区；禁用 Three.Cache 后资源缓存由 ResourceManager 统一计数。 */
   constructor(rootDiv) {
     if (!(rootDiv instanceof HTMLDivElement)) throw new Error("The root div param is not an actual div element.");
-    if (this._environment = "development", this._rootDiv = rootDiv, this._renderSize = new PioneerPublicApi.Vector2(), this._input = new PioneerPublicApi.Input(this), this._config = new PioneerPublicApi.Config(), this._downloader = new PioneerPublicApi.Downloader(), this._scenes = new PioneerPublicApi.Collection(this), this._viewports = new PioneerPublicApi.Collection(this), this._lastAppTime = Date.now(), this._realDeltaTime = 0, this._fps = new PioneerPublicApi.FPS(), this._fpsLimit = Number.POSITIVE_INFINITY, this._time = 0, this._timeRate = 0, this._callbacks = [], this._callbacksToRemove = [], this._thisLoop = this._loop.bind(this), "relative" !== this._rootDiv.style.position && "absolute" !== this._rootDiv.style.position && (this._rootDiv.style.position = "relative"), this._rootDiv.style.userSelect = "none", this._rootDiv.style.touchAction = "none", this._canvas = document.createElement("canvas"), this._canvas.style.position = "absolute", this._canvas.style.left = "0px", this._canvas.style.top = "0px", this._canvas.style.width = "100%", this._canvas.style.height = "100%", this._rootDiv.appendChild(this._canvas), this._viewportDiv = document.createElement("div"), this._viewportDiv.style.position = "absolute", this._viewportDiv.style.left = "0px", this._viewportDiv.style.top = "0px", this._viewportDiv.style.width = "100%", this._viewportDiv.style.height = "100%", this._viewportDiv.style.overflow = "hidden", this._rootDiv.appendChild(this._viewportDiv), this._threeJsRenderer = new PioneerPublicApi.THREE.WebGLRenderer({
+    this._environment = "development";
+    this._rootDiv = rootDiv;
+    this._renderSize = new PioneerPublicApi.Vector2();
+    this._input = new PioneerPublicApi.Input(this);
+    this._config = new PioneerPublicApi.Config();
+    this._downloader = new PioneerPublicApi.Downloader();
+    this._scenes = new PioneerPublicApi.Collection(this);
+    this._viewports = new PioneerPublicApi.Collection(this);
+    this._lastAppTime = Date.now();
+    this._realDeltaTime = 0;
+    this._fps = new PioneerPublicApi.FPS();
+    this._fpsLimit = Number.POSITIVE_INFINITY;
+    this._time = 0;
+    this._timeRate = 0;
+    this._callbacks = [];
+    this._callbacksToRemove = [];
+    this._thisLoop = this._loop.bind(this);
+    if ("relative" !== this._rootDiv.style.position && "absolute" !== this._rootDiv.style.position) {
+      this._rootDiv.style.position = "relative";
+    }
+    this._rootDiv.style.userSelect = "none";
+    this._rootDiv.style.touchAction = "none";
+    this._canvas = document.createElement("canvas");
+    this._canvas.style.position = "absolute";
+    this._canvas.style.left = "0px";
+    this._canvas.style.top = "0px";
+    this._canvas.style.width = "100%";
+    this._canvas.style.height = "100%";
+    this._rootDiv.appendChild(this._canvas);
+    this._viewportDiv = document.createElement("div");
+    this._viewportDiv.style.position = "absolute";
+    this._viewportDiv.style.left = "0px";
+    this._viewportDiv.style.top = "0px";
+    this._viewportDiv.style.width = "100%";
+    this._viewportDiv.style.height = "100%";
+    this._viewportDiv.style.overflow = "hidden";
+    this._rootDiv.appendChild(this._viewportDiv);
+    this._threeJsRenderer = new PioneerPublicApi.THREE.WebGLRenderer({
       antialias: true,
       canvas: this._canvas
-    }), !this._threeJsRenderer.capabilities.isWebGL2) throw new Error("Your browser does not support WebGL 2. Please upgrade your browser.");
+    });
+    if (!this._threeJsRenderer.capabilities.isWebGL2) throw new Error("Your browser does not support WebGL 2. Please upgrade your browser.");
     this._threeJsRenderer.setScissorTest(true);
     this._threeJsRenderer.setPixelRatio(window.devicePixelRatio);
     this._textureLoader = new PioneerPublicApi.TextureLoader(this);
@@ -93,6 +132,7 @@ class Engine {
   getTime() {
     return this._time;
   }
+  /* 只设置 Pioneer 仿真时刻，不设置 Three.Clock；下一执行帧由 Scene 按该时刻重新采样控制器。 */
   setTime(time) {
     this._time = time;
   }
@@ -111,6 +151,7 @@ class Engine {
   setFPSLimit(fpsLimit) {
     this._fpsLimit = fpsLimit;
   }
+  /* 返回真实墙钟差（秒），与可暂停、倒放和加速的仿真时差区分。 */
   getDeltaTime() {
     return this._realDeltaTime;
   }
@@ -131,17 +172,23 @@ class Engine {
   removeCallback(callback) {
     this._callbacksToRemove.push(callback);
   }
+  /* 多个视口、组件的原生 GL 缓冲和后处理共享这一个 renderer/context；上层不得为每个实体重建渲染器。 */
   __getThreeJsRenderer() {
     return this._threeJsRenderer;
   }
   // 限帧时不推进上一帧时间；真正执行帧时才更新时间与输入状态。回调删除延后到下一次回调遍历前，避免遍历中删项。
+  /* 先用真实秒差推进仿真时刻，再按控制器依赖更新实体；随后计算各相机相关量并更新视觉资源。整 canvas 清屏后依次绘制视口，最后执行回调与重置输入。限帧分支不推进 _lastAppTime。 */
   _loop() {
     const lastAppTime = Date.now();
-    if (this._realDeltaTime = (lastAppTime - this._lastAppTime) / 1e3, this._realDeltaTime < 1 / this._fpsLimit) requestAnimationFrame(this._thisLoop);else {
+    this._realDeltaTime = (lastAppTime - this._lastAppTime) / 1e3;
+    if (this._realDeltaTime < 1 / this._fpsLimit) requestAnimationFrame(this._thisLoop);else {
       this._lastAppTime = lastAppTime;
       this._fps.update(this._realDeltaTime);
       this._time += this._timeRate * this._realDeltaTime;
-      this._renderSize.x === this._rootDiv.clientWidth && this._renderSize.y === this._rootDiv.clientHeight || (this._renderSize.set(this._rootDiv.clientWidth, this._rootDiv.clientHeight), this._threeJsRenderer.setSize(this._renderSize.x, this._renderSize.y, false));
+      if (!(this._renderSize.x === this._rootDiv.clientWidth && this._renderSize.y === this._rootDiv.clientHeight)) {
+        this._renderSize.set(this._rootDiv.clientWidth, this._rootDiv.clientHeight);
+        this._threeJsRenderer.setSize(this._renderSize.x, this._renderSize.y, false);
+      }
       for (let sceneIndex = 0; sceneIndex < this._scenes.getSize(); sceneIndex++) this._scenes.getAt(sceneIndex).__update();
       for (let viewportIndex = 0; viewportIndex < this._viewports.getSize(); viewportIndex++) this._viewports.getAt(viewportIndex).__updateViewportVariables();
       for (let sceneIndex = 0; sceneIndex < this._scenes.getSize(); sceneIndex++) this._scenes.getAt(sceneIndex).__updateVisuals();
@@ -157,7 +204,9 @@ class Engine {
       for (let callbackIndex = 0; callbackIndex < this._callbacks.length; callbackIndex++) {
         const callbackEntry = this._callbacks[callbackIndex];
         callbackEntry.callback();
-        callbackEntry.recurring || this._callbacksToRemove.push(callbackEntry.callback);
+        if (!callbackEntry.recurring) {
+          this._callbacksToRemove.push(callbackEntry.callback);
+        }
       }
       this._input.__resetStatesForNextFrame();
       requestAnimationFrame(this._thisLoop);

@@ -1,4 +1,5 @@
 // Recovered from vendors.js:910981-912002.
+// Upstream correspondence: Three.js r185 examples/jsm/shaders/LuminosityHighPassShader.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 const LuminosityHighPassShader = {
   name: "LuminosityHighPassShader",

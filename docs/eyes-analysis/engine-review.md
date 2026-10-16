@@ -215,37 +215,37 @@
 
 管理透视投影、拾取、遮挡检测、多段深度渲染及后处理的渲染相机组件。。父类 `PioneerPublicApi.BaseComponent`。
 
-- `constructor(componentName, entity)` [源码:9](../../eyes/src/engine/components/CameraComponent.js#L9)：当前操作：写入 _aspectRatio、_autoMidDistance、_autoNearDistance、_fieldOfView、_invertDepth、_midDistance、_nearDistance、_occludingEntities、_outlinePass、_outlinePass.enabled、_renderSize、_threeJsCamera、_threeJsComposer、_threeJsRenderer、_threeJsScene、_threeJsUnrealBloomPass、_threeJsUnrealBloomPass.enabled、_viewport；返回 无显式返回。
-- `getViewport()` [源码:39](../../eyes/src/engine/components/CameraComponent.js#L39)：当前操作：写入 无直接字段写入；返回 this._viewport。
-- `getFieldOfView()` [源码:42](../../eyes/src/engine/components/CameraComponent.js#L42)：当前操作：写入 无直接字段写入；返回 this._fieldOfView。
-- `getHorizontalFieldOfView()` [源码:45](../../eyes/src/engine/components/CameraComponent.js#L45)：当前操作：写入 无直接字段写入；返回 this._aspectRatio>=1?this._fieldOfView:2*Math.atan(Math.tan(this._fieldOfView/2)*this._aspectRatio)。
-- `getVerticalFieldOfView()` [源码:48](../../eyes/src/engine/components/CameraComponent.js#L48)：当前操作：写入 无直接字段写入；返回 this._aspectRatio>1?2*Math.atan(Math.tan(this._fieldOfView/2)/this._aspectRatio):this._fieldOfView。
-- `setFieldOfView(fieldOfView)` [源码:51](../../eyes/src/engine/components/CameraComponent.js#L51)：当前操作：写入 _fieldOfView；返回 无显式返回。
-- `getInvertDepth()` [源码:54](../../eyes/src/engine/components/CameraComponent.js#L54)：当前操作：写入 无直接字段写入；返回 this._invertDepth。
-- `setInvertDepth(invertDepth)` [源码:57](../../eyes/src/engine/components/CameraComponent.js#L57)：当前操作：写入 _invertDepth；返回 无显式返回。
-- `getNearDistance()` [源码:60](../../eyes/src/engine/components/CameraComponent.js#L60)：当前操作：写入 无直接字段写入；返回 this._nearDistance。
-- `setNearDistance(nearDistance)` [源码:63](../../eyes/src/engine/components/CameraComponent.js#L63)：当前操作：写入 _nearDistance；返回 无显式返回。
-- `getAutoNearDistance()` [源码:66](../../eyes/src/engine/components/CameraComponent.js#L66)：当前操作：写入 无直接字段写入；返回 this._autoNearDistance。
-- `getMidDistance()` [源码:69](../../eyes/src/engine/components/CameraComponent.js#L69)：当前操作：写入 无直接字段写入；返回 this._midDistance。
-- `setMidDistance(midDistance)` [源码:72](../../eyes/src/engine/components/CameraComponent.js#L72)：当前操作：写入 _midDistance；返回 无显式返回。
-- `getAutoMidDistance()` [源码:75](../../eyes/src/engine/components/CameraComponent.js#L75)：当前操作：写入 无直接字段写入；返回 this._autoMidDistance。
-- `getNormalSpacePositionFromCameraSpacePosition(output, cameraPosition)` [源码:78](../../eyes/src/engine/components/CameraComponent.js#L78)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getNormalSpaceRadiusFromRadius(radius, distance)` [源码:86](../../eyes/src/engine/components/CameraComponent.js#L86)：当前操作：写入 无直接字段写入；返回 radius/Math.abs(distance)/Math.tan(this._fieldOfView/2)。
-- `getCameraSpacePositionFromNormalSpacePosition(output, normalPosition)` [源码:89](../../eyes/src/engine/components/CameraComponent.js#L89)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getRadiusFromNormalSpaceRadius(normalRadius, distance)` [源码:97](../../eyes/src/engine/components/CameraComponent.js#L97)：当前操作：写入 无直接字段写入；返回 normalRadius*Math.abs(distance)*Math.tan(this._fieldOfView/2)。
-- `getRaycast(rayOrigin, rayDirection, entity)` [源码:100](../../eyes/src/engine/components/CameraComponent.js#L100)：当前操作：写入 无直接字段写入；返回 hits。
-- `getRaycastColor(rayOrigin, rayDirection, entity)` [源码:135](../../eyes/src/engine/components/CameraComponent.js#L135)：对同面连续命中去重后逐个纹理 uniform 采样；保留原来的像素跨距和 UV 取整规则。
-- `isPositionOccluded(cameraPosition)` [源码:194](../../eyes/src/engine/components/CameraComponent.js#L194)：当前操作：写入 无直接字段写入；返回 true、false。
-- `getNearestIntersectingEntity(rayDirection)` [源码:198](../../eyes/src/engine/components/CameraComponent.js#L198)：当前操作：写入 无直接字段写入；返回 nearestEntity。
-- `setBloom(strength)` [源码:217](../../eyes/src/engine/components/CameraComponent.js#L217)：当前操作：写入 _threeJsUnrealBloomPass.enabled、_threeJsUnrealBloomPass.strength；返回 无显式返回。
-- `setOutline(color, component, objectName)` [源码:221](../../eyes/src/engine/components/CameraComponent.js#L221)：当前操作：写入 _outlinePass.enabled、_outlinePass.selectedObjects；返回 无显式返回。
-- `__addToOccludingEntities(entity)` [源码:242](../../eyes/src/engine/components/CameraComponent.js#L242)：当前操作：写入 无直接字段写入；返回 void。
-- `__destroy()` [源码:246](../../eyes/src/engine/components/CameraComponent.js#L246)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__updateCameraVariablesForConnectedScene()` [源码:253](../../eyes/src/engine/components/CameraComponent.js#L253)：当前操作：写入 _aspectRatio、_autoMidDistance、_autoNearDistance；返回 无显式返回。
-- `__prepareForRender()` [源码:301](../../eyes/src/engine/components/CameraComponent.js#L301)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__render()` [源码:314](../../eyes/src/engine/components/CameraComponent.js#L314)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__setViewport(viewport)` [源码:322](../../eyes/src/engine/components/CameraComponent.js#L322)：当前操作：写入 _viewport；返回 无显式返回。
-- `_updateProjectionMatrix()` [源码:326](../../eyes/src/engine/components/CameraComponent.js#L326)：这里采用 Y 前向的投影排列，转换函数读取 elements[0/9/6/14]；逆矩阵必须同步更新。
+- `constructor(componentName, entity)` [源码:10](../../eyes/src/engine/components/CameraComponent.js#L10)：PerspectiveCamera 只作为 Three 相机载体，后续以 +Y 前向自定义矩阵覆盖默认投影。后处理顺序为 RenderPass → OutlinePass → UnrealBloomPass，后两项默认禁用。
+- `getViewport()` [源码:40](../../eyes/src/engine/components/CameraComponent.js#L40)：当前操作：写入 无直接字段写入；返回 this._viewport。
+- `getFieldOfView()` [源码:43](../../eyes/src/engine/components/CameraComponent.js#L43)：当前操作：写入 无直接字段写入；返回 this._fieldOfView。
+- `getHorizontalFieldOfView()` [源码:47](../../eyes/src/engine/components/CameraComponent.js#L47)：_fieldOfView 是较长屏幕轴的角度，单位为弧度；横屏直接作为水平角，竖屏按宽高比缩小水平角。
+- `getVerticalFieldOfView()` [源码:51](../../eyes/src/engine/components/CameraComponent.js#L51)：横屏按宽高比缩小垂直角，竖屏直接使用 _fieldOfView。不要把它当 Three.PerspectiveCamera 的固定垂直 degree fov。
+- `setFieldOfView(fieldOfView)` [源码:54](../../eyes/src/engine/components/CameraComponent.js#L54)：当前操作：写入 _fieldOfView；返回 无显式返回。
+- `getInvertDepth()` [源码:57](../../eyes/src/engine/components/CameraComponent.js#L57)：当前操作：写入 无直接字段写入；返回 this._invertDepth。
+- `setInvertDepth(invertDepth)` [源码:60](../../eyes/src/engine/components/CameraComponent.js#L60)：当前操作：写入 _invertDepth；返回 无显式返回。
+- `getNearDistance()` [源码:63](../../eyes/src/engine/components/CameraComponent.js#L63)：当前操作：写入 无直接字段写入；返回 this._nearDistance。
+- `setNearDistance(nearDistance)` [源码:66](../../eyes/src/engine/components/CameraComponent.js#L66)：当前操作：写入 _nearDistance；返回 无显式返回。
+- `getAutoNearDistance()` [源码:69](../../eyes/src/engine/components/CameraComponent.js#L69)：当前操作：写入 无直接字段写入；返回 this._autoNearDistance。
+- `getMidDistance()` [源码:72](../../eyes/src/engine/components/CameraComponent.js#L72)：当前操作：写入 无直接字段写入；返回 this._midDistance。
+- `setMidDistance(midDistance)` [源码:75](../../eyes/src/engine/components/CameraComponent.js#L75)：当前操作：写入 _midDistance；返回 无显式返回。
+- `getAutoMidDistance()` [源码:78](../../eyes/src/engine/components/CameraComponent.js#L78)：当前操作：写入 无直接字段写入；返回 this._autoMidDistance。
+- `getNormalSpacePositionFromCameraSpacePosition(output, cameraPosition)` [源码:82](../../eyes/src/engine/components/CameraComponent.js#L82)：输入只去掉相机平移、仍沿世界轴；先乘实体朝向的逆得到 +Y 前向坐标，再按投影矩阵的列主序 elements[0/9/6/14] 求 NDC。
+- `getNormalSpaceRadiusFromRadius(radius, distance)` [源码:90](../../eyes/src/engine/components/CameraComponent.js#L90)：当前操作：写入 无直接字段写入；返回 radius/Math.abs(distance)/Math.tan(this._fieldOfView/2)。
+- `getCameraSpacePositionFromNormalSpacePosition(output, normalPosition)` [源码:94](../../eyes/src/engine/components/CameraComponent.js#L94)：与正向公式共用同一深度系数，恢复 +Y 前向坐标后再乘相机实体朝向。池向量在 copy 完成后归还，允许 output 与输入别名。
+- `getRadiusFromNormalSpaceRadius(normalRadius, distance)` [源码:102](../../eyes/src/engine/components/CameraComponent.js#L102)：当前操作：写入 无直接字段写入；返回 normalRadius*Math.abs(distance)*Math.tan(this._fieldOfView/2)。
+- `getRaycast(rayOrigin, rayDirection, entity)` [源码:106](../../eyes/src/engine/components/CameraComponent.js#L106)：先让目标实体把本相机的显示状态/矩阵写到 Three 对象；Three.Raycaster 返回的是相机平移原点下的坐标，再还原为命中实体局部帧。只去重同对象、同面顶点索引的连续命中。
+- `getRaycastColor(rayOrigin, rayDirection, entity)` [源码:142](../../eyes/src/engine/components/CameraComponent.js#L142)：对同面连续命中去重后逐个纹理 uniform 采样；保留原来的像素跨距和 UV 取整规则。 canvas.getImageData 总是 RGBA 字节；原实现却按 texture.format 选择 3/4 跨距，且没有按 texture.transformUv 处理。这里保留原采样算法，准确取样仍待专门修复与验证。
+- `isPositionOccluded(cameraPosition)` [源码:201](../../eyes/src/engine/components/CameraComponent.js#L201)：当前操作：写入 无直接字段写入；返回 true、false。
+- `getNearestIntersectingEntity(rayDirection)` [源码:205](../../eyes/src/engine/components/CameraComponent.js#L205)：当前操作：写入 无直接字段写入；返回 nearestEntity。
+- `setBloom(strength)` [源码:224](../../eyes/src/engine/components/CameraComponent.js#L224)：当前操作：写入 _threeJsUnrealBloomPass.enabled、_threeJsUnrealBloomPass.strength；返回 无显式返回。
+- `setOutline(color, component, objectName)` [源码:229](../../eyes/src/engine/components/CameraComponent.js#L229)：只收直接挂在当前 THREE.Scene 的根对象，或按名称精确选择一个子对象；可见边颜色用原色，遮挡边为四分之一强度。
+- `__addToOccludingEntities(entity)` [源码:250](../../eyes/src/engine/components/CameraComponent.js#L250)：当前操作：写入 无直接字段写入；返回 void。
+- `__destroy()` [源码:255](../../eyes/src/engine/components/CameraComponent.js#L255)：本方法只解除视口/实体相机缓存，没有调用 composer.dispose；不能据此认为 render targets 与 passes 已全部释放。
+- `__updateCameraVariablesForConnectedScene()` [源码:263](../../eyes/src/engine/components/CameraComponent.js#L263)：DOM 尺寸决定 composer 尺寸与投影宽高比；自动 near/mid 结合父实体外接半径和地表距离收紧。mid/invertDepth 后续交给自定义 shader，不能替换成标准 far plane。
+- `__prepareForRender()` [源码:312](../../eyes/src/engine/components/CameraComponent.js#L312)：多个视口复用同一批 Three 对象，所以每个相机绘制前都重新准备可见状态与 camera-relative 位姿，随后按需更新动态环境贴图。
+- `__render()` [源码:326](../../eyes/src/engine/components/CameraComponent.js#L326)：渲染相机只设置朝向；实体对象已经相对相机平移，不应再给 Three 相机写同一大尺度世界位置。Composer 运行 Render/Outline/Bloom 通道。
+- `__setViewport(viewport)` [源码:334](../../eyes/src/engine/components/CameraComponent.js#L334)：当前操作：写入 _viewport；返回 无显式返回。
+- `_updateProjectionMatrix()` [源码:339](../../eyes/src/engine/components/CameraComponent.js#L339)：这里采用 Y 前向的投影排列，转换函数读取 elements[0/9/6/14]；逆矩阵必须同步更新。 采用 +Y 前向、+Z 上向和远端趋于 1 的投影，Three.Matrix4.set 按行传参、elements 按列读取。显式写投影及其逆，不能调用标准 updateProjectionMatrix 覆盖。fov 上限 180 的旧判断仍保留，尽管三角函数用弧度。
 
 ## `eyes/src/engine/components/CometTailComponent.js`
 
@@ -2543,44 +2543,44 @@ RGBA 分量逐项运算，标量乘除同样作用于 alpha；不自动夹紧到
 
 引擎拥有渲染器、下载器与资源管理器；每帧先推进场景状态，再更新视口、视觉资源，最后渲染并执行回调。。父类 `无`。
 
-- `constructor(rootDiv)` [源码:5](../../eyes/src/engine/core/Engine.js#L5)：当前操作：写入 _callbacks、_callbacksToRemove、_canvas、_canvas.style.height、_canvas.style.left、_canvas.style.position、_canvas.style.top、_canvas.style.width、_config、_downloader、_environment、_fps、_fpsLimit、_input、_lastAppTime、_materialManager、_realDeltaTime、_renderSize、_resourceManager、_rootDiv、_rootDiv.style.position、_rootDiv.style.touchAction、_rootDiv.style.userSelect、_scenes、_textureLoader、_thisLoop、_threeJsRenderer、_time、_timeRate、_viewportDiv、_viewportDiv.style.height、_viewportDiv.style.left、_viewportDiv.style.overflow、_viewportDiv.style.position、_viewportDiv.style.top、_viewportDiv.style.width、_viewports；返回 无显式返回。
-- `getVersion()` [源码:20](../../eyes/src/engine/core/Engine.js#L20)：当前操作：写入 无直接字段写入；返回 PioneerPublicApi.Version。
-- `getEnvironment()` [源码:23](../../eyes/src/engine/core/Engine.js#L23)：当前操作：写入 无直接字段写入；返回 this._environment。
-- `setEnvironment(environment)` [源码:26](../../eyes/src/engine/core/Engine.js#L26)：当前操作：写入 _environment；返回 无显式返回。
-- `getRootDiv()` [源码:29](../../eyes/src/engine/core/Engine.js#L29)：当前操作：写入 无直接字段写入；返回 this._rootDiv。
-- `getRenderSize()` [源码:32](../../eyes/src/engine/core/Engine.js#L32)：当前操作：写入 无直接字段写入；返回 this._renderSize。
-- `getCanvas()` [源码:35](../../eyes/src/engine/core/Engine.js#L35)：当前操作：写入 无直接字段写入；返回 this._canvas。
-- `getViewportDiv()` [源码:38](../../eyes/src/engine/core/Engine.js#L38)：当前操作：写入 无直接字段写入；返回 this._viewportDiv。
-- `getConfig()` [源码:41](../../eyes/src/engine/core/Engine.js#L41)：当前操作：写入 无直接字段写入；返回 this._config。
-- `getInput()` [源码:44](../../eyes/src/engine/core/Engine.js#L44)：当前操作：写入 无直接字段写入；返回 this._input。
-- `getDownloader()` [源码:47](../../eyes/src/engine/core/Engine.js#L47)：当前操作：写入 无直接字段写入；返回 this._downloader。
-- `getTextureLoader()` [源码:50](../../eyes/src/engine/core/Engine.js#L50)：当前操作：写入 无直接字段写入；返回 this._textureLoader。
-- `getResourceManager()` [源码:53](../../eyes/src/engine/core/Engine.js#L53)：当前操作：写入 无直接字段写入；返回 this._resourceManager。
-- `getMaterialManager()` [源码:56](../../eyes/src/engine/core/Engine.js#L56)：当前操作：写入 无直接字段写入；返回 this._materialManager。
-- `getScene(sceneName)` [源码:59](../../eyes/src/engine/core/Engine.js#L59)：当前操作：写入 无直接字段写入；返回 this._scenes.get(PioneerPublicApi.Scene,sceneName)。
-- `getSceneAt(sceneIndex)` [源码:62](../../eyes/src/engine/core/Engine.js#L62)：当前操作：写入 无直接字段写入；返回 this._scenes.getAt(sceneIndex)。
-- `getNumScenes()` [源码:65](../../eyes/src/engine/core/Engine.js#L65)：当前操作：写入 无直接字段写入；返回 this._scenes.getSize()。
-- `addScene(sceneName)` [源码:68](../../eyes/src/engine/core/Engine.js#L68)：当前操作：写入 无直接字段写入；返回 this._scenes.add(PioneerPublicApi.Scene,sceneName)。
-- `removeScene(sceneOrName)` [源码:71](../../eyes/src/engine/core/Engine.js#L71)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `get(sceneName, entityName, itemNameOrType, classIndex=0)` [源码:74](../../eyes/src/engine/core/Engine.js#L74)：当前操作：写入 无直接字段写入；返回 void 0===entityName\|\|null===scene?scene:scene.get(entityName,itemNameOrType,classIndex)。
-- `getViewport(viewportName)` [源码:78](../../eyes/src/engine/core/Engine.js#L78)：当前操作：写入 无直接字段写入；返回 this._viewports.get(PioneerPublicApi.Viewport,viewportName)。
-- `getViewportAt(viewportIndex)` [源码:81](../../eyes/src/engine/core/Engine.js#L81)：当前操作：写入 无直接字段写入；返回 this._viewports.getAt(viewportIndex)。
-- `getNumViewports()` [源码:84](../../eyes/src/engine/core/Engine.js#L84)：当前操作：写入 无直接字段写入；返回 this._viewports.getSize()。
-- `addViewport(viewportName)` [源码:87](../../eyes/src/engine/core/Engine.js#L87)：当前操作：写入 无直接字段写入；返回 this._viewports.add(PioneerPublicApi.Viewport,viewportName)。
-- `removeViewport(viewportOrName)` [源码:90](../../eyes/src/engine/core/Engine.js#L90)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getTime()` [源码:93](../../eyes/src/engine/core/Engine.js#L93)：当前操作：写入 无直接字段写入；返回 this._time。
-- `setTime(time)` [源码:96](../../eyes/src/engine/core/Engine.js#L96)：当前操作：写入 _time；返回 无显式返回。
-- `getTimeRate()` [源码:99](../../eyes/src/engine/core/Engine.js#L99)：当前操作：写入 无直接字段写入；返回 this._timeRate。
-- `setTimeRate(timeRate)` [源码:102](../../eyes/src/engine/core/Engine.js#L102)：当前操作：写入 _timeRate；返回 无显式返回。
-- `getFPS()` [源码:105](../../eyes/src/engine/core/Engine.js#L105)：当前操作：写入 无直接字段写入；返回 this._fps.getFPS()。
-- `getFPSLimit()` [源码:108](../../eyes/src/engine/core/Engine.js#L108)：当前操作：写入 无直接字段写入；返回 this._fpsLimit。
-- `setFPSLimit(fpsLimit)` [源码:111](../../eyes/src/engine/core/Engine.js#L111)：当前操作：写入 _fpsLimit；返回 无显式返回。
-- `getDeltaTime()` [源码:114](../../eyes/src/engine/core/Engine.js#L114)：当前操作：写入 无直接字段写入；返回 this._realDeltaTime。
-- `waitUntilNextFrame()` [源码:118](../../eyes/src/engine/core/Engine.js#L118)：一次性回调在帧尾兑现，调用者随后观察的是本帧更新后的场景状态。
-- `addCallback(callback, recurring)` [源码:125](../../eyes/src/engine/core/Engine.js#L125)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `removeCallback(callback)` [源码:131](../../eyes/src/engine/core/Engine.js#L131)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__getThreeJsRenderer()` [源码:134](../../eyes/src/engine/core/Engine.js#L134)：当前操作：写入 无直接字段写入；返回 this._threeJsRenderer。
-- `_loop()` [源码:138](../../eyes/src/engine/core/Engine.js#L138)：限帧时不推进上一帧时间；真正执行帧时才更新时间与输入状态。回调删除延后到下一次回调遍历前，避免遍历中删项。
+- `constructor(rootDiv)` [源码:6](../../eyes/src/engine/core/Engine.js#L6)：渲染器来自恢复应用的 THREE 导出，不是根项目 npm three。一个 WebGL2 canvas 由多个 Viewport 用 scissor 分区；禁用 Three.Cache 后资源缓存由 ResourceManager 统一计数。
+- `getVersion()` [源码:59](../../eyes/src/engine/core/Engine.js#L59)：当前操作：写入 无直接字段写入；返回 PioneerPublicApi.Version。
+- `getEnvironment()` [源码:62](../../eyes/src/engine/core/Engine.js#L62)：当前操作：写入 无直接字段写入；返回 this._environment。
+- `setEnvironment(environment)` [源码:65](../../eyes/src/engine/core/Engine.js#L65)：当前操作：写入 _environment；返回 无显式返回。
+- `getRootDiv()` [源码:68](../../eyes/src/engine/core/Engine.js#L68)：当前操作：写入 无直接字段写入；返回 this._rootDiv。
+- `getRenderSize()` [源码:71](../../eyes/src/engine/core/Engine.js#L71)：当前操作：写入 无直接字段写入；返回 this._renderSize。
+- `getCanvas()` [源码:74](../../eyes/src/engine/core/Engine.js#L74)：当前操作：写入 无直接字段写入；返回 this._canvas。
+- `getViewportDiv()` [源码:77](../../eyes/src/engine/core/Engine.js#L77)：当前操作：写入 无直接字段写入；返回 this._viewportDiv。
+- `getConfig()` [源码:80](../../eyes/src/engine/core/Engine.js#L80)：当前操作：写入 无直接字段写入；返回 this._config。
+- `getInput()` [源码:83](../../eyes/src/engine/core/Engine.js#L83)：当前操作：写入 无直接字段写入；返回 this._input。
+- `getDownloader()` [源码:86](../../eyes/src/engine/core/Engine.js#L86)：当前操作：写入 无直接字段写入；返回 this._downloader。
+- `getTextureLoader()` [源码:89](../../eyes/src/engine/core/Engine.js#L89)：当前操作：写入 无直接字段写入；返回 this._textureLoader。
+- `getResourceManager()` [源码:92](../../eyes/src/engine/core/Engine.js#L92)：当前操作：写入 无直接字段写入；返回 this._resourceManager。
+- `getMaterialManager()` [源码:95](../../eyes/src/engine/core/Engine.js#L95)：当前操作：写入 无直接字段写入；返回 this._materialManager。
+- `getScene(sceneName)` [源码:98](../../eyes/src/engine/core/Engine.js#L98)：当前操作：写入 无直接字段写入；返回 this._scenes.get(PioneerPublicApi.Scene,sceneName)。
+- `getSceneAt(sceneIndex)` [源码:101](../../eyes/src/engine/core/Engine.js#L101)：当前操作：写入 无直接字段写入；返回 this._scenes.getAt(sceneIndex)。
+- `getNumScenes()` [源码:104](../../eyes/src/engine/core/Engine.js#L104)：当前操作：写入 无直接字段写入；返回 this._scenes.getSize()。
+- `addScene(sceneName)` [源码:107](../../eyes/src/engine/core/Engine.js#L107)：当前操作：写入 无直接字段写入；返回 this._scenes.add(PioneerPublicApi.Scene,sceneName)。
+- `removeScene(sceneOrName)` [源码:110](../../eyes/src/engine/core/Engine.js#L110)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get(sceneName, entityName, itemNameOrType, classIndex=0)` [源码:113](../../eyes/src/engine/core/Engine.js#L113)：当前操作：写入 无直接字段写入；返回 void 0===entityName\|\|null===scene?scene:scene.get(entityName,itemNameOrType,classIndex)。
+- `getViewport(viewportName)` [源码:117](../../eyes/src/engine/core/Engine.js#L117)：当前操作：写入 无直接字段写入；返回 this._viewports.get(PioneerPublicApi.Viewport,viewportName)。
+- `getViewportAt(viewportIndex)` [源码:120](../../eyes/src/engine/core/Engine.js#L120)：当前操作：写入 无直接字段写入；返回 this._viewports.getAt(viewportIndex)。
+- `getNumViewports()` [源码:123](../../eyes/src/engine/core/Engine.js#L123)：当前操作：写入 无直接字段写入；返回 this._viewports.getSize()。
+- `addViewport(viewportName)` [源码:126](../../eyes/src/engine/core/Engine.js#L126)：当前操作：写入 无直接字段写入；返回 this._viewports.add(PioneerPublicApi.Viewport,viewportName)。
+- `removeViewport(viewportOrName)` [源码:129](../../eyes/src/engine/core/Engine.js#L129)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getTime()` [源码:132](../../eyes/src/engine/core/Engine.js#L132)：当前操作：写入 无直接字段写入；返回 this._time。
+- `setTime(time)` [源码:136](../../eyes/src/engine/core/Engine.js#L136)：只设置 Pioneer 仿真时刻，不设置 Three.Clock；下一执行帧由 Scene 按该时刻重新采样控制器。
+- `getTimeRate()` [源码:139](../../eyes/src/engine/core/Engine.js#L139)：当前操作：写入 无直接字段写入；返回 this._timeRate。
+- `setTimeRate(timeRate)` [源码:142](../../eyes/src/engine/core/Engine.js#L142)：当前操作：写入 _timeRate；返回 无显式返回。
+- `getFPS()` [源码:145](../../eyes/src/engine/core/Engine.js#L145)：当前操作：写入 无直接字段写入；返回 this._fps.getFPS()。
+- `getFPSLimit()` [源码:148](../../eyes/src/engine/core/Engine.js#L148)：当前操作：写入 无直接字段写入；返回 this._fpsLimit。
+- `setFPSLimit(fpsLimit)` [源码:151](../../eyes/src/engine/core/Engine.js#L151)：当前操作：写入 _fpsLimit；返回 无显式返回。
+- `getDeltaTime()` [源码:155](../../eyes/src/engine/core/Engine.js#L155)：返回真实墙钟差（秒），与可暂停、倒放和加速的仿真时差区分。
+- `waitUntilNextFrame()` [源码:159](../../eyes/src/engine/core/Engine.js#L159)：一次性回调在帧尾兑现，调用者随后观察的是本帧更新后的场景状态。
+- `addCallback(callback, recurring)` [源码:166](../../eyes/src/engine/core/Engine.js#L166)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallback(callback)` [源码:172](../../eyes/src/engine/core/Engine.js#L172)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__getThreeJsRenderer()` [源码:176](../../eyes/src/engine/core/Engine.js#L176)：多个视口、组件的原生 GL 缓冲和后处理共享这一个 renderer/context；上层不得为每个实体重建渲染器。
+- `_loop()` [源码:181](../../eyes/src/engine/core/Engine.js#L181)：限帧时不推进上一帧时间；真正执行帧时才更新时间与输入状态。回调删除延后到下一次回调遍历前，避免遍历中删项。 先用真实秒差推进仿真时刻，再按控制器依赖更新实体；随后计算各相机相关量并更新视觉资源。整 canvas 清屏后依次绘制视口，最后执行回调与重置输入。限帧分支不推进 _lastAppTime。
 
 ## `eyes/src/engine/core/Entity-567.js`
 
@@ -3420,31 +3420,31 @@ origin 与 size 是持有的二维向量；contains 左下闭右上开，interse
 
 场景持有实体集合与控制器依赖图；实体先保存上一帧状态及切换父级，再由依赖图按顺序更新控制器。。父类 `PioneerPublicApi.CollectionItem`。
 
-- `constructor(sceneName, engine)` [源码:5](../../eyes/src/engine/core/Scene.js#L5)：当前操作：写入 _ambientLightColor、_controllerDependencyGraph、_entities、_lightSources、_threeJsScene；返回 无显式返回。
-- `getEngine()` [源码:13](../../eyes/src/engine/core/Scene.js#L13)：当前操作：写入 无直接字段写入；返回 this.__getCollectionParent()。
-- `getEntity(entityName)` [源码:16](../../eyes/src/engine/core/Scene.js#L16)：当前操作：写入 无直接字段写入；返回 this._entities.get(PioneerPublicApi.Entity,entityName)。
-- `getEntityAt(entityIndex)` [源码:19](../../eyes/src/engine/core/Scene.js#L19)：当前操作：写入 无直接字段写入；返回 this._entities.getAt(entityIndex)。
-- `getNumEntities()` [源码:22](../../eyes/src/engine/core/Scene.js#L22)：当前操作：写入 无直接字段写入；返回 this._entities.getSize()。
-- `addEntity(entityName)` [源码:25](../../eyes/src/engine/core/Scene.js#L25)：当前操作：写入 无直接字段写入；返回 this._entities.add(PioneerPublicApi.Entity,entityName)。
-- `removeEntity(entityOrName)` [源码:28](../../eyes/src/engine/core/Scene.js#L28)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `moveEntity(entityOrName, targetScene)` [源码:32](../../eyes/src/engine/core/Scene.js#L32)：移动集合所有权时同步迁移控制器依赖图；灯光引用迁移保持原有实现，疑点见资源分析记录。
-- `get(entityName, itemNameOrType, classIndex=0)` [源码:54](../../eyes/src/engine/core/Scene.js#L54)：当前操作：写入 无直接字段写入；返回 void 0===itemNameOrType\|\|null===entity?entity:entity.get(itemNameOrType,classIndex)。
-- `getControllerDependencyGraph()` [源码:58](../../eyes/src/engine/core/Scene.js#L58)：当前操作：写入 无直接字段写入；返回 this._controllerDependencyGraph。
-- `getAmbientLightColor()` [源码:61](../../eyes/src/engine/core/Scene.js#L61)：当前操作：写入 无直接字段写入；返回 this._ambientLightColor。
-- `setAmbientLightColor(color)` [源码:64](../../eyes/src/engine/core/Scene.js#L64)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__addLightSource(entityName, componentClassIndex)` [源码:67](../../eyes/src/engine/core/Scene.js#L67)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__removeLightSource(entityName, componentClassIndex=0)` [源码:75](../../eyes/src/engine/core/Scene.js#L75)：当前操作：写入 无直接字段写入；返回 void this._lightSources.splice(lightIndex,1)。
-- `getLightSourceAt(lightIndex)` [源码:82](../../eyes/src/engine/core/Scene.js#L82)：当前操作：写入 无直接字段写入；返回 this._lightSources[lightIndex]?.get()??null。
-- `getNumLightSources()` [源码:85](../../eyes/src/engine/core/Scene.js#L85)：当前操作：写入 无直接字段写入；返回 this._lightSources.length。
-- `getLoadedPromise(entityNames, forceLoaded=false, timeout=Number.POSITIVE_INFINITY)` [源码:89](../../eyes/src/engine/core/Scene.js#L89)：等待指定实体或全部实体；汇集失败后加上实体名，避免首个失败掩盖其余加载结果。
-- `waitTillEntitiesInPlace(entityNames, time, timeout=Number.POSITIVE_INFINITY)` [源码:106](../../eyes/src/engine/core/Scene.js#L106)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__destroy()` [源码:119](../../eyes/src/engine/core/Scene.js#L119)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getThreeJsScene()` [源码:123](../../eyes/src/engine/core/Scene.js#L123)：当前操作：写入 无直接字段写入；返回 this._threeJsScene。
-- `__update()` [源码:126](../../eyes/src/engine/core/Scene.js#L126)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__updateVisuals()` [源码:136](../../eyes/src/engine/core/Scene.js#L136)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__removeCameraDependents(camera)` [源码:142](../../eyes/src/engine/core/Scene.js#L142)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static _updateController(controller)` [源码:145](../../eyes/src/engine/core/Scene.js#L145)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static _compareControllers(dependentController, precedingController)` [源码:149](../../eyes/src/engine/core/Scene.js#L149)：同实体按集合顺序；跨实体按父级状态及显式 dependent-state 排序，禁用或时间不相交的控制器不建立边。
+- `constructor(sceneName, engine)` [源码:6](../../eyes/src/engine/core/Scene.js#L6)：Pioneer 实体树与 THREE.Scene 分开存储；THREE.Scene 仅容纳渲染对象，不能替代父级切换、覆盖区间或控制器依赖图。
+- `getEngine()` [源码:14](../../eyes/src/engine/core/Scene.js#L14)：当前操作：写入 无直接字段写入；返回 this.__getCollectionParent()。
+- `getEntity(entityName)` [源码:17](../../eyes/src/engine/core/Scene.js#L17)：当前操作：写入 无直接字段写入；返回 this._entities.get(PioneerPublicApi.Entity,entityName)。
+- `getEntityAt(entityIndex)` [源码:20](../../eyes/src/engine/core/Scene.js#L20)：当前操作：写入 无直接字段写入；返回 this._entities.getAt(entityIndex)。
+- `getNumEntities()` [源码:23](../../eyes/src/engine/core/Scene.js#L23)：当前操作：写入 无直接字段写入；返回 this._entities.getSize()。
+- `addEntity(entityName)` [源码:26](../../eyes/src/engine/core/Scene.js#L26)：当前操作：写入 无直接字段写入；返回 this._entities.add(PioneerPublicApi.Entity,entityName)。
+- `removeEntity(entityOrName)` [源码:29](../../eyes/src/engine/core/Scene.js#L29)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `moveEntity(entityOrName, targetScene)` [源码:33](../../eyes/src/engine/core/Scene.js#L33)：移动集合所有权时同步迁移控制器依赖图；灯光引用迁移保持原有实现，疑点见资源分析记录。
+- `get(entityName, itemNameOrType, classIndex=0)` [源码:55](../../eyes/src/engine/core/Scene.js#L55)：当前操作：写入 无直接字段写入；返回 void 0===itemNameOrType\|\|null===entity?entity:entity.get(itemNameOrType,classIndex)。
+- `getControllerDependencyGraph()` [源码:59](../../eyes/src/engine/core/Scene.js#L59)：当前操作：写入 无直接字段写入；返回 this._controllerDependencyGraph。
+- `getAmbientLightColor()` [源码:62](../../eyes/src/engine/core/Scene.js#L62)：当前操作：写入 无直接字段写入；返回 this._ambientLightColor。
+- `setAmbientLightColor(color)` [源码:65](../../eyes/src/engine/core/Scene.js#L65)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__addLightSource(entityName, componentClassIndex)` [源码:68](../../eyes/src/engine/core/Scene.js#L68)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__removeLightSource(entityName, componentClassIndex=0)` [源码:76](../../eyes/src/engine/core/Scene.js#L76)：当前操作：写入 无直接字段写入；返回 void this._lightSources.splice(lightIndex,1)。
+- `getLightSourceAt(lightIndex)` [源码:83](../../eyes/src/engine/core/Scene.js#L83)：当前操作：写入 无直接字段写入；返回 this._lightSources[lightIndex]?.get()??null。
+- `getNumLightSources()` [源码:86](../../eyes/src/engine/core/Scene.js#L86)：当前操作：写入 无直接字段写入；返回 this._lightSources.length。
+- `getLoadedPromise(entityNames, forceLoaded=false, timeout=Number.POSITIVE_INFINITY)` [源码:90](../../eyes/src/engine/core/Scene.js#L90)：等待指定实体或全部实体；汇集失败后加上实体名，避免首个失败掩盖其余加载结果。
+- `waitTillEntitiesInPlace(entityNames, time, timeout=Number.POSITIVE_INFINITY)` [源码:107](../../eyes/src/engine/core/Scene.js#L107)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__destroy()` [源码:120](../../eyes/src/engine/core/Scene.js#L120)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getThreeJsScene()` [源码:125](../../eyes/src/engine/core/Scene.js#L125)：这里只返回渲染容器；太阳系层级位姿依赖仍在 Entity，而不是直接依靠 Three.Object3D 父子变换。
+- `__update()` [源码:129](../../eyes/src/engine/core/Scene.js#L129)：先备份实体状态并按仿真时刻切换父级/覆盖区间，再执行拓扑排序后的控制器；Three 在这一步不计算星历。
+- `__updateVisuals()` [源码:140](../../eyes/src/engine/core/Scene.js#L140)：仅有位置覆盖且启用的实体更新视觉状态；此阶段早于各视口 __render，组件可以据屏幕尺寸安排 LOD 加载。
+- `__removeCameraDependents(camera)` [源码:149](../../eyes/src/engine/core/Scene.js#L149)：相机销毁时删除每实体/组件保存的相机相关缓存，避免长生命周期场景保留已移除的相机键。
+- `static _updateController(controller)` [源码:152](../../eyes/src/engine/core/Scene.js#L152)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static _compareControllers(dependentController, precedingController)` [源码:158](../../eyes/src/engine/core/Scene.js#L158)：同实体按集合顺序；跨实体按父级状态及显式 dependent-state 排序，禁用或时间不相交的控制器不建立边。
 
 ## `eyes/src/engine/core/SceneHelpers.js`
 
@@ -3659,7 +3659,7 @@ UI 入口适配模块：重新导出实际组件并副作用加载配套 extract
 
 ## `eyes/src/engine/core/ThreeJsHelper.js`
 
-集中创建/更新/销毁 Three.js 网格、属性、材质、纹理并把实体状态转换到相机坐标。。[源码](../../eyes/src/engine/core/ThreeJsHelper.js)。语义状态：`verified-semantic-refactor`。
+集中创建/更新/销毁 Three.js 网格、属性、材质、纹理并把实体状态转换到相机坐标。。[源码](../../eyes/src/engine/core/ThreeJsHelper.js)。语义状态：`verified-behavior-fix`。
 
 [总文档中的完整条目](README.md#file-eyes-src-engine-core-ThreeJsHelper-js)
 
@@ -3667,45 +3667,45 @@ UI 入口适配模块：重新导出实际组件并副作用加载配套 extract
 
 集中创建/更新/销毁 Three.js 网格、属性、材质、纹理并把实体状态转换到相机坐标。。父类 `无`。
 
-- `static createGeometry(attributes, interleaved)` [源码:5](../../eyes/src/engine/core/ThreeJsHelper.js#L5)：当前操作：写入 无直接字段写入；返回 bufferGeometry。
-- `static setupObject(component, object)` [源码:24](../../eyes/src/engine/core/ThreeJsHelper.js#L24)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static createMeshObjectGivenGeometry(component, material, geometry)` [源码:31](../../eyes/src/engine/core/ThreeJsHelper.js#L31)：当前操作：写入 无直接字段写入；返回 mesh。
-- `static createMeshObject(component, material, attributes, interleaved)` [源码:36](../../eyes/src/engine/core/ThreeJsHelper.js#L36)：当前操作：写入 无直接字段写入；返回 this.createMeshObjectGivenGeometry(component,material,geometry)。
-- `static destroyGeometry(geometry, component)` [源码:40](../../eyes/src/engine/core/ThreeJsHelper.js#L40)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static destroyObject(object, component)` [源码:47](../../eyes/src/engine/core/ThreeJsHelper.js#L47)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static destroyMaterial(material, destroyTextures)` [源码:57](../../eyes/src/engine/core/ThreeJsHelper.js#L57)：只有调用者授予纹理所有权时才遍历 uniform 销毁贴图；材质本身始终 dispose。
-- `static destroyTexture(texture)` [源码:69](../../eyes/src/engine/core/ThreeJsHelper.js#L69)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static destroyRenderTarget(renderTarget)` [源码:80](../../eyes/src/engine/core/ThreeJsHelper.js#L80)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static destroyAllObjectsAndMaterials(component, destroyTextures=true)` [源码:83](../../eyes/src/engine/core/ThreeJsHelper.js#L83)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setPosition(objects, position)` [源码:89](../../eyes/src/engine/core/ThreeJsHelper.js#L89)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setPositionToEntity(objects, entity, camera, offset, relativeToEntity)` [源码:92](../../eyes/src/engine/core/ThreeJsHelper.js#L92)：当前操作：写入 无直接字段写入；返回 void。
-- `static setScale(objects, scale)` [源码:112](../../eyes/src/engine/core/ThreeJsHelper.js#L112)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setOrientation(objects, orientation)` [源码:125](../../eyes/src/engine/core/ThreeJsHelper.js#L125)：当前操作：写入 无直接字段写入；返回 void。
-- `static setOrientationToBillboard(objects, camera)` [源码:132](../../eyes/src/engine/core/ThreeJsHelper.js#L132)：当前操作：写入 无直接字段写入；返回 void。
-- `static setOrientationToEntity(objects, entity, offset)` [源码:149](../../eyes/src/engine/core/ThreeJsHelper.js#L149)：当前操作：写入 无直接字段写入；返回 void。
-- `static useInDynEnvMap(object, enabled)` [源码:162](../../eyes/src/engine/core/ThreeJsHelper.js#L162)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static createGLBufferAttribute(bufferKind, data, elementType, dimensions, component)` [源码:170](../../eyes/src/engine/core/ThreeJsHelper.js#L170)：分配 GPU 缓冲后保留 elementSize/count，后续上传以元素偏移换算字节；索引缓冲绑定按原条件恢复。
-- `static updateGLBufferAttribute(attribute, bufferKind, data, offset, count, component)` [源码:201](../../eyes/src/engine/core/ThreeJsHelper.js#L201)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setVertices(geometry, name, vertices)` [源码:214](../../eyes/src/engine/core/ThreeJsHelper.js#L214)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setIndices(geometry, indices)` [源码:225](../../eyes/src/engine/core/ThreeJsHelper.js#L225)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static computeTangents(geometry)` [源码:234](../../eyes/src/engine/core/ThreeJsHelper.js#L234)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setRenderOrder(object, renderOrder)` [源码:237](../../eyes/src/engine/core/ThreeJsHelper.js#L237)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static cloneMaterial(material)` [源码:243](../../eyes/src/engine/core/ThreeJsHelper.js#L243)：uniform 数字/null 直接复制，数组递归复制，其余对象调用 clone，避免实例共享可变向量。
-- `static _cloneUniformValue(value)` [源码:252](../../eyes/src/engine/core/ThreeJsHelper.js#L252)：当前操作：写入 无直接字段写入；返回 null、value、elements、value.clone()。
-- `static loadTexture(component, url, options)` [源码:262](../../eyes/src/engine/core/ThreeJsHelper.js#L262)：当前操作：写入 无直接字段写入；返回 component.getEntity().getScene().getEngine().getTextureLoader().loadTexture(url,-component.getEntity().getLeastCameraDepth(),options)。
-- `static loadTextureFromCanvas(canvas)` [源码:265](../../eyes/src/engine/core/ThreeJsHelper.js#L265)：当前操作：写入 无直接字段写入；返回 canvasTexture。
-- `static loadTextureIntoUniform(component, uniform, url, options)` [源码:273](../../eyes/src/engine/core/ThreeJsHelper.js#L273)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setOverlay(material, overlay)` [源码:280](../../eyes/src/engine/core/ThreeJsHelper.js#L280)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setTransparent(material, transparent)` [源码:285](../../eyes/src/engine/core/ThreeJsHelper.js#L285)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setBlending(material, blending)` [源码:291](../../eyes/src/engine/core/ThreeJsHelper.js#L291)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setDefine(material, name, enabled)` [源码:315](../../eyes/src/engine/core/ThreeJsHelper.js#L315)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setUniformNumber(material, name, value)` [源码:326](../../eyes/src/engine/core/ThreeJsHelper.js#L326)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `static setUniformVector2(material, name, vector)` [源码:331](../../eyes/src/engine/core/ThreeJsHelper.js#L331)：当前操作：写入 无直接字段写入；返回 void。
-- `static setUniformVector3(material, name, vector)` [源码:335](../../eyes/src/engine/core/ThreeJsHelper.js#L335)：当前操作：写入 无直接字段写入；返回 void。
-- `static setUniformColorRGB(material, name, color)` [源码:339](../../eyes/src/engine/core/ThreeJsHelper.js#L339)：当前操作：写入 无直接字段写入；返回 void。
-- `static setUniformColorRGBA(material, name, color, alphaMultiplier=1)` [源码:343](../../eyes/src/engine/core/ThreeJsHelper.js#L343)：当前操作：写入 无直接字段写入；返回 void。
-- `static setUniformQuaternion(material, name, orientation)` [源码:347](../../eyes/src/engine/core/ThreeJsHelper.js#L347)：当前操作：写入 无直接字段写入；返回 void。
-- `static setUniformTexture(material, name, texture)` [源码:351](../../eyes/src/engine/core/ThreeJsHelper.js#L351)：当前操作：写入 无直接字段写入；返回 void。
+- `static createGeometry(attributes, interleaved)` [源码:6](../../eyes/src/engine/core/ThreeJsHelper.js#L6)：这里只建立 attribute/index 槽位，不上传实际顶点；交错布局的 stride/offset 单位为元素数，后续设置顶点数据与 GL 缓冲上传是独立步骤。
+- `static setupObject(component, object)` [源码:26](../../eyes/src/engine/core/ThreeJsHelper.js#L26)：实体位姿由 Pioneer 每相机写入，禁用 matrixAutoUpdate 避免 Three 重算；frustumCulled=false 把可见性留给 Pioneer 组件，不使用 Three 几何包围体自动剔除。对象先隐藏，再由组件渲染准备阶段显式显示/更新矩阵。
+- `static createMeshObjectGivenGeometry(component, material, geometry)` [源码:33](../../eyes/src/engine/core/ThreeJsHelper.js#L33)：当前操作：写入 无直接字段写入；返回 mesh。
+- `static createMeshObject(component, material, attributes, interleaved)` [源码:38](../../eyes/src/engine/core/ThreeJsHelper.js#L38)：当前操作：写入 无直接字段写入；返回 this.createMeshObjectGivenGeometry(component,material,geometry)。
+- `static destroyGeometry(geometry, component)` [源码:43](../../eyes/src/engine/core/ThreeJsHelper.js#L43)：GLBufferAttribute 可以来自上层创建的原生缓冲；未被 renderer 注册过的几何也必须释放这些句柄。普通 BufferAttribute 的 GPU 缓存由 geometry.dispose 事件通知 Three 释放。
+- `static destroyObject(object, component)` [源码:50](../../eyes/src/engine/core/ThreeJsHelper.js#L50)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static destroyMaterial(material, destroyTextures)` [源码:62](../../eyes/src/engine/core/ThreeJsHelper.js#L62)：只有调用者授予纹理所有权时才遍历 uniform 销毁贴图；材质本身始终 dispose。
+- `static destroyTexture(texture)` [源码:74](../../eyes/src/engine/core/ThreeJsHelper.js#L74)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static destroyRenderTarget(renderTarget)` [源码:85](../../eyes/src/engine/core/ThreeJsHelper.js#L85)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static destroyAllObjectsAndMaterials(component, destroyTextures=true)` [源码:88](../../eyes/src/engine/core/ThreeJsHelper.js#L88)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setPosition(objects, position)` [源码:94](../../eyes/src/engine/core/ThreeJsHelper.js#L94)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setPositionToEntity(objects, entity, camera, offset, relativeToEntity)` [源码:98](../../eyes/src/engine/core/ThreeJsHelper.js#L98)：Entity.cameraSpacePosition 已减去相机平移，但仍沿世界轴；不在这里再减一次相机位置。relativeToEntity 只决定额外 offset 是否先乘实体朝向。
+- `static setScale(objects, scale)` [源码:118](../../eyes/src/engine/core/ThreeJsHelper.js#L118)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setOrientation(objects, orientation)` [源码:131](../../eyes/src/engine/core/ThreeJsHelper.js#L131)：当前操作：写入 无直接字段写入；返回 void。
+- `static setOrientationToBillboard(objects, camera)` [源码:139](../../eyes/src/engine/core/ThreeJsHelper.js#L139)：由相机前向/右向构造 billboard 朝向；Pioneer 用 +Y 前向，Three 四元数通过 x/y/z/w 分量桥接，不能把轴索引当标准 -Z 相机方向。
+- `static setOrientationToEntity(objects, entity, offset)` [源码:157](../../eyes/src/engine/core/ThreeJsHelper.js#L157)：组合顺序为 qEntity * qOffset，offset 位于实体局部坐标。Pioneer 构造器是 w/x/y/z 次序，传给 Three.set 时必须按 x/y/z/w。
+- `static useInDynEnvMap(object, enabled)` [源码:171](../../eyes/src/engine/core/ThreeJsHelper.js#L171)：第 1 层由动态环境贴图相机选择，开关只改 layer 位，不创建或释放环境贴图。
+- `static createGLBufferAttribute(bufferKind, data, elementType, dimensions, component)` [源码:180](../../eyes/src/engine/core/ThreeJsHelper.js#L180)：分配 GPU 缓冲后保留 elementSize/count，后续上传以元素偏移换算字节；索引缓冲绑定按原条件恢复。 bufferData 传入的是字节容量而不是 data 数组，所以此处仅分配，不上传内容；offset/count 上传由 updateGLBufferAttribute 完成。
+- `static updateGLBufferAttribute(attribute, bufferKind, data, offset, count, component)` [源码:212](../../eyes/src/engine/core/ThreeJsHelper.js#L212)：目标字节偏移=offset*elementSize，源数组偏移/count仍按元素计。仅在旧索引绑定为真值时恢复它；保留原有状态恢复规则。
+- `static setVertices(geometry, name, vertices)` [源码:226](../../eyes/src/engine/core/ThreeJsHelper.js#L226)：数组长度相同时保留 BufferAttribute 身份并增加 version；长度改变才替换 attribute。交错属性不经过此普通 BufferAttribute 分支。
+- `static setIndices(geometry, indices)` [源码:238](../../eyes/src/engine/core/ThreeJsHelper.js#L238)：保留同长度索引 attribute；调用方负责 TypedArray 类型与顶点索引范围。这里不选择 Uint16/Uint32，也不自动重算包围体。
+- `static computeTangents(geometry)` [源码:247](../../eyes/src/engine/core/ThreeJsHelper.js#L247)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setRenderOrder(object, renderOrder)` [源码:250](../../eyes/src/engine/core/ThreeJsHelper.js#L250)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static cloneMaterial(material)` [源码:257](../../eyes/src/engine/core/ThreeJsHelper.js#L257)：uniform 数字/null 直接复制，数组递归复制，其余对象调用 clone，避免实例共享可变向量。 Three 的 ShaderMaterial.clone 对 uniform 值的复制不足以表达这里的递归数组策略；再按 _cloneUniformValue 复制，避免不同组件共享可变向量。
+- `static _cloneUniformValue(value)` [源码:267](../../eyes/src/engine/core/ThreeJsHelper.js#L267)：支持 number/null、递归数组与提供 clone() 的对象；字符串/boolean/普通字典不在此函数支持范围，不能把它当通用深拷贝。
+- `static loadTexture(component, url, options)` [源码:278](../../eyes/src/engine/core/ThreeJsHelper.js#L278)：距离优先级取负的 cameraDepth；此便捷路径直达 TextureLoader，不代表取得 ResourceManager 的共享资源所有权。
+- `static loadTextureFromCanvas(canvas)` [源码:282](../../eyes/src/engine/core/ThreeJsHelper.js#L282)：CanvasTexture 用最近邻采样且 flipY=false，保持上层 canvas 像素方向；不要套用普通图片贴图的默认翻转。
+- `static loadTextureIntoUniform(component, uniform, url, options)` [源码:290](../../eyes/src/engine/core/ThreeJsHelper.js#L290)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setOverlay(material, overlay)` [源码:297](../../eyes/src/engine/core/ThreeJsHelper.js#L297)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setTransparent(material, transparent)` [源码:303](../../eyes/src/engine/core/ThreeJsHelper.js#L303)：透明时同时关闭 depthWrite；这与仅设置 material.opacity 不同。没有在此重新选择混合模式或排序。
+- `static setBlending(material, blending)` [源码:309](../../eyes/src/engine/core/ThreeJsHelper.js#L309)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setDefine(material, name, enabled)` [源码:334](../../eyes/src/engine/core/ThreeJsHelper.js#L334)：仅定义开关发生变化时置 needsUpdate，通知 Three 重新编译 shader；已有非 false/undefined 值在启用时保留。
+- `static setUniformNumber(material, name, value)` [源码:345](../../eyes/src/engine/core/ThreeJsHelper.js#L345)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `static setUniformVector2(material, name, vector)` [源码:350](../../eyes/src/engine/core/ThreeJsHelper.js#L350)：当前操作：写入 无直接字段写入；返回 void。
+- `static setUniformVector3(material, name, vector)` [源码:354](../../eyes/src/engine/core/ThreeJsHelper.js#L354)：当前操作：写入 无直接字段写入；返回 void。
+- `static setUniformColorRGB(material, name, color)` [源码:358](../../eyes/src/engine/core/ThreeJsHelper.js#L358)：当前操作：写入 无直接字段写入；返回 void。
+- `static setUniformColorRGBA(material, name, color, alphaMultiplier=1)` [源码:362](../../eyes/src/engine/core/ThreeJsHelper.js#L362)：当前操作：写入 无直接字段写入；返回 void。
+- `static setUniformQuaternion(material, name, orientation)` [源码:366](../../eyes/src/engine/core/ThreeJsHelper.js#L366)：当前操作：写入 无直接字段写入；返回 void。
+- `static setUniformTexture(material, name, texture)` [源码:371](../../eyes/src/engine/core/ThreeJsHelper.js#L371)：替换前销毁旧贴图；这是拥有旧纹理的操作，不是只换引用。共享贴图调用方必须协调计数，不能将 ResourceManager.release 等同于直接 dispose。
 
 ## `eyes/src/engine/core/Tile.js`
 
@@ -4073,24 +4073,24 @@ Pioneer 引擎版本字面量 70.1.0。。[源码](../../eyes/src/engine/core/Ve
 
 维护视口 DOM 和矩形、绑定相机、换算屏幕坐标并以 scissor 分区渲染。。父类 `PioneerPublicApi.CollectionItem`。
 
-- `constructor(viewportName, engine)` [源码:5](../../eyes/src/engine/core/Viewport.js#L5)：当前操作：写入 _backgroundColor、_bounds、_camera、_div、_div.id、_div.style.overflow、_div.style.position、_enabled、_threeJsBackgroundColor；返回 无显式返回。
-- `getEngine()` [源码:25](../../eyes/src/engine/core/Viewport.js#L25)：当前操作：写入 无直接字段写入；返回 this.__getCollectionParent()。
-- `getDiv()` [源码:28](../../eyes/src/engine/core/Viewport.js#L28)：当前操作：写入 无直接字段写入；返回 this._div。
-- `getBounds()` [源码:31](../../eyes/src/engine/core/Viewport.js#L31)：当前操作：写入 无直接字段写入；返回 this._bounds。
-- `getBackgroundColor()` [源码:34](../../eyes/src/engine/core/Viewport.js#L34)：当前操作：写入 无直接字段写入；返回 this._backgroundColor。
-- `setBackgroundColor(color)` [源码:37](../../eyes/src/engine/core/Viewport.js#L37)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getCamera()` [源码:41](../../eyes/src/engine/core/Viewport.js#L41)：当前操作：写入 无直接字段写入；返回 this._camera。
-- `setCamera(camera)` [源码:44](../../eyes/src/engine/core/Viewport.js#L44)：当前操作：写入 _camera；返回 无显式返回。
-- `isEnabled()` [源码:53](../../eyes/src/engine/core/Viewport.js#L53)：当前操作：写入 无直接字段写入；返回 this._enabled。
-- `setEnabled(enabled)` [源码:56](../../eyes/src/engine/core/Viewport.js#L56)：当前操作：写入 _div.style.display、_enabled；返回 无显式返回。
-- `getNormalSpacePositionFromPixelSpacePosition(output, pixelPosition)` [源码:64](../../eyes/src/engine/core/Viewport.js#L64)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getPixelSpacePositionFromNormalSpacePosition(output, normalPosition)` [源码:69](../../eyes/src/engine/core/Viewport.js#L69)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `getPixelSpaceRadiusFromNormalSpaceRadius(normalRadius)` [源码:77](../../eyes/src/engine/core/Viewport.js#L77)：当前操作：写入 无直接字段写入；返回 normalRadius*Math.max(this._bounds.size.x,this._bounds.size.y)。
-- `getNormalSpaceRadiusFromPixelSpaceRadius(pixelRadius)` [源码:80](../../eyes/src/engine/core/Viewport.js#L80)：当前操作：写入 无直接字段写入；返回 pixelRadius/Math.max(this._bounds.size.x,this._bounds.size.y)。
-- `getDirectionOfCursor(output)` [源码:83](../../eyes/src/engine/core/Viewport.js#L83)：当前操作：写入 无直接字段写入；返回 void output.copy(PioneerPublicApi.Vector3.NaN)。
-- `__destroy()` [源码:95](../../eyes/src/engine/core/Viewport.js#L95)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__updateViewportVariables()` [源码:99](../../eyes/src/engine/core/Viewport.js#L99)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__render()` [源码:107](../../eyes/src/engine/core/Viewport.js#L107)：当前操作：写入 无直接字段写入；返回 void。
+- `constructor(viewportName, engine)` [源码:6](../../eyes/src/engine/core/Viewport.js#L6)：建立 CSS 定位容器，并在尚无活动视口时交给 Input。构造时 bounds 会减去 rootDiv 偏移，逐帧更新直接读 div 偏移；这里保留既有坐标基准差异。
+- `getEngine()` [源码:26](../../eyes/src/engine/core/Viewport.js#L26)：当前操作：写入 无直接字段写入；返回 this.__getCollectionParent()。
+- `getDiv()` [源码:29](../../eyes/src/engine/core/Viewport.js#L29)：当前操作：写入 无直接字段写入；返回 this._div。
+- `getBounds()` [源码:32](../../eyes/src/engine/core/Viewport.js#L32)：当前操作：写入 无直接字段写入；返回 this._bounds。
+- `getBackgroundColor()` [源码:35](../../eyes/src/engine/core/Viewport.js#L35)：当前操作：写入 无直接字段写入；返回 this._backgroundColor。
+- `setBackgroundColor(color)` [源码:38](../../eyes/src/engine/core/Viewport.js#L38)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getCamera()` [源码:42](../../eyes/src/engine/core/Viewport.js#L42)：当前操作：写入 无直接字段写入；返回 this._camera。
+- `setCamera(camera)` [源码:46](../../eyes/src/engine/core/Viewport.js#L46)：先解除旧相机的反向 viewport 引用，再连接新相机；相机的屏幕比例与拾取范围通过这条关联更新。
+- `isEnabled()` [源码:55](../../eyes/src/engine/core/Viewport.js#L55)：当前操作：写入 无直接字段写入；返回 this._enabled。
+- `setEnabled(enabled)` [源码:58](../../eyes/src/engine/core/Viewport.js#L58)：当前操作：写入 _div.style.display、_enabled；返回 无显式返回。
+- `getNormalSpacePositionFromPixelSpacePosition(output, pixelPosition)` [源码:67](../../eyes/src/engine/core/Viewport.js#L67)：输入为视口所在 DOM 坐标系的像素，输出 NDC：左上为 (-1,+1)，z=-1 选择投影近平面；这不是实体世界坐标。
+- `getPixelSpacePositionFromNormalSpacePosition(output, normalPosition)` [源码:73](../../eyes/src/engine/core/Viewport.js#L73)：只接受严格位于 (-1,1) 的投影深度；边界与背后点输出 NaN，供标签/拾取调用方跳过。
+- `getPixelSpaceRadiusFromNormalSpaceRadius(normalRadius)` [源码:81](../../eyes/src/engine/core/Viewport.js#L81)：当前操作：写入 无直接字段写入；返回 normalRadius*Math.max(this._bounds.size.x,this._bounds.size.y)。
+- `getNormalSpaceRadiusFromPixelSpaceRadius(pixelRadius)` [源码:84](../../eyes/src/engine/core/Viewport.js#L84)：当前操作：写入 无直接字段写入；返回 pixelRadius/Math.max(this._bounds.size.x,this._bounds.size.y)。
+- `getDirectionOfCursor(output)` [源码:88](../../eyes/src/engine/core/Viewport.js#L88)：先把像素映射到近平面，再用自定义相机逆投影及实体朝向恢复方向。输出仍使用世界轴，原点是相机位置。
+- `__destroy()` [源码:100](../../eyes/src/engine/core/Viewport.js#L100)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__updateViewportVariables()` [源码:105](../../eyes/src/engine/core/Viewport.js#L105)：先更新 DOM bounds，再通知连接场景的相机计算投影与实体屏幕位置；这一阶段发生在组件 LOD 更新之前。
+- `__render()` [源码:114](../../eyes/src/engine/core/Viewport.js#L114)：CSS 视口从顶部计 y，WebGL viewport/scissor 从底部计 y；宽高仍为逻辑像素，renderer 按 pixelRatio 转物理像素。Camera 的 composer 负责真正绘制。
 
 ## `eyes/src/engine/core/VisibleInterval.js`
 

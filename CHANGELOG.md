@@ -3,6 +3,22 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.33 - 2026-10-16
+
+Deepen recovery against the bundled Three revision and explain the application
+bridge with source correspondence and actual CPU integration checks.
+
+- Extend core method/helper matching and record concrete remaining AST differences.
+- Restore renderer helpers/variables and addon roles; independently verify
+  renderer correspondence and all 142 embedded ShaderChunk strings against both
+  official r185 package references without replacing the bundled implementation.
+- Document all 34 rendering components, simulation/render separation, Y-forward
+  camera projection, manual matrices, viewport/scissor and texture ownership.
+- Release Points/Line geometry and forward component GL context through recursive
+  and batch cleanup, including external buffers that were never rendered.
+- Correct lexical proof declaration identity under same-name nested functions;
+  add adversarial checks and actual Three geometry/matrix/resource regressions.
+
 ## 0.2.32 - 2026-10-16
 
 Replace compressed local names in the application and engine with scoped,

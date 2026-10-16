@@ -1,4 +1,5 @@
 // Recovered from vendors.js:880790-881346.
+// Upstream correspondence: Three.js r185 examples/jsm/shaders/CopyShader.js; see docs/eyes-analysis/three-renderer-next.md.
 const CopyShader = {
   name: "CopyShader",
   uniforms: {

@@ -36,6 +36,13 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
   naming evidence, preserved contracts and remaining questions.
 - [Three matching report](docs/eyes-analysis/three-semantic-changes.md) records
   the actual upstream matches, whole-file checks and unmatched methods.
+- [Deeper core comparison](docs/eyes-analysis/three-core-next.md),
+  [renderer and addon comparison](docs/eyes-analysis/three-renderer-next.md), and
+  [Eyes/Three integration](docs/eyes-analysis/eyes-three-integration.md) connect
+  the official source to the actual application, including all rendering components,
+  camera conventions, manual matrices and corrected GPU cleanup paths.
+- [Remaining core semantics](docs/eyes-analysis/three-core-remaining-semantics.md) explains
+  methods and helpers that lack a complete structural match, with explicit boundaries.
 - `npm run eyes:analyze`: refresh the reference; `npm run eyes:analyze:check`:
   reject stale source coverage and evidence links.
 

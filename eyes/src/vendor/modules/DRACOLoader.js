@@ -1,4 +1,5 @@
 // Recovered from vendors.js:976080-983485.
+// Upstream correspondence: Three.js r185 examples/jsm/loaders/DRACOLoader.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 import Unidentified112 from "./Unidentified112.cjs";
 import Unidentified113 from "./Unidentified113.cjs";
@@ -14,8 +15,8 @@ const weakMap = new WeakMap(),
     wasm: new URL(Unidentified116, document.baseURI).toString()
   };
 class DRACOLoader extends ThreeCore.Loader {
-  constructor(e) {
-    super(e), this.decoderPaths = {
+  constructor(manager) {
+    super(manager), this.decoderPaths = {
       js: s,
       wasm: a,
       dep_js: o
@@ -31,46 +32,46 @@ class DRACOLoader extends ThreeCore.Loader {
       uv: "Float32Array"
     };
   }
-  setDecoderPath(e) {
+  setDecoderPath(path) {
     const {
       decoderPaths: decoderPaths
     } = this;
-    return "object" == typeof e ? (decoderPaths.js = e.js, decoderPaths.wasm = e.wasm, decoderPaths.dep_js = null) : (decoderPaths.js = ThreeCore.LoaderUtils.resolveURL("draco_wasm_wrapper.js", e), decoderPaths.wasm = ThreeCore.LoaderUtils.resolveURL("draco_decoder.wasm", e), decoderPaths.dep_js = ThreeCore.LoaderUtils.resolveURL("draco_decoder.js", e)), this;
+    return "object" == typeof path ? (decoderPaths.js = path.js, decoderPaths.wasm = path.wasm, decoderPaths.dep_js = null) : (decoderPaths.js = ThreeCore.LoaderUtils.resolveURL("draco_wasm_wrapper.js", path), decoderPaths.wasm = ThreeCore.LoaderUtils.resolveURL("draco_decoder.wasm", path), decoderPaths.dep_js = ThreeCore.LoaderUtils.resolveURL("draco_decoder.js", path)), this;
   }
-  setDecoderConfig(decoderConfig) {
-    return console.warn("THREE.DRACOLoader: setDecoderConfig to has been deprecated and will be removed in r194."), this.decoderConfig = decoderConfig, this;
+  setDecoderConfig(config) {
+    return console.warn("THREE.DRACOLoader: setDecoderConfig to has been deprecated and will be removed in r194."), this.decoderConfig = config, this;
   }
   setWorkerLimit(workerLimit) {
     return this.workerLimit = workerLimit, this;
   }
-  load(e, t, n, i) {
+  load(url, onLoad, onProgress, onError) {
     const fileLoader = new ThreeCore.FileLoader(this.manager);
-    fileLoader.setPath(this.path), fileLoader.setResponseType("arraybuffer"), fileLoader.setRequestHeader(this.requestHeader), fileLoader.setWithCredentials(this.withCredentials), fileLoader.load(e, e => {
-      this.parse(e, t, i);
-    }, n, i);
+    fileLoader.setPath(this.path), fileLoader.setResponseType("arraybuffer"), fileLoader.setRequestHeader(this.requestHeader), fileLoader.setWithCredentials(this.withCredentials), fileLoader.load(url, e => {
+      this.parse(e, onLoad, onError);
+    }, onProgress, onError);
   }
-  parse(e, t, n = () => {}) {
-    this.decodeDracoFile(e, t, null, null, ThreeCore.SRGBColorSpace, n).catch(n);
+  parse(buffer, onLoad, n = () => {}) {
+    this.decodeDracoFile(buffer, onLoad, null, null, ThreeCore.SRGBColorSpace, n).catch(n);
   }
-  decodeDracoFile(e, t, n, i, a = ThreeCore.LinearSRGBColorSpace, s = () => {}) {
+  decodeDracoFile(buffer, callback, attributeIDs, attributeTypes, a = ThreeCore.LinearSRGBColorSpace, s = () => {}) {
     const o = {
-      attributeIDs: n || this.defaultAttributeIDs,
-      attributeTypes: i || this.defaultAttributeTypes,
-      useUniqueIDs: !!n,
+      attributeIDs: attributeIDs || this.defaultAttributeIDs,
+      attributeTypes: attributeTypes || this.defaultAttributeTypes,
+      useUniqueIDs: !!attributeIDs,
       vertexColorSpace: a
     };
-    return this.decodeGeometry(e, o).then(t).catch(s);
+    return this.decodeGeometry(buffer, o).then(callback).catch(s);
   }
-  decodeGeometry(e, t) {
-    const n = JSON.stringify(t);
-    if (weakMap.has(e)) {
-      const t = weakMap.get(e);
+  decodeGeometry(buffer, taskConfig) {
+    const n = JSON.stringify(taskConfig);
+    if (weakMap.has(buffer)) {
+      const t = weakMap.get(buffer);
       if (t.key === n) return t.promise;
-      if (0 === e.byteLength) throw new Error("THREE.DRACOLoader: Unable to re-decode a buffer with different settings. Buffer has already been transferred.");
+      if (0 === buffer.byteLength) throw new Error("THREE.DRACOLoader: Unable to re-decode a buffer with different settings. Buffer has already been transferred.");
     }
     let r;
     const a = this.workerNextTaskID++,
-      s = e.byteLength,
+      s = buffer.byteLength,
       o = this._getWorker(a, s).then(n => (r = n, new Promise((n, i) => {
         r._callbacks[a] = {
           resolve: n,
@@ -78,28 +79,28 @@ class DRACOLoader extends ThreeCore.Loader {
         }, r.postMessage({
           type: "decode",
           id: a,
-          taskConfig: t,
-          buffer: e
-        }, [e]);
+          taskConfig: taskConfig,
+          buffer: buffer
+        }, [buffer]);
       }))).then(e => this._createGeometry(e.geometry));
     return o.catch(() => !0).then(() => {
       r && a && this._releaseTask(r, a);
-    }), weakMap.set(e, {
+    }), weakMap.set(buffer, {
       key: n,
       promise: o
     }), o;
   }
-  _createGeometry(e) {
+  _createGeometry(geometryData) {
     const bufferGeometry = new ThreeCore.BufferGeometry();
-    e.index && bufferGeometry.setIndex(new ThreeCore.BufferAttribute(e.index.array, 1));
-    for (let n = 0; n < e.attributes.length; n++) {
+    geometryData.index && bufferGeometry.setIndex(new ThreeCore.BufferAttribute(geometryData.index.array, 1));
+    for (let n = 0; n < geometryData.attributes.length; n++) {
       const {
         name: name,
         array: array,
         itemSize: itemSize,
         stride: stride,
         vertexColorSpace: vertexColorSpace
-      } = e.attributes[n];
+      } = geometryData.attributes[n];
       let l;
       if (itemSize === stride) l = new ThreeCore.BufferAttribute(array, itemSize);else {
         const interleavedBuffer = new ThreeCore.InterleavedBuffer(array, stride);
@@ -109,15 +110,15 @@ class DRACOLoader extends ThreeCore.Loader {
     }
     return bufferGeometry;
   }
-  _assignVertexColorSpace(e, t) {
-    if (t !== ThreeCore.SRGBColorSpace) return;
+  _assignVertexColorSpace(attribute, inputColorSpace) {
+    if (inputColorSpace !== ThreeCore.SRGBColorSpace) return;
     const color = new ThreeCore.Color();
-    for (let t = 0, i = e.count; t < i; t++) color.fromBufferAttribute(e, t), ThreeCore.ColorManagement.colorSpaceToWorking(color, ThreeCore.SRGBColorSpace), e.setXYZ(t, color.r, color.g, color.b);
+    for (let t = 0, i = attribute.count; t < i; t++) color.fromBufferAttribute(attribute, t), ThreeCore.ColorManagement.colorSpaceToWorking(color, ThreeCore.SRGBColorSpace), attribute.setXYZ(t, color.r, color.g, color.b);
   }
-  _loadLibrary(e, t) {
+  _loadLibrary(url, responseType) {
     const fileLoader = new ThreeCore.FileLoader(this.manager);
-    return fileLoader.setResponseType(t), fileLoader.setWithCredentials(this.withCredentials), new Promise((t, r) => {
-      fileLoader.load(e, t, void 0, r);
+    return fileLoader.setResponseType(responseType), fileLoader.setWithCredentials(this.withCredentials), new Promise((t, r) => {
+      fileLoader.load(url, t, void 0, r);
     });
   }
   preload() {
@@ -137,12 +138,12 @@ class DRACOLoader extends ThreeCore.Loader {
     return this.decoderPending = Promise.all(t).then(t => {
       const n = t[0];
       e || (this.decoderConfig.wasmBinary = t[1]);
-      const r = l.toString(),
+      const r = DRACOWorker.toString(),
         i = ["/* draco decoder */", n, "", "/* worker */", r.substring(r.indexOf("{") + 1, r.lastIndexOf("}"))].join("\n");
       this.workerSourceURL = URL.createObjectURL(new Blob([i]));
     }), this.decoderPending;
   }
-  _getWorker(e, t) {
+  _getWorker(taskID, taskCost) {
     return this._initDecoder().then(() => {
       if (this.workerPool.length < this.workerLimit) {
         const worker = new Worker(this.workerSourceURL);
@@ -166,11 +167,11 @@ class DRACOLoader extends ThreeCore.Loader {
         return e._taskLoad > t._taskLoad ? -1 : 1;
       });
       const n = this.workerPool[this.workerPool.length - 1];
-      return n._taskCosts[e] = t, n._taskLoad += t, n;
+      return n._taskCosts[taskID] = taskCost, n._taskLoad += taskCost, n;
     });
   }
-  _releaseTask(e, t) {
-    e._taskLoad -= e._taskCosts[t], delete e._callbacks[t], delete e._taskCosts[t];
+  _releaseTask(worker, taskID) {
+    worker._taskLoad -= worker._taskCosts[taskID], delete worker._callbacks[taskID], delete worker._taskCosts[taskID];
   }
   debug() {
     console.log("Task load: ", this.workerPool.map(e => e._taskLoad));
@@ -180,7 +181,7 @@ class DRACOLoader extends ThreeCore.Loader {
     return this.workerPool.length = 0, "" !== this.workerSourceURL && URL.revokeObjectURL(this.workerSourceURL), this;
   }
 }
-function l() {
+function DRACOWorker() {
   let e, t;
   function n(e, t, n, r, i, a) {
     const s = n.num_points(),

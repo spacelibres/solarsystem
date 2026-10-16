@@ -1,0 +1,51 @@
+const assert=require('node:assert/strict'),fs=require('node:fs'),crypto=require('node:crypto');
+const parser=require('@babel/parser'),generate=require('@babel/generator').default;
+const {pathToFileURL}=require('node:url'),path=require('node:path');
+const {collect,canonical}=require('./lib/three-core-match-next.cjs');
+const shape=body=>canonical([...collect(parser.parse('class C{ method(value){'+body+'}}',{sourceType:'module'})).methods.values()][0]);
+assert.equal(shape('return 4*value;').hash,shape('return value*4;').hash);
+assert.equal(shape('return 1<<0;').hash,shape('return 1;').hash);
+assert.equal(shape('const result=Math.sin(value);return result;').hash,shape('return Math.sin(value);').hash);
+assert.equal(shape('if(value===undefined){return false;}return value===2;').hash,shape('return value!==undefined&&value===2;').hash);
+assert.notEqual(shape('return first()*second();').hash,shape('return second()*first();').hash);
+assert.notEqual(shape('return 4+value;').hash,shape('return value+4;').hash);
+assert.notEqual(shape('const first=read();sideEffect();return first;').hash,shape('sideEffect();return read();').hash);
+const exactShape=source=>canonical([...collect(parser.parse(source,{sourceType:'module'})).methods.values()][0],false).hash;
+assert.notEqual(exactShape('class C{m(undefined){return undefined===(undefined=2)}}'),exactShape('class C{m(undefined){return (undefined=2)===undefined}}'));
+assert.notEqual(exactShape('class C{m(x){if(x){return 0}else{let a=1;}return typeof a}}'),exactShape('class C{m(x){if(x){return 0}let a=1;return typeof a}}'));
+assert.notEqual(exactShape('class C{m(x,undefined){if(x)return false;return}}'),exactShape('class C{m(x,undefined){return !x&&undefined}}'));
+assert.notEqual(exactShape('class C{m(x){if(x)return a;let a=1;return a}}'),exactShape('class C{m(x){if(!x){let a=1;}return a}}'));
+assert.notEqual(exactShape('class C{m(){return globalValue!=globalValue}}'),exactShape('class C{m(){return globalValue!==globalValue}}'));
+assert.equal(collect(parser.parse('const holder={};holder.Composite=class Composite{constructor(value){this.value=value;}getValue(){return this.value;}}')).methods.size,2);
+const source=fs.readFileSync('eyes/src/vendor/three/core.js','utf8');
+const hash=crypto.createHash('sha256').update(generate(parser.parse(source,{sourceType:'module'}),{comments:false,compact:true,shouldPrintComment:()=>false}).code).digest('hex');
+assert.equal(hash,'94b4dbb6915544f8f81c00d786361e99033e3b9669ea92a08ebec76e2d5a3144','second-pass core semantic AST changed');
+async function check(){
+ const T=await import(pathToFileURL(path.resolve('eyes/src/vendor/three/core.js')).href);
+ assert.equal(T.MathUtils.clamp(8,-2,3),3);assert.equal(T.MathUtils.euclideanModulo(-5,3),1);assert.equal(T.MathUtils.lerp(2,6,.25),3);
+ const layers=new T.Layers();layers.set(31);assert.equal(layers.mask,2147483648);layers.enable(0);assert.equal(layers.isEnabled(31),true);assert.equal(layers.isEnabled(0),true);layers.disable(31);assert.equal(layers.mask,1);
+ assert.equal(T.DataUtils.toHalfFloat(1),0x3c00);assert.equal(T.DataUtils.fromHalfFloat(0xc000),-2);assert.match(T.MathUtils.generateUUID(),/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/);
+ const matrix=new T.Matrix4().makeTranslation(5,6,7);assert.deepEqual(new T.Vector3().setFromMatrixColumn(matrix,3).toArray(),[5,6,7]);
+ const array=new Uint8Array([0,128,255]);assert.equal(T.MathUtils.denormalize(255,array),1);assert.equal(T.isTypedArray(array),true);assert.equal(T.isTypedArray([]),false);
+ // Dispatch copies the listener list: removal during dispatch applies next time.
+ const dispatcher=new T.EventDispatcher(),calls=[];const second=()=>calls.push('second');
+ dispatcher.addEventListener('change',()=>{calls.push('first');dispatcher.removeEventListener('change',second);});dispatcher.addEventListener('change',second);
+ dispatcher.dispatchEvent({type:'change'});dispatcher.dispatchEvent({type:'change'});assert.deepEqual(calls,['first','second','first']);assert.equal(dispatcher.hasEventListener('change',second),false);
+ // Earcut helper identities are exercised through the public contour/hole API.
+ const contour=[[0,0],[4,0],[4,4],[0,4]].map(([x,y])=>new T.Vector2(x,y)),hole=[[1,1],[1,3],[3,3],[3,1]].map(([x,y])=>new T.Vector2(x,y));
+ const triangles=T.ShapeUtils.triangulateShape(contour,[hole]),points=[...contour,...hole];let area=0;
+ for(const [a,b,c]of triangles){const A=points[a],B=points[b],C=points[c];area+=Math.abs((B.x-A.x)*(C.y-A.y)-(B.y-A.y)*(C.x-A.x))/2;}assert.equal(area,12);
+ const box=new T.Box3(new T.Vector3(-1,-1,-1),new T.Vector3(1,1,1));
+ assert.equal(box.intersectsTriangle(new T.Triangle(new T.Vector3(0,0,0),new T.Vector3(3,0,0),new T.Vector3(0,3,0))),true);
+ assert.equal(box.intersectsTriangle(new T.Triangle(new T.Vector3(5,5,5),new T.Vector3(6,5,5),new T.Vector3(5,6,5))),false);
+ const original={color:{value:new T.Color(0x123456)},vector:{value:new T.Vector3(1,2,3)}},copy=T.cloneUniforms(original);
+ copy.vector.value.x=99;assert.equal(original.vector.value.x,1);assert.notEqual(copy.color.value,original.color.value);assert.equal(copy.color.value.getHex(),0x123456);
+ const firstObject=new T.Object3D(),secondObject=new T.Object3D();firstObject.position.x=2;secondObject.position.x=5;
+ const animationGroup=new T.AnimationObjectGroup(firstObject,secondObject),binding=T.PropertyBinding.create(animationGroup,'.position[x]'),values=[];
+ assert.equal(binding instanceof T.PropertyBinding.Composite,true);binding.bind();binding.getValue(values,0);assert.equal(values[0],2);binding.setValue([7],0);assert.equal(firstObject.position.x,7);assert.equal(secondObject.position.x,7);binding.unbind();
+ const geometry=new T.BufferGeometry().setAttribute('position',new T.Float32BufferAttribute([0,0,0,10,0,0],3));
+ const material=new T.PointsMaterial(),cloud=new T.Points(geometry,material),ray=new T.Raycaster(new T.Vector3(0,0,5),new T.Vector3(0,0,-1),1,8);ray.params.Points.threshold=.1;
+ const hits=ray.intersectObject(cloud);assert.equal(hits.length,1);assert.equal(hits[0].index,0);assert.equal(hits[0].distance,5);geometry.dispose();material.dispose();
+ console.log('Three core next frozen AST, math/typed-array/event/earcut/SAT/uniform/point-ray CPU contracts passed');
+}
+check().catch(error=>{console.error(error);process.exitCode=1;});

@@ -1,10 +1,11 @@
 // Recovered from vendors.js:884485-900662.
+// Upstream correspondence: Three.js r185 examples/jsm/postprocessing/OutlinePass.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 import * as Pass from "./Pass.js";
 import * as CopyShader from "./CopyShader.js";
 class OutlinePass extends Pass.Pass {
-  constructor(e, renderScene, renderCamera, s) {
-    super(), this.renderScene = renderScene, this.renderCamera = renderCamera, this.selectedObjects = void 0 !== s ? s : [], this.visibleEdgeColor = new ThreeCore.Color(1, 1, 1), this.hiddenEdgeColor = new ThreeCore.Color(.1, .04, .02), this.edgeGlow = 0, this.usePatternTexture = !1, this.patternTexture = null, this.edgeThickness = 1, this.edgeStrength = 3, this.downSampleRatio = 2, this.pulsePeriod = 0, this._visibilityCache = new Map(), this._selectionCache = new Set(), this.resolution = void 0 !== e ? new ThreeCore.Vector2(e.x, e.y) : new ThreeCore.Vector2(256, 256);
+  constructor(resolution, scene, camera, selectedObjects) {
+    super(), this.renderScene = scene, this.renderCamera = camera, this.selectedObjects = void 0 !== selectedObjects ? selectedObjects : [], this.visibleEdgeColor = new ThreeCore.Color(1, 1, 1), this.hiddenEdgeColor = new ThreeCore.Color(.1, .04, .02), this.edgeGlow = 0, this.usePatternTexture = !1, this.patternTexture = null, this.edgeThickness = 1, this.edgeStrength = 3, this.downSampleRatio = 2, this.pulsePeriod = 0, this._visibilityCache = new Map(), this._selectionCache = new Set(), this.resolution = void 0 !== resolution ? new ThreeCore.Vector2(resolution.x, resolution.y) : new ThreeCore.Vector2(256, 256);
     const o = Math.round(this.resolution.x / this.downSampleRatio),
       c = Math.round(this.resolution.y / this.downSampleRatio);
     this.renderTargetMaskBuffer = new ThreeCore.WebGLRenderTarget(this.resolution.x, this.resolution.y), this.renderTargetMaskBuffer.texture.name = "OutlinePass.mask", this.renderTargetMaskBuffer.texture.generateMipmaps = !1, this.depthMaterial = new ThreeCore.MeshDepthMaterial(), this.depthMaterial.side = ThreeCore.DoubleSide, this.depthMaterial.depthPacking = ThreeCore.RGBADepthPacking, this.depthMaterial.blending = ThreeCore.NoBlending, this.prepareMaskMaterial = this._getPrepareMaskMaterial(), this.prepareMaskMaterial.side = ThreeCore.DoubleSide, this.prepareMaskMaterial.fragmentShader = function (e, t) {
@@ -37,26 +38,26 @@ class OutlinePass extends Pass.Pass {
   dispose() {
     this.renderTargetMaskBuffer.dispose(), this.renderTargetDepthBuffer.dispose(), this.renderTargetMaskDownSampleBuffer.dispose(), this.renderTargetBlurBuffer1.dispose(), this.renderTargetBlurBuffer2.dispose(), this.renderTargetEdgeBuffer1.dispose(), this.renderTargetEdgeBuffer2.dispose(), this.depthMaterial.dispose(), this.prepareMaskMaterial.dispose(), this.edgeDetectionMaterial.dispose(), this.separableBlurMaterial1.dispose(), this.separableBlurMaterial2.dispose(), this.overlayMaterial.dispose(), this.materialCopy.dispose(), this._fsQuad.dispose();
   }
-  setSize(e, t) {
-    this.renderTargetMaskBuffer.setSize(e, t), this.renderTargetDepthBuffer.setSize(e, t);
-    let n = Math.round(e / this.downSampleRatio),
-      r = Math.round(t / this.downSampleRatio);
+  setSize(width, height) {
+    this.renderTargetMaskBuffer.setSize(width, height), this.renderTargetDepthBuffer.setSize(width, height);
+    let n = Math.round(width / this.downSampleRatio),
+      r = Math.round(height / this.downSampleRatio);
     this.renderTargetMaskDownSampleBuffer.setSize(n, r), this.renderTargetBlurBuffer1.setSize(n, r), this.renderTargetEdgeBuffer1.setSize(n, r), this.separableBlurMaterial1.uniforms.texSize.value.set(n, r), n = Math.round(n / 2), r = Math.round(r / 2), this.renderTargetBlurBuffer2.setSize(n, r), this.renderTargetEdgeBuffer2.setSize(n, r), this.separableBlurMaterial2.uniforms.texSize.value.set(n, r);
   }
-  render(e, t, n, r, i) {
+  render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
     if (this.selectedObjects.length > 0) {
-      e.getClearColor(this._oldClearColor), this.oldClearAlpha = e.getClearAlpha();
-      const t = e.autoClear;
-      e.autoClear = !1, i && e.state.buffers.stencil.setTest(!1), e.setClearColor(16777215, 1), this._updateSelectionCache(), this._changeVisibilityOfSelectedObjects(!1);
+      renderer.getClearColor(this._oldClearColor), this.oldClearAlpha = renderer.getClearAlpha();
+      const t = renderer.autoClear;
+      renderer.autoClear = !1, maskActive && renderer.state.buffers.stencil.setTest(!1), renderer.setClearColor(16777215, 1), this._updateSelectionCache(), this._changeVisibilityOfSelectedObjects(!1);
       const r = this.renderScene.background,
         a = this.renderScene.overrideMaterial;
-      if (this.renderScene.background = null, this.renderScene.overrideMaterial = this.depthMaterial, e.setRenderTarget(this.renderTargetDepthBuffer), e.clear(), e.render(this.renderScene, this.renderCamera), this._changeVisibilityOfSelectedObjects(!0), this._visibilityCache.clear(), this._updateTextureMatrix(), this._changeVisibilityOfNonSelectedObjects(!1), this.renderScene.overrideMaterial = this.prepareMaskMaterial, this.prepareMaskMaterial.uniforms.cameraNearFar.value.set(this.renderCamera.near, this.renderCamera.far), this.prepareMaskMaterial.uniforms.depthTexture.value = this.renderTargetDepthBuffer.texture, this.prepareMaskMaterial.uniforms.textureMatrix.value = this.textureMatrix, e.setRenderTarget(this.renderTargetMaskBuffer), e.clear(), e.render(this.renderScene, this.renderCamera), this._changeVisibilityOfNonSelectedObjects(!0), this._visibilityCache.clear(), this._selectionCache.clear(), this.renderScene.background = r, this.renderScene.overrideMaterial = a, this._fsQuad.material = this.materialCopy, this.copyUniforms.tDiffuse.value = this.renderTargetMaskBuffer.texture, e.setRenderTarget(this.renderTargetMaskDownSampleBuffer), e.clear(), this._fsQuad.render(e), this.tempPulseColor1.copy(this.visibleEdgeColor), this.tempPulseColor2.copy(this.hiddenEdgeColor), this.pulsePeriod > 0) {
+      if (this.renderScene.background = null, this.renderScene.overrideMaterial = this.depthMaterial, renderer.setRenderTarget(this.renderTargetDepthBuffer), renderer.clear(), renderer.render(this.renderScene, this.renderCamera), this._changeVisibilityOfSelectedObjects(!0), this._visibilityCache.clear(), this._updateTextureMatrix(), this._changeVisibilityOfNonSelectedObjects(!1), this.renderScene.overrideMaterial = this.prepareMaskMaterial, this.prepareMaskMaterial.uniforms.cameraNearFar.value.set(this.renderCamera.near, this.renderCamera.far), this.prepareMaskMaterial.uniforms.depthTexture.value = this.renderTargetDepthBuffer.texture, this.prepareMaskMaterial.uniforms.textureMatrix.value = this.textureMatrix, renderer.setRenderTarget(this.renderTargetMaskBuffer), renderer.clear(), renderer.render(this.renderScene, this.renderCamera), this._changeVisibilityOfNonSelectedObjects(!0), this._visibilityCache.clear(), this._selectionCache.clear(), this.renderScene.background = r, this.renderScene.overrideMaterial = a, this._fsQuad.material = this.materialCopy, this.copyUniforms.tDiffuse.value = this.renderTargetMaskBuffer.texture, renderer.setRenderTarget(this.renderTargetMaskDownSampleBuffer), renderer.clear(), this._fsQuad.render(renderer), this.tempPulseColor1.copy(this.visibleEdgeColor), this.tempPulseColor2.copy(this.hiddenEdgeColor), this.pulsePeriod > 0) {
         const e = .625 + .75 * Math.cos(.01 * performance.now() / this.pulsePeriod) / 2;
         this.tempPulseColor1.multiplyScalar(e), this.tempPulseColor2.multiplyScalar(e);
       }
-      this._fsQuad.material = this.edgeDetectionMaterial, this.edgeDetectionMaterial.uniforms.maskTexture.value = this.renderTargetMaskDownSampleBuffer.texture, this.edgeDetectionMaterial.uniforms.texSize.value.set(this.renderTargetMaskDownSampleBuffer.width, this.renderTargetMaskDownSampleBuffer.height), this.edgeDetectionMaterial.uniforms.visibleEdgeColor.value = this.tempPulseColor1, this.edgeDetectionMaterial.uniforms.hiddenEdgeColor.value = this.tempPulseColor2, e.setRenderTarget(this.renderTargetEdgeBuffer1), e.clear(), this._fsQuad.render(e), this._fsQuad.material = this.separableBlurMaterial1, this.separableBlurMaterial1.uniforms.colorTexture.value = this.renderTargetEdgeBuffer1.texture, this.separableBlurMaterial1.uniforms.direction.value = OutlinePass.BlurDirectionX, this.separableBlurMaterial1.uniforms.kernelRadius.value = this.edgeThickness, e.setRenderTarget(this.renderTargetBlurBuffer1), e.clear(), this._fsQuad.render(e), this.separableBlurMaterial1.uniforms.colorTexture.value = this.renderTargetBlurBuffer1.texture, this.separableBlurMaterial1.uniforms.direction.value = OutlinePass.BlurDirectionY, e.setRenderTarget(this.renderTargetEdgeBuffer1), e.clear(), this._fsQuad.render(e), this._fsQuad.material = this.separableBlurMaterial2, this.separableBlurMaterial2.uniforms.colorTexture.value = this.renderTargetEdgeBuffer1.texture, this.separableBlurMaterial2.uniforms.direction.value = OutlinePass.BlurDirectionX, e.setRenderTarget(this.renderTargetBlurBuffer2), e.clear(), this._fsQuad.render(e), this.separableBlurMaterial2.uniforms.colorTexture.value = this.renderTargetBlurBuffer2.texture, this.separableBlurMaterial2.uniforms.direction.value = OutlinePass.BlurDirectionY, e.setRenderTarget(this.renderTargetEdgeBuffer2), e.clear(), this._fsQuad.render(e), this._fsQuad.material = this.overlayMaterial, this.overlayMaterial.uniforms.maskTexture.value = this.renderTargetMaskBuffer.texture, this.overlayMaterial.uniforms.edgeTexture1.value = this.renderTargetEdgeBuffer1.texture, this.overlayMaterial.uniforms.edgeTexture2.value = this.renderTargetEdgeBuffer2.texture, this.overlayMaterial.uniforms.patternTexture.value = this.patternTexture, this.overlayMaterial.uniforms.edgeStrength.value = this.edgeStrength, this.overlayMaterial.uniforms.edgeGlow.value = this.edgeGlow, this.overlayMaterial.uniforms.usePatternTexture.value = this.usePatternTexture, i && e.state.buffers.stencil.setTest(!0), e.setRenderTarget(n), this._fsQuad.render(e), e.setClearColor(this._oldClearColor, this.oldClearAlpha), e.autoClear = t;
+      this._fsQuad.material = this.edgeDetectionMaterial, this.edgeDetectionMaterial.uniforms.maskTexture.value = this.renderTargetMaskDownSampleBuffer.texture, this.edgeDetectionMaterial.uniforms.texSize.value.set(this.renderTargetMaskDownSampleBuffer.width, this.renderTargetMaskDownSampleBuffer.height), this.edgeDetectionMaterial.uniforms.visibleEdgeColor.value = this.tempPulseColor1, this.edgeDetectionMaterial.uniforms.hiddenEdgeColor.value = this.tempPulseColor2, renderer.setRenderTarget(this.renderTargetEdgeBuffer1), renderer.clear(), this._fsQuad.render(renderer), this._fsQuad.material = this.separableBlurMaterial1, this.separableBlurMaterial1.uniforms.colorTexture.value = this.renderTargetEdgeBuffer1.texture, this.separableBlurMaterial1.uniforms.direction.value = OutlinePass.BlurDirectionX, this.separableBlurMaterial1.uniforms.kernelRadius.value = this.edgeThickness, renderer.setRenderTarget(this.renderTargetBlurBuffer1), renderer.clear(), this._fsQuad.render(renderer), this.separableBlurMaterial1.uniforms.colorTexture.value = this.renderTargetBlurBuffer1.texture, this.separableBlurMaterial1.uniforms.direction.value = OutlinePass.BlurDirectionY, renderer.setRenderTarget(this.renderTargetEdgeBuffer1), renderer.clear(), this._fsQuad.render(renderer), this._fsQuad.material = this.separableBlurMaterial2, this.separableBlurMaterial2.uniforms.colorTexture.value = this.renderTargetEdgeBuffer1.texture, this.separableBlurMaterial2.uniforms.direction.value = OutlinePass.BlurDirectionX, renderer.setRenderTarget(this.renderTargetBlurBuffer2), renderer.clear(), this._fsQuad.render(renderer), this.separableBlurMaterial2.uniforms.colorTexture.value = this.renderTargetBlurBuffer2.texture, this.separableBlurMaterial2.uniforms.direction.value = OutlinePass.BlurDirectionY, renderer.setRenderTarget(this.renderTargetEdgeBuffer2), renderer.clear(), this._fsQuad.render(renderer), this._fsQuad.material = this.overlayMaterial, this.overlayMaterial.uniforms.maskTexture.value = this.renderTargetMaskBuffer.texture, this.overlayMaterial.uniforms.edgeTexture1.value = this.renderTargetEdgeBuffer1.texture, this.overlayMaterial.uniforms.edgeTexture2.value = this.renderTargetEdgeBuffer2.texture, this.overlayMaterial.uniforms.patternTexture.value = this.patternTexture, this.overlayMaterial.uniforms.edgeStrength.value = this.edgeStrength, this.overlayMaterial.uniforms.edgeGlow.value = this.edgeGlow, this.overlayMaterial.uniforms.usePatternTexture.value = this.usePatternTexture, maskActive && renderer.state.buffers.stencil.setTest(!0), renderer.setRenderTarget(readBuffer), this._fsQuad.render(renderer), renderer.setClearColor(this._oldClearColor, this.oldClearAlpha), renderer.autoClear = t;
     }
-    this.renderToScreen && (this._fsQuad.material = this.materialCopy, this.copyUniforms.tDiffuse.value = n.texture, e.setRenderTarget(null), this._fsQuad.render(e));
+    this.renderToScreen && (this._fsQuad.material = this.materialCopy, this.copyUniforms.tDiffuse.value = readBuffer.texture, renderer.setRenderTarget(null), this._fsQuad.render(renderer));
   }
   _updateSelectionCache() {
     const selectionCache = this._selectionCache;
@@ -68,17 +69,17 @@ class OutlinePass extends Pass.Pass {
       this.selectedObjects[e].traverse(t);
     }
   }
-  _changeVisibilityOfSelectedObjects(e) {
+  _changeVisibilityOfSelectedObjects(bVisible) {
     const visibilityCache = this._visibilityCache;
-    for (const n of this._selectionCache) !0 === e ? n.visible = visibilityCache.get(n) : (visibilityCache.set(n, n.visible), n.visible = e);
+    for (const n of this._selectionCache) !0 === bVisible ? n.visible = visibilityCache.get(n) : (visibilityCache.set(n, n.visible), n.visible = bVisible);
   }
-  _changeVisibilityOfNonSelectedObjects(e) {
+  _changeVisibilityOfNonSelectedObjects(bVisible) {
     const visibilityCache = this._visibilityCache,
       selectionCache = this._selectionCache;
     this.renderScene.traverse(function (r) {
-      if (r.isPoints || r.isLine || r.isLine2) !0 === e ? r.visible = visibilityCache.get(r) : (visibilityCache.set(r, r.visible), r.visible = e);else if ((r.isMesh || r.isSprite) && !selectionCache.has(r)) {
+      if (r.isPoints || r.isLine || r.isLine2) !0 === bVisible ? r.visible = visibilityCache.get(r) : (visibilityCache.set(r, r.visible), r.visible = bVisible);else if ((r.isMesh || r.isSprite) && !selectionCache.has(r)) {
         const n = r.visible;
-        !1 !== e && !0 !== visibilityCache.get(r) || (r.visible = e), visibilityCache.set(r, n);
+        !1 !== bVisible && !0 !== visibilityCache.get(r) || (r.visible = bVisible), visibilityCache.set(r, n);
       }
     });
   }
@@ -122,10 +123,10 @@ class OutlinePass extends Pass.Pass {
       fragmentShader: "varying vec2 vUv;\n\n\t\t\t\tuniform sampler2D maskTexture;\n\t\t\t\tuniform vec2 texSize;\n\t\t\t\tuniform vec3 visibleEdgeColor;\n\t\t\t\tuniform vec3 hiddenEdgeColor;\n\n\t\t\t\tvoid main() {\n\t\t\t\t\tvec2 invSize = 1.0 / texSize;\n\t\t\t\t\tvec4 uvOffset = vec4(1.0, 0.0, 0.0, 1.0) * vec4(invSize, invSize);\n\t\t\t\t\tvec4 c1 = texture2D( maskTexture, vUv + uvOffset.xy);\n\t\t\t\t\tvec4 c2 = texture2D( maskTexture, vUv - uvOffset.xy);\n\t\t\t\t\tvec4 c3 = texture2D( maskTexture, vUv + uvOffset.yw);\n\t\t\t\t\tvec4 c4 = texture2D( maskTexture, vUv - uvOffset.yw);\n\t\t\t\t\tfloat diff1 = (c1.r - c2.r)*0.5;\n\t\t\t\t\tfloat diff2 = (c3.r - c4.r)*0.5;\n\t\t\t\t\tfloat d = length( vec2(diff1, diff2) );\n\t\t\t\t\tfloat a1 = min(c1.g, c2.g);\n\t\t\t\t\tfloat a2 = min(c3.g, c4.g);\n\t\t\t\t\tfloat visibilityFactor = min(a1, a2);\n\t\t\t\t\tvec3 edgeColor = 1.0 - visibilityFactor > 0.001 ? visibleEdgeColor : hiddenEdgeColor;\n\t\t\t\t\tgl_FragColor = vec4(edgeColor, 1.0) * vec4(d);\n\t\t\t\t}"
     });
   }
-  _getSeparableBlurMaterial(e) {
+  _getSeparableBlurMaterial(maxRadius) {
     return new ThreeCore.ShaderMaterial({
       defines: {
-        MAX_RADIUS: e
+        MAX_RADIUS: maxRadius
       },
       uniforms: {
         colorTexture: {

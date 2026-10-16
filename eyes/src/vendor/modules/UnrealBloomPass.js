@@ -1,11 +1,12 @@
 // Recovered from vendors.js:901776-910980.
+// Upstream correspondence: Three.js r185 examples/jsm/postprocessing/UnrealBloomPass.js; see docs/eyes-analysis/three-renderer-next.md.
 import * as ThreeCore from "../three/core.js";
 import * as Pass from "./Pass.js";
 import * as CopyShader from "./CopyShader.js";
 import * as LuminosityHighPassShader from "./LuminosityHighPassShader.js";
 class UnrealBloomPass extends Pass.Pass {
-  constructor(e, strength = 1, radius, threshold) {
-    super(), this.strength = strength, this.radius = radius, this.threshold = threshold, this.resolution = void 0 !== e ? new ThreeCore.Vector2(e.x, e.y) : new ThreeCore.Vector2(256, 256), this.clearColor = new ThreeCore.Color(0, 0, 0), this.needsSwap = !1, this.renderTargetsHorizontal = [], this.renderTargetsVertical = [], this.nMips = 5;
+  constructor(resolution, strength = 1, radius, threshold) {
+    super(), this.strength = strength, this.radius = radius, this.threshold = threshold, this.resolution = void 0 !== resolution ? new ThreeCore.Vector2(resolution.x, resolution.y) : new ThreeCore.Vector2(256, 256), this.clearColor = new ThreeCore.Color(0, 0, 0), this.needsSwap = !1, this.renderTargetsHorizontal = [], this.renderTargetsVertical = [], this.nMips = 5;
     let c = Math.round(this.resolution.x / 2),
       l = Math.round(this.resolution.y / 2);
     this.renderTargetBright = new ThreeCore.WebGLRenderTarget(c, l, {
@@ -49,27 +50,27 @@ class UnrealBloomPass extends Pass.Pass {
     for (let e = 0; e < this.separableBlurMaterials.length; e++) this.separableBlurMaterials[e].dispose();
     this.compositeMaterial.dispose(), this.blendMaterial.dispose(), this._basic.dispose(), this._fsQuad.dispose();
   }
-  setSize(e, t) {
-    let n = Math.round(e / 2),
-      i = Math.round(t / 2);
+  setSize(width, height) {
+    let n = Math.round(width / 2),
+      i = Math.round(height / 2);
     this.renderTargetBright.setSize(n, i);
     for (let e = 0; e < this.nMips; e++) this.renderTargetsHorizontal[e].setSize(n, i), this.renderTargetsVertical[e].setSize(n, i), this.separableBlurMaterials[e].uniforms.invSize.value = new ThreeCore.Vector2(1 / n, 1 / i), n = Math.round(n / 2), i = Math.round(i / 2);
   }
-  render(e, t, n, r, i) {
-    e.getClearColor(this._oldClearColor), this._oldClearAlpha = e.getClearAlpha();
-    const a = e.autoClear;
-    e.autoClear = !1, e.setClearColor(this.clearColor, 0), i && e.state.buffers.stencil.setTest(!1), this.renderToScreen && (this._fsQuad.material = this._basic, this._basic.map = n.texture, e.setRenderTarget(null), e.clear(), this._fsQuad.render(e)), this.highPassUniforms.tDiffuse.value = n.texture, this.highPassUniforms.luminosityThreshold.value = this.threshold, this._fsQuad.material = this.materialHighPassFilter, e.setRenderTarget(this.renderTargetBright), e.clear(), this._fsQuad.render(e);
+  render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+    renderer.getClearColor(this._oldClearColor), this._oldClearAlpha = renderer.getClearAlpha();
+    const a = renderer.autoClear;
+    renderer.autoClear = !1, renderer.setClearColor(this.clearColor, 0), maskActive && renderer.state.buffers.stencil.setTest(!1), this.renderToScreen && (this._fsQuad.material = this._basic, this._basic.map = readBuffer.texture, renderer.setRenderTarget(null), renderer.clear(), this._fsQuad.render(renderer)), this.highPassUniforms.tDiffuse.value = readBuffer.texture, this.highPassUniforms.luminosityThreshold.value = this.threshold, this._fsQuad.material = this.materialHighPassFilter, renderer.setRenderTarget(this.renderTargetBright), renderer.clear(), this._fsQuad.render(renderer);
     let renderTargetBright = this.renderTargetBright;
-    for (let t = 0; t < this.nMips; t++) this._fsQuad.material = this.separableBlurMaterials[t], this.separableBlurMaterials[t].uniforms.colorTexture.value = renderTargetBright.texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionX, e.setRenderTarget(this.renderTargetsHorizontal[t]), e.clear(), this._fsQuad.render(e), this.separableBlurMaterials[t].uniforms.colorTexture.value = this.renderTargetsHorizontal[t].texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionY, e.setRenderTarget(this.renderTargetsVertical[t]), e.clear(), this._fsQuad.render(e), renderTargetBright = this.renderTargetsVertical[t];
-    this._fsQuad.material = this.compositeMaterial, this.compositeMaterial.uniforms.bloomStrength.value = this.strength, this.compositeMaterial.uniforms.bloomRadius.value = this.radius, this.compositeMaterial.uniforms.bloomTintColors.value = this.bloomTintColors, e.setRenderTarget(this.renderTargetsHorizontal[0]), e.clear(), this._fsQuad.render(e), this._fsQuad.material = this.blendMaterial, this.copyUniforms.tDiffuse.value = this.renderTargetsHorizontal[0].texture, i && e.state.buffers.stencil.setTest(!0), this.renderToScreen ? (e.setRenderTarget(null), this._fsQuad.render(e)) : (e.setRenderTarget(n), this._fsQuad.render(e)), e.setClearColor(this._oldClearColor, this._oldClearAlpha), e.autoClear = a;
+    for (let t = 0; t < this.nMips; t++) this._fsQuad.material = this.separableBlurMaterials[t], this.separableBlurMaterials[t].uniforms.colorTexture.value = renderTargetBright.texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionX, renderer.setRenderTarget(this.renderTargetsHorizontal[t]), renderer.clear(), this._fsQuad.render(renderer), this.separableBlurMaterials[t].uniforms.colorTexture.value = this.renderTargetsHorizontal[t].texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionY, renderer.setRenderTarget(this.renderTargetsVertical[t]), renderer.clear(), this._fsQuad.render(renderer), renderTargetBright = this.renderTargetsVertical[t];
+    this._fsQuad.material = this.compositeMaterial, this.compositeMaterial.uniforms.bloomStrength.value = this.strength, this.compositeMaterial.uniforms.bloomRadius.value = this.radius, this.compositeMaterial.uniforms.bloomTintColors.value = this.bloomTintColors, renderer.setRenderTarget(this.renderTargetsHorizontal[0]), renderer.clear(), this._fsQuad.render(renderer), this._fsQuad.material = this.blendMaterial, this.copyUniforms.tDiffuse.value = this.renderTargetsHorizontal[0].texture, maskActive && renderer.state.buffers.stencil.setTest(!0), this.renderToScreen ? (renderer.setRenderTarget(null), this._fsQuad.render(renderer)) : (renderer.setRenderTarget(readBuffer), this._fsQuad.render(renderer)), renderer.setClearColor(this._oldClearColor, this._oldClearAlpha), renderer.autoClear = a;
   }
-  _getSeparableBlurMaterial(e) {
+  _getSeparableBlurMaterial(kernelRadius) {
     const t = [],
-      n = e / 3;
-    for (let r = 0; r < e; r++) t.push(.39894 * Math.exp(-.5 * r * r / (n * n)) / n);
+      n = kernelRadius / 3;
+    for (let r = 0; r < kernelRadius; r++) t.push(.39894 * Math.exp(-.5 * r * r / (n * n)) / n);
     return new ThreeCore.ShaderMaterial({
       defines: {
-        KERNEL_RADIUS: e
+        KERNEL_RADIUS: kernelRadius
       },
       uniforms: {
         colorTexture: {
@@ -89,10 +90,10 @@ class UnrealBloomPass extends Pass.Pass {
       fragmentShader: "\n\n\t\t\t\t#include <common>\n\n\t\t\t\tvarying vec2 vUv;\n\n\t\t\t\tuniform sampler2D colorTexture;\n\t\t\t\tuniform vec2 invSize;\n\t\t\t\tuniform vec2 direction;\n\t\t\t\tuniform float gaussianCoefficients[KERNEL_RADIUS];\n\n\t\t\t\tvoid main() {\n\n\t\t\t\t\tfloat weightSum = gaussianCoefficients[0];\n\t\t\t\t\tvec3 diffuseSum = texture2D( colorTexture, vUv ).rgb * weightSum;\n\n\t\t\t\t\tfor ( int i = 1; i < KERNEL_RADIUS; i ++ ) {\n\n\t\t\t\t\t\tfloat x = float( i );\n\t\t\t\t\t\tfloat w = gaussianCoefficients[i];\n\t\t\t\t\t\tvec2 uvOffset = direction * invSize * x;\n\t\t\t\t\t\tvec3 sample1 = texture2D( colorTexture, vUv + uvOffset ).rgb;\n\t\t\t\t\t\tvec3 sample2 = texture2D( colorTexture, vUv - uvOffset ).rgb;\n\t\t\t\t\t\tdiffuseSum += ( sample1 + sample2 ) * w;\n\n\t\t\t\t\t}\n\n\t\t\t\t\tgl_FragColor = vec4( diffuseSum, 1.0 );\n\n\t\t\t\t}"
     });
   }
-  _getCompositeMaterial(e) {
+  _getCompositeMaterial(nMips) {
     return new ThreeCore.ShaderMaterial({
       defines: {
-        NUM_MIPS: e
+        NUM_MIPS: nMips
       },
       uniforms: {
         blurTexture1: {

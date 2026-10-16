@@ -132,6 +132,10 @@ function render(index){
  '- [五个故事的实际命名与生命周期整理](stories-semantic-changes.md)',
  '- [自定义 shader 的逐项契约](shader-semantic-changes.md)',
  '- [Three 官方源码命名匹配与未匹配范围](three-semantic-changes.md)',
+ '- [Three core 深入对照及剩余 AST 差异](three-core-next.md)',
+  '- [Three core 未匹配方法与辅助函数的逐项语义](three-core-remaining-semantics.md)',
+ '- [Three 渲染器与扩展逐项对照](three-renderer-next.md)',
+ '- [Eyes 与 Three 的实际接缝、全部组件映射及资源修复](eyes-three-integration.md)',
  '',
  '## 阅读入口与证据等级',
  '',
@@ -200,7 +204,7 @@ function render(index){
    if(c.fields.length)lines.push('显式类字段：'+c.fields.map(p=>code((p.static?'static ':'')+p.name+' = '+p.value)).join('；')+'。constructor 中赋值的实例字段见方法写入列。','');
    lines.push('| 方法 / 签名 | 职责与可观察行为 | 状态写入 / 返回 | 调用证据 |','| --- | --- | --- | --- |');
    for(const m of c.methods){
-    const desc=methodNote(c,cn,m,f.semanticReview.status.startsWith('verified-'));
+    const desc=methodNote(c,cn,m,f.semanticReview.status.startsWith('verified-')||f.semanticReview.status==='partially-matched-upstream');
     lines.push(`| ${code((m.static?'static ':'')+(m.kind==='get'||m.kind==='set'?m.kind+' ':'')+m.name+'('+m.params.join(', ')+')')} ${link(f.file,m.line)} | ${md(desc||'依下列 AST 状态/调用证据阅读；精确业务语义待确认')}；分支 ${m.branches} / 循环 ${m.loops} / await ${m.awaits} | 写：${join(m.writes)}；返回：${join(m.returns)} | ${join(m.calls)} |`);
     if(m.managers.length||m.components.length)lines.push(`| ↳ 查询依赖 | managers: ${join(m.managers)}；components: ${join(m.components)} | 读：${join(m.reads)} | 抛出：${join(m.throws)} |`);
    }
@@ -227,7 +231,7 @@ function renderDomain(index,domain){
    const classNote=note?.classes?.[cls.name];
    lines.push(`### ${code(cls.name)}`,'',md(cls.documentation||classNote?.purpose||'精确业务语义尚未确认，以下提供声明与操作证据。')+'。父类 '+code(cls.extends||'无')+'。','');
    for(const method of cls.methods){
-    const purpose=methodNote(cls,classNote,method,file.semanticReview.status.startsWith('verified-'));
+    const purpose=methodNote(cls,classNote,method,file.semanticReview.status.startsWith('verified-')||file.semanticReview.status==='partially-matched-upstream');
     const effects=purpose||`当前操作：写入 ${method.writes.join('、')||'无直接字段写入'}；返回 ${method.returns.join('、')||'无显式返回'}。`;
     lines.push('- '+code((method.static?'static ':'')+(method.kind==='get'||method.kind==='set'?method.kind+' ':'')+method.name+'('+method.params.join(', ')+')')+' '+link(file.file,method.line)+'：'+md(effects));
    }

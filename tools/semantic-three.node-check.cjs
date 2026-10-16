@@ -22,8 +22,9 @@ assert.equal(compareThreeAlpha('function f(value){return helper(value);}','funct
 for(const invalid of ['export const value=1;','export default 1;','export * from "external";','import value from "external";','const lazy=import("external");','const element=<div/>;','const value=1;const object={value};','const {value}=source;'])assert.throws(()=>threeAlphaHash(invalid),/Three alpha subset/);
 if(process.argv.includes('--contract-only')){console.log('Three linear alpha subset agreement/rejection/export/capture/property/literal regressions passed');process.exit(0);}
 const source=fs.readFileSync('eyes/src/vendor/three/core.js','utf8');
-const expected="973e08eac13b9c44eb412ef8f93e85459c1c6c1d984c20d3372f5b2960f26844";
-const finalSemanticHash='1b3be6fc1a647df0ae3c4e914a43222a272b832760d8cc9d4d6474cabdd662c8';
+// Corrected declaration identities are proven against both the original artifact and v0.2.32.
+const expected="0bb15f10215ea2328751e4185d5ac8e90451a8dc608adb0c0e2ae2ad1550c6eb";
+const finalSemanticHash='94b4dbb6915544f8f81c00d786361e99033e3b9669ea92a08ebec76e2d5a3144';
 const semanticHash=crypto.createHash('sha256').update(generate(parser.parse(source,{sourceType:'module'}),{comments:false,compact:true,shouldPrintComment:()=>false}).code).digest('hex');
 assert.equal(semanticHash,finalSemanticHash,'Three final source bindings or executable contract changed');
 // The original-to-final alpha proof is performed once during cleanup. Keep an
