@@ -289,3 +289,23 @@ node tools/capture-ref.cjs "#/earth" /tmp/ref-earth.png
 It hides only the UI chrome (`#ui`, `#dynamic-ui`, the loading screen) and keeps
 `#pioneer`, which is the WebGL canvas. Hiding `#pioneer` produces a blank image —
 that mistake cost a round here.
+
+## Dynamo index counts (verified against NASA)
+
+A `.dyn` controller directory holds an index `def.dyn` plus one file per motion
+window, `000.dyn`, `001.dyn`, … The index header's `count` field is **two more
+than the highest window index**, so the valid windows are `0 … count-2`:
+
+| controller | header `count` | files on disk | `count-1` returns |
+| --- | --- | --- | --- |
+| `moon/earth/orb` | 386 | `000`–`384` | `385.dyn` → 403 |
+| `amalthea/jupiter/orb` | 220 | `000`–`218` | `219.dyn` → 403 |
+
+Both rows were read from the mirrored `def.dyn` files, and the right-hand column
+was confirmed with a direct request to `eyes.nasa.gov`. Generating `0 … count-1`
+therefore invents one URL per controller; on a full mirror that was 674 phantom
+requests, all of which fail, and it obscured real gaps. The rule lives in
+`tools/lib/segments.cjs` and is covered by `tests/segments.test.ts`.
+
+A directory URL (a path ending in `/`) is also a 403, not a listing, so the
+manifest must not contain any.

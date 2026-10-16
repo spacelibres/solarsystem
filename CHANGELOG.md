@@ -3,6 +3,24 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.23 - 2026-10-16
+
+Document the dynamo index count rule, with the measurements behind it.
+
+### Changed
+
+- `docs/ground-truth.md` now records that a controller index's `count` field is
+  two more than the highest window index (valid windows are `0 … count-2`), with
+  a table of the two controllers measured against NASA — `moon/earth/orb` and
+  `amalthea/jupiter/orb` — and the note that a directory URL is a 403 rather
+  than a listing. The off-by-one fixed in 0.2.22 was found by measurement, and
+  the evidence belongs next to the rule so it is not re-derived or re-broken.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 170 tests
+across fifteen files.
+
 ## 0.2.22 - 2026-10-16
 
 An off-by-one in the segment expander was asking NASA for files that do not
