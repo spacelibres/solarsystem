@@ -3,6 +3,50 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.27 - 2026-10-16
+
+Restore the starfield. 0.2.26 broke it.
+
+### Fixed
+
+- **The starfield was empty on 0.2.26.** That release "restored" NASA's
+  `gl_Position.w = viewPosition.y` line on the strength of the extracted shader
+  source, and claimed it fixed the dark disc. It did the opposite: the line sets
+  `w` to the view-space vertical component, which is **negative for every star
+  below the view axis**, and the GPU clips points with `w <= 0` before the
+  perspective divide. All 43,878 star points were still submitted and nothing was
+  drawn. The line is removed again, with a test that fails if it comes back.
+- The mistake was mine twice over: I trusted a reading of one line over the
+  rendered frame, and I declared it verified without ever looking at the result.
+  The check that caught it was a full-viewport screenshot against the live
+  reference, which is now the first thing to run — `node tools/shot.cjs <url>
+  <out.png>` with no cropping.
+
+### Added
+
+- `tools/shot.cjs` — full-frame screenshot of any route, at any size, with an
+  optional interaction script. Cropped captures hid this class of bug.
+- `tools/out/names.cjs` — inventory of the live scene graph, so "is it in the
+  scene" and "is it drawn" can be answered separately. This is how the empty
+  starfield was pinned down: 43,878 points submitted, 130 draw calls, no stars.
+
+### Verified
+
+Stars render again, confirmed by screenshot against NASA's own output at the same
+framing. `npm ci && npm test && npm run check && npm run build` all pass — 216
+tests across seventeen files.
+
+### Known gaps (visible in the same comparison)
+
+Looking at our view beside NASA's at matched framing, three real differences
+remain, none of which are the starfield:
+
+1. **The Sun does not render.** A `Sprite` exists in the scene but draws nothing,
+   where NASA shows a bright disc.
+2. **Orbits are open arcs, not closed ellipses.** Ours sweep off screen; NASA's
+   close cleanly around the Sun.
+3. **The sky is sparser than NASA's** even with the field restored.
+
 ## 0.2.26 - 2026-10-16
 
 Make the de-obfuscated NASA source complete and trustworthy, and correct a

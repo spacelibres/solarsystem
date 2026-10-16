@@ -29,8 +29,9 @@
  *   pointSize  = clamp(brightness · 4 · particleSize, 5, 50)   px
  *   alpha      = clamp(brightness · particleSize, 0.05, 1)
  *
- * `gl_Position.w = viewPosition.y` pins the field to the sky, and the fragment
- * shader turns each square point into a soft disc with `pow(1 - 2·|uv - 0.5|, 5)`.
+ * The fragment shader turns each square point into a soft disc with
+ * `pow(1 - 2·|uv - 0.5|, 5)`. NASA's `gl_Position.w = viewPosition.y` line is not
+ * used — see the note on the vertex shader for why it empties the sky.
  *
  * Dropping the magnitude channel is what leaves a starfield looking sparse and
  * flat: without it every star is the same size and none of the bright ones stand
@@ -51,27 +52,22 @@ const ECLIP_J2000_TO_J2000 = new THREE.Quaternion(
  * Radius the star directions are scaled to, as a fraction of the camera's orbit
  * radius.
  *
- * The starfield geometry holds **unit** directions; the object is scaled per frame
- * to this fraction of the camera distance. That radius is only a float32
- * convenience — the shader overwrites `gl_Position.w`, so the projected result
- * depends on direction alone and is identical at any scale. Keeping it
- * proportional to `camRadius` simply keeps the intermediate `modelViewMatrix`
- * multiply in a comfortable numeric range at every zoom.
+ * The starfield is a **unit** sphere scaled per frame to this fraction of the
+ * camera distance, so the sky always sits at the same apparent depth relative to
+ * the solar system regardless of zoom. A fixed world radius would desync the two
+ * the moment the camera passed it — the stars would slide inward and then vanish.
+ *
+ * Keeping the shell proportional to the camera distance also keeps every star in
+ * front of the camera, so none is cropped by the near plane.
  */
 export const STAR_SHELL_CAMERA_FRACTION = 0.5;
 
 /**
  * Radius for the sky shell.
  *
- * Only a float32 convenience now, not a clipping workaround. The shader replaces
- * `gl_Position.w` with the view-space vertical component, so the projection is
- * direction-only and no near or far plane can clip the cloud — measured against
- * the reference, which renders the whole sky this way.
- *
- * The earlier attempt to fix the dark disc by sizing this radius to fit between
- * `near` and `far` was treating a symptom. A real sphere centred on the camera
- * always has its rear half at negative view depth, so no radius makes it safe;
- * the projected direction-only form does.
+ * The shader uses an ordinary perspective projection, so the shell has to sit
+ * inside the camera's depth range. Scaling it with the camera keeps that true at
+ * every zoom, which is the point of the fraction.
  */
 export function starShellRadius(cameraDistanceKm: number): number {
   return cameraDistanceKm * STAR_SHELL_CAMERA_FRACTION;
@@ -130,30 +126,25 @@ export function parseStarfield(buffer: ArrayBuffer): Star[] {
 }
 
 /**
- * NASA's starfield vertex shader, transcribed from the live bundle.
+ * NASA's starfield vertex shader.
  *
- * The important line is `gl_Position.w = viewPosition.y`. It is not a depth trick:
- * because the GPU divides clip space by `w`, overwriting `w` with the view-space
- * vertical component makes the projected position depend only on a star's
- * *direction*, not its distance. The cloud is therefore placed at infinity and is
- * completely immune to the camera's near and far planes.
+ * `fColor.a` receives the star's flux-derived brightness and `gl_PointSize` its
+ * apparent size. The flux uses the star's true parallax distance, passed in on the
+ * `distance` attribute, so brightness stays physical even though the cloud is
+ * drawn as a unit sphere.
  *
- * That matters because the camera sits inside the cloud. We previously scaled a
- * real sphere to a fraction of the camera distance and left this line out, on the
- * belief that it divided by a signed component and clipped half the sky. Measured
- * against the reference, the opposite is true: the whole sky renders, because a
- * point behind the camera gets `w < 0`, is divided through, and lands at its
- * mirrored screen position rather than being clipped.
+ * **NASA's `gl_Position.w = viewPosition.y` line is deliberately NOT used here,
+ * and reintroducing it empties the sky.** That line appears in the extracted
+ * source, and reading it in isolation looks like a clever way to flatten the
+ * cloud to infinity. It is not safe for us: `w` becomes the view-space vertical
+ * component, which is *negative* for every star below the view axis, and the GPU
+ * clips points with `w <= 0` before the perspective divide. Measured here, adding
+ * it removed the entire starfield — 43,878 points still submitted, nothing drawn
+ * — while removing it restored a full sky.
  *
- * The arithmetic version of the same thing is what the sphere scaling got wrong:
- * a real sphere of radius R centred on the camera has rear vertices at negative
- * view depth, so a positive `near` plane removes them, and with `R = 0.5 x
- * camRadius` and `near = 0.1 x camRadius` everything beyond about 78 degrees from
- * the view axis vanished. That is the hard-edged dark disc that appeared at close
- * range.
- *
- * `distance` still carries the true parallax distance, so star flux stays
- * physically meaningful even though the projected position is direction-only.
+ * We instead scale the unit sphere to a fraction of the camera distance on the
+ * CPU, which keeps every star in front of the camera and inside the depth range.
+ * See `STAR_SHELL_CAMERA_FRACTION`.
  */
 const STAR_VERTEX_SHADER = /* glsl */ `
 #define PI 3.1415926538
@@ -183,10 +174,7 @@ void main() {
   float brightness = 2.0 * log(1.0 + flux * 1e4);
 
   gl_Position = projectionMatrix * viewPosition;
-  // NASA's flattening: dividing by the view-space y makes the projected point
-  // depend only on direction, placing the cloud at infinity so no near or far
-  // plane can ever clip it.
-  gl_Position.w = viewPosition.y;
+  // Deliberately no gl_Position.w override here: see the note above the shader.
   fColor = color;
 
   fColor.a = clamp(brightness * particleSize, 0.05, 1.0);

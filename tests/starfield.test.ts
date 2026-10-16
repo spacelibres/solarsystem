@@ -85,25 +85,31 @@ describe('starfield geometry', () => {
     expect(d.getX(0)).toBeCloseTo(Math.hypot(1e19, 2e19, 3e19), -14);
   });
 
-  it('flattens the cloud to infinity so the clip planes cannot cut it', () => {
+  it('does NOT use NASA\'s signed-w flattening, which empties the sky', () => {
     const points = buildStarfield([parseStarfield(starRecord(0, 0, 255, 255, 255, 0, 0, 1))]);
     const shader = (points.material as unknown as { vertexShader: string }).vertexShader;
 
-    // NASA's line, and the reason the sky is never half-missing: overwriting `w`
-    // with the view-space vertical component makes the projection depend on a
-    // star's direction only, so a star behind the camera is not clipped.
-    expect(shader).toContain('gl_Position.w = viewPosition.y');
+    // Check the executable statements, not the prose: the comments deliberately
+    // name the line they warn against, so a naive `not.toContain` matches them.
+    const code = shader
+      .split('\n')
+      .map((l) => l.replace(/\/\/.*$/, ''))
+      .join('\n');
 
-    // It must come AFTER the ordinary projection, or it would be overwritten.
-    expect(shader.indexOf('gl_Position = projectionMatrix')).toBeLessThan(
-      shader.indexOf('gl_Position.w = viewPosition.y'),
-    );
+    // `gl_Position.w = viewPosition.y` appears in NASA's extracted source and looks
+    // like a way to place the cloud at infinity. It is not safe for us: `w` becomes
+    // the view-space vertical component, negative for every star below the view
+    // axis, and the GPU clips points with `w <= 0` before dividing. Measured:
+    // adding it left 43,878 points submitted and nothing drawn. This test exists so
+    // it is not "restored" from the reference a third time.
+    expect(code).not.toMatch(/gl_Position\.w\s*=/);
+    expect(code).toContain('gl_Position = projectionMatrix * viewPosition');
   });
 
-  it('scales the shell as a float32 convenience, not a clipping workaround', () => {
-    // Sizing a real sphere to fit between near and far cannot work: the camera
-    // sits at its centre, so the rear half is always behind the near plane.
+  it('scales the shell as a fraction of the camera distance', () => {
     const points = buildStarfield([parseStarfield(starRecord(0, 0, 255, 255, 255, 0, 0, 1))]);
+    // Never frustum-culled: the geometry holds unit directions, so its bounding
+    // sphere says nothing about where the stars appear.
     expect(points.frustumCulled).toBe(false);
     expect(STAR_SHELL_CAMERA_FRACTION).toBeGreaterThan(0);
     expect(STAR_SHELL_CAMERA_FRACTION).toBeLessThan(1);
