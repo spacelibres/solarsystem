@@ -923,7 +923,7 @@
       ]
     },
     "eyes/src/vendor/modules/Unidentified157.cjs": {
-      "purpose": "递归比较对象、数组、日期和正则；兼容 React element 的循环字段",
+      "purpose": "递归深合并对象与数组；默认拼接数组并克隆可合并值，支持 arrayMerge/customMerge/isMergeableObject/clone 与 all 批量归并；默认排除 Date、RegExp、React element，过滤继承的非自有可枚举键",
       "confidence": "observed",
       "evidence": [
         "// Recovered from vendors.js:983880-985409.",
@@ -931,11 +931,14 @@
         "literal: [object RegExp]",
         "literal: [object Date]",
         "literal: function",
-        "literal: react.element"
+        "literal: react.element",
+        "Unidentified157.cjs:15-21 clone and concat; 38-66 recursive merge and all",
+        "eyes/src/engine/core/AppUtils.js:99-104 deepMerge caller overrides isMergeableObject"
       ],
       "classes": {},
       "notes": [
-        "文件属于已恢复的第三方边界；保留接口和模块独立状态。"
+        "此处是深合并而非递归等值比较；AppUtils.deepEqual 是另一条实现。",
+        "默认排除的特殊对象可由 isMergeableObject 配置改变，AppUtils 提供自有覆盖。"
       ],
       "suggestedName": "DeepEqual"
     },

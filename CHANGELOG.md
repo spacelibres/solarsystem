@@ -3,6 +3,18 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.34 - 2026-10-16
+
+Document the remaining source contracts and approved independent Next/Three rebuild.
+
+- Map all 792 pending source/support entries across vendor, templates, data,
+  styles and boot/runtime boundaries without treating inventory as behavioral proof.
+- Record loader cache collisions, time-scale mismatches, decoder/worker failure
+  behavior and the existing React viewer gaps as rebuild acceptance conditions.
+- Correct the recovered deep-merge dependency's previously incorrect equality label.
+- Define the approved independent /explorer architecture, typed domains, resource
+  ownership, configuration and debug interfaces; retain Eyes as a reference.
+
 ## 0.2.33 - 2026-10-16
 
 Deepen recovery against the bundled Three revision and explain the application

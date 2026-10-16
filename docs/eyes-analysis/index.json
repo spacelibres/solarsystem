@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "41ac1f62fc7258d2b14c74bbc333672681fa48d9754a896d97b52c421dce8a7b",
+      "sha256": "f4257df66e8fc0cbbbed2b2e15d1c08b36c37749b1d7b687946000b9f4ecf5f0",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "fc50173242fb4a73fca3bc65f44813e6b333150d714f76454798f4057916de0d",
+      "sha256": "b07b94f9a9043e25875eb5e47ff6bb00b2c1f0f5b4fcf38927736d557fd65769",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -270240,7 +270240,7 @@
       "file": "eyes/src/vendor/modules/Unidentified157.cjs",
       "bytes": 1963,
       "sha256": "a22cdf4988f2c887f65f622e42cb88e7eadcddeb9acfcaecc309cf97317340a9",
-      "purpose": "递归比较对象、数组、日期和正则；兼容 React element 的循环字段",
+      "purpose": "递归深合并对象与数组；默认拼接数组并克隆可合并值，支持 arrayMerge/customMerge/isMergeableObject/clone 与 all 批量归并；默认排除 Date、RegExp、React element，过滤继承的非自有可枚举键",
       "confidence": "observed",
       "origin": {
         "id": 157,

@@ -14,7 +14,7 @@
 - `Swiper.js` 经对象键装配 update/translate/transition/slide/loop 等子模块；404–496 区间大量匿名文件可从此装配和插件事件恢复语义，但源码没有可靠完整版本号证据。Dom7 与 SSR window/document 工具在这一边界。
 - 两组 Popper 相同结构链为 169–224 与 930–985，差值 761；Tippy 入口为 animateFill-168/929，包含 tooltip、插件和可访问性逻辑；精确版本未确认。不能因文件名叫 animateFill 就认为只含动画。
 - proj4 边界为 585–689 及相关命名模块。585 的版本字段是 `__VERSION__` 占位符，不能报告精确版本。其包含 EPSG 定义、WKT/PROJJSON、基准转换、NTv2 网格与多个投影插件。
-- `Unidentified160.cjs` 与 `Unidentified989.cjs` 直接保留 `OverlayScrollbars` 标识。157/158/159 分别为递归等值、防抖、节流形状；719 为 History/hash 客户端路由器；包名/版本未直接出现的部分只说明行为。
+- `Unidentified160.cjs` 与 `Unidentified989.cjs` 直接保留 `OverlayScrollbars` 标识。157/158/159 分别为递归深合并（默认数组拼接）、防抖、节流实现；719 为 History/hash 客户端路由器；包名/版本未直接出现的部分只说明行为。
 - 本目录未见可据以断言 Babel/core-js 包身份的明确包标识；typeof/Symbol 等兼容代码也可能被内联进其他包，不能仅凭辅助函数形状归属整包。
 
 - `Easing.js` 导出 Tween/Group/Interpolation/Sequence 并显式 VERSION 18.6.4；其包边界覆盖完整 tween 管理，不只是 Easing。

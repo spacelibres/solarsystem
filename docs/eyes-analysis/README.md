@@ -1036,7 +1036,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/vendor/modules/Unidentified114.cjs](#file-eyes-src-vendor-modules-Unidentified114-cjs) — 从 decoder manifest revision 构造打包 WASM/JS 资源路径；具体编解码器由 manifest 和调用方确定
 - [eyes/src/vendor/modules/Unidentified115.cjs](#file-eyes-src-vendor-modules-Unidentified115-cjs) — 从 decoder manifest revision 构造打包 WASM/JS 资源路径；具体编解码器由 manifest 和调用方确定
 - [eyes/src/vendor/modules/Unidentified116.cjs](#file-eyes-src-vendor-modules-Unidentified116-cjs) — 从 decoder manifest revision 构造打包 WASM/JS 资源路径；具体编解码器由 manifest 和调用方确定
-- [eyes/src/vendor/modules/Unidentified157.cjs](#file-eyes-src-vendor-modules-Unidentified157-cjs) — 递归比较对象、数组、日期和正则；兼容 React element 的循环字段
+- [eyes/src/vendor/modules/Unidentified157.cjs](#file-eyes-src-vendor-modules-Unidentified157-cjs) — 递归深合并对象与数组；默认拼接数组并克隆可合并值，支持 arrayMerge/customMerge/isMergeableObject/clone 与 all 批量归并；默认排除 Date、RegExp、React element，过滤继承的非自有可枚举键
 - [eyes/src/vendor/modules/Unidentified158.cjs](#file-eyes-src-vendor-modules-Unidentified158-cjs) — 带 leading、trailing、maxWait 的调用防抖
 - [eyes/src/vendor/modules/Unidentified159.cjs](#file-eyes-src-vendor-modules-Unidentified159-cjs) — 限制函数调用频率，复用防抖和最大等待窗口
 - [eyes/src/vendor/modules/Unidentified160.cjs](#file-eyes-src-vendor-modules-Unidentified160-cjs) — 自定义滚动条实现，观察尺寸和 DOM 并管理原生滚动同步
@@ -22803,15 +22803,15 @@ FullscreenTriangle 几何生成器；构建 position/normal/uv 属性及三角�
 <a id="file-eyes-src-vendor-modules-Unidentified157-cjs"></a>
 ### `eyes/src/vendor/modules/Unidentified157.cjs`
 
-递归比较对象、数组、日期和正则；兼容 React element 的循环字段。[源码](../../eyes/src/vendor/modules/Unidentified157.cjs)。证据等级：observed。
+递归深合并对象与数组；默认拼接数组并克隆可合并值，支持 arrayMerge/customMerge/isMergeableObject/clone 与 all 批量归并；默认排除 Date、RegExp、React element，过滤继承的非自有可枚举键。[源码](../../eyes/src/vendor/modules/Unidentified157.cjs)。证据等级：observed。
 
 实际源码验收状态：`not-semantically-accepted`；
 
 来源模块 157：`vendors.js` 的 UTF-16 区间 [983880, 985409)；原导出 —。
 
-语义依据：// Recovered from vendors.js:983880-985409.；literal: object；literal: [object RegExp]；literal: [object Date]；literal: function；literal: react.element。
+语义依据：// Recovered from vendors.js:983880-985409.；literal: object；literal: [object RegExp]；literal: [object Date]；literal: function；literal: react.element；Unidentified157.cjs:15-21 clone and concat; 38-66 recursive merge and all；eyes/src/engine/core/AppUtils.js:99-104 deepMerge caller overrides isMergeableObject。
 
-约束/疑点：文件属于已恢复的第三方边界；保留接口和模块独立状态。。
+约束/疑点：此处是深合并而非递归等值比较；AppUtils.deepEqual 是另一条实现。；默认排除的特殊对象可由 isMergeableObject 配置改变，AppUtils 提供自有覆盖。。
 
 有证据的模块语义名建议：`DeepEqual`；不代表上游原始文件路径。
 

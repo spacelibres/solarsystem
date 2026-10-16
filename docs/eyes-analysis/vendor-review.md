@@ -755,7 +755,7 @@ FullscreenTriangle 几何生成器；构建 position/normal/uv 属性及三角�
 
 ## `eyes/src/vendor/modules/Unidentified157.cjs`
 
-递归比较对象、数组、日期和正则；兼容 React element 的循环字段。[源码](../../eyes/src/vendor/modules/Unidentified157.cjs)。语义状态：`not-semantically-accepted`。
+递归深合并对象与数组；默认拼接数组并克隆可合并值，支持 arrayMerge/customMerge/isMergeableObject/clone 与 all 批量归并；默认排除 Date、RegExp、React element，过滤继承的非自有可枚举键。[源码](../../eyes/src/vendor/modules/Unidentified157.cjs)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-vendor-modules-Unidentified157-cjs)
 

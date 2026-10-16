@@ -46,6 +46,14 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - `npm run eyes:analyze`: refresh the reference; `npm run eyes:analyze:check`:
   reject stale source coverage and evidence links.
 
+The approved [independent rebuild design](docs/superpowers/specs/2026-10-16-controlled-solar-system-design.md)
+and [current-system audit](docs/eyes-analysis/controlled-rebuild-audit.md) define
+the new source-controlled system. Remaining contracts are documented for
+[vendor dependencies](docs/eyes-analysis/remaining-vendor-contracts.md),
+[UI/data/styles](docs/eyes-analysis/remaining-ui-data-contracts.md), and
+[boot/runtime/build](docs/eyes-analysis/remaining-boot-runtime-contracts.md).
+The independent entry is an implementation goal; the current default remains Eyes.
+
 The recovery accounts for 1,087 original modules, with 733 native ESM modules,
 55 HTML template files, JSON data and ordinary third-party CommonJS modules.
 `eyes/provenance.json` records original IDs, ranges and bundle hashes. The old
