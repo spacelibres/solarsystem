@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：把位置、焦点和上方向关键帧组合成轨道相机的连续运动。
+ * 依据：import ../pioneer/public-api.js；OrbitKeyframeController extends PioneerPublicApi.BaseController @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:501754-508828.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：把位置、焦点和上方向关键帧组合成轨道相机的连续运动。
+ * 继承：PioneerPublicApi.BaseController；导出：OrbitKeyframeController。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class OrbitKeyframeController extends PioneerPublicApi.BaseController {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_directionOfFirstUpdate`、`_endPromise`、`_focusKeyframes`、`_positionKeyframes`、`_rejectPromise`、`_resolvePromise`、`_timeOfFirstUpdate`、`_upKeyframes`；调用 `new PioneerPublicApi.Vector3`、`new Promise`、`super`、`this.addModifiedState`。
+   * 状态写入：_directionOfFirstUpdate、_endPromise、_focusKeyframes、_positionKeyframes、_rejectPromise、_resolvePromise、_timeOfFirstUpdate、_upKeyframes。
+   * 调用线索：new PioneerPublicApi.Vector3、new Promise、super、this.addModifiedState。
+   */
   constructor(t, e) {
     super(t, e);
     this._positionKeyframes = [];
@@ -19,6 +35,10 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
     this.addModifiedState("orientation");
     this.addModifiedState("angularVelocity");
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`new PositionKeyframe`、`positionKeyframe.position.copy`、`positionKeyframe.relativeTo.setName`、`this._positionKeyframes.splice`。
+   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、new PositionKeyframe、positionKeyframe.position.copy、positionKeyframe.relativeTo.setName等。
+   */
   setPositionKeyframe(t, e, i) {
     if (void 0 !== e) {
       const positionKeyframe = new PositionKeyframe(this.getEntity().getScene());
@@ -31,6 +51,10 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
       e < this._positionKeyframes.length && t === this._positionKeyframes[e].time && this._positionKeyframes.splice(e, 1);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`focusKeyframe.focus.setName`、`new FocusKeyframe`、`this._focusKeyframes.splice`、`this.getEntity`。
+   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、focusKeyframe.focus.setName、new FocusKeyframe、this._focusKeyframes.splice等。
+   */
   setFocusKeyframe(t, e) {
     if (void 0 !== e) {
       const focusKeyframe = new FocusKeyframe(this.getEntity().getScene());
@@ -42,6 +66,10 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
       e < this._focusKeyframes.length && t === this._focusKeyframes[e].time && this._focusKeyframes.splice(e, 1);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`new UpKeyframe`、`this._upKeyframes.splice`、`upKeyframe.up.copy`。
+   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、new UpKeyframe、this._upKeyframes.splice、upKeyframe.up.copy。
+   */
   setUpKeyframe(t, e) {
     if (void 0 !== e) {
       const upKeyframe = new UpKeyframe();
@@ -53,13 +81,25 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
       e < this._upKeyframes.length && t === this._upKeyframes[e].time && this._upKeyframes.splice(e, 1);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   */
   async getEndPromise() {
     await this._endPromise;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`super.__destroy`、`this._rejectPromise`。
+   * 调用线索：new Error、super.__destroy、this._rejectPromise。
+   */
   __destroy() {
     super.__destroy();
     null !== this._rejectPromise && this._rejectPromise(new Error(`Could not complete keyframes because ${this} was destroyed.`));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_rejectPromise`、`_timeOfFirstUpdate`；返回 `void`；调用 `Date.now`、`Math.max`、`PioneerPublicApi.MathUtils.lerp`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Sort.addObject`。
+   * 状态写入：_rejectPromise、_timeOfFirstUpdate。
+   * 调用线索：Date.now、Math.max、PioneerPublicApi.MathUtils.lerp、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release等。
+   */
   __update() {
     const t = this.getEntity();
     let e = 0;
@@ -182,8 +222,20 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
     PioneerPublicApi.Vector3.pool.release(o);
     i && a && c && (this._rejectPromise = null, this._resolvePromise());
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static isLess = (t, e) => t.time < e.time;
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static isLessThanTime = (t, e) => t.time < e;
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static isEqual = (t, e) => t.time === e.time;
   _positionKeyframes;
   _focusKeyframes;
@@ -194,30 +246,69 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
   _rejectPromise;
   _endPromise;
 }
+/** @eyes-analysis
+ * 类职责：轨道相机关键帧基类。
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Keyframe {
   time;
+  /** @eyes-analysis
+   * 【结构证据】写入 `time`。
+   * 状态写入：time。
+   */
   constructor() {
     this.time = NaN;
   }
 }
+/** @eyes-analysis
+ * 类职责：轨道相机位置关键帧。
+ * 继承：Keyframe；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PositionKeyframe extends Keyframe {
   position;
   relativeTo;
+  /** @eyes-analysis
+   * 【结构证据】写入 `position`、`relativeTo`；调用 `new PioneerPublicApi.EntityRef`、`new PioneerPublicApi.Vector3`、`super`。
+   * 状态写入：position、relativeTo。
+   * 调用线索：new PioneerPublicApi.EntityRef、new PioneerPublicApi.Vector3、super。
+   */
   constructor(t) {
     super();
     this.position = new PioneerPublicApi.Vector3();
     this.relativeTo = new PioneerPublicApi.EntityRef(t);
   }
 }
+/** @eyes-analysis
+ * 类职责：轨道相机焦点关键帧。
+ * 继承：Keyframe；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FocusKeyframe extends Keyframe {
   focus;
+  /** @eyes-analysis
+   * 【结构证据】写入 `focus`；调用 `new PioneerPublicApi.EntityRef`、`super`。
+   * 状态写入：focus。
+   * 调用线索：new PioneerPublicApi.EntityRef、super。
+   */
   constructor(t) {
     super();
     this.focus = new PioneerPublicApi.EntityRef(t);
   }
 }
+/** @eyes-analysis
+ * 类职责：轨道相机上方向关键帧。
+ * 继承：Keyframe；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class UpKeyframe extends Keyframe {
   up;
+  /** @eyes-analysis
+   * 【结构证据】写入 `up`；调用 `new PioneerPublicApi.Vector3`、`super`。
+   * 状态写入：up。
+   * 调用线索：new PioneerPublicApi.Vector3、super。
+   */
   constructor() {
     super();
     this.up = new PioneerPublicApi.Vector3();

@@ -1,6 +1,21 @@
+/** @eyes-analysis
+ * 文件职责：通过关键帧/插值构造实体与相机状态过渡。
+ * 依据：import ../pioneer/index.js；Transitions @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:735147-737637.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：通过关键帧/插值构造实体与相机状态过渡。
+ * 继承：无显式父类；导出：Transitions。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Transitions {
+  /** @eyes-analysis
+   * 【结构证据】调用 `A.copy`、`A.isNaN`、`A.mult`、`A.normalize`、`A.rotate`、`L.normalize`；含显式错误分支。
+   * 调用线索：A.copy、A.isNaN、A.mult、A.normalize、A.rotate等。
+   */
   static jumpToLocationOnSphere(t, e, i, n, o, r, a, l, c, h) {
     t <= 0 && (t = .001);
     h = Transitions.easeInOut(h);
@@ -75,10 +90,17 @@ class Transitions {
     Pioneer.Vector3.pool.release(u);
     Pioneer.Vector3.pool.release(p);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e/(2*(e-t)+1)`。
+   */
   static easeInOut(t) {
     const e = t * t;
     return e / (2 * (e - t) + 1);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.abs`、`Math.acos`、`Math.cos`、`Math.sign`、`Math.sin`、`Math.sqrt`。
+   * 调用线索：Math.abs、Math.acos、Math.cos、Math.sign、Math.sin等。
+   */
   static _jumpOnCircle(t, e, i, s, n) {
     let o;
     let r;

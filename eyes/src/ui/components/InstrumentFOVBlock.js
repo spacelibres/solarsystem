@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：仪器视场选项内容块
+ * 依据：imports: ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../app/public-api.js, ../../styles/extracted/InstrumentFOVBlockStyles.js, ../templates/InstrumentFOVBlockTemplate.html
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1489381-1500476.
 import * as SolarSystemSceneExports from "../../engine/solar-system/public-api.js";
 import * as Pioneer from "../../engine/pioneer/index.js";
@@ -5,7 +11,17 @@ import * as SolarSystemPublicApi from "../../app/public-api.js";
 import "../../styles/extracted/InstrumentFOVBlockStyles.js";
 import InstrumentFOVBlockTemplate from "../templates/InstrumentFOVBlockTemplate.html";
 var getInstrumentFOVBlockTemplate = () => InstrumentFOVBlockTemplate;
+/** @eyes-analysis
+ * 类职责：仪器视场选项内容块；继承 SolarSystemPublicApi.OptionsBlock
+ * 继承：SolarSystemPublicApi.OptionsBlock；导出：InstrumentFOVBlock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Object.assign, Pioneer.Vector3, Pioneer.Color；写入 _previousEntity, _spacecraft, _instrumentCheckboxes。
+   * 状态写入：_instrumentCheckboxes、_previousEntity、_spacecraft。
+   * 调用线索：Object.assign、new Pioneer.Color、new Pioneer.Vector3、super。
+   */
   constructor(t) {
     super(t, null, {
       entityName: ""
@@ -412,12 +428,24 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
     };
     this._instrumentCheckboxes = [];
   }
+  /** @eyes-analysis
+   * 执行 hasInstrumentsWithFOV 对应的组件业务步骤。
+   */
   hasInstrumentsWithFOV(t) {
     return void 0 !== this._spacecraft[t];
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init。
+   * 调用线索：super.init。
+   */
   init() {
     super.init();
   }
+  /** @eyes-analysis
+   * 响应路径参数变化并刷新本模块；调用 this.reset, this.setState, this._addInstrumentOptions, this._setVariables；写入 _previousEntity。
+   * 状态写入：_children.instrumentsList.innerHTML、_previousEntity。
+   * 调用线索：this._addInstrumentOptions、this._setVariables、this.reset、this.setState。
+   */
   onRouteChange(t, e) {
     const previousEntity = t.id;
     this._previousEntity && this._previousEntity !== previousEntity && this.reset();
@@ -427,6 +455,11 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
     const s = this._spacecraft[previousEntity];
     s ? (this._addInstrumentOptions(previousEntity, s), this._previousEntity = previousEntity, this._setVariables(this._children.instrumentFOVBlock)) : this._children.instrumentsList.innerHTML = "";
   }
+  /** @eyes-analysis
+   * 执行 _addInstrumentOptions 对应的组件业务步骤；调用 this.reset, this._instrumentCheckboxes.forEach, this._toggleFrustums, this._createMultistateCheckbox, this._createCheckbox, this._children.instrumentsList.appendChild, this._instrumentCheckboxes.some, this._instrumentCheckboxes.push。
+   * 状态写入：_children.instrumentsList.innerHTML。
+   * 调用线索：a、checkbox.cycle、checkbox.toggle、console.warn、i.every等。
+   */
   _addInstrumentOptions(t, e) {
     this._children.instrumentsList.innerHTML = "";
     this.reset();
@@ -494,6 +527,10 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
       });
     });
   }
+  /** @eyes-analysis
+   * 执行 _toggleFrustums 对应的组件业务步骤；调用 this._app.scene.getEntity, Object.entries。
+   * 调用线索：Object.entries、Object.entries(i).forEach、e.instances.forEach、n.addComponent、n.getComponent等。
+   */
   _toggleFrustums(t, e, i = false) {
     const n = this._app.scene.getEntity(t);
     i || e.enabled ? e.instances.forEach((t, i) => {
@@ -529,11 +566,20 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
       o && o.setEnabled(false);
     });
   }
+  /** @eyes-analysis
+   * 执行 reset 对应的组件业务步骤；写入 _instrumentCheckboxes, _triggeredByInstrumentCheckbox, _triggeredByAllCheckbox。
+   * 状态写入：_instrumentCheckboxes、_triggeredByAllCheckbox、_triggeredByInstrumentCheckbox。
+   */
   reset() {
     this._instrumentCheckboxes = [];
     this._triggeredByInstrumentCheckbox = false;
     this._triggeredByAllCheckbox = false;
   }
+  /** @eyes-analysis
+   * 卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity。
+   * 状态写入：_previousEntity。
+   * 调用线索：super.__disable、this.setState。
+   */
   __disable() {
     this._previousEntity = null;
     this.setState({

@@ -1,10 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：相关对象链接内容块
+ * 依据：imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/RelatedBlockTemplate.html, ../../styles/extracted/RelatedBlockStyles.js；manager dependencies: content, router, camera
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1510277-1513762.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as SolarSystemPublicApi from "../../app/public-api.js";
 import RelatedBlockTemplate from "../templates/RelatedBlockTemplate.html";
 import "../../styles/extracted/RelatedBlockStyles.js";
 var getRelatedBlockTemplate = () => RelatedBlockTemplate;
+/** @eyes-analysis
+ * 类职责：相关对象链接内容块；继承 SolarSystemPublicApi.BaseContentBlock
+ * 继承：SolarSystemPublicApi.BaseContentBlock；导出：RelatedBlock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、super、this.setState。
+   */
   constructor(t) {
     super(t, null, {
       relatedMessage: "Related"
@@ -14,6 +29,11 @@ class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
       showTitleLabel: e ? "hidden" : ""
     });
   }
+  /** @eyes-analysis
+   * 响应路径参数变化并刷新本模块；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.populateStoryCard, this.setState, this._app.getManager, List.add, this._children.relatedList.appendChild, this.hide。
+   * 状态写入：_children.relatedList.innerHTML。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、document.createElement、document.createTextNode、e.forEach等。
+   */
   onRouteChange(t, e, i, n) {
     const o = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
     null !== this._children.relatedList && (this._children.relatedList.innerHTML = "", this.populateStoryCard(i), void 0 !== e && 0 !== e.length ? (this.setState({
@@ -45,6 +65,11 @@ class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
       }
     })) : this.hide());
   }
+  /** @eyes-analysis
+   * 执行 populateStoryCard 对应的组件业务步骤；调用 this.setEnabled, List.add, this._app.getManager, this._app.scene.getLoadedPromise, this._app.getComponent, this._storyList.appendChild；写入 _storyList。
+   * 状态写入：_storyList、_storyList.innerHTML。
+   * 调用线索：_.appendChild、_.classList.add、document.createElement、document.createTextNode、e.appendChild等。
+   */
   populateStoryCard(t) {
     if (this._storyList && (this._storyList.innerHTML = ""), null !== t && t?.length > 0) {
       if (this._storyList = this._children.storyList, null === this._storyList || void 0 === this._storyList) return void this.setEnabled(false);
@@ -112,6 +137,10 @@ class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
       });
     }
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、this.setState。
+   */
   resize() {
     const t = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
     this.setState({

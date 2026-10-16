@@ -1,9 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：图层分组与可见性开关面板
+ * 依据：imports: ../../framework/eyes/public-api.js, ../templates/LayerPanelTemplate.html, ../../styles/extracted/LayerPanelStyles.js；manager dependencies: layer
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:655131-662755.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import LayerPanelTemplate from "../templates/LayerPanelTemplate.html";
 import "../../styles/extracted/LayerPanelStyles.js";
 var getLayerPanelTemplate = () => LayerPanelTemplate;
+/** @eyes-analysis
+ * 类职责：图层分组与可见性开关面板；继承 EyesPublicApi.BaseComponent
+ * 继承：EyesPublicApi.BaseComponent；导出：LayerPanel。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LayerPanel extends EyesPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions, EyesPublicApi.AppUtils.isMobileMode, this._initCallbacks；写入 _eyesCheck, _categories, _categoriesDisplay, _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom, _lastMode。
+   * 状态写入：_categories、_categoriesDisplay、_eyesCheck、_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight、_lastMode。
+   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、Object.assign、super、t.getManager、t.getManager("layer").getLayer等。
+   */
   constructor(t, e = {}) {
     e.config = {
       layers: e.layers || [],
@@ -102,13 +118,24 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
     this._lastMode = EyesPublicApi.AppUtils.isMobileMode();
     this._initCallbacks();
   }
+  /** @eyes-analysis
+   * 执行 getCategoriesDisplay 对应的组件业务步骤。
+   */
   getCategoriesDisplay() {
     return this._categoriesDisplay;
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 super.resize, this._updatePosition。
+   * 调用线索：super.resize、this._updatePosition。
+   */
   resize() {
     super.resize();
     this._updatePosition();
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager, this._config.layers.forEach, List.add, EyesPublicApi.Checkbox, this._components.push, this._setVariables。
+   * 调用线索：checkbox.init、document.createElement、e.addEventListener、e.append、e.setAttribute等。
+   */
   init() {
     super.init();
     this._callbackRegistry.push({
@@ -165,6 +192,11 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       this._setVariables(t);
     }
   }
+  /** @eyes-analysis
+   * 执行 _createAnimations 对应的组件业务步骤；调用 EyesPublicApi.AnimationUtils.directionalFade；写入 _fadeOutRight, _fadeInRight, _fadeOutBottom, _fadeInBottom。
+   * 状态写入：_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight。
+   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade。
+   */
   _createAnimations() {
     this._fadeOutRight = EyesPublicApi.AnimationUtils.directionalFade(this._element, {
       direction: "right",
@@ -187,6 +219,11 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     });
   }
+  /** @eyes-analysis
+   * 执行 _resetAnimations 对应的组件业务步骤；调用 this._fadeInRight.pause, this._fadeOutRight.pause, this._fadeInBottom.pause, this._fadeOutBottom.pause。
+   * 状态写入：_fadeInBottom.currentTime、_fadeInRight.currentTime、_fadeOutBottom.currentTime、_fadeOutRight.currentTime。
+   * 调用线索：this._fadeInBottom.pause、this._fadeInRight.pause、this._fadeOutBottom.pause、this._fadeOutRight.pause。
+   */
   _resetAnimations() {
     this._fadeInRight.currentTime = 0;
     this._fadeOutRight.currentTime = 0;
@@ -197,12 +234,20 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
     this._fadeInBottom.pause();
     this._fadeOutBottom.pause();
   }
+  /** @eyes-analysis
+   * 执行 toggleLayer 对应的组件业务步骤；调用 this._app.getManager。
+   * 调用线索：t.target?.getAttribute、this._app.getManager、this._app.getManager("layer").toggleLayer。
+   */
   toggleLayer(t) {
     const e = t.target?.getAttribute("key") ?? t;
     this._app.getManager("layer").toggleLayer(e, {
       category: this._categories[e]
     });
   }
+  /** @eyes-analysis
+   * 执行 handleLayerToggle 对应的组件业务步骤；调用 this.getState, this.setState, this._components.find, this._app.getManager。
+   * 调用线索：document.getElementById、e.getConfig、o.getState、o.toggle、t.getConfig等。
+   */
   handleLayerToggle(t, e, i) {
     const s = t + "Class";
     const n = t + "ColorClass";
@@ -221,12 +266,25 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
     }
     o && o.getState("isChecked") !== e && o.toggle(true, true);
   }
+  /** @eyes-analysis
+   * 执行 isCategoryEnabled 对应的组件业务步骤；调用 List.contains。
+   * 调用线索：this._children[t]?.classList.contains。
+   */
   isCategoryEnabled(t) {
     return !this._children[t]?.classList.contains("disabled");
   }
+  /** @eyes-analysis
+   * 执行 setCategoryEnabled 对应的组件业务步骤；调用 List.toggle。
+   * 调用线索：this._children[t]?.classList.toggle。
+   */
   setCategoryEnabled(t, e = true) {
     this._children[t]?.classList.toggle("disabled", !e);
   }
+  /** @eyes-analysis
+   * 执行 hide 对应的组件业务步骤；调用 this.getState, super.hide, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeOutBottom.play, this._fadeOutRight.play；写入 _fadeOutBottom, _fadeOutRight。
+   * 状态写入：_fadeOutBottom、_fadeOutRight。
+   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade、EyesPublicApi.AppUtils.isMobileMode、document.body.style.setProperty、super.hide、this._fadeOutBottom.play等。
+   */
   hide() {
     this.getState("isVisible") && (super.hide(), document.body.style.setProperty("--settings-z-index", "40"), EyesPublicApi.AppUtils.isMobileMode() ? (this._fadeOutBottom = EyesPublicApi.AnimationUtils.directionalFade(this._element, {
       direction: "down",
@@ -238,6 +296,11 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     }), this._fadeOutRight.play()));
   }
+  /** @eyes-analysis
+   * 执行 show 对应的组件业务步骤；调用 super.show, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeInBottom.play, this._fadeInRight.play；写入 _fadeInBottom, _fadeInRight。
+   * 状态写入：_fadeInBottom、_fadeInRight。
+   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade、EyesPublicApi.AppUtils.isMobileMode、document.body.style.setProperty、super.show、this._fadeInBottom.play等。
+   */
   show() {
     super.show();
     document.body.style.setProperty("--settings-z-index", "50");
@@ -251,14 +314,28 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     }), this._fadeInRight.play());
   }
+  /** @eyes-analysis
+   * 执行 _updatePosition 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isMobileMode, this.show；写入 _lastMode。
+   * 状态写入：_lastMode。
+   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、this.show。
+   */
   _updatePosition() {
     const lastMode = EyesPublicApi.AppUtils.isMobileMode();
     lastMode !== this._lastMode && (this._lastMode = lastMode, this._state.isVisible && this.show());
   }
+  /** @eyes-analysis
+   * 挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createAnimations。
+   * 调用线索：super.__enable、this._createAnimations。
+   */
   __enable() {
     super.__enable();
     this._createAnimations();
   }
+  /** @eyes-analysis
+   * 卸载 DOM 并取消业务订阅；调用 super.__disable；写入 _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom。
+   * 状态写入：_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight。
+   * 调用线索：super.__disable。
+   */
   __disable() {
     super.__disable();
     this._fadeInRight = null;

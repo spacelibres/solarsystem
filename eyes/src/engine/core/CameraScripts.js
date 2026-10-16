@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：应用级观察脚本：解析实体/系统目标，协调 camera 管理器与场景过渡。
+ * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1267847-1285874.
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
+/** @eyes-analysis
+ * 类职责：应用级观察脚本：解析实体/系统目标，协调 camera 管理器与场景过渡。
+ * 继承：EyesPublicApi.BaseManager；导出：CameraScripts。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraScripts extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cameraManager`、`_customSystemDistances`、`_easeInOutExpoTransition`、`_easeOutExpoTransition`、`_onCameraTransition`；调用 `super`、`this._easeInOutExpoTransition.bind`、`this._easeOutExpoTransition.bind`。
+   * 状态写入：_cameraManager、_customSystemDistances、_easeInOutExpoTransition、_easeOutExpoTransition、_onCameraTransition。
+   * 调用线索：super、this._easeInOutExpoTransition.bind、this._easeOutExpoTransition.bind。
+   */
   constructor(t) {
     super(t);
     this._cameraManager = null;
@@ -25,32 +41,66 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     this._easeInOutExpoTransition = this._easeInOutExpoTransition.bind(this);
     this._easeOutExpoTransition = this._easeOutExpoTransition.bind(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cameraManager`。
+   * 状态写入：_cameraManager。
+   */
   setCameraManager(cameraManager) {
     this._cameraManager = cameraManager;
   }
+  /** @eyes-analysis
+   * 【结构证据】读取访问器，返回 `this._scene`；本访问器没有 AST 可见的 this 字段直接赋值。
+   */
   get scene() {
     return this._scene;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入访问器，接收参数 (scene)；实际写入 `_scene`。
+   * 状态写入：_scene。
+   */
   set scene(scene) {
     this._scene = scene;
   }
+  /** @eyes-analysis
+   * 【结构证据】读取访问器，返回 `this._cameraEntity`；本访问器没有 AST 可见的 this 字段直接赋值。
+   */
   get cameraEntity() {
     return this._cameraEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入访问器，接收参数 (cameraEntity)；实际写入 `_cameraEntity`。
+   * 状态写入：_cameraEntity。
+   */
   set cameraEntity(cameraEntity) {
     this._cameraEntity = cameraEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Pioneer.Quaternion`、`quaternion.getAxis`、`this._cameraManager.pioneer.getScene`、`this._cameraManager.pioneer.getScene("main").getEntity`、`this._cameraManager.pioneer.getScene("main").getEntity(e).getController`、`this._cameraManager.pioneer.getScene("main").getEntity(e).getController(Pioneer.DynamoController).getOrbitOrientation`。
+   * 调用线索：new Pioneer.Quaternion、quaternion.getAxis、this._cameraManager.pioneer.getScene、this._cameraManager.pioneer.getScene("main").getEntity、this._cameraManager.pioneer.getScene("main").getEntity(e).getController等。
+   */
   getNormalToEcliptic(t, e) {
     const quaternion = new Pioneer.Quaternion();
     this._cameraManager.pioneer.getScene("main").getEntity(e).getController(Pioneer.DynamoController).getOrbitOrientation(quaternion, this._cameraManager.pioneer.getTime());
     quaternion.getAxis(t, 2);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `!!t.includes("_barycenter")`；调用 `t.includes`。
+   * 调用线索：t.includes。
+   */
   isBarycenter(t) {
     return !!t.includes("_barycenter");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.isBarycenter(t)?t.replace("_barycenter",""):t`；调用 `t.replace`、`this.isBarycenter`。
+   * 调用线索：t.replace、this.isBarycenter。
+   */
   removeBarycenter(t) {
     return this.isBarycenter(t) ? t.replace("_barycenter", "") : t;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Pioneer.MathUtils.degToRad`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`c.getComponent`、`c.getComponent(Pioneer.SpheroidComponent).getEquatorialRadius`、`c.getOcclusionRadius`、`c.getOrientation`。
+   * 调用线索：Pioneer.MathUtils.degToRad、SolarSystemSceneExports.Cameras.getDistanceToFitEntities、c.getComponent、c.getComponent(Pioneer.SpheroidComponent).getEquatorialRadius、c.getOcclusionRadius等。
+   */
   async lookAtSurfaceLatLon(t, e = 0, i = 0, {
     scene: scene,
     cinematic: r = false,
@@ -93,6 +143,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       maxRadius: g
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`T.setFromAxes`、`h.getComponent`、`h.getOcclusionRadius`、`h.getOrientation`。
+   * 调用线索：Pioneer.MathUtils.degToRad、SolarSystemSceneExports.Cameras.getDistanceToFitEntities、T.setFromAxes、h.getComponent、h.getOcclusionRadius等。
+   */
   async goToCelestialObject(t, {
     scene: scene,
     starId: i = "sun",
@@ -145,6 +199,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: r / 2
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`Pioneer.Quaternion.pool.get`、`Pioneer.Quaternion.pool.release`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`a.lerp`。
+   * 调用线索：Math.pow、Pioneer.Quaternion.pool.get、Pioneer.Quaternion.pool.release、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release等。
+   */
   _easeOutExpoTransition(t, e, i, n, o, r) {
     const a = Pioneer.Vector3.pool.get();
     const l = Pioneer.Quaternion.pool.get();
@@ -157,6 +215,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     Pioneer.Vector3.pool.release(a);
     Pioneer.Quaternion.pool.release(l);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`Pioneer.Quaternion.pool.get`、`Pioneer.Quaternion.pool.release`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`a.lerp`。
+   * 调用线索：Math.pow、Pioneer.Quaternion.pool.get、Pioneer.Quaternion.pool.release、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release等。
+   */
   _easeInOutExpoTransition(t, e, i, n, o, r) {
     const a = Pioneer.Vector3.pool.get();
     const l = Pioneer.Quaternion.pool.get();
@@ -169,6 +231,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     Pioneer.Vector3.pool.release(a);
     Pioneer.Quaternion.pool.release(l);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`f.cross`、`f.normalize`、`g.copy`、`g.isNaN`。
+   * 调用线索：Pioneer.MathUtils.degToRad、SolarSystemSceneExports.Cameras.getDistanceToFitEntities、f.cross、f.normalize、g.copy等。
+   */
   async goToSpacecraft(t, {
     scene: scene,
     starId: i = "sun",
@@ -222,6 +288,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: l
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `c.getOcclusionRadius`、`c.getParent`、`c.getPositionRelativeToEntity`、`h.getName`、`h.getOcclusionRadius`、`h.getOrientation`。
+   * 调用线索：c.getOcclusionRadius、c.getParent、c.getPositionRelativeToEntity、h.getName、h.getOcclusionRadius等。
+   */
   async goToInstrument(t, {
     scene: scene,
     distance: distance,
@@ -268,6 +338,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: n
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Promise.all`、`new CustomEvent`、`this._cameraManager.goToEntity`、`this._cameraManager.setContext`、`window.dispatchEvent`。
+   * 调用线索：Promise.all、new CustomEvent、this._cameraManager.goToEntity、this._cameraManager.setContext、window.dispatchEvent。
+   */
   async compareObjects(t, e, {
     cameraLeft: cameraLeft,
     cameraRight: cameraRight,
@@ -317,6 +391,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     });
     await Promise.all([u, p]);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`d.getOrientation`、`d.getOrientation().getAxis`、`d.getPosition`、`d.getVelocity`、`g.cross`。
+   * 调用线索：SolarSystemSceneExports.Cameras.getDistanceToFitEntities、d.getOrientation、d.getOrientation().getAxis、d.getPosition、d.getVelocity等。
+   */
   async showLocation(t, e, i, o = "northPole", {
     duration: r = 2,
     otherEntityNames: a = [],
@@ -386,6 +464,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: .2
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`d.getOcclusionRadius`、`d.getPositionRelativeToEntity`、`new Pioneer.Quaternion`、`new Pioneer.Vector3`、`quaternion.setFromAxisAngle`。
+   * 调用线索：Pioneer.MathUtils.degToRad、d.getOcclusionRadius、d.getPositionRelativeToEntity、new Pioneer.Quaternion、new Pioneer.Vector3等。
+   */
   async alignObjects(t, e, {
     verticalOffset: i = 0,
     horizontalOffset: n = 0,
@@ -436,6 +518,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       transitionFunction: h ? this._easeOutExpoTransition : void 0
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`Math.min`、`l.getEquatorialRadius`、`new Pioneer.Vector3`、`o.getOrientation`、`o.getOrientation().getAxis`。
+   * 调用线索：Math.max、Math.min、l.getEquatorialRadius、new Pioneer.Vector3、o.getOrientation等。
+   */
   async alignSpacecraftPlanet(t, {
     duration: e = 1.5,
     minRadius: i = 50,
@@ -467,6 +553,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: e
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`T.cross`、`T.normalize`、`c.includes`、`c.startsWith`、`f.cross`。
+   * 调用线索：Pioneer.MathUtils.degToRad、T.cross、T.normalize、c.includes、c.startsWith等。
+   */
   async viewFromSide(t, {
     planeId: e = "earth",
     distance: distance,
@@ -528,6 +618,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: o
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraManager.setContext`。
+   * 调用线索：this._cameraManager.setContext。
+   */
   async spacecraftLookAtTarget(t, e) {
     this._cameraManager.setContext({
       id: t,
@@ -535,6 +629,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       target: e
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraManager.setContext`。
+   * 调用线索：this._cameraManager.setContext。
+   */
   async spacecraftLockedOnTarget(t, e) {
     this._cameraManager.setContext({
       id: t,
@@ -542,6 +640,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       target: e
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`Math.tan`、`Pioneer.MathUtils.degToRad`、`S.getHorizontalFieldOfView`、`S.getVerticalFieldOfView`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`。
+   * 调用线索：Math.max、Math.tan、Pioneer.MathUtils.degToRad、S.getHorizontalFieldOfView、S.getVerticalFieldOfView等。
+   */
   async goToSystemSideway(t, {
     distance: distance,
     minDistance: i = 0,
@@ -601,6 +703,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       duration: o
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Object.assign`、`this._app.getManager`、`this._app.getManager("content").getEntityInfo`、`this._goToSystem`、`this.isBarycenter`、`this.removeBarycenter`。
+   * 调用线索：Object.assign、this._app.getManager、this._app.getManager("content").getEntityInfo、this._goToSystem、this.isBarycenter等。
+   */
   async goToSystem(t, e = {}) {
     if ("inner_solar_system" === t) {
       Object.assign(e, {
@@ -628,6 +734,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
       await this._goToSystem(t, e);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`Pioneer.MathUtils.degToRad`、`S.getHorizontalFieldOfView`、`S.getVerticalFieldOfView`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`T.getEquatorialRadius`。
+   * 调用线索：Math.max、Pioneer.MathUtils.degToRad、S.getHorizontalFieldOfView、S.getVerticalFieldOfView、SolarSystemSceneExports.Cameras.getDistanceToFitEntities等。
+   */
   async _goToSystem(t, {
     distance: distance,
     angle: i = 25,
@@ -703,6 +813,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     });
     this.app.getManager("camera").setIsTransitioning(false);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `c.getName`、`c.setOrientation`、`c.setParent`、`c.setPosition`、`l.push`、`n.getPositionRelativeToEntity`。
+   * 调用线索：c.getName、c.setOrientation、c.setParent、c.setPosition、l.push等。
+   */
   async goToCenter(t, e, i, n = {}) {
     this._cameraManager.setContext({
       id: "centerSystem",
@@ -726,6 +840,10 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     n.otherEntityNames = t;
     await this._goToSystem(c.getName(), n);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `d.push`、`n.getPositionRelativeToEntity`、`new Pioneer.Vector3`、`this._cameraManager.setContext`、`this._scene.addEntity`、`this._scene.getEntity`。
+   * 调用线索：d.push、n.getPositionRelativeToEntity、new Pioneer.Vector3、this._cameraManager.setContext、this._scene.addEntity等。
+   */
   async showLocationCenter(t, e, i, n, o, r, a = {}) {
     this._cameraManager.setContext({
       id: "centerLocation",
@@ -749,12 +867,20 @@ class CameraScripts extends EyesPublicApi.BaseManager {
     a.otherEntityNames = t;
     await this.showLocation(u.getName(), n, o, r, a);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `contentManager.getEntityInfo`、`this._app.getManager`、`this._app.getManager("scene").getParent`、`this.showLocation`。
+   * 调用线索：contentManager.getEntityInfo、this._app.getManager、this._app.getManager("scene").getParent、this.showLocation。
+   */
   async showLocationInParentSystem(t, e = {}) {
     const contentManager = this._app.getManager("content");
     let s = this._app.getManager("scene").getParent(t);
     s = "Landing site" === contentManager.getEntityInfo(s).category ? this._app.getManager("scene").getParent(s) : s;
     await this.showLocation(t, s, s, "northPole", e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `i.getName`、`i.getParent`、`i.getParent().getName`、`this._scene.getEntity`、`this._scene.getEntity(t).getParent`、`this.showLocation`。
+   * 调用线索：i.getName、i.getParent、i.getParent().getName、this._scene.getEntity、this._scene.getEntity(t).getParent等。
+   */
   async showLocationInSolarSystem(t, e = {}) {
     let i = this._scene.getEntity(t).getParent();
     if ("sun" !== i.getName()) for (; "sun" !== i.getParent().getName();) i = i.getParent();else i = this._scene.getEntity("earth");

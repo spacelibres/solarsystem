@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：围绕焦点实体维护距离、偏航、俯仰和上方向，处理鼠标/触摸轨道相机输入及约束。
+ * 依据：import ../pioneer/public-api.js；OrbitController extends PioneerPublicApi.BaseController @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:494121-501753.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：围绕焦点实体维护距离、偏航、俯仰和上方向，处理鼠标/触摸轨道相机输入及约束。
+ * 继承：PioneerPublicApi.BaseController；导出：OrbitController。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class OrbitController extends PioneerPublicApi.BaseController {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dragSensitivity`、`_dragSmoothness`、`_pitchAngleLimits`、`_pitchAxisEntity`、`_pitchAxisType`、`_pitchChangeSmoothedValue`、`_yawAngleLimits`、`_yawAxisEntity`；调用 `new PioneerPublicApi.Interval`、`super`、`this.addModifiedState`。
+   * 状态写入：_dragSensitivity、_dragSmoothness、_pitchAngleLimits、_pitchAxisEntity、_pitchAxisType、_pitchChangeSmoothedValue、_yawAngleLimits、_yawAxisEntity等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.Interval、super、this.addModifiedState。
+   */
   constructor(t, e) {
     super(t, e);
     this._dragSensitivity = .01;
@@ -16,54 +32,119 @@ class OrbitController extends PioneerPublicApi.BaseController {
     this.addModifiedState("position");
     this.addModifiedState("orientation");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._dragSensitivity`。
+   */
   getDragSensitivity() {
     return this._dragSensitivity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dragSensitivity`。
+   * 状态写入：_dragSensitivity。
+   */
   setDragSensitivity(dragSensitivity) {
     this._dragSensitivity = dragSensitivity;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._dragSmoothness`。
+   */
   getDragSmoothness() {
     return this._dragSmoothness;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dragSmoothness`。
+   * 状态写入：_dragSmoothness。
+   */
   setDragSmoothness(dragSmoothness) {
     this._dragSmoothness = dragSmoothness;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._yawAxisType`。
+   */
   getYawAxisType() {
     return this._yawAxisType;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_yawAxisType`；调用 `["x-axis","y-axis","z-axis"].includes`、`this._yawAxisEntity.getName`、`this.addDependentState`、`this.removeDependentState`。
+   * 状态写入：_yawAxisType。
+   * 调用线索：["x-axis","y-axis","z-axis"].includes、this._yawAxisEntity.getName、this.addDependentState、this.removeDependentState。
+   */
   setYawAxisType(yawAxisType) {
     this._yawAxisType !== yawAxisType && (null !== this._yawAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._yawAxisType) ? this.removeDependentState(this._yawAxisEntity.getName(), "orientation") : "position" === this._yawAxisType && this.removeDependentState(this._yawAxisEntity.getName(), "position")), this._yawAxisType = yawAxisType, null !== this._yawAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._yawAxisType) ? this.addDependentState(this._yawAxisEntity.getName(), "orientation") : "position" === this._yawAxisType && this.addDependentState(this._yawAxisEntity.getName(), "position")));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._pitchAxisType`。
+   */
   getPitchAxisType() {
     return this._pitchAxisType;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pitchAxisType`；调用 `["x-axis","y-axis","z-axis"].includes`、`this._pitchAxisEntity.getName`、`this.addDependentState`、`this.removeDependentState`。
+   * 状态写入：_pitchAxisType。
+   * 调用线索：["x-axis","y-axis","z-axis"].includes、this._pitchAxisEntity.getName、this.addDependentState、this.removeDependentState。
+   */
   setPitchAxisType(pitchAxisType) {
     this._pitchAxisType !== pitchAxisType && (null !== this._pitchAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._pitchAxisType) ? this.removeDependentState(this._pitchAxisEntity.getName(), "orientation") : "position" === this._pitchAxisType && this.removeDependentState(this._pitchAxisEntity.getName(), "position")), this._pitchAxisType = pitchAxisType, null !== this._pitchAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._pitchAxisType) ? this.addDependentState(this._pitchAxisEntity.getName(), "orientation") : "position" === this._pitchAxisType && this.addDependentState(this._pitchAxisEntity.getName(), "position")));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._yawAxisEntity`。
+   */
   getYawAxisEntity() {
     return this._yawAxisEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_yawAxisEntity`；调用 `["x-axis","y-axis","z-axis"].includes`、`this._yawAxisEntity.getName`、`this.addDependentState`、`this.removeDependentState`。
+   * 状态写入：_yawAxisEntity。
+   * 调用线索：["x-axis","y-axis","z-axis"].includes、this._yawAxisEntity.getName、this.addDependentState、this.removeDependentState。
+   */
   setYawAxisEntity(yawAxisEntity) {
     this._yawAxisEntity !== yawAxisEntity && (null !== this._yawAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._yawAxisType) ? this.removeDependentState(this._yawAxisEntity.getName(), "orientation") : "position" === this._yawAxisType && this.removeDependentState(this._yawAxisEntity.getName(), "position")), this._yawAxisEntity = yawAxisEntity, null !== this._yawAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._yawAxisType) ? this.addDependentState(this._yawAxisEntity.getName(), "orientation") : "position" === this._yawAxisType && this.addDependentState(this._yawAxisEntity.getName(), "position")));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._pitchAxisEntity`。
+   */
   getPitchAxisEntity() {
     return this._pitchAxisEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pitchAxisEntity`；调用 `["x-axis","y-axis","z-axis"].includes`、`this._pitchAxisEntity.getName`、`this.addDependentState`、`this.removeDependentState`。
+   * 状态写入：_pitchAxisEntity。
+   * 调用线索：["x-axis","y-axis","z-axis"].includes、this._pitchAxisEntity.getName、this.addDependentState、this.removeDependentState。
+   */
   setPitchAxisEntity(pitchAxisEntity) {
     this._pitchAxisEntity !== pitchAxisEntity && (null !== this._pitchAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._pitchAxisType) ? this.removeDependentState(this._pitchAxisEntity.getName(), "orientation") : "position" === this._pitchAxisType && this.removeDependentState(this._pitchAxisEntity.getName(), "position")), this._pitchAxisEntity = pitchAxisEntity, null !== this._pitchAxisEntity && (["x-axis", "y-axis", "z-axis"].includes(this._pitchAxisType) ? this.addDependentState(this._pitchAxisEntity.getName(), "orientation") : "position" === this._pitchAxisType && this.addDependentState(this._pitchAxisEntity.getName(), "position")));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._yawAngleLimits`。
+   */
   getYawAngleLimits() {
     return this._yawAngleLimits;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._yawAngleLimits.copy`。
+   * 调用线索：this._yawAngleLimits.copy。
+   */
   setYawAngleLimits(t) {
     this._yawAngleLimits.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._pitchAngleLimits`。
+   */
   getPitchAngleLimits() {
     return this._pitchAngleLimits;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._pitchAngleLimits.copy`。
+   * 调用线索：this._pitchAngleLimits.copy。
+   */
   setPitchAngleLimits(t) {
     this._pitchAngleLimits.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pitchAxisEntity`、`_pitchChangeSmoothedValue`、`_yawAxisEntity`、`_yawChangeSmoothedValue`；返回 `void`；调用 `Math.abs`、`Math.min`、`PioneerPublicApi.Geometry.getLLAFromXYZOnSphere`、`PioneerPublicApi.Geometry.getXYZFromLLAOnSphere`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`。
+   * 状态写入：_pitchAxisEntity、_pitchChangeSmoothedValue、_yawAxisEntity、_yawChangeSmoothedValue。
+   * 调用线索：Math.abs、Math.min、PioneerPublicApi.Geometry.getLLAFromXYZOnSphere、PioneerPublicApi.Geometry.getXYZFromLLAOnSphere、PioneerPublicApi.LatLonAlt.pool.get等。
+   */
   __update() {
     const t = this.getEntity().getParent();
     if (!t) return;

@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：将图像位图、视频与 KTX2 二进制转成 Three.js 纹理，提供纯色占位纹理、立方图和环境预滤波。
+ * 依据：import ../../runtime/decoder-paths.js；import ../pioneer/public-api.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 import { localDecoderUrl } from '../../runtime/decoder-paths.js';
 // Recovered from app.js:231271-234398.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 import * as KTX2Loader from "../../vendor/modules/KTX2Loader.js";
+/** @eyes-analysis
+ * 类职责：将图像位图、视频与 KTX2 二进制转成 Three.js 纹理，提供纯色占位纹理、立方图和环境预滤波。
+ * 继承：无显式父类；导出：TextureLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TextureLoader {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_black`、`_clear`、`_engine`、`_gray`、`_pink`、`_white`；调用 `TextureLoader._newTexture`、`new PioneerPublicApi.Color`。
+   * 状态写入：_black、_clear、_engine、_gray、_pink、_white。
+   * 调用线索：TextureLoader._newTexture、new PioneerPublicApi.Color。
+   */
   constructor(engine) {
     this._engine = engine;
     this._white = TextureLoader._newTexture(new PioneerPublicApi.Color(1, 1, 1, 1));
@@ -11,6 +27,10 @@ class TextureLoader {
     this._pink = TextureLoader._newTexture(new PioneerPublicApi.Color(1, 0, 192 / 255, 1));
     this._gray = TextureLoader._newTexture(new PioneerPublicApi.Color(.4, .4, .4, 1));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `cubeTexture`；调用 `Promise.all`、`new PioneerPublicApi.THREE.CubeTexture`、`r.push`、`t.dispose`、`t.replace`、`this.loadTexture`。
+   * 调用线索：Promise.all、new PioneerPublicApi.THREE.CubeTexture、r.push、t.dispose、t.replace等。
+   */
   async loadCubeTexture(t, e, i) {
     const cubeTexture = new PioneerPublicApi.THREE.CubeTexture();
     const o = cubeTexture.images;
@@ -26,6 +46,10 @@ class TextureLoader {
     cubeTexture.needsUpdate = true;
     return cubeTexture;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `pMREMGenerator.fromEquirectangular(e).texture`；调用 `new PioneerPublicApi.THREE.PMREMGenerator`、`new PioneerPublicApi.THREE.WebGLCubeRenderTarget`、`new PioneerPublicApi.THREE.WebGLCubeRenderTarget(512,i).fromEquirectangularTexture`、`pMREMGenerator.compileEquirectangularShader`、`pMREMGenerator.fromEquirectangular`、`this._engine.__getThreeJsRenderer`。
+   * 调用线索：new PioneerPublicApi.THREE.PMREMGenerator、new PioneerPublicApi.THREE.WebGLCubeRenderTarget、new PioneerPublicApi.THREE.WebGLCubeRenderTarget(512,i).fromEquirectangularTexture、pMREMGenerator.compileEquirectangularShader、pMREMGenerator.fromEquirectangular等。
+   */
   generateEnvMap(t) {
     let e = t;
     if (!(t instanceof PioneerPublicApi.THREE.CubeTexture)) {
@@ -42,12 +66,24 @@ class TextureLoader {
     pMREMGenerator.compileEquirectangularShader();
     return pMREMGenerator.fromEquirectangular(e).texture;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._engine.getDownloader`、`this._engine.getDownloader().cancel`。
+   * 调用线索：this._engine.getDownloader、this._engine.getDownloader().cancel。
+   */
   cancel(t) {
     this._engine.getDownloader().cancel(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._engine.getDownloader`、`this._engine.getDownloader().updatePriority`。
+   * 调用线索：this._engine.getDownloader、this._engine.getDownloader().updatePriority。
+   */
   updatePriority(t, e) {
     this._engine.getDownloader().updatePriority(t, e);
   }
+  /** @eyes-analysis
+   * 纯色关键字返回占位纹理 clone；mp4/webm 下载 video，ktx2 下载 binary，其他下载 imageBitmap；依内容建立 VideoTexture、CanvasTexture 或 KTX2 _createTexture。
+   * 调用线索：e._createTexture、new Error、new PioneerPublicApi.THREE.CanvasTexture、new PioneerPublicApi.THREE.VideoTexture、t.lastIndexOf等。
+   */
   async loadTexture(t, e, i) {
     if ("white" === t) return this._white.clone();
     if ("black" === t) return this._black.clone();
@@ -78,6 +114,10 @@ class TextureLoader {
     }
     return a;
   }
+  /** @eyes-analysis
+   * 按需创建静态共享 KTX2Loader，使用配置路径或 localDecoderUrl(ktx2/)，经 processUrl 处理并以当前渲染器 detectSupport。
+   * 调用线索：TextureLoader._ktx2Loader.detectSupport、TextureLoader._ktx2Loader.setTranscoderPath、localDecoderUrl、new KTX2Loader.KTX2Loader、this._engine.__getThreeJsRenderer等。
+   */
   getKTX2Loader() {
     if (!TextureLoader._ktx2Loader && false !== this._engine.getConfig().getValue("ktx2")) {
       TextureLoader._ktx2Loader = new KTX2Loader.KTX2Loader();
@@ -88,6 +128,10 @@ class TextureLoader {
     }
     return TextureLoader._ktx2Loader;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new PioneerPublicApi.THREE.CanvasTexture(e)`；调用 `document.createElement`、`e.getContext`、`i.fillRect`、`new Error`、`new PioneerPublicApi.THREE.CanvasTexture`；含显式错误分支。
+   * 调用线索：document.createElement、e.getContext、i.fillRect、new Error、new PioneerPublicApi.THREE.CanvasTexture。
+   */
   static _newTexture(t) {
     const e = document.createElement("canvas");
     e.width = 1;

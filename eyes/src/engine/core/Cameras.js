@@ -1,6 +1,21 @@
+/** @eyes-analysis
+ * 文件职责：创建和切换用于实体观察、系统取景、跟踪和过渡的相机控制器组合。
+ * 依据：import ../pioneer/index.js；Cameras @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:699730-703953.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：创建和切换用于实体观察、系统取景、跟踪和过渡的相机控制器组合。
+ * 继承：无显式父类；导出：Cameras。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Cameras {
+  /** @eyes-analysis
+   * 【结构证据】调用 `n.getDiv`、`n.setCamera`、`t.addEntity`、`t.addEntity(i).addComponent`、`t.getEngine`、`t.getEngine().addViewport`。
+   * 调用线索：n.getDiv、n.setCamera、t.addEntity、t.addEntity(i).addComponent、t.getEngine等。
+   */
   static createFullSizeViewportAndCamera(t, e = "main", i = "camera") {
     const n = t.getEngine().addViewport(e);
     n.getDiv().style.width = "100%";
@@ -8,6 +23,10 @@ class Cameras {
     const o = t.addEntity(i).addComponent(Pioneer.CameraComponent);
     n.setCamera(o);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.getName`、`o.setPrimaryAlignType`、`o.setPrimaryAxis`、`o.setPrimaryTargetEntity`、`o.setSecondaryAlignType`、`o.setSecondaryAxis`。
+   * 调用线索：e.getName、o.setPrimaryAlignType、o.setPrimaryAxis、o.setPrimaryTargetEntity、o.setSecondaryAlignType等。
+   */
   static focusOnEntity(t, e, {
     up: i = true,
     orbiter: n = false
@@ -18,6 +37,10 @@ class Cameras {
     o.setPrimaryTargetEntity(e.getName());
     i && (n ? (o.setSecondaryAlignType("position"), o.setSecondaryAxis(Pioneer.Vector3.ZAxis), o.setSecondaryTargetEntity(e.getName())) : (o.setSecondaryAlignType("align"), o.setSecondaryAxis(Pioneer.Vector3.ZAxis), o.setSecondaryTargetEntity(e.getName()), o.setSecondaryTargetAxis(Pioneer.Vector3.ZAxis)));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `c.getEndPromise`、`c.setTransitionTime`、`e.getName`、`e.getPositionRelativeToEntity`、`finalUpRelativeEntity.getName`、`i.hasModifiedState`。
+   * 调用线索：c.getEndPromise、c.setTransitionTime、e.getName、e.getPositionRelativeToEntity、finalUpRelativeEntity.getName等。
+   */
   static async lookAtEntity(t, e, {
     duration: i = .5,
     finalUp: finalUp,
@@ -41,6 +64,10 @@ class Cameras {
     c.setTransitionTime(i);
     await c.getEndPromise();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `_.getEndPromise`、`_.setParent`、`_.setTransitionFunction`、`_.setTransitionTime`、`e.getExtentsRadius`、`e.getName`。
+   * 调用线索：_.getEndPromise、_.setParent、_.setTransitionFunction、_.setTransitionTime、e.getExtentsRadius等。
+   */
   static async goToEntity(t, e, {
     up: i = true,
     orbiter: n = false,
@@ -102,6 +129,10 @@ class Cameras {
       orbiter: n
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.LatLonAlt.pool.get`、`Pioneer.LatLonAlt.pool.release`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.getComponent`、`e.getOrientation`。
+   * 调用线索：Pioneer.LatLonAlt.pool.get、Pioneer.LatLonAlt.pool.release、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.getComponent等。
+   */
   static pickOnEntity(t, e, i) {
     const n = t.addController(Pioneer.PickController);
     n.setPickedEntity(e);
@@ -118,6 +149,10 @@ class Cameras {
       }
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `NaN` 或 `r`；调用 `Math.abs`、`Math.max`、`Math.sin`、`Math.tan`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`。
+   * 调用线索：Math.abs、Math.max、Math.sin、Math.tan、Pioneer.Vector3.pool.get等。
+   */
   static getDistanceToFitEntities(t, e, i, n) {
     const o = t.getComponent(Pioneer.CameraComponent);
     if (null === o) return NaN;

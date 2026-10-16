@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.30",
+  "version": "0.2.31",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",
@@ -12,16 +12,18 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run && node --test tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs",
+    "test": "vitest run && node --test tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint && npm run eyes:check",
+    "check": "npm run typecheck && npm run lint && npm run eyes:check && npm run eyes:analyze:check",
     "mirror:park": "node scripts/park-mirror.mjs park",
     "mirror:restore": "node scripts/park-mirror.mjs restore",
     "eyes:recover": "node tools/recover-native-eyes.cjs",
     "test:recovery": "node --test tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs",
     "eyes:build": "node eyes/scripts/build.mjs --publish",
     "eyes:check": "node eyes/scripts/audit.mjs",
-    "decoders:cache": "node eyes/scripts/decoder-cache.mjs"
+    "decoders:cache": "node eyes/scripts/decoder-cache.mjs",
+    "eyes:analyze": "node tools/analyze-eyes.cjs build",
+    "eyes:analyze:check": "node tools/analyze-eyes.cjs check"
   },
   "dependencies": {
     "next": "16.4.1",

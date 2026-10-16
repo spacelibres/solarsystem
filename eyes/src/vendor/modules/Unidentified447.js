@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：重算响应式断点、容器与滑片尺寸，恢复索引和导航锁
+ * 依据：// Recovered from vendors.js:1636506-1637169.；exports: default
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:1636506-1637169.
 function r() {
   const e = this,

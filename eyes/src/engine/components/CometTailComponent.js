@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：基于历史运动及恒星加速度生成彗尾粒子，并按相机设置精灵材质。
+ * 依据：import ../pioneer/public-api.js；CometTailComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:303108-312075.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：基于历史运动及恒星加速度生成彗尾粒子，并按相机设置精灵材质。
+ * 继承：PioneerPublicApi.BaseComponent；导出：CometTailComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CometTailComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_color`、`_lightSource`、`_numberOfParticles`、`_starAccelerationMultiplier`、`_timeLength`、`_timeOfParticle0`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.EntityRef`、`super`、`this.getEntity`、`this.getEntity().getScene`。
+   * 状态写入：_color、_lightSource、_numberOfParticles、_starAccelerationMultiplier、_timeLength、_timeOfParticle0。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.EntityRef、super、this.getEntity、this.getEntity().getScene。
+   */
   constructor(t, e) {
     super(t, e);
     this._lightSource = new PioneerPublicApi.EntityRef(this.getEntity().getScene());
@@ -10,40 +26,83 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
     this._starAccelerationMultiplier = 1;
     this._timeOfParticle0 = 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._lightSource.getName()`；调用 `this._lightSource.getName`。
+   * 调用线索：this._lightSource.getName。
+   */
   getLightSource() {
     return this._lightSource.getName();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._lightSource.setName`。
+   * 调用线索：this._lightSource.setName。
+   */
   setLightSource(t) {
     this._lightSource.setName(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._timeLength`。
+   */
   getTimeLength() {
     return this._timeLength;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_timeLength`；调用 `this.resetResources`。
+   * 状态写入：_timeLength。
+   * 调用线索：this.resetResources。
+   */
   setTimeLength(timeLength) {
     this._timeLength = timeLength;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._starAccelerationMultiplier`。
+   */
   getStarAccelerationMultiplier() {
     return this._starAccelerationMultiplier;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_starAccelerationMultiplier`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_starAccelerationMultiplier。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setStarAccelerationMultiplier(starAccelerationMultiplier) {
     this._starAccelerationMultiplier = starAccelerationMultiplier;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAccelerationMultiplier", this._starAccelerationMultiplier);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._numberOfParticles`。
+   */
   getNumberOfParticles() {
     return this._numberOfParticles;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numberOfParticles`；调用 `this.resetResources`。
+   * 状态写入：_numberOfParticles。
+   * 调用线索：this.resetResources。
+   */
   setNumberOfParticles(numberOfParticles) {
     this._numberOfParticles = numberOfParticles;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._color`。
+   */
   getColor() {
     return this._color;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`this._color.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、this._color.copy、this.getThreeJsMaterials。
+   */
   setColor(t) {
     this._color.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Math.max`、`PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
+   * 调用线索：Math.max、PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector3、PioneerPublicApi.Vector3.pool.get等。
+   */
   __update() {
     if (this.__setRadius(Math.max(this.getEntity().getExtentsRadius(), this._timeLength * this.getEntity().getVelocity().magnitude())), "loaded" !== this.getLoadState().state) return;
     const t = this.getEntity().getScene().getEngine().getTime();
@@ -63,6 +122,11 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
       PioneerPublicApi.Vector3.pool.release(e);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `getThreeJsMaterials()[0].uniforms.color.value.w`；调用 `PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`e.magnitude`、`this.__setVisible`、`this.getEntity`。
+   * 状态写入：getThreeJsMaterials()[0].uniforms.color.value.w。
+   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformVector3、e.magnitude、this.__setVisible等。
+   */
   __prepareForRender(t) {
     PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects(), this.getEntity(), t);
     const e = this.getEntity().getCameraSpacePosition(t);
@@ -72,6 +136,10 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
       this.__setVisible(true);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry`、`PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`instancedBufferGeometry.setAttribute`、`instancedBufferGeometry.setIndex`、`new Float32Array`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry、PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、PioneerPublicApi.ThreeJsHelper.setUniformNumber、instancedBufferGeometry.setAttribute、instancedBufferGeometry.setIndex等。
+   */
   async __loadResources() {
     const rawShaderMaterial = new PioneerPublicApi.THREE.RawShaderMaterial({
       uniforms: {
@@ -113,9 +181,18 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAccelerationMultiplier", this._starAccelerationMultiplier);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_timeOfParticle0`；调用 `Math.random`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`this._lightSource.get`、`this.getEntity`、`this.getEntity().getPositionRelativeToEntity`。
+   * 状态写入：_timeOfParticle0。
+   * 调用线索：Math.random、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、this._lightSource.get、this.getEntity等。
+   */
   _newParticle(t, timeOfParticle0) {
     const i = this.getThreeJsObjects()[0].geometry.attributes.originTime;
     const n = i.array;

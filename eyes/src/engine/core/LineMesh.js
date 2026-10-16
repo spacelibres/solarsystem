@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：构建宽线所需的顶点、索引和相邻点属性。
+ * 依据：import ../pioneer/public-api.js；LineMesh @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:75336-82494.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：构建宽线所需的顶点、索引和相邻点属性。
+ * 继承：无显式父类；导出：LineMesh。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineMesh {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_component`、`_dashGapLength`、`_dashLength`、`_glowWidth`、`_orientation`、`_position`、`_scale`、`_threeJsMaterial`；调用 `component.getEntity`、`component.getEntity().getScene`、`component.getEntity().getScene().getEngine`、`component.getEntity().getScene().getEngine().getMaterialManager`、`component.getEntity().getScene().getEngine().getMaterialManager().getPreloaded`、`component.getThreeJsMaterials`。
+   * 状态写入：_component、_dashGapLength、_dashLength、_glowWidth、_orientation、_position、_scale、_threeJsMaterial等；完整记录见索引。
+   * 调用线索：component.getEntity、component.getEntity().getScene、component.getEntity().getScene().getEngine、component.getEntity().getScene().getEngine().getMaterialManager、component.getEntity().getScene().getEngine().getMaterialManager().getPreloaded等。
+   */
   constructor(component) {
     this._component = component;
     this._position = new PioneerPublicApi.Vector3();
@@ -16,6 +32,10 @@ class LineMesh {
     this._threeJsMaterial.uniforms.dashGapLength.value = this._dashGapLength;
     this._threeJsMaterial.uniforms.glowWidth.value = this._glowWidth;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.copy`、`h.equals`、`i.copy`；含显式错误分支。
+   * 调用线索：PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、e.copy、h.equals等。
+   */
   setPositions(t) {
     if (t.length % 2 != 0) throw new Error("Number of positions in the LineMesh must be even.");
     this._adjustVerticesInGeometries(2 * t.length);
@@ -61,6 +81,10 @@ class LineMesh {
     PioneerPublicApi.Vector3.pool.release(i);
     PioneerPublicApi.Vector3.pool.release(r);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`this._adjustVerticesInGeometries`、`this._threeJsObjects[e].geometry.getAttribute`；含显式错误分支。
+   * 调用线索：new Error、this._adjustVerticesInGeometries、this._threeJsObjects[e].geometry.getAttribute。
+   */
   setColors(t) {
     if (t.length % 2 != 0) throw new Error("Number of colors in the LineMesh must be even.");
     this._adjustVerticesInGeometries(2 * t.length);
@@ -81,6 +105,10 @@ class LineMesh {
       i.data.needsUpdate = true;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`this._adjustVerticesInGeometries`、`this._threeJsObjects[e].geometry.getAttribute`；含显式错误分支。
+   * 调用线索：new Error、this._adjustVerticesInGeometries、this._threeJsObjects[e].geometry.getAttribute。
+   */
   setWidths(t) {
     if ("number" == typeof t) for (let e = 0; e < this._threeJsObjects.length; e++) {
       const i = this._threeJsObjects[e].geometry.getAttribute("width");
@@ -105,20 +133,39 @@ class LineMesh {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dashGapLength`、`_dashLength`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`。
+   * 状态写入：_dashGapLength、_dashLength。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber。
+   */
   setDashLength(dashLength, dashGapLength) {
     this._dashLength = dashLength;
     this._dashGapLength = dashGapLength;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "dashLength", this._dashLength);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "dashGapLength", this._dashGapLength);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_glowWidth`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`。
+   * 状态写入：_glowWidth。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber。
+   */
   setGlowWidth(glowWidth) {
     this._glowWidth = glowWidth;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "glowWidth", this._glowWidth);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_scale`；调用 `PioneerPublicApi.ThreeJsHelper.setScale`。
+   * 状态写入：_scale。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setScale。
+   */
   setScale(scale) {
     this._scale = scale;
     PioneerPublicApi.ThreeJsHelper.setScale(this._threeJsObjects, scale);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector2`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`、`e.copy`、`e.set`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector2、PioneerPublicApi.Vector2.pool.get、PioneerPublicApi.Vector2.pool.release、e.copy等。
+   */
   prepareForRender(t) {
     const e = PioneerPublicApi.Vector2.pool.get();
     if (t instanceof PioneerPublicApi.SpoutComponent) e.set(.1 * t.getRenderWidth(), .5 * t.getRenderWidth() * .1);else {
@@ -130,6 +177,10 @@ class LineMesh {
     const i = this._component.getVisibleInterval().getFadeMultiplier(this._component.getEntity(), t);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "alphaMultiplier", i);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.ceil`、`Math.min`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.destroyObject`、`PioneerPublicApi.ThreeJsHelper.setOrientation`、`PioneerPublicApi.ThreeJsHelper.setPosition`。
+   * 调用线索：Math.ceil、Math.min、PioneerPublicApi.ThreeJsHelper.createMeshObject、PioneerPublicApi.ThreeJsHelper.destroyObject、PioneerPublicApi.ThreeJsHelper.setOrientation等。
+   */
   _adjustVerticesInGeometries(t) {
     const e = Math.ceil(t / LineMesh._maxVerticesPerGeometry);
     for (; this._threeJsObjects.length > e;) {
@@ -160,6 +211,10 @@ class LineMesh {
       i.getAttribute("position").array.length !== s * LineMesh._floatsPerVertex && this._setupThreeJsGeometry(i, s);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.InterleavedBuffer`、`new PioneerPublicApi.THREE.InterleavedBufferAttribute`、`new Uint16Array`、`t.setAttribute`。
+   * 调用线索：new Float32Array、new PioneerPublicApi.THREE.BufferAttribute、new PioneerPublicApi.THREE.InterleavedBuffer、new PioneerPublicApi.THREE.InterleavedBufferAttribute、new Uint16Array等。
+   */
   _setupThreeJsGeometry(t, e) {
     const float32Array = new Float32Array(e * LineMesh._floatsPerVertex);
     const interleavedBuffer = new PioneerPublicApi.THREE.InterleavedBuffer(float32Array, LineMesh._floatsPerVertex);

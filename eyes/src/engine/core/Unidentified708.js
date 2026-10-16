@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：声明式实体目录，注册 152 个实体/参考系（如 sc_3d_winds、sc_ace、sc_acrimsat、sc_acs3、sc_aim、sc_aqua），供 Entity-567 工厂创建半径、父级、几何与控制器。
+ * 依据：import ../pioneer/index.js；import ./Entity-567.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1040640-1108290.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";

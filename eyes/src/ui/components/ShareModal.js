@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：分享 URL、嵌入设置和复制界面
+ * 依据：imports: ../../framework/eyes/public-api.js, ../../vendor/modules/Unidentified160.cjs, ../templates/ShareModalTemplate.html, ../../vendor/modules/animateFill-168.js, ../../engine/core/Unidentified511.js；manager dependencies: title, router
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:628339-641482.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import "../../vendor/modules/Unidentified160.cjs";
@@ -6,7 +12,17 @@ import * as animateFill from "../../vendor/modules/animateFill-168.js";
 import * as Unidentified511 from "../../engine/core/Unidentified511.js";
 let defaultExport;
 var getShareModalTemplate = () => ShareModalTemplate;
+/** @eyes-analysis
+ * 类职责：分享 URL、嵌入设置和复制界面；继承 EyesPublicApi.BaseComponent
+ * 继承：EyesPublicApi.BaseComponent；导出：default。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShareModal extends EyesPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isiPhone, this.bindFunctions；写入 _activeTab, _srcURL, _embedOptionsScrollbar, _tippySingleton, _tippyItems, _tippyTimeout, _embedQueries, _inputElements。
+   * 状态写入：_activeTab、_embedOptionsScrollbar、_embedQueries、_inputElements、_srcURL、_tippyItems、_tippySingleton、_tippyTimeout。
+   * 调用线索：EyesPublicApi.AppUtils.isiPhone、super、this.bindFunctions。
+   */
   constructor(t, e) {
     super(t, null, {
       isVisible: false,
@@ -55,6 +71,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     this._inputElements = {};
     this.bindFunctions(["_iframeLoadEventListener"]);
   }
+  /** @eyes-analysis
+   * 执行 mergeEmbedControls 对应的组件业务步骤；调用 Unidentified511.default.map。
+   * 状态写入：_config.embedOptions。
+   * 调用线索：Unidentified511.default.map、controls.filter、controls.find、e.some、items.filter等。
+   */
   mergeEmbedControls() {
     const {
       controls: controls
@@ -86,6 +107,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     }) => groupName === t.groupName));
     this._config.embedOptions = [...e, ...i];
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this.mergeEmbedControls, this.setEmbedParams, this.generateEmbedContent, this.setIsWide, this.createScrollbars, this.createShareButton, this.addShareButtonToParent, Fill.default.setDefaultProps；写入 _tippyTimeout。
+   * 状态写入：_tippyTimeout。
+   * 调用线索：animateFill.default.setDefaultProps、clearTimeout、e?.hide、reference.blur、setTimeout等。
+   */
   init() {
     super.init();
     const {
@@ -121,6 +147,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       }
     });
   }
+  /** @eyes-analysis
+   * 执行 createScrollbars 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.onAttachElement, EyesPublicApi.AppUtils.addScrollbar；写入 _embedOptionsScrollbar。
+   * 状态写入：_embedOptionsScrollbar。
+   * 调用线索：EyesPublicApi.AppUtils.addScrollbar、EyesPublicApi.AppUtils.onAttachElement。
+   */
   createScrollbars() {
     const {
       embedOptsContent: embedOptsContent
@@ -130,9 +161,18 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       this._embedOptionsScrollbar = EyesPublicApi.AppUtils.addScrollbar(e);
     });
   }
+  /** @eyes-analysis
+   * 执行 getCurrentDevice 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isTablet, EyesPublicApi.AppUtils.isMobile。
+   * 调用线索：EyesPublicApi.AppUtils.isMobile、EyesPublicApi.AppUtils.isTablet。
+   */
   getCurrentDevice() {
     return EyesPublicApi.AppUtils.isTablet() ? "tablet" : EyesPublicApi.AppUtils.isMobile() ? "phone" : "desktop";
   }
+  /** @eyes-analysis
+   * 执行 createShareButton 对应的组件业务步骤；调用 this.shareButton.prepend, this.shareButton.addEventListener, this.setSrcURL, this.setPreviewDevice, this.getCurrentDevice, this.setActiveTab, Image.setAttribute, this._app.getManager, this.setState, this.show；写入 shareButton。
+   * 状态写入：shareButton、shareButton.className、shareButton.innerText。
+   * 调用线索：document.createElement、document.querySelector、document.querySelector('meta[property="og:image"]')?.getAttribute、linkImage.setAttribute、this._app.getManager等。
+   */
   createShareButton() {
     this.shareButton = document.createElement("button");
     this.shareButton.className = "share-button clickable";
@@ -171,6 +211,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       this.show();
     });
   }
+  /** @eyes-analysis
+   * 执行 setIsWide 对应的组件业务步骤；调用 this.setState。
+   * 调用线索：this.setState。
+   */
   setIsWide() {
     const {
       isWide: isWide
@@ -186,6 +230,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       isWide: s
     }), true);
   }
+  /** @eyes-analysis
+   * 执行 addShareButtonToParent 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady。
+   * 调用线索：EyesPublicApi.AppUtils.elementReady、EyesPublicApi.AppUtils.elementReady(o,3e3).then、EyesPublicApi.AppUtils.elementReady(o,3e3).then(t=>(t.appendChild(this.shareButton),true)).catch、t.appendChild、this.shareButton.parentNode?.removeChild。
+   */
   addShareButtonToParent() {
     const {
       shareBtnParent: shareBtnParent
@@ -201,6 +249,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     const o = isWide ? wideSelector : selector;
     EyesPublicApi.AppUtils.elementReady(o, 3e3).then(t => (t.appendChild(this.shareButton), true)).catch(t => t);
   }
+  /** @eyes-analysis
+   * 执行 setSrcURL 对应的组件业务步骤；调用 Options.flatMap, this._app.getManager, Array.from, ToKeep.includes；写入 _srcURL。
+   * 状态写入：_srcURL。
+   * 调用线索：Array.from、embedOptions.flatMap、l.delete、l.keys、l.toString等。
+   */
   setSrcURL(t = window.location.href, e = true) {
     const {
       linkCode: linkCode
@@ -227,6 +280,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     this._srcURL = `${a[0]}${l.size ? "?" : ""}${l.toString()}`;
     e && (linkCode.textContent = t);
   }
+  /** @eyes-analysis
+   * 执行 setEmbedParams 对应的组件业务步骤；调用 Options.forEach。
+   * 状态写入：_embedQueries[e]、_embedQueries[query]。
+   * 调用线索：embedOptions.forEach、items?.forEach、t.items.forEach。
+   */
   setEmbedParams() {
     const {
       embedOptions: embedOptions
@@ -255,9 +313,18 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       });
     });
   }
+  /** @eyes-analysis
+   * 执行 updateEmbedParams 对应的组件业务步骤；调用 this.updateEmbedCode。
+   * 状态写入：_embedQueries[t]。
+   * 调用线索：this.updateEmbedCode。
+   */
   updateEmbedParams(t, e) {
     this._embedQueries[t] !== e && void 0 !== this._embedQueries[t] && (this._embedQueries[t] = e, this.updateEmbedCode());
   }
+  /** @eyes-analysis
+   * 执行 updateEmbedCode 对应的组件业务步骤；调用 this.getEmbedCodeFromParams, EyesPublicApi.AppUtils.isiPhone, HTML.replace, PreviewParent.querySelector, Options.flatMap, ToKeep.includes, this._app.getManager, Object.keys, List.add, this.resize。
+   * 调用线索：EyesPublicApi.AppUtils.isiPhone、Object.keys、Object.keys(configs).includes、document.getElementById、e.parentElement?.classList.add等。
+   */
   updateEmbedCode(t) {
     const {
       force: e = false,
@@ -307,6 +374,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     });
     this.resize();
   }
+  /** @eyes-analysis
+   * 执行 calcTemplateWidth 对应的组件业务步骤。
+   * 调用线索：console.log。
+   */
   calcTemplateWidth() {
     const {
       deviceResolutions: deviceResolutions
@@ -327,6 +398,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     console.log("width:", width);
     console.log("height:", height);
   }
+  /** @eyes-analysis
+   * 执行 calcIframeTransform 对应的组件业务步骤；调用 this.resize。
+   * 调用线索：console.log、this.resize。
+   */
   calcIframeTransform() {
     console.log("calcIframeTransform: ");
     const {
@@ -338,6 +413,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     } = previewResolution;
     this.resize();
   }
+  /** @eyes-analysis
+   * 执行 _iframeLoadEventListener 对应的组件业务步骤；调用 this.setSrcURL, this.updateEmbedCode。
+   * 调用线索：this.setSrcURL、this.updateEmbedCode。
+   */
   _iframeLoadEventListener(t) {
     const {
       contentWindow: contentWindow
@@ -349,6 +428,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       });
     });
   }
+  /** @eyes-analysis
+   * 执行 calcIframeTransforms 对应的组件业务步骤；调用 this._element.style.setProperty, Math.min。
+   * 调用线索：Math.min、getComputedStyle、parseFloat、this._element.style.setProperty。
+   */
   calcIframeTransforms() {
     const {
       embedPreviewParent: embedPreviewParent
@@ -381,6 +464,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     const m = (h - width * _) / 2 / _;
     this._element.style.setProperty("--iframe-offset-x", `${m}px`);
   }
+  /** @eyes-analysis
+   * 执行 setPreviewDevice 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
+   * 调用线索：this.setState、this.updateEmbedCode。
+   */
   setPreviewDevice(t) {
     const {
       value: value
@@ -394,6 +481,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       force: true
     }));
   }
+  /** @eyes-analysis
+   * 执行 toggleIframeElements 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
+   * 调用线索：this.setState、this.updateEmbedCode。
+   */
   toggleIframeElements(t) {
     const {
       checked: checked
@@ -405,6 +496,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       updatePreview: false
     });
   }
+  /** @eyes-analysis
+   * 执行 getEmbedCodeFromParams 对应的组件业务步骤；调用 Options.flatMap, this._srcURL.split, Object.entries, Object.fromEntries, Object.keys, RLSearchParams.set, RLSearchParams.toString。
+   * 调用线索：Object.entries、Object.entries(this._embedQueries).filter、Object.fromEntries、Object.keys、Object.keys(a).forEach等。
+   */
   getEmbedCodeFromParams() {
     const {
       embedOptions: embedOptions
@@ -441,6 +536,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       noTrackingIframeString: `<iframe src="${`${i[0]}${n.size ? "?" : ""}${n.toString()}`}" allowfullscreen ></iframe>`
     };
   }
+  /** @eyes-analysis
+   * 执行 generateEmbedContent 对应的组件业务步骤；调用 Options.forEach, this.createGroupLegend, this.createGroupInputs。
+   * 调用线索：(isAdvanced?embedAdvOptsContent:embedOptsContent).appendChild、document.createElement、embedOptions.forEach、this.createGroupInputs、this.createGroupLegend。
+   */
   generateEmbedContent() {
     const {
       embedOptions: embedOptions
@@ -462,12 +561,20 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       (isAdvanced ? embedAdvOptsContent : embedOptsContent).appendChild(r);
     });
   }
+  /** @eyes-analysis
+   * 执行 createGroupLegend 对应的组件业务步骤。
+   * 调用线索：document.createElement、e.appendChild。
+   */
   createGroupLegend(t, e) {
     const i = document.createElement("legend");
     i.innerText = t;
     e.appendChild(i);
     return i;
   }
+  /** @eyes-analysis
+   * 执行 createGroupInputs 对应的组件业务步骤；调用 this.createGroupLegend, this.createGroupInputs, this.updateEmbedParams, List.toggle。
+   * 调用线索：_.setAttribute、c.setAttribute、d.setAttribute、document.createElement、document.getElementById等。
+   */
   createGroupInputs(t, e) {
     t && t.forEach(t => {
       const {
@@ -588,6 +695,9 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       }
     });
   }
+  /** @eyes-analysis
+   * 执行 destroyEmbedContent 对应的组件业务步骤。
+   */
   destroyEmbedContent() {
     const {
       embedOptsContent: embedOptsContent,
@@ -596,6 +706,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     embedOptsContent.innerHTML = "";
     embedAdvOptsContent.innerHTML = "";
   }
+  /** @eyes-analysis
+   * 执行 setActiveTab 对应的组件业务步骤；调用 Headers.childNodes.forEach, List.contains, List.toggle, Content.childNodes.forEach, this.updateEmbedCode；写入 _tippyItems, _tippySingleton, _activeTab。
+   * 状态写入：_activeTab、_tippyItems、_tippySingleton。
+   * 调用线索：0,animateFill.createSingleton、0,animateFill.default、e.classList.contains、e.classList.toggle、tabContent.childNodes.forEach等。
+   */
   setActiveTab(activeTab) {
     const {
       tabHeaders: tabHeaders,
@@ -614,6 +729,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     })));
     this._activeTab = activeTab;
   }
+  /** @eyes-analysis
+   * 执行 copyToClipboard 对应的组件业务步骤；调用 Overlay.classList.remove, Overlay.classList.add。
+   * 调用线索：console.error、copiedOverlay.classList.add、copiedOverlay.classList.remove、navigator.clipboard.writeText、navigator.clipboard.writeText(o).then等。
+   */
   copyToClipboard(t) {
     const {
       linkCode: linkCode,
@@ -626,6 +745,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       console.error("Could not copy text: ", t);
     });
   }
+  /** @eyes-analysis
+   * 执行 handleClick 对应的组件业务步骤；调用 this.hide, this.resetScrollbar, this.resetEmbedOptions, this.destroyTooltips。
+   * 调用线索：this.destroyTooltips、this.hide、this.resetEmbedOptions、this.resetScrollbar、window.getSelection等。
+   */
   handleClick(t) {
     const {
       resetOnClose: resetOnClose
@@ -633,32 +756,62 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     (t.target === this._element || t.target === this._children.closeButton) && (this.hide(), this.resetScrollbar(), resetOnClose && this.resetEmbedOptions(), this.destroyTooltips());
     "CODE" !== t.target?.nodeName && window.getSelection().removeAllRanges();
   }
+  /** @eyes-analysis
+   * 执行 handleTabClick 对应的组件业务步骤；调用 this.setActiveTab。
+   * 调用线索：t.target?.innerText?.toLowerCase、this.setActiveTab。
+   */
   handleTabClick(t) {
     const e = t.target?.innerText?.toLowerCase();
     ("link" === e || "embed" === e) && this.setActiveTab(e);
   }
+  /** @eyes-analysis
+   * 执行 destroyTooltips 对应的组件业务步骤；写入 _tippyItems, _tippySingleton。
+   * 状态写入：_tippyItems、_tippySingleton。
+   * 调用线索：this._tippySingleton?.destroy。
+   */
   destroyTooltips() {
     this._tippyItems = null;
     this._tippySingleton?.destroy();
     this._tippySingleton = null;
   }
+  /** @eyes-analysis
+   * 执行 resetEmbedOptions 对应的组件业务步骤；调用 this.setEmbedParams, this.destroyEmbedContent, this.generateEmbedContent。
+   * 调用线索：this.destroyEmbedContent、this.generateEmbedContent、this.setEmbedParams。
+   */
   resetEmbedOptions() {
     this.setEmbedParams();
     this.destroyEmbedContent();
     this.generateEmbedContent();
   }
+  /** @eyes-analysis
+   * 执行 resetScrollbar 对应的组件业务步骤；调用 this._embedOptionsScrollbar.scroll。
+   * 调用线索：this._embedOptionsScrollbar.scroll。
+   */
   resetScrollbar() {
     this._embedOptionsScrollbar.scroll(0);
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 this.calcIframeTransforms, this.setIsWide, this.addShareButtonToParent, this.resetScrollbar。
+   * 调用线索：this.addShareButtonToParent、this.calcIframeTransforms、this.resetScrollbar、this.setIsWide。
+   */
   resize() {
     this.calcIframeTransforms();
     this.setIsWide() && (this.addShareButtonToParent(), this.resetScrollbar());
   }
+  /** @eyes-analysis
+   * 切换当前组件及其子组件的启用状态；调用 super.setEnabled, this.shareButton.classList.toggle, this.addShareButtonToParent。
+   * 调用线索：super.setEnabled、this.addShareButtonToParent、this.shareButton.classList.toggle。
+   */
   setEnabled(t) {
     super.setEnabled(t);
     this.shareButton.classList.toggle("hidden", !t);
     t && !this.shareButton.parentNode && this.addShareButtonToParent();
   }
+  /** @eyes-analysis
+   * 执行停用并释放根节点和父节点引用；调用 super.__disable；写入 shareButton。
+   * 状态写入：shareButton。
+   * 调用线索：super.__disable、this.shareButton.parentNode?.removeChild。
+   */
   __destroy() {
     super.__disable();
     this.shareButton.parentNode?.removeChild(this.shareButton);

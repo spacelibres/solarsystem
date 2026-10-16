@@ -1,6 +1,21 @@
+/** @eyes-analysis
+ * 文件职责：为组件创建材质并更新相机、光源、阴影及大气通用 uniforms。
+ * 依据：import ../pioneer/public-api.js；MaterialUtils @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:142045-145349.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：为组件创建材质并更新相机、光源、阴影及大气通用 uniforms。
+ * 继承：无显式父类；导出：MaterialUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MaterialUtils {
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.min`、`PioneerPublicApi.Color.pool.get`、`PioneerPublicApi.Color.pool.release`、`e.getComponent`、`e.getScene`、`i[r].set`。
+   * 调用线索：Math.min、PioneerPublicApi.Color.pool.get、PioneerPublicApi.Color.pool.release、e.getComponent、e.getScene等。
+   */
   static setLightSourceUniforms(t, e, i) {
     const n = e.getScene();
     const o = PioneerPublicApi.Color.pool.get();
@@ -32,6 +47,10 @@ class MaterialUtils {
     }
     PioneerPublicApi.Color.pool.release(o);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `MaterialUtils.setLightSourceUniforms`、`PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`c.set`、`d.ambientLightColor.value.setRGB`。
+   * 调用线索：MaterialUtils.setLightSourceUniforms、PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、c.set等。
+   */
   static setUniforms(t, e, i, n, o, r) {
     const a = i.getScene().getEngine().getTime();
     const l = i.getScene().getAmbientLightColor();

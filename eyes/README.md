@@ -73,3 +73,9 @@ Only these 12 decoder dependencies (3.18 MiB) are cached, not the NASA media
 library. The static Draco JS fallback is not publicly accessible at its nominal
 URL, so the cache uses the exact original bundled JS fallback instead. Hash
 failures stop the build rather than silently accepting different decoder bytes.
+# 中文源码分析
+
+完整逐文件、逐类、逐方法参考见 [Eyes 源码分析](../docs/eyes-analysis/README.md)。
+在仓库根目录运行 `npm run eyes:analyze` 更新文档，运行
+`npm run eyes:analyze:check` 校验索引是否与源码一致。短名称的推断和未确认项
+均明确记录，不能把语义建议视为 NASA 原始命名。

@@ -1,16 +1,42 @@
+/** @eyes-analysis
+ * 文件职责：对实体按时间自适应采样，缓存轨迹点并生成带宽度、渐隐、虚线偏移的轨迹网格。
+ * 依据：import ../pioneer/public-api.js；Point @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:426234-443424.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：轨迹缓存点：保存采样时间、位置和速度，供轨迹几何更新使用。
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Point {
   time;
   position;
   velocity;
+  /** @eyes-analysis
+   * 【结构证据】写入 `position`、`time`、`velocity`；调用 `new PioneerPublicApi.Vector3`。
+   * 状态写入：position、time、velocity。
+   * 调用线索：new PioneerPublicApi.Vector3。
+   */
   constructor() {
     this.time = 0;
     this.position = new PioneerPublicApi.Vector3();
     this.velocity = new PioneerPublicApi.Vector3();
   }
 }
+/** @eyes-analysis
+ * 类职责：对实体按时间自适应采样，缓存轨迹点并生成带宽度、渐隐、虚线偏移的轨迹网格。
+ * 继承：PioneerPublicApi.BaseComponent；导出：TrailComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TrailComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_alphaFade`、`_angleCurveThreshold`、`_color`、`_currentRelativeToEntity`、`_dashGapLength`、`_dashLength`、`_dashOffsetTime`、`_drawStartTime`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.EntityRef`、`super`、`this.__setRadius`、`this.getEntity`、`this.getEntity().getScene`。
+   * 状态写入：_alphaFade、_angleCurveThreshold、_color、_currentRelativeToEntity、_dashGapLength、_dashLength、_dashOffsetTime、_drawStartTime等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.EntityRef、super、this.__setRadius、this.getEntity等。
+   */
   constructor(t, e) {
     super(t, e);
     this._color = new PioneerPublicApi.Color(1, 1, 1, 1);
@@ -42,122 +68,254 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     this.setVisibleInterval(PioneerPublicApi.VisibleInterval.DefaultVisibleFar);
     this.__setRadius(Number.POSITIVE_INFINITY);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._color`。
+   */
   getColor() {
     return this._color;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`this._color.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、this._color.copy、this.getThreeJsMaterials。
+   */
   setColor(t) {
     this._color.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._alphaFade`。
+   */
   getAlphaFade() {
     return this._alphaFade;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_widthMax`、`_widthMin`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_widthMax、_widthMin。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setWidths(widthMin, widthMax) {
     this._widthMin = widthMin;
     this._widthMax = widthMax;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "widthMin", widthMin);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "widthMax", widthMax);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_alphaFade`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_alphaFade。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setAlphaFade(alphaFade) {
     this._alphaFade = alphaFade;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "alphaFade", alphaFade);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dashGapLength`、`_dashLength`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_dashGapLength、_dashLength。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setDashLength(dashLength, dashGapLength) {
     this._dashLength = dashLength;
     this._dashGapLength = dashGapLength;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "dashLength", dashLength);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "dashGapLength", dashGapLength);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_glowWidth`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_glowWidth。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setGlowWidth(glowWidth) {
     this._glowWidth = glowWidth;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "glowWidth", this._glowWidth);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._startTime`。
+   */
   getStartTime() {
     return this._startTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_startTime`。
+   * 状态写入：_startTime。
+   */
   setStartTime(startTime) {
     this._startTime = startTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._endTime`。
+   */
   getEndTime() {
     return this._endTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_endTime`。
+   * 状态写入：_endTime。
+   */
   setEndTime(endTime) {
     this._endTime = endTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeStartTime`。
+   */
   isRelativeStartTime() {
     return this._relativeStartTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_relativeStartTime`；调用 `this.resetPoints`。
+   * 状态写入：_relativeStartTime。
+   * 调用线索：this.resetPoints。
+   */
   setRelativeStartTime(relativeStartTime) {
     this._relativeStartTime = relativeStartTime;
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeEndTime`。
+   */
   isRelativeEndTime() {
     return this._relativeEndTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_relativeEndTime`；调用 `this.resetPoints`。
+   * 状态写入：_relativeEndTime。
+   * 调用线索：this.resetPoints。
+   */
   setRelativeEndTime(relativeEndTime) {
     this._relativeEndTime = relativeEndTime;
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._startTimeMultiplier`。
+   */
   getStartTimeMultiplier() {
     return this._startTimeMultiplier;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_startTimeMultiplier`。
+   * 状态写入：_startTimeMultiplier。
+   */
   setStartTimeMultiplier(startTimeMultiplier) {
     this._startTimeMultiplier = startTimeMultiplier;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._endTimeMultiplier`。
+   */
   getEndTimeMultiplier() {
     return this._endTimeMultiplier;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_endTimeMultiplier`。
+   * 状态写入：_endTimeMultiplier。
+   */
   setEndTimeMultiplier(endTimeMultiplier) {
     this._endTimeMultiplier = endTimeMultiplier;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeToEntity.getName()`；调用 `this._relativeToEntity.getName`。
+   * 调用线索：this._relativeToEntity.getName。
+   */
   getRelativeToEntity() {
     return this._relativeToEntity.getName();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._currentRelativeToEntity.setName`、`this._relativeToEntity.setName`、`this.resetPoints`。
+   * 调用线索：this._currentRelativeToEntity.setName、this._relativeToEntity.setName、this.resetPoints。
+   */
   setRelativeToEntity(t) {
     this._relativeToEntity.setName(t);
     this._currentRelativeToEntity.setName(t);
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeToEntityOrientation`。
+   */
   isRelativeToEntityOrientation() {
     return this._relativeToEntityOrientation;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_relativeToEntityOrientation`；调用 `PioneerPublicApi.ThreeJsHelper.setOrientation`、`this.getThreeJsObjects`、`this.resetPoints`。
+   * 状态写入：_relativeToEntityOrientation。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setOrientation、this.getThreeJsObjects、this.resetPoints。
+   */
   setRelativeToEntityOrientation(relativeToEntityOrientation) {
     this._relativeToEntityOrientation = relativeToEntityOrientation;
     relativeToEntityOrientation || PioneerPublicApi.ThreeJsHelper.setOrientation(this.getThreeJsObjects(), PioneerPublicApi.Quaternion.Identity);
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._angleCurveThreshold`。
+   */
   getAngleCurveThreshold() {
     return this._angleCurveThreshold;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_angleCurveThreshold`；调用 `this.resetPoints`。
+   * 状态写入：_angleCurveThreshold。
+   * 调用线索：this.resetPoints。
+   */
   setAngleCurveThreshold(angleCurveThreshold) {
     this._angleCurveThreshold = angleCurveThreshold;
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._initialTimeStep`。
+   */
   getInitialTimeStep() {
     return this._initialTimeStep;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_initialTimeStep`；调用 `this.resetPoints`。
+   * 状态写入：_initialTimeStep。
+   * 调用线索：this.resetPoints。
+   */
   setInitialTimeStep(initialTimeStep) {
     this._initialTimeStep = initialTimeStep;
     this.resetPoints();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._drawStartTime`。
+   */
   getDrawStartTime() {
     return this._drawStartTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_drawStartTime`。
+   * 状态写入：_drawStartTime。
+   */
   setDrawStartTime(drawStartTime) {
     this._drawStartTime = drawStartTime;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._pointsPerFrame`。
+   */
   getPointsPerFrame() {
     return this._pointsPerFrame;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pointsPerFrame`。
+   * 状态写入：_pointsPerFrame。
+   */
   setPointsPerFrame(pointsPerFrame) {
     this._pointsPerFrame = pointsPerFrame;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._updatePointPositions`。
+   */
   getUpdatePointPositions() {
     return this._updatePointPositions;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_updatePointPositions`。
+   * 状态写入：_updatePointPositions。
+   */
   setUpdatePointPositions(updatePointPositions) {
     this._updatePointPositions = updatePointPositions;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_points`、`_pointsCount`、`_pointsStart`；调用 `new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.InterleavedBuffer`、`new PioneerPublicApi.THREE.InterleavedBufferAttribute`、`new Uint16Array`、`t.setAttribute`。
+   * 状态写入：_points、_pointsCount、_pointsStart。
+   * 调用线索：new Float32Array、new PioneerPublicApi.THREE.BufferAttribute、new PioneerPublicApi.THREE.InterleavedBuffer、new PioneerPublicApi.THREE.InterleavedBufferAttribute、new Uint16Array等。
+   */
   resetPoints() {
     if (this._points = [], this._pointsCount = 0, this._pointsStart = 0, this.getThreeJsObjects().length > 0) {
       const t = this.getThreeJsObjects()[0].geometry;
@@ -172,6 +330,10 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
       t.setIndex(new PioneerPublicApi.THREE.BufferAttribute(new Uint16Array(0), 1));
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.createMeshObject`、`t.uniforms.color.value.set`、`this.getEntity`、`this.getEntity().getScene`、`this.getEntity().getScene().getEngine`、`this.getEntity().getScene().getEngine().getMaterialManager`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.createMeshObject、t.uniforms.color.value.set、this.getEntity、this.getEntity().getScene、this.getEntity().getScene().getEngine等。
+   */
   async __loadResources() {
     const t = this.getEntity().getScene().getEngine().getMaterialManager().getPreloaded("trail");
     this.getThreeJsMaterials().push(t);
@@ -206,6 +368,11 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     }], true);
     this.getThreeJsObjects().push(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_points`、`_pointsCount`、`_pointsStart`；调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`、`this.getEntity`、`this.getEntity().getScene`、`this.getEntity().getScene().getEngine`、`this.getEntity().getScene().getEngine().getMaterialManager`、`this.getEntity().getScene().getEngine().getMaterialManager().release`。
+   * 状态写入：_points、_pointsCount、_pointsStart。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials、this.getEntity、this.getEntity().getScene、this.getEntity().getScene().getEngine、this.getEntity().getScene().getEngine().getMaterialManager等。
+   */
   __unloadResources() {
     this.getEntity().getScene().getEngine().getMaterialManager().release(this.getThreeJsMaterials()[0]);
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
@@ -213,6 +380,10 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     this._pointsCount = 0;
     this._pointsStart = 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.ThreeJsHelper.setOrientation`、`PioneerPublicApi.ThreeJsHelper.setPosition`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector2`、`PioneerPublicApi.Vector2.pool.get`。
+   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.ThreeJsHelper.setOrientation、PioneerPublicApi.ThreeJsHelper.setPosition、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector2等。
+   */
   __prepareForRender(t) {
     const e = this.getEntity().getParent();
     "" === this._relativeToEntity.getName() && null !== e && this._currentRelativeToEntity.get() !== this.getEntity().getParent() && (this._currentRelativeToEntity.setName(e.getName()), this.resetPoints());
@@ -235,6 +406,11 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     const a = this._currentRelativeToEntity.get();
     null !== a && (PioneerPublicApi.ThreeJsHelper.setPosition(this.getThreeJsObjects(), a.getCameraSpacePosition(t)), this._relativeToEntityOrientation && PioneerPublicApi.ThreeJsHelper.setOrientation(this.getThreeJsObjects(), a.getOrientation()));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_updatePointPositionsLastIndex`；返回 `void PioneerPublicApi.Interval.pool.release(t)`；调用 `Math.min`、`PioneerPublicApi.Interval.pool.get`、`PioneerPublicApi.Interval.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.position.copy`。
+   * 状态写入：_updatePointPositionsLastIndex。
+   * 调用线索：Math.min、PioneerPublicApi.Interval.pool.get、PioneerPublicApi.Interval.pool.release、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release等。
+   */
   _updatePoints() {
     const t = PioneerPublicApi.Interval.pool.get();
     const e = this.getEntity().getScene().getEngine().getTime();
@@ -349,17 +525,36 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     n.min <= n.max && r.addUpdateRange(2 * n.min * TrailComponent.VERTEX_SIZE, 2 * (n.length() + 1) * TrailComponent.VERTEX_SIZE);
     PioneerPublicApi.Interval.pool.release(n);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.intersection`、`this._getAutoLength`、`this.getEntity`、`this.getEntity().getPositionCoverage`。
+   * 调用线索：t.intersection、this._getAutoLength、this.getEntity、this.getEntity().getPositionCoverage。
+   */
   _getIntervalForUpdate(t, e) {
     this._relativeStartTime ? void 0 !== this._startTime ? t.min = e - this._startTimeMultiplier * this._startTime : t.min = e - this._startTimeMultiplier * this._getAutoLength(e) : t.min = this._startTime ?? NaN;
     this._relativeEndTime ? void 0 !== this._endTime ? t.max = e + this._endTimeMultiplier * this._endTime : t.max = e + this._endTimeMultiplier * this._getAutoLength(e) : t.max = this._endTime ?? NaN;
     t.intersection(t, this.getEntity().getPositionCoverage());
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pointsCount`、`_pointsStart`、`_points[this._pointsStart].position.x`；调用 `t.expandTo`、`this._resize`。
+   * 状态写入：_pointsCount、_pointsStart、_points[this._pointsStart].position.x。
+   * 调用线索：t.expandTo、this._resize。
+   */
   _popFrontPoint(t) {
     this._pointsCount > 0 && (this._resize(this._pointsCount - 1, t), t.expandTo(this._pointsStart), this._pointsCount > 1 && t.expandTo((this._pointsStart + 1) % this._points.length), this._points[this._pointsStart].position.x = NaN, this._pointsStart = (this._pointsStart + 1) % this._points.length, this._pointsCount -= 1);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pointsCount`、`_points[(this._pointsStart+this._pointsCount)%this._points.length].position.x`；调用 `t.expandTo`、`this._resize`。
+   * 状态写入：_pointsCount、_points[(this._pointsStart+this._pointsCount)%this._points.length].position.x。
+   * 调用线索：t.expandTo、this._resize。
+   */
   _popBackPoint(t) {
     this._pointsCount > 0 && (this._resize(this._pointsCount - 1, t), this._pointsCount -= 1, t.expandTo((this._pointsStart + this._pointsCount) % this._points.length), this._pointsCount > 0 && t.expandTo((this._pointsStart + this._pointsCount - 1) % this._points.length), this._points[(this._pointsStart + this._pointsCount) % this._points.length].position.x = NaN);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pointsCount`、`_pointsStart`；调用 `t.expandTo`、`this._resize`。
+   * 状态写入：_pointsCount、_pointsStart。
+   * 调用线索：t.expandTo、this._resize。
+   */
   _pushFrontPoint(t) {
     this._resize(this._pointsCount + 1, t);
     this._pointsStart = (this._pointsStart + this._points.length - 1) % this._points.length;
@@ -367,12 +562,22 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     this._pointsCount > 0 && t.expandTo((this._pointsStart + 1) % this._points.length);
     this._pointsCount += 1;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_pointsCount`；调用 `t.expandTo`、`this._resize`。
+   * 状态写入：_pointsCount。
+   * 调用线索：t.expandTo、this._resize。
+   */
   _pushBackPoint(t) {
     this._resize(this._pointsCount + 1, t);
     this._pointsCount += 1;
     t.expandTo((this._pointsStart + this._pointsCount - 1) % this._points.length);
     this._pointsCount > 1 && t.expandTo((this._pointsStart + this._pointsCount - 2) % this._points.length);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dashOffsetTime`、`_points`、`_pointsStart`；调用 `Math.max`、`PioneerPublicApi.MathUtils.ceilPow2`、`new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.InterleavedBuffer`、`new PioneerPublicApi.THREE.InterleavedBufferAttribute`。
+   * 状态写入：_dashOffsetTime、_points、_pointsStart。
+   * 调用线索：Math.max、PioneerPublicApi.MathUtils.ceilPow2、new Float32Array、new PioneerPublicApi.THREE.BufferAttribute、new PioneerPublicApi.THREE.InterleavedBuffer等。
+   */
   _resize(t, e) {
     let i = false;
     if ((t + 1 > this._points.length || t <= this._points.length / 4 && t >= 8) && (i = true), i) {
@@ -410,6 +615,10 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
       e.max = i;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `o`；调用 `Math.abs`、`Math.min`、`Math.sqrt`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.getEccentricity`。
+   * 调用线索：Math.abs、Math.min、Math.sqrt、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release等。
+   */
   _getAutoLength(t) {
     let e = null;
     for (let i = 0;; i++) {
@@ -430,6 +639,10 @@ class TrailComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.Vector3.pool.release(n);
     return o;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`e.copy`、`e.rotateInverse`、`n.getOrientationAtTime`、`o.getName`。
+   * 调用线索：PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、e.copy、e.rotateInverse、n.getOrientationAtTime等。
+   */
   _getPositionAndVelocity(t, e, i) {
     const n = "" !== this._relativeToEntity.getName() ? this._relativeToEntity.get() : this.getEntity().getParent();
     if ("" === this._relativeToEntity.getName()) {

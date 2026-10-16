@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：管理类别图层可见性、实体集合和界面复选框的同步。
+ * 依据：import ../solar-system/public-api.js；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1244022-1252117.
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as Pioneer from "../pioneer/index.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
+/** @eyes-analysis
+ * 类职责：管理类别图层可见性、实体集合和界面复选框的同步。
+ * 继承：EyesPublicApi.BaseManager；导出：LayerManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LayerManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_contentManager`、`_contextualLayersList`、`_currentSurfaceLayer`、`_dependencies`、`_layers`、`_previousDependencies`、`_previousTarget`、`_sceneManager`；调用 `new Set`、`super`、`t.getManager`、`this._eventNames.push`、`this._initCallbacks`、`this.bindFunctions`。
+   * 状态写入：_contentManager、_contextualLayersList、_currentSurfaceLayer、_dependencies、_layers、_previousDependencies、_previousTarget、_sceneManager等；完整记录见索引。
+   * 调用线索：new Set、super、t.getManager、this._eventNames.push、this._initCallbacks等。
+   */
   constructor(t) {
     super(t);
     this._sceneManager = t.getManager("scene");
@@ -18,6 +34,11 @@ class LayerManager extends EyesPublicApi.BaseManager {
     this._eventNames.push("toggleLayer");
     this._initCallbacks();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_layers[i]`、`_layers[i].parent`、`_layers[t]`、`_layers[t].categories`、`_layers[t].defaultVisibility`、`_layers[t].group`、`_layers[t].name`、`_layers[t].sublayers`；调用 `Array.isArray`。
+   * 状态写入：_layers[i]、_layers[i].parent、_layers[t]、_layers[t].categories、_layers[t].defaultVisibility、_layers[t].group、_layers[t].name、_layers[t].sublayers等；完整记录见索引。
+   * 调用线索：Array.isArray。
+   */
   addLayer(t, {
     name: e = "",
     group: i = "",
@@ -43,22 +64,41 @@ class LayerManager extends EyesPublicApi.BaseManager {
     Array.isArray(o) || (o = [o]);
     this._layers[t].toggleCallback = o;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `i.toggleCallback.push`、`this.getLayer`。
+   * 调用线索：i.toggleCallback.push、this.getLayer。
+   */
   addCallback(t, e) {
     const i = this.getLayer(t);
     null !== i && i.toggleCallback.push(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `i.toggleCallback.indexOf`、`i.toggleCallback.splice`、`this.getLayer`。
+   * 调用线索：i.toggleCallback.indexOf、i.toggleCallback.splice、this.getLayer。
+   */
   removeCallback(t, e) {
     const i = this.getLayer(t);
     if (null === i) return;
     const s = i.toggleCallback.indexOf(e);
     i.toggleCallback.splice(s, 1);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void 0===this._layers[t]?null:this._layers[t]`。
+   */
   getLayer(t) {
     return void 0 === this._layers[t] ? null : this._layers[t];
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._currentSurfaceLayer`。
+   */
   getCurrentSurfaceLayer() {
     return this._currentSurfaceLayer;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentSurfaceLayer`；返回 `void console.error("This function does not yet handle CMTS texture")`；调用 `Object.keys`、`Object.keys(e.textures).forEach`、`a.getLoadedPromise`、`a.setEnabled`、`a.setTexture`、`c.getName`。
+   * 状态写入：_currentSurfaceLayer。
+   * 调用线索：Object.keys、Object.keys(e.textures).forEach、a.getLoadedPromise、a.setEnabled、a.setTexture等。
+   */
   async changeSpheroidMap(t, e, i = {}) {
     if ("cmts" === e.type) return void console.error("This function does not yet handle CMTS texture");
     const sceneManager = this.app.getManager("scene");
@@ -73,6 +113,10 @@ class LayerManager extends EyesPublicApi.BaseManager {
     }), await a.getLoadedPromise(), null !== c && c.setEnabled(false), sceneManager.removeLoading(t, "spheroidLOD")) : "wmts" === e.type && (null === c || c.getName() !== e.id ? await sceneManager.addWMTSComponent(t, e) : false === c.isEnabled() && (await sceneManager.enableWMTSComponent(t, c)));
     null != l && false !== i.atmosphere && l.setEnabled(e.features.includes("atmosphere"));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._app.getManager`、`this._app.getManager("content").getSpheroidDefaultTextureInformation`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`、`this.changeSpheroidMap`。
+   * 调用线索：e?.isEnabled、this._app.getManager、this._app.getManager("content").getSpheroidDefaultTextureInformation、this._app.pioneer.getScene、this._app.pioneer.getScene("main").getEntity等。
+   */
   async resetSpheroidMap(t) {
     const e = this._app.pioneer.getScene("main").getEntity(t)?.getComponent(Pioneer.AtmosphereComponent);
     let i = ["shadowEntities"];
@@ -80,6 +124,11 @@ class LayerManager extends EyesPublicApi.BaseManager {
     const s = this._app.getManager("content").getSpheroidDefaultTextureInformation(t, i);
     "default" !== s?.id && (await this.changeSpheroidMap(t, s));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_layers[t].visible`、`getLayer(this._layers[t].sublayers[i]).visible`；返回 `void`；调用 `0,this._layers[t].toggleCallback[i]`、`e.push`、`sceneManager.updateEntityLayerVisibility`、`sceneManager.updateEntityLayerVisibilityForChildren`、`t.toLowerCase`、`t.toLowerCase().includes`。
+   * 状态写入：_layers[t].visible、getLayer(this._layers[t].sublayers[i]).visible。
+   * 调用线索：0,this._layers[t].toggleCallback[i]、e.push、sceneManager.updateEntityLayerVisibility、sceneManager.updateEntityLayerVisibilityForChildren、t.toLowerCase等。
+   */
   async toggleLayer(t, e = {}, i) {
     const {
       spout: spout,
@@ -110,6 +159,10 @@ class LayerManager extends EyesPublicApi.BaseManager {
       await this.app.getManager("spout").setUpSpoutLabels(spoutFontSize, e?.[0]?.id);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._app.getManager`、`this._app.getManager("layer").getLayer`、`this._contextualLayersList.forEach`、`this.app.getManager`、`this.toggleLayer`。
+   * 调用线索：this._app.getManager、this._app.getManager("layer").getLayer、this._contextualLayersList.forEach、this.app.getManager、this.toggleLayer。
+   */
   syncLayerVisibilityWithQueries() {
     const t = this.app.getManager("router").configs;
     this._contextualLayersList.forEach(e => {
@@ -117,12 +170,22 @@ class LayerManager extends EyesPublicApi.BaseManager {
       this.toggleLayer(e, {}, i);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_dependencies`、`_previousDependencies`、`_targetId`；调用 `new Set`、`this._dependencies.clear`、`this._previousTarget.push`、`this._sceneManager.getDependencies`。
+   * 状态写入：_dependencies、_previousDependencies、_targetId。
+   * 调用线索：new Set、this._dependencies.clear、this._previousTarget.push、this._sceneManager.getDependencies。
+   */
   setTarget(targetId) {
     if (this._previousTarget.push(this._targetId), this._previousDependencies = new Set([...this._previousDependencies, ...this._dependencies]), this._targetId = targetId, this._dependencies.clear(), "" !== this._targetId) {
       const t = this._sceneManager.getDependencies(this._targetId);
       this._dependencies = new Set(t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_previousTarget`；返回 `void`；调用 `i.getParent`、`i.getParent().getName`、`this._previousDependencies.clear`、`this.app.getManager`、`this.resetContextualVisibility`。
+   * 状态写入：_previousTarget。
+   * 调用线索：i.getParent、i.getParent().getName、this._previousDependencies.clear、this.app.getManager、this.resetContextualVisibility。
+   */
   resetTarget() {
     for (let t = 0; t < this._previousTarget.length; t++) {
       const e = this._previousTarget[t];
@@ -137,6 +200,11 @@ class LayerManager extends EyesPublicApi.BaseManager {
     this._previousTarget = [];
     this._previousDependencies.clear();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_contextId`；调用 `SolarSystemSceneExports.Parenting.getParentOfEntity`、`this._sceneManager.main.getEngine`、`this._sceneManager.main.getEngine().getTime`、`this.getContextualLayers`、`this.getLayer`、`this.toggleLayer`。
+   * 状态写入：_contextId。
+   * 调用线索：SolarSystemSceneExports.Parenting.getParentOfEntity、this._sceneManager.main.getEngine、this._sceneManager.main.getEngine().getTime、this.getContextualLayers、this.getLayer等。
+   */
   resetContextualVisibility(contextId) {
     const e = this._sceneManager.main.getEngine().getTime();
     let i = this.getContextualLayers(contextId);
@@ -166,9 +234,16 @@ class LayerManager extends EyesPublicApi.BaseManager {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._targetId`。
+   */
   getTarget() {
     return this._targetId;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `this.getLayerFromCategory(s)||this.getLayerFromCategory(i)`；调用 `this._contentManager.getEntityInfo`、`this.getLayerFromCategory`。
+   * 调用线索：this._contentManager.getEntityInfo、this.getLayerFromCategory。
+   */
   getEntityLayer(t) {
     const e = this._contentManager.getEntityInfo(t);
     if (null === e) return null;
@@ -176,19 +251,34 @@ class LayerManager extends EyesPublicApi.BaseManager {
     const s = e.subcategory;
     return this.getLayerFromCategory(s) || this.getLayerFromCategory(i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `this._layers[e]`；调用 `Object.entries`、`i.categories.includes`。
+   * 调用线索：Object.entries、i.categories.includes。
+   */
   getLayerFromCategory(t) {
     if (!t) return null;
     for (const [e, i] of Object.entries(this._layers)) if (i.categories.includes(t)) return this._layers[e];
     return null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `this._layers[e]`；调用 `Object.entries`、`i.categories.includes`。
+   * 调用线索：Object.entries、i.categories.includes。
+   */
   getLayerFromSatelliteGroup(t) {
     if (!t) return null;
     for (const [e, i] of Object.entries(this._layers)) if (i.categories.includes(t)) return this._layers[e];
     return null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._contextualLayersList`。
+   */
   getAllContextualLayerOptions() {
     return this._contextualLayersList;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `Object.keys`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup`、`SolarSystemSceneExports.Parenting.getParentOfEntity`、`contentManager.getEntityInfo`、`e.includes`、`e.push`。
+   * 调用线索：Object.keys、SolarSystemSceneExports.Entity.getEntityNamesInGroup、SolarSystemSceneExports.Parenting.getParentOfEntity、contentManager.getEntityInfo、e.includes等。
+   */
   getContextualLayers(t) {
     const e = [];
     if ("" === t) return e;
@@ -231,6 +321,10 @@ class LayerManager extends EyesPublicApi.BaseManager {
     });
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `i.includes`、`this._contextualLayersList.forEach`、`this.getContextualLayers`、`this.getLayer`、`this.toggleLayer`。
+   * 调用线索：i.includes、this._contextualLayersList.forEach、this.getContextualLayers、this.getLayer、this.toggleLayer。
+   */
   resetContextualLayers(t, e) {
     const i = this.getContextualLayers(t);
     this._contextualLayersList.forEach(t => {
@@ -241,6 +335,10 @@ class LayerManager extends EyesPublicApi.BaseManager {
       }, this.getLayer(t).defaultVisibility || false));
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null!==o&&n.constellation===satelliteGroup?o.visible:null!==e?!(e.parent&&!this.getLayer(e.parent)?.visible&&!allowSublayer)&&e.visible:null!==t?t.vis` 或 `true`；调用 `this._contentManager.getEntityInfo`、`this.getLayer`、`this.getLayerFromCategory`、`this.getLayerFromSatelliteGroup`。
+   * 调用线索：this._contentManager.getEntityInfo、this.getLayer、this.getLayerFromCategory、this.getLayerFromSatelliteGroup。
+   */
   isEntityVisibleWithCurrentLayers(t, e = {}) {
     const {
       satelliteGroup: satelliteGroup,

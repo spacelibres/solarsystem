@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：以发射方向、速率、寿命等参数更新喷射粒子系统。
+ * 依据：import ../pioneer/public-api.js；ParticleSprayComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:365893-374448.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：以发射方向、速率、寿命等参数更新喷射粒子系统。
+ * 继承：PioneerPublicApi.BaseComponent；导出：ParticleSprayComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ParticleSprayComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_colorOfParticles`、`_direction`、`_length`、`_numberOfParticles`、`_originOffset`、`_particleSpacingRandom`、`_relativeToEntityOrientation`、`_sizeOfParticles`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.Vector3`、`super`、`this.__setRadius`。
+   * 状态写入：_colorOfParticles、_direction、_length、_numberOfParticles、_originOffset、_particleSpacingRandom、_relativeToEntityOrientation、_sizeOfParticles等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.Vector3、super、this.__setRadius。
+   */
   constructor(t, e) {
     super(t, e);
     this._length = 1;
@@ -15,67 +31,136 @@ class ParticleSprayComponent extends PioneerPublicApi.BaseComponent {
     this._relativeToEntityOrientation = true;
     this.__setRadius(this._length);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._length`。
+   */
   getLength() {
     return this._length;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_length`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.__setRadius`、`this.getThreeJsMaterials`。
+   * 状态写入：_length。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.__setRadius、this.getThreeJsMaterials。
+   */
   setLength(length) {
     this._length = length;
     this.__setRadius(this._length);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "length", this._length);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "totalTime", this._length / this._speedOfParticles);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._spread`。
+   */
   getSpread() {
     return this._spread;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_spread`；调用 `PioneerPublicApi.MathUtils.degToRad`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_spread。
+   * 调用线索：PioneerPublicApi.MathUtils.degToRad、PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setSpread(spread) {
     this._spread = spread;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "spread", PioneerPublicApi.MathUtils.degToRad(this._spread));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._numberOfParticles`。
+   */
   getNumberOfParticles() {
     return this._numberOfParticles;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numberOfParticles`；调用 `this.resetResources`。
+   * 状态写入：_numberOfParticles。
+   * 调用线索：this.resetResources。
+   */
   setNumberOfParticles(numberOfParticles) {
     this._numberOfParticles = numberOfParticles;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._speedOfParticles`。
+   */
   getSpeedOfParticles() {
     return this._speedOfParticles;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_speedOfParticles`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_speedOfParticles。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setSpeedOfParticles(speedOfParticles) {
     this._speedOfParticles = speedOfParticles;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "totalTime", this._length / this._speedOfParticles);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sizeOfParticles`。
+   */
   getSizeOfParticles() {
     return this._sizeOfParticles;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_sizeOfParticles`；调用 `this.resetResources`。
+   * 状态写入：_sizeOfParticles。
+   * 调用线索：this.resetResources。
+   */
   setSizeOfParticles(sizeOfParticles) {
     this._sizeOfParticles = sizeOfParticles;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._particleSpacingRandom`。
+   */
   getParticleSpacingRandom() {
     return this._particleSpacingRandom;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_particleSpacingRandom`；调用 `this.resetResources`。
+   * 状态写入：_particleSpacingRandom。
+   * 调用线索：this.resetResources。
+   */
   setParticleSpacingRandom(particleSpacingRandom) {
     this._particleSpacingRandom = particleSpacingRandom;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._colorOfParticles`。
+   */
   getColorOfParticles() {
     return this._colorOfParticles;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`this._colorOfParticles.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、this._colorOfParticles.copy、this.getThreeJsMaterials。
+   */
   setColorOfParticles(t) {
     this._colorOfParticles.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "globalColor", this._colorOfParticles);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._originOffset`。
+   */
   getOriginOffset() {
     return this._originOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`this._originOffset.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformVector3、this._originOffset.copy、this.getThreeJsMaterials。
+   */
   setOriginOffset(t) {
     this._originOffset.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "originOffset", this._originOffset);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._direction`。
+   */
   getDirection() {
     return this._direction;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.cross`、`e.isZero`、`e.normalize`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformVector3、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、e.cross、e.isZero等。
+   */
   setDirection(t) {
     this._direction.normalize(t);
     PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "direction", this._direction);
@@ -86,12 +171,23 @@ class ParticleSprayComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "directionPerp", e);
     PioneerPublicApi.Vector3.pool.release(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeToEntityOrientation`。
+   */
   getRelativeToEntityOrientation() {
     return this._relativeToEntityOrientation;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_relativeToEntityOrientation`。
+   * 状态写入：_relativeToEntityOrientation。
+   */
   setRelativeToEntityOrientation(relativeToEntityOrientation) {
     this._relativeToEntityOrientation = relativeToEntityOrientation;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
+   * 调用线索：PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector3、PioneerPublicApi.Vector3.pool.get等。
+   */
   __prepareForRender(t) {
     const e = PioneerPublicApi.MathUtils.wrap(this.getEntity().getScene().getEngine().getTime(), 0, this._length / this._speedOfParticles);
     if (PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "time", e), this._relativeToEntityOrientation) {
@@ -112,6 +208,10 @@ class ParticleSprayComponent extends PioneerPublicApi.BaseComponent {
     }
     PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MathUtils.degToRad`、`PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry`、`PioneerPublicApi.ThreeJsHelper.setOrientation`、`PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`。
+   * 调用线索：PioneerPublicApi.MathUtils.degToRad、PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry、PioneerPublicApi.ThreeJsHelper.setOrientation、PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、PioneerPublicApi.ThreeJsHelper.setUniformNumber等。
+   */
   async __loadResources() {
     const rawShaderMaterial = new PioneerPublicApi.THREE.RawShaderMaterial({
       uniforms: {
@@ -163,9 +263,17 @@ class ParticleSprayComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "directionPerp", c);
     PioneerPublicApi.Vector3.pool.release(c);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.random`、`this.getThreeJsObjects`。
+   * 调用线索：Math.random、this.getThreeJsObjects。
+   */
   _initializeParticles() {
     const t = this.getThreeJsObjects()[0].geometry.attributes.params;
     const e = this.getThreeJsObjects()[0].geometry.attributes.color;

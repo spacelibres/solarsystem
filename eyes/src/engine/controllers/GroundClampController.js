@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：引用地面组件查询地表位置，把实体位置限制到表面/给定高度。
+ * 依据：import ../pioneer/public-api.js；GroundClampController extends PioneerPublicApi.BaseController @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:476554-479707.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：引用地面组件查询地表位置，把实体位置限制到表面/给定高度。
+ * 继承：PioneerPublicApi.BaseController；导出：GroundClampController。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class GroundClampController extends PioneerPublicApi.BaseController {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_clampOnlyIfBelow`、`_distanceFromGround`、`_groundEntityRef`、`_up`；调用 `new PioneerPublicApi.EntityRef`、`new PioneerPublicApi.Vector3`、`super`、`this.addModifiedState`、`this.getEntity`、`this.getEntity().getScene`。
+   * 状态写入：_clampOnlyIfBelow、_distanceFromGround、_groundEntityRef、_up。
+   * 调用线索：new PioneerPublicApi.EntityRef、new PioneerPublicApi.Vector3、super、this.addModifiedState、this.getEntity等。
+   */
   constructor(t, e) {
     super(t, e);
     this._groundEntityRef = new PioneerPublicApi.EntityRef(this.getEntity().getScene());
@@ -9,6 +25,10 @@ class GroundClampController extends PioneerPublicApi.BaseController {
     this._clampOnlyIfBelow = false;
     this.addModifiedState("position");
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._groundEntityRef.getName`、`this._groundEntityRef.setName`、`this.addDependentState`、`this.removeDependentState`。
+   * 调用线索：this._groundEntityRef.getName、this._groundEntityRef.setName、this.addDependentState、this.removeDependentState。
+   */
   setGroundEntityRef(t) {
     this.removeDependentState(this._groundEntityRef.getName(), "orientation");
     this.removeDependentState(this._groundEntityRef.getName(), "ground");
@@ -16,24 +36,49 @@ class GroundClampController extends PioneerPublicApi.BaseController {
     this.addDependentState(t, "orientation");
     this.addDependentState(t, "ground");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._distanceFromGround`。
+   */
   getDistanceFromGround() {
     return this._distanceFromGround;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_distanceFromGround`。
+   * 状态写入：_distanceFromGround。
+   */
   setDistanceFromGround(distanceFromGround) {
     this._distanceFromGround = distanceFromGround;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._up`。
+   */
   getUp() {
     return this._up;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._up.copy`。
+   * 调用线索：this._up.copy。
+   */
   setUp(t) {
     this._up.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._clampOnlyIfBelow`。
+   */
   getClampOnlyIfBelow() {
     return this._clampOnlyIfBelow;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_clampOnlyIfBelow`。
+   * 状态写入：_clampOnlyIfBelow。
+   */
   setClampOnlyIfBelow(clampOnlyIfBelow) {
     this._clampOnlyIfBelow = clampOnlyIfBelow;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Math.abs`、`Math.min`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
+   * 调用线索：Math.abs、Math.min、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.Vector3.pool.get等。
+   */
   __updatePositionAtTime(t, e) {
     const i = this.getEntity().getParentAtTime(e);
     const n = this.getEntity().getScene().getEntity(i);
@@ -67,6 +112,10 @@ class GroundClampController extends PioneerPublicApi.BaseController {
     PioneerPublicApi.Vector3.pool.release(c);
     PioneerPublicApi.Quaternion.pool.release(h);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Math.abs`、`Math.min`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.dot`、`e.getGroundPosition`。
+   * 调用线索：Math.abs、Math.min、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、e.dot等。
+   */
   __update() {
     if (null === this.getEntity().getParent()) return;
     let t = this._groundEntityRef.get();

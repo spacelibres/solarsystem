@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：声明式实体目录，注册 14 个实体/参考系（如 "1i_oumuamua"、"1p_halley"、"103p_hartley_2"、"9p_tempel_1"、"81p_wild_2"、"67p_churyumov_gerasimenko"），供 Entity-567 工厂创建半径、父级、几何与控制器。
+ * 依据：import ../pioneer/index.js；import ./Entity-567.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:854970-860930.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";

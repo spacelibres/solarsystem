@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：解析星表并构造星点，按亮度/颜色和相机方向渲染背景恒星。
+ * 依据：import ../pioneer/public-api.js；Star @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:421561-426233.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：星表单颗恒星的数据记录。
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Star {
   mag;
   absMag;
   color;
   position;
+  /** @eyes-analysis
+   * 【结构证据】写入 `absMag`、`color`、`mag`、`position`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.Vector3`。
+   * 状态写入：absMag、color、mag、position。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.Vector3。
+   */
   constructor() {
     this.mag = 0;
     this.absMag = 0;
@@ -12,26 +28,55 @@ class Star {
     this.position = new PioneerPublicApi.Vector3();
   }
 }
+/** @eyes-analysis
+ * 类职责：解析星表并构造星点，按亮度/颜色和相机方向渲染背景恒星。
+ * 继承：PioneerPublicApi.BaseComponent；导出：StarfieldComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class StarfieldComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_particleSize`、`_url`；调用 `super`、`this.__setRadius`。
+   * 状态写入：_particleSize、_url。
+   * 调用线索：super、this.__setRadius。
+   */
   constructor(t, e) {
     super(t, e);
     this._url = "";
     this._particleSize = 1;
     this.__setRadius(1e24);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._url`。
+   */
   getUrl() {
     return this._url;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_url`；调用 `this.resetResources`。
+   * 状态写入：_url。
+   * 调用线索：this.resetResources。
+   */
   setUrl(url) {
     this._url = url;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._particleSize`。
+   */
   getParticleSize() {
     return this._particleSize;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_particleSize`。
+   * 状态写入：_particleSize。
+   */
   setParticleSize(particleSize) {
     this._particleSize = particleSize;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Math.max`、`Math.sqrt`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`。
+   * 调用线索：Math.max、Math.sqrt、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.Vector2.pool.get等。
+   */
   __prepareForRender(t) {
     const e = PioneerPublicApi.Vector2.pool.get();
     if (t instanceof PioneerPublicApi.SpoutComponent) e.set(t.getRenderWidth(), .5 * t.getRenderWidth());else {
@@ -44,6 +89,10 @@ class StarfieldComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.Vector2.pool.release(e);
     PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `PioneerPublicApi.ThreeJsHelper.setIndices`、`PioneerPublicApi.ThreeJsHelper.setVertices`、`PioneerPublicApi.ThreeJsHelper.setupObject`、`bufferGeometry.setAttribute`、`bufferGeometry.setIndex`、`new Float32Array`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setIndices、PioneerPublicApi.ThreeJsHelper.setVertices、PioneerPublicApi.ThreeJsHelper.setupObject、bufferGeometry.setAttribute、bufferGeometry.setIndex等。
+   */
   async __loadResources() {
     const t = await this._loadStars();
     if (this.isDestroyed()) return;
@@ -85,9 +134,17 @@ class StarfieldComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setVertices(bufferGeometry, "color", r);
     PioneerPublicApi.ThreeJsHelper.setIndices(bufferGeometry, uint16Array);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `n`；调用 `n.push`、`new PioneerPublicApi.Reader`、`new Star`、`reader.readByte`、`reader.readFloat32`、`reader.readInt32`。
+   * 调用线索：n.push、new PioneerPublicApi.Reader、new Star、reader.readByte、reader.readFloat32等。
+   */
   async _loadStars() {
     const t = await this.getEntity().getScene().getEngine().getDownloader().download(this._url, "binary", -this.getEntity().getLeastCameraDepth());
     const reader = new PioneerPublicApi.Reader(t.content);

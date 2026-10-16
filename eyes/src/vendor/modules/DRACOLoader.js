@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：DRACOLoader 对应资源的请求、解析与缓存协作
+ * 依据：// Recovered from vendors.js:976080-983485.；exports: DRACOLoader, DRACO_GLTF_CONFIG
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:976080-983485.
 import * as ThreeCore from "../three/core.js";
 import Unidentified112 from "./Unidentified112.cjs";
@@ -13,7 +19,17 @@ const weakMap = new WeakMap(),
     js: new URL(Unidentified115, document.baseURI).toString(),
     wasm: new URL(Unidentified116, document.baseURI).toString()
   };
+/** @eyes-analysis
+ * 类职责：DRACOLoader 对应资源的请求、解析与缓存协作
+ * 继承：ThreeCore.Loader；导出：DRACOLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DRACOLoader extends ThreeCore.Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：decoderBinary、decoderConfig、decoderPaths、decoderPending、defaultAttributeIDs、defaultAttributeTypes、workerLimit、workerNextTaskID等；完整记录见索引。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e), this.decoderPaths = {
       js: s,
@@ -31,27 +47,52 @@ class DRACOLoader extends ThreeCore.Loader {
       uv: "Float32Array"
     };
   }
+  /** @eyes-analysis
+   * 源码方法 setDecoderPath；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ThreeCore.LoaderUtils.resolveURL。
+   */
   setDecoderPath(e) {
     const {
       decoderPaths: decoderPaths
     } = this;
     return "object" == typeof e ? (decoderPaths.js = e.js, decoderPaths.wasm = e.wasm, decoderPaths.dep_js = null) : (decoderPaths.js = ThreeCore.LoaderUtils.resolveURL("draco_wasm_wrapper.js", e), decoderPaths.wasm = ThreeCore.LoaderUtils.resolveURL("draco_decoder.wasm", e), decoderPaths.dep_js = ThreeCore.LoaderUtils.resolveURL("draco_decoder.js", e)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setDecoderConfig；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：decoderConfig。
+   * 调用线索：console.warn。
+   */
   setDecoderConfig(decoderConfig) {
     return console.warn("THREE.DRACOLoader: setDecoderConfig to has been deprecated and will be removed in r194."), this.decoderConfig = decoderConfig, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setWorkerLimit；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：workerLimit。
+   */
   setWorkerLimit(workerLimit) {
     return this.workerLimit = workerLimit, this;
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader、fileLoader.setResponseType、fileLoader.setWithCredentials等。
+   */
   load(e, t, n, i) {
     const fileLoader = new ThreeCore.FileLoader(this.manager);
     fileLoader.setPath(this.path), fileLoader.setResponseType("arraybuffer"), fileLoader.setRequestHeader(this.requestHeader), fileLoader.setWithCredentials(this.withCredentials), fileLoader.load(e, e => {
       this.parse(e, t, i);
     }, n, i);
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：this.decodeDracoFile、this.decodeDracoFile(e,t,null,null,ThreeCore.SRGBColorSpace,n).catch。
+   */
   parse(e, t, n = () => {}) {
     this.decodeDracoFile(e, t, null, null, ThreeCore.SRGBColorSpace, n).catch(n);
   }
+  /** @eyes-analysis
+   * 源码方法 decodeDracoFile；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.decodeGeometry、this.decodeGeometry(e,o).then、this.decodeGeometry(e,o).then(t).catch。
+   */
   decodeDracoFile(e, t, n, i, a = ThreeCore.LinearSRGBColorSpace, s = () => {}) {
     const o = {
       attributeIDs: n || this.defaultAttributeIDs,
@@ -61,6 +102,11 @@ class DRACOLoader extends ThreeCore.Loader {
     };
     return this.decodeGeometry(e, o).then(t).catch(s);
   }
+  /** @eyes-analysis
+   * 源码方法 decodeGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：workerNextTaskID。
+   * 调用线索：JSON.stringify、new Error、new Promise、o.catch、o.catch(()=>!0).then等。
+   */
   decodeGeometry(e, t) {
     const n = JSON.stringify(t);
     if (weakMap.has(e)) {
@@ -89,6 +135,10 @@ class DRACOLoader extends ThreeCore.Loader {
       promise: o
     }), o;
   }
+  /** @eyes-analysis
+   * 源码方法 _createGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、new ThreeCore.BufferAttribute、new ThreeCore.BufferGeometry、new ThreeCore.InterleavedBuffer等。
+   */
   _createGeometry(e) {
     const bufferGeometry = new ThreeCore.BufferGeometry();
     e.index && bufferGeometry.setIndex(new ThreeCore.BufferAttribute(e.index.array, 1));
@@ -109,20 +159,37 @@ class DRACOLoader extends ThreeCore.Loader {
     }
     return bufferGeometry;
   }
+  /** @eyes-analysis
+   * 源码方法 _assignVertexColorSpace；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ThreeCore.ColorManagement.colorSpaceToWorking、color.fromBufferAttribute、e.setXYZ、new ThreeCore.Color。
+   */
   _assignVertexColorSpace(e, t) {
     if (t !== ThreeCore.SRGBColorSpace) return;
     const color = new ThreeCore.Color();
     for (let t = 0, i = e.count; t < i; t++) color.fromBufferAttribute(e, t), ThreeCore.ColorManagement.colorSpaceToWorking(color, ThreeCore.SRGBColorSpace), e.setXYZ(t, color.r, color.g, color.b);
   }
+  /** @eyes-analysis
+   * 源码方法 _loadLibrary；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：fileLoader.load、fileLoader.setResponseType、fileLoader.setWithCredentials、new Promise、new ThreeCore.FileLoader。
+   */
   _loadLibrary(e, t) {
     const fileLoader = new ThreeCore.FileLoader(this.manager);
     return fileLoader.setResponseType(t), fileLoader.setWithCredentials(this.withCredentials), new Promise((t, r) => {
       fileLoader.load(e, t, void 0, r);
     });
   }
+  /** @eyes-analysis
+   * 源码方法 preload；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._initDecoder。
+   */
   preload() {
     return this._initDecoder(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 _initDecoder；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：decoderConfig.wasmBinary、decoderPending、workerSourceURL。
+   * 调用线索：Promise.all、Promise.all(t).then、URL.createObjectURL、["/* draco decoder * /",n,"","/* worker * /",r.substring(r.indexOf("{")+1,r.lastIndexOf("}"))].join、l.toString等。
+   */
   _initDecoder() {
     if (this.decoderPending) return this.decoderPending;
     const e = "object" != typeof WebAssembly || "js" === this.decoderConfig.type,
@@ -142,6 +209,10 @@ class DRACOLoader extends ThreeCore.Loader {
       this.workerSourceURL = URL.createObjectURL(new Blob([i]));
     }), this.decoderPending;
   }
+  /** @eyes-analysis
+   * 源码方法 _getWorker；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：console.error、new Worker、this._initDecoder、this._initDecoder().then、this.workerPool.push等。
+   */
   _getWorker(e, t) {
     return this._initDecoder().then(() => {
       if (this.workerPool.length < this.workerLimit) {
@@ -169,12 +240,24 @@ class DRACOLoader extends ThreeCore.Loader {
       return n._taskCosts[e] = t, n._taskLoad += t, n;
     });
   }
+  /** @eyes-analysis
+   * 源码方法 _releaseTask；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _releaseTask(e, t) {
     e._taskLoad -= e._taskCosts[t], delete e._callbacks[t], delete e._taskCosts[t];
   }
+  /** @eyes-analysis
+   * 源码方法 debug；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：console.log、this.workerPool.map。
+   */
   debug() {
     console.log("Task load: ", this.workerPool.map(e => e._taskLoad));
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 状态写入：workerPool.length。
+   * 调用线索：URL.revokeObjectURL、this.workerPool[e].terminate。
+   */
   dispose() {
     for (let e = 0; e < this.workerPool.length; ++e) this.workerPool[e].terminate();
     return this.workerPool.length = 0, "" !== this.workerSourceURL && URL.revokeObjectURL(this.workerSourceURL), this;

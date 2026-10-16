@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：解析 WMTS Capabilities XML，提取 Layer 与 TileMatrixSet 的图层、维度、坐标矩阵和资源模板。
+ * 依据：import ../pioneer/index.js；import ../../vendor/modules/Unidentified585.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:777992-786118.
 import * as Pioneer from "../pioneer/index.js";
 import * as Unidentified585 from "../../vendor/modules/Unidentified585.js";
+/** @eyes-analysis
+ * 类职责：解析 WMTS Capabilities XML，提取 Layer 与 TileMatrixSet 的图层、维度、坐标矩阵和资源模板。
+ * 继承：无显式父类；导出：Capabilities。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Capabilities {
   endPoint;
   layers;
   readyPromise;
+  /** @eyes-analysis
+   * 【结构证据】写入 `_capabilitiesXML`、`endPoint`、`layers`、`readyPromise`；调用 `e.getDownloader`、`e.getDownloader().download`、`e.getDownloader().download(s,"text",i).then`、`new DOMParser`、`new DOMParser().parseFromString`、`new Document`；含显式错误分支。
+   * 状态写入：_capabilitiesXML、endPoint、layers、readyPromise。
+   * 调用线索：e.getDownloader、e.getDownloader().download、e.getDownloader().download(s,"text",i).then、new DOMParser、new DOMParser().parseFromString等。
+   */
   constructor(endPoint, e, i) {
     this.endPoint = endPoint;
     this.layers = new Map();
@@ -21,6 +37,10 @@ class Capabilities {
       }
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `new Layer`、`s.querySelector`、`this._capabilitiesXML.querySelectorAll`。
+   * 调用线索：new Layer、s.querySelector、this._capabilitiesXML.querySelectorAll。
+   */
   getLayer(t) {
     let e = null;
     const i = this._capabilitiesXML.querySelectorAll("Contents > Layer");
@@ -31,6 +51,10 @@ class Capabilities {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `new TileMatrixSet`、`s.querySelector`、`this._capabilitiesXML.querySelectorAll`。
+   * 调用线索：new TileMatrixSet、s.querySelector、this._capabilitiesXML.querySelectorAll。
+   */
   getTileMatrixSet(t) {
     let e = null;
     const i = this._capabilitiesXML.querySelectorAll("Contents > TileMatrixSet");
@@ -43,6 +67,11 @@ class Capabilities {
   }
   _capabilitiesXML;
 }
+/** @eyes-analysis
+ * 类职责：WMTS XML 图层：标识、格式、维度和资源模板。
+ * 继承：无显式父类；导出：Layer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Layer {
   title;
   identifier;
@@ -51,6 +80,11 @@ class Layer {
   dimensions;
   tileMatrixSets;
   url;
+  /** @eyes-analysis
+   * 【结构证据】写入 `_baseUrl`、`boundingBox`、`defaultStyle`、`dimensions`、`identifier`、`tileMatrixSets`、`title`、`url`；调用 `/^(?:[a-z]+:)?\/\//iu.test`、`Number.parseFloat`、`a.textContent.split`、`l.textContent.split`、`new Error`、`new Map`；含显式错误分支。
+   * 状态写入：_baseUrl、boundingBox、defaultStyle、dimensions、identifier、tileMatrixSets、title、url。
+   * 调用线索：/^(?:[a-z]+:)?\/\//iu.test、Number.parseFloat、a.textContent.split、l.textContent.split、new Error等。
+   */
   constructor(t, baseUrl) {
     const i = t.querySelector("*|Title");
     if (!i) throw new Error(`Malformed WMTSCapabilities.xml at ${baseUrl}`);
@@ -105,12 +139,22 @@ class Layer {
   }
   _baseUrl;
 }
+/** @eyes-analysis
+ * 类职责：WMTS 坐标矩阵集合及每级矩阵尺寸。
+ * 继承：无显式父类；导出：TileMatrixSet。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TileMatrixSet {
   identifier;
   boundingBox;
   readyPromise;
   numLevels;
   maxPixelSize;
+  /** @eyes-analysis
+   * 【结构证据】写入 `_crs`、`_numTiles`、`_numTiles[numLevels]`、`boundingBox`、`boundingBox.origin.y`、`boundingBox.size.x`、`boundingBox.size.y`、`identifier`；调用 `Math.abs`、`Math.max`、`Math.round`、`Number.parseFloat`、`Promise.resolve`、`TileMatrixSet.setCRS`；含显式错误分支。
+   * 状态写入：_crs、_numTiles、_numTiles[numLevels]、boundingBox、boundingBox.origin.y、boundingBox.size.x、boundingBox.size.y、identifier等；完整记录见索引。
+   * 调用线索：Math.abs、Math.max、Math.round、Number.parseFloat、Promise.resolve等。
+   */
   constructor(t) {
     this.boundingBox = new Pioneer.Rect();
     this.readyPromise = Promise.resolve();
@@ -166,15 +210,26 @@ class TileMatrixSet {
       this.boundingBox.origin.y -= this.boundingBox.size.y;
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._numTiles[t]`。
+   */
   getNumTiles(t) {
     return this._numTiles[t];
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `0,Unidentified585.default`、`Pioneer.MathUtils.clamp`、`Pioneer.MathUtils.degToRad`、`Pioneer.MathUtils.wrapAngle`、`t.set`。
+   * 调用线索：0,Unidentified585.default、Pioneer.MathUtils.clamp、Pioneer.MathUtils.degToRad、Pioneer.MathUtils.wrapAngle、t.set。
+   */
   crsUnitsToLLA(t, e) {
     const i = Pioneer.MathUtils.clamp(e.x, this.boundingBox.origin.x, this.boundingBox.origin.x + this.boundingBox.size.x);
     const o = Pioneer.MathUtils.clamp(e.y, this.boundingBox.origin.y, this.boundingBox.origin.y + this.boundingBox.size.y);
     const r = (0, Unidentified585.default)(this._crs, "WGS84", [i, o]);
     t.set(Pioneer.MathUtils.degToRad(Pioneer.MathUtils.clamp(r[1], -90, 90)), Pioneer.MathUtils.wrapAngle(Pioneer.MathUtils.degToRad(r[0])), 0);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `TileMatrixSet.crsToWKT.get`、`Unidentified585.default.defs`、`fetch`、`new Error`、`s.text`、`t.match`；含显式错误分支。
+   * 调用线索：TileMatrixSet.crsToWKT.get、Unidentified585.default.defs、fetch、new Error、s.text等。
+   */
   static async setCRS(t) {
     t.startsWith("urn:ogc:def:crs:") && (t = t.substring(16));
     let e = TileMatrixSet.crsToWKT.get(t);

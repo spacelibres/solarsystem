@@ -1,5 +1,16 @@
+/** @eyes-analysis
+ * 文件职责：组织日期/时间显示与输入转换的应用工具。
+ * 依据：import ../pioneer/index.js；DateTime @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:703954-707354.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：组织日期/时间显示与输入转换的应用工具。
+ * 继承：无显式父类；导出：DateTime。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DateTime {
   year;
   month;
@@ -8,6 +19,10 @@ class DateTime {
   minute;
   second;
   millisecond;
+  /** @eyes-analysis
+   * 【结构证据】写入 `day`、`hour`、`millisecond`、`minute`、`month`、`second`、`year`。
+   * 状态写入：day、hour、millisecond、minute、month、second、year。
+   */
   constructor(year = 1, month = 1, day = 1, hour = 0, minute = 0, second = 0, millisecond = 0) {
     this.year = year;
     this.month = month;
@@ -17,6 +32,10 @@ class DateTime {
     this.second = second;
     this.millisecond = millisecond;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `day`、`hour`、`millisecond`、`minute`、`month`、`second`、`year`。
+   * 状态写入：day、hour、millisecond、minute、month、second、year。
+   */
   copy(t) {
     this.year = t.year;
     this.month = t.month;
@@ -26,6 +45,11 @@ class DateTime {
     this.second = t.second;
     this.millisecond = t.millisecond;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `day`、`hour`、`millisecond`、`minute`、`month`、`second`、`year`；调用 `DateTime._date.getUTCDate`、`DateTime._date.getUTCFullYear`、`DateTime._date.getUTCHours`、`DateTime._date.getUTCMilliseconds`、`DateTime._date.getUTCMinutes`、`DateTime._date.getUTCMonth`。
+   * 状态写入：day、hour、millisecond、minute、month、second、year。
+   * 调用线索：DateTime._date.getUTCDate、DateTime._date.getUTCFullYear、DateTime._date.getUTCHours、DateTime._date.getUTCMilliseconds、DateTime._date.getUTCMinutes等。
+   */
   fromET(t) {
     const e = Pioneer.TimeUtils.etToUnix(t);
     DateTime._date.setTime(1e3 * e);
@@ -41,6 +65,10 @@ class DateTime {
       break;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `DateTime._date.getTime`、`DateTime._date.setUTCDate`、`DateTime._date.setUTCFullYear`、`DateTime._date.setUTCHours`、`DateTime._date.setUTCMilliseconds`、`DateTime._date.setUTCMinutes`。
+   * 调用线索：DateTime._date.getTime、DateTime._date.setUTCDate、DateTime._date.setUTCFullYear、DateTime._date.setUTCHours、DateTime._date.setUTCMilliseconds等。
+   */
   toET() {
     DateTime._date.setUTCFullYear(this.year);
     DateTime._date.setUTCMonth(this.month - 1);
@@ -57,6 +85,11 @@ class DateTime {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `day`、`hour`、`millisecond`、`minute`、`month`、`second`、`year`；调用 `this.getDaysInMonth`。
+   * 状态写入：day、hour、millisecond、minute、month、second、year。
+   * 调用线索：this.getDaysInMonth。
+   */
   fromDOY(year, e, hour = 0, minute = 0, second = 0, millisecond = 0) {
     let r = 0;
     this.year = year;
@@ -73,6 +106,11 @@ class DateTime {
     }
     this.day = e - r;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `month`；返回 `e`；调用 `this.getDaysInMonth`。
+   * 状态写入：month。
+   * 调用线索：this.getDaysInMonth。
+   */
   toDOY() {
     const month = this.month;
     let e = 0;
@@ -81,14 +119,26 @@ class DateTime {
     e += this.day;
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.year%4==0&&this.year%100!=0||this.year%400==0`。
+   */
   isLeapYear() {
     return this.year % 4 == 0 && this.year % 100 != 0 || this.year % 400 == 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `Pioneer.MathUtils.wrap`、`this.isLeapYear`。
+   * 调用线索：Pioneer.MathUtils.wrap、this.isLeapYear。
+   */
   getDaysInMonth() {
     let t = DateTime._daysInMonth[Pioneer.MathUtils.wrap(this.month - 1, 0, 12)];
     2 === this.month && this.isLeapYear() && (t += 1);
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `day`、`hour`、`millisecond`、`minute`、`month`、`second`、`year`；调用 `parseInt`、`t.substring`。
+   * 状态写入：day、hour、millisecond、minute、month、second、year。
+   * 调用线索：parseInt、t.substring。
+   */
   parse(t) {
     this.year = parseInt(t.substring(0, 4));
     t.length > 5 ? this.month = parseInt(t.substring(5, 7)) : this.month = 1;
@@ -97,6 +147,11 @@ class DateTime {
     t.length > 17 ? this.second = parseInt(t.substring(17, 19)) : this.second = 0;
     t.length > 20 ? this.millisecond = parseInt(t.substring(20)) * 10 ** (23 - t.length) : this.millisecond = 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `hour`、`millisecond`、`minute`、`second`；调用 `parseInt`、`t.substring`、`this.fromDOY`。
+   * 状态写入：hour、millisecond、minute、second。
+   * 调用线索：parseInt、t.substring、this.fromDOY。
+   */
   parseDOY(t) {
     const e = parseInt(t.substring(0, 4));
     let i = 1;
@@ -106,9 +161,17 @@ class DateTime {
     t.length > 15 ? this.second = parseInt(t.substring(15, 17)) : this.second = 0;
     t.length > 18 ? this.millisecond = parseInt(t.substring(18)) * 10 ** (21 - t.length) : this.millisecond = 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】本访问器没有 AST 可见的 this 字段直接赋值；调用 `Math.floor`、`Math.floor(1e3*this.millisecond).toString`、`Math.floor(1e3*this.millisecond).toString().padStart`、`this.day.toString`、`this.day.toString().padStart`、`this.hour.toString`、`this.hour.toString().padStart`、`this.minute.toString`、`this.minute.toString().padStart`、`this.month.toString`、`this.month.toString().padStart`、`this.second.toString`、`this.second.toString().padStart`、`this.year.toString`、`this.year.toString().padStart`。
+   * 调用线索：Math.floor、Math.floor(1e3*this.millisecond).toString、Math.floor(1e3*this.millisecond).toString().padStart、this.day.toString、this.day.toString().padStart等。
+   */
   toString() {
     return `${this.year.toString().padStart(4, "0")}-${this.month.toString().padStart(2, "0")}-${this.day.toString().padStart(2, "0")} ${this.hour.toString().padStart(2, "0")}:${this.minute.toString().padStart(2, "0")}:${this.second.toString().padStart(2, "0")}.${Math.floor(1e3 * this.millisecond).toString().padStart(6, "0")}`;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 ``${this.year.toString().padStart(4,"0")}-${this.toDOY().toString().padStart(3,"0")}``；调用 `this.toDOY`、`this.toDOY().toString`、`this.toDOY().toString().padStart`、`this.year.toString`、`this.year.toString().padStart`。
+   * 调用线索：this.toDOY、this.toDOY().toString、this.toDOY().toString().padStart、this.year.toString、this.year.toString().padStart。
+   */
   toStringDOY() {
     return `${this.year.toString().padStart(4, "0")}-${this.toDOY().toString().padStart(3, "0")}`;
   }

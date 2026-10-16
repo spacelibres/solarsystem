@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：Tween 插值动画工具 18.6.4：Easing 缓动族、Tween 状态、Group 更新、Interpolation 路径插值和递增 Sequence；并非仅缓动函数
+ * 依据：// Recovered from vendors.js:1044152-1054814.；exports: Easing, Group, Interpolation, Sequence, Tween, VERSION, add, getAll, nextId, now, remove, removeAll, update, default
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:1044152-1054814.
 let defaultExport;
 var r,

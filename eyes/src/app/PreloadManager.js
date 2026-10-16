@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度
+ * 依据：imports: ../data/StoryCatalog.json, ../data/EntityCatalog.json
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from preload.js:90-5727.
 import StoryCatalog from "../data/StoryCatalog.json";
 import EntityCatalog from "../data/EntityCatalog.json";
 let defaultExport;
+/** @eyes-analysis
+ * 类职责：在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PreloadManager {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 this._isEmbed, this._isInteractPrompt, this._showEmbedScreen, this._showLoadingScreen；写入 _isTouch, _canHover, _embedEl, _loadingScreenEl, _storyList, _entityInfo, _urlParams, _hashRoute。
+   * 状态写入：_canHover、_embedEl、_entityInfo、_hashRoute、_isTouch、_loadingScreenEl、_storyList、_urlParams。
+   * 调用线索：(window.location.hash.split("#/")[1]??"").split、document.getElementById、matchMedia、new URLSearchParams、this._embedEl?.remove等。
+   */
   constructor() {
     if (!PreloadManager.instance) {
       this._isTouch = "ontouchstart" in window || window.navigator.maxTouchPoints > 0;
@@ -19,12 +35,24 @@ class PreloadManager {
     }
     return PreloadManager.instance;
   }
+  /** @eyes-analysis
+   * 执行 _isEmbed 对应的组件业务步骤；调用 this._urlParams.get。
+   * 调用线索：this._urlParams.get。
+   */
   _isEmbed() {
     return "true" === this._urlParams.get("embed");
   }
+  /** @eyes-analysis
+   * 执行 _isInteractPrompt 对应的组件业务步骤；调用 this._urlParams.get。
+   * 调用线索：this._urlParams.get。
+   */
   _isInteractPrompt() {
     return "true" === this._urlParams.get("interactPrompt");
   }
+  /** @eyes-analysis
+   * 执行 _showLoadingScreen 对应的组件业务步骤；调用 this._loadingScreenEl.appendChild, Math.random, this._loadingScreenEl.classList.add。
+   * 调用线索：Math.random、document.createElement、document.getElementById、m.slice、n.slice等。
+   */
   _showLoadingScreen() {
     if (!this._loadingScreenEl) return;
     const o = document.createElement("div");
@@ -57,6 +85,10 @@ class PreloadManager {
     document.getElementById("loading-screen-stars1").style.boxShadow = m.slice(0, -2);
     this._loadingScreenEl.classList.add("show");
   }
+  /** @eyes-analysis
+   * 执行 _showEmbedScreen 对应的组件业务步骤；调用 this._embedEl.appendChild, this._getTitleFromURL, this._embedEl.classList.add, this.updateEmbedLoadPercent。
+   * 调用线索：document.createElement、o.appendChild、this._embedEl.appendChild、this._embedEl.classList.add、this._getTitleFromURL等。
+   */
   _showEmbedScreen() {
     if (!this._embedEl) return;
     const o = document.createElement("div");
@@ -89,6 +121,11 @@ class PreloadManager {
     this._embedEl.offsetWidth;
     this.updateEmbedLoadPercent(10);
   }
+  /** @eyes-analysis
+   * 执行 showEmbedInteraction 对应的组件业务步骤；调用 this._embedEl.classList.remove, this._embedEl.classList.add。
+   * 状态写入：_embedEl.className。
+   * 调用线索：document.addEventListener、document.removeEventListener、s.preventDefault、this._embedEl.classList.add、this._embedEl.classList.remove。
+   */
   showEmbedInteraction() {
     const o = s => {
       s.preventDefault();
@@ -101,6 +138,10 @@ class PreloadManager {
     this._isTouch && document.addEventListener("touchstart", o);
     this._canHover && document.addEventListener("mousedown", o);
   }
+  /** @eyes-analysis
+   * 执行 showEmbedViewButton 对应的组件业务步骤；调用 this._embedEl.classList.remove, this._embedEl.classList.add, this.showEmbedInteraction。
+   * 调用线索：document.addEventListener、document.removeEventListener、s.preventDefault、this._embedEl.classList.add、this._embedEl.classList.remove等。
+   */
   showEmbedViewButton() {
     this._embedEl.classList.remove("loading");
     this._embedEl.classList.add("view");
@@ -113,6 +154,10 @@ class PreloadManager {
     this._isTouch && document.addEventListener("touchend", o);
     this._canHover && document.addEventListener("mouseup", o);
   }
+  /** @eyes-analysis
+   * 执行 _getTitleFromURL 对应的组件业务步骤；调用 this._hashRoute.includes, this._hashRoute.split, this._urlParams.get, this._getNameFromEntityInfo。
+   * 调用线索：a.replace、s[1].slice、t.endsWith、this._getNameFromEntityInfo、this._hashRoute.includes等。
+   */
   _getTitleFromURL() {
     if ("home" === this._hashRoute) return "Home";
     let hashRoute = this._hashRoute;
@@ -158,6 +203,9 @@ class PreloadManager {
     }
     return this._getNameFromEntityInfo(hashRoute) || "Home";
   }
+  /** @eyes-analysis
+   * 执行 _getNameFromEntityInfo 对应的组件业务步骤。
+   */
   _getNameFromEntityInfo(o) {
     const {
       altName: altName,
@@ -166,6 +214,11 @@ class PreloadManager {
     } = this._entityInfo[o] || {};
     return altName || displayName || iauName;
   }
+  /** @eyes-analysis
+   * 执行 hideLoadingScreen 对应的组件业务步骤；调用 this._loadingScreenEl.classList.remove, this._loadingScreenEl.remove。
+   * 状态写入：_loadingScreenEl.style.opacity、_loadingScreenEl.style.transition。
+   * 调用线索：setTimeout、this._loadingScreenEl.classList.remove、this._loadingScreenEl.remove。
+   */
   hideLoadingScreen() {
     if (!this._loadingScreenEl) return;
     this._loadingScreenEl.classList.remove("show");
@@ -175,9 +228,17 @@ class PreloadManager {
       this._loadingScreenEl.remove();
     }, 400);
   }
+  /** @eyes-analysis
+   * 执行 updateEmbedLoadPercent 对应的组件业务步骤。
+   * 调用线索：this._embedEl?.style.setProperty。
+   */
   updateEmbedLoadPercent(o) {
     this._embedEl?.style.setProperty("--load-percent", `${o}%`);
   }
+  /** @eyes-analysis
+   * 执行 embedLoading 对应的组件业务步骤。
+   * 调用线索：this._embedEl?.classList.contains。
+   */
   get embedLoading() {
     return this._embedEl?.classList.contains("loading");
   }

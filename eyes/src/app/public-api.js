@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：公共导出适配层，将已恢复模块按应用接口重新导出
+ * 依据：imports: ./version.js, ./SolarSystemApp.js, ../engine/managers/TimeManager-922.js, ../engine/managers/LinkManager.js, ../engine/managers/LabelManager-924.js, ../engine/managers/SelectionManager-925.js, ../engine/managers/TrajectoryManager.js, ../ui/components/MobileExpandButton.js, ../ui/components/Menu.js, ../engine/core/BaseContentBlock.js, ../engine/core/OptionsBlock.js, ../ui/components/FeaturedStoryBlock.js, ../ui/components/EventsBlock.js, ../ui/components/OverviewBlock.js, ../ui/components/DescriptionBlock-1005.js, ../ui/components/FeaturedMoonsBlock.js, ../ui/components/FeaturedEventsBlock.js, ../ui/components/ExplorationBlock.js, ../ui/components/ToolboxBlock.js, ../ui/components…
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1401560-1404095.
 import "./version.js";
 import "./SolarSystemApp.js";

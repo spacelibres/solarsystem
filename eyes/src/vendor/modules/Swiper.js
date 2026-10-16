@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：轮播实例，组合尺寸、事件、滑动、循环与扩展模块生命周期
+ * 依据：// Recovered from vendors.js:1565231-1573320.；exports: default
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:1565231-1573320.
 import * as extend from "./extend.js";
 import * as Dom7Entry from "./Dom7Entry.js";
@@ -37,7 +43,16 @@ const S = {
     images: Unidentified456.default
   },
   w = {};
+/** @eyes-analysis
+ * 类职责：轮播实例，组合尺寸、事件、滑动、循环与扩展模块生命周期
+ * 继承：无显式父类；导出：default。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Swiper {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：(0,Dom7Entry.default)(n.el).each、0,Dom7Entry.default、0,Unidentified461.default、0,animateCSSModeScroll.extend、0,animateCSSModeScroll.now等。
+   */
   constructor(...e) {
     let t, n;
     if (1 === e.length && e[0].constructor && "Object" === Object.prototype.toString.call(e[0]).slice(8, -1) ? n = e[0] : [t, n] = e, n || (n = {}), n = (0, animateCSSModeScroll.extend)({}, n), t && !n.el && (n.el = t), n.el && (0, Dom7Entry.default)(n.el).length > 1) {
@@ -136,14 +151,26 @@ class Swiper {
       imagesLoaded: 0
     }), r.emit("_swiper"), r.params.init && r.init(), r;
   }
+  /** @eyes-analysis
+   * 源码方法 enable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.emit、e.setGrabCursor。
+   */
   enable() {
     const e = this;
     e.enabled || (e.enabled = !0, e.params.grabCursor && e.setGrabCursor(), e.emit("enable"));
   }
+  /** @eyes-analysis
+   * 源码方法 disable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.emit、e.unsetGrabCursor。
+   */
   disable() {
     const e = this;
     e.enabled && (e.enabled = !1, e.params.grabCursor && e.unsetGrabCursor(), e.emit("disable"));
   }
+  /** @eyes-analysis
+   * 源码方法 setProgress；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.max、Math.min、n.maxTranslate、n.minTranslate、n.translateTo等。
+   */
   setProgress(e, t) {
     const n = this;
     e = Math.min(Math.max(e, 0), 1);
@@ -151,16 +178,28 @@ class Swiper {
       i = (n.maxTranslate() - r) * e + r;
     n.translateTo(i, void 0 === t ? 0 : t), n.updateActiveIndex(), n.updateSlidesClasses();
   }
+  /** @eyes-analysis
+   * 源码方法 emitContainerClasses；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.el.className.split、e.el.className.split(" ").filter、e.emit、t.indexOf、t.join。
+   */
   emitContainerClasses() {
     const e = this;
     if (!e.params._emitClasses || !e.el) return;
     const t = e.el.className.split(" ").filter(t => 0 === t.indexOf("swiper") || 0 === t.indexOf(e.params.containerModifierClass));
     e.emit("_containerClasses", t.join(" "));
   }
+  /** @eyes-analysis
+   * 源码方法 getSlideClasses；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.className.split、e.className.split(" ").filter、e.className.split(" ").filter(e=>0===e.indexOf("swiper-slide")||0===e.indexOf(t.params.slideClass)).join、e.indexOf。
+   */
   getSlideClasses(e) {
     const t = this;
     return e.className.split(" ").filter(e => 0 === e.indexOf("swiper-slide") || 0 === e.indexOf(t.params.slideClass)).join(" ");
   }
+  /** @eyes-analysis
+   * 源码方法 emitSlidesClasses；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.emit、e.getSlideClasses、e.slides.each、t.push。
+   */
   emitSlidesClasses() {
     const e = this;
     if (!e.params._emitClasses || !e.el) return;
@@ -173,6 +212,9 @@ class Swiper {
       }), e.emit("_slideClass", n, r);
     }), e.emit("_slideClasses", t);
   }
+  /** @eyes-analysis
+   * 源码方法 slidesPerViewDynamic；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   slidesPerViewDynamic(e = "current", t = !1) {
     const {
       params: params,
@@ -195,6 +237,10 @@ class Swiper {
     }
     return c;
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 调用线索：Math.max、Math.min、e.checkOverflow、e.emit、e.maxTranslate等。
+   */
   update() {
     const e = this;
     if (!e || e.destroyed) return;
@@ -210,6 +256,10 @@ class Swiper {
     let i;
     params.breakpoints && e.setBreakpoint(), e.updateSize(), e.updateSlides(), e.updateProgress(), e.updateSlidesClasses(), e.params.freeMode && e.params.freeMode.enabled ? (r(), e.params.autoHeight && e.updateAutoHeight()) : (i = ("auto" === e.params.slidesPerView || e.params.slidesPerView > 1) && e.isEnd && !e.params.centeredSlides ? e.slideTo(e.slides.length - 1, 0, !1, !0) : e.slideTo(e.activeIndex, 0, !1, !0), i || r()), params.watchOverflow && snapGrid !== e.snapGrid && e.checkOverflow(), e.emit("update");
   }
+  /** @eyes-analysis
+   * 源码方法 changeDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.$el.removeClass、n.$el.removeClass(`${n.params.containerModifierClass}${r}`).addClass、n.emit、n.emitContainerClasses、n.slides.each等。
+   */
   changeDirection(e, t = !0) {
     const n = this,
       r = n.params.direction;
@@ -217,6 +267,10 @@ class Swiper {
       "vertical" === e ? t.style.width = "" : t.style.height = "";
     }), n.emit("changeDirection"), t && n.update()), n;
   }
+  /** @eyes-analysis
+   * 源码方法 mount；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：()=>{if(e&&e.shadowRoot&&e.shadowRoot.querySelector){const t=(0,Dom7Entry.default)(e.shadowRoot.querySelector(a()));return t.children=e=>n.children(e),t;}return n.children(a());}、(0,extend.getDocument)().createElement、(t.params.wrapperClass||"").trim、(t.params.wrapperClass||"").trim().split、(t.params.wrapperClass||"").trim().split(" ").join等。
+   */
   mount(e) {
     const t = this;
     if (t.mounted) return !0;
@@ -248,11 +302,19 @@ class Swiper {
       wrongRTL: "-webkit-box" === s.css("display")
     }), !0;
   }
+  /** @eyes-analysis
+   * 初始化延迟资源和运行时能力；必须先完成再使用依赖资源的方法
+   * 调用线索：t.addClasses、t.attachEvents、t.checkOverflow、t.emit、t.loopCreate等。
+   */
   init(e) {
     const t = this;
     if (t.initialized) return t;
     return !1 === t.mount(e) || (t.emit("beforeInit"), t.params.breakpoints && t.setBreakpoint(), t.addClasses(), t.params.loop && t.loopCreate(), t.updateSize(), t.updateSlides(), t.params.watchOverflow && t.checkOverflow(), t.params.grabCursor && t.enabled && t.setGrabCursor(), t.params.preloadImages && t.preloadImages(), t.params.loop ? t.slideTo(t.params.initialSlide + t.loopedSlides, 0, t.params.runCallbacksOnInit, !1, !0) : t.slideTo(t.params.initialSlide, 0, t.params.runCallbacksOnInit, !1, !0), t.attachEvents(), t.initialized = !0, t.emit("init"), t.emit("afterInit")), t;
   }
+  /** @eyes-analysis
+   * 源码方法 destroy；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：$el.removeAttr、$wrapperEl.removeAttr、0,animateCSSModeScroll.deleteProps、Object.keys、Object.keys(n.eventsListeners).forEach等。
+   */
   destroy(e = !0, t = !0) {
     const n = this,
       {
@@ -265,20 +327,38 @@ class Swiper {
       n.off(e);
     }), !1 !== e && (n.$el[0].swiper = null, (0, animateCSSModeScroll.deleteProps)(n)), n.destroyed = !0), null;
   }
+  /** @eyes-analysis
+   * 源码方法 extendDefaults；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：0,animateCSSModeScroll.extend。
+   */
   static extendDefaults(e) {
     (0, animateCSSModeScroll.extend)(w, e);
   }
+  /** @eyes-analysis
+   * 只读返回 w；此 getter 不执行对应 setter 的写入或更新通知
+   */
   static get extendedDefaults() {
     return w;
   }
+  /** @eyes-analysis
+   * 只读返回 Unidentified460.default；此 getter 不执行对应 setter 的写入或更新通知
+   */
   static get defaults() {
     return Unidentified460.default;
   }
+  /** @eyes-analysis
+   * 源码方法 installModule；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.indexOf、t.push。
+   */
   static installModule(e) {
     Swiper.prototype.__modules__ || (Swiper.prototype.__modules__ = []);
     const t = Swiper.prototype.__modules__;
     "function" == typeof e && t.indexOf(e) < 0 && t.push(e);
   }
+  /** @eyes-analysis
+   * 源码方法 use；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Array.isArray、Swiper.installModule、e.forEach。
+   */
   static use(e) {
     return Array.isArray(e) ? (e.forEach(e => Swiper.installModule(e)), Swiper) : (Swiper.installModule(e), Swiper);
   }

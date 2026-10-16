@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：拥有主相机目标/控制器配置，执行观察模式、相机定位、变焦和控制切换。
+ * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1257303-1267846.
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
+/** @eyes-analysis
+ * 类职责：拥有主相机目标/控制器配置，执行观察模式、相机定位、变焦和控制切换。
+ * 继承：EyesPublicApi.BaseManager；导出：CameraManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cameraEntity`、`_context`、`_defaultMaxDistance`、`_defaultScene`、`_dynEnvMap`、`_fullLightColor`、`_id`、`_isFreeFly`；调用 `new Pioneer.Color`、`super`、`this.bindFunctions`、`this.toggleFreeFly`、`window.addEventListener`。
+   * 状态写入：_cameraEntity、_context、_defaultMaxDistance、_defaultScene、_dynEnvMap、_fullLightColor、_id、_isFreeFly等；完整记录见索引。
+   * 调用线索：new Pioneer.Color、super、this.bindFunctions、this.toggleFreeFly、window.addEventListener。
+   */
   constructor(t, defaultScene) {
     super(t);
     this._viewport = null;
@@ -29,6 +45,11 @@ class CameraManager extends EyesPublicApi.BaseManager {
       "k" === t.key && this.toggleFreeFly();
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cameraEntity`、`_cameraLight`、`_defaultScene`、`_dynEnvMap`、`_viewport`、`_viewport.getDiv().style.height`、`_viewport.getDiv().style.left`、`_viewport.getDiv().style.top`；调用 `this._cameraEntity.addComponent`、`this._cameraEntity.getComponent`、`this._cameraEntity.setOrientation`、`this._cameraLight.setEnabled`、`this._defaultScene.addEntity`、`this._defaultScene.getEntity`。
+   * 状态写入：_cameraEntity、_cameraLight、_defaultScene、_dynEnvMap、_viewport、_viewport.getDiv().style.height、_viewport.getDiv().style.left、_viewport.getDiv().style.top等；完整记录见索引。
+   * 调用线索：this._cameraEntity.addComponent、this._cameraEntity.getComponent、this._cameraEntity.setOrientation、this._cameraLight.setEnabled、this._defaultScene.addEntity等。
+   */
   createViewportAndCamera(defaultScene) {
     defaultScene && (this._defaultScene = defaultScene);
     null === this.pioneer.getViewport("main-viewport") && (this._viewport = this.pioneer.addViewport("main-viewport"), this._viewport.getDiv().style.width = "100%", this._viewport.getDiv().style.height = "100%", this._viewport.getDiv().style.left = "0", this._viewport.getDiv().style.top = "0");
@@ -41,15 +62,29 @@ class CameraManager extends EyesPublicApi.BaseManager {
     null === this._cameraLight && (this._cameraLight = this._cameraEntity.addComponent(Pioneer.LightSourceComponent), this._cameraLight.setEnabled(false), this.toggleCameraLight(true, this._shadowLightColor));
     null === this._dynEnvMap && (this._dynEnvMap = this._cameraEntity.addComponent(Pioneer.DynamicEnvironmentMapComponent));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._context`。
+   */
   getContext() {
     return this._context;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isTransitioning`。
+   */
   getIsTransitioning() {
     return this._isTransitioning;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isTransitioning`。
+   * 状态写入：_isTransitioning。
+   */
   setIsTransitioning(isTransitioning) {
     this._isTransitioning = isTransitioning;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new Promise(t=>{let e=setInterval(()=>{this._isTransitioning||(clearInterval(e),e=null,t(true));},1e3);})`；调用 `clearInterval`、`new Promise`、`setInterval`、`t`。
+   * 调用线索：clearInterval、new Promise、setInterval、t。
+   */
   waitForTransitionComplete() {
     return new Promise(t => {
       let e = setInterval(() => {
@@ -57,6 +92,11 @@ class CameraManager extends EyesPublicApi.BaseManager {
       }, 1e3);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_context`、`_id`、`_previousId`；调用 `new CustomEvent`、`window.dispatchEvent`。
+   * 状态写入：_context、_id、_previousId。
+   * 调用线索：new CustomEvent、window.dispatchEvent。
+   */
   setContext(context) {
     this._context = context;
     this._previousId = this._id;
@@ -69,42 +109,85 @@ class CameraManager extends EyesPublicApi.BaseManager {
     });
     window.dispatchEvent(customEvent);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._id`。
+   */
   getCurrentId() {
     return this._id;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._shadowLightColor`。
+   */
   getShadowLightColor() {
     return this._shadowLightColor;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._fullLightColor`。
+   */
   getFullLightColor() {
     return this._fullLightColor;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._defaultScene`。
+   */
   get defaultScene() {
     return this._defaultScene;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._cameraEntity`。
+   */
   get cameraEntity() {
     return this._cameraEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._cameraLight`。
+   */
   get cameraLight() {
     return this._cameraLight;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._dynEnvMap`。
+   */
   get dynamicEnvMap() {
     return this._dynEnvMap;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraLight.setColor`、`this._cameraLight.setEnabled`。
+   * 调用线索：this._cameraLight.setColor、this._cameraLight.setEnabled。
+   */
   toggleCameraLight(t, e) {
     null !== this._cameraLight && (this._cameraLight.setEnabled(t), void 0 !== e && this._cameraLight.setColor(e));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.toggleCameraLight`。
+   * 调用线索：this.toggleCameraLight。
+   */
   updateLighting(t) {
     "flood" === t ? this.toggleCameraLight(true, this._fullLightColor) : "natural" === t ? this.toggleCameraLight(false) : "shadow" === t && this.toggleCameraLight(true, this._shadowLightColor);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._selectionCallback`。
+   */
   getSelectionCallback() {
     return this._selectionCallback;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_selectionCallback`。
+   * 状态写入：_selectionCallback。
+   */
   setSelectionCallback(selectionCallback) {
     "function" == typeof selectionCallback && (this._selectionCallback = selectionCallback);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isFreeFly`。
+   */
   getIsFreeFly() {
     return this._isFreeFly;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraEntity.addController`、`this._cameraEntity.clearControllers`。
+   * 调用线索：this._cameraEntity.addController、this._cameraEntity.clearControllers。
+   */
   setUpFreeFlyCamera() {
     this._cameraEntity.clearControllers();
     this._cameraEntity.addController(Pioneer.FreeFlyController);
@@ -112,6 +195,10 @@ class CameraManager extends EyesPublicApi.BaseManager {
     this._cameraEntity.addController(Pioneer.RollController);
     this._cameraEntity.addController(Pioneer.FixedToParentController);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `console.error`、`this.app.cameraScripts.alignSpacecraftPlanet`、`this.app.cameraScripts.goToCelestialObject`、`this.app.cameraScripts.goToInstrument`、`this.app.cameraScripts.goToSpacecraft`、`this.app.cameraScripts.goToSystem`。
+   * 调用线索：console.error、this.app.cameraScripts.alignSpacecraftPlanet、this.app.cameraScripts.goToCelestialObject、this.app.cameraScripts.goToInstrument、this.app.cameraScripts.goToSpacecraft等。
+   */
   async resetFreeFlyCamera() {
     switch (this._context.context) {
       case EyesPublicApi.CameraScripts.CONTEXT.CELESTIAL_OBJECT:
@@ -142,6 +229,11 @@ class CameraManager extends EyesPublicApi.BaseManager {
         console.error(`resetFreeFlyCamera: Unsupported camera context - ${this._context.context}`);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isFreeFly`；调用 `this.app.getComponent`、`this.setUpFreeFlyCamera`。
+   * 状态写入：_isFreeFly。
+   * 调用线索：this.app.getComponent、this.setUpFreeFlyCamera、toastComponent?.setContent、toastComponent?.show。
+   */
   enableFreeFly() {
     this._isFreeFly = true;
     this.setUpFreeFlyCamera();
@@ -149,11 +241,20 @@ class CameraManager extends EyesPublicApi.BaseManager {
     toastComponent?.setContent("Now in free fly camera mode. Press K again to exit this mode.");
     toastComponent?.show();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isFreeFly`；调用 `this.app.getComponent`、`this.resetFreeFlyCamera`。
+   * 状态写入：_isFreeFly。
+   * 调用线索：this.app.getComponent、this.app.getComponent("toast")?.hide、this.resetFreeFlyCamera。
+   */
   disableFreeFly() {
     this._isFreeFly = false;
     this.resetFreeFlyCamera();
     this.app.getComponent("toast")?.hide();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this.enableFreeFly()`；调用 `this._app.getManager`、`this._app.getManager("cameraFollow").setEnabled`、`this.disableFreeFly`、`this.enableFreeFly`、`this.waitForTransitionComplete`。
+   * 调用线索：this._app.getManager、this._app.getManager("cameraFollow").setEnabled、this.disableFreeFly、this.enableFreeFly、this.waitForTransitionComplete。
+   */
   async toggleFreeFly() {
     if (this._app.getManager("cameraFollow").isEnabled) {
       this._app.getManager("cameraFollow").setEnabled(false, {
@@ -165,6 +266,11 @@ class CameraManager extends EyesPublicApi.BaseManager {
     }
     this._isFreeFly ? this.disableFreeFly() : this.enableFreeFly();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_id`、`_isTransitioning`；返回 `void(this._isTransitioning=false)`；调用 `Math.max`、`Pioneer.MathUtils.clamp01`、`SolarSystemSceneExports.Cameras.goToEntity`、`T.getEntity`、`T.waitTillEntitiesInPlace`、`console.error`。
+   * 状态写入：_id、_isTransitioning。
+   * 调用线索：Math.max、Pioneer.MathUtils.clamp01、SolarSystemSceneExports.Cameras.goToEntity、T.getEntity、T.waitTillEntitiesInPlace等。
+   */
   async goToEntity(id, {
     camera: camera,
     scene: scene,
@@ -248,6 +354,10 @@ class CameraManager extends EyesPublicApi.BaseManager {
       this._isTransitioning = false;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `E.getEndPromise`、`E.setParent`、`E.setTransitionFunction`、`E.setTransitionTime`、`Math.atan`、`Math.max`。
+   * 调用线索：E.getEndPromise、E.setParent、E.setTransitionFunction、E.setTransitionTime、Math.atan等。
+   */
   async followTheEntity(t, e, i, o) {
     const r = this._defaultScene.getEntity(t);
     const a = this._defaultScene.getEntity(e);
@@ -311,6 +421,10 @@ class CameraManager extends EyesPublicApi.BaseManager {
       up: false
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `SolarSystemSceneExports.Cameras.focusOnEntity`、`_.setCallback`、`c.setOrientation`、`c.setPosition`、`cameraEntity.addController`、`cameraEntity.clearControllers`。
+   * 调用线索：SolarSystemSceneExports.Cameras.focusOnEntity、_.setCallback、c.setOrientation、c.setPosition、cameraEntity.addController等。
+   */
   async goToBetweenPos(t, {
     duration: duration,
     destination: destination,
@@ -351,6 +465,10 @@ class CameraManager extends EyesPublicApi.BaseManager {
       orbiter: false
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Number.isNaN`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.getPosition`、`e.getPosition().magnitude`、`e.setPosition`。
+   * 调用线索：Number.isNaN、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.getPosition、e.getPosition().magnitude等。
+   */
   zoom(t, e = this._cameraEntity) {
     let i = e.getPosition().magnitude();
     Number.isNaN(i) && (i = 1);
@@ -361,24 +479,43 @@ class CameraManager extends EyesPublicApi.BaseManager {
     e.setPosition(n);
     Pioneer.Vector3.pool.release(n);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`this.zoom`。
+   * 调用线索：Math.pow、this.zoom。
+   */
   zoomIn(t = false) {
     let e = 1;
     const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
     e /= Math.pow(2, i);
     this.zoom(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`this.zoom`。
+   * 调用线索：Math.pow、this.zoom。
+   */
   zoomOut(t = false) {
     let e = 1;
     const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
     e *= Math.pow(2, i);
     this.zoom(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】读取访问器，返回 `this._defaultMaxDistance`；本访问器没有 AST 可见的 this 字段直接赋值。
+   */
   get defaultMaxDistance() {
     return this._defaultMaxDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入访问器，接收参数 (defaultMaxDistance)；实际写入 `_defaultMaxDistance`。
+   * 状态写入：_defaultMaxDistance。
+   */
   set defaultMaxDistance(defaultMaxDistance) {
     this._defaultMaxDistance = defaultMaxDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `e.setDynamicEnvironmentMapComponent`、`t.getComponent`。
+   * 调用线索：e.setDynamicEnvironmentMapComponent、t.getComponent。
+   */
   addDynamicEnvMap(t) {
     if (!this.dynamicEnvMap) return;
     const e = t.getComponent(Pioneer.ModelComponent);

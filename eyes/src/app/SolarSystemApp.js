@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：装配太阳系应用的路由、管理器、组件配置和启动实例
+ * 依据：imports: ../framework/eyes/index.js, ../styles/index.js, ./config/components.js, ../data/TimeInfo.json, ../data/SceneInfo.json, ../data/ViewInfo.json, ./config/views.js, ../engine/core/STORIES.js, ../ui/templates/SolarSystemAppTemplate.html, ./public-api.js, ../engine/solar-system/public-api.js, ./PreloadManager.js；manager dependencies: router, content, search, layer
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:82-3723.
 import * as Eyes from "../framework/eyes/index.js";
 import "../styles/index.js";
@@ -12,7 +18,17 @@ import * as SolarSystemPublicApi from "./public-api.js";
 import * as SolarSystemSceneExports from "../engine/solar-system/public-api.js";
 import * as PreloadManager from "./PreloadManager.js";
 var getSolarSystemAppTemplate = () => SolarSystemAppTemplate;
+/** @eyes-analysis
+ * 类职责：装配太阳系应用的路由、管理器、组件配置和启动实例；继承 Eyes.BaseApp
+ * 继承：Eyes.BaseApp；导出：SolarSystemApp。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SolarSystemApp extends Eyes.BaseApp {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；写入 _timeInfo, _sceneInfo, _viewClasses, _viewInfo, _componentInfo。
+   * 状态写入：_componentInfo、_sceneInfo、_timeInfo、_viewClasses、_viewInfo。
+   * 调用线索：super。
+   */
   constructor() {
     super(SolarSystemPublicApi.Types);
     this._timeInfo = TimeInfo;
@@ -23,6 +39,10 @@ class SolarSystemApp extends Eyes.BaseApp {
     this._viewInfo = ViewInfo;
     this._componentInfo = ComponentInfo.default;
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, SolarSystemSceneExports.Entity._entities.get, PreloadManager.default.hideLoadingScreen, PreloadManager.default.updateEmbedLoadPercent, this.getComponent。
+   * 调用线索：PreloadManager.default.hideLoadingScreen、PreloadManager.default.updateEmbedLoadPercent、SolarSystemSceneExports.Entity._entities.get、super.init、this.getComponent等。
+   */
   async init() {
     await super.init();
     SolarSystemSceneExports.Entity._entities.get("101955_bennu").radius = .2207;
@@ -30,6 +50,10 @@ class SolarSystemApp extends Eyes.BaseApp {
     PreloadManager.default.updateEmbedLoadPercent(50);
     this.getComponent("menu")?.updateMenuContent();
   }
+  /** @eyes-analysis
+   * 执行 setUpRoutes 对应的组件业务步骤；调用 this.getManager。
+   * 调用线索：this.getManager、this.getManager("router").addRoutes。
+   */
   setUpRoutes() {
     this.getManager("router").addRoutes([{
       route: this.getManager("router").homeRoute,
@@ -60,10 +84,18 @@ class SolarSystemApp extends Eyes.BaseApp {
       view: "object"
     }]);
   }
+  /** @eyes-analysis
+   * 执行 setUpScene 对应的组件业务步骤；调用 super.setUpScene, this.scene.getLoadedPromise。
+   * 调用线索：super.setUpScene、this.scene.getLoadedPromise。
+   */
   async setUpScene() {
     await super.setUpScene();
     await this.scene.getLoadedPromise();
   }
+  /** @eyes-analysis
+   * 执行 setUpManagers 对应的组件业务步骤；调用 super.setUpManagers, this.addManager, this.getManager, Manager.setStoryList, Manager.setStories, Manager.getEntityList, this.getView, SolarSystemPublicApi.Types.get。
+   * 调用线索：SolarSystemPublicApi.Types.get、_.slide.replace、c.getEntityInfo、c.getStoryList、contentManager.getEntityList等。
+   */
   async setUpManagers() {
     await super.setUpManagers();
     this.addManager("link", SolarSystemPublicApi.LinkManager);
@@ -143,6 +175,10 @@ class SolarSystemApp extends Eyes.BaseApp {
     const o = this.addManager("autoplay", SolarSystemPublicApi.Types.get("AutoplayManager"), "https://eyes.nasa.gov/apps/solar-system/autoplay.json");
     await o.init();
   }
+  /** @eyes-analysis
+   * 执行 setUpComponents 对应的组件业务步骤；调用 super.setUpComponents, this.getManager, Manager.getLayer, this.getComponent, PanelComponent.toggleLayer。
+   * 调用线索：layerManager.getLayer、layerManager.getLayer("starfield").toggleCallback[0]、layerPanelComponent.toggleLayer、super.setUpComponents、this.getComponent等。
+   */
   async setUpComponents() {
     await super.setUpComponents();
     const layerManager = this.getManager("layer");
@@ -168,9 +204,16 @@ class SolarSystemApp extends Eyes.BaseApp {
     const n = this.pioneer?.getViewport("main-viewport")?.getDiv();
     n && (n.style.top = "", n.style.left = "");
   }
+  /** @eyes-analysis
+   * 执行 getVersion 对应的组件业务步骤。
+   */
   getVersion() {
     return SolarSystemPublicApi.AppVersion;
   }
+  /** @eyes-analysis
+   * 执行 getVersions 对应的组件业务步骤；调用 this.getPioneerVersion, this.getEyesVersion, this.getVersion。
+   * 调用线索：this.getEyesVersion、this.getPioneerVersion、this.getVersion。
+   */
   getVersions() {
     return {
       pioneer: this.getPioneerVersion(),

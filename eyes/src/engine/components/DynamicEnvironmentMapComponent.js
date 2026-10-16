@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：用六面相机/渲染目标更新动态环境贴图，供模型材质采样。
+ * 依据：import ../pioneer/public-api.js；DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:321593-333519.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：用六面相机/渲染目标更新动态环境贴图，供模型材质采样。
+ * 继承：PioneerPublicApi.BaseComponent；导出：DynamicEnvironmentMapComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_envMapTexture`、`_faceSize`、`_invalidColor`、`_threeJsCubeCamera`、`_threeJsFaceCameras`、`_threeJsFaceRenderTargets`、`_threeJsQuad`、`_threeJsRenderer`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.THREE.Mesh`、`new PioneerPublicApi.THREE.OrthographicCamera`、`new PioneerPublicApi.THREE.Scene`、`new PioneerPublicApi.THREE.WebGLRenderTarget`、`super`。
+   * 状态写入：_envMapTexture、_faceSize、_invalidColor、_threeJsCubeCamera、_threeJsFaceCameras、_threeJsFaceRenderTargets、_threeJsQuad、_threeJsRenderer等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.THREE.Mesh、new PioneerPublicApi.THREE.OrthographicCamera、new PioneerPublicApi.THREE.Scene、new PioneerPublicApi.THREE.WebGLRenderTarget等。
+   */
   constructor(t, e) {
     super(t, e);
     this._faceSize = 64;
@@ -21,17 +37,32 @@ class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
     this._setupFaceCameras();
     this._setupQuad();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._faceSize`。
+   */
   getFaceSize() {
     return this._faceSize;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_faceSize`、`_threeJsQuad.material.uniforms.faceSize.value`；调用 `this._envMapTexture.setSize`、`this._threeJsFaceRenderTargets[t].setSize`。
+   * 状态写入：_faceSize、_threeJsQuad.material.uniforms.faceSize.value。
+   * 调用线索：this._envMapTexture.setSize、this._threeJsFaceRenderTargets[t].setSize。
+   */
   setFaceSize(faceSize) {
     this._faceSize = faceSize;
     this._envMapTexture.width !== 4 * this._faceSize && (this._envMapTexture.setSize(4 * this._faceSize, 4 * this._faceSize), this._threeJsQuad.material.uniforms.faceSize.value = this._faceSize);
     for (let t = 0; t < 6; t++) this._threeJsFaceRenderTargets[t].setSize(this._faceSize, this._faceSize);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._envMapTexture.texture`。
+   */
   getTexture() {
     return this._envMapTexture.texture;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyMaterial`、`PioneerPublicApi.ThreeJsHelper.destroyObject`、`PioneerPublicApi.ThreeJsHelper.destroyRenderTarget`、`super.__destroy`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyMaterial、PioneerPublicApi.ThreeJsHelper.destroyObject、PioneerPublicApi.ThreeJsHelper.destroyRenderTarget、super.__destroy。
+   */
   __destroy() {
     PioneerPublicApi.ThreeJsHelper.destroyMaterial(this._threeJsQuad.material, true);
     PioneerPublicApi.ThreeJsHelper.destroyObject(this._threeJsQuad);
@@ -39,6 +70,10 @@ class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
     for (let t = 0; t < this._threeJsFaceRenderTargets.length; t++) PioneerPublicApi.ThreeJsHelper.destroyRenderTarget(this._threeJsFaceRenderTargets[t]);
     super.__destroy();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`e.set`、`this._threeJsFaceCameras[0].setRotationFromQuaternion`、`this._threeJsFaceCameras[1].setRotationFromQuaternion`、`this._threeJsFaceCameras[2].setRotationFromQuaternion`。
+   * 调用线索：PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release、e.set、this._threeJsFaceCameras[0].setRotationFromQuaternion、this._threeJsFaceCameras[1].setRotationFromQuaternion等。
+   */
   __render() {
     this._updateProjectionMatrix();
     const t = .7071067811865476;
@@ -63,6 +98,10 @@ class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
     this._threeJsRenderer.setRenderTarget(this._envMapTexture);
     this._threeJsRenderer.render(this._threeJsScene, this._threeJsCubeCamera);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `i.set`、`matrix4.set`、`new PioneerPublicApi.THREE.Matrix4`、`new PioneerPublicApi.THREE.PerspectiveCamera`、`new PioneerPublicApi.THREE.WebGLRenderTarget`、`perspectiveCamera.layers.set`。
+   * 调用线索：i.set、matrix4.set、new PioneerPublicApi.THREE.Matrix4、new PioneerPublicApi.THREE.PerspectiveCamera、new PioneerPublicApi.THREE.WebGLRenderTarget等。
+   */
   _setupFaceCameras() {
     for (let t = 0; t < 6; t++) {
       const perspectiveCamera = new PioneerPublicApi.THREE.PerspectiveCamera(90, 1, .1, 1e3);
@@ -81,6 +120,10 @@ class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
       this._threeJsFaceRenderTargets.push(webGLRenderTarget);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `t.getAutoNearDistance`、`this.getEntity`、`this.getEntity().getComponent`。
+   * 调用线索：t.getAutoNearDistance、this.getEntity、this.getEntity().getComponent。
+   */
   _updateProjectionMatrix() {
     const t = this.getEntity().getComponent(PioneerPublicApi.CameraComponent);
     if (null === t) return;
@@ -94,6 +137,11 @@ class DynamicEnvironmentMapComponent extends PioneerPublicApi.BaseComponent {
       s.projectionMatrixInverse.elements[15] = -e / i;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_threeJsQuad`、`_threeJsQuad.frustumCulled`；调用 `bufferGeometry.setAttribute`、`bufferGeometry.setIndex`、`n.textures.value.push`、`new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.BufferGeometry`。
+   * 状态写入：_threeJsQuad、_threeJsQuad.frustumCulled。
+   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、n.textures.value.push、new Float32Array、new PioneerPublicApi.THREE.BufferAttribute等。
+   */
   _setupQuad() {
     const bufferGeometry = new PioneerPublicApi.THREE.BufferGeometry();
     const float32Array = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);

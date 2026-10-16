@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：土卫二发现故事定义：围绕 Enceladus 的幻灯片、介绍内容和相机/图层操作。
+ * 依据：import ../pioneer/index.js；顶层副作用 defaultExport={type:"nonsequential",entities:["sc_cassini","enceladus"],onEnter:async t=>{const layerManager=t.getManager("layer");const layerPanelComponent=t.getComponent("layerPanel");["asteroids","comets","dwarfPlanet
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1714328-1723207.
 import * as Pioneer from "../pioneer/index.js";
 let defaultExport;

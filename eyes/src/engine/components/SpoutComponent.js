@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：将相机输出绘制到特定宽度的画布/投影输出，提供面向球幕的渲染路径。
+ * 依据：import ../pioneer/public-api.js；SpoutComponent extends PioneerPublicApi.CameraComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:407522-415156.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：将相机输出绘制到特定宽度的画布/投影输出，提供面向球幕的渲染路径。
+ * 继承：PioneerPublicApi.CameraComponent；导出：SpoutComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpoutComponent extends PioneerPublicApi.CameraComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_globeDistance`、`_renderWidth`、`_spoutTexture`、`_tagEnd`、`_tagSend`、`_tagStart`、`_threeJsCubeCamera`、`_threeJsFaceCameras`；调用 `PioneerPublicApi.Tuple.create6Tuple`、`matrix4.set`、`new PioneerPublicApi.THREE.Matrix4`、`new PioneerPublicApi.THREE.Mesh`、`new PioneerPublicApi.THREE.OrthographicCamera`、`new PioneerPublicApi.THREE.PerspectiveCamera`。
+   * 状态写入：_globeDistance、_renderWidth、_spoutTexture、_tagEnd、_tagSend、_tagStart、_threeJsCubeCamera、_threeJsFaceCameras等；完整记录见索引。
+   * 调用线索：PioneerPublicApi.Tuple.create6Tuple、matrix4.set、new PioneerPublicApi.THREE.Matrix4、new PioneerPublicApi.THREE.Mesh、new PioneerPublicApi.THREE.OrthographicCamera等。
+   */
   constructor(t, e) {
     super(t, e);
     this._renderWidth = 2048;
@@ -38,21 +54,42 @@ class SpoutComponent extends PioneerPublicApi.CameraComponent {
     }));
     this._setupQuad();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._renderWidth`。
+   */
   getRenderWidth() {
     return this._renderWidth;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_renderWidth`；调用 `this._spoutTexture.setSize`、`this._threeJsFaceRenderTargets[t].setSize`。
+   * 状态写入：_renderWidth。
+   * 调用线索：this._spoutTexture.setSize、this._threeJsFaceRenderTargets[t].setSize。
+   */
   setRenderWidth(renderWidth) {
     this._renderWidth = renderWidth;
     this._spoutTexture.width !== this._renderWidth && this._spoutTexture.setSize(this._renderWidth, this._renderWidth / 2);
     for (let t = 0; t < 6; t++) this._threeJsFaceRenderTargets[t].setSize(this._renderWidth / 4, this._renderWidth / 4);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `1===this.getInvertDepth()`；调用 `this.getInvertDepth`。
+   * 调用线索：this.getInvertDepth。
+   */
   getForGlobe() {
     return 1 === this.getInvertDepth();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_globeDistance`；调用 `this.setInvertDepth`。
+   * 状态写入：_globeDistance。
+   * 调用线索：this.setInvertDepth。
+   */
   setForGlobe(t, globeDistance) {
     this.setInvertDepth(t ? 1 : 0);
     this._globeDistance = globeDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`i.set`、`n.clearColor`、`n.render`。
+   * 调用线索：Math.max、PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release、i.set、n.clearColor等。
+   */
   __render() {
     if (this.getForGlobe()) {
       const t = this.getEntity().getParent();
@@ -95,6 +132,10 @@ class SpoutComponent extends PioneerPublicApi.CameraComponent {
     n.clearColor();
     n.setRenderTarget(null);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.getAutoNearDistance`、`this.getInvertDepth`。
+   * 调用线索：this.getAutoNearDistance、this.getInvertDepth。
+   */
   _updateProjectionMatrices() {
     const t = this.getAutoNearDistance();
     let e = Number.EPSILON - 1;
@@ -110,6 +151,11 @@ class SpoutComponent extends PioneerPublicApi.CameraComponent {
       s.projectionMatrix.elements[14] = i;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_threeJsQuad`、`_threeJsQuad.frustumCulled`；调用 `bufferGeometry.setAttribute`、`bufferGeometry.setIndex`、`n.textures.value.push`、`new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.BufferGeometry`。
+   * 状态写入：_threeJsQuad、_threeJsQuad.frustumCulled。
+   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、n.textures.value.push、new Float32Array、new PioneerPublicApi.THREE.BufferAttribute等。
+   */
   _setupQuad() {
     const bufferGeometry = new PioneerPublicApi.THREE.BufferGeometry();
     const float32Array = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);

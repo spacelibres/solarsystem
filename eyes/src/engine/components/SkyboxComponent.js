@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：从六面或全景纹理构建随相机移动的背景天空。
+ * 依据：import ../pioneer/public-api.js；SkyboxComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:387237-389792.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：从六面或全景纹理构建随相机移动的背景天空。
+ * 继承：PioneerPublicApi.BaseComponent；导出：SkyboxComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SkyboxComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numLatVerts`、`_textureUrl`；调用 `super`、`this.__setRadius`、`this.__setUsesEntityOrientation`。
+   * 状态写入：_numLatVerts、_textureUrl。
+   * 调用线索：super、this.__setRadius、this.__setUsesEntityOrientation。
+   */
   constructor(t, e) {
     super(t, e);
     this._numLatVerts = 20;
@@ -8,17 +24,33 @@ class SkyboxComponent extends PioneerPublicApi.BaseComponent {
     this.__setRadius(1e24);
     this.__setUsesEntityOrientation(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._textureUrl`。
+   */
   getTextureUrl() {
     return this._textureUrl;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_textureUrl`；调用 `this.resetResources`。
+   * 状态写入：_textureUrl。
+   * 调用线索：this.resetResources。
+   */
   setTextureUrl(textureUrl) {
     this._textureUrl = textureUrl;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setOrientationToEntity`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`this.getEntity`、`this.getThreeJsObjects`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setOrientationToEntity、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、this.getEntity、this.getThreeJsObjects。
+   */
   __prepareForRender(t) {
     PioneerPublicApi.ThreeJsHelper.setOrientationToEntity(this.getThreeJsObjects()[0], this.getEntity());
     PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this.getEngine().getResourceManager().releaseAllForEntityItem(this)`；调用 `Math.cos`、`Math.sin`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`PioneerPublicApi.MaterialUtils.get`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`。
+   * 调用线索：Math.cos、Math.sin、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、PioneerPublicApi.MaterialUtils.get等。
+   */
   async __loadResources() {
     const t = await this.getEngine().getResourceManager().acquire(this, this._textureUrl, "texture", 0);
     if ("loading" !== this.getLoadState().state) return void this.getEngine().getResourceManager().releaseAllForEntityItem(this);
@@ -67,6 +99,10 @@ class SkyboxComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setVertices(u, "uv", l);
     PioneerPublicApi.ThreeJsHelper.setIndices(u, uint16Array);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`、`this.getEngine`、`this.getEngine().getResourceManager`、`this.getEngine().getResourceManager().releaseByUrl`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials、this.getEngine、this.getEngine().getResourceManager、this.getEngine().getResourceManager().releaseByUrl。
+   */
   __unloadResources() {
     this.getEngine().getResourceManager().releaseByUrl(this, this._textureUrl, "texture");
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this, false);

@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：对象特殊功能入口
+ * 依据：imports: ../../framework/eyes/index.js, ../../engine/solar-system/public-api.js, ../../app/public-api.js, ../templates/SpecialFeaturesBlockTemplate.html, ../../styles/extracted/SpecialFeaturesBlockStyles.js；manager dependencies: content, router
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1477051-1478723.
 import "../../framework/eyes/index.js";
 import * as SolarSystemSceneExports from "../../engine/solar-system/public-api.js";
@@ -5,7 +11,17 @@ import * as SolarSystemPublicApi from "../../app/public-api.js";
 import SpecialFeaturesBlockTemplate from "../templates/SpecialFeaturesBlockTemplate.html";
 import "../../styles/extracted/SpecialFeaturesBlockStyles.js";
 var getSpecialFeaturesBlockTemplate = () => SpecialFeaturesBlockTemplate;
+/** @eyes-analysis
+ * 类职责：对象特殊功能入口；继承 SolarSystemPublicApi.BaseContentBlock
+ * 继承：SolarSystemPublicApi.BaseContentBlock；导出：SpecialFeaturesBlock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpecialFeaturesBlock extends SolarSystemPublicApi.BaseContentBlock {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；写入 _state。
+   * 状态写入：_state。
+   * 调用线索：super。
+   */
   constructor(t, e) {
     super(t, e);
     this._state = {
@@ -13,10 +29,19 @@ class SpecialFeaturesBlock extends SolarSystemPublicApi.BaseContentBlock {
       category: ""
     };
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._element.classList.add。
+   * 调用线索：super.init、this._element.classList.add。
+   */
   init() {
     super.init();
     this._element.classList.add("special-features");
   }
+  /** @eyes-analysis
+   * 响应路径参数变化并刷新本模块；调用 this._app.getManager, this.hide, this.show, this.setState, SolarSystemSceneExports.Entity.getEntityNamesInGroup, List.add, this._children.specialFeatures.appendChild。
+   * 状态写入：_children.specialFeatures.innerHTML。
+   * 调用线索：SolarSystemSceneExports.Entity.getEntityNamesInGroup、a.classList.add、document.createElement、e.slice、i.forEach等。
+   */
   onRouteChange(t) {
     if (this._app.getManager("content").hasLanded(t)) return void this.hide();
     if (!this._children.specialFeatures) return;

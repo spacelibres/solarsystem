@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：时间播放速率与时间拖动控制
+ * 依据：imports: ../../framework/eyes/index.js, ../../styles/extracted/TimeControlsStyles.js, ../templates/TimeControlsTemplate.html；manager dependencies: time, router
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1630483-1637426.
 import * as Eyes from "../../framework/eyes/index.js";
 import "../../styles/extracted/TimeControlsStyles.js";
@@ -16,7 +22,17 @@ const l = {
   min: 60,
   sec: 1
 };
+/** @eyes-analysis
+ * 类职责：时间播放速率与时间拖动控制；继承 Eyes.BaseComponent
+ * 继承：Eyes.BaseComponent；导出：TimeControls。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TimeControls extends Eyes.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Parent.setAttribute, this._drawCurve, this._drawKnob, this._app.getManager, this._manager.getTimeRate, this.setState, this.getRateDisplay, this.bindFunctions；写入 _curve, _rates, _resizeObserver, _normValue, _currentRate, _currentIsLive, _canUpdate, _rateBeforePause, _touchTimeout, _activeDelay, _manager, _router。
+   * 状态写入：_activeDelay、_canUpdate、_class.isPlaying、_currentIsLive、_currentRate、_curve、_curve.cp1x、_curve.cp2x等；完整记录见索引。
+   * 调用线索：new ResizeObserver、super、svgParent.setAttribute、t.forEach、this._app.getManager等。
+   */
   constructor(t, e = {}) {
     super(t, null, {
       isVisible: true,
@@ -82,6 +98,10 @@ class TimeControls extends Eyes.BaseComponent {
     this._drawKnobThrottled = throttle(this._drawKnob, 50);
     this._setQueryDebounced = throttle(this._setQuery, 200);
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._createRatesMap, this._app.getManager, this._callbackRegistry.push, Range.addEventListener, Range.blur, this._element.addEventListener, this._resizeObserver.observe。
+   * 调用线索：inputRange.addEventListener、inputRange.blur、super.init、this._app.getManager、this._callbackRegistry.push等。
+   */
   async init() {
     super.init();
     this._createRatesMap();
@@ -107,9 +127,18 @@ class TimeControls extends Eyes.BaseComponent {
     } = this._children;
     this._resizeObserver.observe(sliderContainer);
   }
+  /** @eyes-analysis
+   * 执行 _onRateChange 对应的组件业务步骤；调用 this._setRate, this._setQuery。
+   * 调用线索：this._setQuery、this._setRate。
+   */
   _onRateChange(t) {
     t >= this._rates[0] && t <= this._rates[this._rates.length - 1] ? this._setRate(t) : this._setQuery(1);
   }
+  /** @eyes-analysis
+   * 执行 _onSliderMove 对应的组件业务步骤；调用 this._drawKnobThrottled, this._setQueryDebounced；写入 _normValue, _currentRate。
+   * 状态写入：_currentRate、_normValue。
+   * 调用线索：this._drawKnobThrottled、this._setQueryDebounced。
+   */
   _onSliderMove(t) {
     const {
       timeLimit: timeLimit
@@ -121,6 +150,10 @@ class TimeControls extends Eyes.BaseComponent {
     const currentRate = this._ratesMap[value];
     this._canUpdate && this._currentRate !== currentRate ? (this._normValue = value / 100, this._currentRate = currentRate, this._drawKnobThrottled(this._normValue), this._setQueryDebounced(currentRate)) : t.target.value = 100 * this._normValue;
   }
+  /** @eyes-analysis
+   * 执行 _onTouchStart 对应的组件业务步骤；调用 List.contains, this.setState。
+   * 调用线索：clearTimeout、t.preventDefault、t.target?.classList.contains、this.setState。
+   */
   _onTouchStart(t) {
     const {
       touchActiveClass: touchActiveClass
@@ -133,6 +166,11 @@ class TimeControls extends Eyes.BaseComponent {
       touchActiveClass: "touchactive"
     });
   }
+  /** @eyes-analysis
+   * 执行 _onTouchEnd 对应的组件业务步骤；调用 this.setState；写入 _touchTimeout。
+   * 状态写入：_touchTimeout。
+   * 调用线索：setTimeout、this.setState。
+   */
   _onTouchEnd() {
     this._touchTimeout = setTimeout(() => {
       this.setState({
@@ -140,6 +178,11 @@ class TimeControls extends Eyes.BaseComponent {
       });
     }, this._activeDelay);
   }
+  /** @eyes-analysis
+   * 执行 _createRatesMap 对应的组件业务步骤；调用 this._rates.indexOf, this._rates.slice, Math.round, this._roundRate, this._ratesMap.push, Math.floor；写入 _ratesMap。
+   * 状态写入：_ratesMap。
+   * 调用线索：Math.floor、Math.round、n.forEach、o.forEach、this._rates.indexOf等。
+   */
   _createRatesMap() {
     const t = this._rates.indexOf(1);
     const e = this._rates.length - t - 1;
@@ -169,6 +212,10 @@ class TimeControls extends Eyes.BaseComponent {
       }
     });
   }
+  /** @eyes-analysis
+   * 执行 _roundRate 对应的组件业务步骤；调用 this.getRateUnit。
+   * 调用线索：this.getRateUnit。
+   */
   _roundRate(t) {
     const {
       rate: rate,
@@ -176,6 +223,10 @@ class TimeControls extends Eyes.BaseComponent {
     } = this.getRateUnit(t);
     return rate * l[unit];
   }
+  /** @eyes-analysis
+   * 执行 _drawCurve 对应的组件业务步骤；调用 Path.setAttribute。
+   * 调用线索：sliderPath.setAttribute。
+   */
   _drawCurve() {
     const {
       x: t,
@@ -192,6 +243,10 @@ class TimeControls extends Eyes.BaseComponent {
     } = this._children;
     sliderPath.setAttribute("d", `M${t},${e} C${cp1x},${cp1y} ${cp2x},${cp2y} ${endx},${endy}`);
   }
+  /** @eyes-analysis
+   * 执行 _drawKnob 对应的组件业务步骤；调用 Math.pow, Math.abs, this._element.style.setProperty。
+   * 调用线索：Math.abs、Math.pow、this._element.style.setProperty。
+   */
   _drawKnob(t) {
     const {
       endx: endx,
@@ -204,6 +259,11 @@ class TimeControls extends Eyes.BaseComponent {
     this._element.style.setProperty("--knobY", `${n}px`);
     this._element.style.setProperty("--knobOffsetY", `${o}px`);
   }
+  /** @eyes-analysis
+   * 执行 _setRate 对应的组件业务步骤；调用 this._getTimeLimit, this._getValueFromRate, this._drawKnob, this.setState, this.getRateDisplay；写入 _rateBeforePause, _normValue, _currentRate, _timeLimit。
+   * 状态写入：_currentRate、_normValue、_rateBeforePause、_timeLimit。
+   * 调用线索：this._drawKnob、this._getTimeLimit、this._getValueFromRate、this.getRateDisplay、this.setState。
+   */
   _setRate(currentRate) {
     const {
       inputRange: inputRange
@@ -233,6 +293,10 @@ class TimeControls extends Eyes.BaseComponent {
     });
     this._timeLimit = null;
   }
+  /** @eyes-analysis
+   * 执行 _getTimeLimit 对应的组件业务步骤；调用 this._manager.getTime, Math.abs。
+   * 调用线索：Math.abs、i.valueOf、max.valueOf、min.valueOf、this._manager.getTime。
+   */
   _getTimeLimit() {
     const {
       min: min,
@@ -241,6 +305,10 @@ class TimeControls extends Eyes.BaseComponent {
     const i = this._manager.getTime();
     return Math.abs(i.valueOf() - max.valueOf()) < 10 ? "max" : Math.abs(i.valueOf() - min.valueOf()) < 10 ? "min" : null;
   }
+  /** @eyes-analysis
+   * 执行 _getValueFromRate 对应的组件业务步骤；调用 this._ratesMap.indexOf。
+   * 调用线索：this._ratesMap.indexOf。
+   */
   _getValueFromRate(t) {
     const e = this._ratesMap.indexOf(t);
     if (e > -1) return e;
@@ -253,12 +321,20 @@ class TimeControls extends Eyes.BaseComponent {
     }
     return 50;
   }
+  /** @eyes-analysis
+   * 执行 _setQuery 对应的组件业务步骤；调用 this._router.navigate, this._manager.getTimeUrl。
+   * 调用线索：this._manager.getTimeUrl、this._router.navigate。
+   */
   _setQuery(t, e) {
     this._router.navigate({
       rate: t,
       time: this._manager.getTimeUrl(e)
     });
   }
+  /** @eyes-analysis
+   * 执行 decreaseRate 对应的组件业务步骤；调用 this._getValueFromRate, Math.floor, this._setQuery。
+   * 调用线索：Math.floor、this._getValueFromRate、this._setQuery。
+   */
   decreaseRate() {
     if (!this._canUpdate) return;
     const {
@@ -272,6 +348,10 @@ class TimeControls extends Eyes.BaseComponent {
     const n = "max" === timeLimit ? -1 : this._ratesMap[s];
     this._setQuery(n);
   }
+  /** @eyes-analysis
+   * 执行 increaseRate 对应的组件业务步骤；调用 this._getValueFromRate, Math.ceil, this._setQuery。
+   * 调用线索：Math.ceil、this._getValueFromRate、this._setQuery。
+   */
   increaseRate() {
     if (!this._canUpdate) return;
     const {
@@ -285,6 +365,10 @@ class TimeControls extends Eyes.BaseComponent {
     const n = this._ratesMap[s];
     this._setQuery(n);
   }
+  /** @eyes-analysis
+   * 执行 playPauseRate 对应的组件业务步骤；调用 this._app.getView, this._setQuery。
+   * 调用线索：this._app.getView、this._app.getView("event")?.replayEvent、this._setQuery。
+   */
   playPauseRate(t, e = this._state.isPlaying) {
     if (!this._canUpdate) return;
     const {
@@ -295,9 +379,17 @@ class TimeControls extends Eyes.BaseComponent {
     const n = e ? 0 : s;
     this._setQuery(n);
   }
+  /** @eyes-analysis
+   * 执行 onRealtimeClick 对应的组件业务步骤；调用 this._setQuery。
+   * 调用线索：this._setQuery。
+   */
   onRealtimeClick() {
     this._canUpdate && this._setQuery(1);
   }
+  /** @eyes-analysis
+   * 执行 getRateUnit 对应的组件业务步骤；调用 Object.keys。
+   * 调用线索：Object.keys、formatNumber、h.find、parseFloat。
+   */
   getRateUnit(t, e = 0) {
     const i = t / l.yr;
     const s = t / l.mth;
@@ -314,6 +406,10 @@ class TimeControls extends Eyes.BaseComponent {
       unit: u
     };
   }
+  /** @eyes-analysis
+   * 执行 getRateDisplay 对应的组件业务步骤；调用 this.getRateUnit。
+   * 调用线索：this._manager.getTimeRate、this.getRateUnit。
+   */
   getRateDisplay(t = this._manager.getTimeRate()) {
     if (0 === t) return "paused";
     if (1 === t) return "real rate";
@@ -323,15 +419,29 @@ class TimeControls extends Eyes.BaseComponent {
     } = this.getRateUnit(t);
     return `${rate} ${unit}${1 === rate ? "" : "s"}/s`;
   }
+  /** @eyes-analysis
+   * 执行 setCanUpdate 对应的组件业务步骤；写入 _canUpdate。
+   * 状态写入：_canUpdate。
+   * 调用线索：Boolean。
+   */
   setCanUpdate(t) {
     this._canUpdate = Boolean(t);
   }
+  /** @eyes-analysis
+   * 执行 update 对应的组件业务步骤；调用 this._manager.isNow, this.setState；写入 _currentIsLive。
+   * 状态写入：_currentIsLive。
+   * 调用线索：this._manager.isNow、this.setState。
+   */
   update() {
     const currentIsLive = this._manager.isNow();
     this._currentIsLive !== currentIsLive && (this.setState({
       isLiveClass: currentIsLive ? "live" : ""
     }), this._currentIsLive = currentIsLive);
   }
+  /** @eyes-analysis
+   * 卸载 DOM 并取消业务订阅；调用 super.__disable。
+   * 调用线索：clearTimeout、super.__disable。
+   */
   __disable() {
     super.__disable();
     clearTimeout(this._touchTimeout);

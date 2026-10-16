@@ -1,11 +1,27 @@
+/** @eyes-analysis
+ * 文件职责：收集键盘、鼠标、滚轮与多点触摸状态，识别活动视口并在帧末复位瞬时输入。
+ * 依据：import ../pioneer/public-api.js；Touch @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:191020-198606.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：单个触点的当前位置与帧内输入状态。
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Touch {
   identifier;
   pressedPosition;
   pressedTime;
   lastFramePosition;
   thisFramePosition;
+  /** @eyes-analysis
+   * 【结构证据】写入 `identifier`、`lastFramePosition`、`pressedPosition`、`pressedTime`、`thisFramePosition`；调用 `new PioneerPublicApi.Vector2`。
+   * 状态写入：identifier、lastFramePosition、pressedPosition、pressedTime、thisFramePosition。
+   * 调用线索：new PioneerPublicApi.Vector2。
+   */
   constructor() {
     this.identifier = 0;
     this.pressedPosition = new PioneerPublicApi.Vector2();
@@ -14,7 +30,17 @@ class Touch {
     this.thisFramePosition = new PioneerPublicApi.Vector2();
   }
 }
+/** @eyes-analysis
+ * 类职责：收集键盘、鼠标、滚轮与多点触摸状态，识别活动视口并在帧末复位瞬时输入。
+ * 继承：无显式父类；导出：Input。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Input {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeViewport`、`_cursorPosition`、`_draggedOffset`、`_engine`、`_keysPressed`、`_maxSelectDistance`、`_maxSelectTime`、`_modifierKeysPressed`；调用 `Date.now`、`Input._modifierKeys.has`、`Math.abs`、`Math.max`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`。
+   * 状态写入：_activeViewport、_cursorPosition、_draggedOffset、_engine、_keysPressed、_maxSelectDistance、_maxSelectTime、_modifierKeysPressed等；完整记录见索引。
+   * 调用线索：Date.now、Input._modifierKeys.has、Math.abs、Math.max、PioneerPublicApi.Vector2.pool.get等。
+   */
   constructor(engine) {
     this._engine = engine;
     this._activeViewport = null;
@@ -148,36 +174,73 @@ class Input {
     });
     window.addEventListener("touchcancel", () => {});
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._activeViewport`。
+   */
   getActiveViewport() {
     return this._activeViewport;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._draggedOffset`。
+   */
   getDraggedOffset() {
     return this._draggedOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._zoomedOffset`。
+   */
   getZoomedOffset() {
     return this._zoomedOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._rotatedOffset`。
+   */
   getRotatedOffset() {
     return this._rotatedOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._shiftPressed`。
+   */
   isShiftPressed() {
     return this._shiftPressed;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._keysPressed.has(t)`；调用 `this._keysPressed.has`。
+   * 调用线索：this._keysPressed.has。
+   */
   isKeyPressed(t) {
     return this._keysPressed.has(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._selected`。
+   */
   isSelected() {
     return this._selected;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._selectedPosition`。
+   */
   getSelectedPosition() {
     return this._selectedPosition;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._cursorPosition`。
+   */
   getCursorPosition() {
     return this._cursorPosition;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeViewport`。
+   * 状态写入：_activeViewport。
+   */
   __setActiveViewport(activeViewport) {
     this._activeViewport = activeViewport;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_rotatedOffset`、`_selected`、`_zoomedOffset`；调用 `e.lastFramePosition.copy`、`this._draggedOffset.set`。
+   * 状态写入：_rotatedOffset、_selected、_zoomedOffset。
+   * 调用线索：e.lastFramePosition.copy、this._draggedOffset.set。
+   */
   __resetStatesForNextFrame() {
     for (let t = 0; t < this._touches.length; t++) {
       const e = this._touches[t];
@@ -188,6 +251,11 @@ class Input {
     this._zoomedOffset = 0;
     this._rotatedOffset = 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeViewport`；调用 `activeViewport.getBounds`、`activeViewport.isEnabled`、`i.contains`、`this._engine.getNumViewports`、`this._engine.getViewportAt`。
+   * 状态写入：_activeViewport。
+   * 调用线索：activeViewport.getBounds、activeViewport.isEnabled、i.contains、this._engine.getNumViewports、this._engine.getViewportAt。
+   */
   _updateActiveViewport() {
     this._activeViewport = null;
     for (let t = this._engine.getNumViewports() - 1; t >= 0; t--) {

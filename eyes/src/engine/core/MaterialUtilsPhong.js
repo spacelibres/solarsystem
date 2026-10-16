@@ -1,6 +1,21 @@
+/** @eyes-analysis
+ * 文件职责：构建 Phong 光照路径的材质/着色器参数。
+ * 依据：import ../pioneer/public-api.js；MaterialUtilsPhong @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:82495-109146.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：构建 Phong 光照路径的材质/着色器参数。
+ * 继承：无显式父类；导出：MaterialUtilsPhong。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MaterialUtilsPhong {
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `PioneerPublicApi.ThreeJsHelper.cloneMaterial`、`new PioneerPublicApi.THREE.Color`、`new PioneerPublicApi.THREE.ShaderMaterial`、`new PioneerPublicApi.THREE.Uniform`、`new PioneerPublicApi.THREE.Vector2`、`new PioneerPublicApi.THREE.Vector3`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.cloneMaterial、new PioneerPublicApi.THREE.Color、new PioneerPublicApi.THREE.ShaderMaterial、new PioneerPublicApi.THREE.Uniform、new PioneerPublicApi.THREE.Vector2等。
+   */
   static get() {
     MaterialUtilsPhong._material ??= new PioneerPublicApi.THREE.ShaderMaterial({
       uniforms: {

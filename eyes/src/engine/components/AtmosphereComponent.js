@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：依赖同实体 SpheroidComponent 的半径，以自定义散射材质渲染大气壳；同步密度、日落色和光源。
+ * 依据：import ../pioneer/public-api.js；AtmosphereComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:244623-260848.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：依赖同实体 SpheroidComponent 的半径，以自定义散射材质渲染大气壳；同步密度、日落色和光源。
+ * 继承：PioneerPublicApi.BaseComponent；导出：AtmosphereComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AtmosphereComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_color`、`_density`、`_emissivity`、`_scaleHeight`、`_spheroidChangedCallback`、`_spheroidComponentRef`、`_sunBrightness`、`_sunsetColor`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.ComponentRef`、`super`、`this.__setUsesEntityOrientation`、`this._spheroidChangedCallback.bind`、`this._spheroidComponentRef.setRefChangedCallback`。
+   * 状态写入：_color、_density、_emissivity、_scaleHeight、_spheroidChangedCallback、_spheroidComponentRef、_sunBrightness、_sunsetColor等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.ComponentRef、super、this.__setUsesEntityOrientation、this._spheroidChangedCallback.bind等。
+   */
   constructor(t, e) {
     super(t, e);
     this._density = 0;
@@ -15,69 +31,143 @@ class AtmosphereComponent extends PioneerPublicApi.BaseComponent {
     this._spheroidChangedCallback = this._spheroidChangedCallback.bind(this);
     this.__setUsesEntityOrientation(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._spheroidComponentRef.get()`；调用 `this._spheroidComponentRef.get`。
+   * 调用线索：this._spheroidComponentRef.get。
+   */
   getSpheroid() {
     return this._spheroidComponentRef.get();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._density`。
+   */
   getDensity() {
     return this._density;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_density`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_density。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setDensity(density) {
     this._density = density;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "density", density);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._scaleHeight`。
+   */
   getScaleHeight() {
     return this._scaleHeight;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_scaleHeight`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_scaleHeight。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setScaleHeight(scaleHeight) {
     this._scaleHeight = scaleHeight;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "scaleHeight", scaleHeight);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._emissivity`。
+   */
   getEmissivity() {
     return this._emissivity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_emissivity`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_emissivity。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setEmissivity(emissivity) {
     this._emissivity = emissivity;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "emissivity", emissivity);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._color`。
+   */
   getColor() {
     return this._color;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGB`、`this._color.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGB、this._color.copy、this.getThreeJsMaterials。
+   */
   setColor(t) {
     this._color.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGB(this.getThreeJsMaterials()[0], "color", t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sunBrightness`。
+   */
   getSunBrightness() {
     return this._sunBrightness;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_sunBrightness`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_sunBrightness。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setSunBrightness(sunBrightness) {
     this._sunBrightness = sunBrightness;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "sunBrightness", sunBrightness);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sunsetColor`。
+   */
   getSunsetColor() {
     return this._sunsetColor;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGB`、`this._sunsetColor.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGB、this._sunsetColor.copy、this.getThreeJsMaterials。
+   */
   setSunsetColor(t) {
     this._sunsetColor.copy(t);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGB(this.getThreeJsMaterials()[0], "sunsetColor", t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sunsetIntensity`。
+   */
   getSunsetIntensity() {
     return this._sunsetIntensity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_sunsetIntensity`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
+   * 状态写入：_sunsetIntensity。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
+   */
   setSunsetIntensity(sunsetIntensity) {
     this._sunsetIntensity = sunsetIntensity;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "sunsetIntensity", sunsetIntensity);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._spheroidComponentRef.set`、`this.getEntity`、`this.getEntity().getName`。
+   * 调用线索：this._spheroidComponentRef.set、this.getEntity、this.getEntity().getName。
+   */
   setSpheroidReference(t) {
     this._spheroidComponentRef.set(this.getEntity().getName(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `super.__destroy`、`t.removeChangedCallback`、`this._spheroidComponentRef.get`。
+   * 调用线索：super.__destroy、t.removeChangedCallback、this._spheroidComponentRef.get。
+   */
   __destroy() {
     const t = this._spheroidComponentRef.get();
     null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
     super.__destroy();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._spheroidComponentRef.update`。
+   * 调用线索：this._spheroidComponentRef.update。
+   */
   __update() {
     this._spheroidComponentRef.update();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MaterialUtils.setLightSourceUniforms`、`PioneerPublicApi.ThreeJsHelper.setOrientationToEntity`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformQuaternion`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`PioneerPublicApi.Vector3.pool.get`。
+   * 调用线索：PioneerPublicApi.MaterialUtils.setLightSourceUniforms、PioneerPublicApi.ThreeJsHelper.setOrientationToEntity、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformQuaternion、PioneerPublicApi.ThreeJsHelper.setUniformVector3等。
+   */
   __prepareForRender(t) {
     const e = PioneerPublicApi.Vector3.pool.get();
     e.neg(this.getEntity().getCameraSpacePosition(t));
@@ -89,6 +179,10 @@ class AtmosphereComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setOrientationToEntity(this.getThreeJsObjects()[0], this.getEntity());
     PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.cos`、`Math.sin`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.setIndices`。
+   * 调用线索：Math.cos、Math.sin、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、PioneerPublicApi.ThreeJsHelper.createMeshObject等。
+   */
   async __loadResources() {
     const rawShaderMaterial = new PioneerPublicApi.THREE.RawShaderMaterial({
       uniforms: {
@@ -152,14 +246,26 @@ class AtmosphereComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.useInDynEnvMap(e, true);
     this._spheroidChangedCallback();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.addChangedCallback`、`t.removeChangedCallback`、`this._spheroidChangedCallback`。
+   * 调用线索：e.addChangedCallback、t.removeChangedCallback、this._spheroidChangedCallback。
+   */
   _spheroidRefChangedCallback(t, e) {
     null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
     null !== e && e.addChangedCallback(this._spheroidChangedCallback);
     this._spheroidChangedCallback();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`t.getEquatorialRadius`、`t.getPolarRadius`、`this.__setRadius`、`this._spheroidComponentRef.get`。
+   * 调用线索：Math.max、PioneerPublicApi.ThreeJsHelper.setUniformNumber、t.getEquatorialRadius、t.getPolarRadius、this.__setRadius等。
+   */
   _spheroidChangedCallback() {
     const t = this._spheroidComponentRef.get();
     const e = this.getThreeJsMaterials()[0];

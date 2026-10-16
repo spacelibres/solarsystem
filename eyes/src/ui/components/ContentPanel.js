@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：按路由描述装配对象内容块并控制面板折叠与覆盖
+ * 依据：imports: ../../styles/extracted/MobileExpandButtonStyles-928.js, ../../vendor/modules/animateFill-929.js, ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/ContentPanelTemplate.html, ../../styles/extracted/ContentPanelStyles.js；manager dependencies: content, router, scene, layer, time
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1514149-1542996.
 import "../../styles/extracted/MobileExpandButtonStyles-928.js";
 import * as animateFill from "../../vendor/modules/animateFill-929.js";
@@ -28,7 +34,17 @@ const h = {
 };
 const d = ["toolbox"];
 const u = "info";
+/** @eyes-analysis
+ * 类职责：按路由描述装配对象内容块并控制面板折叠与覆盖；继承 Eyes.BaseComponent
+ * 继承：Eyes.BaseComponent；导出：ContentPanel。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ContentPanel extends Eyes.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Object.keys, this._eventNames.push, this._initCallbacks, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, Fill.default.setDefaultProps, this.bindFunctions；写入 _backRoute, _backButtonVisibleClass, _defaultState, _blockState, _components, _currentId, _overviewBlock, _cameraViewBlock, _descriptionBlock, _relatedBlock, _eventsBlock, _featuredMoonsBlock。
+   * 状态写入：_adjustedMobileHeight、_backButtonVisibleClass、_backRoute、_blockState、_cameraViewBlock、_class.iconCollapse、_class.iconExpand、_class.isCollapsed等；完整记录见索引。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、Object.keys、Object.keys(h).reduce、animateFill.default.setDefaultProps等。
+   */
   constructor(t, e) {
     super(t, null, {
       title: "",
@@ -150,19 +166,35 @@ class ContentPanel extends Eyes.BaseComponent {
     this._resizeTimeoutAmount = 300;
     this.bindFunctions(["backRoute", "selectTab", "_onTabSelect", "onClickShowCollapse", "onDragStart", "onDrag", "onDragEnd", "collapse", "expand", "onChildParentChange", "clearPanel", "_setUpMobileCollapse"]);
   }
+  /** @eyes-analysis
+   * 执行 getScrollbar 对应的组件业务步骤。
+   */
   getScrollbar() {
     return this._scrollbar;
   }
+  /** @eyes-analysis
+   * 执行 _showTab 对应的组件业务步骤；调用 this.setState。
+   * 调用线索：this.setState。
+   */
   _showTab(t) {
     this.setState({
       [t + "TabVisibleClass"]: this._class.isVisible[true]
     });
   }
+  /** @eyes-analysis
+   * 执行 _hideTab 对应的组件业务步骤；调用 this.setState。
+   * 调用线索：this.setState。
+   */
   _hideTab(t) {
     this.setState({
       [t + "TabVisibleClass"]: this._class.isVisible[false]
     });
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._app.addComponent, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, Eyes.AppUtils.isLandscape, Eyes.AppUtils.deepClone, this.setState, this._app.getComponent, this.resize；写入 _overviewBlock, _descriptionBlock, _relatedBlock, _eventsBlock, _replayBlock, _featuredMoonsBlock, _compareSizeBlock, _distanceToolBlock, _moonsBlock, _telescopeModeBlock, _cameraViewBlock, _surfaceMapBlock。
+   * 状态写入：_cameraViewBlock、_compareSizeBlock、_descriptionBlock、_distanceToolBlock、_eventsBlock、_featuredMoonsBlock、_featuresBlock、_instrumentFOVBlock等；完整记录见索引。
+   * 调用线索：0,animateFill.default、Eyes.AppUtils.deepClone、Eyes.AppUtils.isLandscape、Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet等。
+   */
   async init() {
     super.init();
     this._overviewBlock = await this._app.addComponent("overviewBlock", SolarSystemPublicApi.OverviewBlock);
@@ -210,13 +242,26 @@ class ContentPanel extends Eyes.BaseComponent {
     this._isMobile && this._app.getComponent("collapsibleMenu").collapse();
     this.resize();
   }
+  /** @eyes-analysis
+   * 执行 _onRouteChange 对应的组件业务步骤；调用 this.isEnabled, this._disableAllComponents, this.setupBackButton, Eyes.AppUtils.deepClone, this.selectTab；写入 _currentId, _tabContent, _persistingBlocks。
+   * 状态写入：_currentId、_defaultState.title、_persistingBlocks、_tabContent。
+   * 调用线索：Eyes.AppUtils.deepClone、this._disableAllComponents、this.isEnabled、this.selectTab、this.setupBackButton。
+   */
   _onRouteChange(currentId, e) {
     this.isEnabled() && (this._disableAllComponents(), this._defaultState.title = "", this._currentId = currentId, this.setupBackButton(e), this._tabContent = Eyes.AppUtils.deepClone(h), this.selectTab(u), this._persistingBlocks = []);
   }
+  /** @eyes-analysis
+   * 执行 getParentTabOfSubtab 对应的组件业务步骤；调用 Object.entries, Object.keys。
+   * 调用线索：Object.entries、Object.keys、Object.keys(i.subtabs).includes。
+   */
   getParentTabOfSubtab(t) {
     for (const [e, i] of Object.entries(this._tabContent)) if (Object.keys(i.subtabs).includes(t)) return e;
     return "";
   }
+  /** @eyes-analysis
+   * 执行 selectTab 对应的组件业务步骤；调用 this.getParentTabOfSubtab, Object.keys, this.setState, this._calcTabPanelBottomMargin, this.populateTabs, List.toggle。
+   * 调用线索：Object.keys、d.includes、document.getElementById、o?.classList.toggle、r?.classList.toggle等。
+   */
   selectTab(t, e = true) {
     const i = t === this._state.currentMainTab;
     const s = this.getParentTabOfSubtab(t);
@@ -244,6 +289,10 @@ class ContentPanel extends Eyes.BaseComponent {
       e && r?.classList.toggle("selected", s);
     }
   }
+  /** @eyes-analysis
+   * 执行 _onTabSelect 对应的组件业务步骤；调用 Element.classList.contains, this.selectTab。
+   * 调用线索：t.target.parentElement.classList.contains、this.selectTab。
+   */
   _onTabSelect(t) {
     const {
       tab: tab
@@ -251,11 +300,21 @@ class ContentPanel extends Eyes.BaseComponent {
     const i = !t.target.parentElement.classList.contains("sub-tab-nav");
     this.selectTab(tab, i);
   }
+  /** @eyes-analysis
+   * 执行 addBlockToTab 对应的组件业务步骤；调用 Blocks.includes, Blocks.push。
+   * 状态写入：_blockState[`${t}Block`]。
+   * 调用线索：s[i].includes、s[i].push、this._tabContent[e].contentBlocks.includes、this._tabContent[e].contentBlocks.push。
+   */
   addBlockToTab(t, e = u, i = null) {
     const s = this._tabContent[e].subtabs || {};
     i && (s[i] && !s[i].includes(t) ? s[i].push(t) : s[i] = [t]);
     this._tabContent[e].contentBlocks.includes(t) || (this._tabContent[e].contentBlocks.push(t), this._blockState[`${t}Block`] = true);
   }
+  /** @eyes-analysis
+   * 执行 removeBlockFromTab 对应的组件业务步骤；调用 Blocks.includes, Blocks.indexOf, Blocks.splice。
+   * 状态写入：_blockState[`${t}Block`]。
+   * 调用线索：this._tabContent[e].contentBlocks.includes、this._tabContent[e].contentBlocks.indexOf、this._tabContent[e].contentBlocks.splice。
+   */
   removeBlockFromTab(t, e = u, i = null) {
     if (i && delete this._tabContent[e].subtabs[t], this._tabContent[e].contentBlocks.includes(t)) {
       const i = this._tabContent[e].contentBlocks.indexOf(t);
@@ -263,6 +322,10 @@ class ContentPanel extends Eyes.BaseComponent {
     }
     this._blockState[`${t}Block`] = false;
   }
+  /** @eyes-analysis
+   * 执行 populateTabs 对应的组件业务步骤；调用 this.createSubtabHTML, this._children.tabGroup.contains, this._overviewBlock.element.parentElement.removeChild, this._app.getComponent。
+   * 调用线索：(this._isMobile&&selectedSubtab?t[currentMainTab].subtabs[selectedSubtab]:t[currentMainTab].contentBlocks).forEach、e.forEach、n.appendChild、n.insertBefore、n.removeChild等。
+   */
   populateTabs(t, e = []) {
     const {
       selectedSubtab: selectedSubtab,
@@ -285,6 +348,10 @@ class ContentPanel extends Eyes.BaseComponent {
       n.insertBefore(e.element, n.children[i]);
     });
   }
+  /** @eyes-analysis
+   * 执行 createSubtabHTML 对应的组件业务步骤；调用 Array.from, this._children.tabGroup.insertBefore, this._app.getManager, Object.keys, TabNav.appendChild, List.toggle, this.setState。
+   * 调用线索：Array.from、Array.from(this._children.tabGroup.children).find、Object.keys、Object.keys(this._tabContent[currentMainTab].subtabs).includes、a.appendChild等。
+   */
   createSubtabHTML() {
     if (this._overviewBlock?.element) {
       const t = this._overviewBlock.element.nextElementSibling;
@@ -324,9 +391,18 @@ class ContentPanel extends Eyes.BaseComponent {
       });
     }
   }
+  /** @eyes-analysis
+   * 响应查询参数变化；调用 this._cameraViewBlock.onQueryChange。
+   * 调用线索：this._cameraViewBlock.onQueryChange。
+   */
   async onQueryChange(t) {
     await this._cameraViewBlock.onQueryChange(t);
   }
+  /** @eyes-analysis
+   * 执行 setupBackButton 对应的组件业务步骤；调用 this._app.getManager；写入 _backButtonVisibleClass, _backRoute。
+   * 状态写入：_backButtonVisibleClass、_backRoute。
+   * 调用线索：this._app.getManager。
+   */
   setupBackButton(t) {
     if (this._app.getManager("router").configs.locked || t?.length <= 1) this._backButtonVisibleClass = "hidden";else {
       if (t && t.length > 1) {
@@ -336,6 +412,11 @@ class ContentPanel extends Eyes.BaseComponent {
       this._backButtonVisibleClass = "visible";
     }
   }
+  /** @eyes-analysis
+   * 执行 onRouteChangeEvent 对应的组件业务步骤；调用 this._onRouteChange, this._app.getManager, this._overviewBlock.onRouteChange, this._replayBlock.onRouteChange, this.addBlockToTab, this._delayedResize, this._descriptionBlock.onRouteChange, this._app.getView, this.removeBlockFromTab, this._eventsBlock.onRouteChange, this._relatedBlock.onRouteChange, this._hideTab, this.selectTab, this._cameraViewBlock.onRouteChange；写入 _persistingBlocks。
+   * 状态写入：_persistingBlocks。
+   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this._app.getView、this._app.getView("object")?.getCurrentTarget、this._cameraViewBlock.onRouteChange等。
+   */
   async onRouteChangeEvent(t, e, i, s, n, o, r) {
     this._onRouteChange(t, r);
     const a = this._app.getManager("content").getEntityInfo(t);
@@ -366,6 +447,11 @@ class ContentPanel extends Eyes.BaseComponent {
     this.populateTabs(this._tabContent, this._persistingBlocks);
     this._isMobile && this._setUpMobileCollapse();
   }
+  /** @eyes-analysis
+   * 执行 onRouteChangeObject 对应的组件业务步骤；调用 this._onRouteChange, this._app.getManager, this._overviewBlock.onRouteChange, this._delayedResize, this.setState, this._descriptionBlock.onRouteChange, this.addBlockToTab, this._app.getView, this._eventsBlock.onRouteChange, this.removeBlockFromTab, this._relatedBlock.onRouteChange, this._hideTab, this.determineToolboxBlocksState, this._showTab。
+   * 状态写入：_defaultState.title。
+   * 调用线索：e.id.split、this._app.getManager、this._app.getManager("content").getEntityDesc、this._app.getManager("content").hasLanded、this._app.getView等。
+   */
   async onRouteChangeObject(t, e, i, s, n, o, r, a = false) {
     let l = i;
     this._onRouteChange(t, r);
@@ -386,6 +472,10 @@ class ContentPanel extends Eyes.BaseComponent {
     this._app.getManager("content").hasLanded(e) ? this._hideTab(h) : (await this.determineToolboxBlocksState(e), this._showTab(h));
     this._isMobile && this._setUpMobileCollapse();
   }
+  /** @eyes-analysis
+   * 执行 onRouteChangeObjectLoaded 对应的组件业务步骤；调用 this._app.getView, this._app.getManager, this._relatedBlock.onRouteChange, this.addBlockToTab, this._cameraViewBlock.onRouteChange, this.determineViewOptionBlocksState, this.populateTabs。
+   * 调用线索：this._app.getManager、this._app.getView、this._app.getView("object")?.getCurrentTarget、this._cameraViewBlock.onRouteChange、this._relatedBlock.onRouteChange等。
+   */
   async onRouteChangeObjectLoaded(t, e, i, s, n, o, r) {
     const {
       cancelToken: cancelToken
@@ -394,6 +484,10 @@ class ContentPanel extends Eyes.BaseComponent {
       entityInfo: e
     }), cancelToken && cancelToken.isCanceled && t !== this._app.getView("object")?.getCurrentTarget() || (this.determineViewOptionBlocksState(e.id, cancelToken), this.populateTabs(this._tabContent)));
   }
+  /** @eyes-analysis
+   * 执行 onRouteChangeFeature 对应的组件业务步骤；调用 this._onRouteChange, SolarSystemSceneExports.Entity.getEntityNamesInGroup, this._overviewBlock.onRouteChange, this._delayedResize, this._descriptionBlock.onRouteChange, this.addBlockToTab, this._featuredMoonsBlock.onRouteChange, this._hideTab, this._cameraViewBlock.onRouteChange, this._app.getView, this.determineViewOptionBlocksState, this.populateTabs, this._setUpMobileCollapse。
+   * 调用线索：SolarSystemSceneExports.Entity.getEntityNamesInGroup、this._app.getView、this._app.getView("feature")?.getCurrentTarget、this._cameraViewBlock.onRouteChange、this._delayedResize等。
+   */
   async onRouteChangeFeature(t, e, i, s, o, r) {
     this._onRouteChange(t, r);
     const a = "moons" === r[r.length - 1];
@@ -408,6 +502,10 @@ class ContentPanel extends Eyes.BaseComponent {
     });
     o && o.isCanceled && t !== this._app.getView("feature")?.getCurrentTarget() || (this.determineViewOptionBlocksState(e.id, o), this.populateTabs(this._tabContent), this._isMobile && this._setUpMobileCollapse());
   }
+  /** @eyes-analysis
+   * 执行 onChildParentChange 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, this.determineViewOptionBlocksState, this._app.getView, this.populateTabs。
+   * 调用线索：this._app.getManager、this._app.getManager("scene").getHDToggleEntity、this._app.getManager("scene").updateHDTarget、this._app.getView、this._app.getView("object")?.getCurrentTarget等。
+   */
   async onChildParentChange(t, e, i) {
     await this._app.getManager("scene").updateHDTarget(e, t);
     let s = this._app.getManager("scene").getHDToggleEntity();
@@ -418,6 +516,10 @@ class ContentPanel extends Eyes.BaseComponent {
     o !== t && (await this.determineViewOptionBlocksState(o));
     t === this._app.getView("object")?.getCurrentTarget() && (await this.determineViewOptionBlocksState(t), this.populateTabs(this._tabContent));
   }
+  /** @eyes-analysis
+   * 执行 determineToolboxBlocksState 对应的组件业务步骤；调用 this._compareSizeBlock.onRouteChange, this._distanceToolBlock.onRouteChange, SolarSystemSceneExports.Entity.getEntityNamesInGroup, this._moonsBlock.onRouteChange, this._telescopeModeBlock.onRouteChange, this.addBlockToTab。
+   * 调用线索：Boolean、SolarSystemSceneExports.Entity.getEntityNamesInGroup、e.push、this._compareSizeBlock.onRouteChange、this._distanceToolBlock.onRouteChange等。
+   */
   async determineToolboxBlocksState(t) {
     const e = [];
     const i = t?.displayName || t?.iauName;
@@ -452,6 +554,10 @@ class ContentPanel extends Eyes.BaseComponent {
     }), e.push("telescopeMode"));
     for (const t of e) this.addBlockToTab(t, "toolbox");
   }
+  /** @eyes-analysis
+   * 执行 determineViewOptionBlocksState 对应的组件业务步骤；调用 this._app.getManager, this.determineSurfaceMapBlockState, this.determineInstrumentFOVBlockState, this.determineLayersBlockState, this.determineTextureQualityBlockState, this.determineFeaturesBlockState。
+   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this.determineFeaturesBlockState、this.determineInstrumentFOVBlockState、this.determineLayersBlockState等。
+   */
   async determineViewOptionBlocksState(t, e = null) {
     const i = this._app.getManager("content").getEntityInfo(t);
     await this.determineSurfaceMapBlockState(t);
@@ -460,6 +566,10 @@ class ContentPanel extends Eyes.BaseComponent {
     await this.determineTextureQualityBlockState(t);
     await this.determineFeaturesBlockState(t, i);
   }
+  /** @eyes-analysis
+   * 执行 determineSurfaceMapBlockState 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, Manager.getEntityInfo, Manager.getSpheroidLayers, this.addBlockToTab, this._surfaceMapBlock.onRouteChange, this.removeBlockFromTab。
+   * 调用线索：contentManager.getEntityInfo、contentManager.getSpheroidLayers、r.getComponent、r.getComponent(Pioneer.SpheroidLODComponent)?.isEnabled、this._app.getManager等。
+   */
   async determineSurfaceMapBlockState(t) {
     const contentManager = this._app.getManager("content");
     const i = this._app.pioneer.getScene("main").getEntity(t)?.getParent()?.getName();
@@ -472,6 +582,10 @@ class ContentPanel extends Eyes.BaseComponent {
     a && (l = a.displayName || a.iauName || "");
     void 0 !== contentManager.getSpheroidLayers(s?.id) ? (this.addBlockToTab("surfaceMap", "viewOptions", "textures"), await this._surfaceMapBlock.onRouteChange(s, n)) : void 0 !== contentManager.getSpheroidLayers(i) ? (this.addBlockToTab("surfaceMap", "viewOptions", "textures"), await this._surfaceMapBlock.onRouteChange(a, l, null, s)) : this.removeBlockFromTab("surfaceMap", "viewOptions", "textures");
   }
+  /** @eyes-analysis
+   * 执行 determineLayersBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getContextualLayers, Manager.getEntityInfo, this._app.pioneer.getScene, this.addBlockToTab, this._layersBlock.onRouteChange, this._app.getView, Manager.getSpheroidLayers, this.removeBlockFromTab。
+   * 调用线索：contentManager.getEntityInfo、contentManager.getSpheroidLayers、layerManager.getContextualLayers、o.includes、this._app.getManager等。
+   */
   async determineLayersBlockState(t, e = null) {
     const contentManager = this._app.getManager("content");
     const layerManager = this._app.getManager("layer");
@@ -496,6 +610,10 @@ class ContentPanel extends Eyes.BaseComponent {
       } else this.removeBlockFromTab("layers", "viewOptions", "layers");
     } else if (this.addBlockToTab("layers", "viewOptions", "layers"), await this._layersBlock.onRouteChange(r), e && e.isCanceled && t !== this._app.getView("object")?.getCurrentTarget()) return;
   }
+  /** @eyes-analysis
+   * 执行 determineInstrumentFOVBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getEntityInfo, this._instrumentFOVBlock.hasInstrumentsWithFOV, this.addBlockToTab, this._instrumentFOVBlock.onRouteChange, this.removeBlockFromTab。
+   * 调用线索：contentManager.getEntityInfo、this._app.getManager、this._instrumentFOVBlock.hasInstrumentsWithFOV、this._instrumentFOVBlock.onRouteChange、this.addBlockToTab等。
+   */
   async determineInstrumentFOVBlockState(t) {
     const contentManager = this._app.getManager("content");
     let i = t;
@@ -507,6 +625,10 @@ class ContentPanel extends Eyes.BaseComponent {
     "event" === currentView && (i = currentRoute.params.spaceObject, s = contentManager.getEntityInfo(i));
     this._instrumentFOVBlock.hasInstrumentsWithFOV(i) ? (this.addBlockToTab("instrumentFOV", "viewOptions", "instruments"), await this._instrumentFOVBlock.onRouteChange(s)) : this.removeBlockFromTab("instrumentFOV", "viewOptions", "instruments");
   }
+  /** @eyes-analysis
+   * 执行 determineTextureQualityBlockState 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, Manager.getEntityInfo, Manager.hasHD, Eyes.AppUtils.isiPhone, this.addBlockToTab, this._textureQualityBlock.onRouteChange, this.removeBlockFromTab, Eyes.AppUtils.isAppleDevice。
+   * 调用线索：Eyes.AppUtils.isAppleDevice、Eyes.AppUtils.isiPhone、a.getComponent、a.getComponent(Pioneer.SpheroidLODComponent)?.isEnabled、contentManager.getEntityInfo等。
+   */
   async determineTextureQualityBlockState(t) {
     const sceneManager = this._app.getManager("scene");
     const contentManager = this._app.getManager("content");
@@ -519,6 +641,10 @@ class ContentPanel extends Eyes.BaseComponent {
     !sceneManager.hasHD(t) || Eyes.AppUtils.isiPhone() || c ? s && sceneManager.hasHD(s) && !Eyes.AppUtils.isiPhone() && !c ? (this.addBlockToTab("textureQuality", "viewOptions", "textures"), await this._textureQualityBlock.onRouteChange(contentManager.getEntityInfo(s))) : this.removeBlockFromTab("textureQuality", "viewOptions", "textures") : (this.addBlockToTab("textureQuality", "viewOptions", "textures"), await this._textureQualityBlock.onRouteChange(n));
     Eyes.AppUtils.isAppleDevice() && this.removeBlockFromTab("textureQuality", "viewOptions", "textures");
   }
+  /** @eyes-analysis
+   * 执行 determineFeaturesBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getSpheroidFeatures, this.addBlockToTab, this._featuresBlock.onRouteChange, this.removeBlockFromTab。
+   * 调用线索：contentManager.getSpheroidFeatures、r、this._app.getManager、this._app.getManager("scene").get、this._app.getManager("scene").get("main").getEntity等。
+   */
   async determineFeaturesBlockState(t, e) {
     const contentManager = this._app.getManager("content");
     const {
@@ -529,6 +655,10 @@ class ContentPanel extends Eyes.BaseComponent {
     const r = t => 0 !== contentManager.getSpheroidFeatures(t)?.length;
     r(t) || r(o) && !n ? (this.addBlockToTab("features", "viewOptions", "layers"), await this._featuresBlock.onRouteChange(e)) : this.removeBlockFromTab("features", "viewOptions", "layers");
   }
+  /** @eyes-analysis
+   * 执行 backRoute 对应的组件业务步骤；调用 this._app.getManager, Manager.getTimeUrl, Manager.getTimeRate。
+   * 调用线索：this._app.getManager、this._app.getManager("router").navigate、timeManager.getTimeRate、timeManager.getTimeUrl。
+   */
   backRoute() {
     const routerManager = this._app.getManager("router");
     let e = {};
@@ -540,9 +670,18 @@ class ContentPanel extends Eyes.BaseComponent {
     });
     this._app.getManager("router").navigate(e, this._backRoute);
   }
+  /** @eyes-analysis
+   * 执行 onClickShowCollapse 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.hideOverlay, this.hide, this.show。
+   * 调用线索：Eyes.AppUtils.isMobileMode、this.hide、this.hideOverlay、this.show。
+   */
   onClickShowCollapse() {
     this._state.isVisible ? this._state.isOverlay && Eyes.AppUtils.isMobileMode() ? this.hideOverlay() : this.hide() : this.show();
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 super.resize, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, Eyes.AppUtils.isLandscape, this.selectTab, this.populateTabs, this._setUpMobileCollapse；写入 _isMobile, _isLandscape。
+   * 状态写入：_isLandscape、_isMobile。
+   * 调用线索：Eyes.AppUtils.isLandscape、Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、super.resize、this._setUpMobileCollapse等。
+   */
   resize() {
     super.resize();
     const {
@@ -556,10 +695,20 @@ class ContentPanel extends Eyes.BaseComponent {
     this.selectTab(currentMainTab);
     this._isMobile === isMobile && this._isLandscape === isLandscape || (this.populateTabs(this._tabContent, this._persistingBlocks), this._setUpMobileCollapse(isExpanded));
   }
+  /** @eyes-analysis
+   * 执行 onDragStart 对应的组件业务步骤；写入 _isDragging。
+   * 状态写入：_isDragging。
+   * 调用线索：t.preventDefault。
+   */
   onDragStart(t) {
     this._isDragging = true;
     t.preventDefault();
   }
+  /** @eyes-analysis
+   * 执行 onDrag 对应的组件业务步骤。
+   * 状态写入：element.style.height。
+   * 调用线索：t.preventDefault。
+   */
   onDrag(t) {
     if (!this._isDragging) return;
     t.preventDefault();
@@ -567,6 +716,11 @@ class ContentPanel extends Eyes.BaseComponent {
     const i = window.innerHeight - e.pageY;
     this.element.style.height = `${i}px`;
   }
+  /** @eyes-analysis
+   * 执行 onDragEnd 对应的组件业务步骤；调用 this._snapHeights.value.reduce, Math.abs, this._snapHeights.value.indexOf, this.setState, this._setUpMobileCollapse；写入 _isDragging。
+   * 状态写入：_isDragging、_snapHeights.index、element.style.height。
+   * 调用线索：Math.abs、d.includes、new CustomEvent、parseInt、t.preventDefault等。
+   */
   onDragEnd(t) {
     this._isDragging = false;
     t.preventDefault();
@@ -593,6 +747,11 @@ class ContentPanel extends Eyes.BaseComponent {
     window.dispatchEvent(customEvent);
     this._setUpMobileCollapse();
   }
+  /** @eyes-analysis
+   * 执行 expand 对应的组件业务步骤；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, this._setUpMobileCollapse, this.toggleExpandCollapse。
+   * 状态写入：_snapHeights.index、element.style.height。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、d.includes、this._setUpMobileCollapse、this.setState等。
+   */
   expand() {
     const t = !d.includes(this._state.currentMainTab);
     if (Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTablet()) {
@@ -614,6 +773,11 @@ class ContentPanel extends Eyes.BaseComponent {
       this._setUpMobileCollapse();
     } else this.toggleExpandCollapse();
   }
+  /** @eyes-analysis
+   * 执行 collapse 对应的组件业务步骤；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, this._setUpMobileCollapse, this.toggleExpandCollapse。
+   * 状态写入：_snapHeights.index、element.style.height。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、d.includes、this._setUpMobileCollapse、this.setState等。
+   */
   collapse() {
     const t = !d.includes(this._state.currentMainTab);
     if (Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTablet()) {
@@ -634,6 +798,10 @@ class ContentPanel extends Eyes.BaseComponent {
       this._setUpMobileCollapse();
     } else this.toggleExpandCollapse();
   }
+  /** @eyes-analysis
+   * 执行 toggleExpandCollapse 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
+   * 调用线索：this.setState、this.triggerCallbacks。
+   */
   toggleExpandCollapse() {
     const t = !this._state.isExpanded;
     const e = !this._state.isCollapsed;
@@ -646,15 +814,29 @@ class ContentPanel extends Eyes.BaseComponent {
       this.triggerCallbacks("expandtoggle", [t]);
     });
   }
+  /** @eyes-analysis
+   * 执行 show 对应的组件业务步骤；调用 this._app.getManager, super.show, this.setEnabled, this._components.forEach, this._app.getComponent, this.triggerCallbacks, Eyes.AppUtils.addScrollbar, this._element.querySelector；写入 _scrollbar。
+   * 状态写入：_scrollbar。
+   * 调用线索：Eyes.AppUtils.addScrollbar、super.show、this._app.getComponent、this._app.getComponent("collapsibleMenu").collapse、this._app.getComponent(t).setEnabled等。
+   */
   show() {
     false !== this._app.getManager("layer").getLayer("ui").visible && (super.show(), this.setEnabled(true), this._components.forEach(t => {
       void 0 !== this._blockState[t] && null !== this._blockState[t] && this._app.getComponent(t).setEnabled(this._blockState[t]);
     }), this.triggerCallbacks("expandtoggle", [true]), this._state.isCollapsed && this._state.isVisible && this._app.getComponent("collapsibleMenu").collapse(), null === this._scrollbar && (this._scrollbar = Eyes.AppUtils.addScrollbar(this._element.querySelector("#content-main"))));
   }
+  /** @eyes-analysis
+   * 执行 hide 对应的组件业务步骤；调用 super.hide, this.triggerCallbacks。
+   * 调用线索：super.hide、this.triggerCallbacks。
+   */
   hide() {
     super.hide();
     this.triggerCallbacks("expandtoggle", [false]);
   }
+  /** @eyes-analysis
+   * 执行 _delayedResize 对应的组件业务步骤；调用 this.resize；写入 _adjustedMobileHeight。
+   * 状态写入：_adjustedMobileHeight。
+   * 调用线索：clearInterval、document.getElementById、i?.getElementsByClassName、isNaN、parseFloat等。
+   */
   _delayedResize() {
     let t = 1;
     const e = setInterval(() => {
@@ -667,10 +849,18 @@ class ContentPanel extends Eyes.BaseComponent {
       t++;
     }, 100);
   }
+  /** @eyes-analysis
+   * 执行 _getParentTabOfSubtab 对应的组件业务步骤；调用 Object.entries, Object.keys。
+   * 调用线索：Object.entries、Object.keys、Object.keys(i.subtabs).includes。
+   */
   _getParentTabOfSubtab(t) {
     for (const [e, i] of Object.entries(this._tabContent)) if (Object.keys(i.subtabs).includes(t)) return e;
     return "";
   }
+  /** @eyes-analysis
+   * 执行 _calcTabPanelBottomMargin 对应的组件业务步骤；调用 Array.from, this._element.style.setProperty。
+   * 调用线索：Array.from、Array.from(e).find、d.includes、document.querySelectorAll、this._element.style.setProperty。
+   */
   _calcTabPanelBottomMargin() {
     const {
       currentMainTab: currentMainTab
@@ -682,6 +872,10 @@ class ContentPanel extends Eyes.BaseComponent {
     this._element.style.setProperty("--content-bottom-margin", "" + (s ? `${n > 0 ? n : 112}px` : "10em"));
     this._state.isCollapsed && this._element.style.setProperty("--content-bottom-margin", "0");
   }
+  /** @eyes-analysis
+   * 执行 _getBlockHeight 对应的组件业务步骤。
+   * 调用线索：clearInterval、console.warn、e、isNaN、new Promise等。
+   */
   async _getBlockHeight(t) {
     return new Promise(e => {
       const i = setInterval(() => {
@@ -692,6 +886,11 @@ class ContentPanel extends Eyes.BaseComponent {
       console.warn("Could not calculate block height: ", t);
     });
   }
+  /** @eyes-analysis
+   * 执行 _calculateAdjustedMobileHeight 对应的组件业务步骤；调用 this._getBlockHeight, this._determineCollapsedBlockVisiblity, Array.from, Element.style.setProperty, this._app.getComponent；写入 _adjustedMobileHeight。
+   * 状态写入：_adjustedMobileHeight。
+   * 调用线索：Array.from、document.documentElement.style.setProperty、isNaN、this._app.getComponent、this._app.getComponent("collapsibleMenu")._element.style.setProperty等。
+   */
   async _calculateAdjustedMobileHeight() {
     if (!this._isMobile) return;
     const {
@@ -712,6 +911,11 @@ class ContentPanel extends Eyes.BaseComponent {
     document.documentElement.style.setProperty("--collapsible-bottom-margin", `${l ? a : r}px`);
     this._app.getComponent("collapsibleMenu")._element.style.setProperty("--collapsible-bottom-margin", `${this._adjustedMobileHeight}px`);
   }
+  /** @eyes-analysis
+   * 执行 _setUpMobileCollapse 对应的组件业务步骤；调用 this._calculateAdjustedMobileHeight, Eyes.AppUtils.isLandscape, this._snapHeights.value.push, this._calcTabPanelBottomMargin, this.element.classList.add, this.element.classList.remove, this.setState, this.populateTabs, this.triggerCallbacks。
+   * 状态写入：_snapHeights.index、_snapHeights.value、element.style.height。
+   * 调用线索：Eyes.AppUtils.isLandscape、d.includes、document.getElementById、i.at、parseInt等。
+   */
   async _setUpMobileCollapse(t = false) {
     await this._calculateAdjustedMobileHeight();
     const e = document.getElementById("dynamic-ui");
@@ -759,6 +963,10 @@ class ContentPanel extends Eyes.BaseComponent {
     }
     this.triggerCallbacks("expandtoggle", [this._state.isExpanded]);
   }
+  /** @eyes-analysis
+   * 执行 _determineCollapsedBlockVisiblity 对应的组件业务步骤；调用 this._app.getComponent, Blocks.includes, this._element.style.setProperty。
+   * 调用线索：i.appendChild、i.contains、i.removeChild、new Promise、o.forEach等。
+   */
   _determineCollapsedBlockVisiblity() {
     const {
       selectedSubtab: selectedSubtab,
@@ -787,12 +995,22 @@ class ContentPanel extends Eyes.BaseComponent {
       t(true);
     });
   }
+  /** @eyes-analysis
+   * 执行 _disableAllComponents 对应的组件业务步骤；调用 this._components.forEach, this._app.getComponent。
+   * 状态写入：_blockState[t]。
+   * 调用线索：this._app.getComponent、this._app.getComponent(t).setEnabled、this._components.forEach。
+   */
   _disableAllComponents() {
     this._components.forEach(t => {
       null !== this._blockState[t] && void 0 !== this._blockState[t] && (this._blockState[t] = false);
       this._app.getComponent(t).setEnabled(false);
     });
   }
+  /** @eyes-analysis
+   * 执行 clearPanel 对应的组件业务步骤；调用 this._disableAllComponents, this.setState。
+   * 状态写入：_defaultState.title。
+   * 调用线索：this._disableAllComponents、this.setState。
+   */
   clearPanel(t = null) {
     if (this._disableAllComponents(), t) {
       const e = `Loading ${t}...`;
@@ -802,12 +1020,21 @@ class ContentPanel extends Eyes.BaseComponent {
       this._defaultState.title = e;
     }
   }
+  /** @eyes-analysis
+   * 执行 reset 对应的组件业务步骤；调用 this.setState, this._app.getComponent, Element.style.setProperty；写入 _currentId。
+   * 状态写入：_currentId。
+   * 调用线索：document.documentElement.style.setProperty、this._app.getComponent、this._app.getComponent("collapsibleMenu")._element.style.setProperty、this.setState。
+   */
   reset() {
     this.setState(this._defaultState);
     this._currentId = "";
     this._app.getComponent("collapsibleMenu")._element.style.setProperty("--collapsible-bottom-margin", "1em");
     document.documentElement.style.setProperty("--collapsible-bottom-margin", "1em");
   }
+  /** @eyes-analysis
+   * 卸载 DOM 并取消业务订阅；调用 this.reset, super.__disable。
+   * 调用线索：super.__disable、this.reset。
+   */
   __disable() {
     this.reset();
     super.__disable();

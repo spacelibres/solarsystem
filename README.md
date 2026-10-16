@@ -21,6 +21,10 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - `npm run eyes:build`: compile and publish the editable source to the local host.
 - `npm run eyes:check`: audit source syntax and import resolution.
 - `cd eyes && npm ci && npm run dev`: independent source project on port 3002.
+- [Complete Chinese source reference](docs/eyes-analysis/README.md): every tracked
+  Eyes file, class and method, dependencies, naming evidence and unresolved names.
+- `npm run eyes:analyze`: refresh the reference; `npm run eyes:analyze:check`:
+  reject stale source coverage and evidence links.
 
 The recovery accounts for 1,087 original modules, with 733 native ESM modules,
 55 HTML template files, JSON data and ordinary third-party CommonJS modules.

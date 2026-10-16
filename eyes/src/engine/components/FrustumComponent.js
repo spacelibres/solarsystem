@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：依据相机/视场参数构造可视化视锥，提供观察方向和覆盖范围辅助图形。
+ * 依据：import ../pioneer/index.js；FrustumComponent extends Pioneer.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:750609-757815.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：依据相机/视场参数构造可视化视锥，提供观察方向和覆盖范围辅助图形。
+ * 继承：Pioneer.BaseComponent；导出：FrustumComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FrustumComponent extends Pioneer.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_color`、`_direction`、`_farBase`、`_frustumType`、`_hFOVRad`、`_hiddenPyramidEdges`、`_intersectionEntities`、`_keyframes`；调用 `new Pioneer.Color`、`new Pioneer.Vector2`、`new Pioneer.Vector3`、`super`。
+   * 状态写入：_color、_direction、_farBase、_frustumType、_hFOVRad、_hiddenPyramidEdges、_intersectionEntities、_keyframes等；完整记录见索引。
+   * 调用线索：new Pioneer.Color、new Pioneer.Vector2、new Pioneer.Vector3、super。
+   */
   constructor(t, e) {
     super(t, e);
     this._frustumType = "pyramid";
@@ -23,119 +39,251 @@ class FrustumComponent extends Pioneer.BaseComponent {
     this._keyframes = [];
     this._useKeyframes = false;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._frustumType`。
+   */
   getFrustumType() {
     return this._frustumType;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_frustumType`。
+   * 状态写入：_frustumType。
+   */
   setFrustumType(frustumType) {
     this._frustumType = frustumType;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._intersectionEntities`。
+   */
   getIntersectionEntities() {
     return this._intersectionEntities;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_intersectionEntities`。
+   * 状态写入：_intersectionEntities。
+   */
   setIntersectionEntities(intersectionEntities) {
     this._intersectionEntities = intersectionEntities;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._hFOVRad`。
+   */
   getHorizontalFOV() {
     return this._hFOVRad;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._vFOVRad`。
+   */
   getVerticalFOV() {
     return this._vFOVRad;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hFOVRad`、`_vFOVRad`；调用 `this._farBaseFromLengthAndFOV`。
+   * 状态写入：_hFOVRad、_vFOVRad。
+   * 调用线索：this._farBaseFromLengthAndFOV。
+   */
   setFOVRadians(hFOVRad, vFOVRad = hFOVRad) {
     this._hFOVRad = hFOVRad;
     this._vFOVRad = vFOVRad;
     this._farBaseFromLengthAndFOV(this._farBase, this._length, this._hFOVRad, this._vFOVRad);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`this.setFOVRadians`。
+   * 调用线索：Pioneer.MathUtils.degToRad、this.setFOVRadians。
+   */
   setFOVDegrees(t, e = t) {
     this.setFOVRadians(Pioneer.MathUtils.degToRad(t), Pioneer.MathUtils.degToRad(e));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._length`。
+   */
   getLength() {
     return this._length;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_length`；调用 `this.setFOVRadians`。
+   * 状态写入：_length。
+   * 调用线索：this.setFOVRadians。
+   */
   setLength(length) {
     this._length = length;
     this.setFOVRadians(this._hFOVRad, this._vFOVRad);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._nearBase`。
+   */
   getNearBase() {
     return this._nearBase;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._nearBase.set`、`this._updateFOVFromBases`。
+   * 调用线索：this._nearBase.set、this._updateFOVFromBases。
+   */
   setNearBase(t, e = t) {
     this._nearBase.set(t, e);
     this._updateFOVFromBases();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._farBase`。
+   */
   getFarBase() {
     return this._farBase;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._farBase.set`、`this._updateFOVFromBases`。
+   * 调用线索：this._farBase.set、this._updateFOVFromBases。
+   */
   setFarBase(t, e = t) {
     this._farBase.set(t, e);
     this._updateFOVFromBases();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._color`。
+   */
   getColor() {
     return this._color;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._color.copy`。
+   * 调用线索：this._color.copy。
+   */
   setColor(t) {
     this._color.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._originOffset`。
+   */
   getOriginOffset() {
     return this._originOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._originOffset.copy`。
+   * 调用线索：this._originOffset.copy。
+   */
   setOriginOffset(t) {
     this._originOffset.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._direction`。
+   */
   getDirection() {
     return this._direction;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._direction.normalize`。
+   * 调用线索：this._direction.normalize。
+   */
   setDirection(t) {
     this._direction.normalize(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._spinAngle`。
+   */
   getSpinAngle() {
     return this._spinAngle;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_spinAngle`。
+   * 状态写入：_spinAngle。
+   */
   setSpinAngle(spinAngle) {
     this._spinAngle = spinAngle;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._numberOfCirclePoints`。
+   */
   getNumberOfCirclePoints() {
     return this._numberOfCirclePoints;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numberOfCirclePoints`。
+   * 状态写入：_numberOfCirclePoints。
+   */
   setNumberOfCirclePoints(numberOfCirclePoints) {
     this._numberOfCirclePoints = numberOfCirclePoints;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._numConeLines`。
+   */
   getNumConeLines() {
     return this._numConeLines;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numConeLines`。
+   * 状态写入：_numConeLines。
+   */
   setNumConeLines(numConeLines) {
     this._numConeLines = numConeLines;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._hiddenPyramidEdges`。
+   */
   getHiddenPyramidEdges() {
     return this._hiddenPyramidEdges;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hiddenPyramidEdges`。
+   * 状态写入：_hiddenPyramidEdges。
+   */
   setHiddenPyramidEdges(hiddenPyramidEdges) {
     this._hiddenPyramidEdges = hiddenPyramidEdges;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._relativeToEntityOrientation`。
+   */
   getRelativeToEntityOrientation() {
     return this._relativeToEntityOrientation;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._keyframes`。
+   */
   getKeyframes() {
     return this._keyframes;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_keyframes`；调用 `this._updateMesh`。
+   * 状态写入：_keyframes。
+   * 调用线索：this._updateMesh。
+   */
   setKeyframes(keyframes) {
     this._keyframes = keyframes;
     this._updateMesh();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._useKeyframes`。
+   */
   getUseKeyframes() {
     return this._useKeyframes;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_useKeyframes`；调用 `this._updateMesh`。
+   * 状态写入：_useKeyframes。
+   * 调用线索：this._updateMesh。
+   */
   setUseKeyframes(useKeyframes) {
     this._useKeyframes = useKeyframes;
     this._updateMesh();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_relativeToEntityOrientation`。
+   * 状态写入：_relativeToEntityOrientation。
+   */
   setRelativeToEntityOrientation(relativeToEntityOrientation) {
     this._relativeToEntityOrientation = relativeToEntityOrientation;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.tan`、`t.set`。
+   * 调用线索：Math.tan、t.set。
+   */
   _farBaseFromLengthAndFOV(t, e, i, s) {
     e += this._nearBase.x / 2 / Math.tan(i / 2);
     t.set(Math.tan(i / 2) * e * 2, Math.tan(s / 2) * e * 2);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hFOVRad`、`_vFOVRad`；调用 `Math.atan`、`Math.tan`。
+   * 状态写入：_hFOVRad、_vFOVRad。
+   * 调用线索：Math.atan、Math.tan。
+   */
   _updateFOVFromBases() {
     if (this._nearBase.x > 0 && this._length > 0) {
       const t = this._nearBase.x / 2 / Math.tan(this._hFOVRad / 2) + this._length;
@@ -143,14 +291,28 @@ class FrustumComponent extends Pioneer.BaseComponent {
       this._vFOVRad = 2 * Math.atan(this._farBase.y / 2 / t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_lineMesh`；调用 `new Pioneer.LineMesh`、`this._updateMesh`。
+   * 状态写入：_lineMesh。
+   * 调用线索：new Pioneer.LineMesh、this._updateMesh。
+   */
   async __loadResources() {
     this._lineMesh = new Pioneer.LineMesh(this);
     this._updateMesh();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_lineMesh`；调用 `Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 状态写入：_lineMesh。
+   * 调用线索：Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
     this._lineMesh = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.ThreeJsHelper.setPositionToEntity`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.rotate`、`t.rotate`、`this._lineMesh.prepareForRender`。
+   * 调用线索：Pioneer.ThreeJsHelper.setPositionToEntity、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.rotate、t.rotate等。
+   */
   __prepareForRender(t) {
     if (this._lineMesh) {
       if (this._updateMesh(), this._relativeToEntityOrientation) {
@@ -165,6 +327,10 @@ class FrustumComponent extends Pioneer.BaseComponent {
       this._lineMesh.prepareForRender(t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void` 或 `void this._updateLineMesh(t)`；调用 `Math.cos`、`Math.min`、`Math.sin`、`Pioneer.Geometry.getLineSphereIntersectionWithLineStartAtOrigin`、`Pioneer.Interval.pool.get`、`Pioneer.Interval.pool.release`。
+   * 调用线索：Math.cos、Math.min、Math.sin、Pioneer.Geometry.getLineSphereIntersectionWithLineStartAtOrigin、Pioneer.Interval.pool.get等。
+   */
   _updateMesh() {
     if (!this._lineMesh) return;
     const t = [];
@@ -271,11 +437,19 @@ class FrustumComponent extends Pioneer.BaseComponent {
     length < this._length && Pioneer.Vector2.pool.release(farBase);
     this._updateLineMesh(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new Pioneer.Vector3(t.x+l*e.x+c*i.x,t.y+l*e.y+c*i.y,t.z+l*e.z+c*i.z)`；调用 `new Pioneer.Vector3`。
+   * 调用线索：new Pioneer.Vector3。
+   */
   _calcPoint(t, e, i, n, o, r, a) {
     const l = n * r;
     const c = o * a;
     return new Pioneer.Vector3(t.x + l * e.x + c * i.x, t.y + l * e.y + c * i.y, t.z + l * e.z + c * i.z);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `e.push`、`i.push`、`this._lineMesh.setColors`、`this._lineMesh.setPositions`、`this._lineMesh.setWidths`。
+   * 调用线索：e.push、i.push、this._lineMesh.setColors、this._lineMesh.setPositions、this._lineMesh.setWidths。
+   */
   _updateLineMesh(t) {
     if (!this._lineMesh) return;
     const e = [];

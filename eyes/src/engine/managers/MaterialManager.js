@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：预加载材质描述/着色器资源，创建可复用材质实例并维护 Resource 加载状态。
+ * 依据：import ../pioneer/public-api.js；import ../core/BasicAlphaShader.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:198607-202549.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 import * as BasicAlphaShader from "../core/BasicAlphaShader.js";
@@ -9,15 +15,34 @@ import * as SpriteParticlesShader from "../core/SpriteParticlesShader.js";
 import * as SpriteShader from "../core/SpriteShader.js";
 import * as TrailShader from "../core/TrailShader.js";
 import * as assertIsShader from "../core/assertIsShader.js";
+/** @eyes-analysis
+ * 类职责：MaterialManager 单项材质/着色器资源的状态记录。
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Resource {
   value;
   useCount;
+  /** @eyes-analysis
+   * 【结构证据】写入 `useCount`、`value`。
+   * 状态写入：useCount、value。
+   */
   constructor(value) {
     this.value = value;
     this.useCount = 0;
   }
 }
+/** @eyes-analysis
+ * 类职责：预加载材质描述/着色器资源，创建可复用材质实例并维护 Resource 加载状态。
+ * 继承：无显式父类；导出：MaterialManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MaterialManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cache`、`_clonedMaterials`、`_downloader`、`_promises`；调用 `new Map`、`this._preload`。
+   * 状态写入：_cache、_clonedMaterials、_downloader、_promises。
+   * 调用线索：new Map、this._preload。
+   */
   constructor(downloader) {
     this._downloader = downloader;
     this._cache = new Map();
@@ -25,6 +50,10 @@ class MaterialManager {
     this._promises = new Map();
     this._preload();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `n`；调用 `0,assertIsShader.assertIsShader`、`JSON.parse`、`PioneerPublicApi.ThreeJsHelper.cloneMaterial`、`new Resource`、`this._cache.get`、`this._cache.set`。
+   * 调用线索：0,assertIsShader.assertIsShader、JSON.parse、PioneerPublicApi.ThreeJsHelper.cloneMaterial、new Resource、this._cache.get等。
+   */
   async get(t, e) {
     let i = this._cache.get(t);
     if (void 0 === i) {
@@ -43,6 +72,10 @@ class MaterialManager {
     this._clonedMaterials.set(n, t);
     return n;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `PioneerPublicApi.ThreeJsHelper.cloneMaterial`、`new Error`、`this._cache.get`、`this._clonedMaterials.set`；含显式错误分支。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.cloneMaterial、new Error、this._cache.get、this._clonedMaterials.set。
+   */
   getPreloaded(t) {
     const e = this._cache.get(t);
     if (void 0 === e) throw new Error(`Invalid pre-loaded material "${t}".`);
@@ -51,6 +84,10 @@ class MaterialManager {
     this._clonedMaterials.set(i, t);
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `PioneerPublicApi.ThreeJsHelper.destroyMaterial`、`this._cache.delete`、`this._cache.get`、`this._clonedMaterials.delete`、`this._clonedMaterials.get`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyMaterial、this._cache.delete、this._cache.get、this._clonedMaterials.delete、this._clonedMaterials.get。
+   */
   release(t) {
     const e = this._clonedMaterials.get(t);
     if (void 0 === e) return;
@@ -58,6 +95,10 @@ class MaterialManager {
     const i = this._cache.get(e);
     i && (i.useCount -= 1, 0 === i.useCount && (PioneerPublicApi.ThreeJsHelper.destroyMaterial(i.value, true), this._cache.delete(e)));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `map.set`、`new Map`、`new Resource`、`this._cache.set`、`this._load`。
+   * 调用线索：map.set、new Map、new Resource、this._cache.set、this._load。
+   */
   _preload() {
     const map = new Map();
     map.set("basic", BasicShader.BasicShader);
@@ -75,6 +116,10 @@ class MaterialManager {
       this._cache.set(e, resource);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `rawShaderMaterial`；调用 `Object.entries`、`PioneerPublicApi.Capabilities.hasGLExtension`、`["modelMatrix","modelViewMatrix","projectionMatrix","viewMatrix","normalMatrix","cameraPosition"].includes`、`new PioneerPublicApi.THREE.RawShaderMaterial`、`new PioneerPublicApi.THREE.Uniform`、`this._getUniformValueFromType`；含显式错误分支。
+   * 调用线索：Object.entries、PioneerPublicApi.Capabilities.hasGLExtension、["modelMatrix","modelViewMatrix","projectionMatrix","viewMatrix","normalMatrix","cameraPosition"].includes、new PioneerPublicApi.THREE.RawShaderMaterial、new PioneerPublicApi.THREE.Uniform等。
+   */
   _load(t, e) {
     try {
       const t = {};
@@ -139,6 +184,10 @@ class MaterialManager {
       throw e instanceof Error && (e.message = `While processing material "${t}": ${e.message}`), e;
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `0` 或 `new PioneerPublicApi.THREE.Vector2(0,0)`；调用 `Number.parseInt`、`e.endsWith`、`e.indexOf`、`e.substring`、`new Error`、`new PioneerPublicApi.THREE.Matrix3`；含显式错误分支。
+   * 调用线索：Number.parseInt、e.endsWith、e.indexOf、e.substring、new Error等。
+   */
   _getUniformValueFromType(t) {
     const e = t.replace(/.* /u, "");
     switch (e) {

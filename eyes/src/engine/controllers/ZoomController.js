@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：按滚轮/触摸缩放输入更新观察距离，并执行距离限制。
+ * 依据：import ../pioneer/public-api.js；ZoomController extends PioneerPublicApi.BaseController @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:533214-535371.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：按滚轮/触摸缩放输入更新观察距离，并执行距离限制。
+ * 继承：PioneerPublicApi.BaseController；导出：ZoomController。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ZoomController extends PioneerPublicApi.BaseController {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_distanceClamp`、`_zoomSensitivity`、`_zoomSmoothedValue`、`_zoomSmoothness`；调用 `new PioneerPublicApi.Interval`、`super`、`this.addModifiedState`。
+   * 状态写入：_distanceClamp、_zoomSensitivity、_zoomSmoothedValue、_zoomSmoothness。
+   * 调用线索：new PioneerPublicApi.Interval、super、this.addModifiedState。
+   */
   constructor(t, e) {
     super(t, e);
     this._zoomSensitivity = .05;
@@ -9,24 +25,50 @@ class ZoomController extends PioneerPublicApi.BaseController {
     this._distanceClamp = new PioneerPublicApi.Interval(.001, Number.POSITIVE_INFINITY);
     this.addModifiedState("position");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._zoomSensitivity`。
+   */
   getZoomSensitivity() {
     return this._zoomSensitivity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_zoomSensitivity`。
+   * 状态写入：_zoomSensitivity。
+   */
   setZoomSensitivity(zoomSensitivity) {
     this._zoomSensitivity = zoomSensitivity;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._zoomSmoothness`。
+   */
   getZoomSmoothness() {
     return this._zoomSmoothness;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_zoomSmoothness`。
+   * 状态写入：_zoomSmoothness。
+   */
   setZoomSmoothness(zoomSmoothness) {
     this._zoomSmoothness = zoomSmoothness;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._distanceClamp`。
+   */
   getDistanceClamp() {
     return this._distanceClamp;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._distanceClamp.copy`。
+   * 调用线索：this._distanceClamp.copy。
+   */
   setDistanceClamp(t) {
     this._distanceClamp.copy(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_zoomSmoothedValue`；返回 `void`；调用 `Math.abs`、`Math.max`、`Number.isNaN`、`PioneerPublicApi.MathUtils.clamp`、`PioneerPublicApi.MathUtils.lerp`、`PioneerPublicApi.Vector3.pool.get`。
+   * 状态写入：_zoomSmoothedValue。
+   * 调用线索：Math.abs、Math.max、Number.isNaN、PioneerPublicApi.MathUtils.clamp、PioneerPublicApi.MathUtils.lerp等。
+   */
   __update() {
     const t = this.getEntity().getParent();
     if (!t) return;

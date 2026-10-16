@@ -1,9 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：阈值提亮、多级分离高斯模糊与加权合成辉光
+ * 依据：// Recovered from vendors.js:901776-910980.；exports: UnrealBloomPass
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:901776-910980.
 import * as ThreeCore from "../three/core.js";
 import * as Pass from "./Pass.js";
 import * as CopyShader from "./CopyShader.js";
 import * as LuminosityHighPassShader from "./LuminosityHighPassShader.js";
+/** @eyes-analysis
+ * 类职责：阈值提亮、多级分离高斯模糊与加权合成辉光
+ * 继承：Pass.Pass；导出：UnrealBloomPass。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class UnrealBloomPass extends Pass.Pass {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_basic、_fsQuad、_oldClearAlpha、_oldClearColor、blendMaterial、bloomTintColors、clearColor、compositeMaterial等；完整记录见索引。
+   * 调用线索：Math.round、ThreeCore.UniformsUtils.clone、new Pass.FullScreenQuad、new ThreeCore.Color、new ThreeCore.MeshBasicMaterial等。
+   */
   constructor(e, strength = 1, radius, threshold) {
     super(), this.strength = strength, this.radius = radius, this.threshold = threshold, this.resolution = void 0 !== e ? new ThreeCore.Vector2(e.x, e.y) : new ThreeCore.Vector2(256, 256), this.clearColor = new ThreeCore.Color(0, 0, 0), this.needsSwap = !1, this.renderTargetsHorizontal = [], this.renderTargetsVertical = [], this.nMips = 5;
     let c = Math.round(this.resolution.x / 2),
@@ -42,6 +58,10 @@ class UnrealBloomPass extends Pass.Pass {
       transparent: !0
     }), this._oldClearColor = new ThreeCore.Color(), this._oldClearAlpha = 1, this._basic = new ThreeCore.MeshBasicMaterial(), this._fsQuad = new Pass.FullScreenQuad(null);
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this._basic.dispose、this._fsQuad.dispose、this.blendMaterial.dispose、this.compositeMaterial.dispose、this.renderTargetBright.dispose等。
+   */
   dispose() {
     for (let e = 0; e < this.renderTargetsHorizontal.length; e++) this.renderTargetsHorizontal[e].dispose();
     for (let e = 0; e < this.renderTargetsVertical.length; e++) this.renderTargetsVertical[e].dispose();
@@ -49,12 +69,22 @@ class UnrealBloomPass extends Pass.Pass {
     for (let e = 0; e < this.separableBlurMaterials.length; e++) this.separableBlurMaterials[e].dispose();
     this.compositeMaterial.dispose(), this.blendMaterial.dispose(), this._basic.dispose(), this._fsQuad.dispose();
   }
+  /** @eyes-analysis
+   * 更新像素尺寸及关联目标；后处理链需要同步所有通道
+   * 状态写入：separableBlurMaterials[e].uniforms.invSize.value。
+   * 调用线索：Math.round、new ThreeCore.Vector2、this.renderTargetBright.setSize、this.renderTargetsHorizontal[e].setSize、this.renderTargetsVertical[e].setSize。
+   */
   setSize(e, t) {
     let n = Math.round(e / 2),
       i = Math.round(t / 2);
     this.renderTargetBright.setSize(n, i);
     for (let e = 0; e < this.nMips; e++) this.renderTargetsHorizontal[e].setSize(n, i), this.renderTargetsVertical[e].setSize(n, i), this.separableBlurMaterials[e].uniforms.invSize.value = new ThreeCore.Vector2(1 / n, 1 / i), n = Math.round(n / 2), i = Math.round(i / 2);
   }
+  /** @eyes-analysis
+   * 执行此类的渲染阶段；必须遵守 render target、缓冲交换和状态恢复约定
+   * 状态写入：_basic.map、_fsQuad.material、_oldClearAlpha、compositeMaterial.uniforms.bloomRadius.value、compositeMaterial.uniforms.bloomStrength.value、compositeMaterial.uniforms.bloomTintColors.value、copyUniforms.tDiffuse.value、highPassUniforms.luminosityThreshold.value等；完整记录见索引。
+   * 调用线索：e.clear、e.getClearAlpha、e.getClearColor、e.setClearColor、e.setRenderTarget等。
+   */
   render(e, t, n, r, i) {
     e.getClearColor(this._oldClearColor), this._oldClearAlpha = e.getClearAlpha();
     const a = e.autoClear;
@@ -63,6 +93,10 @@ class UnrealBloomPass extends Pass.Pass {
     for (let t = 0; t < this.nMips; t++) this._fsQuad.material = this.separableBlurMaterials[t], this.separableBlurMaterials[t].uniforms.colorTexture.value = renderTargetBright.texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionX, e.setRenderTarget(this.renderTargetsHorizontal[t]), e.clear(), this._fsQuad.render(e), this.separableBlurMaterials[t].uniforms.colorTexture.value = this.renderTargetsHorizontal[t].texture, this.separableBlurMaterials[t].uniforms.direction.value = UnrealBloomPass.BlurDirectionY, e.setRenderTarget(this.renderTargetsVertical[t]), e.clear(), this._fsQuad.render(e), renderTargetBright = this.renderTargetsVertical[t];
     this._fsQuad.material = this.compositeMaterial, this.compositeMaterial.uniforms.bloomStrength.value = this.strength, this.compositeMaterial.uniforms.bloomRadius.value = this.radius, this.compositeMaterial.uniforms.bloomTintColors.value = this.bloomTintColors, e.setRenderTarget(this.renderTargetsHorizontal[0]), e.clear(), this._fsQuad.render(e), this._fsQuad.material = this.blendMaterial, this.copyUniforms.tDiffuse.value = this.renderTargetsHorizontal[0].texture, i && e.state.buffers.stencil.setTest(!0), this.renderToScreen ? (e.setRenderTarget(null), this._fsQuad.render(e)) : (e.setRenderTarget(n), this._fsQuad.render(e)), e.setClearColor(this._oldClearColor, this._oldClearAlpha), e.autoClear = a;
   }
+  /** @eyes-analysis
+   * 源码方法 _getSeparableBlurMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.exp、new ThreeCore.ShaderMaterial、new ThreeCore.Vector2、t.push。
+   */
   _getSeparableBlurMaterial(e) {
     const t = [],
       n = e / 3;
@@ -89,6 +123,10 @@ class UnrealBloomPass extends Pass.Pass {
       fragmentShader: "\n\n\t\t\t\t#include <common>\n\n\t\t\t\tvarying vec2 vUv;\n\n\t\t\t\tuniform sampler2D colorTexture;\n\t\t\t\tuniform vec2 invSize;\n\t\t\t\tuniform vec2 direction;\n\t\t\t\tuniform float gaussianCoefficients[KERNEL_RADIUS];\n\n\t\t\t\tvoid main() {\n\n\t\t\t\t\tfloat weightSum = gaussianCoefficients[0];\n\t\t\t\t\tvec3 diffuseSum = texture2D( colorTexture, vUv ).rgb * weightSum;\n\n\t\t\t\t\tfor ( int i = 1; i < KERNEL_RADIUS; i ++ ) {\n\n\t\t\t\t\t\tfloat x = float( i );\n\t\t\t\t\t\tfloat w = gaussianCoefficients[i];\n\t\t\t\t\t\tvec2 uvOffset = direction * invSize * x;\n\t\t\t\t\t\tvec3 sample1 = texture2D( colorTexture, vUv + uvOffset ).rgb;\n\t\t\t\t\t\tvec3 sample2 = texture2D( colorTexture, vUv - uvOffset ).rgb;\n\t\t\t\t\t\tdiffuseSum += ( sample1 + sample2 ) * w;\n\n\t\t\t\t\t}\n\n\t\t\t\t\tgl_FragColor = vec4( diffuseSum, 1.0 );\n\n\t\t\t\t}"
     });
   }
+  /** @eyes-analysis
+   * 源码方法 _getCompositeMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new ThreeCore.ShaderMaterial。
+   */
   _getCompositeMaterial(e) {
     return new ThreeCore.ShaderMaterial({
       defines: {

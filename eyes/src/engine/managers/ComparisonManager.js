@@ -1,8 +1,24 @@
+/** @eyes-analysis
+ * 文件职责：创建实体大小/属性比较场景，调整实体布局并在退出时恢复原场景状态。
+ * 依据：import ../../framework/eyes/public-api.js；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1292425-1301906.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
+/** @eyes-analysis
+ * 类职责：创建实体大小/属性比较场景，调整实体布局并在退出时恢复原场景状态。
+ * 继承：EyesPublicApi.BaseManager；导出：ComparisonManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ComparisonManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeViewports`、`_anchorEntityLeft`、`_anchorEntityRight`、`_cameraEntityLeft`、`_cameraEntityRight`、`_cameraLeft`、`_cameraLightLeft`、`_cameraLightRight`；调用 `SolarSystemSceneExports.Entity.create`、`new Pioneer.Color`、`new Pioneer.Vector3`、`super`、`this._adjustZoomFromViewport.bind`、`this._anchorEntityLeft.setOrientation`。
+   * 状态写入：_activeViewports、_anchorEntityLeft、_anchorEntityRight、_cameraEntityLeft、_cameraEntityRight、_cameraLeft、_cameraLightLeft、_cameraLightRight等；完整记录见索引。
+   * 调用线索：SolarSystemSceneExports.Entity.create、new Pioneer.Color、new Pioneer.Vector3、super、this._adjustZoomFromViewport.bind等。
+   */
   constructor(t) {
     super(t);
     this._viewportLeft = null;
@@ -77,12 +93,22 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     this._viewportRight.setCamera(this._cameraRight);
     this.pioneer.addCallback(this._adjustZoomFromViewport.bind(this), true);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._entityLeft`。
+   */
   get entityLeft() {
     return this._entityLeft;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._entityRight`。
+   */
   get entityRight() {
     return this._entityRight;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`cameraManager.zoom`、`this.app.getManager`。
+   * 调用线索：Math.pow、cameraManager.zoom、this.app.getManager。
+   */
   zoomIn(t = false) {
     let e = 1;
     const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
@@ -91,6 +117,10 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     cameraManager.zoom(e, this._cameraEntityLeft);
     cameraManager.zoom(e, this._cameraEntityRight);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.pow`、`cameraManager.zoom`、`this.app.getManager`。
+   * 调用线索：Math.pow、cameraManager.zoom、this.app.getManager。
+   */
   zoomOut(t = false) {
     let e = 1;
     const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
@@ -99,6 +129,11 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     cameraManager.zoom(e, this._cameraEntityLeft);
     cameraManager.zoom(e, this._cameraEntityRight);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_entityLeft`、`_entityRight`；调用 `Math.max`、`Promise.all`、`SolarSystemSceneExports.Cameras.getDistanceToFitEntities`、`SolarSystemSceneExports.Entity.create`、`cameraManager.goToEntity`、`contentManager.getClassName`。
+   * 状态写入：_entityLeft、_entityRight。
+   * 调用线索：Math.max、Promise.all、SolarSystemSceneExports.Cameras.getDistanceToFitEntities、SolarSystemSceneExports.Entity.create、cameraManager.goToEntity等。
+   */
   async compare(t, e) {
     const sceneManager = this.app.getManager("scene");
     this._entityLeft && this._entityLeft.getName() !== t && (this._sceneLeft.removeEntity(this._entityLeft), sceneManager.removeLoading(this._entityLeft.getName(), "compare"), this._entityLeft = null);
@@ -195,12 +230,21 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     sceneManager.removeLoading(this._entityLeft.getName(), "compare");
     sceneManager.removeLoading(this._entityRight.getName(), "compare");
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraLightLeft.setColor`、`this._cameraLightLeft.setEnabled`、`this._cameraLightRight.setColor`、`this._cameraLightRight.setEnabled`、`this._updateSuns`。
+   * 调用线索：this._cameraLightLeft.setColor、this._cameraLightLeft.setEnabled、this._cameraLightRight.setColor、this._cameraLightRight.setEnabled、this._updateSuns。
+   */
   setCameraLight(t, e) {
     this._cameraLightLeft.setEnabled(t);
     this._cameraLightRight.setEnabled(t);
     void 0 !== e && (this._cameraLightLeft.setColor(e), this._cameraLightRight.setColor(e));
     this._updateSuns();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeViewports`、`_entityLeft`、`_entityRight`；调用 `new CustomEvent`、`this._sceneLeft.removeEntity`、`this._sceneRight.removeEntity`、`this._viewportLeft.setEnabled`、`this._viewportRight.setEnabled`、`this.app.getManager`。
+   * 状态写入：_activeViewports、_entityLeft、_entityRight。
+   * 调用线索：new CustomEvent、this._sceneLeft.removeEntity、this._sceneRight.removeEntity、this._viewportLeft.setEnabled、this._viewportRight.setEnabled等。
+   */
   exit() {
     this._entityLeft && (this._sceneLeft.removeEntity(this._entityLeft), this._entityLeft = null);
     this._entityRight && (this._sceneRight.removeEntity(this._entityRight), this._entityRight = null);
@@ -217,6 +261,10 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     });
     window.dispatchEvent(customEvent);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._cameraLightLeft.getColor`、`this._cameraLightLeft.getColor().min`、`this._cameraLightLeft.isEnabled`、`this._cameraLightRight.getColor`、`this._cameraLightRight.getColor().min`、`this._cameraLightRight.isEnabled`。
+   * 调用线索：this._cameraLightLeft.getColor、this._cameraLightLeft.getColor().min、this._cameraLightLeft.isEnabled、this._cameraLightRight.getColor、this._cameraLightRight.getColor().min等。
+   */
   _updateSuns() {
     const t = "sun" !== this._entityLeft?.getName() && (!this._cameraLightLeft.isEnabled() || this._cameraLightLeft.getColor().min() < 1);
     const e = "sun" !== this._entityRight?.getName() && (!this._cameraLightRight.isEnabled() || this._cameraLightRight.getColor().min() < 1);
@@ -229,6 +277,10 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     this._sunRight.getComponent(Pioneer.SpriteComponent).setEnabled(e);
     this._sunRight.getComponent(Pioneer.LightSourceComponent).setEnabled(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Number.isNaN`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.getName`、`i.setMagnitude`、`s.setMagnitude`。
+   * 调用线索：Number.isNaN、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.getName、i.setMagnitude等。
+   */
   _adjustZoomFromViewport() {
     if (!this._viewportLeft.isEnabled()) return;
     if (!this._viewportRight.isEnabled()) return;
@@ -245,6 +297,10 @@ class ComparisonManager extends EyesPublicApi.BaseManager {
     Pioneer.Vector3.pool.release(i);
     Pioneer.Vector3.pool.release(s);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.MathUtils.degToRad`、`new Error`、`new Pioneer.Quaternion`、`quaternion.setFromAxisAngle`、`t.mult`、`t.set`；含显式错误分支。
+   * 调用线索：Pioneer.MathUtils.degToRad、new Error、new Pioneer.Quaternion、quaternion.setFromAxisAngle、t.mult等。
+   */
   _getCustomRotation(t, e, i) {
     if (t.set(1, 0, 0, 0), void 0 !== this._customRotations[e]) {
       const i = this._customRotations[e];

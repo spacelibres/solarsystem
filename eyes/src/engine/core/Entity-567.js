@@ -1,14 +1,37 @@
+/** @eyes-analysis
+ * 文件职责：太阳系实体配置工厂：注册声明式实体，创建组件/控制器/父级时间表，按组创建，并在失败时回滚实体。
+ * 依据：import ../pioneer/index.js；Entity @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:707355-715578.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：太阳系实体配置工厂：注册声明式实体，创建组件/控制器/父级时间表，按组创建，并在失败时回滚实体。
+ * 继承：无显式父类；导出：Entity。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Entity {
+  /** @eyes-analysis
+   * 【结构证据】调用 `Object.entries`、`this._entities.set`。
+   * 调用线索：Object.entries、this._entities.set。
+   */
   static register(t) {
     for (const [e, i] of Object.entries(t)) this._entities.set(e, i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.createFromOptions(t,s,e,i)`；调用 `Entity._entities.get`、`new Error`、`this.createFromOptions`；含显式错误分支。
+   * 调用线索：Entity._entities.get、new Error、this.createFromOptions。
+   */
   static create(t, e, i) {
     const s = Entity._entities.get(t);
     if (void 0 === s) throw new Error(`Could not find the options for the entity with name ${t}`);
     return this.createFromOptions(t, s, e, i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `r`；调用 `Array.isArray`、`Object.keys`、`Pioneer.MathUtils.degToRad`、`a.addOrbitalElements`、`a.setAxis`、`a.setBaseUrl`；含显式错误分支。
+   * 调用线索：Array.isArray、Object.keys、Pioneer.MathUtils.degToRad、a.addOrbitalElements、a.setAxis等。
+   */
   static createFromOptions(t, e, i, n) {
     let o = t;
     n && (void 0 !== n.namePrefix && (o = n.namePrefix + o), void 0 !== n.nameSuffix && (o += n.nameSuffix));
@@ -178,9 +201,17 @@ class Entity {
     }
     return r;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `Entity._entities.get(t)`；调用 `Entity._entities.get`。
+   * 调用线索：Entity._entities.get。
+   */
   static getEntityOptions(t) {
     return Entity._entities.get(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `set`；调用 `Entity._entities.keys`、`n.includes`、`new Set`、`set.add`、`t.split`、`t.split(",").map`。
+   * 调用线索：Entity._entities.keys、n.includes、new Set、set.add、t.split等。
+   */
   static getEntityNamesInGroup(t) {
     const set = new Set();
     if ("" !== t) {
@@ -195,6 +226,10 @@ class Entity {
     } else for (const t of Entity._entities.keys()) set.add(t);
     return set;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `set`；调用 `new Set`、`set.add`、`this._entities.values`。
+   * 调用线索：new Set、set.add、this._entities.values。
+   */
   static getGroups() {
     const set = new Set();
     for (const e of this._entities.values()) {
@@ -203,6 +238,10 @@ class Entity {
     }
     return set;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.create`、`this.getEntityNamesInGroup`。
+   * 调用线索：this.create、this.getEntityNamesInGroup。
+   */
   static createGroup(t, e, i) {
     const s = this.getEntityNamesInGroup(t);
     for (const t of s) this.create(t, e, i);

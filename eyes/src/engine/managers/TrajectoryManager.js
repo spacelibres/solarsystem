@@ -1,7 +1,23 @@
+/** @eyes-analysis
+ * 文件职责：为定制任务创建按阶段控制的轨迹、指示器与 UI，进入/退出时保存恢复图层及时间控件。
+ * 依据：import ../../framework/eyes/index.js；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1405886-1422621.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：为定制任务创建按阶段控制的轨迹、指示器与 UI，进入/退出时保存恢复图层及时间控件。
+ * 继承：Eyes.BaseManager；导出：TrajectoryManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TrajectoryManager extends Eyes.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_app`、`_atSystem`、`_callbackEnabled`、`_entityId`、`_isEnabled`、`_offsetObserver`、`_prevEntityId`、`_resizeObserver`；调用 `new MutationObserver`、`new ResizeObserver`、`super`、`t.forEach`、`this._calcIndicatorPadding`、`this._eventNames.push`。
+   * 状态写入：_app、_atSystem、_callbackEnabled、_entityId、_isEnabled、_offsetObserver、_prevEntityId、_resizeObserver等；完整记录见索引。
+   * 调用线索：new MutationObserver、new ResizeObserver、super、t.forEach、this._calcIndicatorPadding等。
+   */
   constructor(app) {
     super(app);
     this._app = app;
@@ -24,9 +40,16 @@ class TrajectoryManager extends Eyes.BaseManager {
       this._calcIndicatorPadding();
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `r`。
+   */
   getCustomMissions() {
     return r;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `new Pioneer.Color`、`p.setAlphaFade`、`p.setColor`、`p.setDrawStartTime`、`p.setEnabled`、`p.setEndTime`。
+   * 调用线索：new Pioneer.Color、p.setAlphaFade、p.setColor、p.setDrawStartTime、p.setEnabled等。
+   */
   createTrajectory(t, e, i = null) {
     let s = t.getName();
     if ("" === s && (s = this._entityId), "all" === e) return;
@@ -50,9 +73,18 @@ class TrajectoryManager extends Eyes.BaseManager {
     u - d > 2628e3 && p.setPointsPerFrame(18);
     p.setEnabled(false);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `!!t&&Object.keys(this.getCustomMissions()).includes(t)`；调用 `Object.keys`、`Object.keys(this.getCustomMissions()).includes`、`this.getCustomMissions`。
+   * 调用线索：Object.keys、Object.keys(this.getCustomMissions()).includes、this.getCustomMissions。
+   */
   hasTrajectoryOptions(t) {
     return !!t && Object.keys(this.getCustomMissions()).includes(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_entityId`、`_isEnabled`、`_prevEntityId`、`_urlMissionChoice`、`_wasAlreadyEnabled`；调用 `Object.keys`、`o.includes`、`this._app.getManager`、`this._app.getManager("router").navigate`、`this._enterSelectedTrajectoryView`、`this._offsetObserver.disconnect`。
+   * 状态写入：_entityId、_isEnabled、_prevEntityId、_urlMissionChoice、_wasAlreadyEnabled。
+   * 调用线索：Object.keys、o.includes、this._app.getManager、this._app.getManager("router").navigate、this._enterSelectedTrajectoryView等。
+   */
   async setEnabled(isEnabled, entityId, i = ["trajectory"]) {
     this._wasAlreadyEnabled = this._isEnabled;
     this._isEnabled = isEnabled;
@@ -74,6 +106,11 @@ class TrajectoryManager extends Eyes.BaseManager {
       __remove: i
     }));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_atSystem`、`_entityId`；调用 `Object.keys`、`Object.keys(r[entityId].missionOptions).forEach`、`document.getElementById`、`this._toggleLayers`、`this.app.cameraScripts.goToSystem`、`this.triggerCallbacks`。
+   * 状态写入：_atSystem、_entityId。
+   * 调用线索：Object.keys、Object.keys(r[entityId].missionOptions).forEach、Object.keys(r[entityId]?.missionOptions)?.includes、document.getElementById、e?.classList.toggle等。
+   */
   async _enterSelectedTrajectoryView(entityId, e) {
     this._entityId = entityId;
     let i = "primary";
@@ -91,6 +128,10 @@ class TrajectoryManager extends Eyes.BaseManager {
       e?.classList.toggle("checked", t === i);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._app.getComponent`、`this._app.getManager`、`this._app.getManager("layer").toggleLayer`。
+   * 调用线索：hideLayers?.forEach、this._app.getComponent、this._app.getComponent("layersBlock")?.syncAllLayerCheckboxes、this._app.getManager、this._app.getManager("layer").toggleLayer。
+   */
   _toggleLayers() {
     const {
       hideLayers: hideLayers
@@ -100,6 +141,10 @@ class TrajectoryManager extends Eyes.BaseManager {
     });
     this._app.getComponent("layersBlock")?.syncAllLayerCheckboxes();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Eyes.AppUtils.isMobile`、`document.getElementById`、`this._app.getComponent`、`this._app.getManager`、`this._app.getManager("label").setClickable`、`this._app.getManager("selection").setClickable`。
+   * 调用线索：Eyes.AppUtils.isMobile、clockComponent?.isEnabled、clockComponent?.setEnabled、clockShortcutComponent?.isEnabled、clockShortcutComponent?.setEnabled等。
+   */
   _onEnable() {
     if (this._wasAlreadyEnabled) return;
     const {
@@ -120,6 +165,11 @@ class TrajectoryManager extends Eyes.BaseManager {
     this._app.getManager("selection").setClickable(false);
     this._app.getComponent("contentPanel")?.selectTab("viewOptions");
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_atSystem`；调用 `Eyes.AppUtils.isMobile`、`Object.keys`、`Object.keys(r[e].missionOptions).forEach`、`document.getElementById`、`r[e].associatedEntities.forEach`、`this._app.getComponent`。
+   * 状态写入：_atSystem。
+   * 调用线索：Eyes.AppUtils.isMobile、Object.keys、Object.keys(r[e].missionOptions).forEach、clockComponent?.isEnabled、clockComponent?.setEnabled等。
+   */
   async _onDisable() {
     const timeManager = this._app.getManager("time");
     o[this._entityId]?.onLeave?.(this._app);
@@ -158,9 +208,16 @@ class TrajectoryManager extends Eyes.BaseManager {
     this._toggleLayers();
     this._app.getComponent("contentPanel")?.selectTab("info");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isEnabled`。
+   */
   isEnabled() {
     return this._isEnabled;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Array.from`、`Array.from(t.children).filter`、`t.appendChild`、`t.classList.contains`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`。
+   * 调用线索：Array.from、Array.from(t.children).filter、i?.appendChild、t.appendChild、t.classList.contains等。
+   */
   createUI(t) {
     if (!t) return;
     if (!(Array.from(t.children).filter(t => t.classList.contains("trajectory-options")).length > 0)) {
@@ -171,6 +228,10 @@ class TrajectoryManager extends Eyes.BaseManager {
       i?.appendChild(s);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `document.createElement`、`t.addEventListener`、`this._app.getComponent`、`this._app.getComponent("cameraViewBlock").goToDefaultView`、`this.setEnabled`。
+   * 调用线索：document.createElement、t.addEventListener、this._app.getComponent、this._app.getComponent("cameraViewBlock").goToDefaultView、this.setEnabled。
+   */
   _createExitButton() {
     const t = document.createElement("button");
     t.className = "trajectory-exit-button clickable";
@@ -181,6 +242,11 @@ class TrajectoryManager extends Eyes.BaseManager {
     });
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_trajectoryViewId`；返回 `void` 或 `e`；调用 `Object.keys`、`Object.keys(r[t.getName()].missionOptions).forEach`、`a.appendChild`、`document.createElement`、`e.appendChild`、`h.setAttribute`。
+   * 状态写入：_trajectoryViewId。
+   * 调用线索：Object.keys、Object.keys(r[t.getName()].missionOptions).forEach、a.appendChild、document.createElement、e.appendChild等。
+   */
   _createCheckboxOptions(t) {
     if (!t) return;
     const e = document.createElement("div");
@@ -221,6 +287,10 @@ class TrajectoryManager extends Eyes.BaseManager {
     });
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.min`、`Math.round`、`Object.keys`、`Object.keys(l).forEach`、`isNaN`、`this._app.getManager`。
+   * 调用线索：Math.min、Math.round、Object.keys、Object.keys(l).forEach、e?.getComponent等。
+   */
   customEngineLoopCallback() {
     const timeManager = this._app.getManager("time");
     const e = this._app.pioneer.getScene("main").getEntity(this._entityId);
@@ -241,19 +311,36 @@ class TrajectoryManager extends Eyes.BaseManager {
       i === this._urlMissionChoice && (Math.round(s + timeManager.getTimeRate()) >= r || Math.round(s + timeManager.getTimeRate()) >= a) && e?.isInPositionCoverage() && (timeManager.pause(), isNaN(a) || this._app.pioneer.setTime(isNaN(r) ? a : r));
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_callbackEnabled`；调用 `this._app.pioneer.addCallback`、`this._app.pioneer.removeCallback`。
+   * 状态写入：_callbackEnabled。
+   * 调用线索：this._app.pioneer.addCallback、this._app.pioneer.removeCallback。
+   */
   setEngineLoopCallback(t) {
     t !== this._callbackEnabled && (t ? (this._app.pioneer.addCallback(this.customEngineLoopCallback, true), this._callbackEnabled = true) : (this._app.pioneer.removeCallback(this.customEngineLoopCallback), this._callbackEnabled = false));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `r[t].associatedEntities.forEach`、`this._app.getManager`、`this._app.getManager("scene").setEntitiesForceVisible`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`、`this._app.pioneer.getScene("main").getEntity(t).setEnabled`。
+   * 调用线索：r[t].associatedEntities.forEach、this._app.getManager、this._app.getManager("scene").setEntitiesForceVisible、this._app.pioneer.getScene、this._app.pioneer.getScene("main").getEntity等。
+   */
   enableAssociatedEntities(t) {
     r[t].associatedEntities.length && r[t].associatedEntities.forEach(t => {
       this._app.getManager("scene").setEntitiesForceVisible([t], false);
       this._app.pioneer.getScene("main").getEntity(t).setEnabled(true);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._setUpAssociatedEntityTrails`、`this._setUpIndicatorForEntity`。
+   * 调用线索：this._setUpAssociatedEntityTrails、this._setUpIndicatorForEntity。
+   */
   setUpAssociatedEntities(t, e = true) {
     this._setUpAssociatedEntityTrails(t, e);
     this._setUpIndicatorForEntity(t, e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void` 或 `void t.getComponent(Pioneer.TrailComponent,i)?.setEnabled(false)`；调用 `Math.abs`、`Object.keys`、`t.getComponent`、`t.getName`、`this.createTrajectory`。
+   * 调用线索：Math.abs、Object.keys、h?.setEnabled、h?.setRelativeEndTime、h?.setRelativeStartTime等。
+   */
   _setUpAssociatedEntityTrails(t, e = true) {
     if (!t) return;
     const i = Object.keys(r[t.getName()]?.missionOptions)[0];
@@ -274,6 +361,10 @@ class TrajectoryManager extends Eyes.BaseManager {
     h?.setRelativeEndTime(true);
     h?.setRelativeToEntity("sun");
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void(e&&t.removeComponent(e))`；调用 `s.getDiv`、`s.getDiv().classList.add`、`t.addComponent`、`t.getComponent`、`t.getName`、`t.removeComponent`。
+   * 调用线索：s.getDiv、s.getDiv().classList.add、t.addComponent、t.getComponent、t.getName等。
+   */
   _setUpIndicatorForEntity(t, e = true) {
     if (!e) {
       const e = t.getComponent(Pioneer.IndicatorComponent, "indicator");
@@ -287,6 +378,10 @@ class TrajectoryManager extends Eyes.BaseManager {
     s.getDiv().classList.add("pioneer-indicator");
     this._calcIndicatorPadding(t.getName());
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Eyes.AppUtils.isMobile`、`Eyes.AppUtils.isTablet`、`Math.round`、`[t,...(r[t]?.associatedEntities??[])].forEach`、`document.body.classList.contains`、`this._app.getComponent`。
+   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、Math.round、[t,...(r[t]?.associatedEntities??[])].forEach、document.body.classList.contains等。
+   */
   _calcIndicatorPadding(t = this._entityId) {
     const e = document.body.classList.contains("offset-right");
     const contentPanelComponent = this._app.getComponent("contentPanel");
@@ -311,6 +406,10 @@ class TrajectoryManager extends Eyes.BaseManager {
       } else e?.setPadding(a, l, o, o);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.abs`、`c.addComponent`、`c.getComponent`、`d.setDrawStartTime`、`d.setEnabled`、`d.setEndTime`。
+   * 调用线索：Math.abs、_?.setEnabled、c.addComponent、c.getComponent、d.setDrawStartTime等。
+   */
   setUpVoyagers(t, e) {
     const i = "sc_voyager_1" === t ? "sc_voyager_2" : "sc_voyager_1";
     const {

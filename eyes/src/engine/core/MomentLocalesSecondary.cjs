@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：Moment 补充语言区域的第三方本地化定义和注册副作用。
+ * 依据：import ../../vendor/moment/secondary/locale/af.cjs；import ../../vendor/moment/secondary/locale/ar.cjs
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1381950-1385870.
 var s = {
   "./af": 781,

@@ -1,9 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：TelescopeHelper：建立地面观察相机目标、经纬地标、飞行过渡和方位/仰角读数。
+ * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1648403-1652579.
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import "../../framework/eyes/index.js";
 let defaultExport;
-defaultExport = class TelescopeHelper {
+defaultExport = /** @eyes-analysis
+                 * 类职责：TelescopeHelper：建立地面观察相机目标、经纬地标、飞行过渡和方位/仰角读数。
+                 * 继承：无显式父类；导出：default。
+                 * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+                 */
+                class TelescopeHelper {
+  /** @eyes-analysis
+   * 【结构证据】写入 `camera`、`cameraTarget`、`entity`、`fixedController`、`pioneer`、`scene`；调用 `t.scene.addEntity`、`t.scene.getEntity`、`this.cameraTarget.addController`、`this.cameraTarget.getController`。
+   * 状态写入：camera、cameraTarget、entity、fixedController、pioneer、scene。
+   * 调用线索：t.scene.addEntity、t.scene.getEntity、this.cameraTarget.addController、this.cameraTarget.getController。
+   */
   constructor(t, entity) {
     this.pioneer = t.pioneer;
     this.scene = t.scene;
@@ -13,11 +29,20 @@ defaultExport = class TelescopeHelper {
     this.cameraTarget.getController(Pioneer.RotateByEntityOrientationController) || this.cameraTarget.addController(Pioneer.RotateByEntityOrientationController);
     this.entity = entity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `entity`；调用 `this.removePlacemark`、`this.scene.getEntity`、`this.scene.removeEntity`。
+   * 状态写入：entity。
+   * 调用线索：this.removePlacemark、this.scene.getEntity、this.scene.removeEntity。
+   */
   reset() {
     this.entity = null;
     this.scene.getEntity("pickLocation") && this.scene.removeEntity("pickLocation");
     this.removePlacemark();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `e.addController`、`e.getParent`、`e.setCanOcclude`、`e.setOcclusionRadius`、`e.setParent`、`t.getName`。
+   * 调用线索：e.addController、e.getParent、e.getParent()?.getName、e.setCanOcclude、e.setOcclusionRadius等。
+   */
   setPickedLocation(t) {
     let e = this.scene.getEntity("pickLocation");
     if (!e) {
@@ -31,6 +56,10 @@ defaultExport = class TelescopeHelper {
     e.getParent()?.getName() !== t.getName() && (e.setParent(t), e.setOcclusionRadius(t.getOcclusionRadius()));
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `o`；调用 `SolarSystemSceneExports.Placemarks.addPlacemark`、`o.setParent`、`this.removePlacemark`、`this.scene.getEntity`、`this.scene.removeEntity`、`this.setPickedLocation`。
+   * 调用线索：SolarSystemSceneExports.Placemarks.addPlacemark、o.setParent、this.removePlacemark、this.scene.getEntity、this.scene.removeEntity等。
+   */
   addPlacemark(t, e, i) {
     const s = this.setPickedLocation(this.entity);
     this.removePlacemark();
@@ -40,9 +69,17 @@ defaultExport = class TelescopeHelper {
     o.setParent(s);
     return o;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.scene.getEntity`、`this.scene.removeEntity`。
+   * 调用线索：this.scene.getEntity、this.scene.removeEntity。
+   */
   removePlacemark(t = "placemark") {
     this.scene.getEntity(t) && this.scene.removeEntity(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.cos`、`Math.sin`、`SolarSystemSceneExports.Cameras.goToEntity`、`SolarSystemSceneExports.Cameras.goToEntity(this.camera,this.cameraTarget,{destination:h,up:true,zoom:false}).catch`、`d.setEnabled`、`h.rotate`。
+   * 调用线索：Math.cos、Math.sin、SolarSystemSceneExports.Cameras.goToEntity、SolarSystemSceneExports.Cameras.goToEntity(this.camera,this.cameraTarget,{destination:h,up:true,zoom:false}).catch、d.setEnabled等。
+   */
   async flyToSurface(t, e) {
     this.fixedController.getEntity().setParent(this.entity);
     const i = this.getPositionFromLatitudeLongitude(t, e);
@@ -71,6 +108,10 @@ defaultExport = class TelescopeHelper {
     const u = this.camera.getController(Pioneer.OrbitController);
     u && u.setPitchAngleLimits(new Pioneer.Interval(-Math.PI / 2, Math.PI / 72));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `this.getAEFromEntity`。
+   * 调用线索：this.getAEFromEntity。
+   */
   readCameraAE() {
     const t = {
       azimuth: 0,
@@ -79,6 +120,10 @@ defaultExport = class TelescopeHelper {
     this.getAEFromEntity(this.camera, t);
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `(90-Pioneer.MathUtils.radToDeg(o.azimuth)).toFixed`、`Pioneer.AER.pool.get`、`Pioneer.AER.pool.release`、`Pioneer.MathUtils.radToDeg`、`Pioneer.MathUtils.radToDeg(o.elevation).toFixed`、`Pioneer.MathUtils.wrap`。
+   * 调用线索：(90-Pioneer.MathUtils.radToDeg(o.azimuth)).toFixed、Pioneer.AER.pool.get、Pioneer.AER.pool.release、Pioneer.MathUtils.radToDeg、Pioneer.MathUtils.radToDeg(o.elevation).toFixed等。
+   */
   getAEFromEntity(t, e) {
     const i = t.getParent();
     if (i) {
@@ -97,6 +142,10 @@ defaultExport = class TelescopeHelper {
       Pioneer.Vector3.pool.release(n);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `{azimuth:azimuth,elevation:elevation}`；调用 `this.readCameraAE`。
+   * 调用线索：this.readCameraAE。
+   */
   getAzimuthElevation() {
     const t = this.readCameraAE();
     if (!t) return null;
@@ -118,6 +167,10 @@ defaultExport = class TelescopeHelper {
       elevation: elevation
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `null==n.latitude||null==n.longitude?null:n`；调用 `Pioneer.LatLonAlt.pool.get`、`Pioneer.LatLonAlt.pool.release`、`Pioneer.MathUtils.radToDeg`、`e.llaFromXYZ`、`t.isNaN`、`this.entity.getComponent`。
+   * 调用线索：Pioneer.LatLonAlt.pool.get、Pioneer.LatLonAlt.pool.release、Pioneer.MathUtils.radToDeg、e.llaFromXYZ、t.isNaN等。
+   */
   getLatitudeLongitude(t) {
     const e = this.entity.getComponent(Pioneer.SpheroidComponent);
     if (null == e || null === parent || t.isNaN()) return null;
@@ -130,6 +183,10 @@ defaultExport = class TelescopeHelper {
     Pioneer.LatLonAlt.pool.release(i);
     return null == n.latitude || null == n.longitude ? null : n;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `vector3`；调用 `Pioneer.MathUtils.degToRad`、`i.xyzFromLLA`、`new Pioneer.LatLonAlt`、`new Pioneer.Vector3`、`this.entity.getComponent`。
+   * 调用线索：Pioneer.MathUtils.degToRad、i.xyzFromLLA、new Pioneer.LatLonAlt、new Pioneer.Vector3、this.entity.getComponent。
+   */
   getPositionFromLatitudeLongitude(t, e) {
     const i = this.entity.getComponent(Pioneer.SpheroidComponent);
     if (null == i || null === parent) return null;
@@ -140,12 +197,20 @@ defaultExport = class TelescopeHelper {
     i.xyzFromLLA(vector3, latLonAlt);
     return vector3;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `{latitude:t<0?Math.abs(t).toFixed(2)+"°S":t.toFixed(2)+"°N",longitude:e<0?Math.abs(e).toFixed(2)+"°W":e.toFixed(2)+"°E"}`；调用 `Math.abs`、`Math.abs(e).toFixed`、`Math.abs(t).toFixed`、`e.toFixed`、`t.toFixed`。
+   * 调用线索：Math.abs、Math.abs(e).toFixed、Math.abs(t).toFixed、e.toFixed、t.toFixed。
+   */
   formatLatitudeLongitude(t, e) {
     return {
       latitude: t < 0 ? Math.abs(t).toFixed(2) + "°S" : t.toFixed(2) + "°N",
       longitude: e < 0 ? Math.abs(e).toFixed(2) + "°W" : e.toFixed(2) + "°E"
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s`；调用 `i.split`、`parseFloat`、`t.includes`、`t.replace`。
+   * 调用线索：i.split、parseFloat、t.includes、t.replace。
+   */
   getUnformattedLatOrLon(t, e) {
     const i = t.replace(/\s/g, "");
     let s = parseFloat(i.split("°")[0]);

@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：帕克太阳探测器近日点故事定义，协调 2024-12-24 事件时间和观察步骤。
+ * 依据：顶层副作用 defaultExport={type:"nonsequential",entities:["sc_parker_solar_probe"],onEnter:async t=>{t.getManager("layer").toggleLayer("spacecraft",{},false);},slides:[{id:"slide_1",type:"overlay",classList:["opaque","black"],conten；实际标题：Parker Solar Probe's Closest Pass by the Sun ；Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS；Venus as seen by Parker Solar Probe. Credit: NASA；Coronal streamers up close. Credit: NASA SVS；Conceptual image of Parker Solar Probe passing through the corona. Credit: NASA SVS
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1734753-1739455.
 let defaultExport;
 const s = "2024-12-24T12:56:00Z";

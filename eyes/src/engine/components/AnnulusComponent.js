@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：生成可调整内外半径的平面环带网格，按实体姿态定位并通过颜色透明度淡出。
+ * 依据：import ../pioneer/index.js；AnnulusComponent extends Pioneer.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:737638-740173.
 import * as Pioneer from "../pioneer/index.js";
+/** @eyes-analysis
+ * 类职责：生成可调整内外半径的平面环带网格，按实体姿态定位并通过颜色透明度淡出。
+ * 继承：Pioneer.BaseComponent；导出：AnnulusComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnnulusComponent extends Pioneer.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_alphaMultiplier`、`_color`、`_meshDirty`、`_numPointsOnCircle`、`_sizeInner`、`_sizeOuter`；调用 `new Pioneer.Color`、`super`、`this.__setRadius`、`this.__setUsesEntityOrientation`。
+   * 状态写入：_alphaMultiplier、_color、_meshDirty、_numPointsOnCircle、_sizeInner、_sizeOuter。
+   * 调用线索：new Pioneer.Color、super、this.__setRadius、this.__setUsesEntityOrientation。
+   */
   constructor(t, e) {
     super(t, e);
     this._sizeInner = 1;
@@ -12,28 +28,55 @@ class AnnulusComponent extends Pioneer.BaseComponent {
     this.__setRadius(this._sizeOuter);
     this.__setUsesEntityOrientation(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sizeInner`。
+   */
   getInnerRadius() {
     return this._sizeInner;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_meshDirty`、`_sizeInner`。
+   * 状态写入：_meshDirty、_sizeInner。
+   */
   setInnerRadius(sizeInner) {
     this._sizeInner = sizeInner;
     this._meshDirty = true;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sizeOuter`。
+   */
   getOuterRadius() {
     return this._sizeOuter;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_meshDirty`、`_sizeOuter`；调用 `this.__setRadius`。
+   * 状态写入：_meshDirty、_sizeOuter。
+   * 调用线索：this.__setRadius。
+   */
   setOuterRadius(sizeOuter) {
     this._sizeOuter = sizeOuter;
     this._meshDirty = true;
     this.__setRadius(sizeOuter);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._color`。
+   */
   getColor() {
     return this._color;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.ThreeJsHelper.setUniformColorRGBA`、`this._color.copy`、`this.getThreeJsMaterials`。
+   * 调用线索：Pioneer.ThreeJsHelper.setUniformColorRGBA、this._color.copy、this.getThreeJsMaterials。
+   */
   setColor(t) {
     this._color.copy(t);
     Pioneer.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color, this._alphaMultiplier);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_alphaMultiplier`；调用 `Pioneer.ThreeJsHelper.setOrientationToEntity`、`Pioneer.ThreeJsHelper.setPositionToEntity`、`Pioneer.ThreeJsHelper.setUniformColorRGBA`、`this._updateMesh`、`this.getEntity`、`this.getThreeJsMaterials`。
+   * 状态写入：_alphaMultiplier。
+   * 调用线索：Pioneer.ThreeJsHelper.setOrientationToEntity、Pioneer.ThreeJsHelper.setPositionToEntity、Pioneer.ThreeJsHelper.setUniformColorRGBA、this._updateMesh、this.getEntity等。
+   */
   __prepareForRender(t) {
     Pioneer.ThreeJsHelper.setOrientationToEntity(this.getThreeJsObjects()[0], this.getEntity());
     Pioneer.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
@@ -41,6 +84,10 @@ class AnnulusComponent extends Pioneer.BaseComponent {
     this._alphaMultiplier = this.getVisibleInterval().getFadeMultiplier(this.getEntity(), t);
     Pioneer.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color, this._alphaMultiplier);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.ThreeJsHelper.createMeshObject`、`Pioneer.ThreeJsHelper.setUniformColorRGBA`、`this.getEntity`、`this.getEntity().getScene`、`this.getEntity().getScene().getEngine`、`this.getEntity().getScene().getEngine().getMaterialManager`。
+   * 调用线索：Pioneer.ThreeJsHelper.createMeshObject、Pioneer.ThreeJsHelper.setUniformColorRGBA、this.getEntity、this.getEntity().getScene、this.getEntity().getScene().getEngine等。
+   */
   async __loadResources() {
     const t = this.getEntity().getScene().getEngine().getMaterialManager().getPreloaded("basic_alpha");
     this.getThreeJsMaterials().push(t);
@@ -51,9 +98,18 @@ class AnnulusComponent extends Pioneer.BaseComponent {
     }], false);
     this.getThreeJsObjects().push(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials`。
+   * 调用线索：Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials。
+   */
   __unloadResources() {
     Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_meshDirty`；调用 `Math.cos`、`Math.sin`、`Pioneer.ThreeJsHelper.setIndices`、`Pioneer.ThreeJsHelper.setVertices`、`new Float32Array`、`new Pioneer.Vector3`。
+   * 状态写入：_meshDirty。
+   * 调用线索：Math.cos、Math.sin、Pioneer.ThreeJsHelper.setIndices、Pioneer.ThreeJsHelper.setVertices、new Float32Array等。
+   */
   _updateMesh() {
     const float32Array = new Float32Array(4 * this._numPointsOnCircle * 3);
     const uint16Array = new Uint16Array(6 * this._numPointsOnCircle);

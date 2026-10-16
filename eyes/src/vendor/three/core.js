@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：Three.js REVISION 185 的数学、场景图、几何、材质、动画、加载、音频及公共基础设施
+ * 依据：// Recovered from vendors.js:386331-792655.；exports: ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AgXToneMapping, AlphaFormat, AlwaysCompare, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AnimationAction, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, AttachedBindMode, Audio, AudioAnalyser, AudioContext, AudioListener, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, BatchedMesh, BezierInterpolant, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache,…
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:386331-792655.
 const REVISION = "185",
   MOUSE = {
@@ -330,16 +336,34 @@ const ReversedDepthFuncs = {
   [NotEqualDepth]: EqualDepth,
   [GreaterEqualDepth]: j
 };
+/** @eyes-analysis
+ * 类职责：对象级事件订阅、分发和移除
+ * 继承：无显式父类；导出：EventDispatcher。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class EventDispatcher {
+  /** @eyes-analysis
+   * 源码方法 addEventListener；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_listeners。
+   * 调用线索：listeners[e].indexOf、listeners[e].push。
+   */
   addEventListener(e, t) {
     void 0 === this._listeners && (this._listeners = {});
     const listeners = this._listeners;
     void 0 === listeners[e] && (listeners[e] = []), -1 === listeners[e].indexOf(t) && listeners[e].push(t);
   }
+  /** @eyes-analysis
+   * 源码方法 hasEventListener；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：listeners[e].indexOf。
+   */
   hasEventListener(e, t) {
     const listeners = this._listeners;
     return void 0 !== listeners && void 0 !== listeners[e] && -1 !== listeners[e].indexOf(t);
   }
+  /** @eyes-analysis
+   * 源码方法 removeEventListener；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：r.indexOf、r.splice。
+   */
   removeEventListener(e, t) {
     const listeners = this._listeners;
     if (void 0 === listeners) return;
@@ -349,6 +373,10 @@ class EventDispatcher {
       -1 !== e && r.splice(e, 1);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 dispatchEvent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.slice、t[n].call。
+   */
   dispatchEvent(e) {
     const listeners = this._listeners;
     if (void 0 === listeners) return;
@@ -512,37 +540,85 @@ const MathUtils = {
   normalize: wr,
   denormalize: Sr
 };
+/** @eyes-analysis
+ * 类职责：2 维向量的算术、归一化、插值和坐标变换
+ * 继承：无显式父类；导出：Vector2。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Vector2 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Vector2.prototype.isVector2 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：x、y。
+   */
   constructor(e = 0, t = 0) {
     this.x = e, this.y = t;
   }
+  /** @eyes-analysis
+   * 只读返回 this.x；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get width() {
     return this.x;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.x，实际变更发生在 setter 中
+   * 状态写入：x。
+   */
   set width(e) {
     this.x = e;
   }
+  /** @eyes-analysis
+   * 只读返回 this.y；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get height() {
     return this.y;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.y，实际变更发生在 setter 中
+   * 状态写入：y。
+   */
   set height(e) {
     this.y = e;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   set(e, t) {
     return this.x = e, this.y = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   setScalar(e) {
     return this.x = e, this.y = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x。
+   */
   setX(e) {
     return this.x = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：y。
+   */
   setY(e) {
     return this.y = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：new Error。
+   */
   setComponent(e, t) {
     switch (e) {
       case 0:
@@ -556,6 +632,10 @@ class Vector2 {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 getComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   getComponent(e) {
     switch (e) {
       case 0:
@@ -566,141 +646,317 @@ class Vector2 {
         throw new Error("THREE.Vector2: index is out of range: " + e);
     }
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this.x, this.y);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：x、y。
+   */
   copy(e) {
     return this.x = e.x, this.y = e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   add(e) {
     return this.x += e.x, this.y += e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   addScalar(e) {
     return this.x += e, this.y += e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   addVectors(e, t) {
     return this.x = e.x + t.x, this.y = e.y + t.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScaledVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   addScaledVector(e, t) {
     return this.x += e.x * t, this.y += e.y * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 sub；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   sub(e) {
     return this.x -= e.x, this.y -= e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   subScalar(e) {
     return this.x -= e, this.y -= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   subVectors(e, t) {
     return this.x = e.x - t.x, this.y = e.y - t.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   multiply(e) {
     return this.x *= e.x, this.y *= e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   multiplyScalar(e) {
     return this.x *= e, this.y *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 divide；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   divide(e) {
     return this.x /= e.x, this.y /= e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 divideScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyScalar。
+   */
   divideScalar(e) {
     return this.multiplyScalar(1 / e);
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   applyMatrix3(e) {
     const t = this.x,
       n = this.y,
       r = e.elements;
     return this.x = r[0] * t + r[3] * n + r[6], this.y = r[1] * t + r[4] * n + r[7], this;
   }
+  /** @eyes-analysis
+   * 源码方法 min；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.min。
+   */
   min(e) {
     return this.x = Math.min(this.x, e.x), this.y = Math.min(this.y, e.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 max；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.max。
+   */
   max(e) {
     return this.x = Math.max(this.x, e.x), this.y = Math.max(this.y, e.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clamp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Lr。
+   */
   clamp(e, t) {
     return this.x = Lr(this.x, e.x, t.x), this.y = Lr(this.y, e.y, t.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Lr。
+   */
   clampScalar(e, t) {
     return this.x = Lr(this.x, e, t), this.y = Lr(this.y, e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、this.divideScalar、this.divideScalar(n||1).multiplyScalar、this.length。
+   */
   clampLength(e, t) {
     const n = this.length();
     return this.divideScalar(n || 1).multiplyScalar(Lr(n, e, t));
   }
+  /** @eyes-analysis
+   * 源码方法 floor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.floor。
+   */
   floor() {
     return this.x = Math.floor(this.x), this.y = Math.floor(this.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 ceil；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.ceil。
+   */
   ceil() {
     return this.x = Math.ceil(this.x), this.y = Math.ceil(this.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 round；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.round。
+   */
   round() {
     return this.x = Math.round(this.x), this.y = Math.round(this.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 roundToZero；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.trunc。
+   */
   roundToZero() {
     return this.x = Math.trunc(this.x), this.y = Math.trunc(this.y), this;
   }
+  /** @eyes-analysis
+   * 源码方法 negate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   negate() {
     return this.x = -this.x, this.y = -this.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 dot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   dot(e) {
     return this.x * e.x + this.y * e.y;
   }
+  /** @eyes-analysis
+   * 源码方法 cross；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   cross(e) {
     return this.x * e.y - this.y * e.x;
   }
+  /** @eyes-analysis
+   * 源码方法 lengthSq；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   lengthSq() {
     return this.x * this.x + this.y * this.y;
   }
+  /** @eyes-analysis
+   * 源码方法 length；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt。
+   */
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y);
   }
+  /** @eyes-analysis
+   * 源码方法 manhattanLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs。
+   */
   manhattanLength() {
     return Math.abs(this.x) + Math.abs(this.y);
   }
+  /** @eyes-analysis
+   * 源码方法 normalize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.divideScalar、this.length。
+   */
   normalize() {
     return this.divideScalar(this.length() || 1);
   }
+  /** @eyes-analysis
+   * 源码方法 angle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.atan2。
+   */
   angle() {
     return Math.atan2(-this.y, -this.x) + Math.PI;
   }
+  /** @eyes-analysis
+   * 源码方法 angleTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、Math.acos、Math.sqrt、e.lengthSq、this.dot等。
+   */
   angleTo(e) {
     const t = Math.sqrt(this.lengthSq() * e.lengthSq());
     if (0 === t) return Math.PI / 2;
     const n = this.dot(e) / t;
     return Math.acos(Lr(n, -1, 1));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt、this.distanceToSquared。
+   */
   distanceTo(e) {
     return Math.sqrt(this.distanceToSquared(e));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToSquared；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   distanceToSquared(e) {
     const t = this.x - e.x,
       n = this.y - e.y;
     return t * t + n * n;
   }
+  /** @eyes-analysis
+   * 源码方法 manhattanDistanceTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs。
+   */
   manhattanDistanceTo(e) {
     return Math.abs(this.x - e.x) + Math.abs(this.y - e.y);
   }
+  /** @eyes-analysis
+   * 源码方法 setLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.normalize、this.normalize().multiplyScalar。
+   */
   setLength(e) {
     return this.normalize().multiplyScalar(e);
   }
+  /** @eyes-analysis
+   * 源码方法 lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   lerp(e, t) {
     return this.x += (e.x - this.x) * t, this.y += (e.y - this.y) * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerpVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   lerpVectors(e, t, n) {
     return this.x = e.x + (t.x - e.x) * n, this.y = e.y + (t.y - e.y) * n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e.x === this.x && e.y === this.y;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   */
   fromArray(e, t = 0) {
     return this.x = e[t], this.y = e[t + 1], this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this.x, e[t + 1] = this.y, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：e.getX、e.getY。
+   */
   fromBufferAttribute(e, t) {
     return this.x = e.getX(t), this.y = e.getY(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateAround；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.cos、Math.sin。
+   */
   rotateAround(e, t) {
     const n = Math.cos(t),
       r = Math.sin(t),
@@ -708,17 +964,39 @@ class Vector2 {
       a = this.y - e.y;
     return this.x = i * n - a * r + e.x, this.y = i * r + a * n + e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 random；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y。
+   * 调用线索：Math.random。
+   */
   random() {
     return this.x = Math.random(), this.y = Math.random(), this;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：x、y；返回：。
+   */
   *[Symbol.iterator]() {
     yield this.x, yield this.y;
   }
 }
+/** @eyes-analysis
+ * 类职责：四元数旋转，支持归一化、乘法和球面插值
+ * 继承：无显式父类；导出：Quaternion。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Quaternion {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_w、_x、_y、_z、isQuaternion。
+   */
   constructor(e = 0, t = 0, n = 0, r = 1) {
     this.isQuaternion = !0, this._x = e, this._y = t, this._z = n, this._w = r;
   }
+  /** @eyes-analysis
+   * 源码方法 slerpFlat；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.acos、Math.sin、Math.sqrt。
+   */
   static slerpFlat(e, t, n, r, i, a, s) {
     let o = n[r + 0],
       c = n[r + 1],
@@ -744,6 +1022,9 @@ class Quaternion {
     }
     e[t] = o, e[t + 1] = c, e[t + 2] = l, e[t + 3] = u;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyQuaternionsFlat；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static multiplyQuaternionsFlat(e, t, n, r, i, a) {
     const s = n[r],
       o = n[r + 1],
@@ -755,39 +1036,90 @@ class Quaternion {
       p = i[a + 3];
     return e[t] = s * p + l * u + o * h - c * d, e[t + 1] = o * p + l * d + c * u - s * h, e[t + 2] = c * p + l * h + s * d - o * u, e[t + 3] = l * p - s * u - o * d - c * h, e;
   }
+  /** @eyes-analysis
+   * 只读返回 this._x；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get x() {
     return this._x;
   }
+  /** @eyes-analysis
+   * 写入 _x，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_x。
+   * 调用线索：this._onChangeCallback。
+   */
   set x(e) {
     this._x = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._y；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get y() {
     return this._y;
   }
+  /** @eyes-analysis
+   * 写入 _y，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_y。
+   * 调用线索：this._onChangeCallback。
+   */
   set y(e) {
     this._y = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._z；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get z() {
     return this._z;
   }
+  /** @eyes-analysis
+   * 写入 _z，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_z。
+   * 调用线索：this._onChangeCallback。
+   */
   set z(e) {
     this._z = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._w；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get w() {
     return this._w;
   }
+  /** @eyes-analysis
+   * 写入 _w，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_w。
+   * 调用线索：this._onChangeCallback。
+   */
   set w(e) {
     this._w = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   set(e, t, n, r) {
     return this._x = e, this._y = t, this._z = n, this._w = r, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this._x, this._y, this._z, this._w);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   copy(e) {
     return this._x = e.x, this._y = e.y, this._z = e.z, this._w = e.w, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromEuler；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：o、s、this._onChangeCallback、warn。
+   */
   setFromEuler(e, t = !0) {
     const n = e._x,
       r = e._y,
@@ -825,11 +1157,21 @@ class Quaternion {
     }
     return !0 === t && this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromAxisAngle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：Math.cos、Math.sin、this._onChangeCallback。
+   */
   setFromAxisAngle(e, t) {
     const n = t / 2,
       r = Math.sin(n);
     return this._x = e.x * r, this._y = e.y * r, this._z = e.z * r, this._w = Math.cos(n), this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromRotationMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：Math.sqrt、this._onChangeCallback。
+   */
   setFromRotationMatrix(e) {
     const t = e.elements,
       n = t[0],
@@ -857,47 +1199,101 @@ class Quaternion {
     }
     return this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromUnitVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：Math.abs、e.dot、this.normalize。
+   */
   setFromUnitVectors(e, t) {
     let n = e.dot(t) + 1;
     return n < 1e-8 ? (n = 0, Math.abs(e.x) > Math.abs(e.z) ? (this._x = -e.y, this._y = e.x, this._z = 0, this._w = n) : (this._x = 0, this._y = -e.z, this._z = e.y, this._w = n)) : (this._x = e.y * t.z - e.z * t.y, this._y = e.z * t.x - e.x * t.z, this._z = e.x * t.y - e.y * t.x, this._w = n), this.normalize();
   }
+  /** @eyes-analysis
+   * 源码方法 angleTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、Math.abs、Math.acos、this.dot。
+   */
   angleTo(e) {
     return 2 * Math.acos(Math.abs(Lr(this.dot(e), -1, 1)));
   }
+  /** @eyes-analysis
+   * 源码方法 rotateTowards；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.min、this.angleTo、this.slerp。
+   */
   rotateTowards(e, t) {
     const n = this.angleTo(e);
     if (0 === n) return this;
     const r = Math.min(1, t / n);
     return this.slerp(e, r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 identity；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   identity() {
     return this.set(0, 0, 0, 1);
   }
+  /** @eyes-analysis
+   * 源码方法 invert；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.conjugate。
+   */
   invert() {
     return this.conjugate();
   }
+  /** @eyes-analysis
+   * 源码方法 conjugate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   conjugate() {
     return this._x *= -1, this._y *= -1, this._z *= -1, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 dot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   dot(e) {
     return this._x * e._x + this._y * e._y + this._z * e._z + this._w * e._w;
   }
+  /** @eyes-analysis
+   * 源码方法 lengthSq；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   lengthSq() {
     return this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w;
   }
+  /** @eyes-analysis
+   * 源码方法 length；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt。
+   */
   length() {
     return Math.sqrt(this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w);
   }
+  /** @eyes-analysis
+   * 源码方法 normalize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：this._onChangeCallback、this.length。
+   */
   normalize() {
     let e = this.length();
     return 0 === e ? (this._x = 0, this._y = 0, this._z = 0, this._w = 1) : (e = 1 / e, this._x = this._x * e, this._y = this._y * e, this._z = this._z * e, this._w = this._w * e), this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyQuaternions。
+   */
   multiply(e) {
     return this.multiplyQuaternions(this, e);
   }
+  /** @eyes-analysis
+   * 源码方法 premultiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyQuaternions。
+   */
   premultiply(e) {
     return this.multiplyQuaternions(e, this);
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyQuaternions；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   multiplyQuaternions(e, t) {
     const n = e._x,
       r = e._y,
@@ -909,6 +1305,11 @@ class Quaternion {
       l = t._w;
     return this._x = n * l + a * s + r * c - i * o, this._y = r * l + a * o + i * s - n * c, this._z = i * l + a * c + n * o - r * s, this._w = a * l - n * s - r * o - i * c, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 slerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：Math.acos、Math.sin、this._onChangeCallback、this.dot、this.normalize。
+   */
   slerp(e, t) {
     let n = e._x,
       r = e._y,
@@ -924,9 +1325,17 @@ class Quaternion {
     } else this._x = this._x * o + n * t, this._y = this._y * o + r * t, this._z = this._z * o + i * t, this._w = this._w * o + a * t, this.normalize();
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 slerpQuaternions；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.copy、this.copy(e).slerp。
+   */
   slerpQuaternions(e, t, n) {
     return this.copy(e).slerp(t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 random；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.random、Math.sin、Math.sqrt、this.set。
+   */
   random() {
     const e = 2 * Math.PI * Math.random(),
       t = 2 * Math.PI * Math.random(),
@@ -935,51 +1344,120 @@ class Quaternion {
       i = Math.sqrt(n);
     return this.set(r * Math.sin(e), r * Math.cos(e), i * Math.sin(t), i * Math.cos(t));
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e._x === this._x && e._y === this._y && e._z === this._z && e._w === this._w;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   fromArray(e, t = 0) {
     return this._x = e[t], this._y = e[t + 1], this._z = e[t + 2], this._w = e[t + 3], this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this._x, e[t + 1] = this._y, e[t + 2] = this._z, e[t + 3] = this._w, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_w、_x、_y、_z。
+   * 调用线索：e.getW、e.getX、e.getY、e.getZ、this._onChangeCallback。
+   */
   fromBufferAttribute(e, t) {
     return this._x = e.getX(t), this._y = e.getY(t), this._z = e.getZ(t), this._w = e.getW(t), this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.toArray。
+   */
   toJSON() {
     return this.toArray();
   }
+  /** @eyes-analysis
+   * 源码方法 _onChange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_onChangeCallback。
+   */
   _onChange(onChangeCallback) {
     return this._onChangeCallback = onChangeCallback, this;
   }
+  /** @eyes-analysis
+   * 源码方法 _onChangeCallback；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _onChangeCallback() {}
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：_w、_x、_y、_z；返回：。
+   */
   *[Symbol.iterator]() {
     yield this._x, yield this._y, yield this._z, yield this._w;
   }
 }
+/** @eyes-analysis
+ * 类职责：3 维向量的算术、归一化、插值和坐标变换
+ * 继承：无显式父类；导出：Vector3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Vector3 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Vector3.prototype.isVector3 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：x、y、z。
+   */
   constructor(e = 0, t = 0, n = 0) {
     this.x = e, this.y = t, this.z = n;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   set(e, t, n) {
     return void 0 === n && (n = this.z), this.x = e, this.y = t, this.z = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   setScalar(e) {
     return this.x = e, this.y = e, this.z = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x。
+   */
   setX(e) {
     return this.x = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：y。
+   */
   setY(e) {
     return this.y = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：z。
+   */
   setZ(e) {
     return this.z = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：new Error。
+   */
   setComponent(e, t) {
     switch (e) {
       case 0:
@@ -996,6 +1474,10 @@ class Vector3 {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 getComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   getComponent(e) {
     switch (e) {
       case 0:
@@ -1008,48 +1490,108 @@ class Vector3 {
         throw new Error("THREE.Vector3: index is out of range: " + e);
     }
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this.x, this.y, this.z);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：x、y、z。
+   */
   copy(e) {
     return this.x = e.x, this.y = e.y, this.z = e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   add(e) {
     return this.x += e.x, this.y += e.y, this.z += e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   addScalar(e) {
     return this.x += e, this.y += e, this.z += e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   addVectors(e, t) {
     return this.x = e.x + t.x, this.y = e.y + t.y, this.z = e.z + t.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScaledVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   addScaledVector(e, t) {
     return this.x += e.x * t, this.y += e.y * t, this.z += e.z * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 sub；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   sub(e) {
     return this.x -= e.x, this.y -= e.y, this.z -= e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   subScalar(e) {
     return this.x -= e, this.y -= e, this.z -= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   subVectors(e, t) {
     return this.x = e.x - t.x, this.y = e.y - t.y, this.z = e.z - t.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   multiply(e) {
     return this.x *= e.x, this.y *= e.y, this.z *= e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   multiplyScalar(e) {
     return this.x *= e, this.y *= e, this.z *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   multiplyVectors(e, t) {
     return this.x = e.x * t.x, this.y = e.y * t.y, this.z = e.z * t.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyEuler；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：quaternion.setFromEuler、this.applyQuaternion。
+   */
   applyEuler(e) {
     return this.applyQuaternion(quaternion.setFromEuler(e));
   }
+  /** @eyes-analysis
+   * 源码方法 applyAxisAngle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：quaternion.setFromAxisAngle、this.applyQuaternion。
+   */
   applyAxisAngle(e, t) {
     return this.applyQuaternion(quaternion.setFromAxisAngle(e, t));
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   applyMatrix3(e) {
     const t = this.x,
       n = this.y,
@@ -1057,9 +1599,17 @@ class Vector3 {
       i = e.elements;
     return this.x = i[0] * t + i[3] * n + i[6] * r, this.y = i[1] * t + i[4] * n + i[7] * r, this.z = i[2] * t + i[5] * n + i[8] * r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyNormalMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.applyMatrix3、this.applyMatrix3(e).normalize。
+   */
   applyNormalMatrix(e) {
     return this.applyMatrix3(e).normalize();
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   applyMatrix4(e) {
     const t = this.x,
       n = this.y,
@@ -1068,6 +1618,10 @@ class Vector3 {
       a = 1 / (i[3] * t + i[7] * n + i[11] * r + i[15]);
     return this.x = (i[0] * t + i[4] * n + i[8] * r + i[12]) * a, this.y = (i[1] * t + i[5] * n + i[9] * r + i[13]) * a, this.z = (i[2] * t + i[6] * n + i[10] * r + i[14]) * a, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   applyQuaternion(e) {
     const t = this.x,
       n = this.y,
@@ -1081,12 +1635,25 @@ class Vector3 {
       u = 2 * (i * n - a * t);
     return this.x = t + o * c + a * u - s * l, this.y = n + o * l + s * c - i * u, this.z = r + o * u + i * l - a * c, this;
   }
+  /** @eyes-analysis
+   * 源码方法 project；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.applyMatrix4、this.applyMatrix4(e.matrixWorldInverse).applyMatrix4。
+   */
   project(e) {
     return this.applyMatrix4(e.matrixWorldInverse).applyMatrix4(e.projectionMatrix);
   }
+  /** @eyes-analysis
+   * 源码方法 unproject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.applyMatrix4、this.applyMatrix4(e.projectionMatrixInverse).applyMatrix4。
+   */
   unproject(e) {
     return this.applyMatrix4(e.projectionMatrixInverse).applyMatrix4(e.matrixWorld);
   }
+  /** @eyes-analysis
+   * 源码方法 transformDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：this.normalize。
+   */
   transformDirection(e) {
     const t = this.x,
       n = this.y,
@@ -1094,70 +1661,164 @@ class Vector3 {
       i = e.elements;
     return this.x = i[0] * t + i[4] * n + i[8] * r, this.y = i[1] * t + i[5] * n + i[9] * r, this.z = i[2] * t + i[6] * n + i[10] * r, this.normalize();
   }
+  /** @eyes-analysis
+   * 源码方法 divide；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   divide(e) {
     return this.x /= e.x, this.y /= e.y, this.z /= e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 divideScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyScalar。
+   */
   divideScalar(e) {
     return this.multiplyScalar(1 / e);
   }
+  /** @eyes-analysis
+   * 源码方法 min；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.min。
+   */
   min(e) {
     return this.x = Math.min(this.x, e.x), this.y = Math.min(this.y, e.y), this.z = Math.min(this.z, e.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 max；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.max。
+   */
   max(e) {
     return this.x = Math.max(this.x, e.x), this.y = Math.max(this.y, e.y), this.z = Math.max(this.z, e.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clamp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Lr。
+   */
   clamp(e, t) {
     return this.x = Lr(this.x, e.x, t.x), this.y = Lr(this.y, e.y, t.y), this.z = Lr(this.z, e.z, t.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Lr。
+   */
   clampScalar(e, t) {
     return this.x = Lr(this.x, e, t), this.y = Lr(this.y, e, t), this.z = Lr(this.z, e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、this.divideScalar、this.divideScalar(n||1).multiplyScalar、this.length。
+   */
   clampLength(e, t) {
     const n = this.length();
     return this.divideScalar(n || 1).multiplyScalar(Lr(n, e, t));
   }
+  /** @eyes-analysis
+   * 源码方法 floor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.floor。
+   */
   floor() {
     return this.x = Math.floor(this.x), this.y = Math.floor(this.y), this.z = Math.floor(this.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 ceil；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.ceil。
+   */
   ceil() {
     return this.x = Math.ceil(this.x), this.y = Math.ceil(this.y), this.z = Math.ceil(this.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 round；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.round。
+   */
   round() {
     return this.x = Math.round(this.x), this.y = Math.round(this.y), this.z = Math.round(this.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 roundToZero；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.trunc。
+   */
   roundToZero() {
     return this.x = Math.trunc(this.x), this.y = Math.trunc(this.y), this.z = Math.trunc(this.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 negate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   negate() {
     return this.x = -this.x, this.y = -this.y, this.z = -this.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 dot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   dot(e) {
     return this.x * e.x + this.y * e.y + this.z * e.z;
   }
+  /** @eyes-analysis
+   * 源码方法 lengthSq；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   lengthSq() {
     return this.x * this.x + this.y * this.y + this.z * this.z;
   }
+  /** @eyes-analysis
+   * 源码方法 length；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt。
+   */
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
   }
+  /** @eyes-analysis
+   * 源码方法 manhattanLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs。
+   */
   manhattanLength() {
     return Math.abs(this.x) + Math.abs(this.y) + Math.abs(this.z);
   }
+  /** @eyes-analysis
+   * 源码方法 normalize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.divideScalar、this.length。
+   */
   normalize() {
     return this.divideScalar(this.length() || 1);
   }
+  /** @eyes-analysis
+   * 源码方法 setLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.normalize、this.normalize().multiplyScalar。
+   */
   setLength(e) {
     return this.normalize().multiplyScalar(e);
   }
+  /** @eyes-analysis
+   * 源码方法 lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   lerp(e, t) {
     return this.x += (e.x - this.x) * t, this.y += (e.y - this.y) * t, this.z += (e.z - this.z) * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerpVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   lerpVectors(e, t, n) {
     return this.x = e.x + (t.x - e.x) * n, this.y = e.y + (t.y - e.y) * n, this.z = e.z + (t.z - e.z) * n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 cross；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.crossVectors。
+   */
   cross(e) {
     return this.crossVectors(this, e);
   }
+  /** @eyes-analysis
+   * 源码方法 crossVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   crossVectors(e, t) {
     const n = e.x,
       r = e.y,
@@ -1167,130 +1828,272 @@ class Vector3 {
       o = t.z;
     return this.x = r * o - i * s, this.y = i * a - n * o, this.z = n * s - r * a, this;
   }
+  /** @eyes-analysis
+   * 源码方法 projectOnVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.dot、e.lengthSq、this.copy、this.copy(e).multiplyScalar、this.set。
+   */
   projectOnVector(e) {
     const t = e.lengthSq();
     if (0 === t) return this.set(0, 0, 0);
     const n = e.dot(this) / t;
     return this.copy(e).multiplyScalar(n);
   }
+  /** @eyes-analysis
+   * 源码方法 projectOnPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.sub、vector3.copy、vector3.copy(this).projectOnVector。
+   */
   projectOnPlane(e) {
     return vector3.copy(this).projectOnVector(e), this.sub(vector3);
   }
+  /** @eyes-analysis
+   * 源码方法 reflect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.dot、this.sub、vector3.copy、vector3.copy(e).multiplyScalar。
+   */
   reflect(e) {
     return this.sub(vector3.copy(e).multiplyScalar(2 * this.dot(e)));
   }
+  /** @eyes-analysis
+   * 源码方法 angleTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、Math.acos、Math.sqrt、e.lengthSq、this.dot等。
+   */
   angleTo(e) {
     const t = Math.sqrt(this.lengthSq() * e.lengthSq());
     if (0 === t) return Math.PI / 2;
     const n = this.dot(e) / t;
     return Math.acos(Lr(n, -1, 1));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt、this.distanceToSquared。
+   */
   distanceTo(e) {
     return Math.sqrt(this.distanceToSquared(e));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToSquared；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   distanceToSquared(e) {
     const t = this.x - e.x,
       n = this.y - e.y,
       r = this.z - e.z;
     return t * t + n * n + r * r;
   }
+  /** @eyes-analysis
+   * 源码方法 manhattanDistanceTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs。
+   */
   manhattanDistanceTo(e) {
     return Math.abs(this.x - e.x) + Math.abs(this.y - e.y) + Math.abs(this.z - e.z);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromSpherical；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFromSphericalCoords。
+   */
   setFromSpherical(e) {
     return this.setFromSphericalCoords(e.radius, e.phi, e.theta);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromSphericalCoords；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.cos、Math.sin。
+   */
   setFromSphericalCoords(e, t, n) {
     const r = Math.sin(t) * e;
     return this.x = r * Math.sin(n), this.y = Math.cos(t) * e, this.z = r * Math.cos(n), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCylindrical；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFromCylindricalCoords。
+   */
   setFromCylindrical(e) {
     return this.setFromCylindricalCoords(e.radius, e.theta, e.y);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCylindricalCoords；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.cos、Math.sin。
+   */
   setFromCylindricalCoords(e, t, n) {
     return this.x = e * Math.sin(t), this.y = n, this.z = e * Math.cos(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrixPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   setFromMatrixPosition(e) {
     const t = e.elements;
     return this.x = t[12], this.y = t[13], this.z = t[14], this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrixScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：this.setFromMatrixColumn、this.setFromMatrixColumn(e,0).length、this.setFromMatrixColumn(e,1).length、this.setFromMatrixColumn(e,2).length。
+   */
   setFromMatrixScale(e) {
     const t = this.setFromMatrixColumn(e, 0).length(),
       n = this.setFromMatrixColumn(e, 1).length(),
       r = this.setFromMatrixColumn(e, 2).length();
     return this.x = t, this.y = n, this.z = r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrixColumn；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.fromArray。
+   */
   setFromMatrixColumn(e, t) {
     return this.fromArray(e.elements, 4 * t);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrix3Column；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.fromArray。
+   */
   setFromMatrix3Column(e, t) {
     return this.fromArray(e.elements, 3 * t);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromEuler；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   setFromEuler(e) {
     return this.x = e._x, this.y = e._y, this.z = e._z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromColor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   setFromColor(e) {
     return this.x = e.r, this.y = e.g, this.z = e.b, this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e.x === this.x && e.y === this.y && e.z === this.z;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   */
   fromArray(e, t = 0) {
     return this.x = e[t], this.y = e[t + 1], this.z = e[t + 2], this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this.x, e[t + 1] = this.y, e[t + 2] = this.z, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：e.getX、e.getY、e.getZ。
+   */
   fromBufferAttribute(e, t) {
     return this.x = e.getX(t), this.y = e.getY(t), this.z = e.getZ(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 random；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.random。
+   */
   random() {
     return this.x = Math.random(), this.y = Math.random(), this.z = Math.random(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 randomDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x、y、z。
+   * 调用线索：Math.cos、Math.random、Math.sin、Math.sqrt。
+   */
   randomDirection() {
     const e = Math.random() * Math.PI * 2,
       t = 2 * Math.random() - 1,
       n = Math.sqrt(1 - t * t);
     return this.x = n * Math.cos(e), this.y = t, this.z = n * Math.sin(e), this;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：x、y、z；返回：。
+   */
   *[Symbol.iterator]() {
     yield this.x, yield this.y, yield this.z;
   }
 }
 const vector3 = new Vector3(),
   quaternion = new Quaternion();
+/** @eyes-analysis
+ * 类职责：3 阶矩阵的乘法、行列式、求逆和变换构造
+ * 继承：无显式父类；导出：Matrix3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Matrix3 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Matrix3.prototype.isMatrix3 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：elements。
+   * 调用线索：this.set。
+   */
   constructor(e, t, n, r, i, a, s, o, c) {
     this.elements = [1, 0, 0, 0, 1, 0, 0, 0, 1], void 0 !== e && this.set(e, t, n, r, i, a, s, o, c);
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   set(e, t, n, r, i, a, s, o, c) {
     const elements = this.elements;
     return elements[0] = e, elements[1] = r, elements[2] = s, elements[3] = t, elements[4] = i, elements[5] = o, elements[6] = n, elements[7] = a, elements[8] = c, this;
   }
+  /** @eyes-analysis
+   * 源码方法 identity；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   identity() {
     return this.set(1, 0, 0, 0, 1, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   */
   copy(e) {
     const elements = this.elements,
       n = e.elements;
     return elements[0] = n[0], elements[1] = n[1], elements[2] = n[2], elements[3] = n[3], elements[4] = n[4], elements[5] = n[5], elements[6] = n[6], elements[7] = n[7], elements[8] = n[8], this;
   }
+  /** @eyes-analysis
+   * 源码方法 extractBasis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.setFromMatrix3Column、n.setFromMatrix3Column、t.setFromMatrix3Column。
+   */
   extractBasis(e, t, n) {
     return e.setFromMatrix3Column(this, 0), t.setFromMatrix3Column(this, 1), n.setFromMatrix3Column(this, 2), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   setFromMatrix4(e) {
     const t = e.elements;
     return this.set(t[0], t[4], t[8], t[1], t[5], t[9], t[2], t[6], t[10]), this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyMatrices。
+   */
   multiply(e) {
     return this.multiplyMatrices(this, e);
   }
+  /** @eyes-analysis
+   * 源码方法 premultiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyMatrices。
+   */
   premultiply(e) {
     return this.multiplyMatrices(e, this);
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyMatrices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   multiplyMatrices(e, t) {
     const n = e.elements,
       r = t.elements,
@@ -1315,10 +2118,16 @@ class Matrix3 {
       L = r[8];
     return elements[0] = a * f + s * _ + o * b, elements[3] = a * m + s * A + o * y, elements[6] = a * M + s * g + o * L, elements[1] = c * f + l * _ + u * b, elements[4] = c * m + l * A + u * y, elements[7] = c * M + l * g + u * L, elements[2] = d * f + h * _ + p * b, elements[5] = d * m + h * A + p * y, elements[8] = d * M + h * g + p * L, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   multiplyScalar(e) {
     const elements = this.elements;
     return elements[0] *= e, elements[3] *= e, elements[6] *= e, elements[1] *= e, elements[4] *= e, elements[7] *= e, elements[2] *= e, elements[5] *= e, elements[8] *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 determinant；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   determinant() {
     const elements = this.elements,
       t = elements[0],
@@ -1332,6 +2141,10 @@ class Matrix3 {
       l = elements[8];
     return t * a * l - t * s * c - n * i * l + n * s * o + r * i * c - r * a * o;
   }
+  /** @eyes-analysis
+   * 源码方法 invert；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   invert() {
     const elements = this.elements,
       t = elements[0],
@@ -1351,57 +2164,109 @@ class Matrix3 {
     const f = 1 / p;
     return elements[0] = u * f, elements[1] = (r * c - l * n) * f, elements[2] = (s * n - r * a) * f, elements[3] = d * f, elements[4] = (l * t - r * o) * f, elements[5] = (r * i - s * t) * f, elements[6] = h * f, elements[7] = (n * o - c * t) * f, elements[8] = (a * t - n * i) * f, this;
   }
+  /** @eyes-analysis
+   * 源码方法 transpose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   transpose() {
     let e;
     const elements = this.elements;
     return e = elements[1], elements[1] = elements[3], elements[3] = e, e = elements[2], elements[2] = elements[6], elements[6] = e, e = elements[5], elements[5] = elements[7], elements[7] = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getNormalMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFromMatrix4、this.setFromMatrix4(e).invert、this.setFromMatrix4(e).invert().transpose。
+   */
   getNormalMatrix(e) {
     return this.setFromMatrix4(e).invert().transpose();
   }
+  /** @eyes-analysis
+   * 源码方法 transposeIntoArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   transposeIntoArray(e) {
     const elements = this.elements;
     return e[0] = elements[0], e[1] = elements[3], e[2] = elements[6], e[3] = elements[1], e[4] = elements[4], e[5] = elements[7], e[6] = elements[2], e[7] = elements[5], e[8] = elements[8], this;
   }
+  /** @eyes-analysis
+   * 源码方法 setUvTransform；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   setUvTransform(e, t, n, r, i, a, s) {
     const o = Math.cos(i),
       c = Math.sin(i);
     return this.set(n * o, n * c, -n * (o * a + c * s) + a + e, -r * c, r * o, -r * (-c * a + o * s) + s + t, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 scale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：matrix3.makeScale、this.premultiply、warnOnce。
+   */
   scale(e, t) {
     return warnOnce("Matrix3: .scale() is deprecated. Use .makeScale() instead."), this.premultiply(matrix3.makeScale(e, t)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：matrix3.makeRotation、this.premultiply、warnOnce。
+   */
   rotate(e) {
     return warnOnce("Matrix3: .rotate() is deprecated. Use .makeRotation() instead."), this.premultiply(matrix3.makeRotation(-e)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：matrix3.makeTranslation、this.premultiply、warnOnce。
+   */
   translate(e, t) {
     return warnOnce("Matrix3: .translate() is deprecated. Use .makeTranslation() instead."), this.premultiply(matrix3.makeTranslation(e, t)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeTranslation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeTranslation(e, t) {
     return e.isVector2 ? this.set(1, 0, e.x, 0, 1, e.y, 0, 0, 1) : this.set(1, 0, e, 0, 1, t, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   makeRotation(e) {
     const t = Math.cos(e),
       n = Math.sin(e);
     return this.set(t, -n, 0, n, t, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeScale(e, t) {
     return this.set(e, 0, 0, 0, t, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     const elements = this.elements,
       n = e.elements;
     for (let e = 0; e < 9; e++) if (elements[e] !== n[e]) return !1;
     return !0;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elements[n]。
+   */
   fromArray(e, t = 0) {
     for (let n = 0; n < 9; n++) this.elements[n] = e[n + t];
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     const elements = this.elements;
     return e[t] = elements[0], e[t + 1] = elements[1], e[t + 2] = elements[2], e[t + 3] = elements[3], e[t + 4] = elements[4], e[t + 5] = elements[5], e[t + 6] = elements[6], e[t + 7] = elements[7], e[t + 8] = elements[8], e;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().fromArray。
+   */
   clone() {
     return new this.constructor().fromArray(this.elements);
   }
@@ -1493,7 +2358,16 @@ function Rr(e) {
   return e < .0031308 ? 12.92 * e : 1.055 * Math.pow(e, .41666) - .055;
 }
 let kr;
+/** @eyes-analysis
+ * 类职责：图像像素处理及颜色空间转换
+ * 继承：无显式父类；导出：ImageUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ImageUtils {
+  /** @eyes-analysis
+   * 源码方法 getDataURL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：/^data:/i.test、createElementNS、kr.getContext、n.toDataURL、t.drawImage等。
+   */
   static getDataURL(e, t = "image/png") {
     if (/^data:/i.test(e.src)) return e.src;
     if ("undefined" == typeof HTMLCanvasElement) return e.src;
@@ -1505,6 +2379,10 @@ class ImageUtils {
     }
     return n.toDataURL(t);
   }
+  /** @eyes-analysis
+   * 源码方法 sRGBToLinear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ir、Math.floor、createElementNS、e.data.slice、n.drawImage等。
+   */
   static sRGBToLinear(e) {
     if ("undefined" != typeof HTMLImageElement && e instanceof HTMLImageElement || "undefined" != typeof HTMLCanvasElement && e instanceof HTMLCanvasElement || "undefined" != typeof ImageBitmap && e instanceof ImageBitmap) {
       const t = createElementNS("canvas");
@@ -1529,19 +2407,41 @@ class ImageUtils {
   }
 }
 let Pr = 0;
+/** @eyes-analysis
+ * 类职责：共享纹理图像的数据源及更新版本
+ * 继承：无显式父类；导出：Source。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Source {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：data、dataReady、isSource、uuid、version。
+   * 调用线索：Object.defineProperty、yr。
+   */
   constructor(data = null) {
     this.isSource = !0, Object.defineProperty(this, "id", {
       value: Pr++
     }), this.uuid = yr(), this.data = data, this.dataReady = !0, this.version = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 getSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.set。
+   */
   getSize(e) {
     const data = this.data;
     return "undefined" != typeof HTMLVideoElement && data instanceof HTMLVideoElement ? e.set(data.videoWidth, data.videoHeight, 0) : "undefined" != typeof VideoFrame && data instanceof VideoFrame ? e.set(data.displayWidth, data.displayHeight, 0) : null !== data ? e.set(data.width, data.height, data.depth || 0) : e.set(0, 0, 0), e;
   }
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：version。
+   */
   set needsUpdate(e) {
     !0 === e && this.version++;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.isArray、Yr、e.push。
+   */
   toJSON(e) {
     const t = void 0 === e || "string" == typeof e;
     if (!t && void 0 !== e.images[this.uuid]) return e.images[this.uuid];
@@ -1571,45 +2471,99 @@ function Yr(e) {
 }
 let Wr = 0;
 const Fr = new Vector3();
+/** @eyes-analysis
+ * 类职责：纹理采样参数、源图像和 GPU 更新版本生命周期
+ * 继承：EventDispatcher；导出：Texture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Texture extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：anisotropy、center、channel、colorSpace、flipY、format、generateMipmaps、internalFormat等；完整记录见索引。
+   * 调用线索：Object.defineProperty、new Matrix3、new Source、new Vector2、super等。
+   */
   constructor(e = Texture.DEFAULT_IMAGE, mapping = Texture.DEFAULT_MAPPING, wrapS = ge, wrapT = ge, magFilter = LinearFilter, minFilter = LinearMipmapLinearFilter, format = RGBAFormat, type = Oe, anisotropy = Texture.DEFAULT_ANISOTROPY, colorSpace = NoColorSpace) {
     super(), this.isTexture = !0, Object.defineProperty(this, "id", {
       value: Wr++
     }), this.uuid = yr(), this.name = "", this.source = new Source(e), this.mipmaps = [], this.mapping = mapping, this.channel = 0, this.wrapS = wrapS, this.wrapT = wrapT, this.magFilter = magFilter, this.minFilter = minFilter, this.anisotropy = anisotropy, this.format = format, this.internalFormat = null, this.type = type, this.offset = new Vector2(0, 0), this.repeat = new Vector2(1, 1), this.center = new Vector2(0, 0), this.rotation = 0, this.matrixAutoUpdate = !0, this.matrix = new Matrix3(), this.generateMipmaps = !0, this.premultiplyAlpha = !1, this.flipY = !0, this.unpackAlignment = 4, this.colorSpace = colorSpace, this.userData = {}, this.updateRanges = [], this.version = 0, this.onUpdate = null, this.renderTarget = null, this.isRenderTargetTexture = !1, this.isArrayTexture = !!(e && e.depth && e.depth > 1), this.pmremVersion = 0, this.normalized = !1;
   }
+  /** @eyes-analysis
+   * 只读返回 this.source.getSize(Fr).x；此 getter 不执行对应 setter 的写入或更新通知
+   * 调用线索：this.source.getSize。
+   */
   get width() {
     return this.source.getSize(Fr).x;
   }
+  /** @eyes-analysis
+   * 只读返回 this.source.getSize(Fr).y；此 getter 不执行对应 setter 的写入或更新通知
+   * 调用线索：this.source.getSize。
+   */
   get height() {
     return this.source.getSize(Fr).y;
   }
+  /** @eyes-analysis
+   * 只读返回 this.source.getSize(Fr).z；此 getter 不执行对应 setter 的写入或更新通知
+   * 调用线索：this.source.getSize。
+   */
   get depth() {
     return this.source.getSize(Fr).z;
   }
+  /** @eyes-analysis
+   * 只读返回 this.source.data；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get image() {
     return this.source.data;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.source.data，实际变更发生在 setter 中
+   * 状态写入：source.data。
+   */
   set image(e) {
     this.source.data = e;
   }
+  /** @eyes-analysis
+   * 源码方法 updateMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.matrix.setUvTransform。
+   */
   updateMatrix() {
     this.matrix.setUvTransform(this.offset.x, this.offset.y, this.repeat.x, this.repeat.y, this.rotation, this.center.x, this.center.y);
   }
+  /** @eyes-analysis
+   * 源码方法 addUpdateRange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.updateRanges.push。
+   */
   addUpdateRange(e, t) {
     this.updateRanges.push({
       start: e,
       count: t
     });
   }
+  /** @eyes-analysis
+   * 源码方法 clearUpdateRanges；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：updateRanges.length。
+   */
   clearUpdateRanges() {
     this.updateRanges.length = 0;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：anisotropy、channel、colorSpace、flipY、format、generateMipmaps、internalFormat、isArrayTexture等；完整记录见索引。
+   * 调用线索：JSON.parse、JSON.stringify、e.mipmaps.slice、this.center.copy、this.matrix.copy等。
+   */
   copy(e) {
     return this.name = e.name, this.source = e.source, this.mipmaps = e.mipmaps.slice(0), this.mapping = e.mapping, this.channel = e.channel, this.wrapS = e.wrapS, this.wrapT = e.wrapT, this.magFilter = e.magFilter, this.minFilter = e.minFilter, this.anisotropy = e.anisotropy, this.format = e.format, this.internalFormat = e.internalFormat, this.type = e.type, this.normalized = e.normalized, this.offset.copy(e.offset), this.repeat.copy(e.repeat), this.center.copy(e.center), this.rotation = e.rotation, this.matrixAutoUpdate = e.matrixAutoUpdate, this.matrix.copy(e.matrix), this.generateMipmaps = e.generateMipmaps, this.premultiplyAlpha = e.premultiplyAlpha, this.flipY = e.flipY, this.unpackAlignment = e.unpackAlignment, this.colorSpace = e.colorSpace, this.renderTarget = e.renderTarget, this.isRenderTargetTexture = e.isRenderTargetTexture, this.isArrayTexture = e.isArrayTexture, this.userData = JSON.parse(JSON.stringify(e.userData)), this.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setValues；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：r.copy、warn。
+   */
   setValues(e) {
     for (const t in e) {
       const n = e[t];
@@ -1621,6 +2575,10 @@ class Texture extends EventDispatcher {
       void 0 !== r ? r && n && r.isVector2 && n.isVector2 || r && n && r.isVector3 && n.isVector3 || r && n && r.isMatrix3 && n.isMatrix3 ? r.copy(n) : this[t] = n : warn(`Texture.setValues(): property '${t}' does not exist.`);
     }
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Object.keys、this.source.toJSON。
+   */
   toJSON(e) {
     const t = void 0 === e || "string" == typeof e;
     if (!t && void 0 !== e.textures[this.uuid]) return e.textures[this.uuid];
@@ -1655,11 +2613,19 @@ class Texture extends EventDispatcher {
     };
     return Object.keys(this.userData).length > 0 && (n.userData = this.userData), t || (e.textures[this.uuid] = n), n;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
+  /** @eyes-analysis
+   * 源码方法 transformUv；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs、Math.ceil、Math.floor、e.applyMatrix3。
+   */
   transformUv(e) {
     if (this.mapping !== UVMapping) return e;
     if (e.applyMatrix3(this.matrix), e.x < 0 || e.x > 1) switch (this.wrapS) {
@@ -1684,51 +2650,115 @@ class Texture extends EventDispatcher {
     }
     return this.flipY && (e.y = 1 - e.y), e;
   }
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：source.needsUpdate、version。
+   */
   set needsUpdate(e) {
     !0 === e && (this.version++, this.source.needsUpdate = !0);
   }
+  /** @eyes-analysis
+   * 仅输入 true 时递增 pmremVersion，标记环境预过滤缓存失效
+   * 状态写入：pmremVersion。
+   */
   set needsPMREMUpdate(e) {
     !0 === e && this.pmremVersion++;
   }
 }
 Texture.DEFAULT_IMAGE = null, Texture.DEFAULT_MAPPING = UVMapping, Texture.DEFAULT_ANISOTROPY = 1;
+/** @eyes-analysis
+ * 类职责：4 维向量的算术、归一化、插值和坐标变换
+ * 继承：无显式父类；导出：Vector4。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Vector4 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Vector4.prototype.isVector4 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：w、x、y、z。
+   */
   constructor(e = 0, t = 0, n = 0, r = 1) {
     this.x = e, this.y = t, this.z = n, this.w = r;
   }
+  /** @eyes-analysis
+   * 只读返回 this.z；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get width() {
     return this.z;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.z，实际变更发生在 setter 中
+   * 状态写入：z。
+   */
   set width(e) {
     this.z = e;
   }
+  /** @eyes-analysis
+   * 只读返回 this.w；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get height() {
     return this.w;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.w，实际变更发生在 setter 中
+   * 状态写入：w。
+   */
   set height(e) {
     this.w = e;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   set(e, t, n, r) {
     return this.x = e, this.y = t, this.z = n, this.w = r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   setScalar(e) {
     return this.x = e, this.y = e, this.z = e, this.w = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：x。
+   */
   setX(e) {
     return this.x = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：y。
+   */
   setY(e) {
     return this.y = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：z。
+   */
   setZ(e) {
     return this.z = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w。
+   */
   setW(e) {
     return this.w = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：new Error。
+   */
   setComponent(e, t) {
     switch (e) {
       case 0:
@@ -1748,6 +2778,10 @@ class Vector4 {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 getComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   getComponent(e) {
     switch (e) {
       case 0:
@@ -1762,39 +2796,87 @@ class Vector4 {
         throw new Error("THREE.Vector4: index is out of range: " + e);
     }
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this.x, this.y, this.z, this.w);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：w、x、y、z。
+   */
   copy(e) {
     return this.x = e.x, this.y = e.y, this.z = e.z, this.w = void 0 !== e.w ? e.w : 1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   add(e) {
     return this.x += e.x, this.y += e.y, this.z += e.z, this.w += e.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   addScalar(e) {
     return this.x += e, this.y += e, this.z += e, this.w += e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   addVectors(e, t) {
     return this.x = e.x + t.x, this.y = e.y + t.y, this.z = e.z + t.z, this.w = e.w + t.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScaledVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   addScaledVector(e, t) {
     return this.x += e.x * t, this.y += e.y * t, this.z += e.z * t, this.w += e.w * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 sub；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   sub(e) {
     return this.x -= e.x, this.y -= e.y, this.z -= e.z, this.w -= e.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   subScalar(e) {
     return this.x -= e, this.y -= e, this.z -= e, this.w -= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 subVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   subVectors(e, t) {
     return this.x = e.x - t.x, this.y = e.y - t.y, this.z = e.z - t.z, this.w = e.w - t.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   multiply(e) {
     return this.x *= e.x, this.y *= e.y, this.z *= e.z, this.w *= e.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   multiplyScalar(e) {
     return this.x *= e, this.y *= e, this.z *= e, this.w *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   applyMatrix4(e) {
     const t = this.x,
       n = this.y,
@@ -1803,17 +2885,35 @@ class Vector4 {
       a = e.elements;
     return this.x = a[0] * t + a[4] * n + a[8] * r + a[12] * i, this.y = a[1] * t + a[5] * n + a[9] * r + a[13] * i, this.z = a[2] * t + a[6] * n + a[10] * r + a[14] * i, this.w = a[3] * t + a[7] * n + a[11] * r + a[15] * i, this;
   }
+  /** @eyes-analysis
+   * 源码方法 divide；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   divide(e) {
     return this.x /= e.x, this.y /= e.y, this.z /= e.z, this.w /= e.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 divideScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyScalar。
+   */
   divideScalar(e) {
     return this.multiplyScalar(1 / e);
   }
+  /** @eyes-analysis
+   * 源码方法 setAxisAngleFromQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.acos、Math.sqrt。
+   */
   setAxisAngleFromQuaternion(e) {
     this.w = 2 * Math.acos(e.w);
     const t = Math.sqrt(1 - e.w * e.w);
     return t < 1e-4 ? (this.x = 1, this.y = 0, this.z = 0) : (this.x = e.x / t, this.y = e.y / t, this.z = e.z / t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setAxisAngleFromRotationMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.abs、Math.acos、Math.sqrt、this.set。
+   */
   setAxisAngleFromRotationMatrix(e) {
     let t, n, r, i;
     const a = .01,
@@ -1842,85 +2942,201 @@ class Vector4 {
     let _ = Math.sqrt((m - p) * (m - p) + (u - f) * (u - f) + (d - l) * (d - l));
     return Math.abs(_) < .001 && (_ = 1), this.x = (m - p) / _, this.y = (u - f) / _, this.z = (d - l) / _, this.w = Math.acos((c + h + M - 1) / 2), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrixPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   setFromMatrixPosition(e) {
     const t = e.elements;
     return this.x = t[12], this.y = t[13], this.z = t[14], this.w = t[15], this;
   }
+  /** @eyes-analysis
+   * 源码方法 min；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.min。
+   */
   min(e) {
     return this.x = Math.min(this.x, e.x), this.y = Math.min(this.y, e.y), this.z = Math.min(this.z, e.z), this.w = Math.min(this.w, e.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 max；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.max。
+   */
   max(e) {
     return this.x = Math.max(this.x, e.x), this.y = Math.max(this.y, e.y), this.z = Math.max(this.z, e.z), this.w = Math.max(this.w, e.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clamp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Lr。
+   */
   clamp(e, t) {
     return this.x = Lr(this.x, e.x, t.x), this.y = Lr(this.y, e.y, t.y), this.z = Lr(this.z, e.z, t.z), this.w = Lr(this.w, e.w, t.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Lr。
+   */
   clampScalar(e, t) {
     return this.x = Lr(this.x, e, t), this.y = Lr(this.y, e, t), this.z = Lr(this.z, e, t), this.w = Lr(this.w, e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clampLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、this.divideScalar、this.divideScalar(n||1).multiplyScalar、this.length。
+   */
   clampLength(e, t) {
     const n = this.length();
     return this.divideScalar(n || 1).multiplyScalar(Lr(n, e, t));
   }
+  /** @eyes-analysis
+   * 源码方法 floor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.floor。
+   */
   floor() {
     return this.x = Math.floor(this.x), this.y = Math.floor(this.y), this.z = Math.floor(this.z), this.w = Math.floor(this.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 ceil；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.ceil。
+   */
   ceil() {
     return this.x = Math.ceil(this.x), this.y = Math.ceil(this.y), this.z = Math.ceil(this.z), this.w = Math.ceil(this.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 round；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.round。
+   */
   round() {
     return this.x = Math.round(this.x), this.y = Math.round(this.y), this.z = Math.round(this.z), this.w = Math.round(this.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 roundToZero；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.trunc。
+   */
   roundToZero() {
     return this.x = Math.trunc(this.x), this.y = Math.trunc(this.y), this.z = Math.trunc(this.z), this.w = Math.trunc(this.w), this;
   }
+  /** @eyes-analysis
+   * 源码方法 negate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   negate() {
     return this.x = -this.x, this.y = -this.y, this.z = -this.z, this.w = -this.w, this;
   }
+  /** @eyes-analysis
+   * 源码方法 dot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   dot(e) {
     return this.x * e.x + this.y * e.y + this.z * e.z + this.w * e.w;
   }
+  /** @eyes-analysis
+   * 源码方法 lengthSq；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   lengthSq() {
     return this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w;
   }
+  /** @eyes-analysis
+   * 源码方法 length；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt。
+   */
   length() {
     return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z + this.w * this.w);
   }
+  /** @eyes-analysis
+   * 源码方法 manhattanLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs。
+   */
   manhattanLength() {
     return Math.abs(this.x) + Math.abs(this.y) + Math.abs(this.z) + Math.abs(this.w);
   }
+  /** @eyes-analysis
+   * 源码方法 normalize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.divideScalar、this.length。
+   */
   normalize() {
     return this.divideScalar(this.length() || 1);
   }
+  /** @eyes-analysis
+   * 源码方法 setLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.normalize、this.normalize().multiplyScalar。
+   */
   setLength(e) {
     return this.normalize().multiplyScalar(e);
   }
+  /** @eyes-analysis
+   * 源码方法 lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   lerp(e, t) {
     return this.x += (e.x - this.x) * t, this.y += (e.y - this.y) * t, this.z += (e.z - this.z) * t, this.w += (e.w - this.w) * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerpVectors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   lerpVectors(e, t, n) {
     return this.x = e.x + (t.x - e.x) * n, this.y = e.y + (t.y - e.y) * n, this.z = e.z + (t.z - e.z) * n, this.w = e.w + (t.w - e.w) * n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e.x === this.x && e.y === this.y && e.z === this.z && e.w === this.w;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   */
   fromArray(e, t = 0) {
     return this.x = e[t], this.y = e[t + 1], this.z = e[t + 2], this.w = e[t + 3], this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this.x, e[t + 1] = this.y, e[t + 2] = this.z, e[t + 3] = this.w, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：e.getW、e.getX、e.getY、e.getZ。
+   */
   fromBufferAttribute(e, t) {
     return this.x = e.getX(t), this.y = e.getY(t), this.z = e.getZ(t), this.w = e.getW(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 random；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：w、x、y、z。
+   * 调用线索：Math.random。
+   */
   random() {
     return this.x = Math.random(), this.y = Math.random(), this.z = Math.random(), this.w = Math.random(), this;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：w、x、y、z；返回：。
+   */
   *[Symbol.iterator]() {
     yield this.x, yield this.y, yield this.z, yield this.w;
   }
 }
+/** @eyes-analysis
+ * 类职责： 离屏颜色/深度附件、尺寸和释放生命周期
+ * 继承：EventDispatcher；导出：RenderTarget。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RenderTarget extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_depthTexture、depth、depthBuffer、depthTexture、height、isRenderTarget、multiview、resolveDepthBuffer等；完整记录见索引。
+   * 调用线索：Object.assign、new Texture、new Vector4、super、texture.clone等。
+   */
   constructor(width = 1, height = 1, n = {}) {
     super(), n = Object.assign({
       generateMipmaps: !1,
@@ -1947,6 +3163,10 @@ class RenderTarget extends EventDispatcher {
     for (let e = 0; e < a; e++) this.textures[e] = texture.clone(), this.textures[e].isRenderTargetTexture = !0, this.textures[e].renderTarget = this;
     this._setTextureOptions(n), this.depthBuffer = n.depthBuffer, this.stencilBuffer = n.stencilBuffer, this.resolveDepthBuffer = n.resolveDepthBuffer, this.resolveStencilBuffer = n.resolveStencilBuffer, this._depthTexture = null, this.depthTexture = n.depthTexture, this.samples = n.samples, this.multiview = n.multiview, this.useArrayDepthTexture = n.useArrayDepthTexture;
   }
+  /** @eyes-analysis
+   * 源码方法 _setTextureOptions；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.textures[e].setValues。
+   */
   _setTextureOptions(e = {}) {
     const t = {
       minFilter: LinearFilter,
@@ -1959,18 +3179,37 @@ class RenderTarget extends EventDispatcher {
       this.textures[e].setValues(t);
     }
   }
+  /** @eyes-analysis
+   * 只读返回 this.textures[0]；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get texture() {
     return this.textures[0];
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.textures[0]，实际变更发生在 setter 中
+   * 状态写入：textures[0]。
+   */
   set texture(e) {
     this.textures[0] = e;
   }
+  /** @eyes-analysis
+   * 写入深度纹理；先解除旧纹理 renderTarget 关联，再为新纹理设置反向关联
+   * 状态写入：_depthTexture、_depthTexture.renderTarget。
+   */
   set depthTexture(depthTexture) {
     null !== this._depthTexture && (this._depthTexture.renderTarget = null), null !== depthTexture && (depthTexture.renderTarget = this), this._depthTexture = depthTexture;
   }
+  /** @eyes-analysis
+   * 只读返回 this._depthTexture；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get depthTexture() {
     return this._depthTexture;
   }
+  /** @eyes-analysis
+   * 更新像素尺寸及关联目标；后处理链需要同步所有通道
+   * 状态写入：depth、height、textures[r].image.depth、textures[r].image.height、textures[r].image.width、textures[r].isArrayTexture、width。
+   * 调用线索：this.dispose、this.scissor.set、this.viewport.set。
+   */
   setSize(width, height, depth = 1) {
     if (this.width !== width || this.height !== height || this.depth !== depth) {
       this.width = width, this.height = height, this.depth = depth;
@@ -1979,9 +3218,18 @@ class RenderTarget extends EventDispatcher {
     }
     this.viewport.set(0, 0, width, height), this.scissor.set(0, 0, width, height);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：depth、depthBuffer、depthTexture、height、multiview、resolveDepthBuffer、resolveStencilBuffer、samples等；完整记录见索引。
+   * 调用线索：Object.assign、e.depthTexture.clone、e.textures[t].clone、new Source、this.scissor.copy等。
+   */
   copy(e) {
     this.width = e.width, this.height = e.height, this.depth = e.depth, this.scissor.copy(e.scissor), this.scissorTest = e.scissorTest, this.viewport.copy(e.viewport), this.textures.length = 0;
     for (let t = 0, n = e.textures.length; t < n; t++) {
@@ -1991,18 +3239,42 @@ class RenderTarget extends EventDispatcher {
     }
     return this.depthBuffer = e.depthBuffer, this.stencilBuffer = e.stencilBuffer, this.resolveDepthBuffer = e.resolveDepthBuffer, this.resolveStencilBuffer = e.resolveStencilBuffer, null !== e.depthTexture && (this.depthTexture = e.depthTexture.clone()), this.samples = e.samples, this.multiview = e.multiview, this.useArrayDepthTexture = e.useArrayDepthTexture, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
 }
+/** @eyes-analysis
+ * 类职责：WebGL 离屏颜色/深度附件、尺寸和释放生命周期
+ * 继承：RenderTarget；导出：WebGLRenderTarget。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class WebGLRenderTarget extends RenderTarget {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isWebGLRenderTarget。
+   * 调用线索：super。
+   */
   constructor(e = 1, t = 1, n = {}) {
     super(e, t, n), this.isWebGLRenderTarget = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：DataArray 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：DataArrayTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DataArrayTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：flipY、generateMipmaps、image、isDataArrayTexture、layerUpdates、magFilter、minFilter、unpackAlignment等；完整记录见索引。
+   * 调用线索：new Set、super。
+   */
   constructor(e = null, t = 1, n = 1, r = 1) {
     super(null), this.isDataArrayTexture = !0, this.image = {
       data: e,
@@ -2011,19 +3283,47 @@ class DataArrayTexture extends Texture {
       depth: r
     }, this.magFilter = ye, this.minFilter = ye, this.wrapR = ge, this.generateMipmaps = !1, this.flipY = !1, this.unpackAlignment = 1, this.layerUpdates = new Set();
   }
+  /** @eyes-analysis
+   * 源码方法 addLayerUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.layerUpdates.add。
+   */
   addLayerUpdate(e) {
     this.layerUpdates.add(e);
   }
+  /** @eyes-analysis
+   * 源码方法 clearLayerUpdates；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.layerUpdates.clear。
+   */
   clearLayerUpdates() {
     this.layerUpdates.clear();
   }
 }
+/** @eyes-analysis
+ * 类职责：WebGLArray 离屏颜色/深度附件、尺寸和释放生命周期
+ * 继承：WebGLRenderTarget；导出：WebGLArrayRenderTarget。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class WebGLArrayRenderTarget extends WebGLRenderTarget {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：depth、isWebGLArrayRenderTarget、texture、texture.isRenderTargetTexture。
+   * 调用线索：new DataArrayTexture、super、this._setTextureOptions。
+   */
   constructor(e = 1, t = 1, depth = 1, r = {}) {
     super(e, t, r), this.isWebGLArrayRenderTarget = !0, this.depth = depth, this.texture = new DataArrayTexture(null, e, t, depth), this._setTextureOptions(r), this.texture.isRenderTargetTexture = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：Data3D 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：Data3DTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Data3DTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：flipY、generateMipmaps、image、isData3DTexture、magFilter、minFilter、unpackAlignment、wrapR。
+   * 调用线索：super。
+   */
   constructor(e = null, t = 1, n = 1, r = 1) {
     super(null), this.isData3DTexture = !0, this.image = {
       data: e,
@@ -2033,48 +3333,105 @@ class Data3DTexture extends Texture {
     }, this.magFilter = ye, this.minFilter = ye, this.wrapR = ge, this.generateMipmaps = !1, this.flipY = !1, this.unpackAlignment = 1;
   }
 }
+/** @eyes-analysis
+ * 类职责：WebGL3D 离屏颜色/深度附件、尺寸和释放生命周期
+ * 继承：WebGLRenderTarget；导出：WebGL3DRenderTarget。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class WebGL3DRenderTarget extends WebGLRenderTarget {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：depth、isWebGL3DRenderTarget、texture、texture.isRenderTargetTexture。
+   * 调用线索：new Data3DTexture、super、this._setTextureOptions。
+   */
   constructor(e = 1, t = 1, depth = 1, r = {}) {
     super(e, t, r), this.isWebGL3DRenderTarget = !0, this.depth = depth, this.texture = new Data3DTexture(null, e, t, depth), this._setTextureOptions(r), this.texture.isRenderTargetTexture = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：4 阶矩阵的乘法、行列式、求逆和变换构造
+ * 继承：无显式父类；导出：Matrix4。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Matrix4 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Matrix4.prototype.isMatrix4 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：elements。
+   * 调用线索：this.set。
+   */
   constructor(e, t, n, r, i, a, s, o, c, l, u, d, h, p, f, m) {
     this.elements = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1], void 0 !== e && this.set(e, t, n, r, i, a, s, o, c, l, u, d, h, p, f, m);
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   set(e, t, n, r, i, a, s, o, c, l, u, d, h, p, f, m) {
     const elements = this.elements;
     return elements[0] = e, elements[4] = t, elements[8] = n, elements[12] = r, elements[1] = i, elements[5] = a, elements[9] = s, elements[13] = o, elements[2] = c, elements[6] = l, elements[10] = u, elements[14] = d, elements[3] = h, elements[7] = p, elements[11] = f, elements[15] = m, this;
   }
+  /** @eyes-analysis
+   * 源码方法 identity；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   identity() {
     return this.set(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new Matrix4、new Matrix4().fromArray。
+   */
   clone() {
     return new Matrix4().fromArray(this.elements);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   */
   copy(e) {
     const elements = this.elements,
       n = e.elements;
     return elements[0] = n[0], elements[1] = n[1], elements[2] = n[2], elements[3] = n[3], elements[4] = n[4], elements[5] = n[5], elements[6] = n[6], elements[7] = n[7], elements[8] = n[8], elements[9] = n[9], elements[10] = n[10], elements[11] = n[11], elements[12] = n[12], elements[13] = n[13], elements[14] = n[14], elements[15] = n[15], this;
   }
+  /** @eyes-analysis
+   * 源码方法 copyPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   copyPosition(e) {
     const elements = this.elements,
       n = e.elements;
     return elements[12] = n[12], elements[13] = n[13], elements[14] = n[14], this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromMatrix3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   setFromMatrix3(e) {
     const t = e.elements;
     return this.set(t[0], t[3], t[6], 0, t[1], t[4], t[7], 0, t[2], t[5], t[8], 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 extractBasis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.set、e.setFromMatrixColumn、n.set、n.setFromMatrixColumn、t.set等。
+   */
   extractBasis(e, t, n) {
     return 0 === this.determinantAffine() ? (e.set(1, 0, 0), t.set(0, 1, 0), n.set(0, 0, 1), this) : (e.setFromMatrixColumn(this, 0), t.setFromMatrixColumn(this, 1), n.setFromMatrixColumn(this, 2), this);
   }
+  /** @eyes-analysis
+   * 源码方法 makeBasis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeBasis(e, t, n) {
     return this.set(e.x, t.x, n.x, 0, e.y, t.y, n.y, 0, e.z, t.z, n.z, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 extractRotation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.determinantAffine、qr.setFromMatrixColumn、qr.setFromMatrixColumn(e,0).length、qr.setFromMatrixColumn(e,1).length、qr.setFromMatrixColumn(e,2).length等。
+   */
   extractRotation(e) {
     if (0 === e.determinantAffine()) return this.identity();
     const elements = this.elements,
@@ -2084,6 +3441,10 @@ class Matrix4 {
       a = 1 / qr.setFromMatrixColumn(e, 2).length();
     return elements[0] = n[0] * r, elements[1] = n[1] * r, elements[2] = n[2] * r, elements[3] = 0, elements[4] = n[4] * i, elements[5] = n[5] * i, elements[6] = n[6] * i, elements[7] = 0, elements[8] = n[8] * a, elements[9] = n[9] * a, elements[10] = n[10] * a, elements[11] = 0, elements[12] = 0, elements[13] = 0, elements[14] = 0, elements[15] = 1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationFromEuler；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin。
+   */
   makeRotationFromEuler(e) {
     const elements = this.elements,
       n = e.x,
@@ -2134,19 +3495,38 @@ class Matrix4 {
     }
     return elements[3] = 0, elements[7] = 0, elements[11] = 0, elements[12] = 0, elements[13] = 0, elements[14] = 0, elements[15] = 1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationFromQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.compose。
+   */
   makeRotationFromQuaternion(e) {
     return this.compose(Ur, e, Gr);
   }
+  /** @eyes-analysis
+   * 源码方法 lookAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs、Vr.lengthSq、Vr.normalize、Vr.subVectors、Xr.crossVectors等。
+   */
   lookAt(e, t, n) {
     const elements = this.elements;
     return Vr.subVectors(e, t), 0 === Vr.lengthSq() && (Vr.z = 1), Vr.normalize(), Xr.crossVectors(n, Vr), 0 === Xr.lengthSq() && (1 === Math.abs(n.z) ? Vr.x += 1e-4 : Vr.z += 1e-4, Vr.normalize(), Xr.crossVectors(n, Vr)), Xr.normalize(), jr.crossVectors(Vr, Xr), elements[0] = Xr.x, elements[4] = jr.x, elements[8] = Vr.x, elements[1] = Xr.y, elements[5] = jr.y, elements[9] = Vr.y, elements[2] = Xr.z, elements[6] = jr.z, elements[10] = Vr.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyMatrices。
+   */
   multiply(e) {
     return this.multiplyMatrices(this, e);
   }
+  /** @eyes-analysis
+   * 源码方法 premultiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.multiplyMatrices。
+   */
   premultiply(e) {
     return this.multiplyMatrices(e, this);
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyMatrices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   multiplyMatrices(e, t) {
     const n = e.elements,
       r = t.elements,
@@ -2185,10 +3565,16 @@ class Matrix4 {
       R = r[15];
     return elements[0] = a * y + s * S + o * C + c * D, elements[4] = a * L + s * w + o * z + c * N, elements[8] = a * v + s * E + o * O + c * I, elements[12] = a * T + s * x + o * B + c * R, elements[1] = l * y + u * S + d * C + h * D, elements[5] = l * L + u * w + d * z + h * N, elements[9] = l * v + u * E + d * O + h * I, elements[13] = l * T + u * x + d * B + h * R, elements[2] = p * y + f * S + m * C + M * D, elements[6] = p * L + f * w + m * z + M * N, elements[10] = p * v + f * E + m * O + M * I, elements[14] = p * T + f * x + m * B + M * R, elements[3] = _ * y + A * S + g * C + b * D, elements[7] = _ * L + A * w + g * z + b * N, elements[11] = _ * v + A * E + g * O + b * I, elements[15] = _ * T + A * x + g * B + b * R, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   multiplyScalar(e) {
     const elements = this.elements;
     return elements[0] *= e, elements[4] *= e, elements[8] *= e, elements[12] *= e, elements[1] *= e, elements[5] *= e, elements[9] *= e, elements[13] *= e, elements[2] *= e, elements[6] *= e, elements[10] *= e, elements[14] *= e, elements[3] *= e, elements[7] *= e, elements[11] *= e, elements[15] *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 determinant；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   determinant() {
     const elements = this.elements,
       t = elements[0],
@@ -2215,6 +3601,9 @@ class Matrix4 {
       L = a * u - s * l;
     return t * (f * _ - m * A + M * g) - n * (p * _ - m * b + M * y) + r * (p * A - f * b + M * L) - i * (p * g - f * y + m * L);
   }
+  /** @eyes-analysis
+   * 源码方法 determinantAffine；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   determinantAffine() {
     const elements = this.elements,
       t = elements[0],
@@ -2228,15 +3617,25 @@ class Matrix4 {
       l = elements[10];
     return t * (a * l - s * c) - n * (i * l - s * o) + r * (i * c - a * o);
   }
+  /** @eyes-analysis
+   * 源码方法 transpose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   transpose() {
     const elements = this.elements;
     let t;
     return t = elements[1], elements[1] = elements[4], elements[4] = t, t = elements[2], elements[2] = elements[8], elements[8] = t, t = elements[6], elements[6] = elements[9], elements[9] = t, t = elements[3], elements[3] = elements[12], elements[12] = t, t = elements[7], elements[7] = elements[13], elements[13] = t, t = elements[11], elements[11] = elements[14], elements[14] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   setPosition(e, t, n) {
     const elements = this.elements;
     return e.isVector3 ? (elements[12] = e.x, elements[13] = e.y, elements[14] = e.z) : (elements[12] = e, elements[13] = t, elements[14] = n), this;
   }
+  /** @eyes-analysis
+   * 源码方法 invert；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   invert() {
     const elements = this.elements,
       t = elements[0],
@@ -2272,6 +3671,9 @@ class Matrix4 {
     const z = 1 / C;
     return elements[0] = (s * x - o * E + c * w) * z, elements[1] = (r * E - n * x - i * w) * z, elements[2] = (f * L - m * y + M * b) * z, elements[3] = (d * y - u * L - h * b) * z, elements[4] = (o * S - a * x - c * T) * z, elements[5] = (t * x - r * S + i * T) * z, elements[6] = (m * g - p * L - M * A) * z, elements[7] = (l * L - d * g + h * A) * z, elements[8] = (a * E - s * S + c * v) * z, elements[9] = (n * S - t * E - i * v) * z, elements[10] = (p * y - f * g + M * _) * z, elements[11] = (u * g - l * y - h * _) * z, elements[12] = (s * T - a * w - o * v) * z, elements[13] = (t * w - n * T + r * v) * z, elements[14] = (f * A - p * b - m * _) * z, elements[15] = (l * b - u * A + d * _) * z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 scale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   scale(e) {
     const elements = this.elements,
       n = e.x,
@@ -2279,6 +3681,10 @@ class Matrix4 {
       i = e.z;
     return elements[0] *= n, elements[4] *= r, elements[8] *= i, elements[1] *= n, elements[5] *= r, elements[9] *= i, elements[2] *= n, elements[6] *= r, elements[10] *= i, elements[3] *= n, elements[7] *= r, elements[11] *= i, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getMaxScaleOnAxis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.max、Math.sqrt。
+   */
   getMaxScaleOnAxis() {
     const elements = this.elements,
       t = elements[0] * elements[0] + elements[1] * elements[1] + elements[2] * elements[2],
@@ -2286,24 +3692,44 @@ class Matrix4 {
       r = elements[8] * elements[8] + elements[9] * elements[9] + elements[10] * elements[10];
     return Math.sqrt(Math.max(t, n, r));
   }
+  /** @eyes-analysis
+   * 源码方法 makeTranslation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeTranslation(e, t, n) {
     return e.isVector3 ? this.set(1, 0, 0, e.x, 0, 1, 0, e.y, 0, 0, 1, e.z, 0, 0, 0, 1) : this.set(1, 0, 0, e, 0, 1, 0, t, 0, 0, 1, n, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   makeRotationX(e) {
     const t = Math.cos(e),
       n = Math.sin(e);
     return this.set(1, 0, 0, 0, 0, t, -n, 0, 0, n, t, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   makeRotationY(e) {
     const t = Math.cos(e),
       n = Math.sin(e);
     return this.set(t, 0, n, 0, 0, 1, 0, 0, -n, 0, t, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   makeRotationZ(e) {
     const t = Math.cos(e),
       n = Math.sin(e);
     return this.set(t, -n, 0, 0, n, t, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeRotationAxis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.cos、Math.sin、this.set。
+   */
   makeRotationAxis(e, t) {
     const n = Math.cos(t),
       r = Math.sin(t),
@@ -2315,12 +3741,23 @@ class Matrix4 {
       l = i * s;
     return this.set(c * a + n, c * s - r * o, c * o + r * s, 0, c * s + r * o, l * s + n, l * o - r * a, 0, c * o - r * s, l * o + r * a, i * o * o + n, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeScale(e, t, n) {
     return this.set(e, 0, 0, 0, 0, t, 0, 0, 0, 0, n, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeShear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   makeShear(e, t, n, r, i, a) {
     return this.set(1, n, i, 0, e, 1, a, 0, t, r, 1, 0, 0, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 compose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   compose(e, t, n) {
     const elements = this.elements,
       i = t._x,
@@ -2344,6 +3781,10 @@ class Matrix4 {
       L = n.z;
     return elements[0] = (1 - (f + M)) * b, elements[1] = (h + g) * b, elements[2] = (p - A) * b, elements[3] = 0, elements[4] = (h - g) * y, elements[5] = (1 - (d + M)) * y, elements[6] = (m + _) * y, elements[7] = 0, elements[8] = (p + A) * L, elements[9] = (m - _) * L, elements[10] = (1 - (d + f)) * L, elements[11] = 0, elements[12] = e.x, elements[13] = e.y, elements[14] = e.z, elements[15] = 1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 decompose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：matrix4.copy、n.set、qr.set、qr.set(elements[0],elements[1],elements[2]).length、qr.set(elements[4],elements[5],elements[6]).length等。
+   */
   decompose(e, t, n) {
     const elements = this.elements;
     e.x = elements[12], e.y = elements[13], e.z = elements[14];
@@ -2358,6 +3799,10 @@ class Matrix4 {
       u = 1 / o;
     return matrix4.elements[0] *= c, matrix4.elements[1] *= c, matrix4.elements[2] *= c, matrix4.elements[4] *= l, matrix4.elements[5] *= l, matrix4.elements[6] *= l, matrix4.elements[8] *= u, matrix4.elements[9] *= u, matrix4.elements[10] *= u, t.setFromRotationMatrix(matrix4), n.x = a, n.y = s, n.z = o, this;
   }
+  /** @eyes-analysis
+   * 源码方法 makePerspective；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   makePerspective(e, t, n, r, i, a, s = Vn, o = !1) {
     const elements = this.elements,
       l = 2 * i / (t - e),
@@ -2371,6 +3816,10 @@ class Matrix4 {
     }
     return elements[0] = l, elements[4] = 0, elements[8] = d, elements[12] = 0, elements[1] = 0, elements[5] = u, elements[9] = h, elements[13] = 0, elements[2] = 0, elements[6] = 0, elements[10] = p, elements[14] = f, elements[3] = 0, elements[7] = 0, elements[11] = -1, elements[15] = 0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeOrthographic；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   makeOrthographic(e, t, n, r, i, a, s = Vn, o = !1) {
     const elements = this.elements,
       l = 2 / (t - e),
@@ -2384,16 +3833,26 @@ class Matrix4 {
     }
     return elements[0] = l, elements[4] = 0, elements[8] = 0, elements[12] = d, elements[1] = 0, elements[5] = u, elements[9] = 0, elements[13] = h, elements[2] = 0, elements[6] = 0, elements[10] = p, elements[14] = f, elements[3] = 0, elements[7] = 0, elements[11] = 0, elements[15] = 1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     const elements = this.elements,
       n = e.elements;
     for (let e = 0; e < 16; e++) if (elements[e] !== n[e]) return !1;
     return !0;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elements[n]。
+   */
   fromArray(e, t = 0) {
     for (let n = 0; n < 16; n++) this.elements[n] = e[n + t];
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     const elements = this.elements;
     return e[t] = elements[0], e[t + 1] = elements[1], e[t + 2] = elements[2], e[t + 3] = elements[3], e[t + 4] = elements[4], e[t + 5] = elements[5], e[t + 6] = elements[6], e[t + 7] = elements[7], e[t + 8] = elements[8], e[t + 9] = elements[9], e[t + 10] = elements[10], e[t + 11] = elements[11], e[t + 12] = elements[12], e[t + 13] = elements[13], e[t + 14] = elements[14], e[t + 15] = elements[15], e;
@@ -2408,43 +3867,103 @@ const qr = new Vector3(),
   Vr = new Vector3(),
   Qr = new Matrix4(),
   Kr = new Quaternion();
+/** @eyes-analysis
+ * 类职责：按旋转顺序表示欧拉角并与矩阵/四元数互转
+ * 继承：无显式父类；导出：Euler。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Euler {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_order、_x、_y、_z、isEuler。
+   */
   constructor(e = 0, t = 0, n = 0, order = Euler.DEFAULT_ORDER) {
     this.isEuler = !0, this._x = e, this._y = t, this._z = n, this._order = order;
   }
+  /** @eyes-analysis
+   * 只读返回 this._x；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get x() {
     return this._x;
   }
+  /** @eyes-analysis
+   * 写入 _x，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_x。
+   * 调用线索：this._onChangeCallback。
+   */
   set x(e) {
     this._x = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._y；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get y() {
     return this._y;
   }
+  /** @eyes-analysis
+   * 写入 _y，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_y。
+   * 调用线索：this._onChangeCallback。
+   */
   set y(e) {
     this._y = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._z；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get z() {
     return this._z;
   }
+  /** @eyes-analysis
+   * 写入 _z，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_z。
+   * 调用线索：this._onChangeCallback。
+   */
   set z(e) {
     this._z = e, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 只读返回 this._order；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get order() {
     return this._order;
   }
+  /** @eyes-analysis
+   * 写入 _order，随后调用 _onChangeCallback 通知旋转状态变化
+   * 状态写入：_order。
+   * 调用线索：this._onChangeCallback。
+   */
   set order(order) {
     this._order = order, this._onChangeCallback();
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_order、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   set(e, t, n, order = this._order) {
     return this._x = e, this._y = t, this._z = n, this._order = order, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this._x, this._y, this._z, this._order);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：_order、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   copy(e) {
     return this._x = e._x, this._y = e._y, this._z = e._z, this._order = e._order, this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromRotationMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_order、_x、_y、_z。
+   * 调用线索：Lr、Math.abs、Math.asin、Math.atan2、this._onChangeCallback等。
+   */
   setFromRotationMatrix(e, order = this._order, n = !0) {
     const r = e.elements,
       i = r[0],
@@ -2480,58 +3999,131 @@ class Euler {
     }
     return this._order = order, !0 === n && this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qr.makeRotationFromQuaternion、this.setFromRotationMatrix。
+   */
   setFromQuaternion(e, t, n) {
     return Qr.makeRotationFromQuaternion(e), this.setFromRotationMatrix(Qr, t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromVector3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   setFromVector3(e, t = this._order) {
     return this.set(e.x, e.y, e.z, t);
   }
+  /** @eyes-analysis
+   * 源码方法 reorder；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Kr.setFromEuler、this.setFromQuaternion。
+   */
   reorder(e) {
     return Kr.setFromEuler(this), this.setFromQuaternion(Kr, e);
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e._x === this._x && e._y === this._y && e._z === this._z && e._order === this._order;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_order、_x、_y、_z。
+   * 调用线索：this._onChangeCallback。
+   */
   fromArray(e) {
     return this._x = e[0], this._y = e[1], this._z = e[2], void 0 !== e[3] && (this._order = e[3]), this._onChangeCallback(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this._x, e[t + 1] = this._y, e[t + 2] = this._z, e[t + 3] = this._order, e;
   }
+  /** @eyes-analysis
+   * 源码方法 _onChange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_onChangeCallback。
+   */
   _onChange(onChangeCallback) {
     return this._onChangeCallback = onChangeCallback, this;
   }
+  /** @eyes-analysis
+   * 源码方法 _onChangeCallback；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _onChangeCallback() {}
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：_order、_x、_y、_z；返回：。
+   */
   *[Symbol.iterator]() {
     yield this._x, yield this._y, yield this._z, yield this._order;
   }
 }
 Euler.DEFAULT_ORDER = "XYZ";
+/** @eyes-analysis
+ * 类职责：按位掩码控制对象与相机的可见层匹配
+ * 继承：无显式父类；导出：Layers。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Layers {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：mask。
+   */
   constructor() {
     this.mask = 1;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   set(e) {
     this.mask = 1 << e >>> 0;
   }
+  /** @eyes-analysis
+   * 源码方法 enable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   enable(e) {
     this.mask |= 1 << e;
   }
+  /** @eyes-analysis
+   * 源码方法 enableAll；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   enableAll() {
     this.mask = -1;
   }
+  /** @eyes-analysis
+   * 源码方法 toggle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   toggle(e) {
     this.mask ^= 1 << e;
   }
+  /** @eyes-analysis
+   * 源码方法 disable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   disable(e) {
     this.mask &= ~(1 << e);
   }
+  /** @eyes-analysis
+   * 源码方法 disableAll；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mask。
+   */
   disableAll() {
     this.mask = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 test；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   test(e) {
     return 0 !== (this.mask & e.mask);
   }
+  /** @eyes-analysis
+   * 源码方法 isEnabled；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   isEnabled(e) {
     return !!(this.mask & 1 << e);
   }
@@ -2561,7 +4153,17 @@ const $r = new Vector3(),
     type: "childremoved",
     child: null
   };
+/** @eyes-analysis
+ * 类职责：场景图节点；管理父子关系、局部/世界矩阵和递归序列化
+ * 继承：EventDispatcher；导出：Object3D。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Object3D extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：animations、castShadow、children、customDepthMaterial、customDistanceMaterial、frustumCulled、isObject3D、layers等；完整记录见索引。
+   * 调用线索：Object.defineProperties、Object.defineProperty、Object3D.DEFAULT_UP.clone、euler._onChange、euler.setFromQuaternion等。
+   */
   constructor() {
     super(), this.isObject3D = !0, Object.defineProperty(this, "id", {
       value: Jr++
@@ -2603,66 +4205,154 @@ class Object3D extends EventDispatcher {
       }
     }), this.matrix = new Matrix4(), this.matrixWorld = new Matrix4(), this.matrixAutoUpdate = Object3D.DEFAULT_MATRIX_AUTO_UPDATE, this.matrixWorldAutoUpdate = Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE, this.matrixWorldNeedsUpdate = !1, this.layers = new Layers(), this.visible = !0, this.castShadow = !1, this.receiveShadow = !1, this.frustumCulled = !0, this.renderOrder = 0, this.animations = [], this.customDepthMaterial = void 0, this.customDistanceMaterial = void 0, this.static = !1, this.userData = {}, this.pivot = null;
   }
+  /** @eyes-analysis
+   * 源码方法 onBeforeShadow；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onBeforeShadow() {}
+  /** @eyes-analysis
+   * 源码方法 onAfterShadow；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onAfterShadow() {}
+  /** @eyes-analysis
+   * 源码方法 onBeforeRender；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onBeforeRender() {}
+  /** @eyes-analysis
+   * 源码方法 onAfterRender；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onAfterRender() {}
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.matrix.decompose、this.matrix.premultiply、this.updateMatrix。
+   */
   applyMatrix4(e) {
     this.matrixAutoUpdate && this.updateMatrix(), this.matrix.premultiply(e), this.matrix.decompose(this.position, this.quaternion, this.scale);
   }
+  /** @eyes-analysis
+   * 源码方法 applyQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.quaternion.premultiply。
+   */
   applyQuaternion(e) {
     return this.quaternion.premultiply(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setRotationFromAxisAngle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.quaternion.setFromAxisAngle。
+   */
   setRotationFromAxisAngle(e, t) {
     this.quaternion.setFromAxisAngle(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 setRotationFromEuler；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.quaternion.setFromEuler。
+   */
   setRotationFromEuler(e) {
     this.quaternion.setFromEuler(e, !0);
   }
+  /** @eyes-analysis
+   * 源码方法 setRotationFromMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.quaternion.setFromRotationMatrix。
+   */
   setRotationFromMatrix(e) {
     this.quaternion.setFromRotationMatrix(e);
   }
+  /** @eyes-analysis
+   * 源码方法 setRotationFromQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.quaternion.copy。
+   */
   setRotationFromQuaternion(e) {
     this.quaternion.copy(e);
   }
+  /** @eyes-analysis
+   * 源码方法 rotateOnAxis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Zr.setFromAxisAngle、this.quaternion.multiply。
+   */
   rotateOnAxis(e, t) {
     return Zr.setFromAxisAngle(e, t), this.quaternion.multiply(Zr), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateOnWorldAxis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Zr.setFromAxisAngle、this.quaternion.premultiply。
+   */
   rotateOnWorldAxis(e, t) {
     return Zr.setFromAxisAngle(e, t), this.quaternion.premultiply(Zr), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.rotateOnAxis。
+   */
   rotateX(e) {
     return this.rotateOnAxis(ai, e);
   }
+  /** @eyes-analysis
+   * 源码方法 rotateY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.rotateOnAxis。
+   */
   rotateY(e) {
     return this.rotateOnAxis(si, e);
   }
+  /** @eyes-analysis
+   * 源码方法 rotateZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.rotateOnAxis。
+   */
   rotateZ(e) {
     return this.rotateOnAxis(oi, e);
   }
+  /** @eyes-analysis
+   * 源码方法 translateOnAxis；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：$r.copy、$r.copy(e).applyQuaternion、$r.multiplyScalar、this.position.add。
+   */
   translateOnAxis(e, t) {
     return $r.copy(e).applyQuaternion(this.quaternion), this.position.add($r.multiplyScalar(t)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translateX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.translateOnAxis。
+   */
   translateX(e) {
     return this.translateOnAxis(ai, e);
   }
+  /** @eyes-analysis
+   * 源码方法 translateY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.translateOnAxis。
+   */
   translateY(e) {
     return this.translateOnAxis(si, e);
   }
+  /** @eyes-analysis
+   * 源码方法 translateZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.translateOnAxis。
+   */
   translateZ(e) {
     return this.translateOnAxis(oi, e);
   }
+  /** @eyes-analysis
+   * 源码方法 localToWorld；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.applyMatrix4、this.updateWorldMatrix。
+   */
   localToWorld(e) {
     return this.updateWorldMatrix(!0, !1), e.applyMatrix4(this.matrixWorld);
   }
+  /** @eyes-analysis
+   * 源码方法 worldToLocal；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.applyMatrix4、ei.copy、ei.copy(this.matrixWorld).invert、this.updateWorldMatrix。
+   */
   worldToLocal(e) {
     return this.updateWorldMatrix(!0, !1), e.applyMatrix4(ei.copy(this.matrixWorld).invert());
   }
+  /** @eyes-analysis
+   * 源码方法 lookAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Zr.invert、Zr.setFromRotationMatrix、ei.extractRotation、ei.lookAt、ni.setFromMatrixPosition等。
+   */
   lookAt(e, t, n) {
     e.isVector3 ? ti.copy(e) : ti.set(e, t, n);
     const parent = this.parent;
     this.updateWorldMatrix(!0, !1), ni.setFromMatrixPosition(this.matrixWorld), this.isCamera || this.isLight ? ei.lookAt(ni, ti, this.up) : ei.lookAt(ti, ni, this.up), this.quaternion.setFromRotationMatrix(ei), parent && (ei.extractRotation(parent.matrixWorld), Zr.setFromRotationMatrix(ei), this.quaternion.premultiply(Zr.invert()));
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.dispatchEvent、e.removeFromParent、error、this.add、this.children.push等。
+   */
   add(e) {
     if (arguments.length > 1) {
       for (let e = 0; e < arguments.length; e++) this.add(arguments[e]);
@@ -2670,6 +4360,10 @@ class Object3D extends EventDispatcher {
     }
     return e === this ? (error("Object3D.add: object can't be added as a child of itself.", e), this) : (e && e.isObject3D ? (e.removeFromParent(), e.parent = this, this.children.push(e), e.dispatchEvent(ci), ui.child = e, this.dispatchEvent(ui), ui.child = null) : error("Object3D.add: object not an instance of THREE.Object3D.", e), this);
   }
+  /** @eyes-analysis
+   * 源码方法 remove；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.dispatchEvent、this.children.indexOf、this.children.splice、this.dispatchEvent、this.remove。
+   */
   remove(e) {
     if (arguments.length > 1) {
       for (let e = 0; e < arguments.length; e++) this.remove(arguments[e]);
@@ -2678,22 +4372,46 @@ class Object3D extends EventDispatcher {
     const t = this.children.indexOf(e);
     return -1 !== t && (e.parent = null, this.children.splice(t, 1), e.dispatchEvent(li), di.child = e, this.dispatchEvent(di), di.child = null), this;
   }
+  /** @eyes-analysis
+   * 源码方法 removeFromParent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：parent.remove。
+   */
   removeFromParent() {
     const parent = this.parent;
     return null !== parent && parent.remove(this), this;
   }
+  /** @eyes-analysis
+   * 源码方法 clear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.remove。
+   */
   clear() {
     return this.remove(...this.children);
   }
+  /** @eyes-analysis
+   * 源码方法 attach；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.applyMatrix4、e.dispatchEvent、e.parent.updateWorldMatrix、e.removeFromParent、e.updateWorldMatrix等。
+   */
   attach(e) {
     return this.updateWorldMatrix(!0, !1), ei.copy(this.matrixWorld).invert(), null !== e.parent && (e.parent.updateWorldMatrix(!0, !1), ei.multiply(e.parent.matrixWorld)), e.applyMatrix4(ei), e.removeFromParent(), e.parent = this, this.children.push(e), e.updateWorldMatrix(!1, !0), e.dispatchEvent(ci), ui.child = e, this.dispatchEvent(ui), ui.child = null, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getObjectById；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getObjectByProperty。
+   */
   getObjectById(e) {
     return this.getObjectByProperty("id", e);
   }
+  /** @eyes-analysis
+   * 源码方法 getObjectByName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getObjectByProperty。
+   */
   getObjectByName(e) {
     return this.getObjectByProperty("name", e);
   }
+  /** @eyes-analysis
+   * 源码方法 getObjectByProperty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.children[n].getObjectByProperty。
+   */
   getObjectByProperty(e, t) {
     if (this[e] === t) return this;
     for (let n = 0, r = this.children.length; n < r; n++) {
@@ -2701,42 +4419,82 @@ class Object3D extends EventDispatcher {
       if (void 0 !== r) return r;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 getObjectsByProperty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：children[i].getObjectsByProperty、n.push。
+   */
   getObjectsByProperty(e, t, n = []) {
     this[e] === t && n.push(this);
     const children = this.children;
     for (let i = 0, a = children.length; i < a; i++) children[i].getObjectsByProperty(e, t, n);
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 getWorldPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.setFromMatrixPosition、this.updateWorldMatrix。
+   */
   getWorldPosition(e) {
     return this.updateWorldMatrix(!0, !1), e.setFromMatrixPosition(this.matrixWorld);
   }
+  /** @eyes-analysis
+   * 源码方法 getWorldQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.matrixWorld.decompose、this.updateWorldMatrix。
+   */
   getWorldQuaternion(e) {
     return this.updateWorldMatrix(!0, !1), this.matrixWorld.decompose(ni, e, ri), e;
   }
+  /** @eyes-analysis
+   * 源码方法 getWorldScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.matrixWorld.decompose、this.updateWorldMatrix。
+   */
   getWorldScale(e) {
     return this.updateWorldMatrix(!0, !1), this.matrixWorld.decompose(ni, ii, e), e;
   }
+  /** @eyes-analysis
+   * 源码方法 getWorldDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.set、e.set(t[8],t[9],t[10]).normalize、this.updateWorldMatrix。
+   */
   getWorldDirection(e) {
     this.updateWorldMatrix(!0, !1);
     const t = this.matrixWorld.elements;
     return e.set(t[8], t[9], t[10]).normalize();
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   */
   raycast() {}
+  /** @eyes-analysis
+   * 源码方法 traverse；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：children[n].traverse、e。
+   */
   traverse(e) {
     e(this);
     const children = this.children;
     for (let n = 0, r = children.length; n < r; n++) children[n].traverse(e);
   }
+  /** @eyes-analysis
+   * 源码方法 traverseVisible；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：children[n].traverseVisible、e。
+   */
   traverseVisible(e) {
     if (!1 === this.visible) return;
     e(this);
     const children = this.children;
     for (let n = 0, r = children.length; n < r; n++) children[n].traverseVisible(e);
   }
+  /** @eyes-analysis
+   * 源码方法 traverseAncestors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e、parent.traverseAncestors。
+   */
   traverseAncestors(e) {
     const parent = this.parent;
     null !== parent && (e(parent), parent.traverseAncestors(e));
   }
+  /** @eyes-analysis
+   * 源码方法 updateMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：this.matrix.compose。
+   */
   updateMatrix() {
     this.matrix.compose(this.position, this.quaternion, this.scale);
     const pivot = this.pivot;
@@ -2749,6 +4507,11 @@ class Object3D extends EventDispatcher {
     }
     this.matrixWorldNeedsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：children[n].updateMatrixWorld、this.matrixWorld.copy、this.matrixWorld.multiplyMatrices、this.updateMatrix。
+   */
   updateMatrixWorld(e) {
     this.matrixAutoUpdate && this.updateMatrix(), (this.matrixWorldNeedsUpdate || e) && (!0 === this.matrixWorldAutoUpdate && (null === this.parent ? this.matrixWorld.copy(this.matrix) : this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)), this.matrixWorldNeedsUpdate = !1, e = !0);
     const children = this.children;
@@ -2756,6 +4519,11 @@ class Object3D extends EventDispatcher {
       children[n].updateMatrixWorld(e);
     }
   }
+  /** @eyes-analysis
+   * 按参数选择先更新祖先或继续更新后代，避免使用过期世界变换
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：children[t].updateWorldMatrix、parent.updateWorldMatrix、this.matrixWorld.copy、this.matrixWorld.multiplyMatrices、this.updateMatrix。
+   */
   updateWorldMatrix(e, t, n = !1) {
     const parent = this.parent;
     if (!0 === e && null !== parent && parent.updateWorldMatrix(!0, !1), this.matrixAutoUpdate && this.updateMatrix(), (this.matrixWorldNeedsUpdate || n) && (!0 === this.matrixWorldAutoUpdate && (null === this.parent ? this.matrixWorld.copy(this.matrix) : this.matrixWorld.multiplyMatrices(this.parent.matrixWorld, this.matrix)), this.matrixWorldNeedsUpdate = !1, n = !0), !0 === t) {
@@ -2765,6 +4533,10 @@ class Object3D extends EventDispatcher {
       }
     }
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.isArray、Object.assign、Object.keys、a、e.boundingBox.toJSON等。
+   */
   toJSON(e) {
     const t = void 0 === e || "string" == typeof e,
       n = {};
@@ -2840,9 +4612,18 @@ class Object3D extends EventDispatcher {
       return t;
     }
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone(e) {
     return new this.constructor().copy(this, e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：animations、castShadow、frustumCulled、layers.mask、matrixAutoUpdate、matrixWorldAutoUpdate、matrixWorldNeedsUpdate、name等；完整记录见索引。
+   * 调用线索：JSON.parse、JSON.stringify、e.animations.slice、e.pivot.clone、n.clone等。
+   */
   copy(e, t = !0) {
     if (this.name = e.name, this.up.copy(e.up), this.position.copy(e.position), this.rotation.order = e.rotation.order, this.quaternion.copy(e.quaternion), this.scale.copy(e.scale), this.pivot = null !== e.pivot ? e.pivot.clone() : null, this.matrix.copy(e.matrix), this.matrixWorld.copy(e.matrixWorld), this.matrixAutoUpdate = e.matrixAutoUpdate, this.matrixWorldAutoUpdate = e.matrixWorldAutoUpdate, this.matrixWorldNeedsUpdate = e.matrixWorldNeedsUpdate, this.layers.mask = e.layers.mask, this.visible = e.visible, this.castShadow = e.castShadow, this.receiveShadow = e.receiveShadow, this.frustumCulled = e.frustumCulled, this.renderOrder = e.renderOrder, this.static = e.static, this.animations = e.animations.slice(), this.userData = JSON.parse(JSON.stringify(e.userData)), !0 === t) for (let t = 0; t < e.children.length; t++) {
       const n = e.children[t];
@@ -2852,7 +4633,17 @@ class Object3D extends EventDispatcher {
   }
 }
 Object3D.DEFAULT_UP = new Vector3(0, 1, 0), Object3D.DEFAULT_MATRIX_AUTO_UPDATE = !0, Object3D.DEFAULT_MATRIX_WORLD_AUTO_UPDATE = !0;
+/** @eyes-analysis
+ * 类职责：将多个场景节点组织为共同变换的组
+ * 继承：Object3D；导出：Group。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Group extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isGroup、type。
+   * 调用线索：super。
+   */
   constructor() {
     super(), this.isGroup = !0, this.type = "Group";
   }
@@ -2860,24 +4651,56 @@ class Group extends Object3D {
 const hi = {
   type: "move"
 };
+/** @eyes-analysis
+ * 类职责：维护 XR 目标射线、握柄、手关节空间及连接事件
+ * 继承：无显式父类；导出：WebXRController。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class WebXRController {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_grip、_hand、_targetRay。
+   */
   constructor() {
     this._targetRay = null, this._grip = null, this._hand = null;
   }
+  /** @eyes-analysis
+   * 源码方法 getHandSpace；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_hand、_hand.inputState、_hand.joints、_hand.matrixAutoUpdate、_hand.visible。
+   * 调用线索：new Group。
+   */
   getHandSpace() {
     return null === this._hand && (this._hand = new Group(), this._hand.matrixAutoUpdate = !1, this._hand.visible = !1, this._hand.joints = {}, this._hand.inputState = {
       pinching: !1
     }), this._hand;
   }
+  /** @eyes-analysis
+   * 源码方法 getTargetRaySpace；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_targetRay、_targetRay.angularVelocity、_targetRay.hasAngularVelocity、_targetRay.hasLinearVelocity、_targetRay.linearVelocity、_targetRay.matrixAutoUpdate、_targetRay.visible。
+   * 调用线索：new Group、new Vector3。
+   */
   getTargetRaySpace() {
     return null === this._targetRay && (this._targetRay = new Group(), this._targetRay.matrixAutoUpdate = !1, this._targetRay.visible = !1, this._targetRay.hasLinearVelocity = !1, this._targetRay.linearVelocity = new Vector3(), this._targetRay.hasAngularVelocity = !1, this._targetRay.angularVelocity = new Vector3()), this._targetRay;
   }
+  /** @eyes-analysis
+   * 源码方法 getGripSpace；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_grip、_grip.angularVelocity、_grip.eventsEnabled、_grip.hasAngularVelocity、_grip.hasLinearVelocity、_grip.linearVelocity、_grip.matrixAutoUpdate、_grip.visible。
+   * 调用线索：new Group、new Vector3。
+   */
   getGripSpace() {
     return null === this._grip && (this._grip = new Group(), this._grip.matrixAutoUpdate = !1, this._grip.visible = !1, this._grip.hasLinearVelocity = !1, this._grip.linearVelocity = new Vector3(), this._grip.hasAngularVelocity = !1, this._grip.angularVelocity = new Vector3(), this._grip.eventsEnabled = !1), this._grip;
   }
+  /** @eyes-analysis
+   * 源码方法 dispatchEvent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._grip.dispatchEvent、this._hand.dispatchEvent、this._targetRay.dispatchEvent。
+   */
   dispatchEvent(e) {
     return null !== this._targetRay && this._targetRay.dispatchEvent(e), null !== this._grip && this._grip.dispatchEvent(e), null !== this._hand && this._hand.dispatchEvent(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 connect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.hand.values、this._getHandJoint、this.dispatchEvent。
+   */
   connect(e) {
     if (e && e.hand) {
       const hand = this._hand;
@@ -2888,12 +4711,21 @@ class WebXRController {
       data: e
     }), this;
   }
+  /** @eyes-analysis
+   * 源码方法 disconnect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_grip.visible、_hand.visible、_targetRay.visible。
+   * 调用线索：this.dispatchEvent。
+   */
   disconnect(e) {
     return this.dispatchEvent({
       type: "disconnected",
       data: e
     }), null !== this._targetRay && (this._targetRay.visible = !1), null !== this._grip && (this._grip.visible = !1), null !== this._hand && (this._hand.visible = !1), this;
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 调用线索：e.hand.values、grip.angularVelocity.copy、grip.dispatchEvent、grip.linearVelocity.copy、grip.matrix.decompose等。
+   */
   update(e, t, n) {
     let r = null,
       i = null,
@@ -2932,6 +4764,10 @@ class WebXRController {
     }
     return null !== targetRay && (targetRay.visible = null !== r), null !== grip && (grip.visible = null !== i), null !== hand && (hand.visible = null !== a), this;
   }
+  /** @eyes-analysis
+   * 源码方法 _getHandJoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.add、new Group。
+   */
   _getHandJoint(e, t) {
     if (void 0 === e.joints[t.jointName]) {
       const group = new Group();
@@ -3103,10 +4939,24 @@ const pi = {
 function Mi(e, t, n) {
   return n < 0 && (n += 1), n > 1 && (n -= 1), n < 1 / 6 ? e + 6 * (t - e) * n : n < .5 ? t : n < 2 / 3 ? e + 6 * (t - e) * (2 / 3 - n) : e;
 }
+/** @eyes-analysis
+ * 类职责：在线性/显示颜色空间间转换并执行颜色运算
+ * 继承：无显式父类；导出：Color。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Color {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：b、g、isColor、r。
+   * 调用线索：this.set。
+   */
   constructor(e, t, n) {
     return this.isColor = !0, this.r = 1, this.g = 1, this.b = 1, this.set(e, t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.copy、this.setHex、this.setRGB、this.setStyle。
+   */
   set(e, t, n) {
     if (void 0 === t && void 0 === n) {
       const t = e;
@@ -3114,15 +4964,34 @@ class Color {
     } else this.setRGB(e, t, n);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   setScalar(e) {
     return this.r = e, this.g = e, this.b = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setHex；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：ColorManagement.colorSpaceToWorking、Math.floor。
+   */
   setHex(e, t = SRGBColorSpace) {
     return e = Math.floor(e), this.r = (e >> 16 & 255) / 255, this.g = (e >> 8 & 255) / 255, this.b = (255 & e) / 255, ColorManagement.colorSpaceToWorking(this, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setRGB；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：ColorManagement.colorSpaceToWorking。
+   */
   setRGB(e, t, n, r = ColorManagement.workingColorSpace) {
     return this.r = e, this.g = t, this.b = n, ColorManagement.colorSpaceToWorking(this, r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setHSL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：ColorManagement.colorSpaceToWorking、Lr、Mi、vr。
+   */
   setHSL(e, t, n, r = ColorManagement.workingColorSpace) {
     if (e = vr(e, 1), t = Lr(t, 0, 1), n = Lr(n, 0, 1), 0 === t) this.r = this.g = this.b = n;else {
       const r = n <= .5 ? n * (1 + t) : n + t - n * t,
@@ -3131,6 +5000,10 @@ class Color {
     }
     return ColorManagement.colorSpaceToWorking(this, r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setStyle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：/^(\w+)\(([^\)]*)\)/.exec、/^\#([A-Fa-f\d]+)$/.exec、/^\s*(\d*\.?\d+)\s*,\s*(\d*\.?\d+)\%\s*,\s*(\d*\.?\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec、/^\s*(\d+)\%\s*,\s*(\d+)\%\s*,\s*(\d+)\%\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec、/^\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*(\d*\.?\d+)\s*)?$/.exec等。
+   */
   setStyle(e, t = SRGBColorSpace) {
     function n(t) {
       void 0 !== t && parseFloat(t) < 1 && warn("Color: Alpha component of " + e + " will be ignored.");
@@ -3162,34 +5035,76 @@ class Color {
     } else if (e && e.length > 0) return this.setColorName(e, t);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setColorName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.toLowerCase、this.setHex、warn。
+   */
   setColorName(e, t = SRGBColorSpace) {
     const n = pi[e.toLowerCase()];
     return void 0 !== n ? this.setHex(n, t) : warn("Color: Unknown color " + e), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor。
+   */
   clone() {
     return new this.constructor(this.r, this.g, this.b);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：b、g、r。
+   */
   copy(e) {
     return this.r = e.r, this.g = e.g, this.b = e.b, this;
   }
+  /** @eyes-analysis
+   * 源码方法 copySRGBToLinear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：Ir。
+   */
   copySRGBToLinear(e) {
     return this.r = Ir(e.r), this.g = Ir(e.g), this.b = Ir(e.b), this;
   }
+  /** @eyes-analysis
+   * 源码方法 copyLinearToSRGB；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：Rr。
+   */
   copyLinearToSRGB(e) {
     return this.r = Rr(e.r), this.g = Rr(e.g), this.b = Rr(e.b), this;
   }
+  /** @eyes-analysis
+   * 源码方法 convertSRGBToLinear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.copySRGBToLinear。
+   */
   convertSRGBToLinear() {
     return this.copySRGBToLinear(this), this;
   }
+  /** @eyes-analysis
+   * 源码方法 convertLinearToSRGB；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.copyLinearToSRGB。
+   */
   convertLinearToSRGB() {
     return this.copyLinearToSRGB(this), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getHex；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ColorManagement.workingToColorSpace、Lr、Math.round、color.copy。
+   */
   getHex(e = SRGBColorSpace) {
     return ColorManagement.workingToColorSpace(color.copy(this), e), 65536 * Math.round(Lr(255 * color.r, 0, 255)) + 256 * Math.round(Lr(255 * color.g, 0, 255)) + Math.round(Lr(255 * color.b, 0, 255));
   }
+  /** @eyes-analysis
+   * 源码方法 getHexString；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：("000000"+this.getHex(e).toString(16)).slice、this.getHex、this.getHex(e).toString。
+   */
   getHexString(e = SRGBColorSpace) {
     return ("000000" + this.getHex(e).toString(16)).slice(-6);
   }
+  /** @eyes-analysis
+   * 源码方法 getHSL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ColorManagement.workingToColorSpace、Math.max、Math.min、color.copy。
+   */
   getHSL(e, t = ColorManagement.workingColorSpace) {
     ColorManagement.workingToColorSpace(color.copy(this), t);
     const n = color.r,
@@ -3215,9 +5130,17 @@ class Color {
     }
     return e.h = o, e.s = c, e.l = l, e;
   }
+  /** @eyes-analysis
+   * 源码方法 getRGB；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ColorManagement.workingToColorSpace、color.copy。
+   */
   getRGB(e, t = ColorManagement.workingColorSpace) {
     return ColorManagement.workingToColorSpace(color.copy(this), t), e.r = color.r, e.g = color.g, e.b = color.b, e;
   }
+  /** @eyes-analysis
+   * 源码方法 getStyle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ColorManagement.workingToColorSpace、Math.round、color.copy、n.toFixed、r.toFixed等。
+   */
   getStyle(e = SRGBColorSpace) {
     ColorManagement.workingToColorSpace(color.copy(this), e);
     const t = color.r,
@@ -3225,33 +5148,74 @@ class Color {
       r = color.b;
     return e !== SRGBColorSpace ? `color(${e} ${t.toFixed(3)} ${n.toFixed(3)} ${r.toFixed(3)})` : `rgb(${Math.round(255 * t)},${Math.round(255 * n)},${Math.round(255 * r)})`;
   }
+  /** @eyes-analysis
+   * 源码方法 offsetHSL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getHSL、this.setHSL。
+   */
   offsetHSL(e, t, n) {
     return this.getHSL(fi), this.setHSL(fi.h + e, fi.s + t, fi.l + n);
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   add(e) {
     return this.r += e.r, this.g += e.g, this.b += e.b, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addColors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   addColors(e, t) {
     return this.r = e.r + t.r, this.g = e.g + t.g, this.b = e.b + t.b, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   addScalar(e) {
     return this.r += e, this.g += e, this.b += e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 sub；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：Math.max。
+   */
   sub(e) {
     return this.r = Math.max(0, this.r - e.r), this.g = Math.max(0, this.g - e.g), this.b = Math.max(0, this.b - e.b), this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   multiply(e) {
     return this.r *= e.r, this.g *= e.g, this.b *= e.b, this;
   }
+  /** @eyes-analysis
+   * 源码方法 multiplyScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   multiplyScalar(e) {
     return this.r *= e, this.g *= e, this.b *= e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   lerp(e, t) {
     return this.r += (e.r - this.r) * t, this.g += (e.g - this.g) * t, this.b += (e.b - this.b) * t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerpColors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   lerpColors(e, t, n) {
     return this.r = e.r + (t.r - e.r) * n, this.g = e.g + (t.g - e.g) * n, this.b = e.b + (t.b - e.b) * n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerpHSL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Tr、e.getHSL、this.getHSL、this.setHSL。
+   */
   lerpHSL(e, t) {
     this.getHSL(fi), e.getHSL(mi);
     const n = Tr(fi.h, mi.h, t),
@@ -3259,9 +5223,17 @@ class Color {
       i = Tr(fi.l, mi.l, t);
     return this.setHSL(n, r, i), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromVector3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   setFromVector3(e) {
     return this.r = e.x, this.g = e.y, this.b = e.z, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   applyMatrix3(e) {
     const t = this.r,
       n = this.g,
@@ -3269,34 +5241,75 @@ class Color {
       i = e.elements;
     return this.r = i[0] * t + i[3] * n + i[6] * r, this.g = i[1] * t + i[4] * n + i[7] * r, this.b = i[2] * t + i[5] * n + i[8] * r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   equals(e) {
     return e.r === this.r && e.g === this.g && e.b === this.b;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   */
   fromArray(e, t = 0) {
     return this.r = e[t], this.g = e[t + 1], this.b = e[t + 2], this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   toArray(e = [], t = 0) {
     return e[t] = this.r, e[t + 1] = this.g, e[t + 2] = this.b, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：b、g、r。
+   * 调用线索：e.getX、e.getY、e.getZ。
+   */
   fromBufferAttribute(e, t) {
     return this.r = e.getX(t), this.g = e.getY(t), this.b = e.getZ(t), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.getHex。
+   */
   toJSON() {
     return this.getHex();
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：b、g、r；返回：。
+   */
   *[Symbol.iterator]() {
     yield this.r, yield this.g, yield this.b;
   }
 }
 const color = new Color();
 Color.NAMES = pi;
+/** @eyes-analysis
+ * 类职责：按密度指数平方衰减的场景雾
+ * 继承：无显式父类；导出：FogExp2。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FogExp2 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、density、isFogExp2、name。
+   * 调用线索：new Color。
+   */
   constructor(e, density = 25e-5) {
     this.isFogExp2 = !0, this.name = "", this.color = new Color(e), this.density = density;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new FogExp2。
+   */
   clone() {
     return new FogExp2(this.color, this.density);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.color.getHex。
+   */
   toJSON() {
     return {
       type: "FogExp2",
@@ -3306,13 +5319,31 @@ class FogExp2 {
     };
   }
 }
+/** @eyes-analysis
+ * 类职责：按近远距离线性衰减的场景雾
+ * 继承：无显式父类；导出：Fog。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Fog {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、far、isFog、name、near。
+   * 调用线索：new Color。
+   */
   constructor(e, near = 1, far = 1e3) {
     this.isFog = !0, this.name = "", this.color = new Color(e), this.near = near, this.far = far;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new Fog。
+   */
   clone() {
     return new Fog(this.color, this.near, this.far);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.color.getHex。
+   */
   toJSON() {
     return {
       type: "Fog",
@@ -3323,15 +5354,34 @@ class Fog {
     };
   }
 }
+/** @eyes-analysis
+ * 类职责：根场景容器，维护环境、背景、雾和材质覆盖
+ * 继承：Object3D；导出：Scene。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Scene extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：background、backgroundBlurriness、backgroundIntensity、backgroundRotation、environment、environmentIntensity、environmentRotation、fog等；完整记录见索引。
+   * 调用线索：__THREE_DEVTOOLS__.dispatchEvent、new CustomEvent、new Euler、super。
+   */
   constructor() {
     super(), this.isScene = !0, this.type = "Scene", this.background = null, this.environment = null, this.fog = null, this.backgroundBlurriness = 0, this.backgroundIntensity = 1, this.backgroundRotation = new Euler(), this.environmentIntensity = 1, this.environmentRotation = new Euler(), this.overrideMaterial = null, "undefined" != typeof __THREE_DEVTOOLS__ && __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent("observe", {
       detail: this
     }));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：background、backgroundBlurriness、backgroundIntensity、environment、environmentIntensity、fog、matrixAutoUpdate、overrideMaterial。
+   * 调用线索：e.background.clone、e.environment.clone、e.fog.clone、e.overrideMaterial.clone、super.copy等。
+   */
   copy(e, t) {
     return super.copy(e, t), null !== e.background && (this.background = e.background.clone()), null !== e.environment && (this.environment = e.environment.clone()), null !== e.fog && (this.fog = e.fog.clone()), this.backgroundBlurriness = e.backgroundBlurriness, this.backgroundIntensity = e.backgroundIntensity, this.backgroundRotation.copy(e.backgroundRotation), this.environmentIntensity = e.environmentIntensity, this.environmentRotation.copy(e.environmentRotation), null !== e.overrideMaterial && (this.overrideMaterial = e.overrideMaterial.clone()), this.matrixAutoUpdate = e.matrixAutoUpdate, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.backgroundRotation.toArray、this.environmentRotation.toArray、this.fog.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return null !== this.fog && (t.object.fog = this.fog.toJSON()), this.backgroundBlurriness > 0 && (t.object.backgroundBlurriness = this.backgroundBlurriness), 1 !== this.backgroundIntensity && (t.object.backgroundIntensity = this.backgroundIntensity), t.object.backgroundRotation = this.backgroundRotation.toArray(), 1 !== this.environmentIntensity && (t.object.environmentIntensity = this.environmentIntensity), t.object.environmentRotation = this.environmentRotation.toArray(), t;
@@ -3350,15 +5400,33 @@ const Ai = new Vector3(),
   vector4 = new Vector4(),
   zi = new Vector4(),
   Oi = new Vector4();
+/** @eyes-analysis
+ * 类职责：三角形重心坐标、法线、面积和最近点计算
+ * 继承：无显式父类；导出：Triangle。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Triangle {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：a、b、c。
+   * 调用线索：new Vector3。
+   */
   constructor(e = new Vector3(), t = new Vector3(), n = new Vector3()) {
     this.a = e, this.b = t, this.c = n;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Ai.subVectors、Math.sqrt、r.cross、r.lengthSq、r.multiplyScalar等。
+   */
   static getNormal(e, t, n, r) {
     r.subVectors(n, t), Ai.subVectors(e, t), r.cross(Ai);
     const i = r.lengthSq();
     return i > 0 ? r.multiplyScalar(1 / Math.sqrt(i)) : r.set(0, 0, 0);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Ai.dot、Ai.subVectors、bi.subVectors、gi.dot、gi.subVectors等。
+   */
   static getBarycoord(e, t, n, r, i) {
     Ai.subVectors(r, t), gi.subVectors(n, t), bi.subVectors(e, t);
     const a = Ai.dot(Ai),
@@ -3373,60 +5441,136 @@ class Triangle {
       p = (a * l - s * o) * d;
     return i.set(1 - h - p, p, h);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：this.getBarycoord。
+   */
   static containsPoint(e, t, n, r) {
     return null !== this.getBarycoord(e, t, n, r, yi) && yi.x >= 0 && yi.y >= 0 && yi.x + yi.y <= 1;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：o.addScaledVector、o.setScalar、this.getBarycoord。
+   */
   static getInterpolation(e, t, n, r, i, a, s, o) {
     return null === this.getBarycoord(e, t, n, r, yi) ? (o.x = 0, o.y = 0, "z" in o && (o.z = 0), "w" in o && (o.w = 0), null) : (o.setScalar(0), o.addScaledVector(i, yi.x), o.addScaledVector(a, yi.y), o.addScaledVector(s, yi.z), o);
   }
+  /** @eyes-analysis
+   * 源码方法 getInterpolatedAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Oi.fromBufferAttribute、Oi.setScalar、a.addScaledVector、a.setScalar、vector4.fromBufferAttribute等。
+   */
   static getInterpolatedAttribute(e, t, n, r, i, a) {
     return vector4.setScalar(0), zi.setScalar(0), Oi.setScalar(0), vector4.fromBufferAttribute(e, t), zi.fromBufferAttribute(e, n), Oi.fromBufferAttribute(e, r), a.setScalar(0), a.addScaledVector(vector4, i.x), a.addScaledVector(zi, i.y), a.addScaledVector(Oi, i.z), a;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Ai.cross、Ai.cross(gi).dot、Ai.subVectors、gi.subVectors。
+   */
   static isFrontFacing(e, t, n, r) {
     return Ai.subVectors(n, t), gi.subVectors(e, t), Ai.cross(gi).dot(r) < 0;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.a.copy、this.b.copy、this.c.copy。
+   */
   set(e, t, n) {
     return this.a.copy(e), this.b.copy(t), this.c.copy(n), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPointsAndIndices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.a.copy、this.b.copy、this.c.copy。
+   */
   setFromPointsAndIndices(e, t, n, r) {
     return this.a.copy(e[t]), this.b.copy(e[n]), this.c.copy(e[r]), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromAttributeAndIndices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.a.fromBufferAttribute、this.b.fromBufferAttribute、this.c.fromBufferAttribute。
+   */
   setFromAttributeAndIndices(e, t, n, r) {
     return this.a.fromBufferAttribute(e, t), this.b.fromBufferAttribute(e, n), this.c.fromBufferAttribute(e, r), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.a.copy、this.b.copy、this.c.copy。
+   */
   copy(e) {
     return this.a.copy(e.a), this.b.copy(e.b), this.c.copy(e.c), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getArea；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ai.cross、Ai.cross(gi).length、Ai.subVectors、gi.subVectors。
+   */
   getArea() {
     return Ai.subVectors(this.c, this.b), gi.subVectors(this.a, this.b), .5 * Ai.cross(gi).length();
   }
+  /** @eyes-analysis
+   * 源码方法 getMidpoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.addVectors、e.addVectors(this.a,this.b).add、e.addVectors(this.a,this.b).add(this.c).multiplyScalar。
+   */
   getMidpoint(e) {
     return e.addVectors(this.a, this.b).add(this.c).multiplyScalar(1 / 3);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Triangle.getNormal。
+   */
   getNormal(e) {
     return Triangle.getNormal(this.a, this.b, this.c, e);
   }
+  /** @eyes-analysis
+   * 源码方法 getPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.setFromCoplanarPoints。
+   */
   getPlane(e) {
     return e.setFromCoplanarPoints(this.a, this.b, this.c);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Triangle.getBarycoord。
+   */
   getBarycoord(e, t) {
     return Triangle.getBarycoord(e, this.a, this.b, this.c, t);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Triangle.getInterpolation。
+   */
   getInterpolation(e, t, n, r, i) {
     return Triangle.getInterpolation(e, this.a, this.b, this.c, t, n, r, i);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Triangle.containsPoint。
+   */
   containsPoint(e) {
     return Triangle.containsPoint(e, this.a, this.b, this.c);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Triangle.isFrontFacing。
+   */
   isFrontFacing(e) {
     return Triangle.isFrontFacing(this.a, this.b, this.c, e);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.intersectsTriangle。
+   */
   intersectsBox(e) {
     return e.intersectsTriangle(this);
   }
+  /** @eyes-analysis
+   * 源码方法 closestPointToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ei.subVectors、Li.dot、Li.subVectors、Si.subVectors、Ti.subVectors等。
+   */
   closestPointToPoint(e, t) {
     const n = this.a,
       r = this.b,
@@ -3453,66 +5597,143 @@ class Triangle {
     const M = 1 / (m + f + d);
     return a = f * M, s = d * M, t.copy(n).addScaledVector(Li, a).addScaledVector(vi, s);
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.a.equals、e.b.equals、e.c.equals。
+   */
   equals(e) {
     return e.a.equals(this.a) && e.b.equals(this.b) && e.c.equals(this.c);
   }
 }
+/** @eyes-analysis
+ * 类职责：三维轴对齐包围盒，从对象顶点推导边界
+ * 继承：无显式父类；导出：Box3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Box3 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isBox3、max、min。
+   * 调用线索：new Vector3。
+   */
   constructor(min = new Vector3(1 / 0, 1 / 0, 1 / 0), max = new Vector3(-1 / 0, -1 / 0, -1 / 0)) {
     this.isBox3 = !0, this.min = min, this.max = max;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.copy、this.min.copy。
+   */
   set(e, t) {
     return this.min.copy(e), this.max.copy(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Di.fromArray、this.expandByPoint、this.makeEmpty。
+   */
   setFromArray(e) {
     this.makeEmpty();
     for (let t = 0, n = e.length; t < n; t += 3) this.expandByPoint(Di.fromArray(e, t));
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromBufferAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Di.fromBufferAttribute、this.expandByPoint、this.makeEmpty。
+   */
   setFromBufferAttribute(e) {
     this.makeEmpty();
     for (let t = 0, n = e.count; t < n; t++) this.expandByPoint(Di.fromBufferAttribute(e, t));
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.expandByPoint、this.makeEmpty。
+   */
   setFromPoints(e) {
     this.makeEmpty();
     for (let t = 0, n = e.length; t < n; t++) this.expandByPoint(e[t]);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCenterAndSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Di.copy、Di.copy(t).multiplyScalar、this.max.copy、this.max.copy(e).add、this.min.copy等。
+   */
   setFromCenterAndSize(e, t) {
     const n = Di.copy(t).multiplyScalar(.5);
     return this.min.copy(e).sub(n), this.max.copy(e).add(n), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.expandByObject、this.makeEmpty。
+   */
   setFromObject(e, t = !1) {
     return this.makeEmpty(), this.expandByObject(e, t);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.max.copy、this.min.copy。
+   */
   copy(e) {
     return this.min.copy(e.min), this.max.copy(e.max), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：max.x、max.y、max.z、min.x、min.y、min.z。
+   */
   makeEmpty() {
     return this.min.x = this.min.y = this.min.z = 1 / 0, this.max.x = this.max.y = this.max.z = -1 / 0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 isEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   isEmpty() {
     return this.max.x < this.min.x || this.max.y < this.min.y || this.max.z < this.min.z;
   }
+  /** @eyes-analysis
+   * 源码方法 getCenter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.addVectors、e.addVectors(this.min,this.max).multiplyScalar、e.set、this.isEmpty。
+   */
   getCenter(e) {
     return this.isEmpty() ? e.set(0, 0, 0) : e.addVectors(this.min, this.max).multiplyScalar(.5);
   }
+  /** @eyes-analysis
+   * 源码方法 getSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.set、e.subVectors、this.isEmpty。
+   */
   getSize(e) {
     return this.isEmpty() ? e.set(0, 0, 0) : e.subVectors(this.max, this.min);
   }
+  /** @eyes-analysis
+   * 源码方法 expandByPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.max、this.min.min。
+   */
   expandByPoint(e) {
     return this.min.min(e), this.max.max(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.add、this.min.sub。
+   */
   expandByVector(e) {
     return this.min.sub(e), this.max.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.addScalar、this.min.addScalar。
+   */
   expandByScalar(e) {
     return this.min.addScalar(-e), this.max.addScalar(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Di.applyMatrix4、Di.fromBufferAttribute、box3.applyMatrix4、box3.copy、e.computeBoundingBox等。
+   */
   expandByObject(e, t = !1) {
     e.updateWorldMatrix(!1, !1);
     const n = e.geometry;
@@ -3524,61 +5745,125 @@ class Box3 {
     for (let e = 0, n = r.length; e < n; e++) this.expandByObject(r[e], t);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 containsPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   containsPoint(e) {
     return e.x >= this.min.x && e.x <= this.max.x && e.y >= this.min.y && e.y <= this.max.y && e.z >= this.min.z && e.z <= this.max.z;
   }
+  /** @eyes-analysis
+   * 源码方法 containsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   containsBox(e) {
     return this.min.x <= e.min.x && e.max.x <= this.max.x && this.min.y <= e.min.y && e.max.y <= this.max.y && this.min.z <= e.min.z && e.max.z <= this.max.z;
   }
+  /** @eyes-analysis
+   * 源码方法 getParameter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.set。
+   */
   getParameter(e, t) {
     return t.set((e.x - this.min.x) / (this.max.x - this.min.x), (e.y - this.min.y) / (this.max.y - this.min.y), (e.z - this.min.z) / (this.max.z - this.min.z));
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   intersectsBox(e) {
     return e.max.x >= this.min.x && e.min.x <= this.max.x && e.max.y >= this.min.y && e.min.y <= this.max.y && e.max.z >= this.min.z && e.min.z <= this.max.z;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Di.distanceToSquared、this.clampPoint。
+   */
   intersectsSphere(e) {
     return this.clampPoint(e.center, Di), Di.distanceToSquared(e.center) <= e.radius * e.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   intersectsPlane(e) {
     let t, n;
     return e.normal.x > 0 ? (t = e.normal.x * this.min.x, n = e.normal.x * this.max.x) : (t = e.normal.x * this.max.x, n = e.normal.x * this.min.x), e.normal.y > 0 ? (t += e.normal.y * this.min.y, n += e.normal.y * this.max.y) : (t += e.normal.y * this.max.y, n += e.normal.y * this.min.y), e.normal.z > 0 ? (t += e.normal.z * this.min.z, n += e.normal.z * this.max.z) : (t += e.normal.z * this.max.z, n += e.normal.z * this.min.z), t <= -e.constant && n >= -e.constant;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsTriangle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Gi、Hi.crossVectors、Ii.subVectors、Pi.subVectors、Ri.subVectors等。
+   */
   intersectsTriangle(e) {
     if (this.isEmpty()) return !1;
     this.getCenter(Fi), qi.subVectors(this.max, Fi), Ii.subVectors(e.a, Fi), Ri.subVectors(e.b, Fi), ki.subVectors(e.c, Fi), Pi.subVectors(Ri, Ii), Yi.subVectors(ki, Ri), Wi.subVectors(Ii, ki);
     let t = [0, -Pi.z, Pi.y, 0, -Yi.z, Yi.y, 0, -Wi.z, Wi.y, Pi.z, 0, -Pi.x, Yi.z, 0, -Yi.x, Wi.z, 0, -Wi.x, -Pi.y, Pi.x, 0, -Yi.y, Yi.x, 0, -Wi.y, Wi.x, 0];
     return !!Gi(t, Ii, Ri, ki, qi) && (t = [1, 0, 0, 0, 1, 0, 0, 0, 1], !!Gi(t, Ii, Ri, ki, qi) && (Hi.crossVectors(Pi, Yi), t = [Hi.x, Hi.y, Hi.z], Gi(t, Ii, Ri, ki, qi)));
   }
+  /** @eyes-analysis
+   * 源码方法 clampPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.copy(e).clamp。
+   */
   clampPoint(e, t) {
     return t.copy(e).clamp(this.min, this.max);
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.clampPoint、this.clampPoint(e,Di).distanceTo。
+   */
   distanceToPoint(e) {
     return this.clampPoint(e, Di).distanceTo(e);
   }
+  /** @eyes-analysis
+   * 源码方法 getBoundingSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.makeEmpty、this.getCenter、this.getSize、this.getSize(Di).length、this.isEmpty。
+   */
   getBoundingSphere(e) {
     return this.isEmpty() ? e.makeEmpty() : (this.getCenter(e.center), e.radius = .5 * this.getSize(Di).length()), e;
   }
+  /** @eyes-analysis
+   * 源码方法 intersect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.isEmpty、this.makeEmpty、this.max.min、this.min.max。
+   */
   intersect(e) {
     return this.min.max(e.min), this.max.min(e.max), this.isEmpty() && this.makeEmpty(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 union；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.max、this.min.min。
+   */
   union(e) {
     return this.min.min(e.min), this.max.max(e.max), this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Bi[0].set、Bi[0].set(this.min.x,this.min.y,this.min.z).applyMatrix4、Bi[1].set、Bi[1].set(this.min.x,this.min.y,this.max.z).applyMatrix4、Bi[2].set等。
+   */
   applyMatrix4(e) {
     return this.isEmpty() || (Bi[0].set(this.min.x, this.min.y, this.min.z).applyMatrix4(e), Bi[1].set(this.min.x, this.min.y, this.max.z).applyMatrix4(e), Bi[2].set(this.min.x, this.max.y, this.min.z).applyMatrix4(e), Bi[3].set(this.min.x, this.max.y, this.max.z).applyMatrix4(e), Bi[4].set(this.max.x, this.min.y, this.min.z).applyMatrix4(e), Bi[5].set(this.max.x, this.min.y, this.max.z).applyMatrix4(e), Bi[6].set(this.max.x, this.max.y, this.min.z).applyMatrix4(e), Bi[7].set(this.max.x, this.max.y, this.max.z).applyMatrix4(e), this.setFromPoints(Bi)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.add、this.min.add。
+   */
   translate(e) {
     return this.min.add(e), this.max.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.max.equals、e.min.equals。
+   */
   equals(e) {
     return e.min.equals(this.min) && e.max.equals(this.max);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.max.toArray、this.min.toArray。
+   */
   toJSON() {
     return {
       min: this.min.toArray(),
       max: this.max.toArray()
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.fromArray、this.min.fromArray。
+   */
   fromJSON(e) {
     return this.min.fromArray(e.min), this.max.fromArray(e.max), this;
   }
@@ -3653,10 +5938,23 @@ function Qi(e) {
   const t = e >> 10;
   return Xi.uint32View[0] = Xi.mantissaTable[Xi.offsetTable[t] + (1023 & e)] + Xi.exponentTable[t], Xi.floatView[0];
 }
+/** @eyes-analysis
+ * 类职责：浮点与半精度浮点数转换
+ * 继承：无显式父类；导出：DataUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DataUtils {
+  /** @eyes-analysis
+   * 源码方法 toHalfFloat；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Vi。
+   */
   static toHalfFloat(e) {
     return Vi(e);
   }
+  /** @eyes-analysis
+   * 源码方法 fromHalfFloat；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qi。
+   */
   static fromHalfFloat(e) {
     return Qi(e);
   }
@@ -3664,109 +5962,243 @@ class DataUtils {
 const Ki = new Vector3(),
   vector2 = new Vector2();
 let $i = 0;
+/** @eyes-analysis
+ * 类职责：类型化数组顶点属性；管理归一化、更新范围和 GPU 上传版本
+ * 继承：EventDispatcher；导出：BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BufferAttribute extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：array、count、gpuType、isBufferAttribute、itemSize、name、normalized、updateRanges等；完整记录见索引。
+   * 调用线索：Array.isArray、Object.defineProperty、new TypeError、super。
+   */
   constructor(array, itemSize, normalized = !1) {
     if (super(), Array.isArray(array)) throw new TypeError("THREE.BufferAttribute: array should be a Typed Array.");
     this.isBufferAttribute = !0, Object.defineProperty(this, "id", {
       value: $i++
     }), this.name = "", this.array = array, this.itemSize = itemSize, this.count = void 0 !== array ? array.length / itemSize : 0, this.normalized = normalized, this.usage = kn, this.updateRanges = [], this.gpuType = ke, this.version = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 onUploadCallback；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onUploadCallback() {}
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：version。
+   */
   set needsUpdate(e) {
     !0 === e && this.version++;
   }
+  /** @eyes-analysis
+   * 源码方法 setUsage；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：usage。
+   */
   setUsage(usage) {
     return this.usage = usage, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addUpdateRange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.updateRanges.push。
+   */
   addUpdateRange(e, t) {
     this.updateRanges.push({
       start: e,
       count: t
     });
   }
+  /** @eyes-analysis
+   * 源码方法 clearUpdateRanges；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：updateRanges.length。
+   */
   clearUpdateRanges() {
     this.updateRanges.length = 0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：array、count、gpuType、itemSize、name、normalized、usage。
+   * 调用线索：new e.array.constructor。
+   */
   copy(e) {
     return this.name = e.name, this.array = new e.array.constructor(e.array), this.itemSize = e.itemSize, this.count = e.count, this.normalized = e.normalized, this.usage = e.usage, this.gpuType = e.gpuType, this;
   }
+  /** @eyes-analysis
+   * 源码方法 copyAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+r]。
+   */
   copyAt(e, t, n) {
     e *= this.itemSize, n *= t.itemSize;
     for (let r = 0, itemSize = this.itemSize; r < itemSize; r++) this.array[e + r] = t.array[n + r];
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 copyArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.array.set。
+   */
   copyArray(e) {
     return this.array.set(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ki.applyMatrix3、Ki.fromBufferAttribute、this.setXY、this.setXYZ、vector2.applyMatrix3等。
+   */
   applyMatrix3(e) {
     if (2 === this.itemSize) for (let t = 0, count = this.count; t < count; t++) vector2.fromBufferAttribute(this, t), vector2.applyMatrix3(e), this.setXY(t, vector2.x, vector2.y);else if (3 === this.itemSize) for (let t = 0, count = this.count; t < count; t++) Ki.fromBufferAttribute(this, t), Ki.applyMatrix3(e), this.setXYZ(t, Ki.x, Ki.y, Ki.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ki.applyMatrix4、Ki.fromBufferAttribute、this.setXYZ。
+   */
   applyMatrix4(e) {
     for (let t = 0, count = this.count; t < count; t++) Ki.fromBufferAttribute(this, t), Ki.applyMatrix4(e), this.setXYZ(t, Ki.x, Ki.y, Ki.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyNormalMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ki.applyNormalMatrix、Ki.fromBufferAttribute、this.setXYZ。
+   */
   applyNormalMatrix(e) {
     for (let t = 0, count = this.count; t < count; t++) Ki.fromBufferAttribute(this, t), Ki.applyNormalMatrix(e), this.setXYZ(t, Ki.x, Ki.y, Ki.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 transformDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ki.fromBufferAttribute、Ki.transformDirection、this.setXYZ。
+   */
   transformDirection(e) {
     for (let t = 0, count = this.count; t < count; t++) Ki.fromBufferAttribute(this, t), Ki.transformDirection(e), this.setXYZ(t, Ki.x, Ki.y, Ki.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.array.set。
+   */
   set(e, t = 0) {
     return this.array.set(e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getComponent(e, t) {
     let n = this.array[e * this.itemSize + t];
     return this.normalized && (n = Sr(n, this.array)), n;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+t]。
+   * 调用线索：wr。
+   */
   setComponent(e, t, n) {
     return this.normalized && (n = wr(n, this.array)), this.array[e * this.itemSize + t] = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getX(e) {
     let t = this.array[e * this.itemSize];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize]。
+   * 调用线索：wr。
+   */
   setX(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getY(e) {
     let t = this.array[e * this.itemSize + 1];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+1]。
+   * 调用线索：wr。
+   */
   setY(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 1] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getZ(e) {
     let t = this.array[e * this.itemSize + 2];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+2]。
+   * 调用线索：wr。
+   */
   setZ(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 2] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getW(e) {
     let t = this.array[e * this.itemSize + 3];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+3]。
+   * 调用线索：wr。
+   */
   setW(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 3] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]。
+   * 调用线索：wr。
+   */
   setXY(e, t, n) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array)), this.array[e + 0] = t, this.array[e + 1] = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]、array[e+2]。
+   * 调用线索：wr。
+   */
   setXYZ(e, t, n, r) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array)), this.array[e + 0] = t, this.array[e + 1] = n, this.array[e + 2] = r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]、array[e+2]、array[e+3]。
+   * 调用线索：wr。
+   */
   setXYZW(e, t, n, r, i) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array), i = wr(i, this.array)), this.array[e + 0] = t, this.array[e + 1] = n, this.array[e + 2] = r, this.array[e + 3] = i, this;
   }
+  /** @eyes-analysis
+   * 源码方法 onUpload；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：onUploadCallback。
+   */
   onUpload(onUploadCallback) {
     return this.onUploadCallback = onUploadCallback, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor(this.array,this.itemSize).copy。
+   */
   clone() {
     return new this.constructor(this.array, this.itemSize).copy(this);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.from。
+   */
   toJSON() {
     const e = {
       itemSize: this.itemSize,
@@ -3776,90 +6208,227 @@ class BufferAttribute extends EventDispatcher {
     };
     return "" !== this.name && (e.name = this.name), this.usage !== kn && (e.usage = this.usage), e;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
 }
+/** @eyes-analysis
+ * 类职责：Int8 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Int8BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Int8BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Int8Array、super。
+   */
   constructor(e, t, n) {
     super(new Int8Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Uint8 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Uint8BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Uint8BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Uint8Array、super。
+   */
   constructor(e, t, n) {
     super(new Uint8Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Uint8Clamped 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Uint8ClampedBufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Uint8ClampedBufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Uint8ClampedArray、super。
+   */
   constructor(e, t, n) {
     super(new Uint8ClampedArray(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Int16 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Int16BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Int16BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Int16Array、super。
+   */
   constructor(e, t, n) {
     super(new Int16Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Uint16 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Uint16BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Uint16BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Uint16Array、super。
+   */
   constructor(e, t, n) {
     super(new Uint16Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Int32 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Int32BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Int32BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Int32Array、super。
+   */
   constructor(e, t, n) {
     super(new Int32Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Uint32 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Uint32BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Uint32BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Uint32Array、super。
+   */
   constructor(e, t, n) {
     super(new Uint32Array(e), t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：Float16 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Float16BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Float16BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isFloat16BufferAttribute。
+   * 调用线索：new Uint16Array、super。
+   */
   constructor(e, t, n) {
     super(new Uint16Array(e), t, n), this.isFloat16BufferAttribute = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 getX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qi、Sr。
+   */
   getX(e) {
     let t = Qi(this.array[e * this.itemSize]);
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize]。
+   * 调用线索：Vi、wr。
+   */
   setX(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize] = Vi(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qi、Sr。
+   */
   getY(e) {
     let t = Qi(this.array[e * this.itemSize + 1]);
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+1]。
+   * 调用线索：Vi、wr。
+   */
   setY(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 1] = Vi(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qi、Sr。
+   */
   getZ(e) {
     let t = Qi(this.array[e * this.itemSize + 2]);
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+2]。
+   * 调用线索：Vi、wr。
+   */
   setZ(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 2] = Vi(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qi、Sr。
+   */
   getW(e) {
     let t = Qi(this.array[e * this.itemSize + 3]);
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e*this.itemSize+3]。
+   * 调用线索：Vi、wr。
+   */
   setW(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.array[e * this.itemSize + 3] = Vi(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]。
+   * 调用线索：Vi、wr。
+   */
   setXY(e, t, n) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array)), this.array[e + 0] = Vi(t), this.array[e + 1] = Vi(n), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]、array[e+2]。
+   * 调用线索：Vi、wr。
+   */
   setXYZ(e, t, n, r) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array)), this.array[e + 0] = Vi(t), this.array[e + 1] = Vi(n), this.array[e + 2] = Vi(r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+0]、array[e+1]、array[e+2]、array[e+3]。
+   * 调用线索：Vi、wr。
+   */
   setXYZW(e, t, n, r, i) {
     return e *= this.itemSize, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array), i = wr(i, this.array)), this.array[e + 0] = Vi(t), this.array[e + 1] = Vi(n), this.array[e + 2] = Vi(r), this.array[e + 3] = Vi(i), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：Float32 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：Float32BufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Float32BufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Float32Array、super。
+   */
   constructor(e, t, n) {
     super(new Float32Array(e), t, n);
   }
@@ -3867,13 +6436,33 @@ class Float32BufferAttribute extends BufferAttribute {
 const Zi = new Box3(),
   ea = new Vector3(),
   ta = new Vector3();
+/** @eyes-analysis
+ * 类职责：包围球，支持扩展、相交和矩阵变换
+ * 继承：无显式父类；导出：Sphere。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Sphere {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：center、isSphere、radius。
+   * 调用线索：new Vector3。
+   */
   constructor(center = new Vector3(), radius = -1) {
     this.isSphere = !0, this.center = center, this.radius = radius;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：this.center.copy。
+   */
   set(e, radius) {
     return this.center.copy(e), this.radius = radius, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：Math.max、Math.sqrt、Zi.setFromPoints、Zi.setFromPoints(e).getCenter、center.copy等。
+   */
   setFromPoints(e, t) {
     const center = this.center;
     void 0 !== t ? center.copy(t) : Zi.setFromPoints(e).getCenter(center);
@@ -3881,44 +6470,99 @@ class Sphere {
     for (let t = 0, i = e.length; t < i; t++) r = Math.max(r, center.distanceToSquared(e[t]));
     return this.radius = Math.sqrt(r), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：radius。
+   * 调用线索：this.center.copy。
+   */
   copy(e) {
     return this.center.copy(e.center), this.radius = e.radius, this;
   }
+  /** @eyes-analysis
+   * 源码方法 isEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   isEmpty() {
     return this.radius < 0;
   }
+  /** @eyes-analysis
+   * 源码方法 makeEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：this.center.set。
+   */
   makeEmpty() {
     return this.center.set(0, 0, 0), this.radius = -1, this;
   }
+  /** @eyes-analysis
+   * 源码方法 containsPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.distanceToSquared。
+   */
   containsPoint(e) {
     return e.distanceToSquared(this.center) <= this.radius * this.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.distanceTo。
+   */
   distanceToPoint(e) {
     return e.distanceTo(this.center) - this.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.center.distanceToSquared。
+   */
   intersectsSphere(e) {
     const t = this.radius + e.radius;
     return e.center.distanceToSquared(this.center) <= t * t;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.intersectsSphere。
+   */
   intersectsBox(e) {
     return e.intersectsSphere(this);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs、e.distanceToPoint。
+   */
   intersectsPlane(e) {
     return Math.abs(e.distanceToPoint(this.center)) <= this.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 clampPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.multiplyScalar、t.multiplyScalar(this.radius).add、t.sub、t.sub(this.center).normalize等。
+   */
   clampPoint(e, t) {
     const n = this.center.distanceToSquared(e);
     return t.copy(e), n > this.radius * this.radius && (t.sub(this.center).normalize(), t.multiplyScalar(this.radius).add(this.center)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getBoundingBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.expandByScalar、e.makeEmpty、e.set、this.isEmpty。
+   */
   getBoundingBox(e) {
     return this.isEmpty() ? (e.makeEmpty(), e) : (e.set(this.center, this.center), e.expandByScalar(this.radius), e);
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：e.getMaxScaleOnAxis、this.center.applyMatrix4。
+   */
   applyMatrix4(e) {
     return this.center.applyMatrix4(e), this.radius = this.radius * e.getMaxScaleOnAxis(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.center.add。
+   */
   translate(e) {
     return this.center.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：Math.sqrt、ea.lengthSq、ea.subVectors、this.center.addScaledVector、this.center.copy等。
+   */
   expandByPoint(e) {
     if (this.isEmpty()) return this.center.copy(e), this.radius = 0, this;
     ea.subVectors(e, this.center);
@@ -3930,21 +6574,43 @@ class Sphere {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 union；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：Math.max、e.isEmpty、ea.copy、ea.copy(e.center).add、ea.copy(e.center).sub等。
+   */
   union(e) {
     return e.isEmpty() ? this : this.isEmpty() ? (this.copy(e), this) : (!0 === this.center.equals(e.center) ? this.radius = Math.max(this.radius, e.radius) : (ta.subVectors(e.center, this.center).setLength(e.radius), this.expandByPoint(ea.copy(e.center).add(ta)), this.expandByPoint(ea.copy(e.center).sub(ta))), this);
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.center.equals。
+   */
   equals(e) {
     return e.center.equals(this.center) && e.radius === this.radius;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.center.toArray。
+   */
   toJSON() {
     return {
       radius: this.radius,
       center: this.center.toArray()
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius。
+   * 调用线索：this.center.fromArray。
+   */
   fromJSON(e) {
     return this.radius = e.radius, this.center.fromArray(e.center), this;
   }
@@ -3956,7 +6622,17 @@ const ra = new Matrix4(),
   sa = new Box3(),
   oa = new Box3(),
   ca = new Vector3();
+/** @eyes-analysis
+ * 类职责：管理顶点属性、索引、分组、包围体和几何变换
+ * 继承：EventDispatcher；导出：BufferGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BufferGeometry extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_transformed、attributes、boundingBox、boundingSphere、drawRange、groups、index、indirect等；完整记录见索引。
+   * 调用线索：Object.defineProperty、super、yr。
+   */
   constructor() {
     super(), this.isBufferGeometry = !0, Object.defineProperty(this, "id", {
       value: na++
@@ -3965,33 +6641,65 @@ class BufferGeometry extends EventDispatcher {
       count: 1 / 0
     }, this.userData = {}, this._transformed = !1;
   }
+  /** @eyes-analysis
+   * 源码方法 getIndex；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getIndex() {
     return this.index;
   }
+  /** @eyes-analysis
+   * 源码方法 setIndex；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：index。
+   * 调用线索：Array.isArray、function(e){for(let t=e.length-1;t>=0;--t)if(e[t]>=65535)return!0;return!1;}、new function(e){for(let t=e.length-1;t>=0;--t)if(e[t]>=65535)return!0;return!1;}(index)?Uint32BufferAttribute:Uint16BufferAttribute。
+   */
   setIndex(index) {
     return Array.isArray(index) ? this.index = new (function (e) {
       for (let t = e.length - 1; t >= 0; --t) if (e[t] >= 65535) return !0;
       return !1;
     }(index) ? Uint32BufferAttribute : Uint16BufferAttribute)(index, 1) : this.index = index, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setIndirect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：indirect、indirectOffset。
+   */
   setIndirect(indirect, indirectOffset = 0) {
     return this.indirect = indirect, this.indirectOffset = indirectOffset, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getIndirect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getIndirect() {
     return this.indirect;
   }
+  /** @eyes-analysis
+   * 源码方法 getAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getAttribute(e) {
     return this.attributes[e];
   }
+  /** @eyes-analysis
+   * 源码方法 setAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：attributes[e]。
+   */
   setAttribute(e, t) {
     return this.attributes[e] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 deleteAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   deleteAttribute(e) {
     return delete this.attributes[e], this;
   }
+  /** @eyes-analysis
+   * 源码方法 hasAttribute；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   hasAttribute(e) {
     return void 0 !== this.attributes[e];
   }
+  /** @eyes-analysis
+   * 源码方法 addGroup；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.groups.push。
+   */
   addGroup(e, t, n = 0) {
     this.groups.push({
       start: e,
@@ -3999,12 +6707,25 @@ class BufferGeometry extends EventDispatcher {
       materialIndex: n
     });
   }
+  /** @eyes-analysis
+   * 源码方法 clearGroups；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：groups。
+   */
   clearGroups() {
     this.groups = [];
   }
+  /** @eyes-analysis
+   * 源码方法 setDrawRange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：drawRange.count、drawRange.start。
+   */
   setDrawRange(e, t) {
     this.drawRange.start = e, this.drawRange.count = t;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_transformed。
+   * 调用线索：n.applyNormalMatrix、new Matrix3、new Matrix3().getNormalMatrix、r.transformDirection、t.applyMatrix4等。
+   */
   applyMatrix4(e) {
     const t = this.attributes.position;
     void 0 !== t && (t.applyMatrix4(e), t.needsUpdate = !0);
@@ -4016,30 +6737,66 @@ class BufferGeometry extends EventDispatcher {
     const r = this.attributes.tangent;
     return void 0 !== r && (r.transformDirection(e), r.needsUpdate = !0), null !== this.boundingBox && this.computeBoundingBox(), null !== this.boundingSphere && this.computeBoundingSphere(), this._transformed = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeRotationFromQuaternion、this.applyMatrix4。
+   */
   applyQuaternion(e) {
     return ra.makeRotationFromQuaternion(e), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeRotationX、this.applyMatrix4。
+   */
   rotateX(e) {
     return ra.makeRotationX(e), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeRotationY、this.applyMatrix4。
+   */
   rotateY(e) {
     return ra.makeRotationY(e), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 rotateZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeRotationZ、this.applyMatrix4。
+   */
   rotateZ(e) {
     return ra.makeRotationZ(e), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeTranslation、this.applyMatrix4。
+   */
   translate(e, t, n) {
     return ra.makeTranslation(e, t, n), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 scale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ra.makeScale、this.applyMatrix4。
+   */
   scale(e, t, n) {
     return ra.makeScale(e, t, n), this.applyMatrix4(ra), this;
   }
+  /** @eyes-analysis
+   * 源码方法 lookAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：object3D.lookAt、object3D.updateMatrix、this.applyMatrix4。
+   */
   lookAt(e) {
     return object3D.lookAt(e), object3D.updateMatrix(), this.applyMatrix4(object3D.matrix), this;
   }
+  /** @eyes-analysis
+   * 源码方法 center；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.boundingBox.getCenter、this.boundingBox.getCenter(aa).negate、this.computeBoundingBox、this.translate。
+   */
   center() {
     return this.computeBoundingBox(), this.boundingBox.getCenter(aa).negate(), this.translate(aa.x, aa.y, aa.z), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.min、new Float32BufferAttribute、t.push、t.setXYZ、this.getAttribute等。
+   */
   setFromPoints(e) {
     const t = this.getAttribute("position");
     if (void 0 === t) {
@@ -4059,6 +6816,11 @@ class BufferGeometry extends EventDispatcher {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 扫描位置和 morph 属性得到轴对齐包围盒
+   * 状态写入：boundingBox。
+   * 调用线索：ca.addVectors、error、isNaN、new Box3、new Vector3等。
+   */
   computeBoundingBox() {
     null === this.boundingBox && (this.boundingBox = new Box3());
     const e = this.attributes.position,
@@ -4072,6 +6834,11 @@ class BufferGeometry extends EventDispatcher {
     } else this.boundingBox.makeEmpty();
     (isNaN(this.boundingBox.min.x) || isNaN(this.boundingBox.min.y) || isNaN(this.boundingBox.min.z)) && error('BufferGeometry.computeBoundingBox(): Computed min/max have NaN values. The "position" attribute is likely to have NaN values.', this);
   }
+  /** @eyes-analysis
+   * 从顶点和 morph 属性建立包围球；变化后需再次计算
+   * 状态写入：boundingSphere、boundingSphere.radius。
+   * 调用线索：Math.max、Math.sqrt、aa.fromBufferAttribute、ca.add、ca.addVectors等。
+   */
   computeBoundingSphere() {
     null === this.boundingSphere && (this.boundingSphere = new Sphere());
     const e = this.attributes.position,
@@ -4094,6 +6861,11 @@ class BufferGeometry extends EventDispatcher {
       this.boundingSphere.radius = Math.sqrt(r), isNaN(this.boundingSphere.radius) && error('BufferGeometry.computeBoundingSphere(): Computed radius is NaN. The "position" attribute is likely to have NaN values.', this);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 computeTangents；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_transformed。
+   * 调用线索：A.copy、A.sub、A.sub(b.multiplyScalar(b.dot(t))).normalize、L、M等。
+   */
   computeTangents() {
     const index = this.index,
       attributes = this.attributes;
@@ -4147,6 +6919,10 @@ class BufferGeometry extends EventDispatcher {
     }
     this._transformed = !0;
   }
+  /** @eyes-analysis
+   * 累加三角面法线后归一化，索引/非索引路径不同
+   * 调用线索：a.fromBufferAttribute、c.add、c.fromBufferAttribute、i.fromBufferAttribute、index.getX等。
+   */
   computeVertexNormals() {
     const index = this.index,
       t = this.getAttribute("position");
@@ -4170,10 +6946,18 @@ class BufferGeometry extends EventDispatcher {
       this.normalizeNormals(), n.needsUpdate = !0;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 normalizeNormals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ca.fromBufferAttribute、ca.normalize、e.setXYZ。
+   */
   normalizeNormals() {
     const e = this.attributes.normal;
     for (let t = 0, n = e.count; t < n; t++) ca.fromBufferAttribute(e, t), ca.normalize(), e.setXYZ(t, ca.x, ca.y, ca.z);
   }
+  /** @eyes-analysis
+   * 源码方法 toNonIndexed；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：a.push、bufferGeometry.addGroup、bufferGeometry.setAttribute、e、new BufferAttribute等。
+   */
   toNonIndexed() {
     function e(e, t) {
       const n = e.array,
@@ -4214,6 +6998,10 @@ class BufferGeometry extends EventDispatcher {
     }
     return bufferGeometry;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.prototype.slice.call、JSON.parse、JSON.stringify、Object.keys、a.push等。
+   */
   toJSON() {
     const e = {
       metadata: {
@@ -4257,9 +7045,18 @@ class BufferGeometry extends EventDispatcher {
     const boundingSphere = this.boundingSphere;
     return null !== boundingSphere && (e.data.boundingSphere = boundingSphere.toJSON()), e;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：_transformed、attributes、boundingBox、boundingSphere、drawRange.count、drawRange.start、groups、index等；完整记录见索引。
+   * 调用线索：n.clone、n.push、o.clone、r[e].clone、s.clone等。
+   */
   copy(e) {
     this.index = null, this.attributes = {}, this.morphAttributes = {}, this.groups = [], this.boundingBox = null, this.boundingSphere = null;
     const t = {};
@@ -4289,52 +7086,112 @@ class BufferGeometry extends EventDispatcher {
     const o = e.boundingSphere;
     return null !== o && (this.boundingSphere = o.clone()), this.drawRange.start = e.drawRange.start, this.drawRange.count = e.drawRange.count, this.userData = e.userData, this._transformed = e._transformed, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
 }
+/** @eyes-analysis
+ * 类职责：多个顶点属性共用的交错数组与步长
+ * 继承：无显式父类；导出：InterleavedBuffer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InterleavedBuffer {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：array、count、isInterleavedBuffer、stride、updateRanges、usage、uuid、version。
+   * 调用线索：yr。
+   */
   constructor(array, stride) {
     this.isInterleavedBuffer = !0, this.array = array, this.stride = stride, this.count = void 0 !== array ? array.length / stride : 0, this.usage = kn, this.updateRanges = [], this.version = 0, this.uuid = yr();
   }
+  /** @eyes-analysis
+   * 源码方法 onUploadCallback；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onUploadCallback() {}
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：version。
+   */
   set needsUpdate(e) {
     !0 === e && this.version++;
   }
+  /** @eyes-analysis
+   * 源码方法 setUsage；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：usage。
+   */
   setUsage(usage) {
     return this.usage = usage, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addUpdateRange；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.updateRanges.push。
+   */
   addUpdateRange(e, t) {
     this.updateRanges.push({
       start: e,
       count: t
     });
   }
+  /** @eyes-analysis
+   * 源码方法 clearUpdateRanges；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：updateRanges.length。
+   */
   clearUpdateRanges() {
     this.updateRanges.length = 0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：array、count、stride、usage。
+   * 调用线索：new e.array.constructor。
+   */
   copy(e) {
     return this.array = new e.array.constructor(e.array), this.count = e.count, this.stride = e.stride, this.usage = e.usage, this;
   }
+  /** @eyes-analysis
+   * 源码方法 copyAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：array[e+r]。
+   */
   copyAt(e, t, n) {
     e *= this.stride, n *= t.stride;
     for (let r = 0, stride = this.stride; r < stride; r++) this.array[e + r] = t.array[n + r];
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.array.set。
+   */
   set(e, t = 0) {
     return this.array.set(e, t), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 状态写入：array.buffer._uuid。
+   * 调用线索：n.setUsage、new this.array.constructor、new this.constructor、this.array.slice、yr。
+   */
   clone(e) {
     void 0 === e.arrayBuffers && (e.arrayBuffers = {}), void 0 === this.array.buffer._uuid && (this.array.buffer._uuid = yr()), void 0 === e.arrayBuffers[this.array.buffer._uuid] && (e.arrayBuffers[this.array.buffer._uuid] = this.array.slice(0).buffer);
     const constructor = new this.array.constructor(e.arrayBuffers[this.array.buffer._uuid]),
       n = new this.constructor(constructor, this.stride);
     return n.setUsage(this.usage), n;
   }
+  /** @eyes-analysis
+   * 源码方法 onUpload；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：onUploadCallback。
+   */
   onUpload(onUploadCallback) {
     return this.onUploadCallback = onUploadCallback, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 状态写入：array.buffer._uuid。
+   * 调用线索：Array.from、new Uint32Array、yr。
+   */
   toJSON(e) {
     return void 0 === e.arrayBuffers && (e.arrayBuffers = {}), void 0 === this.array.buffer._uuid && (this.array.buffer._uuid = yr()), void 0 === e.arrayBuffers[this.array.buffer._uuid] && (e.arrayBuffers[this.array.buffer._uuid] = Array.from(new Uint32Array(this.array.buffer))), {
       uuid: this.uuid,
@@ -4345,75 +7202,170 @@ class InterleavedBuffer {
   }
 }
 const la = new Vector3();
+/** @eyes-analysis
+ * 类职责：以 offset/stride 读取交错缓冲的单个顶点属性
+ * 继承：无显式父类；导出：InterleavedBufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InterleavedBufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：data、isInterleavedBufferAttribute、itemSize、name、normalized、offset。
+   */
   constructor(data, itemSize, offset, normalized = !1) {
     this.isInterleavedBufferAttribute = !0, this.name = "", this.data = data, this.itemSize = itemSize, this.offset = offset, this.normalized = normalized;
   }
+  /** @eyes-analysis
+   * 只读返回 this.data.count；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get count() {
     return this.data.count;
   }
+  /** @eyes-analysis
+   * 只读返回 this.data.array；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get array() {
     return this.data.array;
   }
+  /** @eyes-analysis
+   * 将 needsUpdate 写给共享 data 缓冲，委托其版本更新
+   * 状态写入：data.needsUpdate。
+   */
   set needsUpdate(e) {
     this.data.needsUpdate = e;
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：la.applyMatrix4、la.fromBufferAttribute、this.setXYZ。
+   */
   applyMatrix4(e) {
     for (let t = 0, n = this.data.count; t < n; t++) la.fromBufferAttribute(this, t), la.applyMatrix4(e), this.setXYZ(t, la.x, la.y, la.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 applyNormalMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：la.applyNormalMatrix、la.fromBufferAttribute、this.setXYZ。
+   */
   applyNormalMatrix(e) {
     for (let t = 0, count = this.count; t < count; t++) la.fromBufferAttribute(this, t), la.applyNormalMatrix(e), this.setXYZ(t, la.x, la.y, la.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 transformDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：la.fromBufferAttribute、la.transformDirection、this.setXYZ。
+   */
   transformDirection(e) {
     for (let t = 0, count = this.count; t < count; t++) la.fromBufferAttribute(this, t), la.transformDirection(e), this.setXYZ(t, la.x, la.y, la.z);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 getComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getComponent(e, t) {
     let n = this.array[e * this.data.stride + this.offset + t];
     return this.normalized && (n = Sr(n, this.array)), n;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e*this.data.stride+this.offset+t]。
+   * 调用线索：wr。
+   */
   setComponent(e, t, n) {
     return this.normalized && (n = wr(n, this.array)), this.data.array[e * this.data.stride + this.offset + t] = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e*this.data.stride+this.offset]。
+   * 调用线索：wr。
+   */
   setX(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.data.array[e * this.data.stride + this.offset] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e*this.data.stride+this.offset+1]。
+   * 调用线索：wr。
+   */
   setY(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.data.array[e * this.data.stride + this.offset + 1] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e*this.data.stride+this.offset+2]。
+   * 调用线索：wr。
+   */
   setZ(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.data.array[e * this.data.stride + this.offset + 2] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e*this.data.stride+this.offset+3]。
+   * 调用线索：wr。
+   */
   setW(e, t) {
     return this.normalized && (t = wr(t, this.array)), this.data.array[e * this.data.stride + this.offset + 3] = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getX；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getX(e) {
     let t = this.data.array[e * this.data.stride + this.offset];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getY(e) {
     let t = this.data.array[e * this.data.stride + this.offset + 1];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getZ(e) {
     let t = this.data.array[e * this.data.stride + this.offset + 2];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Sr。
+   */
   getW(e) {
     let t = this.data.array[e * this.data.stride + this.offset + 3];
     return this.normalized && (t = Sr(t, this.array)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setXY；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e+0]、data.array[e+1]。
+   * 调用线索：wr。
+   */
   setXY(e, t, n) {
     return e = e * this.data.stride + this.offset, this.normalized && (t = wr(t, this.array), n = wr(n, this.array)), this.data.array[e + 0] = t, this.data.array[e + 1] = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZ；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e+0]、data.array[e+1]、data.array[e+2]。
+   * 调用线索：wr。
+   */
   setXYZ(e, t, n, r) {
     return e = e * this.data.stride + this.offset, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array)), this.data.array[e + 0] = t, this.data.array[e + 1] = n, this.data.array[e + 2] = r, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setXYZW；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：data.array[e+0]、data.array[e+1]、data.array[e+2]、data.array[e+3]。
+   * 调用线索：wr。
+   */
   setXYZW(e, t, n, r, i) {
     return e = e * this.data.stride + this.offset, this.normalized && (t = wr(t, this.array), n = wr(n, this.array), r = wr(r, this.array), i = wr(i, this.array)), this.data.array[e + 0] = t, this.data.array[e + 1] = n, this.data.array[e + 2] = r, this.data.array[e + 3] = i, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：e.push、log、new BufferAttribute、new InterleavedBufferAttribute、new this.array.constructor等。
+   */
   clone(e) {
     if (void 0 === e) {
       log("InterleavedBufferAttribute.clone(): Cloning an interleaved buffer attribute will de-interleave buffer data.");
@@ -4426,6 +7378,10 @@ class InterleavedBufferAttribute {
     }
     return void 0 === e.interleavedBuffers && (e.interleavedBuffers = {}), void 0 === e.interleavedBuffers[this.data.uuid] && (e.interleavedBuffers[this.data.uuid] = this.data.clone(e)), new InterleavedBufferAttribute(e.interleavedBuffers[this.data.uuid], this.itemSize, this.offset, this.normalized);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：e.push、log、this.data.toJSON。
+   */
   toJSON(e) {
     if (void 0 === e) {
       log("InterleavedBufferAttribute.toJSON(): Serializing an interleaved buffer attribute will de-interleave buffer data.");
@@ -4452,23 +7408,54 @@ class InterleavedBufferAttribute {
 }
 let geometry,
   da = 0;
+/** @eyes-analysis
+ * 类职责：材质公共渲染状态、版本更新和资源释放事件
+ * 继承：EventDispatcher；导出：Material。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Material extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_alphaTest、allowOverride、alphaHash、alphaToCoverage、blendAlpha、blendColor、blendDst、blendDstAlpha等；完整记录见索引。
+   * 调用线索：Object.defineProperty、new Color、super、yr。
+   */
   constructor() {
     super(), this.isMaterial = !0, Object.defineProperty(this, "id", {
       value: da++
     }), this.uuid = yr(), this.name = "", this.type = "Material", this.blending = A, this.side = f, this.vertexColors = !1, this.opacity = 1, this.transparent = !1, this.alphaHash = !1, this.blendSrc = D, this.blendDst = N, this.blendEquation = T, this.blendSrcAlpha = null, this.blendDstAlpha = null, this.blendEquationAlpha = null, this.blendColor = new Color(0, 0, 0), this.blendAlpha = 0, this.depthFunc = j, this.depthTest = !0, this.depthWrite = !0, this.stencilWriteMask = 255, this.stencilFunc = xn, this.stencilRef = 0, this.stencilFuncMask = 255, this.stencilFail = fn, this.stencilZFail = fn, this.stencilZPass = fn, this.stencilWrite = !1, this.clippingPlanes = null, this.clipIntersection = !1, this.clipShadows = !1, this.shadowSide = null, this.colorWrite = !0, this.precision = null, this.polygonOffset = !1, this.polygonOffsetFactor = 0, this.polygonOffsetUnits = 0, this.dithering = !1, this.alphaToCoverage = !1, this.premultipliedAlpha = !1, this.forceSinglePass = !1, this.allowOverride = !0, this.visible = !0, this.toneMapped = !0, this.userData = {}, this.version = 0, this._alphaTest = 0;
   }
+  /** @eyes-analysis
+   * 只读返回 this._alphaTest；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get alphaTest() {
     return this._alphaTest;
   }
+  /** @eyes-analysis
+   * 写入 _alphaTest；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_alphaTest、version。
+   */
   set alphaTest(alphaTest) {
     this._alphaTest > 0 != alphaTest > 0 && this.version++, this._alphaTest = alphaTest;
   }
+  /** @eyes-analysis
+   * 源码方法 onBeforeRender；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onBeforeRender() {}
+  /** @eyes-analysis
+   * 源码方法 onBeforeCompile；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   onBeforeCompile() {}
+  /** @eyes-analysis
+   * 源码方法 customProgramCacheKey；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.onBeforeCompile.toString。
+   */
   customProgramCacheKey() {
     return this.onBeforeCompile.toString();
   }
+  /** @eyes-analysis
+   * 源码方法 setValues；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：r.copy、r.set、warn。
+   */
   setValues(e) {
     if (void 0 !== e) for (const t in e) {
       const n = e[t];
@@ -4480,6 +7467,10 @@ class Material extends EventDispatcher {
       void 0 !== r ? r && r.isColor ? r.set(n) : r && r.isVector2 && n && n.isVector2 || r && r.isEuler && n && n.isEuler || r && r.isVector3 && n && n.isVector3 ? r.copy(n) : this[t] = n : warn(`Material: '${t}' is not a property of THREE.${this.type}.`);
     }
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Object.keys、r、t.push、this.alphaMap.toJSON、this.anisotropyMap.toJSON等。
+   */
   toJSON(e) {
     const t = void 0 === e || "string" == typeof e;
     t && (e = {
@@ -4508,6 +7499,11 @@ class Material extends EventDispatcher {
     }
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：allowOverride、alphaHash、alphaMap、alphaTest、alphaToCoverage、anisotropy、anisotropyMap、anisotropyRotation等；完整记录见索引。
+   * 调用线索：Array.isArray、new Color、new Color().setHex、new Vector2、new Vector2().fromArray等。
+   */
   fromJSON(e, t) {
     if (void 0 !== e.uuid && (this.uuid = e.uuid), void 0 !== e.name && (this.name = e.name), void 0 !== e.color && void 0 !== this.color && this.color.setHex(e.color), void 0 !== e.roughness && (this.roughness = e.roughness), void 0 !== e.metalness && (this.metalness = e.metalness), void 0 !== e.sheen && (this.sheen = e.sheen), void 0 !== e.sheenColor && (this.sheenColor = new Color().setHex(e.sheenColor)), void 0 !== e.sheenRoughness && (this.sheenRoughness = e.sheenRoughness), void 0 !== e.emissive && void 0 !== this.emissive && this.emissive.setHex(e.emissive), void 0 !== e.specular && void 0 !== this.specular && this.specular.setHex(e.specular), void 0 !== e.specularIntensity && (this.specularIntensity = e.specularIntensity), void 0 !== e.specularColor && void 0 !== this.specularColor && this.specularColor.setHex(e.specularColor), void 0 !== e.shininess && (this.shininess = e.shininess), void 0 !== e.clearcoat && (this.clearcoat = e.clearcoat), void 0 !== e.clearcoatRoughness && (this.clearcoatRoughness = e.clearcoatRoughness), void 0 !== e.dispersion && (this.dispersion = e.dispersion), void 0 !== e.iridescence && (this.iridescence = e.iridescence), void 0 !== e.iridescenceIOR && (this.iridescenceIOR = e.iridescenceIOR), void 0 !== e.iridescenceThicknessRange && (this.iridescenceThicknessRange = e.iridescenceThicknessRange), void 0 !== e.transmission && (this.transmission = e.transmission), void 0 !== e.thickness && (this.thickness = e.thickness), void 0 !== e.attenuationDistance && (this.attenuationDistance = e.attenuationDistance), void 0 !== e.attenuationColor && void 0 !== this.attenuationColor && this.attenuationColor.setHex(e.attenuationColor), void 0 !== e.anisotropy && (this.anisotropy = e.anisotropy), void 0 !== e.anisotropyRotation && (this.anisotropyRotation = e.anisotropyRotation), void 0 !== e.fog && (this.fog = e.fog), void 0 !== e.flatShading && (this.flatShading = e.flatShading), void 0 !== e.blending && (this.blending = e.blending), void 0 !== e.combine && (this.combine = e.combine), void 0 !== e.side && (this.side = e.side), void 0 !== e.shadowSide && (this.shadowSide = e.shadowSide), void 0 !== e.opacity && (this.opacity = e.opacity), void 0 !== e.transparent && (this.transparent = e.transparent), void 0 !== e.alphaTest && (this.alphaTest = e.alphaTest), void 0 !== e.alphaHash && (this.alphaHash = e.alphaHash), void 0 !== e.depthFunc && (this.depthFunc = e.depthFunc), void 0 !== e.depthTest && (this.depthTest = e.depthTest), void 0 !== e.depthWrite && (this.depthWrite = e.depthWrite), void 0 !== e.colorWrite && (this.colorWrite = e.colorWrite), void 0 !== e.blendSrc && (this.blendSrc = e.blendSrc), void 0 !== e.blendDst && (this.blendDst = e.blendDst), void 0 !== e.blendEquation && (this.blendEquation = e.blendEquation), void 0 !== e.blendSrcAlpha && (this.blendSrcAlpha = e.blendSrcAlpha), void 0 !== e.blendDstAlpha && (this.blendDstAlpha = e.blendDstAlpha), void 0 !== e.blendEquationAlpha && (this.blendEquationAlpha = e.blendEquationAlpha), void 0 !== e.blendColor && void 0 !== this.blendColor && this.blendColor.setHex(e.blendColor), void 0 !== e.blendAlpha && (this.blendAlpha = e.blendAlpha), void 0 !== e.stencilWriteMask && (this.stencilWriteMask = e.stencilWriteMask), void 0 !== e.stencilFunc && (this.stencilFunc = e.stencilFunc), void 0 !== e.stencilRef && (this.stencilRef = e.stencilRef), void 0 !== e.stencilFuncMask && (this.stencilFuncMask = e.stencilFuncMask), void 0 !== e.stencilFail && (this.stencilFail = e.stencilFail), void 0 !== e.stencilZFail && (this.stencilZFail = e.stencilZFail), void 0 !== e.stencilZPass && (this.stencilZPass = e.stencilZPass), void 0 !== e.stencilWrite && (this.stencilWrite = e.stencilWrite), void 0 !== e.wireframe && (this.wireframe = e.wireframe), void 0 !== e.wireframeLinewidth && (this.wireframeLinewidth = e.wireframeLinewidth), void 0 !== e.wireframeLinecap && (this.wireframeLinecap = e.wireframeLinecap), void 0 !== e.wireframeLinejoin && (this.wireframeLinejoin = e.wireframeLinejoin), void 0 !== e.rotation && (this.rotation = e.rotation), void 0 !== e.linewidth && (this.linewidth = e.linewidth), void 0 !== e.dashSize && (this.dashSize = e.dashSize), void 0 !== e.gapSize && (this.gapSize = e.gapSize), void 0 !== e.scale && (this.scale = e.scale), void 0 !== e.polygonOffset && (this.polygonOffset = e.polygonOffset), void 0 !== e.polygonOffsetFactor && (this.polygonOffsetFactor = e.polygonOffsetFactor), void 0 !== e.polygonOffsetUnits && (this.polygonOffsetUnits = e.polygonOffsetUnits), void 0 !== e.dithering && (this.dithering = e.dithering), void 0 !== e.alphaToCoverage && (this.alphaToCoverage = e.alphaToCoverage), void 0 !== e.premultipliedAlpha && (this.premultipliedAlpha = e.premultipliedAlpha), void 0 !== e.forceSinglePass && (this.forceSinglePass = e.forceSinglePass), void 0 !== e.allowOverride && (this.allowOverride = e.allowOverride), void 0 !== e.visible && (this.visible = e.visible), void 0 !== e.toneMapped && (this.toneMapped = e.toneMapped), void 0 !== e.userData && (this.userData = e.userData), void 0 !== e.vertexColors && ("number" == typeof e.vertexColors ? this.vertexColors = e.vertexColors > 0 : this.vertexColors = e.vertexColors), void 0 !== e.size && (this.size = e.size), void 0 !== e.sizeAttenuation && (this.sizeAttenuation = e.sizeAttenuation), void 0 !== e.map && (this.map = t[e.map] || null), void 0 !== e.matcap && (this.matcap = t[e.matcap] || null), void 0 !== e.alphaMap && (this.alphaMap = t[e.alphaMap] || null), void 0 !== e.bumpMap && (this.bumpMap = t[e.bumpMap] || null), void 0 !== e.bumpScale && (this.bumpScale = e.bumpScale), void 0 !== e.normalMap && (this.normalMap = t[e.normalMap] || null), void 0 !== e.normalMapType && (this.normalMapType = e.normalMapType), void 0 !== e.normalScale) {
       let t = e.normalScale;
@@ -4515,9 +7511,18 @@ class Material extends EventDispatcher {
     }
     return void 0 !== e.displacementMap && (this.displacementMap = t[e.displacementMap] || null), void 0 !== e.displacementScale && (this.displacementScale = e.displacementScale), void 0 !== e.displacementBias && (this.displacementBias = e.displacementBias), void 0 !== e.roughnessMap && (this.roughnessMap = t[e.roughnessMap] || null), void 0 !== e.metalnessMap && (this.metalnessMap = t[e.metalnessMap] || null), void 0 !== e.emissiveMap && (this.emissiveMap = t[e.emissiveMap] || null), void 0 !== e.emissiveIntensity && (this.emissiveIntensity = e.emissiveIntensity), void 0 !== e.specularMap && (this.specularMap = t[e.specularMap] || null), void 0 !== e.specularIntensityMap && (this.specularIntensityMap = t[e.specularIntensityMap] || null), void 0 !== e.specularColorMap && (this.specularColorMap = t[e.specularColorMap] || null), void 0 !== e.envMap && (this.envMap = t[e.envMap] || null), void 0 !== e.envMapRotation && this.envMapRotation.fromArray(e.envMapRotation), void 0 !== e.envMapIntensity && (this.envMapIntensity = e.envMapIntensity), void 0 !== e.reflectivity && (this.reflectivity = e.reflectivity), void 0 !== e.refractionRatio && (this.refractionRatio = e.refractionRatio), void 0 !== e.lightMap && (this.lightMap = t[e.lightMap] || null), void 0 !== e.lightMapIntensity && (this.lightMapIntensity = e.lightMapIntensity), void 0 !== e.aoMap && (this.aoMap = t[e.aoMap] || null), void 0 !== e.aoMapIntensity && (this.aoMapIntensity = e.aoMapIntensity), void 0 !== e.gradientMap && (this.gradientMap = t[e.gradientMap] || null), void 0 !== e.clearcoatMap && (this.clearcoatMap = t[e.clearcoatMap] || null), void 0 !== e.clearcoatRoughnessMap && (this.clearcoatRoughnessMap = t[e.clearcoatRoughnessMap] || null), void 0 !== e.clearcoatNormalMap && (this.clearcoatNormalMap = t[e.clearcoatNormalMap] || null), void 0 !== e.clearcoatNormalScale && (this.clearcoatNormalScale = new Vector2().fromArray(e.clearcoatNormalScale)), void 0 !== e.iridescenceMap && (this.iridescenceMap = t[e.iridescenceMap] || null), void 0 !== e.iridescenceThicknessMap && (this.iridescenceThicknessMap = t[e.iridescenceThicknessMap] || null), void 0 !== e.transmissionMap && (this.transmissionMap = t[e.transmissionMap] || null), void 0 !== e.thicknessMap && (this.thicknessMap = t[e.thicknessMap] || null), void 0 !== e.anisotropyMap && (this.anisotropyMap = t[e.anisotropyMap] || null), void 0 !== e.sheenColorMap && (this.sheenColorMap = t[e.sheenColorMap] || null), void 0 !== e.sheenRoughnessMap && (this.sheenRoughnessMap = t[e.sheenRoughnessMap] || null), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：allowOverride、alphaHash、alphaTest、alphaToCoverage、blendAlpha、blendDst、blendDstAlpha、blendEquation等；完整记录见索引。
+   * 调用线索：JSON.parse、JSON.stringify、new Array、t[r].clone、this.blendColor.copy。
+   */
   copy(e) {
     this.name = e.name, this.blending = e.blending, this.side = e.side, this.vertexColors = e.vertexColors, this.opacity = e.opacity, this.transparent = e.transparent, this.blendSrc = e.blendSrc, this.blendDst = e.blendDst, this.blendEquation = e.blendEquation, this.blendSrcAlpha = e.blendSrcAlpha, this.blendDstAlpha = e.blendDstAlpha, this.blendEquationAlpha = e.blendEquationAlpha, this.blendColor.copy(e.blendColor), this.blendAlpha = e.blendAlpha, this.depthFunc = e.depthFunc, this.depthTest = e.depthTest, this.depthWrite = e.depthWrite, this.stencilWriteMask = e.stencilWriteMask, this.stencilFunc = e.stencilFunc, this.stencilRef = e.stencilRef, this.stencilFuncMask = e.stencilFuncMask, this.stencilFail = e.stencilFail, this.stencilZFail = e.stencilZFail, this.stencilZPass = e.stencilZPass, this.stencilWrite = e.stencilWrite;
     const t = e.clippingPlanes;
@@ -4529,19 +7534,42 @@ class Material extends EventDispatcher {
     }
     return this.clippingPlanes = clippingPlanes, this.clipIntersection = e.clipIntersection, this.clipShadows = e.clipShadows, this.shadowSide = e.shadowSide, this.colorWrite = e.colorWrite, this.precision = e.precision, this.polygonOffset = e.polygonOffset, this.polygonOffsetFactor = e.polygonOffsetFactor, this.polygonOffsetUnits = e.polygonOffsetUnits, this.dithering = e.dithering, this.alphaTest = e.alphaTest, this.alphaHash = e.alphaHash, this.alphaToCoverage = e.alphaToCoverage, this.premultipliedAlpha = e.premultipliedAlpha, this.forceSinglePass = e.forceSinglePass, this.allowOverride = e.allowOverride, this.visible = e.visible, this.toneMapped = e.toneMapped, this.userData = JSON.parse(JSON.stringify(e.userData)), this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：version。
+   */
   set needsUpdate(e) {
     !0 === e && this.version++;
   }
 }
+/** @eyes-analysis
+ * 类职责：面向相机精灵颜色、旋转和贴图材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：SpriteMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpriteMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、color、fog、isSpriteMaterial、map、rotation、sizeAttenuation、transparent等；完整记录见索引。
+   * 调用线索：new Color、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isSpriteMaterial = !0, this.type = "SpriteMaterial", this.color = new Color(16777215), this.map = null, this.alphaMap = null, this.rotation = 0, this.sizeAttenuation = !0, this.transparent = !0, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、fog、map、rotation、sizeAttenuation。
+   * 调用线索：super.copy、this.color.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.alphaMap = e.alphaMap, this.rotation = e.rotation, this.sizeAttenuation = e.sizeAttenuation, this.fog = e.fog, this;
   }
@@ -4558,7 +7586,17 @@ const ha = new Vector3(),
   ya = new Vector2(),
   La = new Vector2(),
   va = new Vector2();
+/** @eyes-analysis
+ * 类职责：始终朝向相机的二维精灵对象及射线求交
+ * 继承：Object3D；导出：Sprite。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Sprite extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：center、count、geometry、isSprite、material、type。
+   * 调用线索：geometry.setAttribute、geometry.setIndex、new BufferGeometry、new Float32Array、new InterleavedBuffer等。
+   */
   constructor(material = new SpriteMaterial()) {
     if (super(), this.isSprite = !0, this.type = "Sprite", void 0 === geometry) {
       geometry = new BufferGeometry();
@@ -4568,6 +7606,10 @@ class Sprite extends Object3D {
     }
     this.geometry = geometry, this.material = material, this.center = new Vector2(.5, .5), this.count = 1;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：Aa.set、La.set、Math.cos、Math.sin、Ta等。
+   */
   raycast(e, t) {
     null === e.camera && error('Sprite: "Raycaster.camera" needs to be set in order to raycast against sprites.'), pa.setFromMatrixScale(this.matrixWorld), _a.copy(e.camera.matrixWorld), this.modelViewMatrix.multiplyMatrices(e.camera.matrixWorldInverse, this.matrixWorld), fa.setFromMatrixPosition(this.modelViewMatrix), e.camera.isPerspectiveCamera && !1 === this.material.sizeAttenuation && pa.multiplyScalar(-fa.z);
     const n = this.material.rotation;
@@ -4586,6 +7628,11 @@ class Sprite extends Object3D {
       object: this
     });
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：material。
+   * 调用线索：super.copy、this.center.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), void 0 !== e.center && this.center.copy(e.center), this.material = e.material, this;
   }
@@ -4595,7 +7642,17 @@ function Ta(e, t, n, r, i, a) {
 }
 const Sa = new Vector3(),
   wa = new Vector3();
+/** @eyes-analysis
+ * 类职责：依据相机距离与迟滞阈值选择细节层级
+ * 继承：Object3D；导出：LOD。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LOD extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_currentLevel、autoUpdate、isLOD、type。
+   * 调用线索：Object.defineProperties、super。
+   */
   constructor() {
     super(), this.isLOD = !0, this._currentLevel = 0, this.type = "LOD", Object.defineProperties(this, {
       levels: {
@@ -4604,6 +7661,11 @@ class LOD extends Object3D {
       }
     }), this.autoUpdate = !0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：autoUpdate。
+   * 调用线索：n.object.clone、super.copy、this.addLevel。
+   */
   copy(e) {
     super.copy(e, !1);
     const t = e.levels;
@@ -4613,6 +7675,10 @@ class LOD extends Object3D {
     }
     return this.autoUpdate = e.autoUpdate, this;
   }
+  /** @eyes-analysis
+   * 源码方法 addLevel；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs、levels.splice、this.add。
+   */
   addLevel(e, t = 0, n = 0) {
     t = Math.abs(t);
     const levels = this.levels;
@@ -4624,6 +7690,10 @@ class LOD extends Object3D {
       object: e
     }), this.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 removeLevel；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：levels.splice、this.remove。
+   */
   removeLevel(e) {
     const levels = this.levels;
     for (let n = 0; n < levels.length; n++) if (levels[n].distance === e) {
@@ -4632,9 +7702,15 @@ class LOD extends Object3D {
     }
     return !1;
   }
+  /** @eyes-analysis
+   * 源码方法 getCurrentLevel；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getCurrentLevel() {
     return this._currentLevel;
   }
+  /** @eyes-analysis
+   * 源码方法 getObjectForDistance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getObjectForDistance(e) {
     const levels = this.levels;
     if (levels.length > 0) {
@@ -4647,6 +7723,10 @@ class LOD extends Object3D {
     }
     return null;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：Sa.setFromMatrixPosition、e.ray.origin.distanceTo、this.getObjectForDistance、this.getObjectForDistance(n).raycast。
+   */
   raycast(e, t) {
     if (this.levels.length > 0) {
       Sa.setFromMatrixPosition(this.matrixWorld);
@@ -4654,6 +7734,11 @@ class LOD extends Object3D {
       this.getObjectForDistance(n).raycast(e, t);
     }
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：_currentLevel。
+   * 调用线索：Sa.distanceTo、Sa.setFromMatrixPosition、wa.setFromMatrixPosition。
+   */
   update(e) {
     const levels = this.levels;
     if (levels.length > 1) {
@@ -4668,6 +7753,10 @@ class LOD extends Object3D {
       for (this._currentLevel = r - 1; r < i; r++) levels[r].object.visible = !1;
     }
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、t.object.levels.push。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     !1 === this.autoUpdate && (t.object.autoUpdate = !1), t.object.levels = [];
@@ -4690,37 +7779,83 @@ const Ea = new Vector3(),
   Oa = new Vector3(),
   Ba = new Vector3(),
   Da = new Vector3();
+/** @eyes-analysis
+ * 类职责：射线与球、平面、盒、三角形的相交及距离计算
+ * 继承：无显式父类；导出：Ray。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Ray {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：direction、origin。
+   * 调用线索：new Vector3。
+   */
   constructor(origin = new Vector3(), direction = new Vector3(0, 0, -1)) {
     this.origin = origin, this.direction = direction;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.direction.copy、this.origin.copy。
+   */
   set(e, t) {
     return this.origin.copy(e), this.direction.copy(t), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.direction.copy、this.origin.copy。
+   */
   copy(e) {
     return this.origin.copy(e.origin), this.direction.copy(e.direction), this;
   }
+  /** @eyes-analysis
+   * 源码方法 at；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.copy(this.origin).addScaledVector。
+   */
   at(e, t) {
     return t.copy(this.origin).addScaledVector(this.direction, e);
   }
+  /** @eyes-analysis
+   * 源码方法 lookAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.direction.copy、this.direction.copy(e).sub、this.direction.copy(e).sub(this.origin).normalize。
+   */
   lookAt(e) {
     return this.direction.copy(e).sub(this.origin).normalize(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 recast；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.at、this.origin.copy。
+   */
   recast(e) {
     return this.origin.copy(this.at(e, Ea)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 closestPointToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.copy(this.origin).addScaledVector、t.dot、t.subVectors。
+   */
   closestPointToPoint(e, t) {
     t.subVectors(e, this.origin);
     const n = t.dot(this.direction);
     return n < 0 ? t.copy(this.origin) : t.copy(this.origin).addScaledVector(this.direction, n);
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.sqrt、this.distanceSqToPoint。
+   */
   distanceToPoint(e) {
     return Math.sqrt(this.distanceSqToPoint(e));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceSqToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ea.copy、Ea.copy(this.origin).addScaledVector、Ea.distanceToSquared、Ea.subVectors、Ea.subVectors(e,this.origin).dot等。
+   */
   distanceSqToPoint(e) {
     const t = Ea.subVectors(e, this.origin).dot(this.direction);
     return t < 0 ? this.origin.distanceToSquared(e) : (Ea.copy(this.origin).addScaledVector(this.direction, t), Ea.distanceToSquared(e));
   }
+  /** @eyes-analysis
+   * 源码方法 distanceSqToSegment；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ca.copy、Ca.copy(t).sub、Ca.copy(t).sub(e).normalize、Math.abs、Math.max等。
+   */
   distanceSqToSegment(e, t, n, r) {
     xa.copy(e).add(t).multiplyScalar(.5), Ca.copy(t).sub(e).normalize(), za.copy(this.origin).sub(xa);
     const i = .5 * e.distanceTo(t),
@@ -4742,6 +7877,10 @@ class Ray {
     } else d = a > 0 ? -i : i, u = Math.max(0, -(a * d + s)), h = -u * u + d * (d + 2 * o) + c;
     return n && n.copy(this.origin).addScaledVector(this.direction, u), r && r.copy(xa).addScaledVector(Ca, d), h;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ea.dot、Ea.subVectors、Math.sqrt、this.at。
+   */
   intersectSphere(e, t) {
     Ea.subVectors(e.center, this.origin);
     const n = Ea.dot(this.direction),
@@ -4753,24 +7892,44 @@ class Ray {
       o = n + a;
     return o < 0 ? null : s < 0 ? this.at(o, t) : this.at(s, t);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.distanceSqToPoint。
+   */
   intersectsSphere(e) {
     return !(e.radius < 0) && this.distanceSqToPoint(e.center) <= e.radius * e.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.distanceToPoint、e.normal.dot、this.origin.dot。
+   */
   distanceToPlane(e) {
     const t = e.normal.dot(this.direction);
     if (0 === t) return 0 === e.distanceToPoint(this.origin) ? 0 : null;
     const n = -(this.origin.dot(e.normal) + e.constant) / t;
     return n >= 0 ? n : null;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.at、this.distanceToPlane。
+   */
   intersectPlane(e, t) {
     const n = this.distanceToPlane(e);
     return null === n ? null : this.at(n, t);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsPlane；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.distanceToPoint、e.normal.dot。
+   */
   intersectsPlane(e) {
     const t = e.distanceToPoint(this.origin);
     if (0 === t) return !0;
     return e.normal.dot(this.direction) * t < 0;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：isNaN、this.at。
+   */
   intersectBox(e, t) {
     let n, r, i, a, s, o;
     const c = 1 / this.direction.x,
@@ -4779,9 +7938,17 @@ class Ray {
       origin = this.origin;
     return c >= 0 ? (n = (e.min.x - origin.x) * c, r = (e.max.x - origin.x) * c) : (n = (e.max.x - origin.x) * c, r = (e.min.x - origin.x) * c), l >= 0 ? (i = (e.min.y - origin.y) * l, a = (e.max.y - origin.y) * l) : (i = (e.max.y - origin.y) * l, a = (e.min.y - origin.y) * l), n > a || i > r ? null : ((i > n || isNaN(n)) && (n = i), (a < r || isNaN(r)) && (r = a), u >= 0 ? (s = (e.min.z - origin.z) * u, o = (e.max.z - origin.z) * u) : (s = (e.max.z - origin.z) * u, o = (e.min.z - origin.z) * u), n > o || s > r ? null : ((s > n || n != n) && (n = s), (o < r || r != r) && (r = o), r < 0 ? null : this.at(n >= 0 ? n : r, t)));
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.intersectBox。
+   */
   intersectsBox(e) {
     return null !== this.intersectBox(e, Ea);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectTriangle；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ba.crossVectors、Ba.subVectors、Da.crossVectors、Oa.cross、Oa.subVectors等。
+   */
   intersectTriangle(e, t, n, r, i) {
     Oa.subVectors(t, e), Ba.subVectors(n, e), Da.crossVectors(Oa, Ba);
     let a,
@@ -4802,20 +7969,47 @@ class Ray {
     const l = -a * za.dot(Da);
     return l < 0 ? null : this.at(l / s, i);
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.direction.transformDirection、this.origin.applyMatrix4。
+   */
   applyMatrix4(e) {
     return this.origin.applyMatrix4(e), this.direction.transformDirection(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.direction.equals、e.origin.equals。
+   */
   equals(e) {
     return e.origin.equals(this.origin) && e.direction.equals(this.direction);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
+/** @eyes-analysis
+ * 类职责：无光照基础颜色/贴图材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshBasicMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshBasicMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、color、combine、envMap、envMapRotation、fog等；完整记录见索引。
+   * 调用线索：new Color、new Euler、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshBasicMaterial = !0, this.type = "MeshBasicMaterial", this.color = new Color(16777215), this.map = null, this.lightMap = null, this.lightMapIntensity = 1, this.aoMap = null, this.aoMapIntensity = 1, this.specularMap = null, this.alphaMap = null, this.envMap = null, this.envMapRotation = new Euler(), this.combine = Z, this.reflectivity = 1, this.refractionRatio = .98, this.wireframe = !1, this.wireframeLinewidth = 1, this.wireframeLinecap = "round", this.wireframeLinejoin = "round", this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、combine、envMap、fog、lightMap、lightMapIntensity等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.envMapRotation.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.lightMap = e.lightMap, this.lightMapIntensity = e.lightMapIntensity, this.aoMap = e.aoMap, this.aoMapIntensity = e.aoMapIntensity, this.specularMap = e.specularMap, this.alphaMap = e.alphaMap, this.envMap = e.envMap, this.envMapRotation.copy(e.envMapRotation), this.combine = e.combine, this.reflectivity = e.reflectivity, this.refractionRatio = e.refractionRatio, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.wireframeLinecap = e.wireframeLinecap, this.wireframeLinejoin = e.wireframeLinejoin, this.fog = e.fog, this;
   }
@@ -4831,13 +8025,33 @@ const Na = new Matrix4(),
   qa = new Vector3(),
   Ha = new Vector3(),
   Ua = new Vector3();
+/** @eyes-analysis
+ * 类职责：三角网格场景对象；绑定几何材质并执行射线求交
+ * 继承：Object3D；导出：Mesh。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Mesh extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：count、geometry、isMesh、material、morphTargetDictionary、morphTargetInfluences、type。
+   * 调用线索：new BufferGeometry、new MeshBasicMaterial、super、this.updateMorphTargets。
+   */
   constructor(e = new BufferGeometry(), material = new MeshBasicMaterial()) {
     super(), this.isMesh = !0, this.type = "Mesh", this.geometry = e, this.material = material, this.morphTargetDictionary = void 0, this.morphTargetInfluences = void 0, this.count = 1, this.updateMorphTargets();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：geometry、material、morphTargetDictionary、morphTargetInfluences。
+   * 调用线索：Array.isArray、Object.assign、e.material.slice、e.morphTargetInfluences.slice、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), void 0 !== e.morphTargetInfluences && (this.morphTargetInfluences = e.morphTargetInfluences.slice()), void 0 !== e.morphTargetDictionary && (this.morphTargetDictionary = Object.assign({}, e.morphTargetDictionary)), this.material = Array.isArray(e.material) ? e.material.slice() : e.material, this.geometry = e.geometry, this;
   }
+  /** @eyes-analysis
+   * 源码方法 updateMorphTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：morphTargetDictionary、morphTargetDictionary[t]、morphTargetInfluences。
+   * 调用线索：Object.keys、String、this.morphTargetInfluences.push。
+   */
   updateMorphTargets() {
     const e = this.geometry.morphAttributes,
       t = Object.keys(e);
@@ -4852,6 +8066,10 @@ class Mesh extends Object3D {
       }
     }
   }
+  /** @eyes-analysis
+   * 源码方法 getVertexPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Fa.fromBufferAttribute、Fa.sub、qa.addScaledVector、qa.set、t.add等。
+   */
   getVertexPosition(e, t) {
     const n = this.geometry,
       r = n.attributes.position,
@@ -4870,6 +8088,10 @@ class Mesh extends Object3D {
     }
     return t;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：Na.copy、Na.copy(matrixWorld).invert、n.computeBoundingSphere、ray.copy、ray.copy(e.ray).applyMatrix4等。
+   */
   raycast(e, t) {
     const n = this.geometry,
       material = this.material,
@@ -4882,6 +8104,10 @@ class Mesh extends Object3D {
       Na.copy(matrixWorld).invert(), ray.copy(e.ray).applyMatrix4(Na), null !== n.boundingBox && !1 === ray.intersectsBox(n.boundingBox) || this._computeIntersections(e, t, ray);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _computeIntersections；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Array.isArray、Ga、Math.floor、Math.max、Math.min等。
+   */
   _computeIntersections(e, t, n) {
     let r;
     const i = this.geometry,
@@ -4954,39 +8180,85 @@ const Xa = new Vector4(),
   $a = new Sphere(),
   Za = new Matrix4(),
   es = new Ray();
+/** @eyes-analysis
+ * 类职责：使用骨骼权重和绑定矩阵变形的网格
+ * 继承：Mesh；导出：SkinnedMesh。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SkinnedMesh extends Mesh {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：bindMatrix、bindMatrixInverse、bindMode、boundingBox、boundingSphere、isSkinnedMesh、type。
+   * 调用线索：new Matrix4、super。
+   */
   constructor(e, t) {
     super(e, t), this.isSkinnedMesh = !0, this.type = "SkinnedMesh", this.bindMode = ue, this.bindMatrix = new Matrix4(), this.bindMatrixInverse = new Matrix4(), this.boundingBox = null, this.boundingSphere = null;
   }
+  /** @eyes-analysis
+   * 扫描位置和 morph 属性得到轴对齐包围盒
+   * 状态写入：boundingBox。
+   * 调用线索：e.getAttribute、new Box3、this.boundingBox.expandByPoint、this.boundingBox.makeEmpty、this.getVertexPosition。
+   */
   computeBoundingBox() {
     const e = this.geometry;
     null === this.boundingBox && (this.boundingBox = new Box3()), this.boundingBox.makeEmpty();
     const t = e.getAttribute("position");
     for (let e = 0; e < t.count; e++) this.getVertexPosition(e, Ja), this.boundingBox.expandByPoint(Ja);
   }
+  /** @eyes-analysis
+   * 从顶点和 morph 属性建立包围球；变化后需再次计算
+   * 状态写入：boundingSphere。
+   * 调用线索：e.getAttribute、new Sphere、this.boundingSphere.expandByPoint、this.boundingSphere.makeEmpty、this.getVertexPosition。
+   */
   computeBoundingSphere() {
     const e = this.geometry;
     null === this.boundingSphere && (this.boundingSphere = new Sphere()), this.boundingSphere.makeEmpty();
     const t = e.getAttribute("position");
     for (let e = 0; e < t.count; e++) this.getVertexPosition(e, Ja), this.boundingSphere.expandByPoint(Ja);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：bindMode、boundingBox、boundingSphere、skeleton。
+   * 调用线索：e.boundingBox.clone、e.boundingSphere.clone、super.copy、this.bindMatrix.copy、this.bindMatrixInverse.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.bindMode = e.bindMode, this.bindMatrix.copy(e.bindMatrix), this.bindMatrixInverse.copy(e.bindMatrixInverse), this.skeleton = e.skeleton, null !== e.boundingBox && (this.boundingBox = e.boundingBox.clone()), null !== e.boundingSphere && (this.boundingSphere = e.boundingSphere.clone()), this;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：$a.applyMatrix4、$a.copy、Za.copy、Za.copy(matrixWorld).invert、e.ray.intersectsSphere等。
+   */
   raycast(e, t) {
     const material = this.material,
       matrixWorld = this.matrixWorld;
     void 0 !== material && (null === this.boundingSphere && this.computeBoundingSphere(), $a.copy(this.boundingSphere), $a.applyMatrix4(matrixWorld), !1 !== e.ray.intersectsSphere($a) && (Za.copy(matrixWorld).invert(), es.copy(e.ray).applyMatrix4(Za), null !== this.boundingBox && !1 === es.intersectsBox(this.boundingBox) || this._computeIntersections(e, t, es)));
   }
+  /** @eyes-analysis
+   * 源码方法 getVertexPosition；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.getVertexPosition、this.applyBoneTransform。
+   */
   getVertexPosition(e, t) {
     return super.getVertexPosition(e, t), this.applyBoneTransform(e, t), t;
   }
+  /** @eyes-analysis
+   * 源码方法 bind；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：skeleton。
+   * 调用线索：this.bindMatrix.copy、this.bindMatrixInverse.copy、this.bindMatrixInverse.copy(t).invert、this.skeleton.calculateInverses、this.updateMatrixWorld。
+   */
   bind(skeleton, t) {
     this.skeleton = skeleton, void 0 === t && (this.updateMatrixWorld(!0), this.skeleton.calculateInverses(), t = this.matrixWorld), this.bindMatrix.copy(t), this.bindMatrixInverse.copy(t).invert();
   }
+  /** @eyes-analysis
+   * 源码方法 pose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.skeleton.pose。
+   */
   pose() {
     this.skeleton.pose();
   }
+  /** @eyes-analysis
+   * 源码方法 normalizeSkinWeights；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.fromBufferAttribute、e.manhattanLength、e.multiplyScalar、e.set、new Vector4等。
+   */
   normalizeSkinWeights() {
     const e = new Vector4(),
       t = this.geometry.attributes.skinWeight;
@@ -4996,9 +8268,17 @@ class SkinnedMesh extends Mesh {
       r !== 1 / 0 ? e.multiplyScalar(r) : e.set(1, 0, 0, 0), t.setXYZW(n, e.x, e.y, e.z, e.w);
     }
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：super.updateMatrixWorld、this.bindMatrixInverse.copy、this.bindMatrixInverse.copy(this.bindMatrix).invert、this.bindMatrixInverse.copy(this.matrixWorld).invert、warn。
+   */
   updateMatrixWorld(e) {
     super.updateMatrixWorld(e), this.bindMode === ue ? this.bindMatrixInverse.copy(this.matrixWorld).invert() : this.bindMode === DetachedBindMode ? this.bindMatrixInverse.copy(this.bindMatrix).invert() : warn("SkinnedMesh: Unrecognized bindMode: " + this.bindMode);
   }
+  /** @eyes-analysis
+   * 源码方法 applyBoneTransform；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Ka.multiplyMatrices、Qa.copy、Qa.copy(Xa).applyMatrix4、Va.fromBufferAttribute、Va.getComponent等。
+   */
   applyBoneTransform(e, t) {
     const skeleton = this.skeleton,
       r = this.geometry;
@@ -5013,12 +8293,32 @@ class SkinnedMesh extends Mesh {
     return t.isVector4 && (t.w = Xa.w), t.applyMatrix4(this.bindMatrixInverse);
   }
 }
+/** @eyes-analysis
+ * 类职责：骨架层级中的局部变换节点
+ * 继承：Object3D；导出：Bone。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Bone extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isBone、type。
+   * 调用线索：super。
+   */
   constructor() {
     super(), this.isBone = !0, this.type = "Bone";
   }
 }
+/** @eyes-analysis
+ * 类职责：Data 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：DataTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DataTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：flipY、generateMipmaps、image、isDataTexture、unpackAlignment。
+   * 调用线索：super。
+   */
   constructor(e = null, t = 1, n = 1, r, i, a, s, o, c = ye, l = ye, u, d) {
     super(null, a, s, o, c, l, r, i, u, d), this.isDataTexture = !0, this.image = {
       data: e,
@@ -5029,10 +8329,25 @@ class DataTexture extends Texture {
 }
 const ts = new Matrix4(),
   ns = new Matrix4();
+/** @eyes-analysis
+ * 类职责：骨骼列表、逆绑定矩阵和骨骼纹理上传
+ * 继承：无显式父类；导出：Skeleton。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Skeleton {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：boneInverses、boneMatrices、boneTexture、bones、uuid。
+   * 调用线索：e.slice、this.init、yr。
+   */
   constructor(e = [], boneInverses = []) {
     this.uuid = yr(), this.bones = e.slice(0), this.boneInverses = boneInverses, this.boneMatrices = null, this.boneTexture = null, this.init();
   }
+  /** @eyes-analysis
+   * 初始化延迟资源和运行时能力；必须先完成再使用依赖资源的方法
+   * 状态写入：boneInverses、boneMatrices。
+   * 调用线索：new Float32Array、new Matrix4、this.boneInverses.push、this.calculateInverses、warn。
+   */
   init() {
     const bones = this.bones,
       boneInverses = this.boneInverses;
@@ -5041,6 +8356,11 @@ class Skeleton {
       for (let e = 0, t = this.bones.length; e < t; e++) this.boneInverses.push(new Matrix4());
     }
   }
+  /** @eyes-analysis
+   * 源码方法 calculateInverses；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：boneInverses.length。
+   * 调用线索：new Matrix4、t.copy、t.copy(this.bones[e].matrixWorld).invert、this.boneInverses.push。
+   */
   calculateInverses() {
     this.boneInverses.length = 0;
     for (let e = 0, t = this.bones.length; e < t; e++) {
@@ -5048,6 +8368,10 @@ class Skeleton {
       this.bones[e] && t.copy(this.bones[e].matrixWorld).invert(), this.boneInverses.push(t);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 pose；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.matrix.copy、t.matrix.copy(t.parent.matrixWorld).invert、t.matrix.decompose、t.matrix.multiply、t.matrixWorld.copy等。
+   */
   pose() {
     for (let e = 0, t = this.bones.length; e < t; e++) {
       const t = this.bones[e];
@@ -5058,6 +8382,10 @@ class Skeleton {
       t && (t.parent && t.parent.isBone ? (t.matrix.copy(t.parent.matrixWorld).invert(), t.matrix.multiply(t.matrixWorld)) : t.matrix.copy(t.matrixWorld), t.matrix.decompose(t.position, t.quaternion, t.scale));
     }
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 调用线索：ts.multiplyMatrices、ts.toArray。
+   */
   update() {
     const bones = this.bones,
       boneInverses = this.boneInverses,
@@ -5069,9 +8397,18 @@ class Skeleton {
     }
     null !== boneTexture && (boneTexture.needsUpdate = !0);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new Skeleton。
+   */
   clone() {
     return new Skeleton(this.bones, this.boneInverses);
   }
+  /** @eyes-analysis
+   * 源码方法 computeBoneTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：boneMatrices、boneTexture。
+   * 调用线索：Math.ceil、Math.max、Math.sqrt、new DataTexture、new Float32Array等。
+   */
   computeBoneTexture() {
     let e = Math.sqrt(4 * this.bones.length);
     e = 4 * Math.ceil(e / 4), e = Math.max(e, 4);
@@ -5080,15 +8417,28 @@ class Skeleton {
     const n = new DataTexture(t, e, e, RGBAFormat, ke);
     return n.needsUpdate = !0, this.boneMatrices = t, this.boneTexture = n, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getBoneByName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getBoneByName(e) {
     for (let t = 0, n = this.bones.length; t < n; t++) {
       const n = this.bones[t];
       if (n.name === e) return n;
     }
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 状态写入：boneTexture。
+   * 调用线索：this.boneTexture.dispose。
+   */
   dispose() {
     null !== this.boneTexture && (this.boneTexture.dispose(), this.boneTexture = null);
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：uuid。
+   * 调用线索：new Bone、new Matrix4、new Matrix4().fromArray、this.boneInverses.push、this.bones.push等。
+   */
   fromJSON(e, t) {
     this.uuid = e.uuid;
     for (let n = 0, r = e.bones.length; n < r; n++) {
@@ -5098,6 +8448,10 @@ class Skeleton {
     }
     return this.init(), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：a.toArray、e.boneInverses.push、e.bones.push。
+   */
   toJSON() {
     const e = {
       metadata: {
@@ -5120,13 +8474,32 @@ class Skeleton {
     return e;
   }
 }
+/** @eyes-analysis
+ * 类职责：Instanced 类型顶点缓冲属性；继承数组访问与更新范围管理
+ * 继承：BufferAttribute；导出：InstancedBufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InstancedBufferAttribute extends BufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isInstancedBufferAttribute、meshPerAttribute。
+   * 调用线索：super。
+   */
   constructor(e, t, n, meshPerAttribute = 1) {
     super(e, t, n), this.isInstancedBufferAttribute = !0, this.meshPerAttribute = meshPerAttribute;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：meshPerAttribute。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.meshPerAttribute = e.meshPerAttribute, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.meshPerAttribute = this.meshPerAttribute, e.isInstancedBufferAttribute = !0, e;
@@ -5139,38 +8512,78 @@ const rs = new Matrix4(),
   os = new Matrix4(),
   mesh = new Mesh(),
   ls = new Sphere();
+/** @eyes-analysis
+ * 类职责：共享几何/材质，以实例矩阵和颜色批量绘制网格
+ * 继承：Mesh；导出：InstancedMesh。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InstancedMesh extends Mesh {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：boundingBox、boundingSphere、count、instanceColor、instanceMatrix、isInstancedMesh、morphTexture。
+   * 调用线索：new Float32Array、new InstancedBufferAttribute、super、this.setMatrixAt。
+   */
   constructor(e, t, count) {
     super(e, t), this.isInstancedMesh = !0, this.instanceMatrix = new InstancedBufferAttribute(new Float32Array(16 * count), 16), this.instanceColor = null, this.morphTexture = null, this.count = count, this.boundingBox = null, this.boundingSphere = null;
     for (let e = 0; e < count; e++) this.setMatrixAt(e, os);
   }
+  /** @eyes-analysis
+   * 扫描位置和 morph 属性得到轴对齐包围盒
+   * 状态写入：boundingBox。
+   * 调用线索：e.computeBoundingBox、new Box3、ss.copy、ss.copy(e.boundingBox).applyMatrix4、this.boundingBox.makeEmpty等。
+   */
   computeBoundingBox() {
     const e = this.geometry,
       count = this.count;
     null === this.boundingBox && (this.boundingBox = new Box3()), null === e.boundingBox && e.computeBoundingBox(), this.boundingBox.makeEmpty();
     for (let n = 0; n < count; n++) this.getMatrixAt(n, rs), ss.copy(e.boundingBox).applyMatrix4(rs), this.boundingBox.union(ss);
   }
+  /** @eyes-analysis
+   * 从顶点和 morph 属性建立包围球；变化后需再次计算
+   * 状态写入：boundingSphere。
+   * 调用线索：e.computeBoundingSphere、ls.copy、ls.copy(e.boundingSphere).applyMatrix4、new Sphere、this.boundingSphere.makeEmpty等。
+   */
   computeBoundingSphere() {
     const e = this.geometry,
       count = this.count;
     null === this.boundingSphere && (this.boundingSphere = new Sphere()), null === e.boundingSphere && e.computeBoundingSphere(), this.boundingSphere.makeEmpty();
     for (let n = 0; n < count; n++) this.getMatrixAt(n, rs), ls.copy(e.boundingSphere).applyMatrix4(rs), this.boundingSphere.union(ls);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：boundingBox、boundingSphere、count、instanceColor、morphTexture。
+   * 调用线索：e.boundingBox.clone、e.boundingSphere.clone、e.instanceColor.clone、e.morphTexture.clone、super.copy等。
+   */
   copy(e, t) {
     return super.copy(e, t), this.instanceMatrix.copy(e.instanceMatrix), null !== e.morphTexture && (this.morphTexture = e.morphTexture.clone()), null !== e.instanceColor && (this.instanceColor = e.instanceColor.clone()), this.count = e.count, null !== e.boundingBox && (this.boundingBox = e.boundingBox.clone()), null !== e.boundingSphere && (this.boundingSphere = e.boundingSphere.clone()), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getColorAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.fromArray、t.setRGB。
+   */
   getColorAt(e, t) {
     return null === this.instanceColor ? t.setRGB(1, 1, 1) : t.fromArray(this.instanceColor.array, 3 * e);
   }
+  /** @eyes-analysis
+   * 源码方法 getMatrixAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.fromArray。
+   */
   getMatrixAt(e, t) {
     return t.fromArray(this.instanceMatrix.array, 16 * e);
   }
+  /** @eyes-analysis
+   * 源码方法 getMorphAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getMorphAt(e, t) {
     const n = t.morphTargetInfluences,
       r = this.morphTexture.source.data.data,
       i = e * (n.length + 1) + 1;
     for (let e = 0; e < n.length; e++) n[e] = r[i + e];
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：e.ray.intersectsSphere、is.multiplyMatrices、ls.applyMatrix4、ls.copy、mesh.raycast等。
+   */
   raycast(e, t) {
     const matrixWorld = this.matrixWorld,
       count = this.count;
@@ -5183,12 +8596,26 @@ class InstancedMesh extends Mesh {
       as.length = 0;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 setColorAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：instanceColor。
+   * 调用线索：new Float32Array、new Float32Array(3*this.instanceMatrix.count).fill、new InstancedBufferAttribute、t.toArray。
+   */
   setColorAt(e, t) {
     return null === this.instanceColor && (this.instanceColor = new InstancedBufferAttribute(new Float32Array(3 * this.instanceMatrix.count).fill(1), 3)), t.toArray(this.instanceColor.array, 3 * e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setMatrixAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.toArray。
+   */
   setMatrixAt(e, t) {
     return t.toArray(this.instanceMatrix.array, 16 * e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setMorphAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：morphTexture。
+   * 调用线索：i.set、new DataTexture、new Float32Array。
+   */
   setMorphAt(e, t) {
     const n = t.morphTargetInfluences,
       r = n.length + 1;
@@ -5200,7 +8627,15 @@ class InstancedMesh extends Mesh {
       o = r * e;
     return i[o] = s, i.set(n, o + 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 updateMorphTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   updateMorphTargets() {}
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 状态写入：morphTexture。
+   * 调用线索：this.dispatchEvent、this.morphTexture.dispose。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
@@ -5210,42 +8645,102 @@ class InstancedMesh extends Mesh {
 const us = new Vector3(),
   ds = new Vector3(),
   hs = new Matrix3();
+/** @eyes-analysis
+ * 类职责：Hessian 法线/常数形式的平面与距离、投影和变换
+ * 继承：无显式父类；导出：Plane。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Plane {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：constant、isPlane、normal。
+   * 调用线索：new Vector3。
+   */
   constructor(normal = new Vector3(1, 0, 0), constant = 0) {
     this.isPlane = !0, this.normal = normal, this.constant = constant;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：this.normal.copy。
+   */
   set(e, constant) {
     return this.normal.copy(e), this.constant = constant, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setComponents；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：this.normal.set。
+   */
   setComponents(e, t, n, constant) {
     return this.normal.set(e, t, n), this.constant = constant, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromNormalAndCoplanarPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：t.dot、this.normal.copy。
+   */
   setFromNormalAndCoplanarPoint(e, t) {
     return this.normal.copy(e), this.constant = -t.dot(this.normal), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCoplanarPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ds.subVectors、this.setFromNormalAndCoplanarPoint、us.subVectors、us.subVectors(n,t).cross、us.subVectors(n,t).cross(ds.subVectors(e,t)).normalize。
+   */
   setFromCoplanarPoints(e, t, n) {
     const r = us.subVectors(n, t).cross(ds.subVectors(e, t)).normalize();
     return this.setFromNormalAndCoplanarPoint(r, e), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：constant。
+   * 调用线索：this.normal.copy。
+   */
   copy(e) {
     return this.normal.copy(e.normal), this.constant = e.constant, this;
   }
+  /** @eyes-analysis
+   * 源码方法 normalize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：this.normal.length、this.normal.multiplyScalar。
+   */
   normalize() {
     const constant = 1 / this.normal.length();
     return this.normal.multiplyScalar(constant), this.constant *= constant, this;
   }
+  /** @eyes-analysis
+   * 源码方法 negate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：this.normal.negate。
+   */
   negate() {
     return this.constant *= -1, this.normal.negate(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.normal.dot。
+   */
   distanceToPoint(e) {
     return this.normal.dot(e) + this.constant;
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.distanceToPoint。
+   */
   distanceToSphere(e) {
     return this.distanceToPoint(e.center) - e.radius;
   }
+  /** @eyes-analysis
+   * 源码方法 projectPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.copy(e).addScaledVector、this.distanceToPoint。
+   */
   projectPoint(e, t) {
     return t.copy(e).addScaledVector(this.normal, -this.distanceToPoint(e));
   }
+  /** @eyes-analysis
+   * 源码方法 intersectLine；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.delta、e.start.dot、t.copy、t.copy(e.start).addScaledVector、this.distanceToPoint等。
+   */
   intersectLine(e, t, n = !0) {
     const r = e.delta(us),
       i = this.normal.dot(r);
@@ -5253,32 +8748,66 @@ class Plane {
     const a = -(e.start.dot(this.normal) + this.constant) / i;
     return !0 === n && (a < 0 || a > 1) ? null : t.copy(e.start).addScaledVector(r, a);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsLine；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.distanceToPoint。
+   */
   intersectsLine(e) {
     const t = this.distanceToPoint(e.start),
       n = this.distanceToPoint(e.end);
     return t < 0 && n > 0 || n < 0 && t > 0;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.intersectsPlane。
+   */
   intersectsBox(e) {
     return e.intersectsPlane(this);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.intersectsPlane。
+   */
   intersectsSphere(e) {
     return e.intersectsPlane(this);
   }
+  /** @eyes-analysis
+   * 源码方法 coplanarPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.copy、e.copy(this.normal).multiplyScalar。
+   */
   coplanarPoint(e) {
     return e.copy(this.normal).multiplyScalar(-this.constant);
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：hs.getNormalMatrix、r.dot、this.coplanarPoint、this.coplanarPoint(us).applyMatrix4、this.normal.applyMatrix3等。
+   */
   applyMatrix4(e, t) {
     const n = t || hs.getNormalMatrix(e),
       r = this.coplanarPoint(us).applyMatrix4(e),
       i = this.normal.applyMatrix3(n).normalize();
     return this.constant = -r.dot(i), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：constant。
+   * 调用线索：e.dot。
+   */
   translate(e) {
     return this.constant -= e.dot(this.normal), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.normal.equals。
+   */
   equals(e) {
     return e.normal.equals(this.normal) && e.constant === this.constant;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
@@ -5286,19 +8815,41 @@ class Plane {
 const ps = new Sphere(),
   fs = new Vector2(.5, .5),
   ms = new Vector3();
+/** @eyes-analysis
+ * 类职责：提取投影矩阵的裁剪平面并测试空间对象
+ * 继承：无显式父类；导出：Frustum。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Frustum {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：planes。
+   * 调用线索：new Plane。
+   */
   constructor(e = new Plane(), t = new Plane(), n = new Plane(), r = new Plane(), i = new Plane(), a = new Plane()) {
     this.planes = [e, t, n, r, i, a];
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：planes[0].copy、planes[1].copy、planes[2].copy、planes[3].copy、planes[4].copy等。
+   */
   set(e, t, n, r, i, a) {
     const planes = this.planes;
     return planes[0].copy(e), planes[1].copy(t), planes[2].copy(n), planes[3].copy(r), planes[4].copy(i), planes[5].copy(a), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：planes[n].copy。
+   */
   copy(e) {
     const planes = this.planes;
     for (let n = 0; n < 6; n++) planes[n].copy(e.planes[n]);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromProjectionMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error、planes[0].setComponents、planes[0].setComponents(c-a,h-l,M-p,b-_).normalize、planes[1].setComponents、planes[1].setComponents(c+a,h+l,M+p,b+_).normalize等。
+   */
   setFromProjectionMatrix(e, t = Vn, n = !1) {
     const planes = this.planes,
       i = e.elements,
@@ -5324,6 +8875,10 @@ class Frustum {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.computeBoundingSphere、ps.copy、ps.copy(e.boundingSphere).applyMatrix4、ps.copy(t.boundingSphere).applyMatrix4、t.computeBoundingSphere等。
+   */
   intersectsObject(e) {
     if (void 0 !== e.boundingSphere) null === e.boundingSphere && e.computeBoundingSphere(), ps.copy(e.boundingSphere).applyMatrix4(e.matrixWorld);else {
       const t = e.geometry;
@@ -5331,11 +8886,19 @@ class Frustum {
     }
     return this.intersectsSphere(ps);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSprite；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：fs.distanceTo、ps.applyMatrix4、ps.center.set、this.intersectsSphere。
+   */
   intersectsSprite(e) {
     ps.center.set(0, 0, 0);
     const t = fs.distanceTo(e.center);
     return ps.radius = .7071067811865476 + t, ps.applyMatrix4(e.matrixWorld), this.intersectsSphere(ps);
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：planes[e].distanceToPoint。
+   */
   intersectsSphere(e) {
     const planes = this.planes,
       n = e.center,
@@ -5345,6 +8908,10 @@ class Frustum {
     }
     return !0;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：r.distanceToPoint。
+   */
   intersectsBox(e) {
     const planes = this.planes;
     for (let n = 0; n < 6; n++) {
@@ -5353,20 +8920,42 @@ class Frustum {
     }
     return !0;
   }
+  /** @eyes-analysis
+   * 源码方法 containsPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：planes[n].distanceToPoint。
+   */
   containsPoint(e) {
     const planes = this.planes;
     for (let n = 0; n < 6; n++) if (planes[n].distanceToPoint(e) < 0) return !1;
     return !0;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
 const Ms = new Matrix4();
+/** @eyes-analysis
+ * 类职责：维护多视锥体的联合可见性测试
+ * 继承：无显式父类；导出：FrustumArray。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FrustumArray {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_count、_frustums、coordinateSystem。
+   */
   constructor() {
     this.coordinateSystem = Vn, this._frustums = [], this._count = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromArrayCamera；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_count。
+   * 调用线索：Ms.multiplyMatrices、frustums[e].setFromProjectionMatrix、new Frustum。
+   */
   setFromArrayCamera(e) {
     const t = e.cameras,
       frustums = this._frustums;
@@ -5376,31 +8965,56 @@ class FrustumArray {
     }
     return this._count = t.length, this;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：frustums[n].intersectsObject。
+   */
   intersectsObject(e) {
     const frustums = this._frustums;
     for (let n = 0; n < this._count; n++) if (frustums[n].intersectsObject(e)) return !0;
     return !1;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSprite；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：frustums[n].intersectsSprite。
+   */
   intersectsSprite(e) {
     const frustums = this._frustums;
     for (let n = 0; n < this._count; n++) if (frustums[n].intersectsSprite(e)) return !0;
     return !1;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsSphere；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：frustums[n].intersectsSphere。
+   */
   intersectsSphere(e) {
     const frustums = this._frustums;
     for (let n = 0; n < this._count; n++) if (frustums[n].intersectsSphere(e)) return !0;
     return !1;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：frustums[n].intersectsBox。
+   */
   intersectsBox(e) {
     const frustums = this._frustums;
     for (let n = 0; n < this._count; n++) if (frustums[n].intersectsBox(e)) return !0;
     return !1;
   }
+  /** @eyes-analysis
+   * 源码方法 containsPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：frustums[n].containsPoint。
+   */
   containsPoint(e) {
     const frustums = this._frustums;
     for (let n = 0; n < this._count; n++) if (frustums[n].containsPoint(e)) return !0;
     return !1;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：_count、coordinateSystem。
+   * 调用线索：frustums[r].copy、new Frustum。
+   */
   copy(e) {
     this.coordinateSystem = e.coordinateSystem;
     const frustums = this._frustums,
@@ -5408,6 +9022,10 @@ class FrustumArray {
     for (let r = 0; r < e._count; r++) void 0 === frustums[r] && (frustums[r] = new Frustum()), frustums[r].copy(n[r]);
     return this._count = e._count, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new FrustumArray、new FrustumArray().copy。
+   */
   clone() {
     return new FrustumArray().copy(this);
   }
@@ -5421,10 +9039,24 @@ function As(e, t) {
 function gs(e, t) {
   return t.z - e.z;
 }
+/** @eyes-analysis
+ * 类职责：批量网格的多绘制调用计数和偏移列表
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MultiDrawRenderList {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：index、list、pool。
+   */
   constructor() {
     this.index = 0, this.pool = [], this.list = [];
   }
+  /** @eyes-analysis
+   * 源码方法 push；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：index。
+   * 调用线索：list.push、pool.push。
+   */
   push(e, t, n, r) {
     const pool = this.pool,
       list = this.list;
@@ -5437,6 +9069,10 @@ class MultiDrawRenderList {
     const s = pool[this.index];
     list.push(s), this.index++, s.start = e, s.count = t, s.z = n, s.index = r;
   }
+  /** @eyes-analysis
+   * 源码方法 reset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：index、list.length。
+   */
   reset() {
     this.list.length = 0, this.index = 0;
   }
@@ -5470,22 +9106,49 @@ function Ds(e, t) {
     t.set(new e.constructor(e.buffer, 0, n));
   }
 }
+/** @eyes-analysis
+ * 类职责：将几何打包到共享缓冲，以间接/多重绘制降低调用数
+ * 继承：Mesh；导出：BatchedMesh。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BatchedMesh extends Mesh {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_availableGeometryIds、_availableInstanceIds、_colorsTexture、_geometryCount、_geometryInfo、_geometryInitialized、_indirectTexture、_instanceInfo等；完整记录见索引。
+   * 调用线索：new BufferGeometry、new Int32Array、super、this._initIndirectTexture、this._initMatricesTexture。
+   */
   constructor(maxInstanceCount, maxVertexCount, maxIndexCount = 2 * maxVertexCount, r) {
     super(new BufferGeometry(), r), this.isBatchedMesh = !0, this.perObjectFrustumCulled = !0, this.sortObjects = !0, this.boundingBox = null, this.boundingSphere = null, this.customSort = null, this._instanceInfo = [], this._geometryInfo = [], this._availableInstanceIds = [], this._availableGeometryIds = [], this._nextIndexStart = 0, this._nextVertexStart = 0, this._geometryCount = 0, this._visibilityChanged = !0, this._geometryInitialized = !1, this._maxInstanceCount = maxInstanceCount, this._maxVertexCount = maxVertexCount, this._maxIndexCount = maxIndexCount, this._multiDrawCounts = new Int32Array(maxInstanceCount), this._multiDrawStarts = new Int32Array(maxInstanceCount), this._multiDrawCount = 0, this._matricesTexture = null, this._indirectTexture = null, this._colorsTexture = null, this._initMatricesTexture(), this._initIndirectTexture();
   }
+  /** @eyes-analysis
+   * 只读返回 this._maxInstanceCount；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get maxInstanceCount() {
     return this._maxInstanceCount;
   }
+  /** @eyes-analysis
+   * 只读返回 this._instanceInfo.length - this._availableInstanceIds.length；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get instanceCount() {
     return this._instanceInfo.length - this._availableInstanceIds.length;
   }
+  /** @eyes-analysis
+   * 只读返回 this._maxVertexCount - this._nextVertexStart；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get unusedVertexCount() {
     return this._maxVertexCount - this._nextVertexStart;
   }
+  /** @eyes-analysis
+   * 只读返回 this._maxIndexCount - this._nextIndexStart；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get unusedIndexCount() {
     return this._maxIndexCount - this._nextIndexStart;
   }
+  /** @eyes-analysis
+   * 源码方法 _initMatricesTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_matricesTexture。
+   * 调用线索：Math.ceil、Math.max、Math.sqrt、new DataTexture、new Float32Array。
+   */
   _initMatricesTexture() {
     let e = Math.sqrt(4 * this._maxInstanceCount);
     e = 4 * Math.ceil(e / 4), e = Math.max(e, 4);
@@ -5493,6 +9156,11 @@ class BatchedMesh extends Mesh {
       n = new DataTexture(float32Array, e, e, RGBAFormat, ke);
     this._matricesTexture = n;
   }
+  /** @eyes-analysis
+   * 源码方法 _initIndirectTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_indirectTexture。
+   * 调用线索：Math.ceil、Math.sqrt、new DataTexture、new Uint32Array。
+   */
   _initIndirectTexture() {
     let e = Math.sqrt(this._maxInstanceCount);
     e = Math.ceil(e);
@@ -5500,6 +9168,11 @@ class BatchedMesh extends Mesh {
       n = new DataTexture(uint32Array, e, e, RedIntegerFormat, UnsignedIntType);
     this._indirectTexture = n;
   }
+  /** @eyes-analysis
+   * 源码方法 _initColorsTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_colorsTexture。
+   * 调用线索：Math.ceil、Math.sqrt、new DataTexture、new Float32Array、new Float32Array(e*e*4).fill。
+   */
   _initColorsTexture() {
     let e = Math.sqrt(this._maxInstanceCount);
     e = Math.ceil(e);
@@ -5507,6 +9180,11 @@ class BatchedMesh extends Mesh {
       n = new DataTexture(t, e, e, RGBAFormat, ke);
     n.colorSpace = ColorManagement.workingColorSpace, this._colorsTexture = n;
   }
+  /** @eyes-analysis
+   * 源码方法 _initializeGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_geometryInitialized。
+   * 调用线索：e.getAttribute、e.getIndex、new BufferAttribute、new Uint16Array、new Uint32Array等。
+   */
   _initializeGeometry(e) {
     const t = this.geometry,
       maxVertexCount = this._maxVertexCount,
@@ -5530,6 +9208,10 @@ class BatchedMesh extends Mesh {
       this._geometryInitialized = !0;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _validateGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Boolean、e.getAttribute、e.getIndex、e.hasAttribute、new Error等。
+   */
   _validateGeometry(e) {
     const t = this.geometry;
     if (Boolean(e.getIndex()) !== Boolean(t.getIndex())) throw new Error('THREE.BatchedMesh: All geometries must consistently have "index".');
@@ -5540,17 +9222,34 @@ class BatchedMesh extends Mesh {
       if (r.itemSize !== i.itemSize || r.normalized !== i.normalized) throw new Error("THREE.BatchedMesh: All attributes must have a consistent itemSize and normalized value.");
     }
   }
+  /** @eyes-analysis
+   * 源码方法 validateInstanceId；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   validateInstanceId(e) {
     const instanceInfo = this._instanceInfo;
     if (e < 0 || e >= instanceInfo.length || !1 === instanceInfo[e].active) throw new Error(`THREE.BatchedMesh: Invalid instanceId ${e}. Instance is either out of range or has been deleted.`);
   }
+  /** @eyes-analysis
+   * 源码方法 validateGeometryId；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Error。
+   */
   validateGeometryId(e) {
     const geometryInfo = this._geometryInfo;
     if (e < 0 || e >= geometryInfo.length || !1 === geometryInfo[e].active) throw new Error(`THREE.BatchedMesh: Invalid geometryId ${e}. Geometry is either out of range or has been deleted.`);
   }
+  /** @eyes-analysis
+   * 源码方法 setCustomSort；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：customSort。
+   */
   setCustomSort(customSort) {
     return this.customSort = customSort, this;
   }
+  /** @eyes-analysis
+   * 扫描位置和 morph 属性得到轴对齐包围盒
+   * 状态写入：boundingBox。
+   * 调用线索：boundingBox.makeEmpty、boundingBox.union、new Box3、this.getBoundingBoxAt、this.getBoundingBoxAt(r,Ts).applyMatrix4等。
+   */
   computeBoundingBox() {
     null === this.boundingBox && (this.boundingBox = new Box3());
     const boundingBox = this.boundingBox,
@@ -5562,6 +9261,11 @@ class BatchedMesh extends Mesh {
       this.getMatrixAt(n, bs), this.getBoundingBoxAt(r, Ts).applyMatrix4(bs), boundingBox.union(Ts);
     }
   }
+  /** @eyes-analysis
+   * 从顶点和 morph 属性建立包围球；变化后需再次计算
+   * 状态写入：boundingSphere。
+   * 调用线索：boundingSphere.makeEmpty、boundingSphere.union、new Sphere、this.getBoundingSphereAt、this.getBoundingSphereAt(r,Ss).applyMatrix4等。
+   */
   computeBoundingSphere() {
     null === this.boundingSphere && (this.boundingSphere = new Sphere());
     const boundingSphere = this.boundingSphere,
@@ -5573,6 +9277,11 @@ class BatchedMesh extends Mesh {
       this.getMatrixAt(n, bs), this.getBoundingSphereAt(r, Ss).applyMatrix4(bs), boundingSphere.union(Ss);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 addInstance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_instanceInfo[n]、_visibilityChanged。
+   * 调用线索：bs.identity、bs.identity().toArray、new Error、this._availableInstanceIds.shift、this._availableInstanceIds.sort等。
+   */
   addInstance(e) {
     if (this._instanceInfo.length >= this.maxInstanceCount && 0 === this._availableInstanceIds.length) throw new Error("THREE.BatchedMesh: Maximum item count reached.");
     const t = {
@@ -5587,6 +9296,11 @@ class BatchedMesh extends Mesh {
     const colorsTexture = this._colorsTexture;
     return colorsTexture && (ys.toArray(colorsTexture.image.data, 4 * n), colorsTexture.needsUpdate = !0), this._visibilityChanged = !0, n;
   }
+  /** @eyes-analysis
+   * 源码方法 addGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_geometryCount、_nextIndexStart、_nextVertexStart。
+   * 调用线索：e.getAttribute、e.getIndex、geometryInfo.push、new Error、this._availableGeometryIds.shift等。
+   */
   addGeometry(e, t = -1, n = -1) {
     this._initializeGeometry(e), this._validateGeometry(e);
     const r = {
@@ -5609,6 +9323,11 @@ class BatchedMesh extends Mesh {
     let s;
     return this._availableGeometryIds.length > 0 ? (this._availableGeometryIds.sort(_s), s = this._availableGeometryIds.shift(), geometryInfo[s] = r) : (s = this._geometryCount, this._geometryCount++, geometryInfo.push(r)), this.setGeometryAt(s, e), this._nextIndexStart = r.indexStart + r.reservedIndexCount, this._nextVertexStart = r.vertexStart + r.reservedVertexCount, s;
   }
+  /** @eyes-analysis
+   * 源码方法 setGeometryAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_visibilityChanged。
+   * 调用线索：Bs、a.getX、i.addUpdateRange、i.setComponent、i.setX等。
+   */
   setGeometryAt(e, t) {
     if (e >= this._geometryCount) throw new Error("THREE.BatchedMesh: Maximum geometry count reached.");
     this._validateGeometry(t);
@@ -5642,6 +9361,11 @@ class BatchedMesh extends Mesh {
     }
     return s.start = r ? s.indexStart : s.vertexStart, s.count = r ? s.indexCount : s.vertexCount, s.boundingBox = null, null !== t.boundingBox && (s.boundingBox = t.boundingBox.clone()), s.boundingSphere = null, null !== t.boundingSphere && (s.boundingSphere = t.boundingSphere.clone()), this._visibilityChanged = !0, e;
   }
+  /** @eyes-analysis
+   * 源码方法 deleteGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_visibilityChanged。
+   * 调用线索：this._availableGeometryIds.push、this.deleteInstance。
+   */
   deleteGeometry(e) {
     const geometryInfo = this._geometryInfo;
     if (e >= geometryInfo.length || !1 === geometryInfo[e].active) return this;
@@ -5649,9 +9373,19 @@ class BatchedMesh extends Mesh {
     for (let t = 0, r = instanceInfo.length; t < r; t++) instanceInfo[t].active && instanceInfo[t].geometryIndex === e && this.deleteInstance(t);
     return geometryInfo[e].active = !1, this._availableGeometryIds.push(e), this._visibilityChanged = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 deleteInstance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_instanceInfo[e].active、_visibilityChanged。
+   * 调用线索：this._availableInstanceIds.push、this.validateInstanceId。
+   */
   deleteInstance(e) {
     return this.validateInstanceId(e), this._instanceInfo[e].active = !1, this._availableInstanceIds.push(e), this._visibilityChanged = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 optimize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nextIndexStart、_nextVertexStart、_visibilityChanged。
+   * 调用线索：a.addUpdateRange、array.copyWithin、geometryInfo.map、geometryInfo.map((e,t)=>t).sort、s.addUpdateRange等。
+   */
   optimize() {
     let nextVertexStart = 0,
       nextIndexStart = 0;
@@ -5698,6 +9432,10 @@ class BatchedMesh extends Mesh {
     }
     return this._nextIndexStart = nextIndexStart, this._nextVertexStart = nextVertexStart, this._visibilityChanged = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getBoundingBoxAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.expandByPoint、new Box3、t.copy、t.getX、ws.fromBufferAttribute。
+   */
   getBoundingBoxAt(e, t) {
     if (e >= this._geometryCount) return null;
     const n = this.geometry,
@@ -5714,6 +9452,10 @@ class BatchedMesh extends Mesh {
     }
     return t.copy(r.boundingBox), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getBoundingSphereAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.max、Math.sqrt、Ts.getCenter、i.getX、new Sphere等。
+   */
   getBoundingSphereAt(e, t) {
     if (e >= this._geometryCount) return null;
     const n = this.geometry,
@@ -5732,38 +9474,82 @@ class BatchedMesh extends Mesh {
     }
     return t.copy(r.boundingSphere), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setMatrixAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.toArray、this.validateInstanceId。
+   */
   setMatrixAt(e, t) {
     this.validateInstanceId(e);
     const matricesTexture = this._matricesTexture,
       r = this._matricesTexture.image.data;
     return t.toArray(r, 16 * e), matricesTexture.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getMatrixAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.fromArray、this.validateInstanceId。
+   */
   getMatrixAt(e, t) {
     return this.validateInstanceId(e), t.fromArray(this._matricesTexture.image.data, 16 * e);
   }
+  /** @eyes-analysis
+   * 源码方法 setColorAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_colorsTexture.needsUpdate。
+   * 调用线索：t.toArray、this._initColorsTexture、this.validateInstanceId。
+   */
   setColorAt(e, t) {
     return this.validateInstanceId(e), null === this._colorsTexture && this._initColorsTexture(), t.toArray(this._colorsTexture.image.data, 4 * e), this._colorsTexture.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getColorAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.fromArray、t.set、t.setRGB、this.validateInstanceId。
+   */
   getColorAt(e, t) {
     return this.validateInstanceId(e), null === this._colorsTexture ? t.isVector4 ? t.set(1, 1, 1, 1) : t.setRGB(1, 1, 1) : t.fromArray(this._colorsTexture.image.data, 4 * e);
   }
+  /** @eyes-analysis
+   * 源码方法 setVisibleAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_instanceInfo[e].visible、_visibilityChanged。
+   * 调用线索：this.validateInstanceId。
+   */
   setVisibleAt(e, t) {
     return this.validateInstanceId(e), this._instanceInfo[e].visible === t || (this._instanceInfo[e].visible = t, this._visibilityChanged = !0), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getVisibleAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.validateInstanceId。
+   */
   getVisibleAt(e) {
     return this.validateInstanceId(e), this._instanceInfo[e].visible;
   }
+  /** @eyes-analysis
+   * 源码方法 setGeometryIdAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_instanceInfo[e].geometryIndex。
+   * 调用线索：this.validateGeometryId、this.validateInstanceId。
+   */
   setGeometryIdAt(e, t) {
     return this.validateInstanceId(e), this.validateGeometryId(t), this._instanceInfo[e].geometryIndex = t, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getGeometryIdAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.validateInstanceId。
+   */
   getGeometryIdAt(e) {
     return this.validateInstanceId(e), this._instanceInfo[e].geometryIndex;
   }
+  /** @eyes-analysis
+   * 源码方法 getGeometryRangeAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.validateGeometryId。
+   */
   getGeometryRangeAt(e, t = {}) {
     this.validateGeometryId(e);
     const n = this._geometryInfo[e];
     return t.vertexStart = n.vertexStart, t.vertexCount = n.vertexCount, t.reservedVertexCount = n.reservedVertexCount, t.indexStart = n.indexStart, t.indexCount = n.indexCount, t.reservedIndexCount = n.reservedIndexCount, t.start = n.start, t.count = n.count, t;
   }
+  /** @eyes-analysis
+   * 源码方法 setInstanceCount；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_maxInstanceCount、_multiDrawCounts、_multiDrawStarts。
+   * 调用线索：Ds、availableInstanceIds.pop、availableInstanceIds.sort、colorsTexture.dispose、indirectTexture.dispose等。
+   */
   setInstanceCount(maxInstanceCount) {
     const availableInstanceIds = this._availableInstanceIds,
       instanceInfo = this._instanceInfo;
@@ -5777,6 +9563,11 @@ class BatchedMesh extends Mesh {
       colorsTexture = this._colorsTexture;
     indirectTexture.dispose(), this._initIndirectTexture(), Ds(indirectTexture.image.data, this._indirectTexture.image.data), matricesTexture.dispose(), this._initMatricesTexture(), Ds(matricesTexture.image.data, this._matricesTexture.image.data), colorsTexture && (colorsTexture.dispose(), this._initColorsTexture(), Ds(colorsTexture.image.data, this._colorsTexture.image.data));
   }
+  /** @eyes-analysis
+   * 源码方法 setGeometrySize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_geometryInitialized、_maxIndexCount、_maxVertexCount、geometry。
+   * 调用线索：Ds、Math.max、[...this._geometryInfo].filter、n.map、new BufferGeometry等。
+   */
   setGeometrySize(maxVertexCount, maxIndexCount) {
     const n = [...this._geometryInfo].filter(e => e.active);
     if (Math.max(...n.map(e => e.vertexStart + e.reservedVertexCount)) > maxVertexCount) throw new Error(`THREE.BatchedMesh: Geometry vertex values are being used outside the range ${maxIndexCount}. Cannot shrink further.`);
@@ -5789,6 +9580,10 @@ class BatchedMesh extends Mesh {
     r.index && Ds(r.index.array, i.index.array);
     for (const e in r.attributes) Ds(r.attributes[e].array, i.attributes[e].array);
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：new Box3、new Sphere、t.push、this.getBoundingBoxAt、this.getBoundingSphereAt等。
+   */
   raycast(e, t) {
     const instanceInfo = this._instanceInfo,
       geometryInfo = this._geometryInfo,
@@ -5808,6 +9603,11 @@ class BatchedMesh extends Mesh {
     }
     zs.material = null, zs.geometry.index = null, zs.geometry.attributes = {}, zs.geometry.setDrawRange(0, 1 / 0);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：_availableGeometryIds、_availableInstanceIds、_colorsTexture、_colorsTexture.image.data、_geometryCount、_geometryInfo、_geometryInitialized、_indirectTexture等；完整记录见索引。
+   * 调用线索：e._availableGeometryIds.slice、e._availableInstanceIds.slice、e._colorsTexture.clone、e._geometryInfo.map、e._indirectTexture.clone等。
+   */
   copy(e) {
     return super.copy(e), this.geometry = e.geometry.clone(), this.perObjectFrustumCulled = e.perObjectFrustumCulled, this.sortObjects = e.sortObjects, this.boundingBox = null !== e.boundingBox ? e.boundingBox.clone() : null, this.boundingSphere = null !== e.boundingSphere ? e.boundingSphere.clone() : null, this._geometryInfo = e._geometryInfo.map(e => ({
       ...e,
@@ -5817,9 +9617,19 @@ class BatchedMesh extends Mesh {
       ...e
     })), this._availableInstanceIds = e._availableInstanceIds.slice(), this._availableGeometryIds = e._availableGeometryIds.slice(), this._nextIndexStart = e._nextIndexStart, this._nextVertexStart = e._nextVertexStart, this._geometryCount = e._geometryCount, this._maxInstanceCount = e._maxInstanceCount, this._maxVertexCount = e._maxVertexCount, this._maxIndexCount = e._maxIndexCount, this._geometryInitialized = e._geometryInitialized, this._multiDrawCounts = e._multiDrawCounts.slice(), this._multiDrawStarts = e._multiDrawStarts.slice(), this._indirectTexture = e._indirectTexture.clone(), this._indirectTexture.image.data = this._indirectTexture.image.data.slice(), this._matricesTexture = e._matricesTexture.clone(), this._matricesTexture.image.data = this._matricesTexture.image.data.slice(), null !== this._colorsTexture && (this._colorsTexture = e._colorsTexture.clone(), this._colorsTexture.image.data = this._colorsTexture.image.data.slice()), this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 状态写入：_colorsTexture、_indirectTexture、_matricesTexture。
+   * 调用线索：this._colorsTexture.dispose、this._indirectTexture.dispose、this._matricesTexture.dispose、this.geometry.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this._matricesTexture.dispose(), this._matricesTexture = null, this._indirectTexture.dispose(), this._indirectTexture = null, null !== this._colorsTexture && (this._colorsTexture.dispose(), this._colorsTexture = null);
   }
+  /** @eyes-analysis
+   * 源码方法 onBeforeRender；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_multiDrawCount、_visibilityChanged。
+   * 调用线索：Es.set、Es.set(0,0,-1).transformDirection、Es.set(0,0,-1).transformDirection(n.matrixWorld).transformDirection、bs.copy、bs.copy(this.matrixWorld).invert等。
+   */
   onBeforeRender(e, t, n, r, i) {
     if (!this._visibilityChanged && !this.perObjectFrustumCulled && !this.sortObjects) return;
     const a = r.getIndex();
@@ -5866,14 +9676,33 @@ class BatchedMesh extends Mesh {
     }
     indirectTexture.needsUpdate = !0, this._multiDrawCount = multiDrawCount, this._visibilityChanged = !1;
   }
+  /** @eyes-analysis
+   * 源码方法 onBeforeShadow；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.onBeforeRender。
+   */
   onBeforeShadow(e, t, n, r, i, a) {
     this.onBeforeRender(e, null, r, i, a);
   }
 }
+/** @eyes-analysis
+ * 类职责：实色/贴图线段材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：LineBasicMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineBasicMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、fog、isLineBasicMaterial、linecap、linejoin、linewidth、map、type。
+   * 调用线索：new Color、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isLineBasicMaterial = !0, this.type = "LineBasicMaterial", this.color = new Color(16777215), this.map = null, this.linewidth = 1, this.linecap = "round", this.linejoin = "round", this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：fog、linecap、linejoin、linewidth、map。
+   * 调用线索：super.copy、this.color.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.linewidth = e.linewidth, this.linecap = e.linecap, this.linejoin = e.linejoin, this.fog = e.fog, this;
   }
@@ -5885,13 +9714,32 @@ const Ns = new Vector3(),
   Ps = new Sphere(),
   Ys = new Vector3(),
   Ws = new Vector3();
+/** @eyes-analysis
+ * 类职责：折线对象及射线距离测试
+ * 继承：Object3D；导出：Line。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Line extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：geometry、isLine、material、morphTargetDictionary、morphTargetInfluences、type。
+   * 调用线索：new BufferGeometry、new LineBasicMaterial、super、this.updateMorphTargets。
+   */
   constructor(e = new BufferGeometry(), material = new LineBasicMaterial()) {
     super(), this.isLine = !0, this.type = "Line", this.geometry = e, this.material = material, this.morphTargetDictionary = void 0, this.morphTargetInfluences = void 0, this.updateMorphTargets();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：geometry、material。
+   * 调用线索：Array.isArray、e.material.slice、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.material = Array.isArray(e.material) ? e.material.slice() : e.material, this.geometry = e.geometry, this;
   }
+  /** @eyes-analysis
+   * 源码方法 computeLineDistances；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Is.fromBufferAttribute、Ns.distanceTo、Ns.fromBufferAttribute、e.setAttribute、new Float32BufferAttribute等。
+   */
   computeLineDistances() {
     const e = this.geometry;
     if (null === e.index) {
@@ -5902,6 +9750,10 @@ class Line extends Object3D {
     } else warn("Line.computeLineDistances(): Computation only possible with non-indexed BufferGeometry.");
     return this;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：Fs、Math.max、Math.min、Ps.applyMatrix4、Ps.copy等。
+   */
   raycast(e, t) {
     const n = this.geometry,
       matrixWorld = this.matrixWorld,
@@ -5942,6 +9794,11 @@ class Line extends Object3D {
       }
     }
   }
+  /** @eyes-analysis
+   * 源码方法 updateMorphTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：morphTargetDictionary、morphTargetDictionary[t]、morphTargetInfluences。
+   * 调用线索：Object.keys、String、this.morphTargetInfluences.push。
+   */
   updateMorphTargets() {
     const e = this.geometry.morphAttributes,
       t = Object.keys(e);
@@ -5975,10 +9832,24 @@ function Fs(e, t, n, r, i, a, s) {
 }
 const qs = new Vector3(),
   Hs = new Vector3();
+/** @eyes-analysis
+ * 类职责：独立线段对形式的线对象
+ * 继承：Line；导出：LineSegments。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineSegments extends Line {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isLineSegments、type。
+   * 调用线索：super。
+   */
   constructor(e, t) {
     super(e, t), this.isLineSegments = !0, this.type = "LineSegments";
   }
+  /** @eyes-analysis
+   * 源码方法 computeLineDistances；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Hs.fromBufferAttribute、e.setAttribute、new Float32BufferAttribute、qs.distanceTo、qs.fromBufferAttribute等。
+   */
   computeLineDistances() {
     const e = this.geometry;
     if (null === e.index) {
@@ -5990,15 +9861,40 @@ class LineSegments extends Line {
     return this;
   }
 }
+/** @eyes-analysis
+ * 类职责：闭合首尾顶点的线对象
+ * 继承：Line；导出：LineLoop。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineLoop extends Line {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isLineLoop、type。
+   * 调用线索：super。
+   */
   constructor(e, t) {
     super(e, t), this.isLineLoop = !0, this.type = "LineLoop";
   }
 }
+/** @eyes-analysis
+ * 类职责：点尺寸衰减与点精灵材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：PointsMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PointsMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、color、fog、isPointsMaterial、map、size、sizeAttenuation、type。
+   * 调用线索：new Color、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isPointsMaterial = !0, this.type = "PointsMaterial", this.color = new Color(16777215), this.map = null, this.alphaMap = null, this.size = 1, this.sizeAttenuation = !0, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、fog、map、size、sizeAttenuation。
+   * 调用线索：super.copy、this.color.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.alphaMap = e.alphaMap, this.size = e.size, this.sizeAttenuation = e.sizeAttenuation, this.fog = e.fog, this;
   }
@@ -6007,13 +9903,32 @@ const Us = new Matrix4(),
   Gs = new Ray(),
   Xs = new Sphere(),
   js = new Vector3();
+/** @eyes-analysis
+ * 类职责：点精灵几何对象及射线距离测试
+ * 继承：Object3D；导出：Points。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Points extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：geometry、isPoints、material、morphTargetDictionary、morphTargetInfluences、type。
+   * 调用线索：new BufferGeometry、new PointsMaterial、super、this.updateMorphTargets。
+   */
   constructor(e = new BufferGeometry(), material = new PointsMaterial()) {
     super(), this.isPoints = !0, this.type = "Points", this.geometry = e, this.material = material, this.morphTargetDictionary = void 0, this.morphTargetInfluences = void 0, this.updateMorphTargets();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：geometry、material。
+   * 调用线索：Array.isArray、e.material.slice、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.material = Array.isArray(e.material) ? e.material.slice() : e.material, this.geometry = e.geometry, this;
   }
+  /** @eyes-analysis
+   * 在几何/对象局部空间做相交测试并将命中结果变换回世界坐标
+   * 调用线索：Gs.copy、Gs.copy(e.ray).applyMatrix4、Math.max、Math.min、Us.copy等。
+   */
   raycast(e, t) {
     const n = this.geometry,
       matrixWorld = this.matrixWorld,
@@ -6034,6 +9949,11 @@ class Points extends Object3D {
       for (let n = Math.max(0, a.start), i = Math.min(l.count, a.start + a.count); n < i; n++) js.fromBufferAttribute(l, n), Vs(js, n, o, matrixWorld, e, t, this);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 updateMorphTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：morphTargetDictionary、morphTargetDictionary[t]、morphTargetInfluences。
+   * 调用线索：Object.keys、String、this.morphTargetInfluences.push。
+   */
   updateMorphTargets() {
     const e = this.geometry.morphAttributes,
       t = Object.keys(e);
@@ -6068,7 +9988,17 @@ function Vs(e, t, n, r, i, a, s) {
     });
   }
 }
+/** @eyes-analysis
+ * 类职责：Video 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：VideoTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class VideoTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_requestVideoFrameCallbackId、generateMipmaps、isVideoTexture。
+   * 调用线索：e.requestVideoFrameCallback、super。
+   */
   constructor(e, t, n, r, i = LinearFilter, a = LinearFilter, s, o, c) {
     super(e, t, n, r, i, a, s, o, c), this.isVideoTexture = !0, this.generateMipmaps = !1, this._requestVideoFrameCallbackId = 0;
     const l = this;
@@ -6076,30 +10006,74 @@ class VideoTexture extends Texture {
       l.needsUpdate = !0, l._requestVideoFrameCallbackId = e.requestVideoFrameCallback(t);
     }));
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor(this.image).copy。
+   */
   clone() {
     return new this.constructor(this.image).copy(this);
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：needsUpdate。
+   */
   update() {
     const image = this.image;
     !1 === "requestVideoFrameCallback" in image && image.readyState >= image.HAVE_CURRENT_DATA && (this.needsUpdate = !0);
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 状态写入：_requestVideoFrameCallbackId。
+   * 调用线索：super.dispose、this.source.data.cancelVideoFrameCallback。
+   */
   dispose() {
     0 !== this._requestVideoFrameCallbackId && (this.source.data.cancelVideoFrameCallback(this._requestVideoFrameCallbackId), this._requestVideoFrameCallbackId = 0), super.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：VideoFrame 纹理数据布局、格式和上传生命周期
+ * 继承：VideoTexture；导出：VideoFrameTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class VideoFrameTexture extends VideoTexture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isVideoFrameTexture。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r, i, a, s, o) {
     super({}, e, t, n, r, i, a, s, o), this.isVideoFrameTexture = !0;
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   */
   update() {}
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 源码方法 setFrame；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：image、needsUpdate。
+   */
   setFrame(image) {
     this.image = image, this.needsUpdate = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：Framebuffer 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：FramebufferTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FramebufferTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：generateMipmaps、isFramebufferTexture、magFilter、minFilter、needsUpdate。
+   * 调用线索：super。
+   */
   constructor(e, t) {
     super({
       width: e,
@@ -6107,7 +10081,17 @@ class FramebufferTexture extends Texture {
     }), this.isFramebufferTexture = !0, this.magFilter = ye, this.minFilter = ye, this.generateMipmaps = !1, this.needsUpdate = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：Compressed 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：CompressedTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CompressedTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：flipY、generateMipmaps、image、isCompressedTexture、mipmaps。
+   * 调用线索：super。
+   */
   constructor(mipmaps, t, n, r, i, a, s, o, c, l, u, d) {
     super(null, a, s, o, c, l, r, i, u, d), this.isCompressedTexture = !0, this.image = {
       width: t,
@@ -6115,39 +10099,104 @@ class CompressedTexture extends Texture {
     }, this.mipmaps = mipmaps, this.flipY = !1, this.generateMipmaps = !1;
   }
 }
+/** @eyes-analysis
+ * 类职责：CompressedArray 纹理数据布局、格式和上传生命周期
+ * 继承：CompressedTexture；导出：CompressedArrayTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CompressedArrayTexture extends CompressedTexture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：image.depth、isCompressedArrayTexture、layerUpdates、wrapR。
+   * 调用线索：new Set、super。
+   */
   constructor(e, t, n, r, i, a) {
     super(e, t, n, i, a), this.isCompressedArrayTexture = !0, this.image.depth = r, this.wrapR = ge, this.layerUpdates = new Set();
   }
+  /** @eyes-analysis
+   * 源码方法 addLayerUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.layerUpdates.add。
+   */
   addLayerUpdate(e) {
     this.layerUpdates.add(e);
   }
+  /** @eyes-analysis
+   * 源码方法 clearLayerUpdates；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.layerUpdates.clear。
+   */
   clearLayerUpdates() {
     this.layerUpdates.clear();
   }
 }
+/** @eyes-analysis
+ * 类职责：CompressedCube 纹理数据布局、格式和上传生命周期
+ * 继承：CompressedTexture；导出：CompressedCubeTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CompressedCubeTexture extends CompressedTexture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：image、isCompressedCubeTexture、isCubeTexture。
+   * 调用线索：super。
+   */
   constructor(image, t, n) {
     super(void 0, image[0].width, image[0].height, t, n, CubeReflectionMapping), this.isCompressedCubeTexture = !0, this.isCubeTexture = !0, this.image = image;
   }
 }
+/** @eyes-analysis
+ * 类职责：Cube 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：CubeTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubeTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：flipY、isCubeTexture。
+   * 调用线索：super。
+   */
   constructor(e = [], t = CubeReflectionMapping, n, r, i, a, s, o, c, l) {
     super(e, t, n, r, i, a, s, o, c, l), this.isCubeTexture = !0, this.flipY = !1;
   }
+  /** @eyes-analysis
+   * 只读返回 this.image；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get images() {
     return this.image;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.image，实际变更发生在 setter 中
+   * 状态写入：image。
+   */
   set images(image) {
     this.image = image;
   }
 }
+/** @eyes-analysis
+ * 类职责：Canvas 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：CanvasTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CanvasTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isCanvasTexture、needsUpdate。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r, i, a, s, o, c) {
     super(e, t, n, r, i, a, s, o, c), this.isCanvasTexture = !0, this.needsUpdate = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：HTML 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：HTMLTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class HTMLTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：generateMipmaps、isHTMLTexture、needsUpdate。
+   * 调用线索：l.requestPaint、super。
+   */
   constructor(e, t, n, r, i, a, s, o, c) {
     super(e, t, n, r, i, a, s, o, c), this.isHTMLTexture = !0, this.generateMipmaps = !1, this.needsUpdate = !0;
     const l = e ? e.parentNode : null;
@@ -6155,12 +10204,26 @@ class HTMLTexture extends Texture {
       this.needsUpdate = !0;
     }, l.requestPaint());
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：super.dispose。
+   */
   dispose() {
     const e = this.image ? this.image.parentNode : null;
     null !== e && "onpaint" in e && (e.onpaint = null), super.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：Depth 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：DepthTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DepthTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：compareFunction、flipY、generateMipmaps、isDepthTexture。
+   * 调用线索：new Error、super。
+   */
   constructor(e, t, n = UnsignedIntType, r, i, a, s = ye, o = ye, c, l = DepthFormat, u = 1) {
     if (l !== DepthFormat && l !== DepthStencilFormat) throw new Error("THREE.DepthTexture: format must be either THREE.DepthFormat or THREE.DepthStencilFormat");
     super({
@@ -6169,15 +10232,34 @@ class DepthTexture extends Texture {
       depth: u
     }, r, i, a, s, o, l, n, c), this.isDepthTexture = !0, this.flipY = !1, this.generateMipmaps = !1, this.compareFunction = null;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：compareFunction、source。
+   * 调用线索：Object.assign、new Source、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.source = new Source(Object.assign({}, e.image)), this.compareFunction = e.compareFunction, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return null !== this.compareFunction && (t.compareFunction = this.compareFunction), t;
   }
 }
+/** @eyes-analysis
+ * 类职责：CubeDepth 纹理数据布局、格式和上传生命周期
+ * 继承：DepthTexture；导出：CubeDepthTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubeDepthTexture extends DepthTexture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：image、isCubeDepthTexture、isCubeTexture。
+   * 调用线索：super。
+   */
   constructor(e, t = UnsignedIntType, n = CubeReflectionMapping, r, i, a = ye, s = ye, o, c = DepthFormat) {
     const l = {
         width: e,
@@ -6187,22 +10269,54 @@ class CubeDepthTexture extends DepthTexture {
       image = [l, l, l, l, l, l];
     super(e, e, t, n, r, i, a, s, o, c), this.image = image, this.isCubeDepthTexture = !0, this.isCubeTexture = !0;
   }
+  /** @eyes-analysis
+   * 只读返回 this.image；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get images() {
     return this.image;
   }
+  /** @eyes-analysis
+   * 将输入值写入 this.image，实际变更发生在 setter 中
+   * 状态写入：image。
+   */
   set images(image) {
     this.image = image;
   }
 }
+/** @eyes-analysis
+ * 类职责：External 纹理数据布局、格式和上传生命周期
+ * 继承：Texture；导出：ExternalTexture。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ExternalTexture extends Texture {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isExternalTexture、sourceTexture。
+   * 调用线索：super。
+   */
   constructor(sourceTexture = null) {
     super(), this.sourceTexture = sourceTexture, this.isExternalTexture = !0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：sourceTexture。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.sourceTexture = e.sourceTexture, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：Box 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：BoxGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BoxGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.floor、c.push、l.push、new Float32BufferAttribute、new Vector3等。
+   */
   constructor(e = 1, t = 1, n = 1, r = 1, i = 1, a = 1) {
     super(), this.type = "BoxGeometry", this.parameters = {
       width: e,
@@ -6249,14 +10363,33 @@ class BoxGeometry extends BufferGeometry {
     }
     p("z", "y", "x", -1, -1, n, t, e, a, i, 0), p("z", "y", "x", 1, -1, n, t, -e, a, i, 1), p("x", "z", "y", 1, 1, e, n, t, r, a, 2), p("x", "z", "y", 1, -1, e, n, -t, r, a, 3), p("x", "y", "z", 1, -1, e, t, n, r, i, 4), p("x", "y", "z", -1, -1, e, t, -n, r, i, 5), this.setIndex(o), this.setAttribute("position", new Float32BufferAttribute(c, 3)), this.setAttribute("normal", new Float32BufferAttribute(l, 3)), this.setAttribute("uv", new Float32BufferAttribute(u, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new BoxGeometry。
+   */
   static fromJSON(e) {
     return new BoxGeometry(e.width, e.height, e.depth, e.widthSegments, e.heightSegments, e.depthSegments);
   }
 }
+/** @eyes-analysis
+ * 类职责：Capsule 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：CapsuleGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CapsuleGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.cos、Math.floor、Math.max、Math.min、Math.sin等。
+   */
   constructor(e = 1, t = 1, n = 4, r = 8, i = 1) {
     super(), this.type = "CapsuleGeometry", this.parameters = {
       radius: e,
@@ -6317,14 +10450,33 @@ class CapsuleGeometry extends BufferGeometry {
     }
     this.setIndex(a), this.setAttribute("position", new Float32BufferAttribute(s, 3)), this.setAttribute("normal", new Float32BufferAttribute(o, 3)), this.setAttribute("uv", new Float32BufferAttribute(c, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new CapsuleGeometry。
+   */
   static fromJSON(e) {
     return new CapsuleGeometry(e.radius, e.height, e.capSegments, e.radialSegments, e.heightSegments);
   }
 }
+/** @eyes-analysis
+ * 类职责：Circle 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：CircleGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CircleGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.cos、Math.max、Math.sin、a.push、i.push等。
+   */
   constructor(e = 1, t = 32, n = 0, r = 2 * Math.PI) {
     super(), this.type = "CircleGeometry", this.parameters = {
       radius: e,
@@ -6346,14 +10498,33 @@ class CircleGeometry extends BufferGeometry {
     for (let e = 1; e <= t; e++) i.push(e, e + 1, 0);
     this.setIndex(i), this.setAttribute("position", new Float32BufferAttribute(a, 3)), this.setAttribute("normal", new Float32BufferAttribute(s, 3)), this.setAttribute("uv", new Float32BufferAttribute(o, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new CircleGeometry。
+   */
   static fromJSON(e) {
     return new CircleGeometry(e.radius, e.segments, e.thetaStart, e.thetaLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Cylinder 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：CylinderGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CylinderGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.cos、Math.floor、Math.sin、_、a.set等。
+   */
   constructor(e = 1, t = 1, n = 1, r = 32, i = 1, a = !1, s = 0, o = 2 * Math.PI) {
     super(), this.type = "CylinderGeometry", this.parameters = {
       radiusTop: e,
@@ -6425,14 +10596,33 @@ class CylinderGeometry extends BufferGeometry {
       c.addGroup(M, A, 0), M += A;
     }(), !1 === a && (e > 0 && _(!0), t > 0 && _(!1)), this.setIndex(l), this.setAttribute("position", new Float32BufferAttribute(u, 3)), this.setAttribute("normal", new Float32BufferAttribute(d, 3)), this.setAttribute("uv", new Float32BufferAttribute(h, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new CylinderGeometry。
+   */
   static fromJSON(e) {
     return new CylinderGeometry(e.radiusTop, e.radiusBottom, e.height, e.radialSegments, e.heightSegments, e.openEnded, e.thetaStart, e.thetaLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Cone 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：CylinderGeometry；导出：ConeGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ConeGeometry extends CylinderGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：super。
+   */
   constructor(e = 1, t = 1, n = 32, r = 1, i = !1, a = 0, s = 2 * Math.PI) {
     super(0, e, t, n, r, i, a, s), this.type = "ConeGeometry", this.parameters = {
       radius: e,
@@ -6444,11 +10634,25 @@ class ConeGeometry extends CylinderGeometry {
       thetaLength: s
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new ConeGeometry。
+   */
   static fromJSON(e) {
     return new ConeGeometry(e.radius, e.height, e.radialSegments, e.heightSegments, e.openEnded, e.thetaStart, e.thetaLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Polyhedron 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：PolyhedronGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PolyhedronGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.atan2、Math.floor、Math.max、Math.min、Math.sqrt等。
+   */
   constructor(e = [], t = [], n = 1, r = 0) {
     super(), this.type = "PolyhedronGeometry", this.parameters = {
       vertices: e,
@@ -6530,14 +10734,33 @@ class PolyhedronGeometry extends BufferGeometry {
       }();
     }(), this.setAttribute("position", new Float32BufferAttribute(i, 3)), this.setAttribute("normal", new Float32BufferAttribute(i.slice(), 3)), this.setAttribute("uv", new Float32BufferAttribute(a, 2)), 0 === r ? this.computeVertexNormals() : this.normalizeNormals();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new PolyhedronGeometry。
+   */
   static fromJSON(e) {
     return new PolyhedronGeometry(e.vertices, e.indices, e.radius, e.detail);
   }
 }
+/** @eyes-analysis
+ * 类职责：Dodecahedron 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：PolyhedronGeometry；导出：DodecahedronGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DodecahedronGeometry extends PolyhedronGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.sqrt、super。
+   */
   constructor(e = 1, t = 0) {
     const n = (1 + Math.sqrt(5)) / 2,
       r = 1 / n;
@@ -6546,6 +10769,10 @@ class DodecahedronGeometry extends PolyhedronGeometry {
       detail: t
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new DodecahedronGeometry。
+   */
   static fromJSON(e) {
     return new DodecahedronGeometry(e.radius, e.detail);
   }
@@ -6554,7 +10781,17 @@ const Qs = new Vector3(),
   Ks = new Vector3(),
   Js = new Vector3(),
   triangle = new Triangle();
+/** @eyes-analysis
+ * 类职责：Edges 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：EdgesGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class EdgesGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Js.clone、Js.dot、Ks.fromBufferAttribute、Math.cos、Math.pow等。
+   */
   constructor(e = null, t = 1) {
     if (super(), this.type = "EdgesGeometry", this.parameters = {
       geometry: e,
@@ -6603,35 +10840,74 @@ class EdgesGeometry extends BufferGeometry {
       this.setAttribute("position", new Float32BufferAttribute(h, 3));
     }
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：参数曲线基类；弧长采样、切线及 Frenet 标架
+ * 继承：无显式父类；导出：Curve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：arcLengthDivisions、cacheArcLengths、needsUpdate、type。
+   */
   constructor() {
     this.type = "Curve", this.arcLengthDivisions = 200, this.needsUpdate = !1, this.cacheArcLengths = null;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：warn。
+   */
   getPoint() {
     warn("Curve: .getPoint() not implemented.");
   }
+  /** @eyes-analysis
+   * 源码方法 getPointAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getPoint、this.getUtoTmapping。
+   */
   getPointAt(e, t) {
     const n = this.getUtoTmapping(e);
     return this.getPoint(n, t);
   }
+  /** @eyes-analysis
+   * 源码方法 getPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.push、this.getPoint。
+   */
   getPoints(e = 5) {
     const t = [];
     for (let n = 0; n <= e; n++) t.push(this.getPoint(n / e));
     return t;
   }
+  /** @eyes-analysis
+   * 源码方法 getSpacedPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.push、this.getPointAt。
+   */
   getSpacedPoints(e = 5) {
     const t = [];
     for (let n = 0; n <= e; n++) t.push(this.getPointAt(n / e));
     return t;
   }
+  /** @eyes-analysis
+   * 源码方法 getLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getLengths。
+   */
   getLength() {
     const e = this.getLengths();
     return e[e.length - 1];
   }
+  /** @eyes-analysis
+   * 源码方法 getLengths；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cacheArcLengths、needsUpdate。
+   * 调用线索：cacheArcLengths.push、n.distanceTo、this.getPoint。
+   */
   getLengths(e = this.arcLengthDivisions) {
     if (this.cacheArcLengths && this.cacheArcLengths.length === e + 1 && !this.needsUpdate) return this.cacheArcLengths;
     this.needsUpdate = !1;
@@ -6643,9 +10919,18 @@ class Curve {
     for (let a = 1; a <= e; a++) n = this.getPoint(a / e), i += n.distanceTo(r), cacheArcLengths.push(i), r = n;
     return this.cacheArcLengths = cacheArcLengths, cacheArcLengths;
   }
+  /** @eyes-analysis
+   * 源码方法 updateArcLengths；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：needsUpdate。
+   * 调用线索：this.getLengths。
+   */
   updateArcLengths() {
     this.needsUpdate = !0, this.getLengths();
   }
+  /** @eyes-analysis
+   * 源码方法 getUtoTmapping；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.floor、this.getLengths。
+   */
   getUtoTmapping(e, t = null) {
     const n = this.getLengths();
     let r = 0;
@@ -6666,6 +10951,10 @@ class Curve {
     const l = n[r];
     return (r + (a - l) / (n[r + 1] - l)) / (i - 1);
   }
+  /** @eyes-analysis
+   * 源码方法 getTangent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Vector2、new Vector3、o.copy、o.copy(s).sub、o.copy(s).sub(a).normalize等。
+   */
   getTangent(e, t) {
     const n = 1e-4;
     let r = e - n,
@@ -6676,10 +10965,18 @@ class Curve {
       o = t || (a.isVector2 ? new Vector2() : new Vector3());
     return o.copy(s).sub(a).normalize(), o;
   }
+  /** @eyes-analysis
+   * 源码方法 getTangentAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getTangent、this.getUtoTmapping。
+   */
   getTangentAt(e, t) {
     const n = this.getUtoTmapping(e);
     return this.getTangent(n, t);
   }
+  /** @eyes-analysis
+   * 源码方法 computeFrenetFrames；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、Math.abs、Math.acos、a[0].crossVectors、a[n].crossVectors等。
+   */
   computeFrenetFrames(e, t = !1) {
     const n = new Vector3(),
       r = [],
@@ -6716,12 +11013,23 @@ class Curve {
       binormals: a
     };
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：arcLengthDivisions。
+   */
   copy(e) {
     return this.arcLengthDivisions = e.arcLengthDivisions, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   */
   toJSON() {
     const e = {
       metadata: {
@@ -6732,14 +11040,32 @@ class Curve {
     };
     return e.arcLengthDivisions = this.arcLengthDivisions, e.type = this.type, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：arcLengthDivisions。
+   */
   fromJSON(e) {
     return this.arcLengthDivisions = e.arcLengthDivisions, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：EllipseCurve 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：EllipseCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class EllipseCurve extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：aClockwise、aEndAngle、aRotation、aStartAngle、aX、aY、isEllipseCurve、type等；完整记录见索引。
+   * 调用线索：super。
+   */
   constructor(aX = 0, aY = 0, xRadius = 1, yRadius = 1, aStartAngle = 0, aEndAngle = 2 * Math.PI, aClockwise = !1, aRotation = 0) {
     super(), this.isEllipseCurve = !0, this.type = "EllipseCurve", this.aX = aX, this.aY = aY, this.xRadius = xRadius, this.yRadius = yRadius, this.aStartAngle = aStartAngle, this.aEndAngle = aEndAngle, this.aClockwise = aClockwise, this.aRotation = aRotation;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：Math.abs、Math.cos、Math.sin、n.set、new Vector2。
+   */
   getPoint(e, t = new Vector2()) {
     const n = t,
       r = 2 * Math.PI;
@@ -6760,18 +11086,42 @@ class EllipseCurve extends Curve {
     }
     return n.set(o, c);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：aClockwise、aEndAngle、aRotation、aStartAngle、aX、aY、xRadius、yRadius。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.aX = e.aX, this.aY = e.aY, this.xRadius = e.xRadius, this.yRadius = e.yRadius, this.aStartAngle = e.aStartAngle, this.aEndAngle = e.aEndAngle, this.aClockwise = e.aClockwise, this.aRotation = e.aRotation, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.aX = this.aX, e.aY = this.aY, e.xRadius = this.xRadius, e.yRadius = this.yRadius, e.aStartAngle = this.aStartAngle, e.aEndAngle = this.aEndAngle, e.aClockwise = this.aClockwise, e.aRotation = this.aRotation, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：aClockwise、aEndAngle、aRotation、aStartAngle、aX、aY、xRadius、yRadius。
+   * 调用线索：super.fromJSON。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.aX = e.aX, this.aY = e.aY, this.xRadius = e.xRadius, this.yRadius = e.yRadius, this.aStartAngle = e.aStartAngle, this.aEndAngle = e.aEndAngle, this.aClockwise = e.aClockwise, this.aRotation = e.aRotation, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：ArcCurve 参数曲线的点/切线求值及端点控制
+ * 继承：EllipseCurve；导出：ArcCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ArcCurve extends EllipseCurve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isArcCurve、type。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r, i, a) {
     super(e, t, n, n, r, i, a), this.isArcCurve = !0, this.type = "ArcCurve";
   }
@@ -6804,10 +11154,24 @@ const eo = new Vector3(),
   no = new Zs(),
   ro = new Zs(),
   io = new Zs();
+/** @eyes-analysis
+ * 类职责：CatmullRomCurve3 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：CatmullRomCurve3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CatmullRomCurve3 extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：closed、curveType、isCatmullRomCurve3、points、tension、type。
+   * 调用线索：super。
+   */
   constructor(points = [], closed = !1, curveType = "centripetal", tension = .5) {
     super(), this.isCatmullRomCurve3 = !0, this.type = "CatmullRomCurve3", this.points = points, this.closed = closed, this.curveType = curveType, this.tension = tension;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：Math.abs、Math.floor、Math.pow、d.distanceToSquared、eo.subVectors等。
+   */
   getPoint(e, t = new Vector3()) {
     const n = t,
       points = this.points,
@@ -6829,6 +11193,11 @@ class CatmullRomCurve3 extends Curve {
     } else "catmullrom" === this.curveType && (no.initCatmullRom(s.x, u.x, d.x, o.x, this.tension), ro.initCatmullRom(s.y, u.y, d.y, o.y, this.tension), io.initCatmullRom(s.z, u.z, d.z, o.z, this.tension));
     return n.set(no.calc(l), ro.calc(l), io.calc(l)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：closed、curveType、points、tension。
+   * 调用线索：n.clone、super.copy、this.points.push。
+   */
   copy(e) {
     super.copy(e), this.points = [];
     for (let t = 0, n = e.points.length; t < n; t++) {
@@ -6837,6 +11206,10 @@ class CatmullRomCurve3 extends Curve {
     }
     return this.closed = e.closed, this.curveType = e.curveType, this.tension = e.tension, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：e.points.push、n.toArray、super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     e.points = [];
@@ -6846,6 +11219,11 @@ class CatmullRomCurve3 extends Curve {
     }
     return e.closed = this.closed, e.curveType = this.curveType, e.tension = this.tension, e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：closed、curveType、points、tension。
+   * 调用线索：new Vector3、new Vector3().fromArray、super.fromJSON、this.points.push。
+   */
   fromJSON(e) {
     super.fromJSON(e), this.points = [];
     for (let t = 0, n = e.points.length; t < n; t++) {
@@ -6884,10 +11262,24 @@ function oo(e, t, n, r, i) {
     return e * e * e * t;
   }(e, i);
 }
+/** @eyes-analysis
+ * 类职责：CubicBezierCurve 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：CubicBezierCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubicBezierCurve extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isCubicBezierCurve、type、v0、v1、v2、v3。
+   * 调用线索：new Vector2、super。
+   */
   constructor(v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2(), v3 = new Vector2()) {
     super(), this.isCubicBezierCurve = !0, this.type = "CubicBezierCurve", this.v0 = v0, this.v1 = v1, this.v2 = v2, this.v3 = v3;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.set、new Vector2、oo。
+   */
   getPoint(e, t = new Vector2()) {
     const n = t,
       v0 = this.v0,
@@ -6896,21 +11288,47 @@ class CubicBezierCurve extends Curve {
       v3 = this.v3;
     return n.set(oo(e, v0.x, v1.x, v2.x, v3.x), oo(e, v0.y, v1.y, v2.y, v3.y)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v0.copy、this.v1.copy、this.v2.copy、this.v3.copy。
+   */
   copy(e) {
     return super.copy(e), this.v0.copy(e.v0), this.v1.copy(e.v1), this.v2.copy(e.v2), this.v3.copy(e.v3), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v0.toArray、this.v1.toArray、this.v2.toArray、this.v3.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v0 = this.v0.toArray(), e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e.v3 = this.v3.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v0.fromArray、this.v1.fromArray、this.v2.fromArray、this.v3.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v0.fromArray(e.v0), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this.v3.fromArray(e.v3), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：CubicBezierCurve3 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：CubicBezierCurve3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubicBezierCurve3 extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isCubicBezierCurve3、type、v0、v1、v2、v3。
+   * 调用线索：new Vector3、super。
+   */
   constructor(v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3(), v3 = new Vector3()) {
     super(), this.isCubicBezierCurve3 = !0, this.type = "CubicBezierCurve3", this.v0 = v0, this.v1 = v1, this.v2 = v2, this.v3 = v3;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.set、new Vector3、oo。
+   */
   getPoint(e, t = new Vector3()) {
     const n = t,
       v0 = this.v0,
@@ -6919,77 +11337,179 @@ class CubicBezierCurve3 extends Curve {
       v3 = this.v3;
     return n.set(oo(e, v0.x, v1.x, v2.x, v3.x), oo(e, v0.y, v1.y, v2.y, v3.y), oo(e, v0.z, v1.z, v2.z, v3.z)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v0.copy、this.v1.copy、this.v2.copy、this.v3.copy。
+   */
   copy(e) {
     return super.copy(e), this.v0.copy(e.v0), this.v1.copy(e.v1), this.v2.copy(e.v2), this.v3.copy(e.v3), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v0.toArray、this.v1.toArray、this.v2.toArray、this.v3.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v0 = this.v0.toArray(), e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e.v3 = this.v3.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v0.fromArray、this.v1.fromArray、this.v2.fromArray、this.v3.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v0.fromArray(e.v0), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this.v3.fromArray(e.v3), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：LineCurve 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：LineCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineCurve extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isLineCurve、type、v1、v2。
+   * 调用线索：new Vector2、super。
+   */
   constructor(v1 = new Vector2(), v2 = new Vector2()) {
     super(), this.isLineCurve = !0, this.type = "LineCurve", this.v1 = v1, this.v2 = v2;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.copy、n.copy(this.v2).sub、n.multiplyScalar、n.multiplyScalar(e).add、new Vector2。
+   */
   getPoint(e, t = new Vector2()) {
     const n = t;
     return 1 === e ? n.copy(this.v2) : (n.copy(this.v2).sub(this.v1), n.multiplyScalar(e).add(this.v1)), n;
   }
+  /** @eyes-analysis
+   * 源码方法 getPointAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getPoint。
+   */
   getPointAt(e, t) {
     return this.getPoint(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 getTangent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Vector2、t.subVectors、t.subVectors(this.v2,this.v1).normalize。
+   */
   getTangent(e, t = new Vector2()) {
     return t.subVectors(this.v2, this.v1).normalize();
   }
+  /** @eyes-analysis
+   * 源码方法 getTangentAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getTangent。
+   */
   getTangentAt(e, t) {
     return this.getTangent(e, t);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v1.copy、this.v2.copy。
+   */
   copy(e) {
     return super.copy(e), this.v1.copy(e.v1), this.v2.copy(e.v2), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v1.toArray、this.v2.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v1.fromArray、this.v2.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：LineCurve3 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：LineCurve3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineCurve3 extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isLineCurve3、type、v1、v2。
+   * 调用线索：new Vector3、super。
+   */
   constructor(v1 = new Vector3(), v2 = new Vector3()) {
     super(), this.isLineCurve3 = !0, this.type = "LineCurve3", this.v1 = v1, this.v2 = v2;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.copy、n.copy(this.v2).sub、n.multiplyScalar、n.multiplyScalar(e).add、new Vector3。
+   */
   getPoint(e, t = new Vector3()) {
     const n = t;
     return 1 === e ? n.copy(this.v2) : (n.copy(this.v2).sub(this.v1), n.multiplyScalar(e).add(this.v1)), n;
   }
+  /** @eyes-analysis
+   * 源码方法 getPointAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getPoint。
+   */
   getPointAt(e, t) {
     return this.getPoint(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 getTangent；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Vector3、t.subVectors、t.subVectors(this.v2,this.v1).normalize。
+   */
   getTangent(e, t = new Vector3()) {
     return t.subVectors(this.v2, this.v1).normalize();
   }
+  /** @eyes-analysis
+   * 源码方法 getTangentAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getTangent。
+   */
   getTangentAt(e, t) {
     return this.getTangent(e, t);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v1.copy、this.v2.copy。
+   */
   copy(e) {
     return super.copy(e), this.v1.copy(e.v1), this.v2.copy(e.v2), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v1.toArray、this.v2.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v1.fromArray、this.v2.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：QuadraticBezierCurve 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：QuadraticBezierCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class QuadraticBezierCurve extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isQuadraticBezierCurve、type、v0、v1、v2。
+   * 调用线索：new Vector2、super。
+   */
   constructor(v0 = new Vector2(), v1 = new Vector2(), v2 = new Vector2()) {
     super(), this.isQuadraticBezierCurve = !0, this.type = "QuadraticBezierCurve", this.v0 = v0, this.v1 = v1, this.v2 = v2;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.set、new Vector2、so。
+   */
   getPoint(e, t = new Vector2()) {
     const n = t,
       v0 = this.v0,
@@ -6997,21 +11517,47 @@ class QuadraticBezierCurve extends Curve {
       v2 = this.v2;
     return n.set(so(e, v0.x, v1.x, v2.x), so(e, v0.y, v1.y, v2.y)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v0.copy、this.v1.copy、this.v2.copy。
+   */
   copy(e) {
     return super.copy(e), this.v0.copy(e.v0), this.v1.copy(e.v1), this.v2.copy(e.v2), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v0.toArray、this.v1.toArray、this.v2.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v0 = this.v0.toArray(), e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v0.fromArray、this.v1.fromArray、this.v2.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v0.fromArray(e.v0), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：QuadraticBezierCurve3 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：QuadraticBezierCurve3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class QuadraticBezierCurve3 extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isQuadraticBezierCurve3、type、v0、v1、v2。
+   * 调用线索：new Vector3、super。
+   */
   constructor(v0 = new Vector3(), v1 = new Vector3(), v2 = new Vector3()) {
     super(), this.isQuadraticBezierCurve3 = !0, this.type = "QuadraticBezierCurve3", this.v0 = v0, this.v1 = v1, this.v2 = v2;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：n.set、new Vector3、so。
+   */
   getPoint(e, t = new Vector3()) {
     const n = t,
       v0 = this.v0,
@@ -7019,21 +11565,47 @@ class QuadraticBezierCurve3 extends Curve {
       v2 = this.v2;
     return n.set(so(e, v0.x, v1.x, v2.x), so(e, v0.y, v1.y, v2.y), so(e, v0.z, v1.z, v2.z)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.v0.copy、this.v1.copy、this.v2.copy。
+   */
   copy(e) {
     return super.copy(e), this.v0.copy(e.v0), this.v1.copy(e.v1), this.v2.copy(e.v2), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.v0.toArray、this.v1.toArray、this.v2.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.v0 = this.v0.toArray(), e.v1 = this.v1.toArray(), e.v2 = this.v2.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.v0.fromArray、this.v1.fromArray、this.v2.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.v0.fromArray(e.v0), this.v1.fromArray(e.v1), this.v2.fromArray(e.v2), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：SplineCurve 参数曲线的点/切线求值及端点控制
+ * 继承：Curve；导出：SplineCurve。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SplineCurve extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isSplineCurve、points、type。
+   * 调用线索：super。
+   */
   constructor(points = []) {
     super(), this.isSplineCurve = !0, this.type = "SplineCurve", this.points = points;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：Math.floor、ao、n.set、new Vector2。
+   */
   getPoint(e, t = new Vector2()) {
     const n = t,
       points = this.points,
@@ -7046,6 +11618,11 @@ class SplineCurve extends Curve {
       u = points[a > points.length - 3 ? points.length - 1 : a + 2];
     return n.set(ao(s, o.x, c.x, l.x, u.x), ao(s, o.y, c.y, l.y, u.y)), n;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：points。
+   * 调用线索：n.clone、super.copy、this.points.push。
+   */
   copy(e) {
     super.copy(e), this.points = [];
     for (let t = 0, n = e.points.length; t < n; t++) {
@@ -7054,6 +11631,10 @@ class SplineCurve extends Curve {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：e.points.push、n.toArray、super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     e.points = [];
@@ -7063,6 +11644,11 @@ class SplineCurve extends Curve {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：points。
+   * 调用线索：new Vector2、new Vector2().fromArray、super.fromJSON、this.points.push。
+   */
   fromJSON(e) {
     super.fromJSON(e), this.points = [];
     for (let t = 0, n = e.points.length; t < n; t++) {
@@ -7085,13 +11671,31 @@ var co = Object.freeze({
   QuadraticBezierCurve3: QuadraticBezierCurve3,
   SplineCurve: SplineCurve
 });
+/** @eyes-analysis
+ * 类职责：将多段曲线串成按累计弧长采样的路径
+ * 继承：Curve；导出：CurvePath。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CurvePath extends Curve {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：autoClose、curves、type。
+   * 调用线索：super。
+   */
   constructor() {
     super(), this.type = "CurvePath", this.curves = [], this.autoClose = !1;
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.curves.push。
+   */
   add(e) {
     this.curves.push(e);
   }
+  /** @eyes-analysis
+   * 源码方法 closePath；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.equals、new co[n]、this.curves.push、this.curves[0].getPoint、this.curves[this.curves.length-1].getPoint。
+   */
   closePath() {
     const e = this.curves[0].getPoint(0),
       t = this.curves[this.curves.length - 1].getPoint(1);
@@ -7101,6 +11705,10 @@ class CurvePath extends Curve {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 按参数 t 计算曲线位置，通常复用可选目标向量
+   * 调用线索：a.getLength、a.getPointAt、this.getCurveLengths、this.getLength。
+   */
   getPoint(e, t) {
     const n = e * this.getLength(),
       r = this.getCurveLengths();
@@ -7117,13 +11725,27 @@ class CurvePath extends Curve {
     }
     return null;
   }
+  /** @eyes-analysis
+   * 源码方法 getLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getCurveLengths。
+   */
   getLength() {
     const e = this.getCurveLengths();
     return e[e.length - 1];
   }
+  /** @eyes-analysis
+   * 源码方法 updateArcLengths；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cacheLengths、needsUpdate。
+   * 调用线索：this.getCurveLengths。
+   */
   updateArcLengths() {
     this.needsUpdate = !0, this.cacheLengths = null, this.getCurveLengths();
   }
+  /** @eyes-analysis
+   * 源码方法 getCurveLengths；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cacheLengths。
+   * 调用线索：cacheLengths.push、this.curves[n].getLength。
+   */
   getCurveLengths() {
     if (this.cacheLengths && this.cacheLengths.length === this.curves.length) return this.cacheLengths;
     const cacheLengths = [];
@@ -7131,11 +11753,19 @@ class CurvePath extends Curve {
     for (let n = 0, r = this.curves.length; n < r; n++) t += this.curves[n].getLength(), cacheLengths.push(t);
     return this.cacheLengths = cacheLengths, cacheLengths;
   }
+  /** @eyes-analysis
+   * 源码方法 getSpacedPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.push、this.getPoint。
+   */
   getSpacedPoints(e = 40) {
     const t = [];
     for (let n = 0; n <= e; n++) t.push(this.getPoint(n / e));
     return this.autoClose && t.push(t[0]), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：a.getPoints、n.equals、t.push、t[t.length-1].equals。
+   */
   getPoints(e = 12) {
     const t = [];
     let n;
@@ -7150,6 +11780,11 @@ class CurvePath extends Curve {
     }
     return this.autoClose && t.length > 1 && !t[t.length - 1].equals(t[0]) && t.push(t[0]), t;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：autoClose、curves。
+   * 调用线索：n.clone、super.copy、this.curves.push。
+   */
   copy(e) {
     super.copy(e), this.curves = [];
     for (let t = 0, n = e.curves.length; t < n; t++) {
@@ -7158,6 +11793,10 @@ class CurvePath extends Curve {
     }
     return this.autoClose = e.autoClose, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：e.curves.push、n.toJSON、super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     e.autoClose = this.autoClose, e.curves = [];
@@ -7167,6 +11806,11 @@ class CurvePath extends Curve {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：autoClose、curves。
+   * 调用线索：new co[n.type]、new co[n.type]().fromJSON、super.fromJSON、this.curves.push。
+   */
   fromJSON(e) {
     super.fromJSON(e), this.autoClose = e.autoClose, this.curves = [];
     for (let t = 0, n = e.curves.length; t < n; t++) {
@@ -7176,48 +11820,98 @@ class CurvePath extends Curve {
     return this;
   }
 }
+/** @eyes-analysis
+ * 类职责：通过绘图命令构建二维曲线路径
+ * 继承：CurvePath；导出：Path。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Path extends CurvePath {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：currentPoint、type。
+   * 调用线索：new Vector2、super、this.setFromPoints。
+   */
   constructor(e) {
     super(), this.type = "Path", this.currentPoint = new Vector2(), e && this.setFromPoints(e);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.lineTo、this.moveTo。
+   */
   setFromPoints(e) {
     this.moveTo(e[0].x, e[0].y);
     for (let t = 1, n = e.length; t < n; t++) this.lineTo(e[t].x, e[t].y);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 moveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.currentPoint.set。
+   */
   moveTo(e, t) {
     return this.currentPoint.set(e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 lineTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new LineCurve、new Vector2、this.currentPoint.clone、this.currentPoint.set、this.curves.push。
+   */
   lineTo(e, t) {
     const lineCurve = new LineCurve(this.currentPoint.clone(), new Vector2(e, t));
     return this.curves.push(lineCurve), this.currentPoint.set(e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 quadraticCurveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new QuadraticBezierCurve、new Vector2、this.currentPoint.clone、this.currentPoint.set、this.curves.push。
+   */
   quadraticCurveTo(e, t, n, r) {
     const quadraticBezierCurve = new QuadraticBezierCurve(this.currentPoint.clone(), new Vector2(e, t), new Vector2(n, r));
     return this.curves.push(quadraticBezierCurve), this.currentPoint.set(n, r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 bezierCurveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new CubicBezierCurve、new Vector2、this.currentPoint.clone、this.currentPoint.set、this.curves.push。
+   */
   bezierCurveTo(e, t, n, r, i, a) {
     const cubicBezierCurve = new CubicBezierCurve(this.currentPoint.clone(), new Vector2(e, t), new Vector2(n, r), new Vector2(i, a));
     return this.curves.push(cubicBezierCurve), this.currentPoint.set(i, a), this;
   }
+  /** @eyes-analysis
+   * 源码方法 splineThru；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：[this.currentPoint.clone()].concat、new SplineCurve、this.currentPoint.clone、this.currentPoint.copy、this.curves.push。
+   */
   splineThru(e) {
     const t = [this.currentPoint.clone()].concat(e),
       splineCurve = new SplineCurve(t);
     return this.curves.push(splineCurve), this.currentPoint.copy(e[e.length - 1]), this;
   }
+  /** @eyes-analysis
+   * 源码方法 arc；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.absarc。
+   */
   arc(e, t, n, r, i, a) {
     const s = this.currentPoint.x,
       o = this.currentPoint.y;
     return this.absarc(e + s, t + o, n, r, i, a), this;
   }
+  /** @eyes-analysis
+   * 源码方法 absarc；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.absellipse。
+   */
   absarc(e, t, n, r, i, a) {
     return this.absellipse(e, t, n, n, r, i, a), this;
   }
+  /** @eyes-analysis
+   * 源码方法 ellipse；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.absellipse。
+   */
   ellipse(e, t, n, r, i, a, s, o) {
     const c = this.currentPoint.x,
       l = this.currentPoint.y;
     return this.absellipse(e + c, t + l, n, r, i, a, s, o), this;
   }
+  /** @eyes-analysis
+   * 源码方法 absellipse；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.equals、ellipseCurve.getPoint、new EllipseCurve、this.currentPoint.copy、this.curves.push等。
+   */
   absellipse(e, t, n, r, i, a, s, o) {
     const ellipseCurve = new EllipseCurve(e, t, n, r, i, a, s, o);
     if (this.curves.length > 0) {
@@ -7228,32 +11922,67 @@ class Path extends CurvePath {
     const l = ellipseCurve.getPoint(1);
     return this.currentPoint.copy(l), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.currentPoint.copy。
+   */
   copy(e) {
     return super.copy(e), this.currentPoint.copy(e.currentPoint), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.currentPoint.toArray。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.currentPoint = this.currentPoint.toArray(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.fromJSON、this.currentPoint.fromArray。
+   */
   fromJSON(e) {
     return super.fromJSON(e), this.currentPoint.fromArray(e.currentPoint), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：带内部孔洞的二维封闭轮廓
+ * 继承：Path；导出：Shape。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Shape extends Path {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：holes、type、uuid。
+   * 调用线索：super、yr。
+   */
   constructor(e) {
     super(e), this.uuid = yr(), this.type = "Shape", this.holes = [];
   }
+  /** @eyes-analysis
+   * 源码方法 getPointsHoles；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.holes[n].getPoints。
+   */
   getPointsHoles(e) {
     const t = [];
     for (let n = 0, r = this.holes.length; n < r; n++) t[n] = this.holes[n].getPoints(e);
     return t;
   }
+  /** @eyes-analysis
+   * 源码方法 extractPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getPoints、this.getPointsHoles。
+   */
   extractPoints(e) {
     return {
       shape: this.getPoints(e),
       holes: this.getPointsHoles(e)
     };
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：holes。
+   * 调用线索：n.clone、super.copy、this.holes.push。
+   */
   copy(e) {
     super.copy(e), this.holes = [];
     for (let t = 0, n = e.holes.length; t < n; t++) {
@@ -7262,6 +11991,10 @@ class Shape extends Path {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：e.holes.push、n.toJSON、super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     e.uuid = this.uuid, e.holes = [];
@@ -7271,6 +12004,11 @@ class Shape extends Path {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：holes、uuid。
+   * 调用线索：new Path、new Path().fromJSON、super.fromJSON、this.holes.push。
+   */
   fromJSON(e) {
     super.fromJSON(e), this.uuid = e.uuid, this.holes = [];
     for (let t = 0, n = e.holes.length; t < n; t++) {
@@ -7578,21 +12316,46 @@ function Io(e, t, n) {
     steiner: !1
   };
 }
+/** @eyes-analysis
+ * 类职责：基于耳切法和空间索引对带孔多边形三角化
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Earcut {
+  /** @eyes-analysis
+   * 源码方法 triangulate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：lo。
+   */
   static triangulate(e, t, n = 2) {
     return lo(e, t, n);
   }
 }
+/** @eyes-analysis
+ * 类职责：二维轮廓面积、方向判断和三角剖分适配
+ * 继承：无显式父类；导出：ShapeUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShapeUtils {
+  /** @eyes-analysis
+   * 源码方法 area；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static area(e) {
     const t = e.length;
     let n = 0;
     for (let r = t - 1, i = 0; i < t; r = i++) n += e[r].x * e[i].y - e[i].x * e[r].y;
     return .5 * n;
   }
+  /** @eyes-analysis
+   * 源码方法 isClockWise；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：ShapeUtils.area。
+   */
   static isClockWise(e) {
     return ShapeUtils.area(e) < 0;
   }
+  /** @eyes-analysis
+   * 源码方法 triangulateShape；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Earcut.triangulate、Ro、i.push、ko、r.push等。
+   */
   static triangulateShape(e, t) {
     const n = [],
       r = [],
@@ -7613,7 +12376,17 @@ function Ro(e) {
 function ko(e, t) {
   for (let n = 0; n < t.length; n++) e.push(t[n].x), e.push(t[n].y);
 }
+/** @eyes-analysis
+ * 类职责：Extrude 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：ExtrudeGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ExtrudeGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：A.copy、A.copy(_.binormals[0]).multiplyScalar、A.copy(_.binormals[e]).multiplyScalar、Array.isArray、B.push等。
+   */
   constructor(e = new Shape([new Vector2(.5, .5), new Vector2(-.5, .5), new Vector2(-.5, -.5), new Vector2(.5, -.5)]), t = {}) {
     super(), this.type = "ExtrudeGeometry", this.parameters = {
       shapes: e,
@@ -7842,9 +12615,18 @@ class ExtrudeGeometry extends BufferGeometry {
     }
     this.setAttribute("position", new Float32BufferAttribute(r, 3)), this.setAttribute("uv", new Float32BufferAttribute(i, 2)), this.computeVertexNormals();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.isArray、Object.assign、function(e,t,n){if(n.shapes=[],Array.isArray(e))for(let t=0,r=e.length;t<r;t++){const r=e[t];n.shapes.push(r.uuid);}else n.shapes.push(e.uuid);n.options=Object.assign({},t),void 0!==t.extrudePath&&(n.options.extrudePath=t.extrudePath.toJSON());return n;}、n.shapes.push、super.toJSON等。
+   */
   toJSON() {
     const e = super.toJSON();
     return function (e, t, n) {
@@ -7856,6 +12638,10 @@ class ExtrudeGeometry extends BufferGeometry {
       return n;
     }(this.parameters.shapes, this.parameters.options, e);
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.push、new ExtrudeGeometry、new co[r.type]、new co[r.type]().fromJSON。
+   */
   static fromJSON(e, t) {
     const n = [];
     for (let r = 0, i = e.shapes.length; r < i; r++) {
@@ -7892,7 +12678,17 @@ const Po = {
     return Math.abs(o - u) < Math.abs(s - l) ? [new Vector2(s, 1 - c), new Vector2(l, 1 - d), new Vector2(h, 1 - f), new Vector2(m, 1 - _)] : [new Vector2(o, 1 - c), new Vector2(u, 1 - d), new Vector2(p, 1 - f), new Vector2(M, 1 - _)];
   }
 };
+/** @eyes-analysis
+ * 类职责：Icosahedron 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：PolyhedronGeometry；导出：IcosahedronGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class IcosahedronGeometry extends PolyhedronGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.sqrt、super。
+   */
   constructor(e = 1, t = 0) {
     const n = (1 + Math.sqrt(5)) / 2;
     super([-1, n, 0, 1, n, 0, -1, -n, 0, 1, -n, 0, 0, -1, n, 0, 1, n, 0, -1, -n, 0, 1, -n, n, 0, -1, n, 0, 1, -n, 0, -1, -n, 0, 1], [0, 11, 5, 0, 5, 1, 0, 1, 7, 0, 7, 10, 0, 10, 11, 1, 5, 9, 5, 11, 4, 11, 10, 2, 10, 7, 6, 7, 1, 8, 3, 9, 4, 3, 4, 2, 3, 2, 6, 3, 6, 8, 3, 8, 9, 4, 9, 5, 2, 4, 11, 6, 2, 10, 8, 6, 7, 9, 8, 1], e, t), this.type = "IcosahedronGeometry", this.parameters = {
@@ -7900,11 +12696,25 @@ class IcosahedronGeometry extends PolyhedronGeometry {
       detail: t
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new IcosahedronGeometry。
+   */
   static fromJSON(e) {
     return new IcosahedronGeometry(e.radius, e.detail);
   }
 }
+/** @eyes-analysis
+ * 类职责：Lathe 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：LatheGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LatheGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Lr、Math.cos、Math.floor、Math.sin、a.push等。
+   */
   constructor(e = [new Vector2(0, -.5), new Vector2(.5, 0), new Vector2(0, .5)], t = 12, n = 0, r = 2 * Math.PI) {
     super(), this.type = "LatheGeometry", this.parameters = {
       points: e,
@@ -7957,25 +12767,58 @@ class LatheGeometry extends BufferGeometry {
     }
     this.setIndex(i), this.setAttribute("position", new Float32BufferAttribute(a, 3)), this.setAttribute("uv", new Float32BufferAttribute(s, 2)), this.setAttribute("normal", new Float32BufferAttribute(c, 3));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new LatheGeometry。
+   */
   static fromJSON(e) {
     return new LatheGeometry(e.points, e.segments, e.phiStart, e.phiLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Octahedron 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：PolyhedronGeometry；导出：OctahedronGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class OctahedronGeometry extends PolyhedronGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：super。
+   */
   constructor(e = 1, t = 0) {
     super([1, 0, 0, -1, 0, 0, 0, 1, 0, 0, -1, 0, 0, 0, 1, 0, 0, -1], [0, 2, 4, 0, 4, 3, 0, 3, 5, 0, 5, 2, 1, 2, 5, 1, 5, 3, 1, 3, 4, 1, 4, 2], e, t), this.type = "OctahedronGeometry", this.parameters = {
       radius: e,
       detail: t
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new OctahedronGeometry。
+   */
   static fromJSON(e) {
     return new OctahedronGeometry(e.radius, e.detail);
   }
 }
+/** @eyes-analysis
+ * 类职责：Plane 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：PlaneGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PlaneGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.floor、f.push、h.push、m.push、new Float32BufferAttribute等。
+   */
   constructor(e = 1, t = 1, n = 1, r = 1) {
     super(), this.type = "PlaneGeometry", this.parameters = {
       width: e,
@@ -8011,14 +12854,33 @@ class PlaneGeometry extends BufferGeometry {
     }
     this.setIndex(h), this.setAttribute("position", new Float32BufferAttribute(p, 3)), this.setAttribute("normal", new Float32BufferAttribute(f, 3)), this.setAttribute("uv", new Float32BufferAttribute(m, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new PlaneGeometry。
+   */
   static fromJSON(e) {
     return new PlaneGeometry(e.width, e.height, e.widthSegments, e.heightSegments);
   }
 }
+/** @eyes-analysis
+ * 类职责：Ring 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：RingGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RingGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.cos、Math.max、Math.sin、c.push、l.push等。
+   */
   constructor(e = .5, t = 1, n = 32, r = 1, i = 0, a = 2 * Math.PI) {
     super(), this.type = "RingGeometry", this.parameters = {
       innerRadius: e,
@@ -8056,14 +12918,33 @@ class RingGeometry extends BufferGeometry {
     }
     this.setIndex(s), this.setAttribute("position", new Float32BufferAttribute(o, 3)), this.setAttribute("normal", new Float32BufferAttribute(c, 3)), this.setAttribute("uv", new Float32BufferAttribute(l, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new RingGeometry。
+   */
   static fromJSON(e) {
     return new RingGeometry(e.innerRadius, e.outerRadius, e.thetaSegments, e.phiSegments, e.thetaStart, e.thetaLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Shape 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：ShapeGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShapeGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Array.isArray、ShapeUtils.isClockWise、ShapeUtils.triangulateShape、a.push、c等。
+   */
   constructor(e = new Shape([new Vector2(0, .5), new Vector2(-.5, -.5), new Vector2(.5, -.5)]), t = 12) {
     super(), this.type = "ShapeGeometry", this.parameters = {
       shapes: e,
@@ -8105,9 +12986,18 @@ class ShapeGeometry extends BufferGeometry {
     }
     this.setIndex(n), this.setAttribute("position", new Float32BufferAttribute(r, 3)), this.setAttribute("normal", new Float32BufferAttribute(i, 3)), this.setAttribute("uv", new Float32BufferAttribute(a, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Array.isArray、function(e,t){if(t.shapes=[],Array.isArray(e))for(let n=0,r=e.length;n<r;n++){const r=e[n];t.shapes.push(r.uuid);}else t.shapes.push(e.uuid);return t;}、super.toJSON、t.shapes.push。
+   */
   toJSON() {
     const e = super.toJSON();
     return function (e, t) {
@@ -8118,6 +13008,10 @@ class ShapeGeometry extends BufferGeometry {
       return t;
     }(this.parameters.shapes, e);
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.push、new ShapeGeometry。
+   */
   static fromJSON(e, t) {
     const n = [];
     for (let r = 0, i = e.shapes.length; r < i; r++) {
@@ -8127,7 +13021,17 @@ class ShapeGeometry extends BufferGeometry {
     return new ShapeGeometry(n, e.curveSegments);
   }
 }
+/** @eyes-analysis
+ * 类职责：Sphere 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：SphereGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SphereGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：M.push、Math.cos、Math.floor、Math.max、Math.min等。
+   */
   constructor(e = 1, t = 32, n = 16, r = 0, i = 2 * Math.PI, a = 0, s = Math.PI) {
     super(), this.type = "SphereGeometry", this.parameters = {
       radius: e,
@@ -8171,25 +13075,58 @@ class SphereGeometry extends BufferGeometry {
     }
     this.setIndex(h), this.setAttribute("position", new Float32BufferAttribute(p, 3)), this.setAttribute("normal", new Float32BufferAttribute(f, 3)), this.setAttribute("uv", new Float32BufferAttribute(m, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new SphereGeometry。
+   */
   static fromJSON(e) {
     return new SphereGeometry(e.radius, e.widthSegments, e.heightSegments, e.phiStart, e.phiLength, e.thetaStart, e.thetaLength);
   }
 }
+/** @eyes-analysis
+ * 类职责：Tetrahedron 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：PolyhedronGeometry；导出：TetrahedronGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TetrahedronGeometry extends PolyhedronGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：super。
+   */
   constructor(e = 1, t = 0) {
     super([1, 1, 1, -1, -1, 1, -1, 1, -1, 1, -1, -1], [2, 1, 0, 0, 3, 2, 1, 3, 0, 2, 3, 1], e, t), this.type = "TetrahedronGeometry", this.parameters = {
       radius: e,
       detail: t
     };
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new TetrahedronGeometry。
+   */
   static fromJSON(e) {
     return new TetrahedronGeometry(e.radius, e.detail);
   }
 }
+/** @eyes-analysis
+ * 类职责：Torus 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：TorusGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TorusGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Math.cos、Math.floor、Math.sin、c.push、l.push等。
+   */
   constructor(e = 1, t = .4, n = 12, r = 48, i = 2 * Math.PI, a = 0, s = 2 * Math.PI) {
     super(), this.type = "TorusGeometry", this.parameters = {
       radius: e,
@@ -8223,14 +13160,33 @@ class TorusGeometry extends BufferGeometry {
     }
     this.setIndex(o), this.setAttribute("position", new Float32BufferAttribute(c, 3)), this.setAttribute("normal", new Float32BufferAttribute(l, 3)), this.setAttribute("uv", new Float32BufferAttribute(u, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new TorusGeometry。
+   */
   static fromJSON(e) {
     return new TorusGeometry(e.radius, e.tube, e.radialSegments, e.tubularSegments, e.arc);
   }
 }
+/** @eyes-analysis
+ * 类职责：TorusKnot 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：TorusKnotGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TorusKnotGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：M.addVectors、M.crossVectors、M.normalize、Math.cos、Math.floor等。
+   */
   constructor(e = 1, t = .4, n = 64, r = 8, i = 2, a = 3) {
     super(), this.type = "TorusKnotGeometry", this.parameters = {
       radius: e,
@@ -8277,14 +13233,33 @@ class TorusKnotGeometry extends BufferGeometry {
     }
     this.setIndex(s), this.setAttribute("position", new Float32BufferAttribute(o, 3)), this.setAttribute("normal", new Float32BufferAttribute(c, 3)), this.setAttribute("uv", new Float32BufferAttribute(l, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new TorusKnotGeometry。
+   */
   static fromJSON(e) {
     return new TorusKnotGeometry(e.radius, e.tube, e.tubularSegments, e.radialSegments, e.p, e.q);
   }
 }
+/** @eyes-analysis
+ * 类职责：Tube 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：TubeGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TubeGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：binormals、normals、parameters、tangents、type。
+   * 调用线索：Math.cos、Math.sin、d.push、e.computeFrenetFrames、e.getPointAt等。
+   */
   constructor(e = new QuadraticBezierCurve3(new Vector3(-1, -1, 0), new Vector3(-1, 1, 0), new Vector3(1, 1, 0)), t = 64, n = 1, r = 8, i = !1) {
     super(), this.type = "TubeGeometry", this.parameters = {
       path: e,
@@ -8329,18 +13304,41 @@ class TubeGeometry extends BufferGeometry {
       }();
     }(), this.setIndex(p), this.setAttribute("position", new Float32BufferAttribute(u, 3)), this.setAttribute("normal", new Float32BufferAttribute(d, 3)), this.setAttribute("uv", new Float32BufferAttribute(h, 2));
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.parameters.path.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.path = this.parameters.path.toJSON(), e;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new TubeGeometry、new co[e.path.type]、new co[e.path.type]().fromJSON。
+   */
   static fromJSON(e) {
     return new TubeGeometry(new co[e.path.type]().fromJSON(e.path), e.tubularSegments, e.radius, e.radialSegments, e.closed);
   }
 }
+/** @eyes-analysis
+ * 类职责：Wireframe 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：WireframeGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class WireframeGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：parameters、type。
+   * 调用线索：Yo、i.fromBufferAttribute、new Float32BufferAttribute、new Set、new Vector3等。
+   */
   constructor(e = null) {
     if (super(), this.type = "WireframeGeometry", this.parameters = {
       geometry: e
@@ -8378,6 +13376,11 @@ class WireframeGeometry extends BufferGeometry {
       this.setAttribute("position", new Float32BufferAttribute(t, 3));
     }
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：parameters。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.parameters = Object.assign({}, e.parameters), this;
   }
@@ -8411,10 +13414,25 @@ var Wo = Object.freeze({
   TubeGeometry: TubeGeometry,
   WireframeGeometry: WireframeGeometry
 });
+/** @eyes-analysis
+ * 类职责：仅显示透明背景上的阴影材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：ShadowMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShadowMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、fog、isShadowMaterial、transparent、type。
+   * 调用线索：new Color、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isShadowMaterial = !0, this.type = "ShadowMaterial", this.color = new Color(0), this.transparent = !0, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：fog。
+   * 调用线索：super.copy、this.color.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.fog = e.fog, this;
   }
@@ -8455,7 +13473,17 @@ const UniformsUtils = {
   clone: cloneUniforms,
   merge: mergeUniforms
 };
+/** @eyes-analysis
+ * 类职责：用户 GLSL shader 和自动内置声明材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：ShaderMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShaderMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：clipping、defaultAttributeValues、defines、extensions、fog、forceSinglePass、fragmentShader、glslVersion等；完整记录见索引。
+   * 调用线索：super、this.setValues。
+   */
   constructor(e) {
     super(), this.isShaderMaterial = !0, this.type = "ShaderMaterial", this.defines = {}, this.uniforms = {}, this.uniformsGroups = [], this.vertexShader = "void main() {\n\tgl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );\n}", this.fragmentShader = "void main() {\n\tgl_FragColor = vec4( 1.0, 0.0, 0.0, 1.0 );\n}", this.linewidth = 1, this.wireframe = !1, this.wireframeLinewidth = 1, this.fog = !1, this.lights = !1, this.clipping = !1, this.forceSinglePass = !0, this.extensions = {
       clipCullDistance: !1,
@@ -8466,6 +13494,11 @@ class ShaderMaterial extends Material {
       uv1: [0, 0]
     }, this.index0AttributeName = void 0, this.uniformsNeedUpdate = !1, this.glslVersion = null, void 0 !== e && this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：clipping、defaultAttributeValues、defines、extensions、fog、fragmentShader、glslVersion、index0AttributeName等；完整记录见索引。
+   * 调用线索：Object.assign、cloneUniforms、e[n].clone、function(e){const t=[];for(let n=0;n<e.length;n++)t.push(e[n].clone());return t;}、super.copy等。
+   */
   copy(e) {
     return super.copy(e), this.fragmentShader = e.fragmentShader, this.vertexShader = e.vertexShader, this.uniforms = cloneUniforms(e.uniforms), this.uniformsGroups = function (e) {
       const t = [];
@@ -8473,6 +13506,10 @@ class ShaderMaterial extends Material {
       return t;
     }(e.uniformsGroups), this.defines = Object.assign({}, e.defines), this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.fog = e.fog, this.lights = e.lights, this.clipping = e.clipping, this.extensions = Object.assign({}, e.extensions), this.glslVersion = e.glslVersion, this.defaultAttributeValues = Object.assign({}, e.defaultAttributeValues), this.index0AttributeName = e.index0AttributeName, this.uniformsNeedUpdate = e.uniformsNeedUpdate, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Object.keys、r.getHex、r.toArray、r.toJSON、super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     t.glslVersion = this.glslVersion, t.uniforms = {};
@@ -8508,6 +13545,11 @@ class ShaderMaterial extends Material {
     for (const e in this.extensions) !0 === this.extensions[e] && (n[e] = !0);
     return Object.keys(n).length > 0 && (t.extensions = n), t;
   }
+  /** @eyes-analysis
+   * 源码方法 fromJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：clipping、defines、extensions[t]、fragmentShader、glslVersion、lights、uniforms[n]、uniforms[n].value等；完整记录见索引。
+   * 调用线索：new Color、new Color().setHex、new Matrix3、new Matrix3().fromArray、new Matrix4等。
+   */
   fromJSON(e, t) {
     if (super.fromJSON(e, t), void 0 !== e.uniforms) for (const n in e.uniforms) {
       const r = e.uniforms[n];
@@ -8541,24 +13583,59 @@ class ShaderMaterial extends Material {
     return void 0 !== e.lights && (this.lights = e.lights), void 0 !== e.clipping && (this.clipping = e.clipping), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：由用户完全控制 shader 声明材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：ShaderMaterial；导出：RawShaderMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RawShaderMaterial extends ShaderMaterial {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isRawShaderMaterial、type。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e), this.isRawShaderMaterial = !0, this.type = "RawShaderMaterial";
   }
 }
+/** @eyes-analysis
+ * 类职责：金属度/粗糙度 PBR材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshStandardMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshStandardMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、color、defines、displacementBias等；完整记录见索引。
+   * 调用线索：new Color、new Euler、new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshStandardMaterial = !0, this.type = "MeshStandardMaterial", this.defines = {
       STANDARD: ""
     }, this.color = new Color(16777215), this.roughness = 1, this.metalness = 0, this.map = null, this.lightMap = null, this.lightMapIntensity = 1, this.aoMap = null, this.aoMapIntensity = 1, this.emissive = new Color(0), this.emissiveIntensity = 1, this.emissiveMap = null, this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.roughnessMap = null, this.metalnessMap = null, this.alphaMap = null, this.envMap = null, this.envMapRotation = new Euler(), this.envMapIntensity = 1, this.wireframe = !1, this.wireframeLinewidth = 1, this.wireframeLinecap = "round", this.wireframeLinejoin = "round", this.flatShading = !1, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、defines、displacementBias、displacementMap等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.emissive.copy、this.envMapRotation.copy、this.normalScale.copy。
+   */
   copy(e) {
     return super.copy(e), this.defines = {
       STANDARD: ""
     }, this.color.copy(e.color), this.roughness = e.roughness, this.metalness = e.metalness, this.map = e.map, this.lightMap = e.lightMap, this.lightMapIntensity = e.lightMapIntensity, this.aoMap = e.aoMap, this.aoMapIntensity = e.aoMapIntensity, this.emissive.copy(e.emissive), this.emissiveMap = e.emissiveMap, this.emissiveIntensity = e.emissiveIntensity, this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.roughnessMap = e.roughnessMap, this.metalnessMap = e.metalnessMap, this.alphaMap = e.alphaMap, this.envMap = e.envMap, this.envMapRotation.copy(e.envMapRotation), this.envMapIntensity = e.envMapIntensity, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.wireframeLinecap = e.wireframeLinecap, this.wireframeLinejoin = e.wireframeLinejoin, this.flatShading = e.flatShading, this.fog = e.fog, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：增加清漆、透射、虹彩等物理层的 PBR材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：MeshStandardMaterial；导出：MeshPhysicalMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshPhysicalMaterial extends MeshStandardMaterial {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_anisotropy、_clearcoat、_dispersion、_iridescence、_sheen、_transmission、anisotropyMap、anisotropyRotation等；完整记录见索引。
+   * 调用线索：Lr、Object.defineProperty、new Color、new Vector2、super等。
+   */
   constructor(e) {
     super(), this.isMeshPhysicalMaterial = !0, this.defines = {
       STANDARD: "",
@@ -8572,42 +13649,89 @@ class MeshPhysicalMaterial extends MeshStandardMaterial {
       }
     }), this.iridescenceMap = null, this.iridescenceIOR = 1.3, this.iridescenceThicknessRange = [100, 400], this.iridescenceThicknessMap = null, this.sheenColor = new Color(0), this.sheenColorMap = null, this.sheenRoughness = 1, this.sheenRoughnessMap = null, this.transmissionMap = null, this.thickness = 0, this.thicknessMap = null, this.attenuationDistance = 1 / 0, this.attenuationColor = new Color(1, 1, 1), this.specularIntensity = 1, this.specularIntensityMap = null, this.specularColor = new Color(1, 1, 1), this.specularColorMap = null, this._anisotropy = 0, this._clearcoat = 0, this._dispersion = 0, this._iridescence = 0, this._sheen = 0, this._transmission = 0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 只读返回 this._anisotropy；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get anisotropy() {
     return this._anisotropy;
   }
+  /** @eyes-analysis
+   * 写入 _anisotropy；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_anisotropy、version。
+   */
   set anisotropy(anisotropy) {
     this._anisotropy > 0 != anisotropy > 0 && this.version++, this._anisotropy = anisotropy;
   }
+  /** @eyes-analysis
+   * 只读返回 this._clearcoat；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get clearcoat() {
     return this._clearcoat;
   }
+  /** @eyes-analysis
+   * 写入 _clearcoat；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_clearcoat、version。
+   */
   set clearcoat(clearcoat) {
     this._clearcoat > 0 != clearcoat > 0 && this.version++, this._clearcoat = clearcoat;
   }
+  /** @eyes-analysis
+   * 只读返回 this._iridescence；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get iridescence() {
     return this._iridescence;
   }
+  /** @eyes-analysis
+   * 写入 _iridescence；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_iridescence、version。
+   */
   set iridescence(iridescence) {
     this._iridescence > 0 != iridescence > 0 && this.version++, this._iridescence = iridescence;
   }
+  /** @eyes-analysis
+   * 只读返回 this._dispersion；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get dispersion() {
     return this._dispersion;
   }
+  /** @eyes-analysis
+   * 写入 _dispersion；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_dispersion、version。
+   */
   set dispersion(dispersion) {
     this._dispersion > 0 != dispersion > 0 && this.version++, this._dispersion = dispersion;
   }
+  /** @eyes-analysis
+   * 只读返回 this._sheen；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get sheen() {
     return this._sheen;
   }
+  /** @eyes-analysis
+   * 写入 _sheen；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_sheen、version。
+   */
   set sheen(sheen) {
     this._sheen > 0 != sheen > 0 && this.version++, this._sheen = sheen;
   }
+  /** @eyes-analysis
+   * 只读返回 this._transmission；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get transmission() {
     return this._transmission;
   }
+  /** @eyes-analysis
+   * 写入 _transmission；当正值启用状态切换时递增 version 使 shader 特性失效
+   * 状态写入：_transmission、version。
+   */
   set transmission(transmission) {
     this._transmission > 0 != transmission > 0 && this.version++, this._transmission = transmission;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：anisotropy、anisotropyMap、anisotropyRotation、attenuationDistance、clearcoat、clearcoatMap、clearcoatNormalMap、clearcoatRoughness等；完整记录见索引。
+   * 调用线索：super.copy、this.attenuationColor.copy、this.clearcoatNormalScale.copy、this.sheenColor.copy、this.specularColor.copy。
+   */
   copy(e) {
     return super.copy(e), this.defines = {
       STANDARD: "",
@@ -8615,72 +13739,192 @@ class MeshPhysicalMaterial extends MeshStandardMaterial {
     }, this.anisotropy = e.anisotropy, this.anisotropyRotation = e.anisotropyRotation, this.anisotropyMap = e.anisotropyMap, this.clearcoat = e.clearcoat, this.clearcoatMap = e.clearcoatMap, this.clearcoatRoughness = e.clearcoatRoughness, this.clearcoatRoughnessMap = e.clearcoatRoughnessMap, this.clearcoatNormalMap = e.clearcoatNormalMap, this.clearcoatNormalScale.copy(e.clearcoatNormalScale), this.dispersion = e.dispersion, this.ior = e.ior, this.iridescence = e.iridescence, this.iridescenceMap = e.iridescenceMap, this.iridescenceIOR = e.iridescenceIOR, this.iridescenceThicknessRange = [...e.iridescenceThicknessRange], this.iridescenceThicknessMap = e.iridescenceThicknessMap, this.sheen = e.sheen, this.sheenColor.copy(e.sheenColor), this.sheenColorMap = e.sheenColorMap, this.sheenRoughness = e.sheenRoughness, this.sheenRoughnessMap = e.sheenRoughnessMap, this.transmission = e.transmission, this.transmissionMap = e.transmissionMap, this.thickness = e.thickness, this.thicknessMap = e.thicknessMap, this.attenuationDistance = e.attenuationDistance, this.attenuationColor.copy(e.attenuationColor), this.specularIntensity = e.specularIntensity, this.specularIntensityMap = e.specularIntensityMap, this.specularColor.copy(e.specularColor), this.specularColorMap = e.specularColorMap, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：高光反射 Phong材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshPhongMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshPhongMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、color、combine、displacementBias等；完整记录见索引。
+   * 调用线索：new Color、new Euler、new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshPhongMaterial = !0, this.type = "MeshPhongMaterial", this.color = new Color(16777215), this.specular = new Color(1118481), this.shininess = 30, this.map = null, this.lightMap = null, this.lightMapIntensity = 1, this.aoMap = null, this.aoMapIntensity = 1, this.emissive = new Color(0), this.emissiveIntensity = 1, this.emissiveMap = null, this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.specularMap = null, this.alphaMap = null, this.envMap = null, this.envMapRotation = new Euler(), this.combine = Z, this.reflectivity = 1, this.envMapIntensity = 1, this.refractionRatio = .98, this.wireframe = !1, this.wireframeLinewidth = 1, this.wireframeLinecap = "round", this.wireframeLinejoin = "round", this.flatShading = !1, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、combine、displacementBias、displacementMap等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.emissive.copy、this.envMapRotation.copy、this.normalScale.copy等。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.specular.copy(e.specular), this.shininess = e.shininess, this.map = e.map, this.lightMap = e.lightMap, this.lightMapIntensity = e.lightMapIntensity, this.aoMap = e.aoMap, this.aoMapIntensity = e.aoMapIntensity, this.emissive.copy(e.emissive), this.emissiveMap = e.emissiveMap, this.emissiveIntensity = e.emissiveIntensity, this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.specularMap = e.specularMap, this.alphaMap = e.alphaMap, this.envMap = e.envMap, this.envMapRotation.copy(e.envMapRotation), this.combine = e.combine, this.reflectivity = e.reflectivity, this.envMapIntensity = e.envMapIntensity, this.refractionRatio = e.refractionRatio, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.wireframeLinecap = e.wireframeLinecap, this.wireframeLinejoin = e.wireframeLinejoin, this.flatShading = e.flatShading, this.fog = e.fog, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：渐变分级卡通光照材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshToonMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshToonMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、color、defines、displacementBias等；完整记录见索引。
+   * 调用线索：new Color、new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshToonMaterial = !0, this.defines = {
       TOON: ""
     }, this.type = "MeshToonMaterial", this.color = new Color(16777215), this.map = null, this.gradientMap = null, this.lightMap = null, this.lightMapIntensity = 1, this.aoMap = null, this.aoMapIntensity = 1, this.emissive = new Color(0), this.emissiveIntensity = 1, this.emissiveMap = null, this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.alphaMap = null, this.wireframe = !1, this.wireframeLinewidth = 1, this.wireframeLinecap = "round", this.wireframeLinejoin = "round", this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、displacementBias、displacementMap、displacementScale等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.emissive.copy、this.normalScale.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.gradientMap = e.gradientMap, this.lightMap = e.lightMap, this.lightMapIntensity = e.lightMapIntensity, this.aoMap = e.aoMap, this.aoMapIntensity = e.aoMapIntensity, this.emissive.copy(e.emissive), this.emissiveMap = e.emissiveMap, this.emissiveIntensity = e.emissiveIntensity, this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.alphaMap = e.alphaMap, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.wireframeLinecap = e.wireframeLinecap, this.wireframeLinejoin = e.wireframeLinejoin, this.fog = e.fog, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：法线向量可视化材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshNormalMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshNormalMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：bumpMap、bumpScale、displacementBias、displacementMap、displacementScale、flatShading、isMeshNormalMaterial、normalMap等；完整记录见索引。
+   * 调用线索：new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshNormalMaterial = !0, this.type = "MeshNormalMaterial", this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.wireframe = !1, this.wireframeLinewidth = 1, this.flatShading = !1, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：bumpMap、bumpScale、displacementBias、displacementMap、displacementScale、flatShading、normalMap、normalMapType等；完整记录见索引。
+   * 调用线索：super.copy、this.normalScale.copy。
+   */
   copy(e) {
     return super.copy(e), this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.flatShading = e.flatShading, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：漫反射 Lambert材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshLambertMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshLambertMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、color、combine、displacementBias等；完整记录见索引。
+   * 调用线索：new Color、new Euler、new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshLambertMaterial = !0, this.type = "MeshLambertMaterial", this.color = new Color(16777215), this.map = null, this.lightMap = null, this.lightMapIntensity = 1, this.aoMap = null, this.aoMapIntensity = 1, this.emissive = new Color(0), this.emissiveIntensity = 1, this.emissiveMap = null, this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.specularMap = null, this.alphaMap = null, this.envMap = null, this.envMapRotation = new Euler(), this.combine = Z, this.reflectivity = 1, this.envMapIntensity = 1, this.refractionRatio = .98, this.wireframe = !1, this.wireframeLinewidth = 1, this.wireframeLinecap = "round", this.wireframeLinejoin = "round", this.flatShading = !1, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、aoMap、aoMapIntensity、bumpMap、bumpScale、combine、displacementBias、displacementMap等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.emissive.copy、this.envMapRotation.copy、this.normalScale.copy。
+   */
   copy(e) {
     return super.copy(e), this.color.copy(e.color), this.map = e.map, this.lightMap = e.lightMap, this.lightMapIntensity = e.lightMapIntensity, this.aoMap = e.aoMap, this.aoMapIntensity = e.aoMapIntensity, this.emissive.copy(e.emissive), this.emissiveMap = e.emissiveMap, this.emissiveIntensity = e.emissiveIntensity, this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.specularMap = e.specularMap, this.alphaMap = e.alphaMap, this.envMap = e.envMap, this.envMapRotation.copy(e.envMapRotation), this.combine = e.combine, this.reflectivity = e.reflectivity, this.envMapIntensity = e.envMapIntensity, this.refractionRatio = e.refractionRatio, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.wireframeLinecap = e.wireframeLinecap, this.wireframeLinejoin = e.wireframeLinejoin, this.flatShading = e.flatShading, this.fog = e.fog, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：将相机深度编码到颜色材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshDepthMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshDepthMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、depthPacking、displacementBias、displacementMap、displacementScale、isMeshDepthMaterial、map、type等；完整记录见索引。
+   * 调用线索：super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshDepthMaterial = !0, this.type = "MeshDepthMaterial", this.depthPacking = $t, this.map = null, this.alphaMap = null, this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.wireframe = !1, this.wireframeLinewidth = 1, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、depthPacking、displacementBias、displacementMap、displacementScale、map、wireframe、wireframeLinewidth。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.depthPacking = e.depthPacking, this.map = e.map, this.alphaMap = e.alphaMap, this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：将到参考点的距离编码到颜色以生成点光阴影材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshDistanceMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshDistanceMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、displacementBias、displacementMap、displacementScale、isMeshDistanceMaterial、map、type。
+   * 调用线索：super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshDistanceMaterial = !0, this.type = "MeshDistanceMaterial", this.map = null, this.alphaMap = null, this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、displacementBias、displacementMap、displacementScale、map。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.map = e.map, this.alphaMap = e.alphaMap, this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：以视空间法线查表采样 Matcap材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：Material；导出：MeshMatcapMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MeshMatcapMaterial extends Material {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：alphaMap、bumpMap、bumpScale、color、defines、displacementBias、displacementMap、displacementScale等；完整记录见索引。
+   * 调用线索：new Color、new Vector2、super、this.setValues。
+   */
   constructor(e) {
     super(), this.isMeshMatcapMaterial = !0, this.defines = {
       MATCAP: ""
     }, this.type = "MeshMatcapMaterial", this.color = new Color(16777215), this.matcap = null, this.map = null, this.bumpMap = null, this.bumpScale = 1, this.normalMap = null, this.normalMapType = nn, this.normalScale = new Vector2(1, 1), this.displacementMap = null, this.displacementScale = 1, this.displacementBias = 0, this.alphaMap = null, this.wireframe = !1, this.wireframeLinewidth = 1, this.flatShading = !1, this.fog = !0, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：alphaMap、bumpMap、bumpScale、defines、displacementBias、displacementMap、displacementScale、flatShading等；完整记录见索引。
+   * 调用线索：super.copy、this.color.copy、this.normalScale.copy。
+   */
   copy(e) {
     return super.copy(e), this.defines = {
       MATCAP: ""
     }, this.color.copy(e.color), this.matcap = e.matcap, this.map = e.map, this.bumpMap = e.bumpMap, this.bumpScale = e.bumpScale, this.normalMap = e.normalMap, this.normalMapType = e.normalMapType, this.normalScale.copy(e.normalScale), this.displacementMap = e.displacementMap, this.displacementScale = e.displacementScale, this.displacementBias = e.displacementBias, this.alphaMap = e.alphaMap, this.wireframe = e.wireframe, this.wireframeLinewidth = e.wireframeLinewidth, this.flatShading = e.flatShading, this.fog = e.fog, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：以线距离属性计算虚线材质；其参数由渲染器选择 shader 特性并上传 uniform
+ * 继承：LineBasicMaterial；导出：LineDashedMaterial。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LineDashedMaterial extends LineBasicMaterial {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：dashSize、gapSize、isLineDashedMaterial、scale、type。
+   * 调用线索：super、this.setValues。
+   */
   constructor(e) {
     super(), this.isLineDashedMaterial = !0, this.type = "LineDashedMaterial", this.scale = 1, this.dashSize = 3, this.gapSize = 1, this.setValues(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：dashSize、gapSize、scale。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.scale = e.scale, this.dashSize = e.dashSize, this.gapSize = e.gapSize, this;
   }
@@ -8719,22 +13963,51 @@ function Qo(e, t, n, r) {
     s = a[r], void 0 !== s && (t.push(a.time), n.push(s)), a = e[i++];
   } while (void 0 !== a);
 }
+/** @eyes-analysis
+ * 类职责：关键帧数据裁剪、排序、扁平化与加法动画转换
+ * 继承：无显式父类；导出：AnimationUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationUtils {
+  /** @eyes-analysis
+   * 源码方法 convertArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Xo。
+   */
   static convertArray(e, t) {
     return Xo(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 isTypedArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：isTypedArray。
+   */
   static isTypedArray(e) {
     return isTypedArray(e);
   }
+  /** @eyes-analysis
+   * 源码方法 getKeyframeOrder；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：jo。
+   */
   static getKeyframeOrder(e) {
     return jo(e);
   }
+  /** @eyes-analysis
+   * 源码方法 sortedArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Vo。
+   */
   static sortedArray(e, t, n) {
     return Vo(e, t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 flattenJSON；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Qo。
+   */
   static flattenJSON(e, t, n, r) {
     Qo(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 源码方法 subclip；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Xo、a.resetDuration、a.tracks[e].shift、c.push、e.clone等。
+   */
   static subclip(e, t, n, r, i = 30) {
     return function (e, t, n, r, i = 30) {
       const a = e.clone();
@@ -8761,6 +14034,10 @@ class AnimationUtils {
       return a.resetDuration(), a;
     }(e, t, n, r, i);
   }
+  /** @eyes-analysis
+   * 源码方法 makeClipAdditive；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Quaternion.multiplyQuaternionsFlat、e.evaluate、e.resultBuffer.slice、e.tracks.find、function(e,t=0,n=e,r=30){r<=0&&(r=30);const i=n.tracks.length,a=t/r;for(let t=0;t<i;++t){const r=n.tracks[t],i=r.ValueTypeName;if("bool"===i||"string"===i)continue;const s=e.tracks.find(function(e){return e.name===r.name&&e.ValueTypeName===i;});if(void 0===s)continue;let o=0;const c=r.getValueSize();r.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline&&(o=c/3);let l=0;const u=s.getValueSize();s.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline&&(l=u/3);const d=r.times.length-1;let h;if(a<=r.times[0]){const e=o,t=c-o;h=r.values.slice(e,t);}else if(a>=r.times[d]){const e=d*c+o,t=e+c-o;h=r.v…
+   */
   static makeClipAdditive(e, t = 0, n = e, r = 30) {
     return function (e, t = 0, n = e, r = 30) {
       r <= 0 && (r = 30);
@@ -8810,10 +14087,25 @@ class AnimationUtils {
     }(e, t, n, r);
   }
 }
+/** @eyes-analysis
+ * 类职责：查找关键帧区间并提供插值缓存基类
+ * 继承：无显式父类；导出：Interpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Interpolant {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：DefaultSettings_、_cachedIndex、parameterPositions、resultBuffer、sampleValues、settings、valueSize。
+   * 调用线索：new sampleValues.constructor。
+   */
   constructor(parameterPositions, sampleValues, valueSize, r) {
     this.parameterPositions = parameterPositions, this._cachedIndex = 0, this.resultBuffer = void 0 !== r ? r : new sampleValues.constructor(valueSize), this.sampleValues = sampleValues, this.valueSize = valueSize, this.settings = null, this.DefaultSettings_ = {};
   }
+  /** @eyes-analysis
+   * 定位关键帧区间并调用插值实现；结果复用内部缓冲
+   * 状态写入：_cachedIndex。
+   * 调用线索：this.copySampleValue_、this.interpolate_、this.intervalChanged_。
+   */
   evaluate(e) {
     const parameterPositions = this.parameterPositions;
     let cachedIndex = this._cachedIndex,
@@ -8859,9 +14151,15 @@ class Interpolant {
     }
     return this.interpolate_(cachedIndex, i, e, r);
   }
+  /** @eyes-analysis
+   * 源码方法 getSettings_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getSettings_() {
     return this.settings || this.DefaultSettings_;
   }
+  /** @eyes-analysis
+   * 源码方法 copySampleValue_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   copySampleValue_(e) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -8870,18 +14168,40 @@ class Interpolant {
     for (let e = 0; e !== valueSize; ++e) resultBuffer[e] = sampleValues[i + e];
     return resultBuffer;
   }
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   * 调用线索：new Error。
+   */
   interpolate_() {
     throw new Error("THREE.Interpolant: Call to abstract method.");
   }
+  /** @eyes-analysis
+   * 源码方法 intervalChanged_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   intervalChanged_() {}
 }
+/** @eyes-analysis
+ * 类职责：Cubic 插值算法；对关键帧区间求连续或离散值
+ * 继承：Interpolant；导出：CubicInterpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubicInterpolant extends Interpolant {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：DefaultSettings_、_offsetNext、_offsetPrev、_weightNext、_weightPrev。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r), this._weightPrev = -0, this._offsetPrev = -0, this._weightNext = -0, this._offsetNext = -0, this.DefaultSettings_ = {
       endingStart: ZeroCurvatureEnding,
       endingEnd: ZeroCurvatureEnding
     };
   }
+  /** @eyes-analysis
+   * 源码方法 intervalChanged_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_offsetNext、_offsetPrev、_weightNext、_weightPrev。
+   * 调用线索：this.getSettings_。
+   */
   intervalChanged_(e, t, n) {
     const parameterPositions = this.parameterPositions;
     let i = e - 2,
@@ -8912,6 +14232,9 @@ class CubicInterpolant extends Interpolant {
       valueSize = this.valueSize;
     this._weightPrev = c / (t - s), this._weightNext = c / (o - n), this._offsetPrev = i * valueSize, this._offsetNext = a * valueSize;
   }
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   */
   interpolate_(e, t, n, r) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -8933,10 +14256,22 @@ class CubicInterpolant extends Interpolant {
     return resultBuffer;
   }
 }
+/** @eyes-analysis
+ * 类职责：Linear 插值算法；对关键帧区间求连续或离散值
+ * 继承：Interpolant；导出：LinearInterpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LinearInterpolant extends Interpolant {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   */
   interpolate_(e, t, n, r) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -8949,15 +14284,37 @@ class LinearInterpolant extends Interpolant {
     return resultBuffer;
   }
 }
+/** @eyes-analysis
+ * 类职责：Discrete 插值算法；对关键帧区间求连续或离散值
+ * 继承：Interpolant；导出：DiscreteInterpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DiscreteInterpolant extends Interpolant {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   * 调用线索：this.copySampleValue_。
+   */
   interpolate_(e) {
     return this.copySampleValue_(e - 1);
   }
 }
+/** @eyes-analysis
+ * 类职责：Bezier 插值算法；对关键帧区间求连续或离散值
+ * 继承：Interpolant；导出：BezierInterpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BezierInterpolant extends Interpolant {
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   * 调用线索：Math.abs、Math.max、Math.min。
+   */
   interpolate_(e, t, n, r) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -9002,12 +14359,26 @@ class BezierInterpolant extends Interpolant {
     return resultBuffer;
   }
 }
+/** @eyes-analysis
+ * 类职责： 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：无显式父类；导出：KeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：name、times、values。
+   * 调用线索：Xo、new Error、this.setInterpolation。
+   */
   constructor(name, t, n, r) {
     if (void 0 === name) throw new Error("THREE.KeyframeTrack: track name is undefined");
     if (void 0 === t || 0 === t.length) throw new Error("THREE.KeyframeTrack: no keyframes in track named " + name);
     this.name = name, this.times = Xo(t, this.TimeBufferType), this.values = Xo(n, this.ValueBufferType), this.setInterpolation(r || this.DefaultInterpolation);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Xo、e.getInterpolation、t.toJSON。
+   */
   static toJSON(e) {
     const t = e.constructor;
     let n;
@@ -9022,19 +14393,40 @@ class KeyframeTrack {
     }
     return n.type = e.ValueTypeName, n;
   }
+  /** @eyes-analysis
+   * 源码方法 InterpolantFactoryMethodDiscrete；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new DiscreteInterpolant、this.getValueSize。
+   */
   InterpolantFactoryMethodDiscrete(e) {
     return new DiscreteInterpolant(this.times, this.values, this.getValueSize(), e);
   }
+  /** @eyes-analysis
+   * 源码方法 InterpolantFactoryMethodLinear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new LinearInterpolant、this.getValueSize。
+   */
   InterpolantFactoryMethodLinear(e) {
     return new LinearInterpolant(this.times, this.values, this.getValueSize(), e);
   }
+  /** @eyes-analysis
+   * 源码方法 InterpolantFactoryMethodSmooth；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new CubicInterpolant、this.getValueSize。
+   */
   InterpolantFactoryMethodSmooth(e) {
     return new CubicInterpolant(this.times, this.values, this.getValueSize(), e);
   }
+  /** @eyes-analysis
+   * 源码方法 InterpolantFactoryMethodBezier；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new BezierInterpolant、this.getValueSize。
+   */
   InterpolantFactoryMethodBezier(e) {
     const bezierInterpolant = new BezierInterpolant(this.times, this.values, this.getValueSize(), e);
     return this.settings && (bezierInterpolant.inTangents = this.settings.inTangents, bezierInterpolant.outTangents = this.settings.outTangents), bezierInterpolant;
   }
+  /** @eyes-analysis
+   * 源码方法 setInterpolation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：createInterpolant。
+   * 调用线索：new Error、this.setInterpolation、warn。
+   */
   setInterpolation(e) {
     let createInterpolant;
     switch (e) {
@@ -9060,6 +14452,9 @@ class KeyframeTrack {
     }
     return this.createInterpolant = createInterpolant, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getInterpolation；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getInterpolation() {
     switch (this.createInterpolant) {
       case this.InterpolantFactoryMethodDiscrete:
@@ -9072,9 +14467,15 @@ class KeyframeTrack {
         return InterpolateBezier;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 getValueSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getValueSize() {
     return this.values.length / this.times.length;
   }
+  /** @eyes-analysis
+   * 源码方法 shift；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   shift(e) {
     if (0 !== e) {
       const times = this.times;
@@ -9082,6 +14483,9 @@ class KeyframeTrack {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 scale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   scale(e) {
     if (1 !== e) {
       const times = this.times;
@@ -9089,6 +14493,11 @@ class KeyframeTrack {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 trim；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：times、values。
+   * 调用线索：Math.max、this.getValueSize、this.values.slice、times.slice。
+   */
   trim(e, t) {
     const times = this.times,
       r = times.length;
@@ -9103,6 +14512,10 @@ class KeyframeTrack {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 validate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.floor、error、isNaN、isTypedArray、this.getValueSize。
+   */
   validate() {
     let e = !0;
     const t = this.getValueSize();
@@ -9133,6 +14546,11 @@ class KeyframeTrack {
     }
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 optimize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：times、values。
+   * 调用线索：this.getInterpolation、this.getValueSize、this.times.slice、this.values.slice、times.slice等。
+   */
   optimize() {
     const times = this.times.slice(),
       values = this.values.slice(),
@@ -9172,6 +14590,10 @@ class KeyframeTrack {
     }
     return a !== times.length ? (this.times = times.slice(0, a), this.values = values.slice(0, a * n)) : (this.times = times, this.values = values), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new 0,this.constructor、this.times.slice、this.values.slice。
+   */
   clone() {
     const e = this.times.slice(),
       t = this.values.slice(),
@@ -9180,28 +14602,68 @@ class KeyframeTrack {
   }
 }
 KeyframeTrack.prototype.ValueTypeName = "", KeyframeTrack.prototype.TimeBufferType = Float32Array, KeyframeTrack.prototype.ValueBufferType = Float32Array, KeyframeTrack.prototype.DefaultInterpolation = InterpolateLinear;
+/** @eyes-analysis
+ * 类职责：Boolean 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：BooleanKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BooleanKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n) {
     super(e, t, n);
   }
 }
 BooleanKeyframeTrack.prototype.ValueTypeName = "bool", BooleanKeyframeTrack.prototype.ValueBufferType = Array, BooleanKeyframeTrack.prototype.DefaultInterpolation = InterpolateDiscrete, BooleanKeyframeTrack.prototype.InterpolantFactoryMethodLinear = void 0, BooleanKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = void 0;
+/** @eyes-analysis
+ * 类职责：Color 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：ColorKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ColorKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
 }
 ColorKeyframeTrack.prototype.ValueTypeName = "color";
+/** @eyes-analysis
+ * 类职责：Number 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：NumberKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class NumberKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
 }
 NumberKeyframeTrack.prototype.ValueTypeName = "number";
+/** @eyes-analysis
+ * 类职责：QuaternionLinear 插值算法；对关键帧区间求连续或离散值
+ * 继承：Interpolant；导出：QuaternionLinearInterpolant。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class QuaternionLinearInterpolant extends Interpolant {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 在当前时间区间执行特定插值算法
+   * 调用线索：Quaternion.slerpFlat。
+   */
   interpolate_(e, t, n, r) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -9212,31 +14674,76 @@ class QuaternionLinearInterpolant extends Interpolant {
     return resultBuffer;
   }
 }
+/** @eyes-analysis
+ * 类职责：Quaternion 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：QuaternionKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class QuaternionKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 源码方法 InterpolantFactoryMethodLinear；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new QuaternionLinearInterpolant、this.getValueSize。
+   */
   InterpolantFactoryMethodLinear(e) {
     return new QuaternionLinearInterpolant(this.times, this.values, this.getValueSize(), e);
   }
 }
 QuaternionKeyframeTrack.prototype.ValueTypeName = "quaternion", QuaternionKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = void 0;
+/** @eyes-analysis
+ * 类职责：String 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：StringKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class StringKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n) {
     super(e, t, n);
   }
 }
 StringKeyframeTrack.prototype.ValueTypeName = "string", StringKeyframeTrack.prototype.ValueBufferType = Array, StringKeyframeTrack.prototype.DefaultInterpolation = InterpolateDiscrete, StringKeyframeTrack.prototype.InterpolantFactoryMethodLinear = void 0, StringKeyframeTrack.prototype.InterpolantFactoryMethodSmooth = void 0;
+/** @eyes-analysis
+ * 类职责：Vector 类型关键帧轨道，约束值表示与插值器选择
+ * 继承：KeyframeTrack；导出：VectorKeyframeTrack。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class VectorKeyframeTrack extends KeyframeTrack {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
 }
 VectorKeyframeTrack.prototype.ValueTypeName = "vector";
+/** @eyes-analysis
+ * 类职责：命名的关键帧轨道集合与持续时间
+ * 继承：无显式父类；导出：AnimationClip。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationClip {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：blendMode、duration、name、tracks、userData、uuid。
+   * 调用线索：this.resetDuration、yr。
+   */
   constructor(name = "", duration = -1, tracks = [], blendMode = NormalAnimationBlendMode) {
     this.name = name, this.tracks = tracks, this.duration = duration, this.blendMode = blendMode, this.uuid = yr(), this.userData = {}, this.duration < 0 && this.resetDuration();
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：JSON.parse、Ko、Ko(n[e]).scale、new this、t.push。
+   */
   static parse(e) {
     const t = [],
       n = e.tracks,
@@ -9245,6 +14752,10 @@ class AnimationClip {
     const i = new this(e.name, e.duration, t, e.blendMode);
     return i.uuid = e.uuid, i.userData = JSON.parse(e.userData || "{}"), i;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：JSON.stringify、KeyframeTrack.toJSON、t.push。
+   */
   static toJSON(e) {
     const t = [],
       n = e.tracks,
@@ -9259,6 +14770,10 @@ class AnimationClip {
     for (let e = 0, r = n.length; e !== r; ++e) t.push(KeyframeTrack.toJSON(n[e]));
     return r;
   }
+  /** @eyes-analysis
+   * 源码方法 CreateFromMorphTargetSequence；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Vo、a.push、jo、new NumberKeyframeTrack、new NumberKeyframeTrack(".morphTargetInfluences["+t[e].name+"]",s,o).scale等。
+   */
   static CreateFromMorphTargetSequence(e, t, n, r) {
     const i = t.length,
       a = [];
@@ -9271,6 +14786,10 @@ class AnimationClip {
     }
     return new this(e, -1, a);
   }
+  /** @eyes-analysis
+   * 源码方法 findByName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Array.isArray。
+   */
   static findByName(e, t) {
     let n = e;
     if (!Array.isArray(e)) {
@@ -9280,6 +14799,10 @@ class AnimationClip {
     for (let e = 0; e < n.length; e++) if (n[e].name === t) return n[e];
     return null;
   }
+  /** @eyes-analysis
+   * 源码方法 CreateClipsFromMorphTargetSequences；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：a.push、n.name.match、t.push、this.CreateFromMorphTargetSequence。
+   */
   static CreateClipsFromMorphTargetSequences(e, t, n) {
     const r = {},
       i = /^([\w-]*?)([\d]+)$/;
@@ -9296,6 +14819,11 @@ class AnimationClip {
     for (const e in r) a.push(this.CreateFromMorphTargetSequence(e, r[e], t, n));
     return a;
   }
+  /** @eyes-analysis
+   * 源码方法 resetDuration；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：duration。
+   * 调用线索：Math.max。
+   */
   resetDuration() {
     let duration = 0;
     for (let t = 0, n = this.tracks.length; t !== n; ++t) {
@@ -9304,25 +14832,45 @@ class AnimationClip {
     }
     return this.duration = duration, this;
   }
+  /** @eyes-analysis
+   * 源码方法 trim；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.tracks[e].trim。
+   */
   trim() {
     for (let e = 0; e < this.tracks.length; e++) this.tracks[e].trim(0, this.duration);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 validate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.tracks[t].validate。
+   */
   validate() {
     let e = !0;
     for (let t = 0; t < this.tracks.length; t++) e = e && this.tracks[t].validate();
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 optimize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.tracks[e].optimize。
+   */
   optimize() {
     for (let e = 0; e < this.tracks.length; e++) this.tracks[e].optimize();
     return this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：JSON.parse、JSON.stringify、e.push、new this.constructor、this.tracks[t].clone。
+   */
   clone() {
     const e = [];
     for (let t = 0; t < this.tracks.length; t++) e.push(this.tracks[t].clone());
     const constructor = new this.constructor(this.name, this.duration, e, this.blendMode);
     return constructor.userData = JSON.parse(JSON.stringify(this.userData)), constructor;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：this.constructor.toJSON。
+   */
   toJSON() {
     return this.constructor.toJSON(this);
   }
@@ -9385,7 +14933,17 @@ function $o(e) {
     return !1;
   }
 }
+/** @eyes-analysis
+ * 类职责：聚合加载计数、错误、URL 重写和加载器选择
+ * 继承：无显式父类；导出：LoadingManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LoadingManager {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_abortController、abort、addHandler、getHandler、itemEnd、itemError、itemStart、onError等；完整记录见索引。
+   * 调用线索：c.indexOf、c.push、c.splice、e.normalize、i等。
+   */
   constructor(onLoad, onProgress, onError) {
     const r = this;
     let i,
@@ -9419,55 +14977,127 @@ class LoadingManager {
       return this.abortController.abort(), this._abortController = null, this;
     };
   }
+  /** @eyes-analysis
+   * 惰性创建并返回 AbortController；第一次读取会写入 _abortController，不能视为纯只读访问
+   * 状态写入：_abortController。
+   * 调用线索：new AbortController。
+   */
   get abortController() {
     return this._abortController || (this._abortController = new AbortController()), this._abortController;
   }
 }
 const Zo = new LoadingManager();
+/** @eyes-analysis
+ * 类职责：资源加载器通用路径、凭证和请求配置
+ * 继承：无显式父类；导出：Loader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：crossOrigin、manager、path、requestHeader、resourcePath、withCredentials。
+   * 调用线索：__THREE_DEVTOOLS__.dispatchEvent、new CustomEvent。
+   */
   constructor(e) {
     this.manager = void 0 !== e ? e : Zo, this.crossOrigin = "anonymous", this.withCredentials = !1, this.path = "", this.resourcePath = "", this.requestHeader = {}, "undefined" != typeof __THREE_DEVTOOLS__ && __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent("observe", {
       detail: this
     }));
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   */
   load() {}
+  /** @eyes-analysis
+   * 源码方法 loadAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.load、new Promise。
+   */
   loadAsync(e, t) {
     const n = this;
     return new Promise(function (r, i) {
       n.load(e, r, t, i);
     });
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   */
   parse() {}
+  /** @eyes-analysis
+   * 源码方法 setCrossOrigin；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：crossOrigin。
+   */
   setCrossOrigin(crossOrigin) {
     return this.crossOrigin = crossOrigin, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setWithCredentials；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：withCredentials。
+   */
   setWithCredentials(withCredentials) {
     return this.withCredentials = withCredentials, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setPath；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：path。
+   */
   setPath(path) {
     return this.path = path, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setResourcePath；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：resourcePath。
+   */
   setResourcePath(resourcePath) {
     return this.resourcePath = resourcePath, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setRequestHeader；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：requestHeader。
+   */
   setRequestHeader(requestHeader) {
     return this.requestHeader = requestHeader, this;
   }
+  /** @eyes-analysis
+   * 源码方法 abort；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   abort() {
     return this;
   }
 }
 Loader.DEFAULT_MATERIAL_NAME = "__DEFAULT";
 const ec = {};
+/** @eyes-analysis
+ * 类职责：携带 HTTP 响应信息的资源加载异常
+ * 继承：Error；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class HttpError extends Error {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：response。
+   * 调用线索：super。
+   */
   constructor(e, response) {
     super(e), this.response = response;
   }
 }
+/** @eyes-analysis
+ * 类职责：FileLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：FileLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class FileLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_abortController、mimeType、responseType。
+   * 调用线索：new AbortController、super。
+   */
   constructor(e) {
     super(e), this.mimeType = "", this.responseType = "", this._abortController = new AbortController();
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：/charset="?([^;"\s]*)"?/i.exec、AbortSignal.any、Cache.add、Cache.get、e.arrayBuffer等。
+   */
   load(e, t, n, r) {
     void 0 === e && (e = ""), void 0 !== this.path && (e = this.path + e), e = this.manager.resolveURL(e);
     const i = Cache.get(`file:${e}`);
@@ -9569,20 +15199,46 @@ class FileLoader extends Loader {
       this.manager.itemEnd(e);
     }), this.manager.itemStart(e);
   }
+  /** @eyes-analysis
+   * 源码方法 setResponseType；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：responseType。
+   */
   setResponseType(responseType) {
     return this.responseType = responseType, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setMimeType；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：mimeType。
+   */
   setMimeType(mimeType) {
     return this.mimeType = mimeType, this;
   }
+  /** @eyes-analysis
+   * 源码方法 abort；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_abortController。
+   * 调用线索：new AbortController、this._abortController.abort。
+   */
   abort() {
     return this._abortController.abort(), this._abortController = new AbortController(), this;
   }
 }
+/** @eyes-analysis
+ * 类职责：AnimationLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：AnimationLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：JSON.parse、error、fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader等。
+   */
   load(e, t, n, r) {
     const i = this,
       fileLoader = new FileLoader(this.manager);
@@ -9594,6 +15250,10 @@ class AnimationLoader extends Loader {
       }
     }, n, r);
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：AnimationClip.parse、t.push。
+   */
   parse(e) {
     const t = [];
     for (let n = 0; n < e.length; n++) {
@@ -9603,10 +15263,23 @@ class AnimationLoader extends Loader {
     return t;
   }
 }
+/** @eyes-analysis
+ * 类职责：CompressedTextureLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：CompressedTextureLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CompressedTextureLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：Array.isArray、a[t].mipmaps.push、fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader等。
+   */
   load(e, t, n, r) {
     const i = this,
       a = [],
@@ -9643,10 +15316,23 @@ class CompressedTextureLoader extends Loader {
   }
 }
 const weakMap = new WeakMap();
+/** @eyes-analysis
+ * 类职责：ImageLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：ImageLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ImageLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：Cache.add、Cache.get、Cache.remove、createElementNS、e.push等。
+   */
   load(e, t, n, r) {
     void 0 !== this.path && (e = this.path + e), e = this.manager.resolveURL(e);
     const i = this,
@@ -9688,10 +15374,23 @@ class ImageLoader extends Loader {
     return s.addEventListener("load", o, !1), s.addEventListener("error", c, !1), "data:" !== e.slice(0, 5) && void 0 !== this.crossOrigin && (s.crossOrigin = this.crossOrigin), Cache.add(`image:${e}`, s), i.manager.itemStart(e), s.src = e, s;
   }
 }
+/** @eyes-analysis
+ * 类职责：CubeTextureLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：CubeTextureLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubeTextureLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：imageLoader.load、imageLoader.setCrossOrigin、imageLoader.setPath、new CubeTexture、new ImageLoader等。
+   */
   load(e, t, n, r) {
     const cubeTexture = new CubeTexture();
     cubeTexture.colorSpace = SRGBColorSpace;
@@ -9707,10 +15406,23 @@ class CubeTextureLoader extends Loader {
     return cubeTexture;
   }
 }
+/** @eyes-analysis
+ * 类职责：DataTextureLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：DataTextureLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DataTextureLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：error、fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader、fileLoader.setResponseType等。
+   */
   load(e, t, n, r) {
     const i = this,
       dataTexture = new DataTexture(),
@@ -9725,18 +15437,38 @@ class DataTextureLoader extends Loader {
       i._applyTexData(dataTexture, n), t && t(dataTexture, n);
     }, n, r), dataTexture;
   }
+  /** @eyes-analysis
+   * 源码方法 createDataTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new DataTexture、this._applyTexData、this.parse。
+   */
   createDataTexture(e) {
     const dataTexture = new DataTexture();
     return this._applyTexData(dataTexture, this.parse(e)), dataTexture;
   }
+  /** @eyes-analysis
+   * 源码方法 _applyTexData；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _applyTexData(e, t) {
     void 0 !== t.image ? e.image = t.image : void 0 !== t.data && (e.image.width = t.width, e.image.height = t.height, e.image.data = t.data), e.wrapS = void 0 !== t.wrapS ? t.wrapS : ge, e.wrapT = void 0 !== t.wrapT ? t.wrapT : ge, e.magFilter = void 0 !== t.magFilter ? t.magFilter : LinearFilter, e.minFilter = void 0 !== t.minFilter ? t.minFilter : LinearFilter, e.anisotropy = void 0 !== t.anisotropy ? t.anisotropy : 1, void 0 !== t.colorSpace && (e.colorSpace = t.colorSpace), void 0 !== t.flipY && (e.flipY = t.flipY), void 0 !== t.format && (e.format = t.format), void 0 !== t.type && (e.type = t.type), void 0 !== t.mipmaps && (e.mipmaps = t.mipmaps, e.minFilter = LinearMipmapLinearFilter), 1 === t.mipmapCount && (e.minFilter = LinearFilter), void 0 !== t.generateMipmaps && (e.generateMipmaps = t.generateMipmaps), e.needsUpdate = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：TextureLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：TextureLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TextureLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：imageLoader.load、imageLoader.setCrossOrigin、imageLoader.setPath、new ImageLoader、new Texture等。
+   */
   load(e, t, n, r) {
     const texture = new Texture(),
       imageLoader = new ImageLoader(this.manager);
@@ -9745,30 +15477,71 @@ class TextureLoader extends Loader {
     }, n, r), texture;
   }
 }
+/** @eyes-analysis
+ * 类职责： 光源颜色、强度及方向/衰减数据
+ * 继承：Object3D；导出：Light。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Light extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、intensity、isLight、type。
+   * 调用线索：new Color、super。
+   */
   constructor(e, intensity = 1) {
     super(), this.isLight = !0, this.type = "Light", this.color = new Color(e), this.intensity = intensity;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：intensity。
+   * 调用线索：super.copy、this.color.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.color.copy(e.color), this.intensity = e.intensity, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.color.getHex。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.color = this.color.getHex(), t.object.intensity = this.intensity, t;
   }
 }
+/** @eyes-analysis
+ * 类职责：Hemisphere 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：HemisphereLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class HemisphereLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：groundColor、isHemisphereLight、type。
+   * 调用线索：new Color、super、this.position.copy、this.updateMatrix。
+   */
   constructor(e, t, n) {
     super(e, n), this.isHemisphereLight = !0, this.type = "HemisphereLight", this.position.copy(Object3D.DEFAULT_UP), this.updateMatrix(), this.groundColor = new Color(t);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.groundColor.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.groundColor.copy(e.groundColor), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.groundColor.getHex。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.groundColor = this.groundColor.getHex(), t;
@@ -9777,36 +15550,79 @@ class HemisphereLight extends Light {
 const nc = new Matrix4(),
   rc = new Vector3(),
   ic = new Vector3();
+/** @eyes-analysis
+ * 类职责： 光源阴影相机、贴图和投影矩阵
+ * 继承：无显式父类；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LightShadow {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_frameExtents、_frustum、_viewportCount、_viewports、autoUpdate、bias、biasNode、blurSamples等；完整记录见索引。
+   * 调用线索：new Frustum、new Matrix4、new Vector2、new Vector4。
+   */
   constructor(camera) {
     this.camera = camera, this.intensity = 1, this.bias = 0, this.biasNode = null, this.normalBias = 0, this.radius = 1, this.blurSamples = 8, this.mapSize = new Vector2(512, 512), this.mapType = Oe, this.map = null, this.mapPass = null, this.matrix = new Matrix4(), this.autoUpdate = !0, this.needsUpdate = !1, this._frustum = new Frustum(), this._frameExtents = new Vector2(1, 1), this._viewportCount = 1, this._viewports = [new Vector4(0, 0, 1, 1)];
   }
+  /** @eyes-analysis
+   * 源码方法 getViewportCount；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getViewportCount() {
     return this._viewportCount;
   }
+  /** @eyes-analysis
+   * 源码方法 getFrustum；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getFrustum() {
     return this._frustum;
   }
+  /** @eyes-analysis
+   * 源码方法 updateMatrices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：camera.lookAt、camera.position.copy、camera.updateMatrixWorld、ic.setFromMatrixPosition、matrix.multiply等。
+   */
   updateMatrices(e) {
     const camera = this.camera,
       matrix = this.matrix;
     rc.setFromMatrixPosition(e.matrixWorld), camera.position.copy(rc), ic.setFromMatrixPosition(e.target.matrixWorld), camera.lookAt(ic), camera.updateMatrixWorld(), nc.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse), this._frustum.setFromProjectionMatrix(nc, camera.coordinateSystem, camera.reversedDepth), camera.coordinateSystem === WebGPUCoordinateSystem || camera.reversedDepth ? matrix.set(.5, 0, 0, .5, 0, .5, 0, .5, 0, 0, 1, 0, 0, 0, 0, 1) : matrix.set(.5, 0, 0, .5, 0, .5, 0, .5, 0, 0, .5, .5, 0, 0, 0, 1), matrix.multiply(nc);
   }
+  /** @eyes-analysis
+   * 源码方法 getViewport；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getViewport(e) {
     return this._viewports[e];
   }
+  /** @eyes-analysis
+   * 源码方法 getFrameExtents；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getFrameExtents() {
     return this._frameExtents;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.map.dispose、this.mapPass.dispose。
+   */
   dispose() {
     this.map && this.map.dispose(), this.mapPass && this.mapPass.dispose();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：autoUpdate、bias、biasNode、blurSamples、camera、intensity、needsUpdate、normalBias等；完整记录见索引。
+   * 调用线索：e.camera.clone、this.mapSize.copy。
+   */
   copy(e) {
     return this.camera = e.camera.clone(), this.intensity = e.intensity, this.bias = e.bias, this.radius = e.radius, this.autoUpdate = e.autoUpdate, this.needsUpdate = e.needsUpdate, this.normalBias = e.normalBias, this.blurSamples = e.blurSamples, this.mapSize.copy(e.mapSize), this.biasNode = e.biasNode, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：this.camera.toJSON、this.mapSize.toArray。
+   */
   toJSON() {
     const e = {};
     return 1 !== this.intensity && (e.intensity = this.intensity), 0 !== this.bias && (e.bias = this.bias), 0 !== this.normalBias && (e.normalBias = this.normalBias), 1 !== this.radius && (e.radius = this.radius), 512 === this.mapSize.x && 512 === this.mapSize.y || (e.mapSize = this.mapSize.toArray()), e.camera = this.camera.toJSON(!1).object, delete e.camera.matrix, e;
@@ -9815,25 +15631,59 @@ class LightShadow {
 const ac = new Vector3(),
   sc = new Quaternion(),
   oc = new Vector3();
+/** @eyes-analysis
+ * 类职责： 相机视锥及投影矩阵更新
+ * 继承：Object3D；导出：Camera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Camera extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_reversedDepth、coordinateSystem、isCamera、matrixWorldInverse、projectionMatrix、projectionMatrixInverse、type。
+   * 调用线索：new Matrix4、super。
+   */
   constructor() {
     super(), this.isCamera = !0, this.type = "Camera", this.matrixWorldInverse = new Matrix4(), this.projectionMatrix = new Matrix4(), this.projectionMatrixInverse = new Matrix4(), this.coordinateSystem = Vn, this._reversedDepth = !1;
   }
+  /** @eyes-analysis
+   * 只读返回 this._reversedDepth；此 getter 不执行对应 setter 的写入或更新通知
+   */
   get reversedDepth() {
     return this._reversedDepth;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：coordinateSystem。
+   * 调用线索：super.copy、this.matrixWorldInverse.copy、this.projectionMatrix.copy、this.projectionMatrixInverse.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.matrixWorldInverse.copy(e.matrixWorldInverse), this.projectionMatrix.copy(e.projectionMatrix), this.projectionMatrixInverse.copy(e.projectionMatrixInverse), this.coordinateSystem = e.coordinateSystem, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getWorldDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.getWorldDirection、super.getWorldDirection(e).negate。
+   */
   getWorldDirection(e) {
     return super.getWorldDirection(e).negate();
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：oc.set、super.updateMatrixWorld、this.matrixWorld.decompose、this.matrixWorldInverse.compose、this.matrixWorldInverse.compose(ac,sc,oc.set(1,1,1)).invert等。
+   */
   updateMatrixWorld(e) {
     super.updateMatrixWorld(e), this.matrixWorld.decompose(ac, sc, oc), 1 === oc.x && 1 === oc.y && 1 === oc.z ? this.matrixWorldInverse.copy(this.matrixWorld).invert() : this.matrixWorldInverse.compose(ac, sc, oc.set(1, 1, 1)).invert();
   }
+  /** @eyes-analysis
+   * 按参数选择先更新祖先或继续更新后代，避免使用过期世界变换
+   * 调用线索：oc.set、super.updateWorldMatrix、this.matrixWorld.decompose、this.matrixWorldInverse.compose、this.matrixWorldInverse.compose(ac,sc,oc.set(1,1,1)).invert等。
+   */
   updateWorldMatrix(e, t, n = !1) {
     super.updateWorldMatrix(e, t, n), this.matrixWorld.decompose(ac, sc, oc), 1 === oc.x && 1 === oc.y && 1 === oc.z ? this.matrixWorldInverse.copy(this.matrixWorld).invert() : this.matrixWorldInverse.compose(ac, sc, oc.set(1, 1, 1)).invert();
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
@@ -9841,36 +15691,85 @@ class Camera extends Object3D {
 const cc = new Vector3(),
   lc = new Vector2(),
   uc = new Vector2();
+/** @eyes-analysis
+ * 类职责：透视投影相机；由 fov/aspect/near/far 生成投影矩阵并支持视口偏移
+ * 继承：Camera；导出：PerspectiveCamera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PerspectiveCamera extends Camera {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：aspect、far、filmGauge、filmOffset、focus、fov、isPerspectiveCamera、near等；完整记录见索引。
+   * 调用线索：super、this.updateProjectionMatrix。
+   */
   constructor(fov = 50, aspect = 1, near = .1, far = 2e3) {
     super(), this.isPerspectiveCamera = !0, this.type = "PerspectiveCamera", this.fov = fov, this.zoom = 1, this.near = near, this.far = far, this.focus = 10, this.aspect = aspect, this.view = null, this.filmGauge = 35, this.filmOffset = 0, this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：aspect、far、filmGauge、filmOffset、focus、fov、near、view等；完整记录见索引。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.fov = e.fov, this.zoom = e.zoom, this.near = e.near, this.far = e.far, this.focus = e.focus, this.aspect = e.aspect, this.view = null === e.view ? null : Object.assign({}, e.view), this.filmGauge = e.filmGauge, this.filmOffset = e.filmOffset, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFocalLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：fov。
+   * 调用线索：Math.atan、this.getFilmHeight、this.updateProjectionMatrix。
+   */
   setFocalLength(e) {
     const t = .5 * this.getFilmHeight() / e;
     this.fov = 2 * RAD2DEG * Math.atan(t), this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 getFocalLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.tan、this.getFilmHeight。
+   */
   getFocalLength() {
     const e = Math.tan(.5 * gr * this.fov);
     return .5 * this.getFilmHeight() / e;
   }
+  /** @eyes-analysis
+   * 源码方法 getEffectiveFOV；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.atan、Math.tan。
+   */
   getEffectiveFOV() {
     return 2 * RAD2DEG * Math.atan(Math.tan(.5 * gr * this.fov) / this.zoom);
   }
+  /** @eyes-analysis
+   * 源码方法 getFilmWidth；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.min。
+   */
   getFilmWidth() {
     return this.filmGauge * Math.min(this.aspect, 1);
   }
+  /** @eyes-analysis
+   * 源码方法 getFilmHeight；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.max。
+   */
   getFilmHeight() {
     return this.filmGauge / Math.max(this.aspect, 1);
   }
+  /** @eyes-analysis
+   * 源码方法 getViewBounds；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：cc.set、cc.set(-1,-1,.5).applyMatrix4、cc.set(1,1,.5).applyMatrix4、n.set、n.set(cc.x,cc.y).multiplyScalar等。
+   */
   getViewBounds(e, t, n) {
     cc.set(-1, -1, .5).applyMatrix4(this.projectionMatrixInverse), t.set(cc.x, cc.y).multiplyScalar(-e / cc.z), cc.set(1, 1, .5).applyMatrix4(this.projectionMatrixInverse), n.set(cc.x, cc.y).multiplyScalar(-e / cc.z);
   }
+  /** @eyes-analysis
+   * 源码方法 getViewSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.subVectors、this.getViewBounds。
+   */
   getViewSize(e, t) {
     return this.getViewBounds(e, lc, uc), t.subVectors(uc, lc);
   }
+  /** @eyes-analysis
+   * 源码方法 setViewOffset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：aspect、view、view.enabled、view.fullHeight、view.fullWidth、view.height、view.offsetX、view.offsetY等；完整记录见索引。
+   * 调用线索：this.updateProjectionMatrix。
+   */
   setViewOffset(e, t, n, r, i, a) {
     this.aspect = e / t, null === this.view && (this.view = {
       enabled: !0,
@@ -9882,9 +15781,18 @@ class PerspectiveCamera extends Camera {
       height: 1
     }), this.view.enabled = !0, this.view.fullWidth = e, this.view.fullHeight = t, this.view.offsetX = n, this.view.offsetY = r, this.view.width = i, this.view.height = a, this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 clearViewOffset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：view.enabled。
+   * 调用线索：this.updateProjectionMatrix。
+   */
   clearViewOffset() {
     null !== this.view && (this.view.enabled = !1), this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 updateProjectionMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.tan、this.getFilmWidth、this.projectionMatrix.makePerspective、this.projectionMatrixInverse.copy、this.projectionMatrixInverse.copy(this.projectionMatrix).invert。
+   */
   updateProjectionMatrix() {
     const near = this.near;
     let t = near * Math.tan(.5 * gr * this.fov) / this.zoom,
@@ -9900,15 +15808,33 @@ class PerspectiveCamera extends Camera {
     const filmOffset = this.filmOffset;
     0 !== filmOffset && (i += near * filmOffset / this.getFilmWidth()), this.projectionMatrix.makePerspective(i, i + r, t, t - n, near, this.far, this.coordinateSystem, this.reversedDepth), this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Object.assign、super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.fov = this.fov, t.object.zoom = this.zoom, t.object.near = this.near, t.object.far = this.far, t.object.focus = this.focus, t.object.aspect = this.aspect, null !== this.view && (t.object.view = Object.assign({}, this.view)), t.object.filmGauge = this.filmGauge, t.object.filmOffset = this.filmOffset, t;
   }
 }
+/** @eyes-analysis
+ * 类职责：Spot 光源阴影相机、贴图和投影矩阵
+ * 继承：LightShadow；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpotLightShadow extends LightShadow {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：aspect、focus、isSpotLightShadow。
+   * 调用线索：new PerspectiveCamera、super。
+   */
   constructor() {
     super(new PerspectiveCamera(50, 1, .5, 500)), this.isSpotLightShadow = !0, this.focus = 1, this.aspect = 1;
   }
+  /** @eyes-analysis
+   * 源码方法 updateMatrices；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：camera.updateProjectionMatrix、super.updateMatrices。
+   */
   updateMatrices(e) {
     const camera = this.camera,
       n = 2 * RAD2DEG * e.angle * this.focus,
@@ -9916,64 +15842,159 @@ class SpotLightShadow extends LightShadow {
       i = e.distance || camera.far;
     n === camera.fov && r === camera.aspect && i === camera.far || (camera.fov = n, camera.aspect = r, camera.far = i, camera.updateProjectionMatrix()), super.updateMatrices(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：focus。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.focus = e.focus, this;
   }
 }
+/** @eyes-analysis
+ * 类职责：Spot 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：SpotLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpotLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：angle、decay、distance、isSpotLight、map、penumbra、shadow、target等；完整记录见索引。
+   * 调用线索：new Object3D、new SpotLightShadow、super、this.position.copy、this.updateMatrix。
+   */
   constructor(e, t, distance = 0, angle = Math.PI / 3, penumbra = 0, decay = 2) {
     super(e, t), this.isSpotLight = !0, this.type = "SpotLight", this.position.copy(Object3D.DEFAULT_UP), this.updateMatrix(), this.target = new Object3D(), this.distance = distance, this.angle = angle, this.penumbra = penumbra, this.decay = decay, this.map = null, this.shadow = new SpotLightShadow();
   }
+  /** @eyes-analysis
+   * 只读返回 intensity × π，不修改强度
+   */
   get power() {
     return this.intensity * Math.PI;
   }
+  /** @eyes-analysis
+   * 将输入光功率除以 π 后写入 intensity
+   * 状态写入：intensity。
+   */
   set power(e) {
     this.intensity = e / Math.PI;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：super.dispose、this.shadow.dispose。
+   */
   dispose() {
     super.dispose(), this.shadow.dispose();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：angle、decay、distance、map、penumbra、shadow、target。
+   * 调用线索：e.shadow.clone、e.target.clone、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.distance = e.distance, this.angle = e.angle, this.penumbra = e.penumbra, this.decay = e.decay, this.target = e.target.clone(), this.map = e.map, this.shadow = e.shadow.clone(), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.map.toJSON、this.shadow.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.distance = this.distance, t.object.angle = this.angle, t.object.decay = this.decay, t.object.penumbra = this.penumbra, t.object.target = this.target.uuid, this.map && this.map.isTexture && (t.object.map = this.map.toJSON(e).uuid), t.object.shadow = this.shadow.toJSON(), t;
   }
 }
+/** @eyes-analysis
+ * 类职责：Point 光源阴影相机、贴图和投影矩阵
+ * 继承：LightShadow；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PointLightShadow extends LightShadow {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isPointLightShadow。
+   * 调用线索：new PerspectiveCamera、super。
+   */
   constructor() {
     super(new PerspectiveCamera(90, 1, .5, 500)), this.isPointLightShadow = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：Point 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：PointLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PointLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：decay、distance、isPointLight、shadow、type。
+   * 调用线索：new PointLightShadow、super。
+   */
   constructor(e, t, distance = 0, decay = 2) {
     super(e, t), this.isPointLight = !0, this.type = "PointLight", this.distance = distance, this.decay = decay, this.shadow = new PointLightShadow();
   }
+  /** @eyes-analysis
+   * 只读返回 intensity × 4π，不修改强度
+   */
   get power() {
     return 4 * this.intensity * Math.PI;
   }
+  /** @eyes-analysis
+   * 将输入光功率除以 4π 后写入 intensity
+   * 状态写入：intensity。
+   */
   set power(e) {
     this.intensity = e / (4 * Math.PI);
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：super.dispose、this.shadow.dispose。
+   */
   dispose() {
     super.dispose(), this.shadow.dispose();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：decay、distance、shadow。
+   * 调用线索：e.shadow.clone、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.distance = e.distance, this.decay = e.decay, this.shadow = e.shadow.clone(), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.shadow.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.distance = this.distance, t.object.decay = this.decay, t.object.shadow = this.shadow.toJSON(), t;
   }
 }
+/** @eyes-analysis
+ * 类职责：正交投影相机；以左右上下边界和 zoom 生成不随距离缩放的投影
+ * 继承：Camera；导出：OrthographicCamera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class OrthographicCamera extends Camera {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：bottom、far、isOrthographicCamera、left、near、right、top、type等；完整记录见索引。
+   * 调用线索：super、this.updateProjectionMatrix。
+   */
   constructor(left = -1, right = 1, top = 1, bottom = -1, near = .1, far = 2e3) {
     super(), this.isOrthographicCamera = !0, this.type = "OrthographicCamera", this.zoom = 1, this.view = null, this.left = left, this.right = right, this.top = top, this.bottom = bottom, this.near = near, this.far = far, this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：bottom、far、left、near、right、top、view、zoom。
+   * 调用线索：Object.assign、super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.left = e.left, this.right = e.right, this.top = e.top, this.bottom = e.bottom, this.near = e.near, this.far = e.far, this.zoom = e.zoom, this.view = null === e.view ? null : Object.assign({}, e.view), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setViewOffset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：view、view.enabled、view.fullHeight、view.fullWidth、view.height、view.offsetX、view.offsetY、view.width。
+   * 调用线索：this.updateProjectionMatrix。
+   */
   setViewOffset(e, t, n, r, i, a) {
     null === this.view && (this.view = {
       enabled: !0,
@@ -9985,9 +16006,18 @@ class OrthographicCamera extends Camera {
       height: 1
     }), this.view.enabled = !0, this.view.fullWidth = e, this.view.fullHeight = t, this.view.offsetX = n, this.view.offsetY = r, this.view.width = i, this.view.height = a, this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 clearViewOffset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：view.enabled。
+   * 调用线索：this.updateProjectionMatrix。
+   */
   clearViewOffset() {
     null !== this.view && (this.view.enabled = !1), this.updateProjectionMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 updateProjectionMatrix；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.projectionMatrix.makeOrthographic、this.projectionMatrixInverse.copy、this.projectionMatrixInverse.copy(this.projectionMatrix).invert。
+   */
   updateProjectionMatrix() {
     const e = (this.right - this.left) / (2 * this.zoom),
       t = (this.top - this.bottom) / (2 * this.zoom),
@@ -10004,67 +16034,162 @@ class OrthographicCamera extends Camera {
     }
     this.projectionMatrix.makeOrthographic(i, a, s, o, this.near, this.far, this.coordinateSystem, this.reversedDepth), this.projectionMatrixInverse.copy(this.projectionMatrix).invert();
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：Object.assign、super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.zoom = this.zoom, t.object.left = this.left, t.object.right = this.right, t.object.top = this.top, t.object.bottom = this.bottom, t.object.near = this.near, t.object.far = this.far, null !== this.view && (t.object.view = Object.assign({}, this.view)), t;
   }
 }
+/** @eyes-analysis
+ * 类职责：Directional 光源阴影相机、贴图和投影矩阵
+ * 继承：LightShadow；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DirectionalLightShadow extends LightShadow {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isDirectionalLightShadow。
+   * 调用线索：new OrthographicCamera、super。
+   */
   constructor() {
     super(new OrthographicCamera(-5, 5, 5, -5, .5, 500)), this.isDirectionalLightShadow = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：Directional 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：DirectionalLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DirectionalLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isDirectionalLight、shadow、target、type。
+   * 调用线索：new DirectionalLightShadow、new Object3D、super、this.position.copy、this.updateMatrix。
+   */
   constructor(e, t) {
     super(e, t), this.isDirectionalLight = !0, this.type = "DirectionalLight", this.position.copy(Object3D.DEFAULT_UP), this.updateMatrix(), this.target = new Object3D(), this.shadow = new DirectionalLightShadow();
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：super.dispose、this.shadow.dispose。
+   */
   dispose() {
     super.dispose(), this.shadow.dispose();
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：shadow、target。
+   * 调用线索：e.shadow.clone、e.target.clone、super.copy。
+   */
   copy(e) {
     return super.copy(e), this.target = e.target.clone(), this.shadow = e.shadow.clone(), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.shadow.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.shadow = this.shadow.toJSON(), t.object.target = this.target.uuid, t;
   }
 }
+/** @eyes-analysis
+ * 类职责：Ambient 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：AmbientLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AmbientLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isAmbientLight、type。
+   * 调用线索：super。
+   */
   constructor(e, t) {
     super(e, t), this.isAmbientLight = !0, this.type = "AmbientLight";
   }
 }
+/** @eyes-analysis
+ * 类职责：RectArea 光源颜色、强度及方向/衰减数据
+ * 继承：Light；导出：RectAreaLight。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RectAreaLight extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：height、isRectAreaLight、type、width。
+   * 调用线索：super。
+   */
   constructor(e, t, width = 10, height = 10) {
     super(e, t), this.isRectAreaLight = !0, this.type = "RectAreaLight", this.width = width, this.height = height;
   }
+  /** @eyes-analysis
+   * 只读返回 intensity × width × height × π
+   */
   get power() {
     return this.intensity * this.width * this.height * Math.PI;
   }
+  /** @eyes-analysis
+   * 将输入光功率除以 width × height × π 后写入 intensity
+   * 状态写入：intensity。
+   */
   set power(e) {
     this.intensity = e / (this.width * this.height * Math.PI);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：height、width。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.width = e.width, this.height = e.height, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.width = this.width, t.object.height = this.height, t;
   }
 }
+/** @eyes-analysis
+ * 类职责：九个三阶球谐系数及辐照度求值
+ * 继承：无显式父类；导出：SphericalHarmonics3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SphericalHarmonics3 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：coefficients、isSphericalHarmonics3。
+   * 调用线索：new Vector3、this.coefficients.push。
+   */
   constructor() {
     this.isSphericalHarmonics3 = !0, this.coefficients = [];
     for (let e = 0; e < 9; e++) this.coefficients.push(new Vector3());
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[t].copy。
+   */
   set(e) {
     for (let t = 0; t < 9; t++) this.coefficients[t].copy(e[t]);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 zero；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[e].set。
+   */
   zero() {
     for (let e = 0; e < 9; e++) this.coefficients[e].set(0, 0, 0);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 getAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.addScaledVector、t.copy、t.copy(coefficients[0]).multiplyScalar。
+   */
   getAt(e, t) {
     const n = e.x,
       r = e.y,
@@ -10072,6 +16197,10 @@ class SphericalHarmonics3 {
       coefficients = this.coefficients;
     return t.copy(coefficients[0]).multiplyScalar(.282095), t.addScaledVector(coefficients[1], .488603 * r), t.addScaledVector(coefficients[2], .488603 * i), t.addScaledVector(coefficients[3], .488603 * n), t.addScaledVector(coefficients[4], n * r * 1.092548), t.addScaledVector(coefficients[5], r * i * 1.092548), t.addScaledVector(coefficients[6], .315392 * (3 * i * i - 1)), t.addScaledVector(coefficients[7], n * i * 1.092548), t.addScaledVector(coefficients[8], .546274 * (n * n - r * r)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 getIrradianceAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.addScaledVector、t.copy、t.copy(coefficients[0]).multiplyScalar。
+   */
   getIrradianceAt(e, t) {
     const n = e.x,
       r = e.y,
@@ -10079,42 +16208,81 @@ class SphericalHarmonics3 {
       coefficients = this.coefficients;
     return t.copy(coefficients[0]).multiplyScalar(.886227), t.addScaledVector(coefficients[1], 1.023328 * r), t.addScaledVector(coefficients[2], 1.023328 * i), t.addScaledVector(coefficients[3], 1.023328 * n), t.addScaledVector(coefficients[4], .858086 * n * r), t.addScaledVector(coefficients[5], .858086 * r * i), t.addScaledVector(coefficients[6], .743125 * i * i - .247708), t.addScaledVector(coefficients[7], .858086 * n * i), t.addScaledVector(coefficients[8], .429043 * (n * n - r * r)), t;
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[t].add。
+   */
   add(e) {
     for (let t = 0; t < 9; t++) this.coefficients[t].add(e.coefficients[t]);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 addScaledSH；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[n].addScaledVector。
+   */
   addScaledSH(e, t) {
     for (let n = 0; n < 9; n++) this.coefficients[n].addScaledVector(e.coefficients[n], t);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 scale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[t].multiplyScalar。
+   */
   scale(e) {
     for (let t = 0; t < 9; t++) this.coefficients[t].multiplyScalar(e);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[n].lerp。
+   */
   lerp(e, t) {
     for (let n = 0; n < 9; n++) this.coefficients[n].lerp(e.coefficients[n], t);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.coefficients[t].equals。
+   */
   equals(e) {
     for (let t = 0; t < 9; t++) if (!this.coefficients[t].equals(e.coefficients[t])) return !1;
     return !0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.set。
+   */
   copy(e) {
     return this.set(e.coefficients);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：coefficients[r].fromArray。
+   */
   fromArray(e, t = 0) {
     const coefficients = this.coefficients;
     for (let r = 0; r < 9; r++) coefficients[r].fromArray(e, t + 3 * r);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：coefficients[r].toArray。
+   */
   toArray(e = [], t = 0) {
     const coefficients = this.coefficients;
     for (let r = 0; r < 9; r++) coefficients[r].toArray(e, t + 3 * r);
     return e;
   }
+  /** @eyes-analysis
+   * 源码方法 getBasisAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static getBasisAt(e, t) {
     const n = e.x,
       r = e.y,
@@ -10122,23 +16290,55 @@ class SphericalHarmonics3 {
     t[0] = .282095, t[1] = .488603 * r, t[2] = .488603 * i, t[3] = .488603 * n, t[4] = 1.092548 * n * r, t[5] = 1.092548 * r * i, t[6] = .315392 * (3 * i * i - 1), t[7] = 1.092548 * n * i, t[8] = .546274 * (n * n - r * r);
   }
 }
+/** @eyes-analysis
+ * 类职责：以三阶球谐系数表示环境光照探针；按强度缩放并供漫反射间接光计算
+ * 继承：Light；导出：LightProbe。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LightProbe extends Light {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isLightProbe、sh。
+   * 调用线索：new SphericalHarmonics3、super。
+   */
   constructor(sh = new SphericalHarmonics3(), t = 1) {
     super(void 0, t), this.isLightProbe = !0, this.sh = sh;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.sh.copy。
+   */
   copy(e) {
     return super.copy(e), this.sh.copy(e.sh), this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON、this.sh.toArray。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.object.sh = this.sh.toArray(), t;
   }
 }
 const dc = {};
+/** @eyes-analysis
+ * 类职责：MaterialLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：MaterialLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MaterialLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：textures。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e), this.textures = {};
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：JSON.parse、error、fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader等。
+   */
   load(e, t, n, r) {
     const i = this,
       fileLoader = new FileLoader(i.manager);
@@ -10150,16 +16350,32 @@ class MaterialLoader extends Loader {
       }
     }, n, r);
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：t.fromJSON、this.createMaterialFromType。
+   */
   parse(e) {
     const t = this.createMaterialFromType(e.type);
     return t.fromJSON(e, this.textures), t;
   }
+  /** @eyes-analysis
+   * 源码方法 setTextures；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：textures。
+   */
   setTextures(textures) {
     return this.textures = textures, this;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：MaterialLoader.createMaterialFromType。
+   */
   createMaterialFromType(e) {
     return MaterialLoader.createMaterialFromType(e);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：new Material、new t、warnOnce。
+   */
   static createMaterialFromType(e) {
     const t = {
       ShadowMaterial: ShadowMaterial,
@@ -10185,35 +16401,83 @@ class MaterialLoader extends Loader {
     let n;
     return void 0 === t ? (warnOnce(`MaterialLoader: Unknown material type "${e}". Use .registerMaterial() before starting the deserialization process.`), n = new Material()) : n = new t(), n;
   }
+  /** @eyes-analysis
+   * 源码方法 registerMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static registerMaterial(e, t) {
     dc[e] = t;
   }
 }
+/** @eyes-analysis
+ * 类职责：解析 URL 基路径、字符串和资源地址
+ * 继承：无显式父类；导出：LoaderUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class LoaderUtils {
+  /** @eyes-analysis
+   * 源码方法 extractUrlBase；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.lastIndexOf、e.slice。
+   */
   static extractUrlBase(e) {
     const t = e.lastIndexOf("/");
     return -1 === t ? "./" : e.slice(0, t + 1);
   }
+  /** @eyes-analysis
+   * 源码方法 resolveURL；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：/^(https?:)?\/\//i.test、/^\//.test、/^blob:.*$/i.test、/^data:.*,.*$/i.test、/^https?:\/\//i.test等。
+   */
   static resolveURL(e, t) {
     return "string" != typeof e || "" === e ? "" : (/^https?:\/\//i.test(t) && /^\//.test(e) && (t = t.replace(/(^https?:\/\/[^\/]+).*/i, "$1")), /^(https?:)?\/\//i.test(e) || /^data:.*,.*$/i.test(e) || /^blob:.*$/i.test(e) ? e : t + e);
   }
 }
+/** @eyes-analysis
+ * 类职责：InstancedBuffer 几何生成器；构建 position/normal/uv 属性及三角索引
+ * 继承：BufferGeometry；导出：InstancedBufferGeometry。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InstancedBufferGeometry extends BufferGeometry {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：instanceCount、isInstancedBufferGeometry、type。
+   * 调用线索：super。
+   */
   constructor() {
     super(), this.isInstancedBufferGeometry = !0, this.type = "InstancedBufferGeometry", this.instanceCount = 1 / 0;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：instanceCount。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.instanceCount = e.instanceCount, this;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON() {
     const e = super.toJSON();
     return e.instanceCount = this.instanceCount, e.isInstancedBufferGeometry = !0, e;
   }
 }
+/** @eyes-analysis
+ * 类职责：BufferGeometryLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：BufferGeometryLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BufferGeometryLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：JSON.parse、error、fileLoader.load、fileLoader.setPath、fileLoader.setRequestHeader等。
+   */
   load(e, t, n, r) {
     const i = this,
       fileLoader = new FileLoader(i.manager);
@@ -10225,6 +16489,10 @@ class BufferGeometryLoader extends Loader {
       }
     }, n, r);
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：a.push、a.setUsage、function(e,t){if(void 0!==n[t])return n[t];const r=e.arrayBuffers,i=r[t],a=new Uint32Array(i).buffer;return n[t]=a,a;}、i.addGroup、i.setAttribute等。
+   */
   parse(e) {
     const t = {},
       n = {};
@@ -10290,10 +16558,24 @@ class BufferGeometryLoader extends Loader {
   }
 }
 const hc = {};
+/** @eyes-analysis
+ * 类职责：ObjectLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：ObjectLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ObjectLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 状态写入：resourcePath。
+   * 调用线索：JSON.parse、LoaderUtils.extractUrlBase、error、fileLoader.load、fileLoader.setPath等。
+   */
   load(e, t, n, r) {
     const i = this,
       a = "" === this.path ? LoaderUtils.extractUrlBase(e) : this.path;
@@ -10311,6 +16593,11 @@ class ObjectLoader extends Loader {
       i.parse(a, t);
     }, n, r);
   }
+  /** @eyes-analysis
+   * 源码方法 loadAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：resourcePath。
+   * 调用线索：JSON.parse、LoaderUtils.extractUrlBase、fileLoader.loadAsync、fileLoader.setPath、fileLoader.setRequestHeader等。
+   */
   async loadAsync(e, t) {
     const n = "" === this.path ? LoaderUtils.extractUrlBase(e) : this.path;
     this.resourcePath = this.resourcePath || n;
@@ -10327,6 +16614,10 @@ class ObjectLoader extends Loader {
     if (void 0 === s || void 0 === s.type || "geometry" === s.type.toLowerCase()) throw new Error("THREE.ObjectLoader: Can't load " + e);
     return await this.parseAsync(a);
   }
+  /** @eyes-analysis
+   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
+   * 调用线索：t、this.bindLightTargets、this.bindSkeletons、this.parseAnimations、this.parseGeometries等。
+   */
   parse(e, t) {
     const n = this.parseAnimations(e.animations),
       r = this.parseShapes(e.shapes),
@@ -10348,6 +16639,10 @@ class ObjectLoader extends Loader {
     }
     return c;
   }
+  /** @eyes-analysis
+   * 源码方法 parseAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.bindLightTargets、this.bindSkeletons、this.parseAnimations、this.parseGeometries、this.parseImagesAsync等。
+   */
   async parseAsync(e) {
     const t = this.parseAnimations(e.animations),
       n = this.parseShapes(e.shapes),
@@ -10359,9 +16654,16 @@ class ObjectLoader extends Loader {
       c = this.parseSkeletons(e.skeletons, o);
     return this.bindSkeletons(o, c), this.bindLightTargets(o), o;
   }
+  /** @eyes-analysis
+   * 源码方法 registerGeometry；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static registerGeometry(e, t) {
     hc[e] = t;
   }
+  /** @eyes-analysis
+   * 源码方法 parseShapes；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Shape、new Shape().fromJSON。
+   */
   parseShapes(e) {
     const t = {};
     if (void 0 !== e) for (let n = 0, r = e.length; n < r; n++) {
@@ -10370,6 +16672,10 @@ class ObjectLoader extends Loader {
     }
     return t;
   }
+  /** @eyes-analysis
+   * 源码方法 parseSkeletons；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new Skeleton、new Skeleton().fromJSON、t.traverse。
+   */
   parseSkeletons(e, t) {
     const n = {},
       r = {};
@@ -10381,6 +16687,10 @@ class ObjectLoader extends Loader {
     }
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 parseGeometries；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Wo[s.type].fromJSON、bufferGeometryLoader.parse、hc[s.type].fromJSON、new BufferGeometryLoader、warn。
+   */
   parseGeometries(e, t) {
     const n = {};
     if (void 0 !== e) {
@@ -10401,6 +16711,10 @@ class ObjectLoader extends Loader {
     }
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 parseMaterials；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：materialLoader.parse、materialLoader.setTextures、new MaterialLoader。
+   */
   parseMaterials(e, t) {
     const n = {},
       r = {};
@@ -10414,6 +16728,10 @@ class ObjectLoader extends Loader {
     }
     return r;
   }
+  /** @eyes-analysis
+   * 源码方法 parseAnimations；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：AnimationClip.parse。
+   */
   parseAnimations(e) {
     const t = {};
     if (void 0 !== e) for (let n = 0; n < e.length; n++) {
@@ -10423,6 +16741,10 @@ class ObjectLoader extends Loader {
     }
     return t;
   }
+  /** @eyes-analysis
+   * 源码方法 parseImages；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：/^(\/\/)|([a-z]+:(\/\/)?)/i.test、Array.isArray、a、e.push、function(e){return e=n.manager.resolveURL(e),n.manager.itemStart(e),i.load(e,function(){n.manager.itemEnd(e);},void 0,function(){n.manager.itemError(e),n.manager.itemEnd(e);});}等。
+   */
   parseImages(e, t) {
     const n = this,
       r = {};
@@ -10465,6 +16787,10 @@ class ObjectLoader extends Loader {
     }
     return r;
   }
+  /** @eyes-analysis
+   * 源码方法 parseImagesAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：/^(\/\/)|([a-z]+:(\/\/)?)/i.test、Array.isArray、e.push、i、new DataTexture等。
+   */
   async parseImagesAsync(e) {
     const t = this,
       n = {};
@@ -10502,6 +16828,10 @@ class ObjectLoader extends Loader {
     }
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 parseTextures；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Array.isArray、c.center.fromArray、c.offset.fromArray、c.repeat.fromArray、n等。
+   */
   parseTextures(e, t) {
     function n(e, t) {
       return "number" == typeof e ? e : (warn("ObjectLoader.parseTexture: Constant should be in numeric form.", e), t[e]);
@@ -10517,6 +16847,10 @@ class ObjectLoader extends Loader {
     }
     return r;
   }
+  /** @eyes-analysis
+   * 源码方法 parseObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Array.isArray、Number.isInteger、Object.assign、a.add、a.addLevel等。
+   */
   parseObject(e, t, n, r, i) {
     let a, s, o;
     function c(e) {
@@ -10644,6 +16978,10 @@ class ObjectLoader extends Loader {
     }
     return a;
   }
+  /** @eyes-analysis
+   * 源码方法 bindSkeletons；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Object.keys、e.bind、e.traverse、warn。
+   */
   bindSkeletons(e, t) {
     0 !== Object.keys(t).length && e.traverse(function (e) {
       if (!0 === e.isSkinnedMesh && void 0 !== e.skeleton) {
@@ -10652,6 +16990,10 @@ class ObjectLoader extends Loader {
       }
     });
   }
+  /** @eyes-analysis
+   * 源码方法 bindLightTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.getObjectByProperty、e.traverse、new Object3D。
+   */
   bindLightTargets(e) {
     e.traverse(function (t) {
       if (t.isDirectionalLight || t.isSpotLight) {
@@ -10684,15 +17026,33 @@ const pc = {
     LinearMipmapLinearFilter: LinearMipmapLinearFilter
   },
   Mc = new WeakMap();
+/** @eyes-analysis
+ * 类职责：ImageBitmapLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：ImageBitmapLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ImageBitmapLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_abortController、isImageBitmapLoader、options。
+   * 调用线索：new AbortController、super、warn。
+   */
   constructor(e) {
     super(e), this.isImageBitmapLoader = !0, "undefined" == typeof createImageBitmap && warn("ImageBitmapLoader: createImageBitmap() not supported."), "undefined" == typeof fetch && warn("ImageBitmapLoader: fetch() not supported."), this.options = {
       premultiplyAlpha: "none"
     }, this._abortController = new AbortController();
   }
+  /** @eyes-analysis
+   * 源码方法 setOptions；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：options。
+   */
   setOptions(options) {
     return this.options = options, this;
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：AbortSignal.any、Cache.add、Cache.get、Cache.remove、Mc.get等。
+   */
   load(e, t, n, r) {
     void 0 === e && (e = ""), void 0 !== this.path && (e = this.path + e), e = this.manager.resolveURL(e);
     const i = this,
@@ -10717,23 +17077,53 @@ class ImageBitmapLoader extends Loader {
     });
     Cache.add(`image-bitmap:${e}`, o), i.manager.itemStart(e);
   }
+  /** @eyes-analysis
+   * 源码方法 abort；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_abortController。
+   * 调用线索：new AbortController、this._abortController.abort。
+   */
   abort() {
     return this._abortController.abort(), this._abortController = new AbortController(), this;
   }
 }
 let _c;
+/** @eyes-analysis
+ * 类职责：共享 Web Audio 上下文访问入口
+ * 继承：无显式父类；导出：AudioContext。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AudioContext {
+  /** @eyes-analysis
+   * 源码方法 getContext；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new window.AudioContext||window.webkitAudioContext。
+   */
   static getContext() {
     return void 0 === _c && (_c = new (window.AudioContext || window.webkitAudioContext)()), _c;
   }
+  /** @eyes-analysis
+   * 源码方法 setContext；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   static setContext(e) {
     _c = e;
   }
 }
+/** @eyes-analysis
+ * 类职责：AudioLoader 对应资源的请求、解析与缓存协作
+ * 继承：Loader；导出：AudioLoader。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AudioLoader extends Loader {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：super。
+   */
   constructor(e) {
     super(e);
   }
+  /** @eyes-analysis
+   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
+   * 调用线索：AudioContext.getContext、a.decodeAudioData、a.decodeAudioData(r,function(e){t(e),i.manager.itemEnd(o);}).catch、error、fileLoader.load等。
+   */
   load(e, t, n, r) {
     const i = this,
       fileLoader = new FileLoader(this.manager);
@@ -10759,7 +17149,17 @@ class AudioLoader extends Loader {
 const Ac = new Matrix4(),
   gc = new Matrix4(),
   bc = new Matrix4();
+/** @eyes-analysis
+ * 类职责：生成左右眼视差相机
+ * 继承：无显式父类；导出：StereoCamera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class StereoCamera {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_cache、aspect、cameraL、cameraL.matrixAutoUpdate、cameraR、cameraR.matrixAutoUpdate、eyeSep、type。
+   * 调用线索：new PerspectiveCamera、this.cameraL.layers.enable、this.cameraR.layers.enable。
+   */
   constructor() {
     this.type = "StereoCamera", this.aspect = 1, this.eyeSep = .064, this.cameraL = new PerspectiveCamera(), this.cameraL.layers.enable(1), this.cameraL.matrixAutoUpdate = !1, this.cameraR = new PerspectiveCamera(), this.cameraR.layers.enable(2), this.cameraR.matrixAutoUpdate = !1, this._cache = {
       focus: null,
@@ -10771,6 +17171,11 @@ class StereoCamera {
       eyeSep: null
     };
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：cameraL.matrixWorldNeedsUpdate、cameraR.matrixWorldNeedsUpdate。
+   * 调用线索：Math.tan、bc.copy、this.cameraL.matrix.copy、this.cameraL.matrix.copy(e.matrixWorld).multiply、this.cameraL.projectionMatrix.copy等。
+   */
   update(e) {
     const cache = this._cache;
     if (cache.focus !== e.focus || cache.fov !== e.fov || cache.aspect !== e.aspect * this.aspect || cache.near !== e.near || cache.far !== e.far || cache.zoom !== e.zoom || cache.eyeSep !== this.eyeSep) {
@@ -10785,7 +17190,17 @@ class StereoCamera {
   }
 }
 const yc = -90;
+/** @eyes-analysis
+ * 类职责：从六个方向采集环境立方纹理
+ * 继承：Object3D；导出：CubeCamera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CubeCamera extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：activeMipmapLevel、coordinateSystem、renderTarget、type。
+   * 调用线索：new PerspectiveCamera、super、this.add。
+   */
   constructor(e, t, renderTarget) {
     super(), this.type = "CubeCamera", this.renderTarget = renderTarget, this.coordinateSystem = null, this.activeMipmapLevel = 0;
     const perspectiveCamera = new PerspectiveCamera(yc, 1, e, t);
@@ -10801,6 +17216,10 @@ class CubeCamera extends Object3D {
     const c = new PerspectiveCamera(yc, 1, e, t);
     c.layers = this.layers, this.add(c);
   }
+  /** @eyes-analysis
+   * 源码方法 updateCoordinateSystem；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：a.lookAt、a.up.set、e.updateMatrixWorld、i.lookAt、i.up.set等。
+   */
   updateCoordinateSystem() {
     const coordinateSystem = this.coordinateSystem,
       t = this.children.concat(),
@@ -10812,6 +17231,11 @@ class CubeCamera extends Object3D {
     }
     for (const e of t) this.add(e), e.updateMatrixWorld();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：coordinateSystem。
+   * 调用线索：e.clearDepth、e.getActiveCubeFace、e.getActiveMipmapLevel、e.getRenderTarget、e.render等。
+   */
   update(e, t) {
     null === this.parent && this.updateMatrixWorld();
     const {
@@ -10831,39 +17255,96 @@ class CubeCamera extends Object3D {
     m = !0 === e.isWebGLRenderer ? e.state.buffers.depth.getReversed() : e.reversedDepthBuffer, e.setRenderTarget(renderTarget, 0, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, i), e.setRenderTarget(renderTarget, 1, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, a), e.setRenderTarget(renderTarget, 2, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, s), e.setRenderTarget(renderTarget, 3, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, o), e.setRenderTarget(renderTarget, 4, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, c), renderTarget.texture.generateMipmaps = f, e.setRenderTarget(renderTarget, 5, activeMipmapLevel), m && !1 === e.autoClear && e.clearDepth(), e.render(t, l), e.setRenderTarget(u, d, h), e.xr.enabled = p, renderTarget.texture.needsPMREMUpdate = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：由多个视口子相机组成的相机
+ * 继承：PerspectiveCamera；导出：ArrayCamera。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ArrayCamera extends PerspectiveCamera {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：cameras、isArrayCamera、isMultiViewCamera。
+   * 调用线索：super。
+   */
   constructor(cameras = []) {
     super(), this.isArrayCamera = !0, this.isMultiViewCamera = !1, this.cameras = cameras;
   }
 }
+/** @eyes-analysis
+ * 类职责：支持暂停、重置和页面可见性调整的时间源
+ * 继承：无显式父类；导出：Timer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Timer {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_currentTime、_delta、_document、_elapsed、_pageVisibilityHandler、_previousTime、_startTime、_timescale。
+   * 调用线索：performance.now。
+   */
   constructor() {
     this._previousTime = 0, this._currentTime = 0, this._startTime = performance.now(), this._delta = 0, this._elapsed = 0, this._timescale = 1, this._document = null, this._pageVisibilityHandler = null;
   }
+  /** @eyes-analysis
+   * 源码方法 connect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_document、_pageVisibilityHandler。
+   * 调用线索：Lc.bind、e.addEventListener。
+   */
   connect(e) {
     this._document = e, void 0 !== e.hidden && (this._pageVisibilityHandler = Lc.bind(this), e.addEventListener("visibilitychange", this._pageVisibilityHandler, !1));
   }
+  /** @eyes-analysis
+   * 源码方法 disconnect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_document、_pageVisibilityHandler。
+   * 调用线索：this._document.removeEventListener。
+   */
   disconnect() {
     null !== this._pageVisibilityHandler && (this._document.removeEventListener("visibilitychange", this._pageVisibilityHandler), this._pageVisibilityHandler = null), this._document = null;
   }
+  /** @eyes-analysis
+   * 源码方法 getDelta；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getDelta() {
     return this._delta / 1e3;
   }
+  /** @eyes-analysis
+   * 源码方法 getElapsed；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getElapsed() {
     return this._elapsed / 1e3;
   }
+  /** @eyes-analysis
+   * 源码方法 getTimescale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getTimescale() {
     return this._timescale;
   }
+  /** @eyes-analysis
+   * 源码方法 setTimescale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_timescale。
+   */
   setTimescale(timescale) {
     return this._timescale = timescale, this;
   }
+  /** @eyes-analysis
+   * 源码方法 reset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_currentTime。
+   * 调用线索：performance.now。
+   */
   reset() {
     return this._currentTime = performance.now() - this._startTime, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.disconnect。
+   */
   dispose() {
     this.disconnect();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：_currentTime、_delta、_elapsed、_previousTime。
+   * 调用线索：performance.now。
+   */
   update(e) {
     return null !== this._pageVisibilityHandler && !0 === this._document.hidden ? this._delta = 0 : (this._previousTime = this._currentTime, this._currentTime = (void 0 !== e ? e : performance.now()) - this._startTime, this._delta = (this._currentTime - this._previousTime) * this._timescale, this._elapsed += this._delta), this;
   }
@@ -10876,28 +17357,66 @@ const vc = new Vector3(),
   Sc = new Vector3(),
   wc = new Vector3(),
   Ec = new Vector3();
+/** @eyes-analysis
+ * 类职责：将主音量和相机空间位置同步至 Web Audio listener
+ * 继承：Object3D；导出：AudioListener。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AudioListener extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_timer、context、filter、gain、timeDelta、type。
+   * 调用线索：AudioContext.getContext、new Timer、super、this.context.createGain、this.gain.connect。
+   */
   constructor() {
     super(), this.type = "AudioListener", this.context = AudioContext.getContext(), this.gain = this.context.createGain(), this.gain.connect(this.context.destination), this.filter = null, this.timeDelta = 0, this._timer = new Timer();
   }
+  /** @eyes-analysis
+   * 源码方法 getInput；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getInput() {
     return this.gain;
   }
+  /** @eyes-analysis
+   * 源码方法 removeFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：filter。
+   * 调用线索：this.filter.disconnect、this.gain.connect、this.gain.disconnect。
+   */
   removeFilter() {
     return null !== this.filter && (this.gain.disconnect(this.filter), this.filter.disconnect(this.context.destination), this.gain.connect(this.context.destination), this.filter = null), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getFilter() {
     return this.filter;
   }
+  /** @eyes-analysis
+   * 源码方法 setFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：filter。
+   * 调用线索：this.filter.connect、this.filter.disconnect、this.gain.connect、this.gain.disconnect。
+   */
   setFilter(filter) {
     return null !== this.filter ? (this.gain.disconnect(this.filter), this.filter.disconnect(this.context.destination)) : this.gain.disconnect(this.context.destination), this.filter = filter, this.gain.connect(this.filter), this.filter.connect(this.context.destination), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getMasterVolume；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getMasterVolume() {
     return this.gain.gain.value;
   }
+  /** @eyes-analysis
+   * 源码方法 setMasterVolume；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.gain.gain.setTargetAtTime。
+   */
   setMasterVolume(e) {
     return this.gain.gain.setTargetAtTime(e, this.context.currentTime, .01), this;
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 状态写入：timeDelta。
+   * 调用线索：Ec.set、Ec.set(0,1,0).applyQuaternion、super.updateMatrixWorld、t.forwardX.linearRampToValueAtTime、t.forwardY.linearRampToValueAtTime等。
+   */
   updateMatrixWorld(e) {
     super.updateMatrixWorld(e), this._timer.update();
     const t = this.context.listener;
@@ -10907,25 +17426,63 @@ class AudioListener extends Object3D {
     } else t.setPosition(vc.x, vc.y, vc.z), t.setOrientation(wc.x, wc.y, wc.z, Ec.x, Ec.y, Ec.z);
   }
 }
+/** @eyes-analysis
+ * 类职责：音频源、播放状态、增益和过滤器链
+ * 继承：Object3D；导出：Audio。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Audio extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_connected、_progress、_startedAt、autoplay、buffer、context、detune、duration等；完整记录见索引。
+   * 调用线索：listener.getInput、super、this.context.createGain、this.gain.connect。
+   */
   constructor(listener) {
     super(), this.type = "Audio", this.listener = listener, this.context = listener.context, this.gain = this.context.createGain(), this.gain.connect(listener.getInput()), this.autoplay = !1, this.buffer = null, this.detune = 0, this.loop = !1, this.loopStart = 0, this.loopEnd = 0, this.offset = 0, this.duration = void 0, this.playbackRate = 1, this.isPlaying = !1, this.hasPlaybackControl = !0, this.source = null, this.sourceType = "empty", this._startedAt = 0, this._progress = 0, this._connected = !1, this.filters = [];
   }
+  /** @eyes-analysis
+   * 源码方法 getOutput；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getOutput() {
     return this.gain;
   }
+  /** @eyes-analysis
+   * 源码方法 setNodeSource；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：hasPlaybackControl、source、sourceType。
+   * 调用线索：this.connect。
+   */
   setNodeSource(source) {
     return this.hasPlaybackControl = !1, this.sourceType = "audioNode", this.source = source, this.connect(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setMediaElementSource；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：hasPlaybackControl、source、sourceType。
+   * 调用线索：this.connect、this.context.createMediaElementSource。
+   */
   setMediaElementSource(e) {
     return this.hasPlaybackControl = !1, this.sourceType = "mediaNode", this.source = this.context.createMediaElementSource(e), this.connect(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setMediaStreamSource；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：hasPlaybackControl、source、sourceType。
+   * 调用线索：this.connect、this.context.createMediaStreamSource。
+   */
   setMediaStreamSource(e) {
     return this.hasPlaybackControl = !1, this.sourceType = "mediaStreamNode", this.source = this.context.createMediaStreamSource(e), this.connect(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setBuffer；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：buffer、sourceType。
+   * 调用线索：this.play。
+   */
   setBuffer(buffer) {
     return this.buffer = buffer, this.sourceType = "buffer", this.autoplay && this.play(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 play；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_startedAt、isPlaying、source。
+   * 调用线索：source.start、this.connect、this.context.createBufferSource、this.onEnded.bind、this.setDetune等。
+   */
   play(e = 0) {
     if (!0 === this.isPlaying) return void warn("Audio: Audio is already playing.");
     if (!1 === this.hasPlaybackControl) return void warn("Audio: this Audio has no playback control.");
@@ -10933,14 +17490,29 @@ class Audio extends Object3D {
     const source = this.context.createBufferSource();
     return source.buffer = this.buffer, source.loop = this.loop, source.loopStart = this.loopStart, source.loopEnd = this.loopEnd, source.onended = this.onEnded.bind(this), source.start(this._startedAt, this._progress + this.offset, this.duration), this.isPlaying = !0, this.source = source, this.setDetune(this.detune), this.setPlaybackRate(this.playbackRate), this.connect();
   }
+  /** @eyes-analysis
+   * 源码方法 pause；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_progress、isPlaying、source.onended。
+   * 调用线索：Math.max、this.source.stop、warn。
+   */
   pause() {
     if (!1 !== this.hasPlaybackControl) return !0 === this.isPlaying && (this._progress += Math.max(this.context.currentTime - this._startedAt, 0) * this.playbackRate, !0 === this.loop && (this._progress = this._progress % (this.duration || this.buffer.duration)), this.source.stop(), this.source.onended = null, this.isPlaying = !1), this;
     warn("Audio: this Audio has no playback control.");
   }
+  /** @eyes-analysis
+   * 源码方法 stop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_progress、isPlaying、source.onended。
+   * 调用线索：this.source.stop、warn。
+   */
   stop(e = 0) {
     if (!1 !== this.hasPlaybackControl) return this._progress = 0, null !== this.source && (this.source.stop(this.context.currentTime + e), this.source.onended = null), this.isPlaying = !1, this;
     warn("Audio: this Audio has no playback control.");
   }
+  /** @eyes-analysis
+   * 源码方法 connect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_connected。
+   * 调用线索：this.filters[e-1].connect、this.filters[this.filters.length-1].connect、this.getOutput、this.source.connect。
+   */
   connect() {
     if (this.filters.length > 0) {
       this.source.connect(this.filters[0]);
@@ -10949,6 +17521,11 @@ class Audio extends Object3D {
     } else this.source.connect(this.getOutput());
     return this._connected = !0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 disconnect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_connected。
+   * 调用线索：this.filters[e-1].disconnect、this.filters[this.filters.length-1].disconnect、this.getOutput、this.source.disconnect。
+   */
   disconnect() {
     if (!1 !== this._connected) {
       if (this.filters.length > 0) {
@@ -10959,56 +17536,125 @@ class Audio extends Object3D {
       return this._connected = !1, this;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 getFilters；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getFilters() {
     return this.filters;
   }
+  /** @eyes-analysis
+   * 源码方法 setFilters；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：filters。
+   * 调用线索：e.slice、this.connect、this.disconnect。
+   */
   setFilters(e) {
     return e || (e = []), !0 === this._connected ? (this.disconnect(), this.filters = e.slice(), this.connect()) : this.filters = e.slice(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setDetune；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：detune。
+   * 调用线索：this.source.detune.setTargetAtTime。
+   */
   setDetune(detune) {
     return this.detune = detune, !0 === this.isPlaying && void 0 !== this.source.detune && this.source.detune.setTargetAtTime(this.detune, this.context.currentTime, .01), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getDetune；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getDetune() {
     return this.detune;
   }
+  /** @eyes-analysis
+   * 源码方法 getFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getFilters。
+   */
   getFilter() {
     return this.getFilters()[0];
   }
+  /** @eyes-analysis
+   * 源码方法 setFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFilters。
+   */
   setFilter(e) {
     return this.setFilters(e ? [e] : []);
   }
+  /** @eyes-analysis
+   * 源码方法 setPlaybackRate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：playbackRate。
+   * 调用线索：this.source.playbackRate.setTargetAtTime、warn。
+   */
   setPlaybackRate(playbackRate) {
     if (!1 !== this.hasPlaybackControl) return this.playbackRate = playbackRate, !0 === this.isPlaying && this.source.playbackRate.setTargetAtTime(this.playbackRate, this.context.currentTime, .01), this;
     warn("Audio: this Audio has no playback control.");
   }
+  /** @eyes-analysis
+   * 源码方法 getPlaybackRate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getPlaybackRate() {
     return this.playbackRate;
   }
+  /** @eyes-analysis
+   * 源码方法 onEnded；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_progress、isPlaying。
+   */
   onEnded() {
     this.isPlaying = !1, this._progress = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 getLoop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：warn。
+   */
   getLoop() {
     return !1 === this.hasPlaybackControl ? (warn("Audio: this Audio has no playback control."), !1) : this.loop;
   }
+  /** @eyes-analysis
+   * 源码方法 setLoop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：loop、source.loop。
+   * 调用线索：warn。
+   */
   setLoop(loop) {
     if (!1 !== this.hasPlaybackControl) return this.loop = loop, !0 === this.isPlaying && (this.source.loop = this.loop), this;
     warn("Audio: this Audio has no playback control.");
   }
+  /** @eyes-analysis
+   * 源码方法 setLoopStart；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：loopStart。
+   */
   setLoopStart(loopStart) {
     return this.loopStart = loopStart, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setLoopEnd；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：loopEnd。
+   */
   setLoopEnd(loopEnd) {
     return this.loopEnd = loopEnd, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getVolume；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getVolume() {
     return this.gain.gain.value;
   }
+  /** @eyes-analysis
+   * 源码方法 setVolume；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.gain.gain.setTargetAtTime。
+   */
   setVolume(e) {
     return this.gain.gain.setTargetAtTime(e, this.context.currentTime, .01), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：autoplay、buffer、detune、duration、filters、hasPlaybackControl、loop、loopEnd等；完整记录见索引。
+   * 调用线索：e.filters.slice、super.copy、warn。
+   */
   copy(e, t) {
     return super.copy(e, t), "buffer" !== e.sourceType ? (warn("Audio: Audio source type cannot be copied."), this) : (this.autoplay = e.autoplay, this.buffer = e.buffer, this.detune = e.detune, this.loop = e.loop, this.loopStart = e.loopStart, this.loopEnd = e.loopEnd, this.offset = e.offset, this.duration = e.duration, this.playbackRate = e.playbackRate, this.hasPlaybackControl = e.hasPlaybackControl, this.sourceType = e.sourceType, this.filters = e.filters.slice(), this);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor(this.listener).copy。
+   */
   clone(e) {
     return new this.constructor(this.listener).copy(this, e);
   }
@@ -11017,46 +17663,103 @@ const xc = new Vector3(),
   Cc = new Quaternion(),
   zc = new Vector3(),
   Oc = new Vector3();
+/** @eyes-analysis
+ * 类职责：通过 PannerNode 实现随场景对象移动的空间音频
+ * 继承：Audio；导出：PositionalAudio。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PositionalAudio extends Audio {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：panner、panner.panningModel。
+   * 调用线索：super、this.context.createPanner、this.panner.connect。
+   */
   constructor(e) {
     super(e), this.panner = this.context.createPanner(), this.panner.panningModel = "HRTF", this.panner.connect(this.gain);
   }
+  /** @eyes-analysis
+   * 源码方法 connect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.connect、this.panner.connect。
+   */
   connect() {
     return super.connect(), this.panner.connect(this.gain), this;
   }
+  /** @eyes-analysis
+   * 源码方法 disconnect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：super.disconnect、this.panner.disconnect。
+   */
   disconnect() {
     return super.disconnect(), this.panner.disconnect(this.gain), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getOutput；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getOutput() {
     return this.panner;
   }
+  /** @eyes-analysis
+   * 源码方法 getRefDistance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getRefDistance() {
     return this.panner.refDistance;
   }
+  /** @eyes-analysis
+   * 源码方法 setRefDistance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：panner.refDistance。
+   */
   setRefDistance(e) {
     return this.panner.refDistance = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getRolloffFactor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getRolloffFactor() {
     return this.panner.rolloffFactor;
   }
+  /** @eyes-analysis
+   * 源码方法 setRolloffFactor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：panner.rolloffFactor。
+   */
   setRolloffFactor(e) {
     return this.panner.rolloffFactor = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getDistanceModel；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getDistanceModel() {
     return this.panner.distanceModel;
   }
+  /** @eyes-analysis
+   * 源码方法 setDistanceModel；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：panner.distanceModel。
+   */
   setDistanceModel(e) {
     return this.panner.distanceModel = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getMaxDistance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getMaxDistance() {
     return this.panner.maxDistance;
   }
+  /** @eyes-analysis
+   * 源码方法 setMaxDistance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：panner.maxDistance。
+   */
   setMaxDistance(e) {
     return this.panner.maxDistance = e, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setDirectionalCone；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：panner.coneInnerAngle、panner.coneOuterAngle、panner.coneOuterGain。
+   */
   setDirectionalCone(e, t, n) {
     return this.panner.coneInnerAngle = e, this.panner.coneOuterAngle = t, this.panner.coneOuterGain = n, this;
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：Oc.set、Oc.set(0,0,1).applyQuaternion、panner.orientationX.linearRampToValueAtTime、panner.orientationY.linearRampToValueAtTime、panner.orientationZ.linearRampToValueAtTime等。
+   */
   updateMatrixWorld(e) {
     if (super.updateMatrixWorld(e), !0 === this.hasPlaybackControl && !1 === this.isPlaying) return;
     this.matrixWorld.decompose(xc, Cc, zc), Oc.set(0, 0, 1).applyQuaternion(Cc);
@@ -11067,13 +17770,31 @@ class PositionalAudio extends Audio {
     } else panner.setPosition(xc.x, xc.y, xc.z), panner.setOrientation(Oc.x, Oc.y, Oc.z);
   }
 }
+/** @eyes-analysis
+ * 类职责：封装 FFT 频谱和平均频率采样
+ * 继承：无显式父类；导出：AudioAnalyser。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AudioAnalyser {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：analyser、analyser.fftSize、data。
+   * 调用线索：e.context.createAnalyser、e.getOutput、e.getOutput().connect、new Uint8Array。
+   */
   constructor(e, t = 2048) {
     this.analyser = e.context.createAnalyser(), this.analyser.fftSize = t, this.data = new Uint8Array(this.analyser.frequencyBinCount), e.getOutput().connect(this.analyser);
   }
+  /** @eyes-analysis
+   * 源码方法 getFrequencyData；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.analyser.getByteFrequencyData。
+   */
   getFrequencyData() {
     return this.analyser.getByteFrequencyData(this.data), this.data;
   }
+  /** @eyes-analysis
+   * 源码方法 getAverageFrequency；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getFrequencyData。
+   */
   getAverageFrequency() {
     let e = 0;
     const t = this.getFrequencyData();
@@ -11081,7 +17802,17 @@ class AudioAnalyser {
     return e / t.length;
   }
 }
+/** @eyes-analysis
+ * 类职责：累积并混合来自多个动作的属性值
+ * 继承：无显式父类；导出：PropertyMixer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PropertyMixer {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_addIndex、_mixBufferRegion、_mixBufferRegionAdditive、_origIndex、_setIdentity、_workIndex、binding、buffer等；完整记录见索引。
+   * 调用线索：new Array、new Float64Array。
+   */
   constructor(binding, t, valueSize) {
     let mixBufferRegion, mixBufferRegionAdditive, setIdentity;
     switch (this.binding = binding, this.valueSize = valueSize, t) {
@@ -11097,6 +17828,11 @@ class PropertyMixer {
     }
     this._mixBufferRegion = mixBufferRegion, this._mixBufferRegionAdditive = mixBufferRegionAdditive, this._setIdentity = setIdentity, this._origIndex = 3, this._addIndex = 4, this.cumulativeWeight = 0, this.cumulativeWeightAdditive = 0, this.useCount = 0, this.referenceCount = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 accumulate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cumulativeWeight。
+   * 调用线索：this._mixBufferRegion。
+   */
   accumulate(e, t) {
     const buffer = this.buffer,
       valueSize = this.valueSize,
@@ -11112,12 +17848,22 @@ class PropertyMixer {
     }
     this.cumulativeWeight = cumulativeWeight;
   }
+  /** @eyes-analysis
+   * 源码方法 accumulateAdditive；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cumulativeWeightAdditive。
+   * 调用线索：this._mixBufferRegionAdditive、this._setIdentity。
+   */
   accumulateAdditive(cumulativeWeightAdditive) {
     const buffer = this.buffer,
       valueSize = this.valueSize,
       r = valueSize * this._addIndex;
     0 === this.cumulativeWeightAdditive && this._setIdentity(), this._mixBufferRegionAdditive(buffer, r, 0, cumulativeWeightAdditive, valueSize), this.cumulativeWeightAdditive += cumulativeWeightAdditive;
   }
+  /** @eyes-analysis
+   * 源码方法 apply；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cumulativeWeight、cumulativeWeightAdditive。
+   * 调用线索：binding.setValue、this._mixBufferRegion、this._mixBufferRegionAdditive。
+   */
   apply(e) {
     const valueSize = this.valueSize,
       buffer = this.buffer,
@@ -11135,6 +17881,11 @@ class PropertyMixer {
       break;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 saveOriginalState；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cumulativeWeight、cumulativeWeightAdditive。
+   * 调用线索：binding.getValue、this._setIdentity。
+   */
   saveOriginalState() {
     const binding = this.binding,
       buffer = this.buffer,
@@ -11144,33 +17895,64 @@ class PropertyMixer {
     for (let e = valueSize, i = r; e !== i; ++e) buffer[e] = buffer[r + e % valueSize];
     this._setIdentity(), this.cumulativeWeight = 0, this.cumulativeWeightAdditive = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 restoreOriginalState；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.binding.setValue。
+   */
   restoreOriginalState() {
     const e = 3 * this.valueSize;
     this.binding.setValue(this.buffer, e);
   }
+  /** @eyes-analysis
+   * 源码方法 _setAdditiveIdentityNumeric；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：buffer[n]。
+   */
   _setAdditiveIdentityNumeric() {
     const e = this._addIndex * this.valueSize,
       t = e + this.valueSize;
     for (let n = e; n < t; n++) this.buffer[n] = 0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setAdditiveIdentityQuaternion；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：buffer[this._addIndex*this.valueSize+3]。
+   * 调用线索：this._setAdditiveIdentityNumeric。
+   */
   _setAdditiveIdentityQuaternion() {
     this._setAdditiveIdentityNumeric(), this.buffer[this._addIndex * this.valueSize + 3] = 1;
   }
+  /** @eyes-analysis
+   * 源码方法 _setAdditiveIdentityOther；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：buffer[t+n]。
+   */
   _setAdditiveIdentityOther() {
     const e = this._origIndex * this.valueSize,
       t = this._addIndex * this.valueSize;
     for (let n = 0; n < this.valueSize; n++) this.buffer[t + n] = this.buffer[e + n];
   }
+  /** @eyes-analysis
+   * 源码方法 _select；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _select(e, t, n, r, i) {
     if (r >= .5) for (let r = 0; r !== i; ++r) e[t + r] = e[n + r];
   }
+  /** @eyes-analysis
+   * 源码方法 _slerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Quaternion.slerpFlat。
+   */
   _slerp(e, t, n, r) {
     Quaternion.slerpFlat(e, t, e, t, e, n, r);
   }
+  /** @eyes-analysis
+   * 源码方法 _slerpAdditive；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Quaternion.multiplyQuaternionsFlat、Quaternion.slerpFlat。
+   */
   _slerpAdditive(e, t, n, r, i) {
     const a = this._workIndex * i;
     Quaternion.multiplyQuaternionsFlat(e, a, e, t, e, n), Quaternion.slerpFlat(e, t, e, t, e, a, r);
   }
+  /** @eyes-analysis
+   * 源码方法 _lerp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _lerp(e, t, n, r, i) {
     const a = 1 - r;
     for (let s = 0; s !== i; ++s) {
@@ -11178,6 +17960,9 @@ class PropertyMixer {
       e[i] = e[i] * a + e[n + s] * r;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _lerpAdditive；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _lerpAdditive(e, t, n, r, i) {
     for (let a = 0; a !== i; ++a) {
       const i = t + a;
@@ -11191,16 +17976,38 @@ const Bc = "\\[\\]\\.:\\/",
   Ic = "[^" + Bc.replace("\\.", "") + "]",
   Rc = new RegExp("^" + /((?:WC+[\/:])*)/.source.replace("WC", Nc) + /(WCOD+)?/.source.replace("WCOD", Ic) + /(?:\.(WC+)(?:\[(.+)\])?)?/.source.replace("WC", Nc) + /\.(WC+)(?:\[(.+)\])?/.source.replace("WC", Nc) + "$"),
   kc = ["material", "materials", "bones", "map"];
+/** @eyes-analysis
+ * 类职责：解析动画属性路径并绑定对象字段
+ * 继承：无显式父类；导出：PropertyBinding。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PropertyBinding {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：getValue、node、parsedPath、path、rootNode、setValue。
+   * 调用线索：PropertyBinding.findNode、PropertyBinding.parseTrackName。
+   */
   constructor(rootNode, path, n) {
     this.path = path, this.parsedPath = n || PropertyBinding.parseTrackName(path), this.node = PropertyBinding.findNode(rootNode, this.parsedPath.nodeName), this.rootNode = rootNode, this.getValue = this._getValue_unbound, this.setValue = this._setValue_unbound;
   }
+  /** @eyes-analysis
+   * 源码方法 create；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：new PropertyBinding、new PropertyBinding.Composite。
+   */
   static create(e, t, n) {
     return e && e.isAnimationObjectGroup ? new PropertyBinding.Composite(e, t, n) : new PropertyBinding(e, t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 sanitizeNodeName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.replace、e.replace(/\s/g,"_").replace。
+   */
   static sanitizeNodeName(e) {
     return e.replace(/\s/g, "_").replace(regExp, "");
   }
+  /** @eyes-analysis
+   * 源码方法 parseTrackName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Rc.exec、kc.indexOf、n.nodeName.lastIndexOf、n.nodeName.substring、new Error。
+   */
   static parseTrackName(e) {
     const t = Rc.exec(e);
     if (null === t) throw new Error("THREE.PropertyBinding: Cannot parse trackName: " + e);
@@ -11219,6 +18026,10 @@ class PropertyBinding {
     if (null === n.propertyName || 0 === n.propertyName.length) throw new Error("THREE.PropertyBinding: can not parse propertyName from trackName: " + e);
     return n;
   }
+  /** @eyes-analysis
+   * 源码方法 findNode；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.skeleton.getBoneByName、n。
+   */
   static findNode(e, t) {
     if (void 0 === t || "" === t || "." === t || -1 === t || t === e.name || t === e.uuid) return e;
     if (e.skeleton) {
@@ -11240,68 +18051,149 @@ class PropertyBinding {
     }
     return null;
   }
+  /** @eyes-analysis
+   * 源码方法 _getValue_unavailable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _getValue_unavailable() {}
+  /** @eyes-analysis
+   * 源码方法 _setValue_unavailable；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _setValue_unavailable() {}
+  /** @eyes-analysis
+   * 源码方法 _getValue_direct；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _getValue_direct(e, t) {
     e[t] = this.targetObject[this.propertyName];
   }
+  /** @eyes-analysis
+   * 源码方法 _getValue_array；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _getValue_array(e, t) {
     const resolvedProperty = this.resolvedProperty;
     for (let r = 0, i = resolvedProperty.length; r !== i; ++r) e[t++] = resolvedProperty[r];
   }
+  /** @eyes-analysis
+   * 源码方法 _getValue_arrayElement；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _getValue_arrayElement(e, t) {
     e[t] = this.resolvedProperty[this.propertyIndex];
   }
+  /** @eyes-analysis
+   * 源码方法 _getValue_toArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.resolvedProperty.toArray。
+   */
   _getValue_toArray(e, t) {
     this.resolvedProperty.toArray(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_direct；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject[this.propertyName]。
+   */
   _setValue_direct(e, t) {
     this.targetObject[this.propertyName] = e[t];
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_direct_setNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.needsUpdate、targetObject[this.propertyName]。
+   */
   _setValue_direct_setNeedsUpdate(e, t) {
     this.targetObject[this.propertyName] = e[t], this.targetObject.needsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_direct_setMatrixWorldNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.matrixWorldNeedsUpdate、targetObject[this.propertyName]。
+   */
   _setValue_direct_setMatrixWorldNeedsUpdate(e, t) {
     this.targetObject[this.propertyName] = e[t], this.targetObject.matrixWorldNeedsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_array；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _setValue_array(e, t) {
     const resolvedProperty = this.resolvedProperty;
     for (let r = 0, i = resolvedProperty.length; r !== i; ++r) resolvedProperty[r] = e[t++];
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_array_setNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.needsUpdate。
+   */
   _setValue_array_setNeedsUpdate(e, t) {
     const resolvedProperty = this.resolvedProperty;
     for (let r = 0, i = resolvedProperty.length; r !== i; ++r) resolvedProperty[r] = e[t++];
     this.targetObject.needsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_array_setMatrixWorldNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.matrixWorldNeedsUpdate。
+   */
   _setValue_array_setMatrixWorldNeedsUpdate(e, t) {
     const resolvedProperty = this.resolvedProperty;
     for (let r = 0, i = resolvedProperty.length; r !== i; ++r) resolvedProperty[r] = e[t++];
     this.targetObject.matrixWorldNeedsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_arrayElement；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：resolvedProperty[this.propertyIndex]。
+   */
   _setValue_arrayElement(e, t) {
     this.resolvedProperty[this.propertyIndex] = e[t];
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_arrayElement_setNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：resolvedProperty[this.propertyIndex]、targetObject.needsUpdate。
+   */
   _setValue_arrayElement_setNeedsUpdate(e, t) {
     this.resolvedProperty[this.propertyIndex] = e[t], this.targetObject.needsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_arrayElement_setMatrixWorldNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：resolvedProperty[this.propertyIndex]、targetObject.matrixWorldNeedsUpdate。
+   */
   _setValue_arrayElement_setMatrixWorldNeedsUpdate(e, t) {
     this.resolvedProperty[this.propertyIndex] = e[t], this.targetObject.matrixWorldNeedsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.resolvedProperty.fromArray。
+   */
   _setValue_fromArray(e, t) {
     this.resolvedProperty.fromArray(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_fromArray_setNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.needsUpdate。
+   * 调用线索：this.resolvedProperty.fromArray。
+   */
   _setValue_fromArray_setNeedsUpdate(e, t) {
     this.resolvedProperty.fromArray(e, t), this.targetObject.needsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_fromArray_setMatrixWorldNeedsUpdate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：targetObject.matrixWorldNeedsUpdate。
+   * 调用线索：this.resolvedProperty.fromArray。
+   */
   _setValue_fromArray_setMatrixWorldNeedsUpdate(e, t) {
     this.resolvedProperty.fromArray(e, t), this.targetObject.matrixWorldNeedsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 _getValue_unbound；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.bind、this.getValue。
+   */
   _getValue_unbound(e, t) {
     this.bind(), this.getValue(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 _setValue_unbound；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.bind、this.setValue。
+   */
   _setValue_unbound(e, t) {
     this.bind(), this.setValue(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 bind；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：getValue、node、propertyIndex、propertyName、resolvedProperty、setValue、targetObject。
+   * 调用线索：Array.isArray、PropertyBinding.findNode、error、warn。
+   */
   bind() {
     let e = this.node;
     const parsedPath = this.parsedPath,
@@ -11360,29 +18252,59 @@ class PropertyBinding {
     } else void 0 !== resolvedProperty.fromArray && void 0 !== resolvedProperty.toArray ? (o = this.BindingType.HasFromToArray, this.resolvedProperty = resolvedProperty) : Array.isArray(resolvedProperty) ? (o = this.BindingType.EntireArray, this.resolvedProperty = resolvedProperty) : this.propertyName = propertyName;
     this.getValue = this.GetterByBindingType[o], this.setValue = this.SetterByBindingTypeAndVersioning[o][s];
   }
+  /** @eyes-analysis
+   * 源码方法 unbind；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：getValue、node、setValue。
+   */
   unbind() {
     this.node = null, this.getValue = this._getValue_unbound, this.setValue = this._setValue_unbound;
   }
 }
-PropertyBinding.Composite = class Composite {
+PropertyBinding.Composite = /** @eyes-analysis
+                             * 类职责：Three.js REVISION 185 的数学、场景图、几何、材质、动画、加载、音频及公共基础设施中的 Composite 实现（角色需结合调用者确认）
+                             * 继承：无显式父类；导出：模块内部声明。
+                             * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+                             */
+                            class Composite {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_bindings、_targetGroup。
+   * 调用线索：PropertyBinding.parseTrackName、targetGroup.subscribe_。
+   */
   constructor(targetGroup, t, n) {
     const r = n || PropertyBinding.parseTrackName(t);
     this._targetGroup = targetGroup, this._bindings = targetGroup.subscribe_(t, r);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：r.getValue、this.bind。
+   */
   getValue(e, t) {
     this.bind();
     const n = this._targetGroup.nCachedObjects_,
       r = this._bindings[n];
     void 0 !== r && r.getValue(e, t);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：bindings[r].setValue。
+   */
   setValue(e, t) {
     const bindings = this._bindings;
     for (let r = this._targetGroup.nCachedObjects_, i = bindings.length; r !== i; ++r) bindings[r].setValue(e, t);
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：bindings[t].bind。
+   */
   bind() {
     const bindings = this._bindings;
     for (let t = this._targetGroup.nCachedObjects_, n = bindings.length; t !== n; ++t) bindings[t].bind();
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：bindings[t].unbind。
+   */
   unbind() {
     const bindings = this._bindings;
     for (let t = this._targetGroup.nCachedObjects_, n = bindings.length; t !== n; ++t) bindings[t].unbind();
@@ -11397,7 +18319,17 @@ PropertyBinding.Composite = class Composite {
   NeedsUpdate: 1,
   MatrixWorldNeedsUpdate: 2
 }, PropertyBinding.prototype.GetterByBindingType = [PropertyBinding.prototype._getValue_direct, PropertyBinding.prototype._getValue_array, PropertyBinding.prototype._getValue_arrayElement, PropertyBinding.prototype._getValue_toArray], PropertyBinding.prototype.SetterByBindingTypeAndVersioning = [[PropertyBinding.prototype._setValue_direct, PropertyBinding.prototype._setValue_direct_setNeedsUpdate, PropertyBinding.prototype._setValue_direct_setMatrixWorldNeedsUpdate], [PropertyBinding.prototype._setValue_array, PropertyBinding.prototype._setValue_array_setNeedsUpdate, PropertyBinding.prototype._setValue_array_setMatrixWorldNeedsUpdate], [PropertyBinding.prototype._setValue_arrayElement, PropertyBinding.prototype._setValue_arrayElement_setNeedsUpdate, PropertyBinding.prototype._setValue_arrayElement_setMatrixWorldNeedsUpdate], [PropertyBinding.prototype._setValue_fromArray, PropertyBinding.prototype._setValue_fromArray_setNeedsUpdate, PropertyBinding.prototype._setValue_fromArray_setMatrixWorldNeedsUpdate]];
+/** @eyes-analysis
+ * 类职责：让多个对象共享同一组动画绑定
+ * 继承：无显式父类；导出：AnimationObjectGroup。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationObjectGroup {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_bindings、_bindingsIndicesByPath、_indicesByUUID、_objects、_parsedPaths、_paths、isAnimationObjectGroup、nCachedObjects_等；完整记录见索引。
+   * 调用线索：Array.prototype.slice.call、yr。
+   */
   constructor() {
     this.isAnimationObjectGroup = !0, this.uuid = yr(), this._objects = Array.prototype.slice.call(arguments), this.nCachedObjects_ = 0;
     const indicesByUUID = {};
@@ -11419,6 +18351,11 @@ class AnimationObjectGroup {
       }
     };
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：nCachedObjects_。
+   * 调用线索：bindings[e].push、error、new PropertyBinding、objects.push。
+   */
   add() {
     const objects = this._objects,
       indicesByUUID = this._indicesByUUID,
@@ -11451,6 +18388,10 @@ class AnimationObjectGroup {
     }
     this.nCachedObjects_ = nCachedObjects_;
   }
+  /** @eyes-analysis
+   * 源码方法 remove；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：nCachedObjects_。
+   */
   remove() {
     const objects = this._objects,
       indicesByUUID = this._indicesByUUID,
@@ -11475,6 +18416,11 @@ class AnimationObjectGroup {
     }
     this.nCachedObjects_ = nCachedObjects_;
   }
+  /** @eyes-analysis
+   * 源码方法 uncache；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：nCachedObjects_。
+   * 调用线索：objects.pop、t.pop。
+   */
   uncache() {
     const objects = this._objects,
       indicesByUUID = this._indicesByUUID,
@@ -11509,6 +18455,10 @@ class AnimationObjectGroup {
     }
     this.nCachedObjects_ = nCachedObjects_;
   }
+  /** @eyes-analysis
+   * 源码方法 subscribe_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：bindings.push、new Array、new PropertyBinding、parsedPaths.push、paths.push。
+   */
   subscribe_(e, t) {
     const bindingsIndicesByPath = this._bindingsIndicesByPath;
     let r = bindingsIndicesByPath[e];
@@ -11527,6 +18477,10 @@ class AnimationObjectGroup {
     }
     return array;
   }
+  /** @eyes-analysis
+   * 源码方法 unsubscribe_；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：bindings.pop、parsedPaths.pop、paths.pop。
+   */
   unsubscribe_(e) {
     const bindingsIndicesByPath = this._bindingsIndicesByPath,
       n = bindingsIndicesByPath[e];
@@ -11540,7 +18494,17 @@ class AnimationObjectGroup {
     }
   }
 }
+/** @eyes-analysis
+ * 类职责：控制片段时间、循环、权重、淡入淡出与交叉混合
+ * 继承：无显式父类；导出：AnimationAction。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationAction {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_byClipCacheIndex、_cacheIndex、_clip、_effectiveTimeScale、_effectiveWeight、_interpolantSettings、_interpolants、_localRoot等；完整记录见索引。
+   * 调用线索：i[e].createInterpolant、new Array。
+   */
   constructor(mixer, clip, localRoot = null, blendMode = clip.blendMode) {
     this._mixer = mixer, this._clip = clip, this._localRoot = localRoot, this.blendMode = blendMode;
     const i = clip.tracks,
@@ -11556,39 +18520,89 @@ class AnimationAction {
     }
     this._interpolantSettings = interpolantSettings, this._interpolants = s, this._propertyBindings = new Array(a), this._cacheIndex = null, this._byClipCacheIndex = null, this._timeScaleInterpolant = null, this._restoreTimeScale = null, this._weightInterpolant = null, this.loop = Pt, this._loopCount = -1, this._startTime = null, this.time = 0, this.timeScale = 1, this._effectiveTimeScale = 1, this.weight = 1, this._effectiveWeight = 1, this.repetitions = 1 / 0, this.paused = !1, this.enabled = !0, this.clampWhenFinished = !1, this.zeroSlopeAtStart = !0, this.zeroSlopeAtEnd = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 play；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._mixer._activateAction。
+   */
   play() {
     return this._mixer._activateAction(this), this;
   }
+  /** @eyes-analysis
+   * 源码方法 stop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._mixer._deactivateAction、this.reset。
+   */
   stop() {
     return this._mixer._deactivateAction(this), this.reset();
   }
+  /** @eyes-analysis
+   * 源码方法 reset；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_loopCount、_startTime、enabled、paused、time。
+   * 调用线索：this.stopFading、this.stopFading().stopWarping。
+   */
   reset() {
     return this.paused = !1, this.enabled = !0, this.time = 0, this._loopCount = -1, this._startTime = null, this.stopFading().stopWarping();
   }
+  /** @eyes-analysis
+   * 源码方法 isRunning；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._mixer._isActiveAction。
+   */
   isRunning() {
     return this.enabled && !this.paused && 0 !== this.timeScale && null === this._startTime && this._mixer._isActiveAction(this);
   }
+  /** @eyes-analysis
+   * 源码方法 isScheduled；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._mixer._isActiveAction。
+   */
   isScheduled() {
     return this._mixer._isActiveAction(this);
   }
+  /** @eyes-analysis
+   * 源码方法 startAt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_startTime。
+   */
   startAt(startTime) {
     return this._startTime = startTime, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setLoop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：loop、repetitions。
+   */
   setLoop(loop, repetitions) {
     return this.loop = loop, this.repetitions = repetitions, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setEffectiveWeight；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_effectiveWeight、weight。
+   * 调用线索：this.stopFading。
+   */
   setEffectiveWeight(weight) {
     return this.weight = weight, this._effectiveWeight = this.enabled ? weight : 0, this.stopFading();
   }
+  /** @eyes-analysis
+   * 源码方法 getEffectiveWeight；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getEffectiveWeight() {
     return this._effectiveWeight;
   }
+  /** @eyes-analysis
+   * 源码方法 fadeIn；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._scheduleFading。
+   */
   fadeIn(e) {
     return this._scheduleFading(e, 0, 1);
   }
+  /** @eyes-analysis
+   * 源码方法 fadeOut；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._scheduleFading。
+   */
   fadeOut(e) {
     return this._scheduleFading(e, 1, 0);
   }
+  /** @eyes-analysis
+   * 源码方法 crossFadeFrom；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_restoreTimeScale。
+   * 调用线索：e.fadeOut、e.warp、this.fadeIn、this.warp。
+   */
   crossFadeFrom(e, t, n = !1) {
     if (e.fadeOut(t), this.fadeIn(t), !0 === n) {
       const n = this._clip.duration,
@@ -11599,28 +18613,64 @@ class AnimationAction {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 crossFadeTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.crossFadeFrom。
+   */
   crossFadeTo(e, t, n = !1) {
     return e.crossFadeFrom(this, t, n);
   }
+  /** @eyes-analysis
+   * 源码方法 stopFading；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_weightInterpolant。
+   * 调用线索：this._mixer._takeBackControlInterpolant。
+   */
   stopFading() {
     const weightInterpolant = this._weightInterpolant;
     return null !== weightInterpolant && (this._weightInterpolant = null, this._mixer._takeBackControlInterpolant(weightInterpolant)), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setEffectiveTimeScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_effectiveTimeScale、timeScale。
+   * 调用线索：this.stopWarping。
+   */
   setEffectiveTimeScale(timeScale) {
     return this.timeScale = timeScale, this._effectiveTimeScale = this.paused ? 0 : timeScale, this.stopWarping();
   }
+  /** @eyes-analysis
+   * 源码方法 getEffectiveTimeScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getEffectiveTimeScale() {
     return this._effectiveTimeScale;
   }
+  /** @eyes-analysis
+   * 源码方法 setDuration；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：timeScale。
+   * 调用线索：this.stopWarping。
+   */
   setDuration(e) {
     return this.timeScale = this._clip.duration / e, this.stopWarping();
   }
+  /** @eyes-analysis
+   * 源码方法 syncWith；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：time、timeScale。
+   * 调用线索：this.stopWarping。
+   */
   syncWith(e) {
     return this.time = e.time, this.timeScale = e.timeScale, this.stopWarping();
   }
+  /** @eyes-analysis
+   * 源码方法 halt；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.warp。
+   */
   halt(e) {
     return this.warp(this._effectiveTimeScale, 0, e);
   }
+  /** @eyes-analysis
+   * 源码方法 warp；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_timeScaleInterpolant。
+   * 调用线索：mixer._lendControlInterpolant。
+   */
   warp(e, t, n) {
     const mixer = this._mixer,
       i = mixer.time,
@@ -11631,19 +18681,38 @@ class AnimationAction {
       c = timeScaleInterpolant.sampleValues;
     return o[0] = i, o[1] = i + n, c[0] = e / timeScale, c[1] = t / timeScale, this;
   }
+  /** @eyes-analysis
+   * 源码方法 stopWarping；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_restoreTimeScale、_timeScaleInterpolant。
+   * 调用线索：this._mixer._takeBackControlInterpolant。
+   */
   stopWarping() {
     const timeScaleInterpolant = this._timeScaleInterpolant;
     return null !== timeScaleInterpolant && (this._timeScaleInterpolant = null, this._mixer._takeBackControlInterpolant(timeScaleInterpolant)), this._restoreTimeScale = null, this;
   }
+  /** @eyes-analysis
+   * 源码方法 getMixer；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getMixer() {
     return this._mixer;
   }
+  /** @eyes-analysis
+   * 源码方法 getClip；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getClip() {
     return this._clip;
   }
+  /** @eyes-analysis
+   * 源码方法 getRoot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getRoot() {
     return this._localRoot || this._mixer._root;
   }
+  /** @eyes-analysis
+   * 源码方法 _update；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_startTime。
+   * 调用线索：interpolants[n].evaluate、propertyBindings[n].accumulate、propertyBindings[n].accumulateAdditive、this._updateTime、this._updateTimeScale等。
+   */
   _update(e, t, n, r) {
     if (!this.enabled) return void this._updateWeight(e);
     const startTime = this._startTime;
@@ -11660,6 +18729,11 @@ class AnimationAction {
       if (this.blendMode === AdditiveAnimationBlendMode) for (let n = 0, r = interpolants.length; n !== r; ++n) interpolants[n].evaluate(a), propertyBindings[n].accumulateAdditive(s);else for (let n = 0, i = interpolants.length; n !== i; ++n) interpolants[n].evaluate(a), propertyBindings[n].accumulate(r, s);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _updateWeight；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_effectiveWeight、enabled。
+   * 调用线索：this.stopFading、weightInterpolant.evaluate。
+   */
   _updateWeight(e) {
     let effectiveWeight = 0;
     if (this.enabled) {
@@ -11672,6 +18746,11 @@ class AnimationAction {
     }
     return this._effectiveWeight = effectiveWeight, effectiveWeight;
   }
+  /** @eyes-analysis
+   * 源码方法 _updateTimeScale；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_effectiveTimeScale、paused、timeScale。
+   * 调用线索：this.stopWarping、timeScaleInterpolant.evaluate。
+   */
   _updateTimeScale(e) {
     let t = 0;
     if (!this.paused) {
@@ -11683,6 +18762,11 @@ class AnimationAction {
     }
     return this._effectiveTimeScale = t, t;
   }
+  /** @eyes-analysis
+   * 源码方法 _updateTime；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_loopCount、enabled、paused、time。
+   * 调用线索：Math.abs、Math.floor、this._mixer.dispatchEvent、this._setEndings。
+   */
   _updateTime(e) {
     const t = this._clip.duration,
       loop = this.loop;
@@ -11731,10 +18815,18 @@ class AnimationAction {
     }
     return time;
   }
+  /** @eyes-analysis
+   * 源码方法 _setEndings；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _setEndings(e, t, n) {
     const interpolantSettings = this._interpolantSettings;
     n ? (interpolantSettings.endingStart = ZeroSlopeEnding, interpolantSettings.endingEnd = ZeroSlopeEnding) : (interpolantSettings.endingStart = e ? this.zeroSlopeAtStart ? ZeroSlopeEnding : ZeroCurvatureEnding : WrapAroundEnding, interpolantSettings.endingEnd = t ? this.zeroSlopeAtEnd ? ZeroSlopeEnding : ZeroCurvatureEnding : WrapAroundEnding);
   }
+  /** @eyes-analysis
+   * 源码方法 _scheduleFading；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_weightInterpolant。
+   * 调用线索：mixer._lendControlInterpolant。
+   */
   _scheduleFading(e, t, n) {
     const mixer = this._mixer,
       i = mixer.time;
@@ -11746,12 +18838,26 @@ class AnimationAction {
   }
 }
 const float32Array = new Float32Array(1);
+/** @eyes-analysis
+ * 类职责：以全局时间驱动动画动作并混合目标属性
+ * 继承：EventDispatcher；导出：AnimationMixer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AnimationMixer extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_accuIndex、_root、time、timeScale。
+   * 调用线索：__THREE_DEVTOOLS__.dispatchEvent、new CustomEvent、super、this._initMemoryManager。
+   */
   constructor(root) {
     super(), this._root = root, this._initMemoryManager(), this._accuIndex = 0, this.time = 0, this.timeScale = 1, "undefined" != typeof __THREE_DEVTOOLS__ && __THREE_DEVTOOLS__.dispatchEvent(new CustomEvent("observe", {
       detail: this
     }));
   }
+  /** @eyes-analysis
+   * 源码方法 _bindAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：PropertyBinding.create、i.getValueSize、new PropertyMixer、this._addInactiveBinding。
+   */
   _bindAction(e, t) {
     const n = e._localRoot || this._root,
       r = e._clip.tracks,
@@ -11777,6 +18883,10 @@ class AnimationMixer extends EventDispatcher {
       s[e].resultBuffer = u.buffer;
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _activateAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.saveOriginalState、this._addInactiveAction、this._bindAction、this._isActiveAction、this._lendAction等。
+   */
   _activateAction(e) {
     if (!this._isActiveAction(e)) {
       if (null === e._cacheIndex) {
@@ -11793,6 +18903,10 @@ class AnimationMixer extends EventDispatcher {
       this._lendAction(e);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _deactivateAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.restoreOriginalState、this._isActiveAction、this._takeBackAction、this._takeBackBinding。
+   */
   _deactivateAction(e) {
     if (this._isActiveAction(e)) {
       const t = e._propertyBindings;
@@ -11803,6 +18917,10 @@ class AnimationMixer extends EventDispatcher {
       this._takeBackAction(e);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _initMemoryManager；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_actions、_actionsByClip、_bindings、_bindingsByRootAndName、_controlInterpolants、_nActiveActions、_nActiveBindings、_nActiveControlInterpolants等；完整记录见索引。
+   */
   _initMemoryManager() {
     this._actions = [], this._nActiveActions = 0, this._actionsByClip = {}, this._bindings = [], this._nActiveBindings = 0, this._bindingsByRootAndName = {}, this._controlInterpolants = [], this._nActiveControlInterpolants = 0;
     const e = this;
@@ -11833,10 +18951,17 @@ class AnimationMixer extends EventDispatcher {
       }
     };
   }
+  /** @eyes-analysis
+   * 源码方法 _isActiveAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   _isActiveAction(e) {
     const t = e._cacheIndex;
     return null !== t && t < this._nActiveActions;
   }
+  /** @eyes-analysis
+   * 源码方法 _addInactiveAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：actions.push、t.push。
+   */
   _addInactiveAction(e, t, n) {
     const actions = this._actions,
       actionsByClip = this._actionsByClip;
@@ -11850,6 +18975,10 @@ class AnimationMixer extends EventDispatcher {
     }
     e._cacheIndex = actions.length, actions.push(e), a.actionByRoot[n] = e;
   }
+  /** @eyes-analysis
+   * 源码方法 _removeInactiveAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：actions.pop、o.pop、this._removeInactiveBindingsForAction。
+   */
   _removeInactiveAction(e) {
     const actions = this._actions,
       n = actions[actions.length - 1],
@@ -11864,6 +18993,10 @@ class AnimationMixer extends EventDispatcher {
     c._byClipCacheIndex = l, o[l] = c, o.pop(), e._byClipCacheIndex = null;
     delete s.actionByRoot[(e._localRoot || this._root).uuid], 0 === o.length && delete actionsByClip[i], this._removeInactiveBindingsForAction(e);
   }
+  /** @eyes-analysis
+   * 源码方法 _removeInactiveBindingsForAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._removeInactiveBinding。
+   */
   _removeInactiveBindingsForAction(e) {
     const t = e._propertyBindings;
     for (let e = 0, n = t.length; e !== n; ++e) {
@@ -11871,6 +19004,10 @@ class AnimationMixer extends EventDispatcher {
       0 === --n.referenceCount && this._removeInactiveBinding(n);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 _lendAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveActions。
+   */
   _lendAction(e) {
     const actions = this._actions,
       n = e._cacheIndex,
@@ -11878,6 +19015,10 @@ class AnimationMixer extends EventDispatcher {
       i = actions[r];
     e._cacheIndex = r, actions[r] = e, i._cacheIndex = n, actions[n] = i;
   }
+  /** @eyes-analysis
+   * 源码方法 _takeBackAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveActions。
+   */
   _takeBackAction(e) {
     const actions = this._actions,
       n = e._cacheIndex,
@@ -11885,12 +19026,20 @@ class AnimationMixer extends EventDispatcher {
       i = actions[r];
     e._cacheIndex = r, actions[r] = e, i._cacheIndex = n, actions[n] = i;
   }
+  /** @eyes-analysis
+   * 源码方法 _addInactiveBinding；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：bindings.push。
+   */
   _addInactiveBinding(e, t, n) {
     const bindingsByRootAndName = this._bindingsByRootAndName,
       bindings = this._bindings;
     let a = bindingsByRootAndName[t];
     void 0 === a && (a = {}, bindingsByRootAndName[t] = a), a[n] = e, e._cacheIndex = bindings.length, bindings.push(e);
   }
+  /** @eyes-analysis
+   * 源码方法 _removeInactiveBinding；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Object.keys、bindings.pop。
+   */
   _removeInactiveBinding(e) {
     const bindings = this._bindings,
       n = e.binding,
@@ -11902,6 +19051,10 @@ class AnimationMixer extends EventDispatcher {
       c = e._cacheIndex;
     o._cacheIndex = c, bindings[c] = o, bindings.pop(), delete s[i], 0 === Object.keys(s).length && delete bindingsByRootAndName[r];
   }
+  /** @eyes-analysis
+   * 源码方法 _lendBinding；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveBindings。
+   */
   _lendBinding(e) {
     const bindings = this._bindings,
       n = e._cacheIndex,
@@ -11909,6 +19062,10 @@ class AnimationMixer extends EventDispatcher {
       i = bindings[r];
     e._cacheIndex = r, bindings[r] = e, i._cacheIndex = n, bindings[n] = i;
   }
+  /** @eyes-analysis
+   * 源码方法 _takeBackBinding；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveBindings。
+   */
   _takeBackBinding(e) {
     const bindings = this._bindings,
       n = e._cacheIndex,
@@ -11916,12 +19073,21 @@ class AnimationMixer extends EventDispatcher {
       i = bindings[r];
     e._cacheIndex = r, bindings[r] = e, i._cacheIndex = n, bindings[n] = i;
   }
+  /** @eyes-analysis
+   * 源码方法 _lendControlInterpolant；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveControlInterpolants。
+   * 调用线索：new Float32Array、new LinearInterpolant。
+   */
   _lendControlInterpolant() {
     const controlInterpolants = this._controlInterpolants,
       t = this._nActiveControlInterpolants++;
     let n = controlInterpolants[t];
     return void 0 === n && (n = new LinearInterpolant(new Float32Array(2), new Float32Array(2), 1, float32Array), n.__cacheIndex = t, controlInterpolants[t] = n), n;
   }
+  /** @eyes-analysis
+   * 源码方法 _takeBackControlInterpolant；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_nActiveControlInterpolants。
+   */
   _takeBackControlInterpolant(e) {
     const controlInterpolants = this._controlInterpolants,
       n = e.__cacheIndex,
@@ -11929,6 +19095,10 @@ class AnimationMixer extends EventDispatcher {
       i = controlInterpolants[r];
     e.__cacheIndex = r, controlInterpolants[r] = e, i.__cacheIndex = n, controlInterpolants[n] = i;
   }
+  /** @eyes-analysis
+   * 源码方法 clipAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：AnimationClip.findByName、new AnimationAction、this._addInactiveAction、this._bindAction。
+   */
   clipAction(e, t, n) {
     const r = t || this._root,
       i = r.uuid;
@@ -11945,6 +19115,10 @@ class AnimationMixer extends EventDispatcher {
     const animationAction = new AnimationAction(this, a, t, n);
     return this._bindAction(animationAction, c), this._addInactiveAction(animationAction, s, i), animationAction;
   }
+  /** @eyes-analysis
+   * 源码方法 existingAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：AnimationClip.findByName。
+   */
   existingAction(e, t) {
     const n = t || this._root,
       r = n.uuid,
@@ -11953,11 +19127,20 @@ class AnimationMixer extends EventDispatcher {
       s = this._actionsByClip[a];
     return void 0 !== s && s.actionByRoot[r] || null;
   }
+  /** @eyes-analysis
+   * 源码方法 stopAllAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：actions[t].stop。
+   */
   stopAllAction() {
     const actions = this._actions;
     for (let t = this._nActiveActions - 1; t >= 0; --t) actions[t].stop();
     return this;
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：_accuIndex、time。
+   * 调用线索：Math.sign、actions[s]._update、bindings[e].apply。
+   */
   update(time) {
     time *= this.timeScale;
     const actions = this._actions,
@@ -11973,14 +19156,26 @@ class AnimationMixer extends EventDispatcher {
     for (let e = 0; e !== nActiveBindings; ++e) bindings[e].apply(a);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setTime；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：_actions[e].time、time。
+   * 调用线索：this.update。
+   */
   setTime(e) {
     this.time = 0;
     for (let e = 0; e < this._actions.length; e++) this._actions[e].time = 0;
     return this.update(e);
   }
+  /** @eyes-analysis
+   * 源码方法 getRoot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   getRoot() {
     return this._root;
   }
+  /** @eyes-analysis
+   * 源码方法 uncacheClip；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：actions.pop、this._deactivateAction、this._removeInactiveBindingsForAction。
+   */
   uncacheClip(e) {
     const actions = this._actions,
       n = e.uuid,
@@ -11998,6 +19193,10 @@ class AnimationMixer extends EventDispatcher {
       delete actionsByClip[n];
     }
   }
+  /** @eyes-analysis
+   * 源码方法 uncacheRoot；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.restoreOriginalState、this._deactivateAction、this._removeInactiveAction、this._removeInactiveBinding。
+   */
   uncacheRoot(e) {
     const t = e.uuid,
       actionsByClip = this._actionsByClip;
@@ -12011,49 +19210,111 @@ class AnimationMixer extends EventDispatcher {
       t.restoreOriginalState(), this._removeInactiveBinding(t);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 uncacheAction；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this._deactivateAction、this._removeInactiveAction、this.existingAction。
+   */
   uncacheAction(e, t) {
     const n = this.existingAction(e, t);
     null !== n && (this._deactivateAction(n), this._removeInactiveAction(n));
   }
 }
+/** @eyes-analysis
+ * 类职责：3D 离屏颜色/深度附件、尺寸和释放生命周期
+ * 继承：RenderTarget；导出：RenderTarget3D。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class RenderTarget3D extends RenderTarget {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：depth、isRenderTarget3D、texture、texture.isRenderTargetTexture。
+   * 调用线索：new Data3DTexture、super、this._setTextureOptions。
+   */
   constructor(e = 1, t = 1, depth = 1, r = {}) {
     super(e, t, r), this.isRenderTarget3D = !0, this.depth = depth, this.texture = new Data3DTexture(null, e, t, depth), this._setTextureOptions(r), this.texture.isRenderTargetTexture = !0;
   }
 }
+/** @eyes-analysis
+ * 类职责：封装 shader uniform 值和克隆
+ * 继承：无显式父类；导出：Uniform。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Uniform {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：value。
+   */
   constructor(value) {
     this.value = value;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new Uniform、this.value.clone。
+   */
   clone() {
     return new Uniform(void 0 === this.value.clone ? this.value : this.value.clone());
   }
 }
 let Yc = 0;
+/** @eyes-analysis
+ * 类职责：管理统一缓冲对象中的 uniform 集合和更新事件
+ * 继承：EventDispatcher；导出：UniformsGroup。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class UniformsGroup extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isUniformsGroup、name、uniforms、usage。
+   * 调用线索：Object.defineProperty、super。
+   */
   constructor() {
     super(), this.isUniformsGroup = !0, Object.defineProperty(this, "id", {
       value: Yc++
     }), this.name = "", this.usage = kn, this.uniforms = [];
   }
+  /** @eyes-analysis
+   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.uniforms.push。
+   */
   add(e) {
     return this.uniforms.push(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 remove；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.uniforms.indexOf、this.uniforms.splice。
+   */
   remove(e) {
     const t = this.uniforms.indexOf(e);
     return -1 !== t && this.uniforms.splice(t, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setName；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：name。
+   */
   setName(name) {
     return this.name = name, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setUsage；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：usage。
+   */
   setUsage(usage) {
     return this.usage = usage, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.dispatchEvent。
+   */
   dispose() {
     this.dispatchEvent({
       type: "dispose"
     });
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：name、uniforms.length、usage。
+   * 调用线索：Array.isArray、n[e].clone、this.uniforms.push。
+   */
   copy(e) {
     this.name = e.name, this.usage = e.usage;
     const t = e.uniforms;
@@ -12064,48 +19325,114 @@ class UniformsGroup extends EventDispatcher {
     }
     return this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
+/** @eyes-analysis
+ * 类职责：可按实例步进的交错顶点缓冲
+ * 继承：InterleavedBuffer；导出：InstancedInterleavedBuffer。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class InstancedInterleavedBuffer extends InterleavedBuffer {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isInstancedInterleavedBuffer、meshPerAttribute。
+   * 调用线索：super。
+   */
   constructor(e, t, meshPerAttribute = 1) {
     super(e, t), this.isInstancedInterleavedBuffer = !0, this.meshPerAttribute = meshPerAttribute;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：meshPerAttribute。
+   * 调用线索：super.copy。
+   */
   copy(e) {
     return super.copy(e), this.meshPerAttribute = e.meshPerAttribute, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：super.clone。
+   */
   clone(e) {
     const t = super.clone(e);
     return t.meshPerAttribute = this.meshPerAttribute, t;
   }
+  /** @eyes-analysis
+   * 序列化资源和引用；共享资源通过元数据缓存去重
+   * 调用线索：super.toJSON。
+   */
   toJSON(e) {
     const t = super.toJSON(e);
     return t.isInstancedInterleavedBuffer = !0, t.meshPerAttribute = this.meshPerAttribute, t;
   }
 }
+/** @eyes-analysis
+ * 类职责：引用外部 GL buffer 的顶点属性元数据
+ * 继承：无显式父类；导出：GLBufferAttribute。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class GLBufferAttribute {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：buffer、count、elementSize、isGLBufferAttribute、itemSize、name、normalized、type等；完整记录见索引。
+   */
   constructor(buffer, type, itemSize, elementSize, count, normalized = !1) {
     this.isGLBufferAttribute = !0, this.name = "", this.buffer = buffer, this.type = type, this.itemSize = itemSize, this.elementSize = elementSize, this.count = count, this.normalized = normalized, this.version = 0;
   }
+  /** @eyes-analysis
+   * 仅输入 true 时递增 version，标记资源需要重新上传或刷新
+   * 状态写入：version。
+   */
   set needsUpdate(e) {
     !0 === e && this.version++;
   }
+  /** @eyes-analysis
+   * 源码方法 setBuffer；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：buffer。
+   */
   setBuffer(buffer) {
     return this.buffer = buffer, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setType；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elementSize、type。
+   */
   setType(type, elementSize) {
     return this.type = type, this.elementSize = elementSize, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setItemSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：itemSize。
+   */
   setItemSize(itemSize) {
     return this.itemSize = itemSize, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setCount；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：count。
+   */
   setCount(count) {
     return this.count = count, this;
   }
 }
 const Wc = new Matrix4();
+/** @eyes-analysis
+ * 类职责：从相机或显式射线递归检测场景对象并按距离排序
+ * 继承：无显式父类；导出：Raycaster。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Raycaster {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：camera、far、layers、near、params、ray。
+   * 调用线索：new Layers、new Ray。
+   */
   constructor(e, t, near = 0, far = 1 / 0) {
     this.ray = new Ray(e, t), this.near = near, this.far = far, this.camera = null, this.layers = new Layers(), this.params = {
       Mesh: {},
@@ -12119,18 +19446,39 @@ class Raycaster {
       Sprite: {}
     };
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.ray.set。
+   */
   set(e, t) {
     this.ray.set(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCamera；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：camera。
+   * 调用线索：error、this.ray.direction.set、this.ray.direction.set(0,0,-1).transformDirection、this.ray.direction.set(e.x,e.y,.5).unproject、this.ray.direction.set(e.x,e.y,.5).unproject(camera).sub等。
+   */
   setFromCamera(e, camera) {
     camera.isPerspectiveCamera ? (this.ray.origin.setFromMatrixPosition(camera.matrixWorld), this.ray.direction.set(e.x, e.y, .5).unproject(camera).sub(this.ray.origin).normalize(), this.camera = camera) : camera.isOrthographicCamera ? (this.ray.origin.set(e.x, e.y, camera.projectionMatrix.elements[14]).unproject(camera), this.ray.direction.set(0, 0, -1).transformDirection(camera.matrixWorld), this.camera = camera) : error("Raycaster: Unsupported camera type: " + camera.type);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromXRController；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Wc.identity、Wc.identity().extractRotation、this.ray.direction.set、this.ray.direction.set(0,0,-1).applyMatrix4、this.ray.origin.setFromMatrixPosition。
+   */
   setFromXRController(e) {
     return Wc.identity().extractRotation(e.matrixWorld), this.ray.origin.setFromMatrixPosition(e.matrixWorld), this.ray.direction.set(0, 0, -1).applyMatrix4(Wc), this;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.sort、qc。
+   */
   intersectObject(e, t = !0, n = []) {
     return qc(e, this, n, t), n.sort(Fc), n;
   }
+  /** @eyes-analysis
+   * 源码方法 intersectObjects；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.sort、qc。
+   */
   intersectObjects(e, t = !0, n = []) {
     for (let r = 0, i = e.length; r < i; r++) qc(e[r], this, n, t);
     return n.sort(Fc), n;
@@ -12149,19 +19497,48 @@ function qc(e, t, n, r) {
     for (let e = 0, i = r.length; e < i; e++) qc(r[e], t, n, !0);
   }
 }
+/** @eyes-analysis
+ * 类职责：以高精度时间跟踪帧间隔和累计时间
+ * 继承：无显式父类；导出：Clock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Clock {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：autoStart、elapsedTime、oldTime、running、startTime。
+   * 调用线索：warn。
+   */
   constructor(autoStart = !0) {
     this.autoStart = autoStart, this.startTime = 0, this.oldTime = 0, this.elapsedTime = 0, this.running = !1, warn("Clock: This module has been deprecated. Please use THREE.Timer instead.");
   }
+  /** @eyes-analysis
+   * 源码方法 start；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elapsedTime、oldTime、running、startTime。
+   * 调用线索：performance.now。
+   */
   start() {
     this.startTime = performance.now(), this.oldTime = this.startTime, this.elapsedTime = 0, this.running = !0;
   }
+  /** @eyes-analysis
+   * 源码方法 stop；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：autoStart、running。
+   * 调用线索：this.getElapsedTime。
+   */
   stop() {
     this.getElapsedTime(), this.running = !1, this.autoStart = !1;
   }
+  /** @eyes-analysis
+   * 源码方法 getElapsedTime；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.getDelta。
+   */
   getElapsedTime() {
     return this.getDelta(), this.elapsedTime;
   }
+  /** @eyes-analysis
+   * 源码方法 getDelta；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elapsedTime、oldTime。
+   * 调用线索：performance.now、this.start。
+   */
   getDelta() {
     let elapsedTime = 0;
     if (this.autoStart && !this.running) return this.start(), 0;
@@ -12172,140 +19549,324 @@ class Clock {
     return elapsedTime;
   }
 }
+/** @eyes-analysis
+ * 类职责：球坐标半径、极角和方位角转换
+ * 继承：无显式父类；导出：Spherical。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Spherical {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：phi、radius、theta。
+   */
   constructor(radius = 1, phi = 0, theta = 0) {
     this.radius = radius, this.phi = phi, this.theta = theta;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：phi、radius、theta。
+   */
   set(radius, phi, theta) {
     return this.radius = radius, this.phi = phi, this.theta = theta, this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：phi、radius、theta。
+   */
   copy(e) {
     return this.radius = e.radius, this.phi = e.phi, this.theta = e.theta, this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeSafe；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：phi。
+   * 调用线索：Lr。
+   */
   makeSafe() {
     const e = 1e-6;
     return this.phi = Lr(this.phi, e, Math.PI - e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromVector3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFromCartesianCoords。
+   */
   setFromVector3(e) {
     return this.setFromCartesianCoords(e.x, e.y, e.z);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCartesianCoords；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：phi、radius、theta。
+   * 调用线索：Lr、Math.acos、Math.atan2、Math.sqrt。
+   */
   setFromCartesianCoords(e, t, n) {
     return this.radius = Math.sqrt(e * e + t * t + n * n), 0 === this.radius ? (this.theta = 0, this.phi = 0) : (this.theta = Math.atan2(e, n), this.phi = Math.acos(Lr(t / this.radius, -1, 1))), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
+/** @eyes-analysis
+ * 类职责：柱坐标半径、方位角和高度转换
+ * 继承：无显式父类；导出：Cylindrical。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Cylindrical {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：radius、theta、y。
+   */
   constructor(radius = 1, theta = 0, n = 0) {
     this.radius = radius, this.theta = theta, this.y = n;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius、theta、y。
+   */
   set(radius, theta, n) {
     return this.radius = radius, this.theta = theta, this.y = n, this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：radius、theta、y。
+   */
   copy(e) {
     return this.radius = e.radius, this.theta = e.theta, this.y = e.y, this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromVector3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.setFromCartesianCoords。
+   */
   setFromVector3(e) {
     return this.setFromCartesianCoords(e.x, e.y, e.z);
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCartesianCoords；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：radius、theta、y。
+   * 调用线索：Math.atan2、Math.sqrt。
+   */
   setFromCartesianCoords(e, t, n) {
     return this.radius = Math.sqrt(e * e + n * n), this.theta = Math.atan2(e, n), this.y = t, this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
+/** @eyes-analysis
+ * 类职责：2 阶矩阵的乘法、行列式、求逆和变换构造
+ * 继承：无显式父类；导出：Matrix2。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Matrix2 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 读取：；返回：。
+   */
   static {
     Matrix2.prototype.isMatrix2 = !0;
   }
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：elements。
+   * 调用线索：this.set。
+   */
   constructor(e, t, n, r) {
     this.elements = [1, 0, 0, 1], void 0 !== e && this.set(e, t, n, r);
   }
+  /** @eyes-analysis
+   * 源码方法 identity；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.set。
+   */
   identity() {
     return this.set(1, 0, 0, 1), this;
   }
+  /** @eyes-analysis
+   * 源码方法 fromArray；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：elements[n]。
+   */
   fromArray(e, t = 0) {
     for (let n = 0; n < 4; n++) this.elements[n] = e[n + t];
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   set(e, t, n, r) {
     const elements = this.elements;
     return elements[0] = e, elements[2] = t, elements[1] = n, elements[3] = r, this;
   }
 }
 const Hc = new Vector2();
+/** @eyes-analysis
+ * 类职责：二维轴对齐包围盒及相交/距离运算
+ * 继承：无显式父类；导出：Box2。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Box2 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：isBox2、max、min。
+   * 调用线索：new Vector2。
+   */
   constructor(min = new Vector2(1 / 0, 1 / 0), max = new Vector2(-1 / 0, -1 / 0)) {
     this.isBox2 = !0, this.min = min, this.max = max;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.copy、this.min.copy。
+   */
   set(e, t) {
     return this.min.copy(e), this.max.copy(t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromPoints；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.expandByPoint、this.makeEmpty。
+   */
   setFromPoints(e) {
     this.makeEmpty();
     for (let t = 0, n = e.length; t < n; t++) this.expandByPoint(e[t]);
     return this;
   }
+  /** @eyes-analysis
+   * 源码方法 setFromCenterAndSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Hc.copy、Hc.copy(t).multiplyScalar、this.max.copy、this.max.copy(e).add、this.min.copy等。
+   */
   setFromCenterAndSize(e, t) {
     const n = Hc.copy(t).multiplyScalar(.5);
     return this.min.copy(e).sub(n), this.max.copy(e).add(n), this;
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.max.copy、this.min.copy。
+   */
   copy(e) {
     return this.min.copy(e.min), this.max.copy(e.max), this;
   }
+  /** @eyes-analysis
+   * 源码方法 makeEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：max.x、max.y、min.x、min.y。
+   */
   makeEmpty() {
     return this.min.x = this.min.y = 1 / 0, this.max.x = this.max.y = -1 / 0, this;
   }
+  /** @eyes-analysis
+   * 源码方法 isEmpty；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   isEmpty() {
     return this.max.x < this.min.x || this.max.y < this.min.y;
   }
+  /** @eyes-analysis
+   * 源码方法 getCenter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.addVectors、e.addVectors(this.min,this.max).multiplyScalar、e.set、this.isEmpty。
+   */
   getCenter(e) {
     return this.isEmpty() ? e.set(0, 0) : e.addVectors(this.min, this.max).multiplyScalar(.5);
   }
+  /** @eyes-analysis
+   * 源码方法 getSize；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.set、e.subVectors、this.isEmpty。
+   */
   getSize(e) {
     return this.isEmpty() ? e.set(0, 0) : e.subVectors(this.max, this.min);
   }
+  /** @eyes-analysis
+   * 源码方法 expandByPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.max、this.min.min。
+   */
   expandByPoint(e) {
     return this.min.min(e), this.max.max(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByVector；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.add、this.min.sub。
+   */
   expandByVector(e) {
     return this.min.sub(e), this.max.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 expandByScalar；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.addScalar、this.min.addScalar。
+   */
   expandByScalar(e) {
     return this.min.addScalar(-e), this.max.addScalar(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 containsPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   containsPoint(e) {
     return e.x >= this.min.x && e.x <= this.max.x && e.y >= this.min.y && e.y <= this.max.y;
   }
+  /** @eyes-analysis
+   * 源码方法 containsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   containsBox(e) {
     return this.min.x <= e.min.x && e.max.x <= this.max.x && this.min.y <= e.min.y && e.max.y <= this.max.y;
   }
+  /** @eyes-analysis
+   * 源码方法 getParameter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.set。
+   */
   getParameter(e, t) {
     return t.set((e.x - this.min.x) / (this.max.x - this.min.x), (e.y - this.min.y) / (this.max.y - this.min.y));
   }
+  /** @eyes-analysis
+   * 源码方法 intersectsBox；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   intersectsBox(e) {
     return e.max.x >= this.min.x && e.min.x <= this.max.x && e.max.y >= this.min.y && e.min.y <= this.max.y;
   }
+  /** @eyes-analysis
+   * 源码方法 clampPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：t.copy、t.copy(e).clamp。
+   */
   clampPoint(e, t) {
     return t.copy(e).clamp(this.min, this.max);
   }
+  /** @eyes-analysis
+   * 源码方法 distanceToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.clampPoint、this.clampPoint(e,Hc).distanceTo。
+   */
   distanceToPoint(e) {
     return this.clampPoint(e, Hc).distanceTo(e);
   }
+  /** @eyes-analysis
+   * 源码方法 intersect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.isEmpty、this.makeEmpty、this.max.min、this.min.max。
+   */
   intersect(e) {
     return this.min.max(e.min), this.max.min(e.max), this.isEmpty() && this.makeEmpty(), this;
   }
+  /** @eyes-analysis
+   * 源码方法 union；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.max、this.min.min。
+   */
   union(e) {
     return this.min.min(e.min), this.max.max(e.max), this;
   }
+  /** @eyes-analysis
+   * 源码方法 translate；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.max.add、this.min.add。
+   */
   translate(e) {
     return this.min.add(e), this.max.add(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.max.equals、e.min.equals。
+   */
   equals(e) {
     return e.min.equals(this.min) && e.max.equals(this.max);
   }
@@ -12317,31 +19878,73 @@ const Uc = new Vector3(),
   Vc = new Vector3(),
   Qc = new Vector3(),
   Kc = new Vector3();
+/** @eyes-analysis
+ * 类职责：线段参数化、最近点与矩阵变换
+ * 继承：无显式父类；导出：Line3。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Line3 {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：end、start。
+   * 调用线索：new Vector3。
+   */
   constructor(start = new Vector3(), end = new Vector3()) {
     this.start = start, this.end = end;
   }
+  /** @eyes-analysis
+   * 源码方法 set；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.end.copy、this.start.copy。
+   */
   set(e, t) {
     return this.start.copy(e), this.end.copy(t), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：this.end.copy、this.start.copy。
+   */
   copy(e) {
     return this.start.copy(e.start), this.end.copy(e.end), this;
   }
+  /** @eyes-analysis
+   * 源码方法 getCenter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.addVectors、e.addVectors(this.start,this.end).multiplyScalar。
+   */
   getCenter(e) {
     return e.addVectors(this.start, this.end).multiplyScalar(.5);
   }
+  /** @eyes-analysis
+   * 源码方法 delta；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.subVectors。
+   */
   delta(e) {
     return e.subVectors(this.end, this.start);
   }
+  /** @eyes-analysis
+   * 源码方法 distanceSq；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.start.distanceToSquared。
+   */
   distanceSq() {
     return this.start.distanceToSquared(this.end);
   }
+  /** @eyes-analysis
+   * 源码方法 distance；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.start.distanceTo。
+   */
   distance() {
     return this.start.distanceTo(this.end);
   }
+  /** @eyes-analysis
+   * 源码方法 at；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.delta、this.delta(t).multiplyScalar、this.delta(t).multiplyScalar(e).add。
+   */
   at(e, t) {
     return this.delta(t).multiplyScalar(e).add(this.start);
   }
+  /** @eyes-analysis
+   * 源码方法 closestPointToPointParameter；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Gc.dot、Gc.subVectors、Lr、Uc.subVectors。
+   */
   closestPointToPointParameter(e, t) {
     Uc.subVectors(e, this.start), Gc.subVectors(this.end, this.start);
     const n = Gc.dot(Gc);
@@ -12349,10 +19952,18 @@ class Line3 {
     let r = Gc.dot(Uc) / n;
     return t && (r = Lr(r, 0, 1)), r;
   }
+  /** @eyes-analysis
+   * 源码方法 closestPointToPoint；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.closestPointToPointParameter、this.delta、this.delta(n).multiplyScalar、this.delta(n).multiplyScalar(r).add。
+   */
   closestPointToPoint(e, t, n) {
     const r = this.closestPointToPointParameter(e, t);
     return this.delta(n).multiplyScalar(r).add(this.start);
   }
+  /** @eyes-analysis
+   * 源码方法 distanceSqToLine3；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Lr、Vc.subVectors、Xc.dot、Xc.subVectors、jc.dot等。
+   */
   distanceSqToLine3(e, t = Qc, n = Kc) {
     const r = 1e-8 * 1e-8;
     let i, a;
@@ -12375,18 +19986,40 @@ class Line3 {
     }
     return t.copy(start).addScaledVector(Xc, i), n.copy(o).addScaledVector(jc, a), t.distanceToSquared(n);
   }
+  /** @eyes-analysis
+   * 源码方法 applyMatrix4；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.end.applyMatrix4、this.start.applyMatrix4。
+   */
   applyMatrix4(e) {
     return this.start.applyMatrix4(e), this.end.applyMatrix4(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 equals；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：e.end.equals、e.start.equals。
+   */
   equals(e) {
     return e.start.equals(this.start) && e.end.equals(this.end);
   }
+  /** @eyes-analysis
+   * 以构造器和 copy 建立副本，资源共享规则由 copy 决定
+   * 调用线索：new this.constructor、new this.constructor().copy。
+   */
   clone() {
     return new this.constructor().copy(this);
   }
 }
 const Jc = new Vector3();
+/** @eyes-analysis
+ * 类职责：SpotLight 对象或空间参考的可视调试几何
+ * 继承：Object3D；导出：SpotLightHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SpotLightHelper extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、cone、light、matrixAutoUpdate、type。
+   * 调用线索：Math.cos、Math.sin、bufferGeometry.setAttribute、new BufferGeometry、new Float32BufferAttribute等。
+   */
   constructor(light, t) {
     super(), this.light = light, this.matrixAutoUpdate = !1, this.color = t, this.type = "SpotLightHelper";
     const bufferGeometry = new BufferGeometry(),
@@ -12403,9 +20036,18 @@ class SpotLightHelper extends Object3D {
     });
     this.cone = new LineSegments(bufferGeometry, lineBasicMaterial), this.add(this.cone), this.update();
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.cone.geometry.dispose、this.cone.material.dispose。
+   */
   dispose() {
     this.cone.geometry.dispose(), this.cone.material.dispose();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：Jc.setFromMatrixPosition、Math.tan、this.cone.lookAt、this.cone.material.color.copy、this.cone.material.color.set等。
+   */
   update() {
     this.light.updateWorldMatrix(!0, !1), this.light.target.updateWorldMatrix(!0, !1), this.parent ? (this.parent.updateWorldMatrix(!0), this.matrix.copy(this.parent.matrixWorld).invert().multiply(this.light.matrixWorld)) : this.matrix.copy(this.light.matrixWorld), this.matrixWorldNeedsUpdate = !0;
     const e = this.light.distance ? this.light.distance : 1e3,
@@ -12416,7 +20058,17 @@ class SpotLightHelper extends Object3D {
 const $c = new Vector3(),
   Zc = new Matrix4(),
   el = new Matrix4();
+/** @eyes-analysis
+ * 类职责：Skeleton 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：SkeletonHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SkeletonHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：bones、isSkeletonHelper、matrix、matrixAutoUpdate、root、type。
+   * 调用线索：bufferGeometry.setAttribute、i.push、new BufferGeometry、new Color、new Float32BufferAttribute等。
+   */
   constructor(root) {
     const bones = tl(root),
       bufferGeometry = new BufferGeometry(),
@@ -12438,6 +20090,10 @@ class SkeletonHelper extends LineSegments {
       s = new Color(65280);
     this.setColors(a, s);
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：$c.setFromMatrixPosition、Zc.multiplyMatrices、el.copy、el.copy(this.root.matrixWorld).invert、n.getAttribute等。
+   */
   updateMatrixWorld(e) {
     const bones = this.bones,
       n = this.geometry,
@@ -12449,11 +20105,19 @@ class SkeletonHelper extends LineSegments {
     }
     n.getAttribute("position").needsUpdate = !0, super.updateMatrixWorld(e);
   }
+  /** @eyes-analysis
+   * 源码方法 setColors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：n.setXYZ、this.geometry.getAttribute。
+   */
   setColors(e, t) {
     const n = this.geometry.getAttribute("color");
     for (let r = 0; r < n.count; r += 2) n.setXYZ(r, e.r, e.g, e.b), n.setXYZ(r + 1, t.r, t.g, t.b);
     return n.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
@@ -12464,7 +20128,17 @@ function tl(e) {
   for (let n = 0; n < e.children.length; n++) t.push(...tl(e.children[n]));
   return t;
 }
+/** @eyes-analysis
+ * 类职责：PointLight 对象或空间参考的可视调试几何
+ * 继承：Mesh；导出：PointLightHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PointLightHelper extends Mesh {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、light、matrix、matrixAutoUpdate、type。
+   * 调用线索：new MeshBasicMaterial、new SphereGeometry、super、this.update。
+   */
   constructor(light, t, n) {
     super(new SphereGeometry(t, 4, 2), new MeshBasicMaterial({
       wireframe: !0,
@@ -12472,9 +20146,18 @@ class PointLightHelper extends Mesh {
       toneMapped: !1
     })), this.light = light, this.color = n, this.type = "PointLightHelper", this.matrix = this.light.matrixWorld, this.matrixAutoUpdate = !1, this.update();
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：this.light.updateWorldMatrix、this.material.color.copy、this.material.color.set。
+   */
   update() {
     this.matrixWorldNeedsUpdate = !0, this.light.updateWorldMatrix(!0, !1), void 0 !== this.color ? this.material.color.set(this.color) : this.material.color.copy(this.light.color);
   }
@@ -12482,7 +20165,17 @@ class PointLightHelper extends Mesh {
 const nl = new Vector3(),
   rl = new Color(),
   il = new Color();
+/** @eyes-analysis
+ * 类职责：HemisphereLight 对象或空间参考的可视调试几何
+ * 继承：Object3D；导出：HemisphereLightHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class HemisphereLightHelper extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、light、material、material.vertexColors、matrix、matrixAutoUpdate、type。
+   * 调用线索：new BufferAttribute、new Float32Array、new Mesh、new MeshBasicMaterial、new OctahedronGeometry等。
+   */
   constructor(light, t, n) {
     super(), this.light = light, this.matrix = light.matrixWorld, this.matrixAutoUpdate = !1, this.color = n, this.type = "HemisphereLightHelper";
     const octahedronGeometry = new OctahedronGeometry(t);
@@ -12495,9 +20188,18 @@ class HemisphereLightHelper extends Object3D {
       a = new Float32Array(3 * i.count);
     octahedronGeometry.setAttribute("color", new BufferAttribute(a, 3)), this.add(new Mesh(octahedronGeometry, this.material)), this.update();
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.children[0].geometry.dispose、this.children[0].material.dispose。
+   */
   dispose() {
     this.children[0].geometry.dispose(), this.children[0].material.dispose();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：matrixWorldNeedsUpdate。
+   * 调用线索：e.geometry.getAttribute、e.lookAt、il.copy、nl.setFromMatrixPosition、nl.setFromMatrixPosition(this.light.matrixWorld).negate等。
+   */
   update() {
     const e = this.children[0];
     if (void 0 !== this.color) this.material.color.set(this.color);else {
@@ -12512,7 +20214,17 @@ class HemisphereLightHelper extends Object3D {
     this.matrixWorldNeedsUpdate = !0, this.light.updateWorldMatrix(!0, !1), e.lookAt(nl.setFromMatrixPosition(this.light.matrixWorld).negate());
   }
 }
+/** @eyes-analysis
+ * 类职责：Grid 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：GridHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class GridHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：type。
+   * 调用线索：bufferGeometry.setAttribute、new BufferGeometry、new Color、new Float32BufferAttribute、new LineBasicMaterial等。
+   */
   constructor(e = 10, t = 10, n = 4473924, r = 8947848) {
     n = new Color(n), r = new Color(r);
     const i = t / 2,
@@ -12532,11 +20244,25 @@ class GridHelper extends LineSegments {
       toneMapped: !1
     })), this.type = "GridHelper";
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：PolarGrid 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：PolarGridHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PolarGridHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：type。
+   * 调用线索：Math.cos、Math.sin、bufferGeometry.setAttribute、new BufferGeometry、new Color等。
+   */
   constructor(e = 10, t = 16, n = 8, r = 64, i = 4473924, a = 8947848) {
     i = new Color(i), a = new Color(a);
     const s = [],
@@ -12566,6 +20292,10 @@ class PolarGridHelper extends LineSegments {
       toneMapped: !1
     })), this.type = "PolarGridHelper";
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
@@ -12573,7 +20303,17 @@ class PolarGridHelper extends LineSegments {
 const al = new Vector3(),
   sl = new Vector3(),
   ol = new Vector3();
+/** @eyes-analysis
+ * 类职责：DirectionalLight 对象或空间参考的可视调试几何
+ * 继承：Object3D；导出：DirectionalLightHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DirectionalLightHelper extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、light、lightPlane、matrix、matrixAutoUpdate、targetLine、type。
+   * 调用线索：bufferGeometry.setAttribute、new BufferGeometry、new Float32BufferAttribute、new Line、new LineBasicMaterial等。
+   */
   constructor(light, t, n) {
     super(), this.light = light, this.matrix = light.matrixWorld, this.matrixAutoUpdate = !1, this.color = n, this.type = "DirectionalLightHelper", void 0 === t && (t = 1);
     let bufferGeometry = new BufferGeometry();
@@ -12584,16 +20324,35 @@ class DirectionalLightHelper extends Object3D {
     });
     this.lightPlane = new Line(bufferGeometry, lineBasicMaterial), this.add(this.lightPlane), bufferGeometry = new BufferGeometry(), bufferGeometry.setAttribute("position", new Float32BufferAttribute([0, 0, 0, 0, 0, 1], 3)), this.targetLine = new Line(bufferGeometry, lineBasicMaterial), this.add(this.targetLine), this.update();
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.lightPlane.geometry.dispose、this.lightPlane.material.dispose、this.targetLine.geometry.dispose、this.targetLine.material.dispose。
+   */
   dispose() {
     this.lightPlane.geometry.dispose(), this.lightPlane.material.dispose(), this.targetLine.geometry.dispose(), this.targetLine.material.dispose();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 状态写入：matrixWorldNeedsUpdate、targetLine.scale.z。
+   * 调用线索：al.setFromMatrixPosition、ol.length、ol.subVectors、sl.setFromMatrixPosition、this.light.target.updateWorldMatrix等。
+   */
   update() {
     this.matrixWorldNeedsUpdate = !0, this.light.updateWorldMatrix(!0, !1), this.light.target.updateWorldMatrix(!0, !1), al.setFromMatrixPosition(this.light.matrixWorld), sl.setFromMatrixPosition(this.light.target.matrixWorld), ol.subVectors(sl, al), this.lightPlane.lookAt(sl), void 0 !== this.color ? (this.lightPlane.material.color.set(this.color), this.targetLine.material.color.set(this.color)) : (this.lightPlane.material.color.copy(this.light.color), this.targetLine.material.color.copy(this.light.color)), this.targetLine.lookAt(sl), this.targetLine.scale.z = ol.length();
   }
 }
 const cl = new Vector3(),
   camera = new Camera();
+/** @eyes-analysis
+ * 类职责：Camera 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：CameraHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：camera、matrix、matrixAutoUpdate、pointMap、type。
+   * 调用线索：bufferGeometry.setAttribute、i.push、new BufferGeometry、new Color、new Float32BufferAttribute等。
+   */
   constructor(e) {
     const bufferGeometry = new BufferGeometry(),
       lineBasicMaterial = new LineBasicMaterial({
@@ -12618,10 +20377,18 @@ class CameraHelper extends LineSegments {
       h = new Color(3355443);
     this.setColors(c, l, u, d, h);
   }
+  /** @eyes-analysis
+   * 源码方法 setColors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：a.setXYZ、this.geometry.getAttribute。
+   */
   setColors(e, t, n, r, i) {
     const a = this.geometry.getAttribute("color");
     return a.setXYZ(0, e.r, e.g, e.b), a.setXYZ(1, e.r, e.g, e.b), a.setXYZ(2, e.r, e.g, e.b), a.setXYZ(3, e.r, e.g, e.b), a.setXYZ(4, e.r, e.g, e.b), a.setXYZ(5, e.r, e.g, e.b), a.setXYZ(6, e.r, e.g, e.b), a.setXYZ(7, e.r, e.g, e.b), a.setXYZ(8, e.r, e.g, e.b), a.setXYZ(9, e.r, e.g, e.b), a.setXYZ(10, e.r, e.g, e.b), a.setXYZ(11, e.r, e.g, e.b), a.setXYZ(12, e.r, e.g, e.b), a.setXYZ(13, e.r, e.g, e.b), a.setXYZ(14, e.r, e.g, e.b), a.setXYZ(15, e.r, e.g, e.b), a.setXYZ(16, e.r, e.g, e.b), a.setXYZ(17, e.r, e.g, e.b), a.setXYZ(18, e.r, e.g, e.b), a.setXYZ(19, e.r, e.g, e.b), a.setXYZ(20, e.r, e.g, e.b), a.setXYZ(21, e.r, e.g, e.b), a.setXYZ(22, e.r, e.g, e.b), a.setXYZ(23, e.r, e.g, e.b), a.setXYZ(24, t.r, t.g, t.b), a.setXYZ(25, t.r, t.g, t.b), a.setXYZ(26, t.r, t.g, t.b), a.setXYZ(27, t.r, t.g, t.b), a.setXYZ(28, t.r, t.g, t.b), a.setXYZ(29, t.r, t.g, t.b), a.setXYZ(30, t.r, t.g, t.b), a.setXYZ(31, t.r, t.g, t.b), a.setXYZ(32, n.r, n.g, n.b), a.setXYZ(33, n.r, n.g, n.b), a.setXYZ(34, n.r, n.g, n.b), a.setXYZ(35, n.r, n.g, n.b), a.setXYZ(36, n.r, n.g, n.b), a.setXYZ(37, n.r, n.g, n.b), a.setXYZ(38, r.r, r.g, r.b), a.setXYZ(39, r.r, r.g, r.b), a.setXYZ(40, i.r, i.g, i.b), a.setXYZ(41, i.r, i.g, i.b), a.setXYZ(42, i.r, i.g, i.b), a.setXYZ(43, i.r, i.g, i.b), a.setXYZ(44, i.r, i.g, i.b), a.setXYZ(45, i.r, i.g, i.b), a.setXYZ(46, i.r, i.g, i.b), a.setXYZ(47, i.r, i.g, i.b), a.setXYZ(48, i.r, i.g, i.b), a.setXYZ(49, i.r, i.g, i.b), a.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 调用线索：camera.projectionMatrixInverse.copy、e.getAttribute、new Error、ul。
+   */
   update() {
     const e = this.geometry,
       pointMap = this.pointMap;
@@ -12632,6 +20399,10 @@ class CameraHelper extends LineSegments {
     }
     ul("c", pointMap, e, camera, 0, 0, n), ul("t", pointMap, e, camera, 0, 0, r), ul("n1", pointMap, e, camera, -1, -1, n), ul("n2", pointMap, e, camera, 1, -1, n), ul("n3", pointMap, e, camera, -1, 1, n), ul("n4", pointMap, e, camera, 1, 1, n), ul("f1", pointMap, e, camera, -1, -1, r), ul("f2", pointMap, e, camera, 1, -1, r), ul("f3", pointMap, e, camera, -1, 1, r), ul("f4", pointMap, e, camera, 1, 1, r), ul("u1", pointMap, e, camera, .7, 1.1, n), ul("u2", pointMap, e, camera, -.7, 1.1, n), ul("u3", pointMap, e, camera, 0, 2, n), ul("cf1", pointMap, e, camera, -1, 0, r), ul("cf2", pointMap, e, camera, 1, 0, r), ul("cf3", pointMap, e, camera, 0, -1, r), ul("cf4", pointMap, e, camera, 0, 1, r), ul("cn1", pointMap, e, camera, -1, 0, n), ul("cn2", pointMap, e, camera, 1, 0, n), ul("cn3", pointMap, e, camera, 0, -1, n), ul("cn4", pointMap, e, camera, 0, 1, n), e.getAttribute("position").needsUpdate = !0;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
@@ -12645,7 +20416,17 @@ function ul(e, t, n, r, i, a, s) {
   }
 }
 const dl = new Box3();
+/** @eyes-analysis
+ * 类职责：Box 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：BoxHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class BoxHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：matrixAutoUpdate、object、type。
+   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、new BufferAttribute、new BufferGeometry、new Float32Array等。
+   */
   constructor(object, t = 16776960) {
     const uint16Array = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7]),
       r = new Float32Array(24),
@@ -12655,6 +20436,10 @@ class BoxHelper extends LineSegments {
       toneMapped: !1
     })), this.object = object, this.type = "BoxHelper", this.matrixAutoUpdate = !1, this.update();
   }
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   * 调用线索：dl.isEmpty、dl.setFromObject、this.geometry.computeBoundingSphere。
+   */
   update() {
     if (void 0 !== this.object && dl.setFromObject(this.object), dl.isEmpty()) return;
     const e = dl.min,
@@ -12663,17 +20448,41 @@ class BoxHelper extends LineSegments {
       r = n.array;
     r[0] = t.x, r[1] = t.y, r[2] = t.z, r[3] = e.x, r[4] = t.y, r[5] = t.z, r[6] = e.x, r[7] = e.y, r[8] = t.z, r[9] = t.x, r[10] = e.y, r[11] = t.z, r[12] = t.x, r[13] = t.y, r[14] = e.z, r[15] = e.x, r[16] = t.y, r[17] = e.z, r[18] = e.x, r[19] = e.y, r[20] = e.z, r[21] = t.x, r[22] = e.y, r[23] = e.z, n.needsUpdate = !0, this.geometry.computeBoundingSphere();
   }
+  /** @eyes-analysis
+   * 源码方法 setFromObject；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：object。
+   * 调用线索：this.update。
+   */
   setFromObject(object) {
     return this.object = object, this.update(), this;
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 状态写入：object。
+   * 调用线索：super.copy。
+   */
   copy(e, t) {
     return super.copy(e, t), this.object = e.object, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：Box3 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：Box3Helper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Box3Helper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：box、type。
+   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、new BufferAttribute、new BufferGeometry、new Float32BufferAttribute等。
+   */
   constructor(box, t = 16776960) {
     const uint16Array = new Uint16Array([0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7]),
       bufferGeometry = new BufferGeometry();
@@ -12682,15 +20491,33 @@ class Box3Helper extends LineSegments {
       toneMapped: !1
     })), this.box = box, this.type = "Box3Helper", this.geometry.computeBoundingSphere();
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：box.getCenter、box.getSize、box.isEmpty、super.updateMatrixWorld、this.scale.multiplyScalar。
+   */
   updateMatrixWorld(e) {
     const box = this.box;
     box.isEmpty() || (box.getCenter(this.position), box.getSize(this.scale), this.scale.multiplyScalar(.5), super.updateMatrixWorld(e));
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：Plane 对象或空间参考的可视调试几何
+ * 继承：Line；导出：PlaneHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class PlaneHelper extends Line {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：plane、size、type。
+   * 调用线索：a.computeBoundingSphere、a.setAttribute、bufferGeometry.computeBoundingSphere、bufferGeometry.setAttribute、new BufferGeometry等。
+   */
   constructor(plane, size = 1, n = 16776960) {
     const r = n,
       bufferGeometry = new BufferGeometry();
@@ -12707,16 +20534,34 @@ class PlaneHelper extends Line {
       toneMapped: !1
     })));
   }
+  /** @eyes-analysis
+   * 传播父级世界矩阵；matrixWorldNeedsUpdate 控制失效，递归更新子节点
+   * 调用线索：super.updateMatrixWorld、this.lookAt、this.position.set、this.scale.set、this.translateZ。
+   */
   updateMatrixWorld(e) {
     this.position.set(0, 0, 0), this.scale.set(.5 * this.size, .5 * this.size, 1), this.lookAt(this.plane.normal), this.translateZ(-this.plane.constant), super.updateMatrixWorld(e);
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.children[0].geometry.dispose、this.children[0].material.dispose、this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose(), this.children[0].geometry.dispose(), this.children[0].material.dispose();
   }
 }
 const hl = new Vector3();
 let pl, fl;
+/** @eyes-analysis
+ * 类职责：Arrow 对象或空间参考的可视调试几何
+ * 继承：Object3D；导出：ArrowHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ArrowHelper extends Object3D {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：cone、cone.matrixAutoUpdate、line、line.matrixAutoUpdate、type。
+   * 调用线索：fl.translate、new BufferGeometry、new ConeGeometry、new Float32BufferAttribute、new Line等。
+   */
   constructor(e = new Vector3(0, 0, 1), t = new Vector3(0, 0, 0), n = 1, r = 16776960, i = .2 * n, a = .2 * i) {
     super(), this.type = "ArrowHelper", void 0 === pl && (pl = new BufferGeometry(), pl.setAttribute("position", new Float32BufferAttribute([0, 0, 0, 0, 1, 0], 3)), fl = new ConeGeometry(.5, 1, 5, 1), fl.translate(0, -.5, 0)), this.position.copy(t), this.line = new Line(pl, new LineBasicMaterial({
       color: r,
@@ -12726,6 +20571,10 @@ class ArrowHelper extends Object3D {
       toneMapped: !1
     })), this.cone.matrixAutoUpdate = !1, this.add(this.cone), this.setDirection(e), this.setLength(n, i, a);
   }
+  /** @eyes-analysis
+   * 源码方法 setDirection；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.acos、hl.set、hl.set(e.z,0,-e.x).normalize、this.quaternion.set、this.quaternion.setFromAxisAngle。
+   */
   setDirection(e) {
     if (e.y > .99999) this.quaternion.set(0, 0, 0, 1);else if (e.y < -.99999) this.quaternion.set(1, 0, 0, 0);else {
       hl.set(e.z, 0, -e.x).normalize();
@@ -12733,20 +20582,47 @@ class ArrowHelper extends Object3D {
       this.quaternion.setFromAxisAngle(hl, t);
     }
   }
+  /** @eyes-analysis
+   * 源码方法 setLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：cone.position.y。
+   * 调用线索：Math.max、this.cone.scale.set、this.cone.updateMatrix、this.line.scale.set、this.line.updateMatrix。
+   */
   setLength(e, t = .2 * e, n = .2 * t) {
     this.line.scale.set(1, Math.max(1e-4, e - t), 1), this.line.updateMatrix(), this.cone.scale.set(n, t, n), this.cone.position.y = e, this.cone.updateMatrix();
   }
+  /** @eyes-analysis
+   * 源码方法 setColor；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.cone.material.color.set、this.line.material.color.set。
+   */
   setColor(e) {
     this.line.material.color.set(e), this.cone.material.color.set(e);
   }
+  /** @eyes-analysis
+   * 复制自身状态；需注意资源引用与深复制边界
+   * 调用线索：super.copy、this.cone.copy、this.line.copy。
+   */
   copy(e) {
     return super.copy(e, !1), this.line.copy(e.line), this.cone.copy(e.cone), this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.cone.geometry.dispose、this.cone.material.dispose、this.line.geometry.dispose、this.line.material.dispose。
+   */
   dispose() {
     this.line.geometry.dispose(), this.line.material.dispose(), this.cone.geometry.dispose(), this.cone.material.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：Axes 对象或空间参考的可视调试几何
+ * 继承：LineSegments；导出：AxesHelper。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AxesHelper extends LineSegments {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：type。
+   * 调用线索：bufferGeometry.setAttribute、new BufferGeometry、new Float32BufferAttribute、new LineBasicMaterial、super。
+   */
   constructor(e = 1) {
     const t = [0, 0, 0, e, 0, 0, 0, 0, 0, 0, e, 0, 0, 0, 0, 0, 0, e],
       bufferGeometry = new BufferGeometry();
@@ -12756,34 +20632,78 @@ class AxesHelper extends LineSegments {
       toneMapped: !1
     })), this.type = "AxesHelper";
   }
+  /** @eyes-analysis
+   * 源码方法 setColors；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：geometry.attributes.color.needsUpdate。
+   * 调用线索：new Color、r.set、r.toArray。
+   */
   setColors(e, t, n) {
     const r = new Color(),
       i = this.geometry.attributes.color.array;
     return r.set(e), r.toArray(i, 0), r.toArray(i, 3), r.set(t), r.toArray(i, 6), r.toArray(i, 9), r.set(n), r.toArray(i, 12), r.toArray(i, 15), this.geometry.attributes.color.needsUpdate = !0, this;
   }
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   * 调用线索：this.geometry.dispose、this.material.dispose。
+   */
   dispose() {
     this.geometry.dispose(), this.material.dispose();
   }
 }
+/** @eyes-analysis
+ * 类职责：把子路径按方向和包含关系组织为形状及孔洞
+ * 继承：无显式父类；导出：ShapePath。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ShapePath {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：color、currentPath、subPaths、type、userData。
+   * 调用线索：new Color。
+   */
   constructor() {
     this.type = "ShapePath", this.color = new Color(), this.subPaths = [], this.currentPath = null, this.userData = {};
   }
+  /** @eyes-analysis
+   * 源码方法 moveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：currentPath。
+   * 调用线索：new Path、this.currentPath.moveTo、this.subPaths.push。
+   */
   moveTo(e, t) {
     return this.currentPath = new Path(), this.subPaths.push(this.currentPath), this.currentPath.moveTo(e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 lineTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.currentPath.lineTo。
+   */
   lineTo(e, t) {
     return this.currentPath.lineTo(e, t), this;
   }
+  /** @eyes-analysis
+   * 源码方法 quadraticCurveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.currentPath.quadraticCurveTo。
+   */
   quadraticCurveTo(e, t, n, r) {
     return this.currentPath.quadraticCurveTo(e, t, n, r), this;
   }
+  /** @eyes-analysis
+   * 源码方法 bezierCurveTo；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.currentPath.bezierCurveTo。
+   */
   bezierCurveTo(e, t, n, r, i, a) {
     return this.currentPath.bezierCurveTo(e, t, n, r, i, a), this;
   }
+  /** @eyes-analysis
+   * 源码方法 splineThru；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：this.currentPath.splineThru。
+   */
   splineThru(e) {
     return this.currentPath.splineThru(e), this;
   }
+  /** @eyes-analysis
+   * 源码方法 toShapes；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：Math.abs、ShapeUtils.area、a.push、a.sort、box2.expandByPoint等。
+   */
   toShapes() {
     function e(e, t) {
       let n = !1;
@@ -12865,7 +20785,17 @@ class ShapePath {
     return a;
   }
 }
+/** @eyes-analysis
+ * 类职责：交互控制器基类；管理对象、DOM 连接及启停
+ * 继承：EventDispatcher；导出：Controls。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Controls extends EventDispatcher {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：domElement、enabled、keys、mouseButtons、object、state、touches。
+   * 调用线索：super。
+   */
   constructor(object, domElement = null) {
     super(), this.object = object, this.domElement = domElement, this.enabled = !0, this.state = -1, this.keys = {}, this.mouseButtons = {
       LEFT: null,
@@ -12876,11 +20806,25 @@ class Controls extends EventDispatcher {
       TWO: null
     };
   }
+  /** @eyes-analysis
+   * 源码方法 connect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 状态写入：domElement。
+   * 调用线索：this.disconnect、warn。
+   */
   connect(domElement) {
     void 0 !== domElement ? (null !== this.domElement && this.disconnect(), this.domElement = domElement) : warn("Controls: connect() now requires an element.");
   }
+  /** @eyes-analysis
+   * 源码方法 disconnect；作用以类职责与源码实现为准，未猜测压缩参数含义
+   */
   disconnect() {}
+  /** @eyes-analysis
+   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
+   */
   dispose() {}
+  /** @eyes-analysis
+   * 按当前时间或场景状态推进对象并维护缓存失效
+   */
   update() {}
 }
 function getByteLength(e, t, n, r) {
@@ -12996,24 +20940,45 @@ function getByteLength(e, t, n, r) {
   }
   throw new Error(`Unable to determine texture byte length for ${n} format.`);
 }
+/** @eyes-analysis
+ * 类职责：纹理处理辅助操作
+ * 继承：无显式父类；导出：TextureUtils。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class TextureUtils {
+  /** @eyes-analysis
+   * 源码方法 contain；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：function(e,t){const n=e.image&&e.image.width?e.image.width/e.image.height:1;return n>t?(e.repeat.x=1,e.repeat.y=n/t,e.offset.x=0,e.offset.y=(1-e.repeat.y)/2):(e.repeat.x=t/n,e.repeat.y=1,e.offset.x=(1-e.repeat.x)/2,e.offset.y=0),e;}。
+   */
   static contain(e, t) {
     return function (e, t) {
       const n = e.image && e.image.width ? e.image.width / e.image.height : 1;
       return n > t ? (e.repeat.x = 1, e.repeat.y = n / t, e.offset.x = 0, e.offset.y = (1 - e.repeat.y) / 2) : (e.repeat.x = t / n, e.repeat.y = 1, e.offset.x = (1 - e.repeat.x) / 2, e.offset.y = 0), e;
     }(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 cover；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：function(e,t){const n=e.image&&e.image.width?e.image.width/e.image.height:1;return n>t?(e.repeat.x=t/n,e.repeat.y=1,e.offset.x=(1-e.repeat.x)/2,e.offset.y=0):(e.repeat.x=1,e.repeat.y=n/t,e.offset.x=0,e.offset.y=(1-e.repeat.y)/2),e;}。
+   */
   static cover(e, t) {
     return function (e, t) {
       const n = e.image && e.image.width ? e.image.width / e.image.height : 1;
       return n > t ? (e.repeat.x = t / n, e.repeat.y = 1, e.offset.x = (1 - e.repeat.x) / 2, e.offset.y = 0) : (e.repeat.x = 1, e.repeat.y = n / t, e.offset.x = 0, e.offset.y = (1 - e.repeat.y) / 2), e;
     }(e, t);
   }
+  /** @eyes-analysis
+   * 源码方法 fill；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：function(e){return e.repeat.x=1,e.repeat.y=1,e.offset.x=0,e.offset.y=0,e;}。
+   */
   static fill(e) {
     return function (e) {
       return e.repeat.x = 1, e.repeat.y = 1, e.offset.x = 0, e.offset.y = 0, e;
     }(e);
   }
+  /** @eyes-analysis
+   * 源码方法 getByteLength；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：getByteLength。
+   */
   static getByteLength(e, t, n, r) {
     return getByteLength(e, t, n, r);
   }

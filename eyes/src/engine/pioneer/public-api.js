@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 public-api 分隔内部命名空间和外部入口。
+ * 依据：import ../../vendor/three/index.js；import ../core/ShaderChunkLogDepth.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:17209-24502.
 import "../../vendor/three/index.js";
 import "../core/ShaderChunkLogDepth.js";

@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：协调跟随实体及跟随选项，将焦点变化传递给相机脚本。
+ * 依据：import ../solar-system/public-api.js；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1307039-1318432.
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as Pioneer from "../pioneer/index.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import FollowName from "../../vendor/modules/FollowName.cjs";
 var getFollowName = () => FollowName;
+/** @eyes-analysis
+ * 类职责：协调跟随实体及跟随选项，将焦点变化传递给相机脚本。
+ * 继承：EyesPublicApi.BaseManager；导出：CameraFollowManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraFollowManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hideSearchTimeout`、`_isEnabled`、`_offsetObserver`、`_options`、`_prevValues`、`_resizeObserver`、`_returnToPreviousCamView`、`_sumParent`；调用 `new MutationObserver`、`new ResizeObserver`、`routerManager.getValidQueries`、`routerManager.setValidQueries`、`super`、`t.forEach`。
+   * 状态写入：_hideSearchTimeout、_isEnabled、_offsetObserver、_options、_prevValues、_resizeObserver、_returnToPreviousCamView、_sumParent等；完整记录见索引。
+   * 调用线索：new MutationObserver、new ResizeObserver、routerManager.getValidQueries、routerManager.setValidQueries、super等。
+   */
   constructor(t, e = {}) {
     super(t);
     this._options = {
@@ -48,6 +64,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     const routerManager = this.app.getManager("router");
     routerManager.setValidQueries([...routerManager.getValidQueries(), "followId"]);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `followEntity`、`followId`、`followName`；调用 `contentManager.getEntityInfo`、`this.app.getManager`、`this.app.scene.getEntity`。
+   * 状态写入：followEntity、followId、followName。
+   * 调用线索：contentManager.getEntityInfo、this.app.getManager、this.app.scene.getEntity。
+   */
   setFollowVars(followId) {
     const contentManager = this.app.getManager("content");
     const {
@@ -64,6 +85,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     this.followEntity = followId ? this.app.scene.getEntity(followId) : null;
     this.followName = followName;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void toastComponent.setContent("")`；调用 `["Sun","Moon","ISS"].includes`、`this.app.getComponent`、`this.triggerCallbacks`、`toastComponent.hide`、`toastComponent.setContent`、`toastContent.querySelector`。
+   * 调用线索：["Sun","Moon","ISS"].includes、n?.addEventListener、this.app.getComponent、this.triggerCallbacks、toastComponent.hide等。
+   */
   setToastContent({
     reset: t = false
   } = {}) {
@@ -82,9 +107,17 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       this.triggerCallbacks("cameraFollowUndo", [this]);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.app.getComponent`、`this.app.getComponent("toast").show`。
+   * 调用线索：this.app.getComponent、this.app.getComponent("toast").show。
+   */
   showToast() {
     this.app.getComponent("toast").show();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `{isValid:false}` 或 `{isValid:true,minTime:u,maxTime:p}`；调用 `c.valueOf`、`d.valueOf`、`e.valueOf`、`getFollowName`、`getFollowName().max`、`getFollowName().min`。
+   * 调用线索：c.valueOf、d.valueOf、e.valueOf、getFollowName、getFollowName().max等。
+   */
   validateTimeLimits() {
     const timeManager = this.app.getManager("time");
     const e = timeManager.getTime();
@@ -141,6 +174,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       maxTime: p
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isEnabled`；返回 `void`；调用 `d`、`onLoaded.push`、`this._offsetObserver.observe`、`this._resizeObserver.observe`、`this.animateCamera`、`this.animateCamera(cameraDuration).then`。
+   * 状态写入：_isEnabled。
+   * 调用线索：d、onLoaded.push、this._offsetObserver.observe、this._resizeObserver.observe、this.animateCamera等。
+   */
   async follow(t) {
     const {
       currentRoute: currentRoute,
@@ -196,6 +234,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     } = this.app.getComponent("cameraViewBlock");
     isLoaded ? d() : onLoaded.push(d);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._offsetObserver.disconnect`、`this._resizeObserver.disconnect`、`this.app.getManager`、`this.app.scene.getEntity`、`this.setFollowVars`、`this.setLabelWeight`。
+   * 调用线索：this._offsetObserver.disconnect、this._resizeObserver.disconnect、this.app.getManager、this.app.scene.getEntity、this.setFollowVars等。
+   */
   unfollow() {
     const {
       previousRoute: previousRoute,
@@ -227,6 +269,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     this._offsetObserver.disconnect();
     this._resizeObserver.disconnect();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.app.getManager("camera").followTheEntity(this.targetId,this.followId,this._sumParent.getName(),t)`；调用 `i.addEntity`、`o.setPrimaryAlignType`、`o.setPrimaryAxis`、`o.setPrimaryTargetEntity`、`r.setParent`、`r.setTransitionFunction`。
+   * 调用线索：i.addEntity、o.setPrimaryAlignType、o.setPrimaryAxis、o.setPrimaryTargetEntity、r.setParent等。
+   */
   animateCamera(t) {
     this._sumParent.clearControllers();
     const e = this.targetEntity?.getExtentsRadius() || .1;
@@ -246,6 +292,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     r.setTransitionFunction(_easeOutExpoTransition);
     return this.app.getManager("camera").followTheEntity(this.targetId, this.followId, this._sumParent.getName(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this.followEntity?.removeParentChangedCallback(this.updateOccludedEntities)`。
+   * 调用线索：t?.addParentChangedCallback、t?.removeParentChangedCallback、this.followEntity?.addParentChangedCallback、this.followEntity?.removeParentChangedCallback。
+   */
   setParentsChangedCallbacks({
     targetEntity: t = this.targetEntity,
     reset: e = false
@@ -257,6 +307,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     t?.addParentChangedCallback(this.updateOccludedEntities);
     this.followEntity?.addParentChangedCallback(this.updateOccludedEntities);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_prevValues.weights[t]`；返回 `void`；调用 `labelManager.getDefaultWeight`、`labelManager.setWeight`、`this.app.getManager`。
+   * 状态写入：_prevValues.weights[t]。
+   * 调用线索：labelManager.getDefaultWeight、labelManager.setWeight、this.app.getManager。
+   */
   setLabelWeight(t, e = false, i = "201") {
     if (!t) return;
     const labelManager = this.app.getManager("label");
@@ -264,16 +319,29 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     0 === n && (labelManager._weights[t] = {});
     e ? this._prevValues.weights[t] && (labelManager.setWeight(t, this._prevValues.weights[t]), delete this._prevValues.weights[t]) : (labelManager.setWeight(t, i), this._prevValues.weights[t] = n);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.getEntitiesToUnocclude`、`this.setOcclusionProps`。
+   * 调用线索：this.getEntitiesToUnocclude、this.setOcclusionProps。
+   */
   updateOccludedEntities({
     reset: t = false
   } = {}) {
     const e = !t && this.getEntitiesToUnocclude();
     this.setOcclusionProps(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `[...new Set(t)].filter(Boolean)`；调用 `[...new Set(t)].filter`、`new Set`。
+   * 调用线索：[...new Set(t)].filter、new Set。
+   */
   getEntitiesToUnocclude() {
     const t = [this.followId];
     return [...new Set(t)].filter(Boolean);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_prevValues.occlusion`、`_prevValues.occlusion[t]`；调用 `Object.keys`、`Object.keys(occlusion).forEach`、`e.canOcclude`、`t.forEach`、`this.app.scene.getEntity`。
+   * 状态写入：_prevValues.occlusion、_prevValues.occlusion[t]。
+   * 调用线索：Object.keys、Object.keys(occlusion).forEach、e.canOcclude、e?.getComponent、e?.getComponent(Pioneer.DivComponent).setCanBeOccluded等。
+   */
   setOcclusionProps(t) {
     const {
       occlusion: occlusion
@@ -289,6 +357,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       e && (this._prevValues.occlusion[t] = e.canOcclude(), e?.getComponent(Pioneer.DivComponent).setCanBeOccluded(false));
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `labelManager.setLabelClickable`、`this.app.getManager`。
+   * 调用线索：labelManager.setLabelClickable、this.app.getManager。
+   */
   setTargetNotClickable(t, e = false) {
     const labelManager = this.app.getManager("label");
     const s = labelManager._labels[t];
@@ -298,12 +370,21 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     } = this._prevValues;
     e ? void 0 !== labelsClickable[t] && (labelManager.setLabelClickable(t, labelsClickable[t]), delete labelsClickable[t]) : (labelsClickable[t] = s.isClickable, labelManager.setLabelClickable(t, false));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_reframeElement`；调用 `document.createElement`、`staticElement.appendChild`、`staticElement.querySelector`、`this._reframeElement.classList.add`。
+   * 状态写入：_reframeElement。
+   * 调用线索：document.createElement、staticElement.appendChild、staticElement.querySelector、this._reframeElement.classList.add。
+   */
   _createReframeElement() {
     const {
       staticElement: staticElement
     } = this.app;
     staticElement.querySelector(".follow-reframe") || (this._reframeElement = document.createElement("div"), this._reframeElement.classList.add("follow-reframe"), staticElement.appendChild(this._reframeElement));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `SolarSystemSceneExports.Entity.createFromOptions`、`t.setOrientation`、`t.setPosition`。
+   * 调用线索：SolarSystemSceneExports.Entity.createFromOptions、t.setOrientation、t.setPosition。
+   */
   _createSumParent() {
     const t = SolarSystemSceneExports.Entity.createFromOptions("follow_sum_parent", {
       parents: []
@@ -312,6 +393,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     t.setOrientation(Pioneer.Quaternion.Identity);
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `search`、`search._config.infoText.default`；调用 `input.setAttribute`、`t.appendChild`、`t.stopPropagation`、`this.app.getComponent`、`this.search.element.addEventListener`、`this.search.element.classList.add`。
+   * 状态写入：search、search._config.infoText.default。
+   * 调用线索：input.setAttribute、t.appendChild、t.stopPropagation、this.app.getComponent、this.search.element.addEventListener等。
+   */
   initSearch(t) {
     if (!this.search) {
       this.search = this.app.getComponent("cameraFollowSearch");
@@ -334,15 +420,28 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     }
     t && (t.appendChild(this.search.element), this.search.setParent(t));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.stopHideTimeout`。
+   * 调用线索：this.search?.open、this.search?.show、this.stopHideTimeout。
+   */
   showSearch() {
     this.stopHideTimeout();
     this.search?.show();
     this.search?.open();
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：this.search?.close、this.search?.hide。
+   */
   hideSearch() {
     this.search?.hide();
     this.search?.close();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_prevValues.timeLimits`；调用 `this.app.getManager`、`timeManager.getLimits`、`timeManager.setMax`、`timeManager.setMin`。
+   * 状态写入：_prevValues.timeLimits。
+   * 调用线索：this.app.getManager、timeManager.getLimits、timeManager.setMax、timeManager.setMin。
+   */
   setTimeLimits({
     minTime: minTime,
     maxTime: maxTime,
@@ -368,6 +467,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       timeManager.setMax(maxTime);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `a.setPitchAngleLimits`、`a.setYawAngleLimits`、`document.body.classList.contains`、`i.getComponent`、`i.getController`、`new Pioneer.Interval`。
+   * 调用线索：a.setPitchAngleLimits、a.setYawAngleLimits、document.body.classList.contains、i.getComponent、i.getController等。
+   */
   setYawPitchLimits() {
     const t = document.body.classList.contains("offset-right");
     const e = document.body.classList.contains("offset-up");
@@ -389,6 +492,10 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     a.setYawAngleLimits(new Pioneer.Interval(p, _));
     a.setPitchAngleLimits(new Pioneer.Interval(m, g));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this.search?.setExcludeResults([])` 或 `void`；调用 `[...new Set(o)].filter`、`[t,e].filter`、`[t,e].includes`、`contentManager.getEntityDesc`、`contentManager.getEntityDesc(u).catch`、`d.getLowestCommonAncestorAtTime`。
+   * 调用线索：[...new Set(o)].filter、[...new Set(o)].filter(i=>![t,e].includes(i)).slice、[...new Set(o)].filter(i=>![t,e].includes(i)).slice(0,maxFeatured).map、[...new Set(o)].filter(i=>![t,e].includes(i)).slice(0,maxFeatured).map(t=>{const{id:id,iauName:iauName,displayName:displayName}=this.app.getManager("content")?.getEntityInfo(t)||{};const n=displayName||iauName;return!(!id||!n)&&{text:n,url:`/${id}`};}).filter、[t,e].filter等。
+   */
   async setSearchOptions({
     targetId: t = this.targetId,
     followId: e = this.followId,
@@ -453,10 +560,18 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     this.search?.setExcludeResults(s);
     this.search?.setupFeaturedSuggestion(E);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `[this.targetId,this.followId].filter`、`this.app.scene.waitTillEntitiesInPlace`。
+   * 调用线索：[this.targetId,this.followId].filter、this.app.scene.waitTillEntitiesInPlace。
+   */
   async entitiesInPlace() {
     const t = [this.targetId, this.followId].filter(Boolean);
     await this.app.scene.waitTillEntitiesInPlace(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `staticElement.classList.toggle`、`this._pioneer.getInput`、`this._pioneer.getInput().getDraggedOffset`、`this._pioneer.getInput().getDraggedOffset().isZero`、`this.showToast`。
+   * 调用线索：staticElement.classList.toggle、this._pioneer.getInput、this._pioneer.getInput().getDraggedOffset、this._pioneer.getInput().getDraggedOffset().isZero、this.showToast。
+   */
   update() {
     const t = !this._pioneer.getInput().getDraggedOffset().isZero();
     if (!this.followId) return;
@@ -466,6 +581,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     staticElement.classList.toggle("follow-dragging", t);
     t && this.showToast();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isEnabled`；调用 `Array.isArray`、`this.app.getManager`、`this.app.getManager("router").navigate`、`this.hideSearch`、`this.initSearch`、`this.setTimeLimits`。
+   * 状态写入：_isEnabled。
+   * 调用线索：Array.isArray、this.app.getManager、this.app.getManager("router").navigate、this.hideSearch、this.initSearch等。
+   */
   setEnabled(t, {
     resetLimits: e = true,
     removeQueries: i = ["followId", "time", "rate"]
@@ -488,6 +608,11 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       __remove: i
     }), this.hideSearch(), this.triggerCallbacks("cameraFollowStop", [this]));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hideSearchTimeout`；调用 `setTimeout`、`this.hideSearch`、`this.stopHideTimeout`。
+   * 状态写入：_hideSearchTimeout。
+   * 调用线索：setTimeout、this.hideSearch、this.stopHideTimeout。
+   */
   setHideTimeout() {
     this.stopHideTimeout();
     this._hideSearchTimeout = setTimeout(() => {
@@ -495,10 +620,19 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
       this.stopHideTimeout();
     }, this._options.hideSearchDelay);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hideSearchTimeout`；调用 `clearTimeout`。
+   * 状态写入：_hideSearchTimeout。
+   * 调用线索：clearTimeout。
+   */
   stopHideTimeout() {
     clearTimeout(this._hideSearchTimeout);
     this._hideSearchTimeout = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `_target`；调用 `this.app.getManager`、`this.app.getView`。
+   * 调用线索：this.app.getManager、this.app.getView。
+   */
   get targetId() {
     const {
       currentView: currentView
@@ -508,12 +642,22 @@ class CameraFollowManager extends EyesPublicApi.BaseManager {
     } = this.app.getView(currentView);
     return _target;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.app.scene.getEntity(this.targetId)`；调用 `this.app.scene.getEntity`。
+   * 调用线索：this.app.scene.getEntity。
+   */
   get targetEntity() {
     return this.app.scene.getEntity(this.targetId);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.followName?`Following <span class='camera-follow-name'>${this.followName}</span>`:"Follow Target"`。
+   */
   get followInnerHtml() {
     return this.followName ? `Following <span class='camera-follow-name'>${this.followName}</span>` : "Follow Target";
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isEnabled`。
+   */
   get isEnabled() {
     return this._isEnabled;
   }

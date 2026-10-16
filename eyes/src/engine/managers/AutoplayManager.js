@@ -1,9 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：按设定实体/时间/相机序列自动播放并响应暂停/交互。
+ * 依据：import ../../vendor/modules/FollowName.cjs；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1318433-1324616.
 import FollowName from "../../vendor/modules/FollowName.cjs";
 import "../pioneer/index.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 var getFollowName = () => FollowName;
+/** @eyes-analysis
+ * 类职责：按设定实体/时间/相机序列自动播放并响应暂停/交互。
+ * 继承：EyesPublicApi.BaseManager；导出：AutoplayManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class AutoplayManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentIndex`、`_interval`、`_intervalTimer`、`_isPlaying`、`_resetStates`、`_slideTimer`、`_slides`、`_url`；调用 `super`、`this._eventNames.push`、`this._initCallbacks`、`this.bindFunctions`。
+   * 状态写入：_currentIndex、_interval、_intervalTimer、_isPlaying、_resetStates、_slideTimer、_slides、_url。
+   * 调用线索：super、this._eventNames.push、this._initCallbacks、this.bindFunctions。
+   */
   constructor(t, url) {
     super(t);
     this._url = url;
@@ -22,6 +38,11 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     this._initCallbacks();
     this.bindFunctions(["startAutoplay", "stopAutoplay"]);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_slides`；调用 `EyesPublicApi.AppUtils.loadJSON`、`console.error`。
+   * 状态写入：_slides。
+   * 调用线索：EyesPublicApi.AppUtils.loadJSON、console.error。
+   */
   async init() {
     try {
       this._slides = await EyesPublicApi.AppUtils.loadJSON(this._url);
@@ -30,15 +51,32 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
       this._slides = [];
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】读取访问器，返回 `this._interval`；本访问器没有 AST 可见的 this 字段直接赋值。
+   */
   get interval() {
     return this._interval;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_interval`；调用 `this._isValidTime`。
+   * 状态写入：_interval。
+   * 调用线索：this._isValidTime。
+   */
   set interval(t) {
     this._isValidTime(t) && (this._interval = 1e3 * t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `""!==t&&!isNaN(Number(t))&&Number(t)>0`；调用 `Number`、`isNaN`。
+   * 调用线索：Number、isNaN。
+   */
   _isValidTime(t) {
     return "" !== t && !isNaN(Number(t)) && Number(t) > 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isPlaying`；调用 `this._app.getManager`、`this._app.getManager("time").resetLimits`、`this._triggerInterval`、`this.playNextSlide`、`this.triggerCallbacks`。
+   * 状态写入：_isPlaying。
+   * 调用线索：this._app.getManager、this._app.getManager("time").resetLimits、this._triggerInterval、this.playNextSlide、this.triggerCallbacks。
+   */
   async startAutoplay(t) {
     this._isPlaying = true;
     this.triggerCallbacks("autoplaychange", [true]);
@@ -46,6 +84,11 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     await this.playNextSlide(t);
     this._triggerInterval(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_intervalTimer`；调用 `clearInterval`、`setInterval`、`this.playNextSlide`、`this.stopAutoplay`。
+   * 状态写入：_intervalTimer。
+   * 调用线索：clearInterval、setInterval、this.playNextSlide、this.stopAutoplay。
+   */
   _triggerInterval(t) {
     clearInterval(this._intervalTimer);
     this._intervalTimer = null;
@@ -53,11 +96,21 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
       t?.isCanceled ? await this.stopAutoplay() : await this.playNextSlide(t);
     }, this._interval));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentIndex`；调用 `this.playSlide`。
+   * 状态写入：_currentIndex。
+   * 调用线索：this.playSlide。
+   */
   async playNextSlide(t) {
     this._currentIndex++;
     this._currentIndex >= this._slides.length && (this._currentIndex = 0);
     await this.playSlide(this._currentIndex, t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_intervalTimer`、`_slideTimer`；返回 `void` 或 `void this._triggerInterval(e)`；调用 `EyesPublicApi.AppUtils.deepCopy`、`cameraManager.updateLighting`、`clearInterval`、`clearTimeout`、`console.error`、`contentManager.getEntityInfo`。
+   * 状态写入：_intervalTimer、_slideTimer。
+   * 调用线索：EyesPublicApi.AppUtils.deepCopy、cameraManager.updateLighting、clearInterval、clearTimeout、console.error等。
+   */
   async playSlide(t, e) {
     if (!this._isPlaying || !this._slides[t] || !this._slides[t].id) return;
     this._slideTimer && clearTimeout(this._slideTimer);
@@ -127,6 +180,10 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     this._slides[t].lighting && cameraManager.updateLighting(this._slides[t].lighting);
     this._slides[t].duration || this._isPlaying && this._triggerInterval(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.category.toLowerCase`、`this._app.cameraScripts.alignObjects`、`this._app.cameraScripts.alignSpacecraftPlanet`、`this._app.cameraScripts.goToCelestialObject`、`this._app.cameraScripts.goToInstrument`、`this._app.cameraScripts.goToSpacecraft`。
+   * 调用线索：t.category.toLowerCase、this._app.cameraScripts.alignObjects、this._app.cameraScripts.alignSpacecraftPlanet、this._app.cameraScripts.goToCelestialObject、this._app.cameraScripts.goToInstrument等。
+   */
   async _updateCamera(t, e = {}) {
     const i = t.category.toLowerCase();
     const {
@@ -152,6 +209,11 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
       } else await this._app.cameraScripts.goToSpacecraft(t.id, this._slides[this._currentIndex].cameraOptions);
     } else "landing site" === i ? await this._app.cameraScripts.alignSpacecraftPlanet(t.id, this._slides[this._currentIndex].cameraOptions) : "instrument" === i ? await this._app.cameraScripts.goToInstrument(t.id, this._slides[this._currentIndex].cameraOptions) : await this._app.cameraScripts.goToCelestialObject(t.id, this._slides[this._currentIndex].cameraOptions);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentIndex`、`_intervalTimer`、`_isPlaying`、`_slideTimer`；返回 `void`；调用 `cameraManager.updateLighting`、`clearInterval`、`clearTimeout`、`contentManager.getEntityInfo`、`contentManager.getSpheroidId`、`layerManager.resetSpheroidMap`。
+   * 状态写入：_currentIndex、_intervalTimer、_isPlaying、_slideTimer。
+   * 调用线索：cameraManager.updateLighting、clearInterval、clearTimeout、contentManager.getEntityInfo、contentManager.getSpheroidId等。
+   */
   async stopAutoplay() {
     if (clearInterval(this._intervalTimer), this._intervalTimer = null, clearTimeout(this._slideTimer), this._slideTimer = null, !this._isPlaying && -1 === this._currentIndex) return;
     this._isPlaying = false;

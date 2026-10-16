@@ -1,9 +1,25 @@
+/** @eyes-analysis
+ * 文件职责：搜索输入、建议结果和选择导航
+ * 依据：imports: ../../framework/eyes/public-api.js, ../templates/SearchTemplate.html；manager dependencies: search, content, router
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:575629-587527.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import SearchTemplate from "../templates/SearchTemplate.html";
 let defaultExport;
 var getSearchTemplate = () => SearchTemplate;
+/** @eyes-analysis
+ * 类职责：搜索输入、建议结果和选择导航；继承 EyesPublicApi.BaseComponent
+ * 继承：EyesPublicApi.BaseComponent；导出：default。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Search extends EyesPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 状态写入：_class.isItemVisible、_excludeResults、_featuredScrollbar、_resultsScrollbar、_suggestionsThreshold、index、onResize、results。
+   * 调用线索：Object.assign、super、this._eventNames.push、this._initCallbacks、this.bindFunctions等。
+   */
   constructor(t, e = {
     config: {}
   }) {
@@ -56,6 +72,11 @@ class Search extends EyesPublicApi.BaseComponent {
     this.bindFunctions(["_find", "renderResults", "open", "close", "eraseInput", "onIconClick", "reset", "keydown", "onInputFocus", "_getDetails", "_handleClick"]);
     window.addEventListener("setupSearch", this.resize);
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._children.input.getAttribute, this.setState, this.resize, this.registerManager, this._app.getManager。
+   * 状态写入：_children.input.onkeyup、_children.input.style.minWidth。
+   * 调用线索：super.init、this._app.getManager、this._children.input.getAttribute、this._featuredScrollbar?.scroll、this.registerManager等。
+   */
   init() {
     super.init();
     const t = .9 * this._children.input.getAttribute("placeholder").length;
@@ -73,23 +94,45 @@ class Search extends EyesPublicApi.BaseComponent {
     this.resize();
     this.registerManager(this._app.getManager("search"));
   }
+  /** @eyes-analysis
+   * 执行 onIconClick 对应的组件业务步骤；调用 this.open, this._children.input.focus, this.reset, this._children.results.querySelector, Child.click。
+   * 调用线索：this._children.input.focus、this._children.results.querySelector、this._children.results.querySelector(".active")?.firstChild.click、this._scrollbar?.scroll、this.open等。
+   */
   onIconClick() {
     "search-close" === this._state.searchClass ? (this._scrollbar?.scroll(0), this.open(), this._children.input.focus()) : "" === this._children.input.value ? this.reset() : this._children.results.querySelector(".active")?.firstChild.click();
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 super.resize, this.onResize。
+   * 调用线索：super.resize、this.onResize。
+   */
   resize() {
     super.resize();
     "function" == typeof this.onResize && this.onResize();
   }
+  /** @eyes-analysis
+   * 执行 reset 对应的组件业务步骤；调用 this.eraseInput, this.close。
+   * 调用线索：this.close、this.eraseInput。
+   */
   reset() {
     this.eraseInput();
     this._config.initialOpen || this.close();
   }
+  /** @eyes-analysis
+   * 执行 keydown 对应的组件业务步骤；调用 this.eraseInput, this.close, this._handleClick, this.setSelected；写入 index。
+   * 状态写入：index。
+   * 调用线索：t.preventDefault、this._handleClick、this.close、this.eraseInput、this.setSelected。
+   */
   keydown(t) {
     const e = t.key;
     "Escape" === e && (this.eraseInput(), this.close());
     const i = this.results.length;
     i && ("ArrowDown" === e ? (this.index = (this.index + 1) % i, t.preventDefault()) : "ArrowUp" === e ? (this.index -= 1, this.index < 0 && (this.index = i - 1), t.preventDefault()) : "Enter" === e && (this._handleClick(this.results[this.index]?.link || this.results[0]?.link, this._searchString), t.preventDefault()), this.setSelected(this.index));
   }
+  /** @eyes-analysis
+   * 执行 setSelected 对应的组件业务步骤；调用 List.add, List.remove；写入 index。
+   * 状态写入：index。
+   * 调用线索：e.classList.add、e.classList.remove。
+   */
   setSelected(index) {
     this.index = index;
     for (let t = 0; t < this.results.length; t++) {
@@ -97,20 +140,38 @@ class Search extends EyesPublicApi.BaseComponent {
       e && (t === this.index ? e.classList.add("active") : e.classList.remove("active"));
     }
   }
+  /** @eyes-analysis
+   * 执行 onInputFocus 对应的组件业务步骤；调用 this.setState。
+   * 调用线索：this.setState。
+   */
   onInputFocus() {
     this.setState({
       focusedClass: "input-focused"
     });
   }
+  /** @eyes-analysis
+   * 执行 eraseInput 对应的组件业务步骤；写入 _resultsScrollbar。
+   * 状态写入：_children.input.value、_children.results.innerHTML、_resultsScrollbar。
+   * 调用线索：this._resultsScrollbar?.destroy。
+   */
   eraseInput() {
     this._resultsScrollbar?.destroy();
     this._resultsScrollbar = null;
     this._children.input.value = "";
     this._children.results.innerHTML = "";
   }
+  /** @eyes-analysis
+   * 执行 registerManager 对应的组件业务步骤；写入 _searchManager。
+   * 状态写入：_searchManager。
+   */
   registerManager(searchManager) {
     this._searchManager = searchManager;
   }
+  /** @eyes-analysis
+   * 执行 _find 对应的组件业务步骤；调用 this._searchManager.find, this._excludeResults.includes, this.renderResults；写入 _searchTimeout。
+   * 状态写入：_searchTimeout。
+   * 调用线索：clearTimeout、setTimeout、t.filter、this._excludeResults.includes、this._searchManager.find等。
+   */
   _find(t, e) {
     this._searchTimeout && clearTimeout(this._searchTimeout);
     t && t.target && t.target.value && (e = t.target.value);
@@ -127,6 +188,11 @@ class Search extends EyesPublicApi.BaseComponent {
       }
     }, 100);
   }
+  /** @eyes-analysis
+   * 执行 renderResults 对应的组件业务步骤；调用 this._children.results.classList.remove, Array.isArray, Search.find, String.toLowerCase, this._renderResultCard, this._renderResultList, this._renderSuggestions, this._createScrollbar, Math.min, this.setState, this.setSelected；写入 index, results, _searchString, _resultsScrollbar。
+   * 状态写入：_children.results.innerHTML、_resultsScrollbar、_searchString、index、results。
+   * 调用线索：Array.isArray、Math.min、a.toLowerCase、i.push、nameSearch.find等。
+   */
   async renderResults(t, searchString) {
     if (this.index = -1, this.results = [], this._searchString = searchString, this._resultsScrollbar?.destroy(), this._resultsScrollbar = null, this._children.results.innerHTML = "", this._children.results.classList.remove("no-results"), !t || !Array.isArray(t)) return;
     const i = [];
@@ -161,6 +227,11 @@ class Search extends EyesPublicApi.BaseComponent {
     }
     this.setSelected(0);
   }
+  /** @eyes-analysis
+   * 执行 _renderResultCard 对应的组件业务步骤；调用 this._getDetails, Display.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild, this._createStoryBlock, this._createEventsBlock, this._createExplorationBlock, this._createMoonsBlock, this._renderResultList。
+   * 状态写入：_children.results.innerHTML。
+   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、console.error、document.createElement、e.toUpperCase、i?.stopPropagation等。
+   */
   async _renderResultCard(t, e) {
     try {
       let i = await this._getDetails(t);
@@ -209,6 +280,10 @@ class Search extends EyesPublicApi.BaseComponent {
       void 0 !== i.status && 404 === i.status ? this._renderResultList([t], e) : i && console.error(i);
     }
   }
+  /** @eyes-analysis
+   * 执行 _createEventsBlock 对应的组件业务步骤；调用 Array.isArray, this._app.getManager, this._createBlockContainer, List.add, this._createHeaderBlock, EyesPublicApi.AppUtils.addStartToPath, this._createSingleResult, this.results.push。
+   * 调用线索：Array.isArray、EyesPublicApi.AppUtils.addStartToPath、n.classList.add、this._app.getManager、this._app.getManager("content").getEntityInfo等。
+   */
   _createEventsBlock(t, e) {
     if (!Array.isArray(t) || 0 === t.length) return;
     const i = this._app.getManager("content").getEntityInfo(e);
@@ -227,6 +302,10 @@ class Search extends EyesPublicApi.BaseComponent {
       });
     }
   }
+  /** @eyes-analysis
+   * 执行 _createMoonsBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
+   * 调用线索：Array.isArray、e.classList.add、this._createBlockContainer、this._createHeaderBlock、this._createSingleResult等。
+   */
   _createMoonsBlock(t) {
     if (!Array.isArray(t) || 0 === t.length) return;
     const e = this._createBlockContainer();
@@ -242,6 +321,10 @@ class Search extends EyesPublicApi.BaseComponent {
       });
     }
   }
+  /** @eyes-analysis
+   * 执行 _createExplorationBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
+   * 调用线索：Array.isArray、e.classList.add、this._createBlockContainer、this._createHeaderBlock、this._createSingleResult等。
+   */
   _createExplorationBlock(t) {
     if (!Array.isArray(t) || 0 === t.length) return;
     const e = this._createBlockContainer();
@@ -259,6 +342,10 @@ class Search extends EyesPublicApi.BaseComponent {
       });
     }
   }
+  /** @eyes-analysis
+   * 执行 _createStoryBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._app.getManager, this._createHeaderBlock, this._createSingleResult, this.results.push。
+   * 调用线索：Array.isArray、e.classList.add、this._app.getManager、this._app.getManager("content").getStoryList、this._createBlockContainer等。
+   */
   _createStoryBlock(t) {
     if (!Array.isArray(t) || 0 === t.length) return;
     const e = this._createBlockContainer();
@@ -281,12 +368,20 @@ class Search extends EyesPublicApi.BaseComponent {
       }
     }
   }
+  /** @eyes-analysis
+   * 执行 _createBlockContainer 对应的组件业务步骤；调用 this._children.results.appendChild。
+   * 调用线索：document.createElement、this._children.results.appendChild。
+   */
   _createBlockContainer() {
     const t = document.createElement("div");
     t.className = "block-container";
     this._children.results.appendChild(t);
     return t;
   }
+  /** @eyes-analysis
+   * 执行 _createHeaderBlock 对应的组件业务步骤。
+   * 调用线索：document.createElement、e.appendChild、i.appendChild。
+   */
   _createHeaderBlock(t, e) {
     const i = document.createElement("div");
     i.className = "header";
@@ -296,6 +391,10 @@ class Search extends EyesPublicApi.BaseComponent {
     i.appendChild(s);
     e.appendChild(i);
   }
+  /** @eyes-analysis
+   * 执行 _createSingleResult 对应的组件业务步骤；调用 this._handleClick, this.setSelected。
+   * 调用线索：document.createElement、i.appendChild、s.addEventListener、s.appendChild、t?.stopPropagation等。
+   */
   _createSingleResult(t, e, i) {
     const s = document.createElement("div");
     s.className = "result-div";
@@ -314,6 +413,10 @@ class Search extends EyesPublicApi.BaseComponent {
     i.appendChild(s);
     return s;
   }
+  /** @eyes-analysis
+   * 执行 _renderResultList 对应的组件业务步骤；调用 Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild。
+   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、c.replace、c.substring、document.createElement、e.toUpperCase等。
+   */
   _renderResultList(t, e) {
     for (let i = 0; i < t.length; i++) {
       const n = t[i].item;
@@ -350,6 +453,10 @@ class Search extends EyesPublicApi.BaseComponent {
       this._children.results.appendChild(u);
     }
   }
+  /** @eyes-analysis
+   * 执行 _renderSuggestions 对应的组件业务步骤；调用 Math.min, Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.classList.add, this._children.results.appendChild。
+   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、Math.min、c.appendChild、document.createElement、i.appendChild等。
+   */
   _renderSuggestions(t, e) {
     const i = document.createElement("div");
     if (i.className = "suggestion", t.length > 0) {
@@ -395,6 +502,11 @@ class Search extends EyesPublicApi.BaseComponent {
     }
     this._children.results.appendChild(i);
   }
+  /** @eyes-analysis
+   * 执行 open 对应的组件业务步骤；调用 this.setState。
+   * 状态写入：app.isSearching。
+   * 调用线索：this.setState。
+   */
   open() {
     this.setState({
       magClass: "mag-close",
@@ -407,6 +519,11 @@ class Search extends EyesPublicApi.BaseComponent {
     });
     this.app.isSearching = true;
   }
+  /** @eyes-analysis
+   * 执行 close 对应的组件业务步骤；调用 this.getState, this.setState。
+   * 状态写入：app.isSearching。
+   * 调用线索：this._children.input?.blur、this.getState、this.setState。
+   */
   close() {
     this.getState("alwaysOpen") ? this.setState({
       magClass: "mag-close",
@@ -424,6 +541,11 @@ class Search extends EyesPublicApi.BaseComponent {
     this._children.input?.blur();
     this.app.isSearching = false;
   }
+  /** @eyes-analysis
+   * 执行 setupFeaturedSuggestion 对应的组件业务步骤；调用 this._handleClick, this._children.featured.appendChild。
+   * 状态写入：_children.featured.innerHTML。
+   * 调用线索：document.createElement、n.addEventListener、t?.stopPropagation、this._children.featured.appendChild、this._handleClick。
+   */
   setupFeaturedSuggestion(t = []) {
     this._children.featured.innerHTML = "";
     for (let e = 0; e < t.length; e++) {
@@ -441,14 +563,25 @@ class Search extends EyesPublicApi.BaseComponent {
       this._children.featured.appendChild(n);
     }
   }
+  /** @eyes-analysis
+   * 执行 _createScrollbar 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.addScrollbar。
+   * 调用线索：EyesPublicApi.AppUtils.addScrollbar。
+   */
   _createScrollbar(t) {
     return EyesPublicApi.AppUtils.addScrollbar(t, {
       sizeAutoCapable: true
     });
   }
+  /** @eyes-analysis
+   * 执行 _getLink 对应的组件业务步骤。
+   */
   _getLink(t) {
     return t;
   }
+  /** @eyes-analysis
+   * 执行 _handleClick 对应的组件业务步骤；调用 this.reset, this.triggerCallbacks, this._app.getManager, this._getLink, Manager.navigate。
+   * 调用线索：n.includes、routerManager.navigate、this._app.getManager、this._getLink、this.reset等。
+   */
   _handleClick(t, e) {
     if (!t) return;
     this.reset();
@@ -468,6 +601,10 @@ class Search extends EyesPublicApi.BaseComponent {
       routerManager.navigate(e, n, t);
     }
   }
+  /** @eyes-analysis
+   * 执行 simulate 对应的组件业务步骤；调用 this.onIconClick, this._find。
+   * 调用线索：input.onkeyup、this._find、this.onIconClick。
+   */
   simulate(t) {
     const {
       input: input
@@ -477,12 +614,25 @@ class Search extends EyesPublicApi.BaseComponent {
     this._find({}, t);
     input.onkeyup();
   }
+  /** @eyes-analysis
+   * 执行 _getDetails 对应的组件业务步骤；调用 this._app.getManager。
+   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityDesc。
+   */
   async _getDetails(t) {
     return this._app.getManager("content").getEntityDesc(t.item.id);
   }
+  /** @eyes-analysis
+   * 执行 setExcludeResults 对应的组件业务步骤；写入 _excludeResults。
+   * 状态写入：_excludeResults。
+   */
   setExcludeResults(excludeResults) {
     this._excludeResults = excludeResults;
   }
+  /** @eyes-analysis
+   * 挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createScrollbar。
+   * 状态写入：_featuredScrollbar。
+   * 调用线索：document.body.contains、super.__enable、this._createScrollbar。
+   */
   __enable() {
     super.__enable();
     const {

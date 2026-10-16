@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：对象概览内容块
+ * 依据：imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../../vendor/modules/Unidentified777.cjs, ../templates/OverviewBlockTemplate.html, ../../styles/extracted/OverviewBlockStyles.js, ../../engine/pioneer/index.js；manager dependencies: router, content, time, scene
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1448321-1451890.
 import "../../framework/eyes/index.js";
 import * as SolarSystemPublicApi from "../../app/public-api.js";
@@ -7,7 +13,17 @@ import "../../styles/extracted/OverviewBlockStyles.js";
 import * as Pioneer from "../../engine/pioneer/index.js";
 var getUnidentified777 = () => Unidentified777;
 var getOverviewBlockTemplate = () => OverviewBlockTemplate;
+/** @eyes-analysis
+ * 类职责：对象概览内容块；继承 SolarSystemPublicApi.BaseContentBlock
+ * 继承：SolarSystemPublicApi.BaseContentBlock；导出：OverviewBlock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class OverviewBlock extends SolarSystemPublicApi.BaseContentBlock {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 this.setState, this.bindFunctions。
+   * 状态写入：_more.isHidden.moreMessage。
+   * 调用线索：super、this.bindFunctions、this.setState。
+   */
   constructor(t) {
     super(t, null, {
       objectType: "",
@@ -29,11 +45,20 @@ class OverviewBlock extends SolarSystemPublicApi.BaseContentBlock {
     this._more.isHidden.moreMessage = "Read More";
     this.bindFunctions(["goBack"]);
   }
+  /** @eyes-analysis
+   * 执行 goBack 对应的组件业务步骤；调用 this._app.getManager, this._app.getComponent, Manager.navigate。
+   * 调用线索：routerManager.navigate、this._app.getComponent、this._app.getComponent("contentPanel").selectTab、this._app.getManager。
+   */
   goBack() {
     const routerManager = this._app.getManager("router");
     this._app.getComponent("contentPanel").selectTab("info");
     routerManager.navigate(this._targetId);
   }
+  /** @eyes-analysis
+   * 响应路径参数变化并刷新本模块；调用 this._app.getManager, this._app.scene.getEntity, this._determineOverviewContent, Pioneer.TimeUtils.now, this.setState, this._setVariables, this._app.getComponent, this._children.overviewTitle.classList.toggle, this._app.pioneer.getScene, this._app.pioneer.getTime；写入 _targetId。
+   * 状态写入：_targetId。
+   * 调用线索：Pioneer.TimeUtils.now、["Asteroid","Comet","Moon","Dwarf Planet"].indexOf、console.warn、document.getElementsByClassName、n.category.toLowerCase等。
+   */
   onRouteChange(targetId, e, i) {
     this._targetId = targetId;
     let s = "hidden";
@@ -85,6 +110,10 @@ class OverviewBlock extends SolarSystemPublicApi.BaseContentBlock {
       console.warn(t);
     });
   }
+  /** @eyes-analysis
+   * 执行 _determineOverviewContent 对应的组件业务步骤；调用 this._getSubheadingForObject。
+   * 调用线索：this._getSubheadingForObject。
+   */
   _determineOverviewContent(t, e, i) {
     const s = e?.displayName || e?.iauName || e?.title;
     const n = this._getSubheadingForObject(t, e, i);
@@ -97,6 +126,10 @@ class OverviewBlock extends SolarSystemPublicApi.BaseContentBlock {
       missionEndDate: r
     };
   }
+  /** @eyes-analysis
+   * 执行 _getSubheadingForObject 对应的组件业务步骤；调用 this._app.getManager。
+   * 调用线索：getUnidentified777、getUnidentified777()、getUnidentified777()(e.start).format、getUnidentified777()(i.dates.end).isValid、getUnidentified777()(i.dates.end).year等。
+   */
   _getSubheadingForObject(t, e, i) {
     const s = this._app.getManager("content").getEntityInfo(t);
     let n = "";

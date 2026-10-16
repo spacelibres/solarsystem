@@ -1,7 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：提供链式 DOM 集合查询、样式、事件和节点操作
+ * 依据：// Recovered from vendors.js:1575730-1594956.；exports: $, add, addClass, animate, animationEnd, append, appendTo, attr, blur, change, children, click, closest, css, data, dataset, detach, each, empty, eq, filter, find, focus, focusin, focusout, hasClass, height, hide, html, index, insertAfter, insertBefore, is, keydown, keypress, keyup, mousedown, mouseenter, mouseleave, mousemove, mouseout, mouseover, mouseup, next, nextAll, off, offset, on, once, outerHeight, outerWidth, parent, parents, prepend, prependTo, prev, prevAll, prop, remove, removeAttr, removeClass, removeData, resize, scroll, scrollLeft, scrollTo, scrollTop, show, siblings, stop, styles, submit, text, toggleClass, touchend,…
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:1575730-1594956.
 import * as extend from "./extend.js";
 let defaultExport;
+/** @eyes-analysis
+ * 类职责：提供链式 DOM 集合查询、样式、事件和节点操作
+ * 继承：Array；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Dom7 extends Array {
+  /** @eyes-analysis
+   * 方法语义尚未人工确认；以下是当前源码的句法证据。
+   * 调用线索：Object.defineProperty、function(e){const t=e.__proto__;Object.defineProperty(e,"__proto__",{get(){return t;},set(e){t.__proto__=e;}});}、super。
+   */
   constructor(e) {
     "number" == typeof e ? super(e) : (super(...(e || [])), function (e) {
       const t = e.__proto__;

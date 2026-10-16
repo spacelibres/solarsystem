@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：2023 日环食故事定义：图层进入/退出、地月日观察按钮、影锥/轮廓纹理开关与状态恢复。
+ * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1698304-1705345.
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";

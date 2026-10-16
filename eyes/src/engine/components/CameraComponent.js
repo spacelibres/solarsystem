@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：管理透视投影、拾取、遮挡检测、多段深度渲染及后处理的渲染相机组件。
+ * 依据：import ../pioneer/public-api.js；import ../../vendor/modules/EffectComposer.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:260849-270127.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 import * as EffectComposer from "../../vendor/modules/EffectComposer.js";
 import * as OutlinePass from "../../vendor/modules/OutlinePass.js";
 import * as RenderPass from "../../vendor/modules/RenderPass.js";
 import * as UnrealBloomPass from "../../vendor/modules/UnrealBloomPass.js";
+/** @eyes-analysis
+ * 类职责：管理透视投影、拾取、遮挡检测、多段深度渲染及后处理的渲染相机组件。
+ * 继承：PioneerPublicApi.BaseComponent；导出：CameraComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_aspectRatio`、`_autoMidDistance`、`_autoNearDistance`、`_fieldOfView`、`_invertDepth`、`_midDistance`、`_nearDistance`、`_occludingEntities`；调用 `e.getScene`、`e.getScene().getThreeJsScene`、`new EffectComposer.EffectComposer`、`new OutlinePass.OutlinePass`、`new PioneerPublicApi.THREE.PerspectiveCamera`、`new PioneerPublicApi.THREE.Vector2`。
+   * 状态写入：_aspectRatio、_autoMidDistance、_autoNearDistance、_fieldOfView、_invertDepth、_midDistance、_nearDistance、_occludingEntities等；完整记录见索引。
+   * 调用线索：e.getScene、e.getScene().getThreeJsScene、new EffectComposer.EffectComposer、new OutlinePass.OutlinePass、new PioneerPublicApi.THREE.PerspectiveCamera等。
+   */
   constructor(t, e) {
     super(t, e);
     this._viewport = null;
@@ -35,45 +51,94 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     this._threeJsUnrealBloomPass.enabled = false;
     this._threeJsComposer.addPass(this._threeJsUnrealBloomPass);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._viewport`。
+   */
   getViewport() {
     return this._viewport;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._fieldOfView`。
+   */
   getFieldOfView() {
     return this._fieldOfView;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._aspectRatio>=1?this._fieldOfView:2*Math.atan(Math.tan(this._fieldOfView/2)*this._aspectRatio)`；调用 `Math.atan`、`Math.tan`。
+   * 调用线索：Math.atan、Math.tan。
+   */
   getHorizontalFieldOfView() {
     return this._aspectRatio >= 1 ? this._fieldOfView : 2 * Math.atan(Math.tan(this._fieldOfView / 2) * this._aspectRatio);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._aspectRatio>1?2*Math.atan(Math.tan(this._fieldOfView/2)/this._aspectRatio):this._fieldOfView`；调用 `Math.atan`、`Math.tan`。
+   * 调用线索：Math.atan、Math.tan。
+   */
   getVerticalFieldOfView() {
     return this._aspectRatio > 1 ? 2 * Math.atan(Math.tan(this._fieldOfView / 2) / this._aspectRatio) : this._fieldOfView;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_fieldOfView`。
+   * 状态写入：_fieldOfView。
+   */
   setFieldOfView(fieldOfView) {
     this._fieldOfView = fieldOfView;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._invertDepth`。
+   */
   getInvertDepth() {
     return this._invertDepth;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_invertDepth`。
+   * 状态写入：_invertDepth。
+   */
   setInvertDepth(invertDepth) {
     this._invertDepth = invertDepth;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._nearDistance`。
+   */
   getNearDistance() {
     return this._nearDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_nearDistance`。
+   * 状态写入：_nearDistance。
+   */
   setNearDistance(nearDistance) {
     this._nearDistance = nearDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._autoNearDistance`。
+   */
   getAutoNearDistance() {
     return this._autoNearDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._midDistance`。
+   */
   getMidDistance() {
     return this._midDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_midDistance`。
+   * 状态写入：_midDistance。
+   */
   setMidDistance(midDistance) {
     this._midDistance = midDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._autoMidDistance`。
+   */
   getAutoMidDistance() {
     return this._autoMidDistance;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`i.rotateInverse`、`this.getEntity`、`this.getEntity().getOrientation`。
+   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、i.rotateInverse、this.getEntity、this.getEntity().getOrientation。
+   */
   getNormalSpacePositionFromCameraSpacePosition(t, e) {
     const i = PioneerPublicApi.Vector3.pool.get();
     i.rotateInverse(this.getEntity().getOrientation(), e);
@@ -82,9 +147,17 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     t.z = this._threeJsCamera.projectionMatrix.elements[6] + this._threeJsCamera.projectionMatrix.elements[14] / i.y;
     PioneerPublicApi.Vector3.pool.release(i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t/Math.abs(e)/Math.tan(this._fieldOfView/2)`；调用 `Math.abs`、`Math.tan`。
+   * 调用线索：Math.abs、Math.tan。
+   */
   getNormalSpaceRadiusFromRadius(t, e) {
     return t / Math.abs(e) / Math.tan(this._fieldOfView / 2);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`t.rotate`、`this.getEntity`、`this.getEntity().getOrientation`。
+   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、t.rotate、this.getEntity、this.getEntity().getOrientation。
+   */
   getCameraSpacePositionFromNormalSpacePosition(t, e) {
     const i = PioneerPublicApi.Vector3.pool.get();
     i.y = this._threeJsCamera.projectionMatrix.elements[14] / (e.z - this._threeJsCamera.projectionMatrix.elements[6]);
@@ -93,9 +166,17 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     t.rotate(this.getEntity().getOrientation(), i);
     PioneerPublicApi.Vector3.pool.release(i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t*Math.abs(e)*Math.tan(this._fieldOfView/2)`；调用 `Math.abs`、`Math.tan`。
+   * 调用线索：Math.abs、Math.tan。
+   */
   getRadiusFromNormalSpaceRadius(t, e) {
     return t * Math.abs(e) * Math.tan(this._fieldOfView / 2);
   }
+  /** @eyes-analysis
+   * 强制准备目标实体，逐个可渲染组件更新世界矩阵并 intersectObjects；跳过重复三角面命中，把命中点转回目标实体局部姿态坐标。
+   * 调用线索：a.push、e.getEntity、e.getEntity().getOrientation、e.getThreeJsObjects、e.isRendering等。
+   */
   getRaycast(t, e, i) {
     const raycaster = new PioneerPublicApi.THREE.Raycaster();
     const vector3 = new PioneerPublicApi.THREE.Vector3(t.x, t.y, t.z);
@@ -130,6 +211,10 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     }
     return a;
   }
+  /** @eyes-analysis
+   * 在射线命中 UV 处逐个 shader texture uniform 画到临时 canvas 再采样像素；返回 textureName+color，并非最终光照后屏幕颜色。
+   * 调用线索：Array.isArray、Math.floor、Object.entries、a.push、color.set等。
+   */
   getRaycastColor(t, e, i) {
     const raycaster = new PioneerPublicApi.THREE.Raycaster();
     const vector3 = new PioneerPublicApi.THREE.Vector3(t.x, t.y, t.z);
@@ -186,10 +271,18 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     }
     return a;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `true` 或 `false`；调用 `this._occludingEntities[e].isOccludingPosition`。
+   * 调用线索：this._occludingEntities[e].isOccludingPosition。
+   */
   isPositionOccluded(t) {
     for (let e = 0; e < this._occludingEntities.length; e++) if (this._occludingEntities[e].isOccludingPosition(this, t)) return true;
     return false;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `Number.isNaN`、`PioneerPublicApi.Geometry.getLineSphereIntersectionWithLineStartAtOrigin`、`PioneerPublicApi.Interval.pool.get`、`PioneerPublicApi.Interval.pool.release`、`a.magnitude`、`r.getCameraSpacePosition`。
+   * 调用线索：Number.isNaN、PioneerPublicApi.Geometry.getLineSphereIntersectionWithLineStartAtOrigin、PioneerPublicApi.Interval.pool.get、PioneerPublicApi.Interval.pool.release、a.magnitude等。
+   */
   getNearestIntersectingEntity(t) {
     let e = Number.POSITIVE_INFINITY;
     let i = null;
@@ -205,10 +298,19 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.Interval.pool.release(n);
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_threeJsUnrealBloomPass.enabled`、`_threeJsUnrealBloomPass.strength`。
+   * 状态写入：_threeJsUnrealBloomPass.enabled、_threeJsUnrealBloomPass.strength。
+   */
   setBloom(t) {
     this._threeJsUnrealBloomPass.enabled = t > 0;
     this._threeJsUnrealBloomPass.strength = t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_outlinePass.enabled`、`_outlinePass.selectedObjects`；调用 `e.getThreeJsObjectByName`、`e.getThreeJsObjects`、`new Error`、`this._outlinePass.hiddenEdgeColor.setRGB`、`this._outlinePass.selectedObjects.push`、`this._outlinePass.visibleEdgeColor.setRGB`；含显式错误分支。
+   * 状态写入：_outlinePass.enabled、_outlinePass.selectedObjects。
+   * 调用线索：e.getThreeJsObjectByName、e.getThreeJsObjects、new Error、this._outlinePass.hiddenEdgeColor.setRGB、this._outlinePass.selectedObjects.push等。
+   */
   setOutline(t, e, i) {
     if (this._outlinePass.enabled = null !== e, null !== e) {
       if (void 0 !== i) {
@@ -227,15 +329,28 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
       this._outlinePass.hiddenEdgeColor.setRGB(t.r / 4, t.g / 4, t.b / 4);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `this._occludingEntities.push`。
+   * 调用线索：this._occludingEntities.push。
+   */
   __addToOccludingEntities(t) {
     for (let e = 0; e < this._occludingEntities.length; e++) if (this._occludingEntities[e] === t) return;
     this._occludingEntities.push(t);
   }
+  /** @eyes-analysis
+   * 调用组件销毁，再让 Scene 清除对该相机的缓存依赖，若绑定 viewport 则解绑。
+   * 调用线索：super.__destroy、this._viewport.setCamera、this.getEntity、this.getEntity().getScene、this.getEntity().getScene().__removeCameraDependents。
+   */
   __destroy() {
     super.__destroy();
     this.getEntity().getScene().__removeCameraDependents(this);
     null !== this._viewport && this._viewport.setCamera(null);
   }
+  /** @eyes-analysis
+   * 根据 viewport bounds 调整 composer 尺寸和 aspectRatio；以相机距父实体/地面的距离推导 near 与 mid，更新投影并递归刷新实体相机缓存；移除小于 1px、禁用或已删除遮挡体。
+   * 状态写入：_aspectRatio、_autoMidDistance、_autoNearDistance。
+   * 调用线索：Math.max、Math.min、e.canOcclude、e.getGroundComponent、e.getName等。
+   */
   __updateCameraVariablesForConnectedScene() {
     if (this._viewport) {
       const t = this._viewport.getBounds().size;
@@ -265,6 +380,10 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.__render`、`i.__prepareForRender`、`i.isEnabled`、`t.getEntityAt`、`t.getNumEntities`、`this.getEntity`。
+   * 调用线索：e.__render、i.__prepareForRender、i.isEnabled、t.getEntityAt、t.getNumEntities等。
+   */
   __prepareForRender() {
     const t = this.getEntity().getScene();
     for (let e = 0; e < t.getNumEntities(); e++) {
@@ -274,6 +393,10 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     const e = this.getEntity().getComponent(PioneerPublicApi.DynamicEnvironmentMapComponent);
     null !== e && e.__render();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`e.set`、`this._threeJsCamera.setRotationFromQuaternion`、`this._threeJsComposer.render`、`this.getEntity`。
+   * 调用线索：PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release、e.set、this._threeJsCamera.setRotationFromQuaternion、this._threeJsComposer.render等。
+   */
   __render() {
     const t = this.getEntity().getOrientation();
     const e = PioneerPublicApi.Quaternion.threeJsPool.get();
@@ -282,9 +405,18 @@ class CameraComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.Quaternion.threeJsPool.release(e);
     this._threeJsComposer.render();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_viewport`。
+   * 状态写入：_viewport。
+   */
   __setViewport(viewport) {
     this._viewport = viewport;
   }
+  /** @eyes-analysis
+   * 按 fieldOfView 与宽高比手工构建投影矩阵和逆矩阵；这里采用自定义轴布局，不能直接套 Three.js 常规 -Z 相机假设。
+   * 状态写入：_threeJsCamera.projectionMatrix、_threeJsCamera.projectionMatrixInverse。
+   * 调用线索：Math.tan、a.set、matrix4.set、new PioneerPublicApi.THREE.Matrix4。
+   */
   _updateProjectionMatrix() {
     if (0 < this._fieldOfView && this._fieldOfView < 180 && this._aspectRatio > 0) {
       const t = Math.tan(this._fieldOfView / 2);

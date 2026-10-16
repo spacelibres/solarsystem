@@ -1,7 +1,23 @@
+/** @eyes-analysis
+ * 文件职责：载入星座连线/边界数据，在相机相关坐标中绘制星座辅助线。
+ * 依据：import ../pioneer/index.js；import ../core/SceneHelpers.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:740174-744710.
 import * as Pioneer from "../pioneer/index.js";
 import * as SceneHelpers from "../core/SceneHelpers.js";
+/** @eyes-analysis
+ * 类职责：载入星座连线/边界数据，在相机相关坐标中绘制星座辅助线。
+ * 继承：Pioneer.BaseComponent；导出：ConstellationsComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ConstellationsComponent extends Pioneer.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_color`、`_database`、`_glowWidth`、`_highlightColor`、`_highlightWidth`、`_highlightedIndex`、`_labelEntities`、`_lineWidth`；调用 `new Pioneer.Color`、`super`、`this.__setRadius`。
+   * 状态写入：_color、_database、_glowWidth、_highlightColor、_highlightWidth、_highlightedIndex、_labelEntities、_lineWidth等；完整记录见索引。
+   * 调用线索：new Pioneer.Color、super、this.__setRadius。
+   */
   constructor(t, e) {
     super(t, e);
     this._url = "";
@@ -16,6 +32,10 @@ class ConstellationsComponent extends Pioneer.BaseComponent {
     this._meshes = [];
     this.__setRadius(Number.POSITIVE_INFINITY);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.lineMesh.setColors`、`i.push`、`this._color.copy`。
+   * 调用线索：e.lineMesh.setColors、i.push、this._color.copy。
+   */
   setColor(t) {
     this._color.copy(t);
     for (let t = 0; t < this._meshes.length; t++) {
@@ -25,23 +45,47 @@ class ConstellationsComponent extends Pioneer.BaseComponent {
       e.lineMesh.setColors(i);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_lineWidth`；调用 `this._meshes[e].lineMesh.setWidths`。
+   * 状态写入：_lineWidth。
+   * 调用线索：this._meshes[e].lineMesh.setWidths。
+   */
   setLineWidth(lineWidth) {
     this._lineWidth = lineWidth;
     for (let e = 0; e < this._meshes.length; e++) this._meshes[e].lineMesh.setWidths(lineWidth);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_glowWidth`；调用 `this._meshes[t].lineMesh.setGlowWidth`。
+   * 状态写入：_glowWidth。
+   * 调用线索：this._meshes[t].lineMesh.setGlowWidth。
+   */
   setGlowWidth(glowWidth) {
     this._glowWidth = glowWidth;
     for (let t = 0, e = this._meshes.length; t < e; t++) this._meshes[t].lineMesh.setGlowWidth(this._glowWidth);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_url`；调用 `this.resetResources`。
+   * 状态写入：_url。
+   * 调用线索：this.resetResources。
+   */
   setUrl(url) {
     this._url = url;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `t.push`。
+   * 调用线索：t.push。
+   */
   getNames() {
     const t = [];
     for (let e = 0, i = this._database.length; e < i; e++) t.push(this._database[e].name);
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_highlightWidth`、`_highlightedIndex`；调用 `s.lineMesh.setColors`、`s.lineMesh.setWidths`、`t.push`、`this._highlightColor.copy`。
+   * 状态写入：_highlightWidth、_highlightedIndex。
+   * 调用线索：s.lineMesh.setColors、s.lineMesh.setWidths、t.push、this._highlightColor.copy。
+   */
   setHighlight(highlightedIndex, e, highlightWidth) {
     let s = void 0 !== this._highlightedIndex ? this._meshes[this._highlightedIndex] : void 0;
     if (s) {
@@ -57,6 +101,10 @@ class ConstellationsComponent extends Pioneer.BaseComponent {
       s.lineMesh.setWidths(this._highlightWidth);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `t.distance`、`this._labelEntities[n].getPixelSpacePosition`。
+   * 调用线索：t.distance、this._labelEntities[n].getPixelSpacePosition。
+   */
   getNearestConstellationIndex(t, e) {
     let i;
     let s = Number.POSITIVE_INFINITY;
@@ -66,10 +114,19 @@ class ConstellationsComponent extends Pioneer.BaseComponent {
     }
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Pioneer.ThreeJsHelper.setPositionToEntity`、`this._meshes[e].lineMesh.prepareForRender`、`this.getEntity`、`this.getThreeJsObjects`。
+   * 调用线索：Pioneer.ThreeJsHelper.setPositionToEntity、this._meshes[e].lineMesh.prepareForRender、this.getEntity、this.getThreeJsObjects。
+   */
   __prepareForRender(t) {
     Pioneer.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects(), this.getEntity(), t);
     for (let e = 0; e < this._meshes.length; e++) this._meshes[e].lineMesh.prepareForRender(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_labelEntities`、`_meshes`；调用 `Math.sqrt`、`Pioneer.ThreeJsHelper.setOrientation`、`SceneHelpers.SceneHelpers.getEclipJ2000ToJ2000Rotation`、`a.push`、`c.add`、`c.mult`。
+   * 状态写入：_labelEntities、_meshes。
+   * 调用线索：Math.sqrt、Pioneer.ThreeJsHelper.setOrientation、SceneHelpers.SceneHelpers.getEclipJ2000ToJ2000Rotation、a.push、c.add等。
+   */
   async __loadResources() {
     this._labelEntities = [];
     this._meshes = [];
@@ -149,6 +206,11 @@ class ConstellationsComponent extends Pioneer.BaseComponent {
       this._labelEntities.push(h);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_database`、`_meshes`；调用 `Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials`、`this.getEntity`、`this.getEntity().getScene`、`this.getEntity().getScene().removeEntity`。
+   * 状态写入：_database、_meshes。
+   * 调用线索：Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials、this.getEntity、this.getEntity().getScene、this.getEntity().getScene().removeEntity。
+   */
   __unloadResources() {
     for (let t = 0; t < this._labelEntities.length; t++) this.getEntity().getScene().removeEntity(this._labelEntities[t]);
     Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials(this);

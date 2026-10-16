@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：高清地表影像配置表，包含地球 VIIRS、火星 Viking、月球 LRO 的 WMTS 图源。
+ * 依据：顶层副作用 defaultExport={earth:[{id:"viirs",title:"High-quality global mosaic from yesterday",description:"This daily global mosaic is from the Visible Infrared Imaging Radiometer Suite (VIIRS), which is one of the key instruments；实际标题：High-quality global mosaic from yesterday；Global mosaic from the Viking missions to Mars；Global mosaic from the Lunar Reconnaissance Orbiter mission；Surface imagery of Titan from Cassini's Imaging Science Subsystem camera；Radar Map of Titan's Surface；Radar Map of the Surface of Venus
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1346499-1348873.
 let defaultExport;
 defaultExport = {

@@ -1,9 +1,29 @@
+/** @eyes-analysis
+ * 文件职责：以资源类型+URL 共享 Promise/对象和引用计数，跟踪组件持有者，零引用后延时释放或取消未完成请求。
+ * 依据：import ../pioneer/public-api.js；ResourceManager @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:220973-225925.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：以资源类型+URL 共享 Promise/对象和引用计数，跟踪组件持有者，零引用后延时释放或取消未完成请求。
+ * 继承：无显式父类；导出：ResourceManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ResourceManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_engine`。
+   * 状态写入：_engine。
+   */
   constructor(engine) {
     this._engine = engine;
   }
+  /** @eyes-analysis
+   * 按 type+url 查共享条目，命中时增加 count、取消待卸载定时器并提升排队优先级；首次调用建立共享 Promise，成功建立资源反向索引并记录持有 EntityItem。
+   * 状态写入：_typesToCaches[i]。
+   * 调用线索：a.resourcesToUrls.set、a.urlsToEntries.delete、a.urlsToEntries.get、a.urlsToEntries.set、n[i].load等。
+   */
   async acquire(t, e, i, o, r) {
     let a = this._typesToCaches[i];
     a || (a = {
@@ -30,6 +50,10 @@ class ResourceManager {
     t && this._addEntityItemReference(t, e, i);
     return c.promise;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`s.resourcesToUrls.get`、`this.releaseByUrl`；含显式错误分支。
+   * 调用线索：new Error、s.resourcesToUrls.get、this.releaseByUrl。
+   */
   release(t, e, i) {
     const s = this._typesToCaches[i];
     if (!s) throw new Error(`ResourceManager.release() has been called without a matching acquire() for type "${i}".`);
@@ -37,6 +61,10 @@ class ResourceManager {
     if (void 0 === n) throw new Error(`ResourceManager.release() has been called without a matching acquire() for type "${i}".`);
     this.releaseByUrl(t, n, i);
   }
+  /** @eyes-analysis
+   * 检查 acquire/release 配对并减计数；零引用时已加载资源延迟 15000ms 销毁，未完成请求立即删除/取消。
+   * 调用线索：new Error、s.urlsToEntries.get、this._deleteEntry、this._removeEntityItemReference、window.setTimeout。
+   */
   releaseByUrl(t, e, i) {
     const s = this._typesToCaches[i];
     if (!s) throw new Error(`ResourceManager.release() has been called without a matching acquire() for type "${i}" at url "${e}".`);
@@ -49,6 +77,10 @@ class ResourceManager {
       this._deleteEntry(t, e, i, s, n);
     }, 15e3) : this._deleteEntry(t, e, i, s, n));
   }
+  /** @eyes-analysis
+   * 并行获取命名资源，allSettled 检查结果；任一真实失败时释放已成功部分并汇总错误，取消以 CanceledError 向上传播。
+   * 调用线索：Object.entries、Promise.allSettled、l.push、n.push、new Error等。
+   */
   async acquireMultiple(t, e, i) {
     const n = [];
     const o = [];
@@ -81,6 +113,10 @@ class ResourceManager {
     for (const t of l) h[t.name] = t.resource;
     return h;
   }
+  /** @eyes-analysis
+   * 遍历该组件/控制器的 URL+类型持有记录逐项释放，然后移除其所有权记录。
+   * 调用线索：this._entityItemsToResources.delete、this._entityItemsToResources.get、this.releaseByUrl。
+   */
   releaseAllForEntityItem(t) {
     const e = this._entityItemsToResources.get(t);
     if (e) {
@@ -88,11 +124,19 @@ class ResourceManager {
       this._entityItemsToResources.delete(t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `s.push`、`this._entityItemsToResources.get`、`this._entityItemsToResources.set`。
+   * 调用线索：s.push、this._entityItemsToResources.get、this._entityItemsToResources.set。
+   */
   _addEntityItemReference(t, e, i) {
     let s = this._entityItemsToResources.get(t);
     s || (s = [], this._entityItemsToResources.set(t, s));
     s.push([e, i]);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`s.findIndex`、`s.splice`、`this._entityItemsToResources.delete`、`this._entityItemsToResources.get`；含显式错误分支。
+   * 调用线索：new Error、s.findIndex、s.splice、this._entityItemsToResources.delete、this._entityItemsToResources.get。
+   */
   _removeEntityItemReference(t, e, i) {
     const s = this._entityItemsToResources.get(t);
     if (!s) throw new Error(`ResourceManager.release() has been called without a matching acquire() for type "${i}" at url "${e} for the entity item ${t}".`);
@@ -101,6 +145,10 @@ class ResourceManager {
     s.splice(n, 1);
     0 === s.length && this._entityItemsToResources.delete(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `n[i].cancel`、`n[i].unload`、`s.resourcesToUrls.delete`、`s.urlsToEntries.delete`、`window.clearTimeout`。
+   * 调用线索：n[i].cancel、n[i].unload、s.resourcesToUrls.delete、s.urlsToEntries.delete、window.clearTimeout。
+   */
   _deleteEntry(t, e, i, s, o) {
     void 0 !== o.resource ? (n[i].unload(t, o.resource, this._engine), s.resourcesToUrls.delete(o.resource)) : n[i].cancel(t, e, this._engine);
     window.clearTimeout(o.unloadTimeout);

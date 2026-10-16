@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：Moment primary 独立实例的 gl 语言区域注册：月份/星期名称、日期格式、相对时间和本地化规则
+ * 依据：// Recovered from vendors.js:1252962-1254313.；literal: xaneiro_febreiro_marzo_abril_maio_xuño_xullo_agosto_setembro_outubro_novembro_decembro
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:1252962-1254313.
 !function (e) {
   "use strict";

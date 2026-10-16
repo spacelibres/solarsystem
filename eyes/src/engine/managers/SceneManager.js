@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：从实体配置建立主场景，协调可见性、高清纹理/WMTS、临时实体和强制加载状态。
+ * 依据：import ../../vendor/modules/FollowName.cjs；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1220244-1241305.
 import FollowName from "../../vendor/modules/FollowName.cjs";
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 var getFollowName = () => FollowName;
+/** @eyes-analysis
+ * 类职责：从实体配置建立主场景，协调可见性、高清纹理/WMTS、临时实体和强制加载状态。
+ * 继承：EyesPublicApi.BaseManager；导出：SceneManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class SceneManager extends EyesPublicApi.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_componentTypesNotVisible`、`_entityExtraOptions`、`_entityLoadedCallbacks`、`_entityStatuses`、`_entityWillBeUnloadedCallbacks`、`_hdBreakpointSize`、`_hdToggleEntity`、`_hdWMTSMap`；调用 `new Map`、`new Pioneer.FastMap`、`new Set`、`super`、`this._eventNames.push`、`this._initCallbacks`。
+   * 状态写入：_componentTypesNotVisible、_entityExtraOptions、_entityLoadedCallbacks、_entityStatuses、_entityWillBeUnloadedCallbacks、_hdBreakpointSize、_hdToggleEntity、_hdWMTSMap等；完整记录见索引。
+   * 调用线索：new Map、new Pioneer.FastMap、new Set、super、this._eventNames.push等。
+   */
   constructor(t) {
     super(t);
     this._scenes = {};
@@ -30,12 +46,24 @@ class SceneManager extends EyesPublicApi.BaseManager {
     this.bindFunctions(["addLoading", "removeLoading", "update", "toggleStarfield", "toggleHeliosphere", "toggleConstellations", "addWMTSComponent", "tileIsReady", "enableWMTSComponent", "forceTextureSizeForEntity", "toggleHDTextureForEntity", "isEntityHD"]);
     this._tempEntities = [];
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._hdToggleEntity`。
+   */
   getHDToggleEntity() {
     return this._hdToggleEntity;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_scenes[t]`；返回 `"main"===t&&this._scene?this._scene:(this._scenes[t]=this.pioneer.addScene(t),this._scenes[t].setAmbientLightColor(new Pioneer.Color(.005,.005,.005)),`；调用 `new Pioneer.Color`、`this._scenes[t].setAmbientLightColor`、`this.pioneer.addScene`。
+   * 状态写入：_scenes[t]。
+   * 调用线索：new Pioneer.Color、this._scenes[t].setAmbientLightColor、this.pioneer.addScene。
+   */
   add(t) {
     return "main" === t && this._scene ? this._scene : (this._scenes[t] = this.pioneer.addScene(t), this._scenes[t].setAmbientLightColor(new Pioneer.Color(.005, .005, .005)), this._scenes[t]);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`new Set`、`this._entityStatuses.has`、`this._entityStatuses.set`、`this.app.getManager`、`this.app.getManager("layer").isEntityVisibleWithCurrentLayers`；含显式错误分支。
+   * 调用线索：new Error、new Set、this._entityStatuses.has、this._entityStatuses.set、this.app.getManager等。
+   */
   addEntity(t, e) {
     if (this._entityStatuses.has(t)) throw new Error(`Error adding entity: The entity ${t} has already been added.`);
     this._entityStatuses.set(t, {
@@ -48,6 +76,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       componentTypesNotVisible: new Set()
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `new Error`、`this._entityStatuses.delete`、`this._entityWillBeUnloadedCallbacks[t]`、`this._scene.getEntity`、`this._scene.removeEntity`；含显式错误分支。
+   * 调用线索：new Error、this._entityStatuses.delete、this._entityWillBeUnloadedCallbacks[t]、this._scene.getEntity、this._scene.removeEntity。
+   */
   removeEntity(t) {
     if (!this._entityStatuses.delete(t)) throw new Error(`Error removing entity: The entity ${t} was not in the scene manager.`);
     const e = this._scene.getEntity(t);
@@ -56,9 +88,17 @@ class SceneManager extends EyesPublicApi.BaseManager {
       this._scene.removeEntity(t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._entityStatuses.get(t)`；调用 `this._entityStatuses.get`。
+   * 调用线索：this._entityStatuses.get。
+   */
   getEntityStatus(t) {
     return this._entityStatuses.get(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `SolarSystemSceneExports.Entity.getEntityNamesInGroup`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach`、`contentManager.getEntityInfo`、`map.delete`、`map.forEach`。
+   * 调用线索：SolarSystemSceneExports.Entity.getEntityNamesInGroup、SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach、SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach、contentManager.getEntityInfo、map.delete等。
+   */
   addEntitiesFromSceneInfo(t) {
     const map = new Map();
     void 0 !== t.staticEntities && (1 === t.staticEntities.length && "all" === t.staticEntities[0] ? SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach(t => map.set(t, false)) : t.staticEntities.forEach(t => map.set(t, false)));
@@ -81,18 +121,39 @@ class SceneManager extends EyesPublicApi.BaseManager {
     this.setExtraEntityOptions(t.entityOptions);
     this.updateEntityLayerVisibility();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._entityLoadedCallbacks.push`。
+   * 调用线索：this._entityLoadedCallbacks.push。
+   */
   addEntityLoadedCallback(t) {
     this._entityLoadedCallbacks.push(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this._entityLoadedCallbacks.splice(e,1)`；调用 `this._entityLoadedCallbacks.splice`。
+   * 调用线索：this._entityLoadedCallbacks.splice。
+   */
   removeEntityLoadedCallback(t) {
     for (let e = 0, i = this._entityLoadedCallbacks.length; e < i; e++) if (this._entityLoadedCallbacks[e] === t) return void this._entityLoadedCallbacks.splice(e, 1);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._entityWillBeUnloadedCallbacks.push`。
+   * 调用线索：this._entityWillBeUnloadedCallbacks.push。
+   */
   addEntityWillBeUnloadedCallback(t) {
     this._entityWillBeUnloadedCallbacks.push(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void this._entityWillBeUnloadedCallbacks.splice(e,1)`；调用 `this._entityWillBeUnloadedCallbacks.splice`。
+   * 调用线索：this._entityWillBeUnloadedCallbacks.splice。
+   */
   removeEntityWillBeUnloadedCallback(t) {
     for (let e = 0, i = this._entityWillBeUnloadedCallbacks.length; e < i; e++) if (this._entityWillBeUnloadedCallbacks[e] === t) return void this._entityWillBeUnloadedCallbacks.splice(e, 1);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_entityStatuses.getAt(t).value.forceVisible`；调用 `new Error`、`this._entityStatuses.get`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this.update`；含显式错误分支。
+   * 状态写入：_entityStatuses.getAt(t).value.forceVisible。
+   * 调用线索：new Error、this._entityStatuses.get、this._entityStatuses.getAt、this._entityStatuses.getSize、this.update。
+   */
   setEntitiesForceVisible(t, e, i = true) {
     if (e) for (let t = 0, e = this._entityStatuses.getSize(); t < e; t++) {
       this._entityStatuses.getAt(t).value.forceVisible = false;
@@ -105,11 +166,19 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     this.update();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_entityExtraOptions`。
+   * 状态写入：_entityExtraOptions。
+   */
   setExtraEntityOptions(t) {
     this._entityExtraOptions = {
       ...t
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity`、`SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key,i).has`、`layerManager.isEntityVisibleWithCurrentLayers`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this._scene.getEngine`。
+   * 调用线索：SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity、SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key,i).has、layerManager.isEntityVisibleWithCurrentLayers、this._entityStatuses.getAt、this._entityStatuses.getSize等。
+   */
   updateEntityLayerVisibilityForChildren(t) {
     const layerManager = this.app.getManager("layer");
     const i = this._scene.getEngine().getTime();
@@ -118,6 +187,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key, i).has(t.parentId) && (n.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(n.key, t));
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `layerManager.isEntityVisibleWithCurrentLayers`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this.app.getManager`。
+   * 调用线索：layerManager.isEntityVisibleWithCurrentLayers、this._entityStatuses.getAt、this._entityStatuses.getSize、this.app.getManager。
+   */
   updateEntityLayerVisibility(t) {
     const layerManager = this.app.getManager("layer");
     for (let i = 0, s = this._entityStatuses.getSize(); i < s; i++) {
@@ -125,6 +198,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       s.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(s.key, t);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`contentManager.getEntityInfo`、`t.getParent`、`this._createEntity`、`this._entityStatuses.get`、`this._entityStatuses.getAt`。
+   * 调用线索：SolarSystemSceneExports.SceneHelpers.getDependentEntities、contentManager.getEntityInfo、l?.getParent、l?.getParent()?.getName、s?.includes等。
+   */
   update() {
     const t = this.app.getManager("camera").cameraEntity;
     const contentManager = this.app.getManager("content");
@@ -166,6 +243,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       null !== l && o.visible !== h && this.setVisibility(h, n);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e`；调用 `SolarSystemSceneExports.Entity.create`、`SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`i.dependentEntities.push`、`this._entityLoadedCallbacks[t]`、`this._entityStatuses.get`、`this.addEntity`。
+   * 调用线索：SolarSystemSceneExports.Entity.create、SolarSystemSceneExports.SceneHelpers.getDependentEntities、i.dependentEntities.push、this._entityLoadedCallbacks[t]、this._entityStatuses.get等。
+   */
   _createEntity(t) {
     const e = SolarSystemSceneExports.Entity.create(t, this._scene, this._entityExtraOptions);
     this._entityStatuses.get(t).visible || this.setVisibility(false, t);
@@ -178,6 +259,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     for (let t = 0, i = this._entityLoadedCallbacks.length; t < i; t++) this._entityLoadedCallbacks[t](e);
     return e;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `true` 或 `false`；调用 `i.getName`、`i.getNumParentingTableEntries`、`i.getParent`、`i.getParentingTableEntry`。
+   * 调用线索：i.getName、i.getNumParentingTableEntries、i.getParent、i.getParentingTableEntry。
+   */
   _isAncestorOfCamera(t, e) {
     let i = t;
     for (; null !== i;) {
@@ -187,6 +272,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return false;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `Array.from`、`Array.from(i.componentTypesNotVisible).some`、`i.componentTypesNotVisible.has`、`layerManager.getLayer`、`n.setEnabled`、`new Error`；含显式错误分支。
+   * 调用线索：Array.from、Array.from(i.componentTypesNotVisible).some、i.componentTypesNotVisible.has、layerManager.getLayer、n.setEnabled等。
+   */
   setVisibility(t, e) {
     const i = this._entityStatuses.get(e);
     void 0 !== i && (i.visible = t);
@@ -206,6 +295,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       t ? s.entitiesForcingThisVisible.add(e) : s.entitiesForcingThisVisible.delete(e);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `false` 或 `(s.systemRadius||25*s.radius||25*s.extentsRadius)/i.getExtentsRadius()*i.getGreatestPixelSpaceExtentsRadius()>=20`；调用 `SolarSystemSceneExports.Entity.getEntityOptions`、`SolarSystemSceneExports.Parenting.getParentOfEntity`、`i.getExtentsRadius`、`i.getGreatestPixelSpaceExtentsRadius`、`this._scene.getEngine`、`this._scene.getEngine().getTime`。
+   * 调用线索：SolarSystemSceneExports.Entity.getEntityOptions、SolarSystemSceneExports.Parenting.getParentOfEntity、i.getExtentsRadius、i.getGreatestPixelSpaceExtentsRadius、this._scene.getEngine等。
+   */
   _isEntityVisibleWithinParent(t) {
     const e = SolarSystemSceneExports.Parenting.getParentOfEntity(t, this._scene.getEngine().getTime());
     const i = this._scene.getEntity(e);
@@ -213,9 +306,16 @@ class SceneManager extends EyesPublicApi.BaseManager {
     const s = SolarSystemSceneExports.Entity.getEntityOptions(e);
     return (s.systemRadius || 25 * s.radius || 25 * s.extentsRadius) / i.getExtentsRadius() * i.getGreatestPixelSpaceExtentsRadius() >= 20;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void 0!==this._scenes[t]?this._scenes[t]:null`。
+   */
   get(t) {
     return void 0 !== this._scenes[t] ? this._scenes[t] : null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `i.getName`、`t.push`、`this._scene.getEntityAt`、`this._scene.getNumEntities`。
+   * 调用线索：i.getName、t.push、this._scene.getEntityAt、this._scene.getNumEntities。
+   */
   getEntitiesNames() {
     const t = [];
     for (let e = 0; e < this._scene.getNumEntities(); e++) {
@@ -224,6 +324,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t.getName()` 或 `null`；调用 `e.getParent`、`t.getName`、`this._scene.getEntity`。
+   * 调用线索：e.getParent、t.getName、this._scene.getEntity。
+   */
   getParent(t) {
     const e = this._scene.getEntity(t);
     if (null !== e) {
@@ -232,6 +336,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `i.push`、`this.getParent`。
+   * 调用线索：i.push、this.getParent。
+   */
   getParentList(t) {
     let e = this.getParent(t);
     const i = [];
@@ -241,6 +349,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `Array.from(set)`；调用 `Array.from`、`Object.keys`、`SolarSystemSceneExports.Entity.getEntityOptions`、`e.getNumParentingTableEntries`、`e.getParentingTableEntry`、`new Set`。
+   * 调用线索：Array.from、Object.keys、SolarSystemSceneExports.Entity.getEntityOptions、e.getNumParentingTableEntries、e.getParentingTableEntry等。
+   */
   getDependencies(t) {
     const e = this._scene.getEntity(t);
     const set = new Set();
@@ -259,16 +371,28 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return Array.from(set);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._scene.waitTillEntitiesInPlace`、`this.app.getManager`、`this.app.getManager("time").momentToET`、`this.pioneer.getTime`。
+   * 调用线索：this._scene.waitTillEntitiesInPlace、this.app.getManager、this.app.getManager("time").momentToET、this.pioneer.getTime。
+   */
   async isReady(t, e) {
     e = void 0 === e ? this.pioneer.getTime() : this.app.getManager("time").momentToET(e);
     await this._scene.waitTillEntitiesInPlace([t], e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Promise.all`、`i.push`、`this.isReady`。
+   * 调用线索：Promise.all、i.push、this.isReady。
+   */
   async isListReady(t, e) {
     const i = [];
     void 0 === e && (e = [void 0]);
     for (let s = 0; s < t.length; s++) for (let n = 0; n < e.length; n++) i.push(this.isReady(t[s], e[n]));
     await Promise.all(i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new Promise((i,s)=>{const n=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(n),s(new Error("disabled")));null===e&&null!==t.`；调用 `clearInterval`、`i`、`new Error`、`new Promise`、`s`、`setInterval`。
+   * 调用线索：clearInterval、i、new Error、new Promise、s等。
+   */
   async tileIsReady(t) {
     let e = null;
     return new Promise((i, s) => {
@@ -281,9 +405,17 @@ class SceneManager extends EyesPublicApi.BaseManager {
       }, 30);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `!!SolarSystemSceneExports.Mapping.getOptions()[t]&&"cmts"in SolarSystemSceneExports.Mapping.getOptions()[t]`；调用 `SolarSystemSceneExports.Mapping.getOptions`。
+   * 调用线索：SolarSystemSceneExports.Mapping.getOptions。
+   */
   hasCMTS(t) {
     return !!SolarSystemSceneExports.Mapping.getOptions()[t] && "cmts" in SolarSystemSceneExports.Mapping.getOptions()[t];
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `this._scene.getEntity(t)`；调用 `e.includes`、`this._scene.getEntity`、`this.hasCMTS`。
+   * 调用线索：e.includes、this._scene.getEntity、this._scene.getEntity(e)?.getParent、this._scene.getEntity(e)?.getParent()?.getName、this.hasCMTS。
+   */
   getCMTSEntity(t) {
     if (!t) return null;
     if (this.hasCMTS(t)) return this._scene.getEntity(t);
@@ -291,6 +423,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     for (; !this.hasCMTS(e) && (e = this._scene.getEntity(e)?.getParent()?.getName(), e && !e.includes("universe")););
     return this.hasCMTS(e) ? this._scene.getEntity(e) : null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new Promise(i=>{const s=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(s),i(true));null===e&&null!==t._loadedPromise&&(e=t.`；调用 `clearInterval`、`i`、`new Promise`、`setInterval`、`t.getEntity`、`t.getEntity().isEnabled`。
+   * 调用线索：clearInterval、i、new Promise、setInterval、t.getEntity等。
+   */
   async terrainIsReady(t) {
     let e = null;
     return new Promise(i => {
@@ -303,6 +439,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
       }, 30);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void` 或 `new Promise(e=>{const i=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(i),e(true));"loaded"===t.getLoadState().state&&(clea`；调用 `clearInterval`、`e`、`new Promise`、`setInterval`、`t.getEntity`、`t.getEntity().isEnabled`。
+   * 调用线索：clearInterval、e、new Promise、setInterval、t.getEntity等。
+   */
   async componentIsReady(t) {
     if (t.isEnabled() && "loaded" === t.getLoadState().state) return;
     return new Promise(e => {
@@ -312,12 +452,24 @@ class SceneManager extends EyesPublicApi.BaseManager {
       }, 30);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._scene.getEntity`、`this._scene.getEntity("sun").getComponent`、`this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent,e).setEnabled`。
+   * 调用线索：this._scene.getEntity、this._scene.getEntity("sun").getComponent、this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent,e).setEnabled。
+   */
   toggleStarfield(t) {
     for (let e = 0; e < 7; e++) this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent, e).setEnabled(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._scene.getEntity`、`this._scene.getEntity("sun").getComponent`、`this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled`。
+   * 调用线索：this._scene.getEntity、this._scene.getEntity("sun").getComponent、this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled。
+   */
   toggleHeliosphere(t) {
     this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `contentManager.getClassName`、`e.addComponent`、`e.getComponent`、`e.removeComponent`、`i.getLoadedPromise`、`i.getNames`。
+   * 调用线索：contentManager.getClassName、e.addComponent、e.getComponent、e.removeComponent、i.getLoadedPromise等。
+   */
   async toggleConstellations(t) {
     const e = this._scene.getEntity("sun");
     if (null === e) return;
@@ -357,9 +509,16 @@ class SceneManager extends EyesPublicApi.BaseManager {
       e.removeComponent(i);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isHD`。
+   */
   isHD() {
     return this._isHD;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `false` 或 `true`；调用 `Object.prototype.hasOwnProperty.call`、`e.getComponent`、`e.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes`、`e.getParent`、`e.getParent().getName`、`this._scene.getEntity`。
+   * 调用线索：Object.prototype.hasOwnProperty.call、e.getComponent、e.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes、e.getParent、e.getParent().getName等。
+   */
   hasHD(t) {
     const e = this._scene.getEntity(t);
     if (null === e) return false;
@@ -371,10 +530,19 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return false;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hdBreakpointSize`、`_maxTextureSize`。
+   * 状态写入：_hdBreakpointSize、_maxTextureSize。
+   */
   setHDBreakpoints(hdBreakpointSize, maxTextureSize) {
     this._hdBreakpointSize = hdBreakpointSize;
     this._maxTextureSize = maxTextureSize;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isHD`；调用 `EyesPublicApi.AppUtils.isMobileMode`、`i.getComponent`、`n.setEnabled`、`n.setMaxLevel`、`s.setEnabled`、`this._scene.getEntity`。
+   * 状态写入：_isHD。
+   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、i.getComponent、n.setEnabled、n.setMaxLevel、s.setEnabled等。
+   */
   async toggleHD() {
     this._isHD = !this._isHD;
     this._isHD || this.pioneer.getConfig().setValue("maxTextureSize", this._hdBreakpointSize);
@@ -393,6 +561,11 @@ class SceneManager extends EyesPublicApi.BaseManager {
       this._isHD && this.pioneer.getConfig().setValue("maxTextureSize", this._maxTextureSize);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hdToggleEntity`；返回 `void(hdToggleEntity=this.app.getView("event")._eventInfo?.target)` 或 `void(hdToggleEntity=t)`；调用 `contentManager.getEntityInfo`、`this.app.getManager`、`this.app.getView`、`this.findClosestSpaceObjectTo`、`this.getParent`、`this.hasHD`。
+   * 状态写入：_hdToggleEntity。
+   * 调用线索：contentManager.getEntityInfo、this.app.getManager、this.app.getView、this.findClosestSpaceObjectTo、this.getParent等。
+   */
   async updateHDTarget(t, e) {
     const contentManager = this.app.getManager("content");
     const s = this.app.getManager("router").currentView;
@@ -412,6 +585,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     null !== hdToggleEntity && this.hasHD(hdToggleEntity) ? this._hdToggleEntity = hdToggleEntity : this._hdToggleEntity = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `e.waitTillEntitiesInPlace(s,this.app.pioneer.getTime(),3).then(async()=>{let i="";let s=e.getEntity(n[0])?.getDistanceTo(e.getEntity(t),false);n.forEa`；调用 `Array.from`、`SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`console.warn`、`e.getEntity`、`e.getEntity(n).getDistanceTo`、`e.waitTillEntitiesInPlace`。
+   * 调用线索：Array.from、SolarSystemSceneExports.SceneHelpers.getDependentEntities、console.warn、e.getEntity、e.getEntity(n).getDistanceTo等。
+   */
   async findClosestSpaceObjectTo(t) {
     const e = this.get("main");
     const i = SolarSystemSceneExports.SceneHelpers.getDependentEntities(t);
@@ -429,14 +606,27 @@ class SceneManager extends EyesPublicApi.BaseManager {
       console.warn(t);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `s.forceTextureSize`、`this.app.pioneer.getScene`、`this.app.pioneer.getScene("main").getEntity`、`this.app.pioneer.getScene("main").getEntity(t).getComponent`。
+   * 调用线索：s.forceTextureSize、this.app.pioneer.getScene、this.app.pioneer.getScene("main").getEntity、this.app.pioneer.getScene("main").getEntity(t).getComponent。
+   */
   async forceTextureSizeForEntity(t, e, i = "color") {
     const s = this.app.pioneer.getScene("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
     null != s && s.forceTextureSize(i, e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `!(null==e||!e.isEnabled())&&(await e.getTexturesLoadedPromise(3).catch(()=>false),e.getTextureCurrentSize("color",0)>this._hdBreakpointSize)`；调用 `e.getTextureCurrentSize`、`e.getTexturesLoadedPromise`、`e.getTexturesLoadedPromise(3).catch`、`e.isEnabled`、`this.app.pioneer.getScene`、`this.app.pioneer.getScene("main").getEntity`。
+   * 调用线索：e.getTextureCurrentSize、e.getTexturesLoadedPromise、e.getTexturesLoadedPromise(3).catch、e.isEnabled、this.app.pioneer.getScene等。
+   */
   async isEntityHD(t) {
     const e = this.app.pioneer.getScene("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
     return !(null == e || !e.isEnabled()) && (await e.getTexturesLoadedPromise(3).catch(() => false), e.getTextureCurrentSize("color", 0) > this._hdBreakpointSize);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isHD`；返回 `e` 或 `isHD`；调用 `EyesPublicApi.AppUtils.isiPhone`、`s.getTextureNames`、`s.getTextureNames().forEach`、`this.addLoading`、`this.app.getManager`、`this.app.getManager("content").getSpheroidDefaultTextureInformation`。
+   * 状态写入：_isHD。
+   * 调用线索：EyesPublicApi.AppUtils.isiPhone、s.getTextureNames、s.getTextureNames().forEach、s?.getTexturesLoadedPromise、s?.getTexturesLoadedPromise(3).catch等。
+   */
   async toggleHDTextureForEntity(t, e = null) {
     const i = await this.isEntityHD(t);
     if (null !== e && i === e) return e;
@@ -457,6 +647,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     this._isHD = isHD;
     return isHD;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `_.setColor`、`_.setLineWidth`、`_.setNumCircles`、`_.setNumSpokes`、`_.setSize`、`g.getDiv`。
+   * 调用线索：_.setColor、_.setLineWidth、_.setNumCircles、_.setNumSpokes、_.setSize等。
+   */
   createRing(t, e, i, {
     orbitPlaneEntityName: orbitPlaneEntityName,
     color: color,
@@ -487,6 +681,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     u.setEnabled(d);
     m.setEnabled(d);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `_.setColor`、`_.setInnerRadius`、`_.setOuterRadius`、`_.setVisibleInterval`、`g.getDiv`、`g.getDiv().classList.add`。
+   * 调用线索：_.setColor、_.setInnerRadius、_.setOuterRadius、_.setVisibleInterval、g.getDiv等。
+   */
   createTorus(t, e, i, s, {
     orbitPlaneEntityName: orbitPlaneEntityName,
     color: color,
@@ -515,9 +713,17 @@ class SceneManager extends EyesPublicApi.BaseManager {
     u.setEnabled(d);
     m.setEnabled(d);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hdWMTSMap[t]`。
+   * 状态写入：_hdWMTSMap[t]。
+   */
   setEntityHDWMTS(t, e) {
     this._hdWMTSMap[t] = e;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `EyesPublicApi.AppUtils.isMobileMode`、`e.setEnabled`、`e.setMaxLevel`、`i.setEnabled`、`this.addLoading`、`this.get`。
+   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、e.setEnabled、e.setMaxLevel、i.setEnabled、this.addLoading等。
+   */
   async enableWMTSComponent(t, e) {
     EyesPublicApi.AppUtils.isMobileMode() && e.setMaxLevel(5);
     const i = this.get("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
@@ -528,12 +734,20 @@ class SceneManager extends EyesPublicApi.BaseManager {
       this.removeLoading(t, "wmts");
     })) ? (i.setEnabled(false), this.removeLoading(t, "wmts")) : i.setEnabled(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.addLoading`、`this.app.getManager`、`this.enableWMTSComponent`、`this.removeLoading`、`this.showWMTSError`、`wmtsManager.initWMTS`。
+   * 调用线索：this.addLoading、this.app.getManager、this.enableWMTSComponent、this.removeLoading、this.showWMTSError等。
+   */
   async addWMTSComponent(t, e) {
     this.addLoading(t, "wmts");
     const wmtsManager = this.app.getManager("wmts");
     const s = await wmtsManager.initWMTS(t, e);
     s ? (this.removeLoading(t, "wmts"), await this.enableWMTSComponent(t, s)) : await this.showWMTSError(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.app.getComponent`、`this.hasHD`、`this.isHD`、`this.removeLoading`、`this.toggleHDTextureForEntity`、`toastComponent.setContent`。
+   * 调用线索：this.app.getComponent、this.hasHD、this.isHD、this.removeLoading、this.toggleHDTextureForEntity等。
+   */
   async showWMTSError(t) {
     this.removeLoading(t, "wmts");
     const toastComponent = this.app.getComponent("toast");
@@ -543,6 +757,11 @@ class SceneManager extends EyesPublicApi.BaseManager {
     toastComponent.show();
     this.hasHD(t) && !this.isHD() && (await this.toggleHDTextureForEntity(t));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hdWMTSMap[e]`；调用 `String`、`String(date.getDate()).padStart`、`String(date.getMonth()+1).padStart`、`date.getDate`、`date.getFullYear`、`date.getMonth`。
+   * 状态写入：_hdWMTSMap[e]。
+   * 调用线索：String、String(date.getDate()).padStart、String(date.getMonth()+1).padStart、date.getDate、date.getFullYear等。
+   */
   loadWMTSFromJSON(t) {
     for (const e in t) {
       let i = "";
@@ -562,12 +781,21 @@ class SceneManager extends EyesPublicApi.BaseManager {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `i.getController`、`i.getController(Pioneer.DynamoController).getOrbitOrientation`、`new Pioneer.Quaternion`、`t.setOrientation`、`this._scene.getEntity`、`this.app.pioneer.getTime`。
+   * 调用线索：i.getController、i.getController(Pioneer.DynamoController).getOrbitOrientation、new Pioneer.Quaternion、t.setOrientation、this._scene.getEntity等。
+   */
   setAlignPlane(t, e) {
     const i = this._scene.getEntity(e);
     const quaternion = new Pioneer.Quaternion();
     i.getController(Pioneer.DynamoController).getOrbitOrientation(quaternion, this.app.pioneer.getTime());
     t.setOrientation(quaternion);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_tempEntities`；返回 `void`；调用 `t.getName`、`t.getParent`、`t.getParent().getName`、`this._scene.removeEntity`、`this._tempEntities.filter`、`this.app.getManager`。
+   * 状态写入：_tempEntities。
+   * 调用线索：t.getName、t.getParent、t.getParent().getName、t?.getName、this._scene.removeEntity等。
+   */
   clearTempEntities() {
     const t = this.app.getManager("camera").cameraEntity;
     if (null === t || null === t.getParent()) return;
@@ -579,14 +807,28 @@ class SceneManager extends EyesPublicApi.BaseManager {
       return false;
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._tempEntities.push`。
+   * 调用线索：this._tempEntities.push。
+   */
   addTempEntity(t) {
     this._tempEntities.push(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isLoading`；调用 `this._loadingItems.indexOf`、`this._loadingItems.push`、`this.triggerCallbacks`。
+   * 状态写入：_isLoading。
+   * 调用线索：this._loadingItems.indexOf、this._loadingItems.push、this.triggerCallbacks。
+   */
   addLoading(t, e) {
     const i = t + "_" + e;
     this._loadingItems.indexOf(i) < 0 && this._loadingItems.push(i);
     this._loadingItems.length > 0 && (this._isLoading = true, this.triggerCallbacks("loading"));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isLoading`；调用 `this._loadingItems.indexOf`、`this._loadingItems.splice`、`this._loadingItems[t].includes`、`this.triggerCallbacks`。
+   * 状态写入：_isLoading。
+   * 调用线索：this._loadingItems.indexOf、this._loadingItems.splice、this._loadingItems[t].includes、this.triggerCallbacks。
+   */
   removeLoading(t, e) {
     if ("*" === t) for (let t = 0; t < this._loadingItems.length; t++) this._loadingItems[t].includes(e) && this._loadingItems.splice(t, 1);else {
       const i = t + "_" + e;
@@ -595,19 +837,37 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     0 === this._loadingItems.length && (this._isLoading = false, this.triggerCallbacks("loaded", [t]));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.setForceLoaded`、`this._loadedComponents.push`。
+   * 调用线索：t.setForceLoaded、this._loadedComponents.push。
+   */
   forceLoad(t) {
     t.setForceLoaded(true);
     this._loadedComponents.push(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_loadedComponents`；调用 `t.setForceLoaded`、`this._loadedComponents.filter`。
+   * 状态写入：_loadedComponents。
+   * 调用线索：t.setForceLoaded、this._loadedComponents.filter。
+   */
   removeForceLoad(t) {
     this._loadedComponents = this._loadedComponents.filter(e => e !== t || (t.setForceLoaded(false), false));
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_loadedComponents`；调用 `this._loadedComponents[t].setForceLoaded`。
+   * 状态写入：_loadedComponents。
+   * 调用线索：this._loadedComponents[t].setForceLoaded。
+   */
   clearForceLoad() {
     for (let t = 0; t < this._loadedComponents.length; t++) {
       this._loadedComponents[t].setForceLoaded(false);
     }
     this._loadedComponents = [];
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `c`；调用 `Math.floor`、`Math.log10`、`Math.pow`、`Math.round`、`Pioneer.TimeUtils.unixToEt`、`Pioneer.Vector3.pool.get`。
+   * 调用线索：Math.floor、Math.log10、Math.pow、Math.round、Pioneer.TimeUtils.unixToEt等。
+   */
   getDistance(t, e, {
     time: time,
     subtractRadius: s = false,
@@ -631,6 +891,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     Pioneer.Vector3.pool.release(r);
     return c;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s.magnitude()`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`n.getParent`、`n.getVelocityRelativeToEntity`、`s.magnitude`、`this._scene.getEntity`。
+   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、n.getParent、n.getVelocityRelativeToEntity、s.magnitude等。
+   */
   getSpeed(t, e, {
     time: time
   } = {}) {
@@ -644,6 +908,10 @@ class SceneManager extends EyesPublicApi.BaseManager {
     Pioneer.Vector3.pool.release(s);
     return s.magnitude();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `Math.ceil`、`Math.floor`、`Math.max`、`Math.min`、`Pioneer.TimeUtils.etToUnix`、`getFollowName`。
+   * 调用线索：Math.ceil、Math.floor、Math.max、Math.min、Pioneer.TimeUtils.etToUnix等。
+   */
   getCoverage(t, e = true) {
     const i = {
       min: EyesPublicApi.AppUtils.constants.maxDate,
@@ -666,12 +934,22 @@ class SceneManager extends EyesPublicApi.BaseManager {
     }
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `console.log`。
+   * 调用线索：console.log。
+   */
   async toggleRing(t) {
     console.log("toggleRing", t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._scene`。
+   */
   get main() {
     return this._scene;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._isLoading`。
+   */
   get isLoading() {
     return this._isLoading;
   }

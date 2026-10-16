@@ -1,10 +1,26 @@
+/** @eyes-analysis
+ * 文件职责：目标与比较对象的尺寸、距离或照片比较交互
+ * 依据：imports: ../../framework/eyes/index.js, ../../engine/pioneer/index.js, ../../styles/extracted/ComparisonStyles.js, ../templates/ComparisonTemplate.html；manager dependencies: router, content, comparison
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1551222-1557945.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as Pioneer from "../../engine/pioneer/index.js";
 import "../../styles/extracted/ComparisonStyles.js";
 import ComparisonTemplate from "../templates/ComparisonTemplate.html";
 var getComparisonTemplate = () => ComparisonTemplate;
+/** @eyes-analysis
+ * 类职责：目标与比较对象的尺寸、距离或照片比较交互；继承 Eyes.BaseComponent
+ * 继承：Eyes.BaseComponent；导出：Comparison。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Comparison extends Eyes.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions；写入 list, name, compare, unitConverter。
+   * 状态写入：_class.fontSize.default、_class.fontSize.small、_class.fontSize.xSmall、compare、list、name、unitConverter。
+   * 调用线索：Object.assign、super、this.bindFunctions。
+   */
   constructor(t, e) {
     super(t, e);
     this.list = [];
@@ -38,6 +54,10 @@ class Comparison extends Eyes.BaseComponent {
     });
     this.bindFunctions(["closeView", "nextCompare", "previousCompare", "unitchange", "clearLeftPanelText", "clearRightPanelText"]);
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._children.exitIcon.classList.add, this._children.exitIcon.classList.remove, this._children.next.addEventListener, this._children.previous.addEventListener。
+   * 调用线索：super.init、t.addEventListener、this._children.exitIcon.classList.add、this._children.exitIcon.classList.remove、this._children.next.addEventListener等。
+   */
   init() {
     super.init();
     const t = this._children.exit;
@@ -59,6 +79,10 @@ class Comparison extends Eyes.BaseComponent {
       passive: false
     });
   }
+  /** @eyes-analysis
+   * 执行 _updateFontSize 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, Eyes.AppUtils.is2K, Eyes.AppUtils.is4K, this.setState。
+   * 调用线索：Eyes.AppUtils.is2K、Eyes.AppUtils.is4K、Eyes.AppUtils.isMobileMode、this.setState。
+   */
   _updateFontSize() {
     let t = this._class.fontSize.default;
     let e = this._class.fontSize.small;
@@ -68,24 +92,42 @@ class Comparison extends Eyes.BaseComponent {
       altFontSizeClass: e
     });
   }
+  /** @eyes-analysis
+   * 执行 unitchange 对应的组件业务步骤；调用 this.setState, this.generateValues。
+   * 调用线索：this.generateValues、this.setState。
+   */
   unitchange(t) {
     this.setState({
       unitSystem: t ? "metric" : "imperial"
     });
     this.generateValues();
   }
+  /** @eyes-analysis
+   * 执行 nextCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
+   * 状态写入：compare。
+   * 调用线索：this._app.getManager、this._app.getManager("router").navigate、this.clearRightPanelText、this.list.indexOf。
+   */
   nextCompare() {
     const t = this.list.indexOf(this.compare) || 0;
     this.compare = this.list[(t + 1) % this.list.length];
     this.clearRightPanelText(this.compare);
     this._app.getManager("router").navigate(`${this.name}/compare?id=${this.compare}`);
   }
+  /** @eyes-analysis
+   * 执行 previousCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
+   * 状态写入：compare。
+   * 调用线索：this._app.getManager、this._app.getManager("router").navigate、this.clearRightPanelText、this.list.indexOf。
+   */
   previousCompare() {
     const t = this.list.indexOf(this.compare) || 0;
     this.compare = this.list[t - 1 < 0 ? this.list.length - 1 : t - 1];
     this.clearRightPanelText(this.compare);
     this._app.getManager("router").navigate(`${this.name}/compare?id=${this.compare}`);
   }
+  /** @eyes-analysis
+   * 执行 clearRightPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
+   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this.setState。
+   */
   clearRightPanelText(t) {
     const e = this._app.getManager("content").getEntityInfo(t);
     const i = e?.displayName || e?.iauName;
@@ -99,6 +141,10 @@ class Comparison extends Eyes.BaseComponent {
       rightGenericDisclaimerClass: "hidden"
     });
   }
+  /** @eyes-analysis
+   * 执行 clearLeftPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
+   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this.setState。
+   */
   clearLeftPanelText(t) {
     const e = this._app.getManager("content").getEntityInfo(t);
     const i = e?.displayName || e?.iauName;
@@ -112,6 +158,11 @@ class Comparison extends Eyes.BaseComponent {
       leftGenericDisclaimerClass: "hidden"
     });
   }
+  /** @eyes-analysis
+   * 执行 setup 对应的组件业务步骤；调用 Object.keys, this.list.slice, this.generateValues；写入 list, name, compare, unitConverter。
+   * 状态写入：compare、list、name、unitConverter。
+   * 调用线索：Object.keys、this.generateValues、this.list.slice、this.list.slice(0,t).concat。
+   */
   async setup(t = {}) {
     if (t.cancelToken.isCanceled) return;
     this.list = t.list || this.list;
@@ -122,6 +173,10 @@ class Comparison extends Eyes.BaseComponent {
     for (let t = 0; t < e.length; t++) this.list[e[t]] === this.name && (this.list = this.list.slice(0, t).concat(this.list.slice(t + 1)));
     this.generateValues();
   }
+  /** @eyes-analysis
+   * 执行 formatValue 对应的组件业务步骤；调用 Number.parseFloat, Math.round, Math.pow。
+   * 调用线索：Math.pow、Math.round、Number.parseFloat、i.toFixed、i.toString等。
+   */
   formatValue(t, e = 1) {
     if (t < 1) {
       let i = t.toFixed(2 * e);
@@ -134,6 +189,11 @@ class Comparison extends Eyes.BaseComponent {
     i = Math.round(i / s) * s;
     return i.toFixed(e);
   }
+  /** @eyes-analysis
+   * 执行 generateValues 对应的组件业务步骤；调用 this._app.getManager, this.entityCompareLookup, this.formatValue, Title.toUpperCase, this.setState；写入 leftDescription, rightDescription。
+   * 状态写入：leftDescription、rightDescription。
+   * 调用线索：h.getComponent、h.getComponent(Pioneer.ModelComponent)?.getUrl、h.getComponent(Pioneer.ModelComponent)?.getUrl().includes、l.getComponent、l.getComponent(Pioneer.ModelComponent)?.getUrl等。
+   */
   async generateValues() {
     this.leftDescription = (await this._app.getManager("content").getEntityDesc(this.name)) || {};
     const t = this._app.getManager("content").getEntityInfo(this.name);
@@ -203,6 +263,10 @@ class Comparison extends Eyes.BaseComponent {
     }
     this.setState(u);
   }
+  /** @eyes-analysis
+   * 执行 entityCompareLookup 对应的组件业务步骤；调用 this._app.getManager。
+   * 调用线索：(i.subcategory||i.category||"").toLowerCase、(i.subcategory||i.category||"").toLowerCase().replace、i.subcategory.toLowerCase、i.subcategory.toLowerCase().replace、s.getExtentsRadius等。
+   */
   entityCompareLookup(t, e) {
     const i = this._app.getManager("content").getEntityInfo(t) || {};
     const s = "left" === e ? this._app.getManager("comparison").entityLeft : this._app.getManager("comparison").entityRight;
@@ -219,6 +283,10 @@ class Comparison extends Eyes.BaseComponent {
       radius: "Spacecraft" === i.category ? s.getExtentsRadius() : s.getOcclusionRadius()
     };
   }
+  /** @eyes-analysis
+   * 执行 closeView 对应的组件业务步骤；调用 this._app.getManager。
+   * 调用线索：this._app.getManager、this._app.getManager("comparison").exit、this._app.getManager("router").navigate。
+   */
   closeView() {
     this._app.getManager("comparison").exit();
     this._app.getManager("router").navigate(`/${this.name}`);

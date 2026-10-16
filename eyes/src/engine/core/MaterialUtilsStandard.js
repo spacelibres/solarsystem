@@ -1,6 +1,21 @@
+/** @eyes-analysis
+ * 文件职责：构建 PBR/标准光照路径的材质/着色器参数。
+ * 依据：import ../pioneer/public-api.js；MaterialUtilsStandard @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:109147-142044.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：构建 PBR/标准光照路径的材质/着色器参数。
+ * 继承：无显式父类；导出：MaterialUtilsStandard。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class MaterialUtilsStandard {
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `PioneerPublicApi.ThreeJsHelper.cloneMaterial`、`new PioneerPublicApi.THREE.Color`、`new PioneerPublicApi.THREE.Matrix3`、`new PioneerPublicApi.THREE.ShaderMaterial`、`new PioneerPublicApi.THREE.Uniform`、`new PioneerPublicApi.THREE.Vector2`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.cloneMaterial、new PioneerPublicApi.THREE.Color、new PioneerPublicApi.THREE.Matrix3、new PioneerPublicApi.THREE.ShaderMaterial、new PioneerPublicApi.THREE.Uniform等。
+   */
   static get() {
     MaterialUtilsStandard._material ??= new PioneerPublicApi.THREE.ShaderMaterial({
       uniforms: {

@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：管理距离/光行时面板所需的实体选择与距离计算。
+ * 依据：import ../../framework/eyes/index.js；import ../pioneer/index.js
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1673136-1697979.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as Pioneer from "../pioneer/index.js";
@@ -14,7 +20,17 @@ const u = h;
 const p = "metric";
 const _ = "imperial";
 const currentUnitSystem = p;
+/** @eyes-analysis
+ * 类职责：管理距离/光行时面板所需的实体选择与距离计算。
+ * 继承：Eyes.BaseManager；导出：DistanceManager。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class DistanceManager extends Eyes.BaseManager {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_allowPlay`、`_allowRaycasting`、`_areClose`、`_areRelated`、`_bpAnimation`、`_bpParentIsSource`、`_currBetweenOffset`、`_currentSecond`；调用 `super`、`this.bindFunctions`、`throttle`。
+   * 状态写入：_allowPlay、_allowRaycasting、_areClose、_areRelated、_bpAnimation、_bpParentIsSource、_currBetweenOffset、_currentSecond等；完整记录见索引。
+   * 调用线索：super、this.bindFunctions、throttle。
+   */
   constructor(t) {
     super(t);
     this._sourceDistanceEntity = null;
@@ -60,6 +76,11 @@ class DistanceManager extends Eyes.BaseManager {
       trailing: true
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_betweenPosEntity`、`_bpController`、`distancePanel`、`pionerEl`；调用 `document.getElementById`、`this._betweenPosEntity.addController`、`this._createBetweenEntity`、`this._grabVectors`、`this.addEvents`、`this.app.getComponent`。
+   * 状态写入：_betweenPosEntity、_bpController、distancePanel、pionerEl。
+   * 调用线索：document.getElementById、this._betweenPosEntity.addController、this._createBetweenEntity、this._grabVectors、this.addEvents等。
+   */
   init() {
     this._betweenPosEntity ??= this._createBetweenEntity();
     this._bpController ??= this._betweenPosEntity.addController(SolarSystemSceneExports.PositionSumController, "bp_position_sum");
@@ -68,6 +89,10 @@ class DistanceManager extends Eyes.BaseManager {
     this._grabVectors();
     this.addEvents();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._releaseVectors`、`this.removeEvents`、`this.resetAllDistanceEntities`、`this.resetUValue`、`this.setBetweenPosHidden`。
+   * 调用线索：this._releaseVectors、this.removeEvents、this.resetAllDistanceEntities、this.resetUValue、this.setBetweenPosHidden。
+   */
   deinit() {
     this.resetAllDistanceEntities();
     this.resetUValue();
@@ -75,6 +100,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.removeEvents();
     this.setBetweenPosHidden(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `layerManager.getLayer`、`layerManager.toggleLayer`、`this.app.getManager`。
+   * 调用线索：layerManager.getLayer、layerManager.toggleLayer、this.app.getManager。
+   */
   hideSpacecraftLayer() {
     const layerManager = this.app.getManager("layer");
     const {
@@ -82,6 +111,10 @@ class DistanceManager extends Eyes.BaseManager {
     } = layerManager.getLayer("spacecraft");
     visible && layerManager.toggleLayer("spacecraft");
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `layerManager.getLayer`、`layerManager.toggleLayer`、`this.app.getManager`。
+   * 调用线索：layerManager.getLayer、layerManager.toggleLayer、this.app.getManager。
+   */
   showSpacecraftLayer() {
     const layerManager = this.app.getManager("layer");
     const {
@@ -89,6 +122,10 @@ class DistanceManager extends Eyes.BaseManager {
     } = layerManager.getLayer("spacecraft");
     !visible && layerManager.toggleLayer("spacecraft");
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：this.pionerEl?.addEventListener。
+   */
   addEvents() {
     const {
       canHover: canHover
@@ -96,14 +133,27 @@ class DistanceManager extends Eyes.BaseManager {
     this.pionerEl?.addEventListener("click", this.on3dLineClick);
     canHover && this.pionerEl?.addEventListener("mousemove", this._on3dLineMouseMoveThrottled);
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：this.pionerEl?.removeEventListener。
+   */
   removeEvents() {
     this.pionerEl?.removeEventListener("click", this.on3dLineClick);
     this.pionerEl?.removeEventListener("mousemove", this._on3dLineMouseMoveThrottled);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.addEvents`、`this.removeEvents`。
+   * 调用线索：this.addEvents、this.removeEvents。
+   */
   resetEvents() {
     this.removeEvents();
     this.addEvents();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_tooltipOpts.height`、`_tooltipOpts.instance`、`_tooltipOpts.isTouch`；返回 `void`；调用 `0,animateFill.default`、`instance.setProps`、`this._betweenPosEntity.getComponent`、`this._betweenPosEntity.getComponent(Pioneer.DivComponent).getDiv`。
+   * 状态写入：_tooltipOpts.height、_tooltipOpts.instance、_tooltipOpts.isTouch。
+   * 调用线索：0,animateFill.default、instance.setProps、this._betweenPosEntity.getComponent、this._betweenPosEntity.getComponent(Pioneer.DivComponent).getDiv。
+   */
   _updateTooltip() {
     const {
       contentSuffix: contentSuffix,
@@ -130,18 +180,31 @@ class DistanceManager extends Eyes.BaseManager {
     this._tooltipOpts.height = o;
     this._tooltipOpts.isTouch = a;
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：instance?.show。
+   */
   showTooltip() {
     const {
       instance: instance
     } = this._tooltipOpts;
     instance?.show();
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：instance?.hide。
+   */
   hideTooltip() {
     const {
       instance: instance
     } = this._tooltipOpts;
     instance?.hide();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `intersect`；返回 `void` 或 `void(this.intersect=null)`；调用 `Boolean`、`i.getNormalSpacePositionFromCameraSpacePosition`、`i.getViewport`、`i.getViewport().getPixelSpacePositionFromNormalSpacePosition`、`this.app.getManager`、`this.app.getManager("time").getTimeRate`。
+   * 状态写入：intersect。
+   * 调用线索：Boolean、i.getNormalSpacePositionFromCameraSpacePosition、i.getViewport、i.getViewport().getPixelSpacePositionFromNormalSpacePosition、this._betweenPosEntity?.getPixelSpacePosition等。
+   */
   on3dLineMouseMove(t) {
     if (this._isTransitioning) return;
     const {
@@ -173,6 +236,10 @@ class DistanceManager extends Eyes.BaseManager {
     const u = this.getInterpolationU(this.intersect.u);
     this.distancePanel.setLineGraphicDotOffset(u);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._bpParentIsSource?n:1-n`；调用 `this.getLimitedU`。
+   * 调用线索：this.getLimitedU。
+   */
   getInterpolationU(t) {
     const {
       limitedU: limitedU,
@@ -182,6 +249,10 @@ class DistanceManager extends Eyes.BaseManager {
     const n = (limitedU - minSurfaceU) / (maxSurfaceU - minSurfaceU);
     return this._bpParentIsSource ? n : 1 - n;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `.5!==t?limitedU:minSurfaceU+(maxSurfaceU-minSurfaceU)*t`；调用 `this.getLimitedU`。
+   * 调用线索：this.getLimitedU。
+   */
   getOffsetU(t) {
     const e = this._bpParentIsSource ? t : 1 - t;
     const {
@@ -191,6 +262,11 @@ class DistanceManager extends Eyes.BaseManager {
     } = this.getLimitedU(e);
     return .5 !== t ? limitedU : minSurfaceU + (maxSurfaceU - minSurfaceU) * t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `intersect`；返回 `void`；调用 `Math.abs`、`Math.max`、`Math.pow`、`parseFloat`、`t.toFixed`、`this.calcIntersect`。
+   * 状态写入：intersect。
+   * 调用线索：Math.abs、Math.max、Math.pow、parseFloat、t.toFixed等。
+   */
   on3dLineClick(t, e) {
     if (this.app.canHover || (this.intersect = this.calcIntersect()), null === this.intersect && void 0 === e) return;
     const uValueCurrent = this._uValueCurrent;
@@ -234,6 +310,10 @@ class DistanceManager extends Eyes.BaseManager {
       }
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `this.getLimitedU`、`this.setBpAnimation`、`this.setHoldU`、`this.setIsTransitioning`、`this.toggleBetweenParent`。
+   * 调用线索：this.getLimitedU、this.setBpAnimation、this.setHoldU、this.setIsTransitioning、this.toggleBetweenParent。
+   */
   onNewULimit() {
     const t = this._uValueCurrent ?? 0;
     const {
@@ -252,6 +332,10 @@ class DistanceManager extends Eyes.BaseManager {
       }
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `L.lerp`、`Math.abs`、`Math.max`、`Math.min`、`O.copy`、`O.neg`。
+   * 调用线索：L.lerp、Math.abs、Math.max、Math.min、O.copy等。
+   */
   async camToBetweenPos({
     targetU: targetU,
     duration: e = 1.5,
@@ -333,6 +417,11 @@ class DistanceManager extends Eyes.BaseManager {
       zoomInterval: interval
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_bpAnimation`；调用 `Date.now`。
+   * 状态写入：_bpAnimation。
+   * 调用线索：Date.now。
+   */
   setBpAnimation({
     initialU: initialU,
     targetU: targetU,
@@ -349,6 +438,11 @@ class DistanceManager extends Eyes.BaseManager {
       onEnd: onEnd
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_bpAnimation`；调用 `Date.now`、`Math.pow`、`onEnd`、`onUpdate`、`this.updateBetweenPoint`。
+   * 状态写入：_bpAnimation。
+   * 调用线索：Date.now、Math.pow、onEnd、onUpdate、this.updateBetweenPoint。
+   */
   _updateBpAnimation() {
     const {
       duration: duration,
@@ -370,6 +464,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.updateBetweenPoint(c, false);
     1 === a && ("function" == typeof onEnd && onEnd(), this._bpAnimation = null);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.app.getComponent`、`this.app.getManager`、`this.setAllowPlay`、`timeControlsComponent.playPauseRate`、`timeManager.getTimeRate`、`timeManager.pause`。
+   * 调用线索：this.app.getComponent、this.app.getManager、this.setAllowPlay、timeControlsComponent.playPauseRate、timeManager.getTimeRate等。
+   */
   pauseTime() {
     const timeControlsComponent = this.app.getComponent("timeControls");
     const timeManager = this.app.getManager("time");
@@ -377,6 +475,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.setAllowPlay(!i);
     i || (timeControlsComponent._canUpdate ? timeControlsComponent.playPauseRate(null, true) : timeManager.pause());
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `this.app.getComponent`、`this.app.getManager`、`timeControlsComponent.playPauseRate`、`timeManager.getTimeRate`、`timeManager.play`。
+   * 调用线索：this.app.getComponent、this.app.getManager、timeControlsComponent.playPauseRate、timeManager.getTimeRate、timeManager.play。
+   */
   playTime() {
     const timeManager = this.app.getManager("time");
     const e = 0 !== timeManager.getTimeRate();
@@ -384,6 +486,10 @@ class DistanceManager extends Eyes.BaseManager {
     const timeControlsComponent = this.app.getComponent("timeControls");
     timeControlsComponent._canUpdate ? timeControlsComponent.playPauseRate(null, false) : timeManager.play();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.app.getManager`。
+   * 调用线索：this.app.getManager、this.app.getManager("router")?.navigate。
+   */
   swapSourceAndTarget() {
     const {
       id: id
@@ -399,6 +505,11 @@ class DistanceManager extends Eyes.BaseManager {
       keepTime: true
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currBetweenOffset`；返回 `void`；调用 `o.style.setProperty`。
+   * 状态写入：_currBetweenOffset。
+   * 调用线索：o.style.setProperty、this._betweenPosEntity?.getComponent、this._betweenPosEntity?.getComponent(Pioneer.DivComponent)?.getDiv。
+   */
   setBetweenOffsetVars(t, e) {
     const {
       x: i,
@@ -413,6 +524,10 @@ class DistanceManager extends Eyes.BaseManager {
     o.style.setProperty("--icon-offset-x", `${t}px`);
     o.style.setProperty("--icon-offset-y", `${e}px`);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `r`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`i.copy`、`i.magnitude`、`i.neg`、`i.rotateInverse`。
+   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、i.copy、i.magnitude、i.neg等。
+   */
   getAccurateRadius(t, e = false) {
     const i = Pioneer.Vector3.pool.get();
     const s = Pioneer.Vector3.pool.get();
@@ -432,6 +547,11 @@ class DistanceManager extends Eyes.BaseManager {
     Pioneer.Vector3.pool.release(s);
     return r;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isBelowZero`、`distanceInfo.measuredValue`、`sourceDistanceEntity.measurePoint.radius`、`targetDistanceEntities[0].measurePoint.radius`；返回 `null` 或 `this._getDistanceParams(this.measuredDistance)`；调用 `this._distanceLine.setRenderingEnabled`、`this._getDistanceParams`、`this.calcMPPositions`、`this.distanceIsValid`、`this.distancePanel.setSourceMpState`、`this.distancePanel.setTargetMpState`。
+   * 状态写入：_isBelowZero、distanceInfo.measuredValue、sourceDistanceEntity.measurePoint.radius、targetDistanceEntities[0].measurePoint.radius。
+   * 调用线索：this._distanceLine.setRenderingEnabled、this._distanceLine?.setDistanceProps、this._distanceLine?.setSourceMeasurePoint、this._distanceLine?.setTargetMeasurePoint、this._getDistanceParams等。
+   */
   measureDistance(t = false, e = void 0) {
     const {
       entity: entity,
@@ -489,6 +609,10 @@ class DistanceManager extends Eyes.BaseManager {
     this._isBelowZero !== isBelowZero && (this.setBetweenPosHidden(isBelowZero), this._distanceLine.setRenderingEnabled(!isBelowZero), this._isBelowZero = isBelowZero);
     return this._getDistanceParams(this.measuredDistance);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `{prefix:d,value:h,scale:u,unit:p,dps:g.length>1&&g[1].length>1?2:1,actualDistanceValue:m}`；调用 `Math.max`、`h.toPrecision`、`h.toPrecision(4).split`。
+   * 调用线索：Math.max、h.toPrecision、h.toPrecision(4).split。
+   */
   _getDistanceParams(t) {
     const e = this._currentUnitSystem === _;
     const i = 9460730472580.8;
@@ -517,6 +641,10 @@ class DistanceManager extends Eyes.BaseManager {
       actualDistanceValue: m
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `o`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`entity.getVelocityRelativeToEntity`、`s.magnitude`、`this._getDistanceParams`。
+   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、entity.getVelocityRelativeToEntity、s.magnitude、this._getDistanceParams。
+   */
   measureRelativeVelocity(t) {
     const {
       entity: entity
@@ -532,6 +660,10 @@ class DistanceManager extends Eyes.BaseManager {
     Pioneer.Vector3.pool.release(s);
     return o;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `{id:t,entity:i,info:e,measurePoint:s}`；调用 `Error`、`i.getExtentsRadius`、`this.app.getManager`、`this.app.getManager("content").getEntityInfo`、`this.app.scene.getEntity`；含显式错误分支。
+   * 调用线索：Error、i.getExtentsRadius、this.app.getManager、this.app.getManager("content").getEntityInfo、this.app.scene.getEntity。
+   */
   _createDistanceEntity(t) {
     const e = this.app.getManager("content").getEntityInfo(t);
     const i = this.app.scene.getEntity(t);
@@ -548,6 +680,10 @@ class DistanceManager extends Eyes.BaseManager {
       measurePoint: s
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i`；调用 `SolarSystemSceneExports.Entity.createFromOptions`、`i.setExtentsRadius`、`i.setOcclusionRadius`、`i.setOrientation`、`i.setPosition`、`labelManager.addLabel`。
+   * 调用线索：SolarSystemSceneExports.Entity.createFromOptions、i.setExtentsRadius、i.setOcclusionRadius、i.setOrientation、i.setPosition等。
+   */
   _createBetweenEntity() {
     const labelManager = this.app.getManager("label");
     const e = "distance_betweenPos";
@@ -567,10 +703,19 @@ class DistanceManager extends Eyes.BaseManager {
     this.setLabelWeight(e, false, "201");
     return i;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_bpParentIsSource`；调用 `this._betweenPosEntity.setParent`。
+   * 状态写入：_bpParentIsSource。
+   * 调用线索：this._betweenPosEntity.setParent。
+   */
   setBetweenEntityParent(t) {
     this._betweenPosEntity.setParent(t);
     this._bpParentIsSource = t === this.sourceDistanceEntity?.entity;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.setBetweenEntityParent`、`this.setDistanceInfo`、`this.updateBetweenPoint`。
+   * 调用线索：this.setBetweenEntityParent、this.setDistanceInfo、this.updateBetweenPoint。
+   */
   toggleBetweenParent(t) {
     const {
       entity: entity
@@ -583,9 +728,18 @@ class DistanceManager extends Eyes.BaseManager {
     this.setDistanceInfo();
     this.updateBetweenPoint(1 - t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_uValueHold`。
+   * 状态写入：_uValueHold。
+   */
   setHoldU(uValueHold) {
     this._uValueHold = uValueHold;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_uValueCurrent`；返回 `void`；调用 `this.distancePanel.setLineGraphicDotPos`、`this.getInterpolationU`、`this.getLimitedU`、`this.getOffsetU`、`this.setBpControllerMults`。
+   * 状态写入：_uValueCurrent。
+   * 调用线索：this.distancePanel.setLineGraphicDotPos、this.getInterpolationU、this.getLimitedU、this.getOffsetU、this.setBpControllerMults。
+   */
   updateBetweenPoint(t, e = true) {
     const {
       sourceTargetDiff: sourceTargetDiff
@@ -603,6 +757,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.distancePanel.setLineGraphicDotPos(a);
     this._uValueCurrent !== uValueCurrent && (this._uValueCurrent = uValueCurrent);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._bpController._entities.get`。
+   * 调用线索：this._bpController._entities.get。
+   */
   setBpControllerMults(t) {
     const {
       id: id
@@ -617,12 +775,24 @@ class DistanceManager extends Eyes.BaseManager {
     const a = this._bpController._entities.get(i);
     r && a && (r.mult = n, a.mult = o);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_uValueCurrent`。
+   * 状态写入：_uValueCurrent。
+   */
   resetUValue() {
     this._uValueCurrent = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_areRelated`。
+   * 状态写入：_areRelated。
+   */
   resetAreRelated() {
     this._areRelated = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `distanceInfo`。
+   * 状态写入：distanceInfo。
+   */
   resetDistanceInfo() {
     this.distanceInfo = {
       centerValue: null,
@@ -630,14 +800,25 @@ class DistanceManager extends Eyes.BaseManager {
       sourceTargetDiff: null
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.classList.toggle`。
+   * 调用线索：e.classList.toggle、this._betweenPosEntity?.getComponent、this._betweenPosEntity?.getComponent(Pioneer.DivComponent).getDiv。
+   */
   setBetweenPosHidden(t) {
     const e = this._betweenPosEntity?.getComponent(Pioneer.DivComponent).getDiv();
     e.classList.toggle("hide", t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentUnitSystem`。
+   * 状态写入：_currentUnitSystem。
+   */
   toggleCurrentUnitSystem() {
     const t = this._currentUnitSystem === p ? _ : p;
     this._currentUnitSystem = t;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s`。
+   */
   setMPPosition(t, e = u) {
     const {
       measurePoint: measurePoint
@@ -646,6 +827,9 @@ class DistanceManager extends Eyes.BaseManager {
     s && (measurePoint.position = e);
     return s;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s`。
+   */
   setMPAdjustable(t, e) {
     const {
       measurePoint: measurePoint
@@ -654,6 +838,10 @@ class DistanceManager extends Eyes.BaseManager {
     s && (measurePoint.adjustable = e);
     return s;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `this.setMPPosition`、`this.updateMeasurement`。
+   * 调用线索：this.setMPPosition、this.updateMeasurement。
+   */
   toggleSourceMeasurePoint() {
     const {
       adjustable: adjustable,
@@ -664,6 +852,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.setMPPosition(this.sourceDistanceEntity, i);
     this.updateMeasurement(null, true);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `this.setMPPosition`、`this.updateMeasurement`。
+   * 调用线索：this.setMPPosition、this.updateMeasurement。
+   */
   toggleTargetMeasurePoint() {
     const {
       adjustable: adjustable,
@@ -674,6 +866,11 @@ class DistanceManager extends Eyes.BaseManager {
     this.setMPPosition(this.targetDistanceEntities[0], i);
     this.updateMeasurement(null, true);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_distanceLine`、`_sourceDistanceEntity`；调用 `entity.addComponent`、`this._bpController.addEntity`、`this._createDistanceEntity`、`this.distancePanel.setSourceText`、`this.resetSourceDistanceEntity`、`this.setBetweenEntityParent`。
+   * 状态写入：_distanceLine、_sourceDistanceEntity。
+   * 调用线索：entity.addComponent、this._bpController.addEntity、this._createDistanceEntity、this.distancePanel.setSourceText、this.distancePanel.targetSearch?.setExcludeResults等。
+   */
   setSourceDistanceEntity(t) {
     this.resetSourceDistanceEntity();
     this._sourceDistanceEntity = this._createDistanceEntity(t);
@@ -691,6 +888,10 @@ class DistanceManager extends Eyes.BaseManager {
     this._bpController.addEntity(id, 1, 0);
     null === this._uValueHold && this.setHoldU(0);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Boolean`、`t.forEach`、`this._bpController.addEntity`、`this._distanceLine.setTargetEntity`、`this.addTargetDistanceEntity`、`this.distancePanel.setResult`。
+   * 调用线索：Boolean、t.forEach、this._bpController.addEntity、this._distanceLine.setTargetEntity、this.addTargetDistanceEntity等。
+   */
   setTargetDistanceEntities(t) {
     this.resetTargetDistanceEntities();
     t.forEach(t => this.addTargetDistanceEntity(t));
@@ -719,6 +920,11 @@ class DistanceManager extends Eyes.BaseManager {
       null === this._uValueHold && this.setHoldU(0);
     } else this.resetUValue();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `errorResultTimeout`；返回 `new Promise(t=>{this.errorResultTimeout=setTimeout(()=>{this.distancePanel.setResult();t();},3e3);})`；调用 `new Promise`、`setTimeout`、`t`、`this.distancePanel.setResult`。
+   * 状态写入：errorResultTimeout。
+   * 调用线索：new Promise、setTimeout、t、this.distancePanel.setResult。
+   */
   async setTempErrorResult(t) {
     this.distancePanel.setResult({
       text: t
@@ -730,6 +936,11 @@ class DistanceManager extends Eyes.BaseManager {
       }, 3e3);
     });
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_prevValues.weights[t]`；返回 `void`；调用 `labelManager.getDefaultWeight`、`labelManager.setWeight`、`this.app.getManager`、`this.app.scene.getEntity`。
+   * 状态写入：_prevValues.weights[t]。
+   * 调用线索：labelManager.getDefaultWeight、labelManager.setWeight、this.app.getManager、this.app.scene.getEntity。
+   */
   setLabelWeight(t, e = false, i) {
     if (!t) return;
     if (null === this.app.scene.getEntity(t)) return;
@@ -739,14 +950,27 @@ class DistanceManager extends Eyes.BaseManager {
     0 === o && (labelManager._weights[t] = {});
     e ? this._prevValues.weights[t] && labelManager.setWeight(t, this._prevValues.weights[t]) : (labelManager.setWeight(t, s), this._prevValues.weights[t] = o);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_prevValues.occRadii[i]`；调用 `t.getName`、`t.getOcclusionRadius`、`t.setOcclusionRadius`。
+   * 状态写入：_prevValues.occRadii[i]。
+   * 调用线索：t.getName、t.getOcclusionRadius、t.setOcclusionRadius。
+   */
   setOcclusionRadius(t, e = false) {
     const i = t.getName();
     const s = t.getOcclusionRadius();
     e ? this._prevValues.occRadii[i] && t.setOcclusionRadius(this._prevValues.occRadii[i]) : (t.setOcclusionRadius(0), this._prevValues.occRadii[i] = s);
   }
+  /** @eyes-analysis
+   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
+   * 调用线索：this._betweenPosEntity?.getComponent、this._betweenPosEntity?.getComponent(Pioneer.DivComponent)?.getDiv、this._betweenPosEntity?.getComponent(Pioneer.DivComponent)?.getDiv()?.classList?.toggle。
+   */
   setBetweenIntersectClass(t) {
     this._betweenPosEntity?.getComponent(Pioneer.DivComponent)?.getDiv()?.classList?.toggle("intersect", t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `o.classList.toggle`。
+   * 调用线索：entity?.getComponent、o.classList.toggle、s?.getDiv。
+   */
   toggleSourceIconClass(t, e) {
     const {
       entity: entity
@@ -756,6 +980,10 @@ class DistanceManager extends Eyes.BaseManager {
     const o = s?.getDiv()?.firstChild;
     o && o.classList.toggle(t, e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void`；调用 `o.classList.toggle`。
+   * 调用线索：entity?.getComponent、o.classList.toggle、s?.getDiv。
+   */
   toggleTargetIconClass(t, e) {
     const {
       entity: entity
@@ -765,6 +993,11 @@ class DistanceManager extends Eyes.BaseManager {
     const o = s?.getDiv()?.firstChild;
     o && o.classList.toggle(t, e);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_areClose`、`_areRelated`；返回 `void` 或 `h`；调用 `this.setMPPosition`。
+   * 状态写入：_areClose、_areRelated。
+   * 调用线索：entity?.getParent、entity?.getParent()?.getName、n?.getParent、n?.getParent()?.getName、this.setMPPosition。
+   */
   calcMPPositions() {
     if (!this.hasTarget) return;
     const {
@@ -797,6 +1030,11 @@ class DistanceManager extends Eyes.BaseManager {
     }
     return h;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_sourceDistanceEntity`；调用 `entity.removeComponent`、`this._bpController.removeEntity`、`this.distancePanel.setSourceMpState`、`this.distancePanel.setSourceText`、`this.resetAreRelated`、`this.resetDistanceInfo`。
+   * 状态写入：_sourceDistanceEntity。
+   * 调用线索：entity.removeComponent、this._bpController.removeEntity、this.distancePanel.setSourceMpState、this.distancePanel.setSourceText、this.distancePanel.targetSearch?.setExcludeResults等。
+   */
   resetSourceDistanceEntity() {
     const {
       entity: entity,
@@ -815,6 +1053,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.distancePanel.targetSearch?.setExcludeResults([]);
     this.resetDistanceInfo();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `console.error`、`this._createDistanceEntity`、`this._targetDistanceEntities.push`、`this.targetDistanceEntities.find`。
+   * 调用线索：console.error、this._createDistanceEntity、this._targetDistanceEntities.push、this.targetDistanceEntities.find。
+   */
   addTargetDistanceEntity(t) {
     this.targetDistanceEntities.find(({
       id: id
@@ -822,6 +1064,11 @@ class DistanceManager extends Eyes.BaseManager {
     const e = this._createDistanceEntity(t);
     this._targetDistanceEntities.push(e);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_targetDistanceEntities`；调用 `this._bpController.removeEntity`、`this.distancePanel.setResult`、`this.distancePanel.setSourceMpState`、`this.distancePanel.setTargetMpState`、`this.distancePanel.setTargetText`、`this.resetAreRelated`。
+   * 状态写入：_targetDistanceEntities。
+   * 调用线索：this._bpController.removeEntity、this._distanceLine?.setTargetEntity、this.distancePanel.setResult、this.distancePanel.setSourceMpState、this.distancePanel.setTargetMpState等。
+   */
   resetTargetDistanceEntities() {
     const {
       entity: entity,
@@ -844,30 +1091,63 @@ class DistanceManager extends Eyes.BaseManager {
     this.resetDistanceInfo();
     this.showSpacecraftLayer();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null!=t&&null!=e&&(null==i?t===e:t.toPrecision(i)===e.toPrecision(i))`；调用 `e.toPrecision`、`t.toPrecision`。
+   * 调用线索：e.toPrecision、t.toPrecision。
+   */
   valuesWithPrecisionAreEqual(t, e, i = 5) {
     return null != t && null != e && (null == i ? t === e : t.toPrecision(i) === e.toPrecision(i));
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this.resetSourceDistanceEntity`、`this.resetTargetDistanceEntities`。
+   * 调用线索：this.resetSourceDistanceEntity、this.resetTargetDistanceEntities。
+   */
   resetAllDistanceEntities() {
     this.resetSourceDistanceEntity();
     this.resetTargetDistanceEntities();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `hasTarget`；调用 `this.distancePanel.setCanMinimize`、`this.distancePanel.setSwapButtonVisible`。
+   * 状态写入：hasTarget。
+   * 调用线索：this.distancePanel.setCanMinimize、this.distancePanel.setSwapButtonVisible。
+   */
   setHasTarget(hasTarget) {
     this.hasTarget = hasTarget;
     this.distancePanel.setCanMinimize(this.hasTarget);
     this.distancePanel.setSwapButtonVisible(this.hasTarget);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_allowRaycasting`。
+   * 状态写入：_allowRaycasting。
+   */
   setAllowRaycasting(allowRaycasting) {
     this._allowRaycasting = allowRaycasting;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_allowPlay`。
+   * 状态写入：_allowPlay。
+   */
   setAllowPlay(allowPlay) {
     this._allowPlay = allowPlay;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isTransitioning`。
+   * 状态写入：_isTransitioning。
+   */
   setIsTransitioning(isTransitioning) {
     this._isTransitioning = isTransitioning;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_isWaitingForEntities`。
+   * 状态写入：_isWaitingForEntities。
+   */
   setIsWaitingForEntities(isWaitingForEntities) {
     this._isWaitingForEntities = isWaitingForEntities;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `t`；调用 `t.push`、`this.targetDistanceEntities.map`。
+   * 调用线索：t.push、this.targetDistanceEntities.map。
+   */
   getEntitiesToLoad() {
     const t = [];
     this.sourceDistanceEntity?.id && t.push(this.sourceDistanceEntity.id);
@@ -876,6 +1156,11 @@ class DistanceManager extends Eyes.BaseManager {
     }) => id));
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `distanceInfo.centerValue`、`distanceInfo.measuredValue`、`distanceInfo.sourceTargetDiff`；调用 `(this._bpParentIsSource?i:entity).getPositionRelativeToEntity`、`sourceTargetDiff.magnitude`、`this.distanceIsValid`。
+   * 状态写入：distanceInfo.centerValue、distanceInfo.measuredValue、distanceInfo.sourceTargetDiff。
+   * 调用线索：(this._bpParentIsSource?i:entity).getPositionRelativeToEntity、sourceTargetDiff.magnitude、this.distanceIsValid。
+   */
   setDistanceInfo(t) {
     const {
       entity: entity
@@ -891,6 +1176,10 @@ class DistanceManager extends Eyes.BaseManager {
     const r = sourceTargetDiff.magnitude();
     this.distanceIsValid(r) && this.distanceInfo.value !== r && (this.distanceInfo.measuredValue = r, this.distanceInfo.centerValue = r, this.distanceInfo.sourceTargetDiff = sourceTargetDiff);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s<5&&(s<.5||i>1)` 或 `true`；调用 `Math.max`、`this.app.getManager`、`this.app.getManager("camera").cameraEntity.getPosition`、`this.app.getManager("camera").cameraEntity.getPosition().magnitude`、`this.distanceIsValid`。
+   * 调用线索：Math.max、this.app.getManager、this.app.getManager("camera").cameraEntity.getPosition、this.app.getManager("camera").cameraEntity.getPosition().magnitude、this.distanceIsValid。
+   */
   isCloseEnough() {
     const {
       measurePoint: measurePoint
@@ -905,6 +1194,11 @@ class DistanceManager extends Eyes.BaseManager {
     }
     return true;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_currentSecond`；返回 `false` 或 `true`；调用 `_.split`、`parseInt`、`t.valueOf`、`this._formatText`、`this.calculateLightTime`、`this.distancePanel.setLightTime`。
+   * 状态写入：_currentSecond。
+   * 调用线索：_.split、parseInt、t.valueOf、this._formatText、this.calculateLightTime等。
+   */
   updateMeasurement(t, e = false) {
     const currentSecond = t && parseInt(.001 * t.valueOf());
     const s = t && currentSecond === this._currentSecond;
@@ -956,6 +1250,10 @@ class DistanceManager extends Eyes.BaseManager {
     this.distancePanel.setLightTime(w);
     return true;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `{timeHours:i,timeMin:n,timeSec:r,timeMillisec:1e3*(o-r)}`；调用 `Math.floor`。
+   * 调用线索：Math.floor。
+   */
   calculateLightTime(t) {
     const e = t / 299792.458 / 3600;
     const i = Math.floor(e);
@@ -970,9 +1268,17 @@ class DistanceManager extends Eyes.BaseManager {
       timeMillisec: 1e3 * (o - r)
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 ``${t}${formatNumber(e,"m"===s||"ft"===s?0:n,"m"===s||"ft"===s?0:n)} ${i}``；调用 `formatNumber`。
+   * 调用线索：formatNumber。
+   */
   _formatText(t, e, i, s, n) {
     return `${t}${formatNumber(e, "m" === s || "ft" === s ? 0 : n, "m" === s || "ft" === s ? 0 : n)} ${i}`;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null` 或 `{u:S,linePoint:closestPointOnLine}`；调用 `Math.pow`、`a.getCameraSpacePosition`、`closestPointOnLine.lerp`、`intersectToSource.dot`、`intersectToSource.sub`、`intersectionPoint.copy`。
+   * 调用线索：Math.pow、a.getCameraSpacePosition、closestPointOnLine.lerp、intersectToSource.dot、intersectToSource.sub等。
+   */
   calcIntersect() {
     if (!this._allowRaycasting) return null;
     const {
@@ -1033,6 +1339,10 @@ class DistanceManager extends Eyes.BaseManager {
       linePoint: closestPointOnLine
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `s`；调用 `Math.max`、`Math.min`。
+   * 调用线索：Math.max、Math.min。
+   */
   getLimitedU(t) {
     const {
       measurePoint: measurePoint
@@ -1061,6 +1371,11 @@ class DistanceManager extends Eyes.BaseManager {
     s.maxRadiusU = u;
     return s;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_vectors`；调用 `e.get`、`pool.get`。
+   * 状态写入：_vectors。
+   * 调用线索：e.get、pool.get。
+   */
   _grabVectors() {
     const {
       pool: pool
@@ -1081,9 +1396,17 @@ class DistanceManager extends Eyes.BaseManager {
       pixelSpacePoint: e.get()
     };
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Object.values`、`Pioneer.Vector3.pool.release`。
+   * 调用线索：Object.values、Pioneer.Vector3.pool.release。
+   */
   _releaseVectors() {
     for (const t of Object.values(this._vectors)) Pioneer.Vector3.pool.release(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.abs`、`e.getDraggedOffset`、`e.getDraggedOffset().isZero`、`e.getZoomedOffset`、`this._updateBpAnimation`、`this._updateTooltip`。
+   * 调用线索：Math.abs、e.getDraggedOffset、e.getDraggedOffset().isZero、e.getZoomedOffset、this._updateBpAnimation等。
+   */
   update(t) {
     const e = this.app.pioneer.getInput();
     const i = !e.getDraggedOffset().isZero();
@@ -1103,29 +1426,52 @@ class DistanceManager extends Eyes.BaseManager {
     this._updateTooltip();
     !isWaitingForEntities && this.updateMeasurement(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `"number"==typeof t&&!isNaN(t)&&null!=t&&t!==1/0`；调用 `isNaN`。
+   * 调用线索：isNaN。
+   */
   distanceIsValid(t) {
     return "number" == typeof t && !isNaN(t) && null != t && t !== 1 / 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.distanceInfo.centerValue`。
+   */
   get centerDistance() {
     return this.distanceInfo.centerValue;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.distanceInfo.measuredValue`。
+   */
   get measuredDistance() {
     return this.distanceInfo.measuredValue;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `info?.displayName||info?.iauName`。
+   */
   get sourceDisplayName() {
     const {
       info: info
     } = this.sourceDistanceEntity || {};
     return info?.displayName || info?.iauName;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this.targetDistanceEntities.map(({info:info})=>info.displayName||info.iauName)`；调用 `this.targetDistanceEntities.map`。
+   * 调用线索：this.targetDistanceEntities.map。
+   */
   get targetDisplayNames() {
     return this.targetDistanceEntities.map(({
       info: info
     }) => info.displayName || info.iauName);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._targetDistanceEntities`。
+   */
   get targetDistanceEntities() {
     return this._targetDistanceEntities;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._sourceDistanceEntity`。
+   */
   get sourceDistanceEntity() {
     return this._sourceDistanceEntity;
   }

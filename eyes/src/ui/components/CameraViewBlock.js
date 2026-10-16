@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：对象内容中的相机视角选项
+ * 依据：imports: ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/CameraViewBlockTemplate.html, ../../styles/extracted/CameraViewBlockStyles.js；manager dependencies: content, scene, camera, cameraFollow, trajectory, router
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:1465881-1476838.
 import * as Pioneer from "../../engine/pioneer/index.js";
 import "../../framework/eyes/index.js";
@@ -5,7 +11,17 @@ import * as SolarSystemPublicApi from "../../app/public-api.js";
 import CameraViewBlockTemplate from "../templates/CameraViewBlockTemplate.html";
 import "../../styles/extracted/CameraViewBlockStyles.js";
 var getCameraViewBlockTemplate = () => CameraViewBlockTemplate;
+/** @eyes-analysis
+ * 类职责：对象内容中的相机视角选项；继承 SolarSystemPublicApi.BaseContentBlock
+ * 继承：SolarSystemPublicApi.BaseContentBlock；导出：CameraViewBlock。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 this._app.cameraScripts.goToCelestialObject, this._app.getManager, this._app.cameraScripts.goToSpacecraft, this._app.pioneer.getScene, this.app.getView, this._app.cameraScripts.alignObjects, this._app.cameraScripts.alignSpacecraftPlanet, this._app.cameraScripts.goToInstrument, this._app.cameraScripts.goToSystem, this._app.cameraScripts.showLocationInParentSystem, this._app.cameraScripts.showLocationInSolarSystem, this.app.getManager, FollowManager.initSearch, FollowManager.registerCallback；写入 onLoaded, _cameraOptions, _followId, _activeCameraOptions, _currentCameraView, _prevCameraView, _activeCamOptIndex, _prevCamOptIndex, _optionIndexMap, _trajectoryViewId, _defaultViewIndex…
+   * 状态写入：_activeCamOptIndex、_activeCameraOptions、_cameraOptions、_currentCameraView、_defaultViewIndexOverride、_entityId、_followId、_optionIndexMap等；完整记录见索引。
+   * 调用线索：cameraFollowManager.initSearch、cameraFollowManager.registerCallback、e.addController、e.getController、e?.getController等。
+   */
   constructor(t, e = {}) {
     e.config = {
       defaultSelectionIndex: 0,
@@ -169,6 +185,11 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     this._entityId = "";
     this.bindFunctions(["goBackToPreviousView", "goToFollowCameraView", "goToTrajectoryView"]);
   }
+  /** @eyes-analysis
+   * 执行 _renderOptions 对应的组件业务步骤；调用 Text.toLowerCase, this._goToView, this._activeCameraOptions.push, this._children.cameraOptions.appendChild, this._setVariables；写入 _activeCameraOptions, _currentCameraView, _prevCameraView, _activeCamOptIndex, _prevCamOptIndex, _optionIndexMap。
+   * 状态写入：_activeCamOptIndex、_activeCameraOptions、_children.cameraOptions.innerHTML、_currentCameraView、_optionIndexMap、_optionIndexMap[id]、_prevCamOptIndex、_prevCameraView。
+   * 调用线索：d.innerText.toLowerCase、d.innerText.toLowerCase().split、d.innerText.toLowerCase().split(" ").join、d.setAttribute、document.createElement等。
+   */
   _renderOptions(t, e = false) {
     this._children.cameraOptions.innerHTML = "";
     this._activeCameraOptions = [];
@@ -225,12 +246,20 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     }
     this._setVariables(this._children.cameraOptions);
   }
+  /** @eyes-analysis
+   * 执行 _addPlanetOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
+   * 调用线索：this._cameraOptions.cameraFollow、this._cameraOptions.nearObject、this._cameraOptions.system、this._renderOptions。
+   */
   _addPlanetOptions(t, e = false) {
     const i = t.displayName || t.iauName;
     const s = t.id;
     const n = [this._cameraOptions.nearObject(i, s), this._cameraOptions.system(s), this._cameraOptions.cameraFollow()];
     this._renderOptions(n, e);
   }
+  /** @eyes-analysis
+   * 执行 _addMoonOptions 对应的组件业务步骤；调用 this._app.getManager, this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
+   * 调用线索：this._app.getManager、this._app.getManager("scene").getParent、this._cameraOptions.cameraFollow、this._cameraOptions.nearObject、this._cameraOptions.system等。
+   */
   _addMoonOptions(t, e = false) {
     const i = t.displayName || t.iauName;
     const s = t.id;
@@ -238,12 +267,20 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     const o = [this._cameraOptions.nearObject(i, s), this._cameraOptions.system(n), this._cameraOptions.cameraFollow()];
     this._renderOptions(o, e);
   }
+  /** @eyes-analysis
+   * 执行 _addStarOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
+   * 调用线索：this._cameraOptions.cameraFollow、this._cameraOptions.nearObject、this._cameraOptions.system、this._renderOptions。
+   */
   _addStarOptions(t, e = false) {
     const i = t.displayName || t.iauName;
     const s = t.id;
     const n = [this._cameraOptions.nearObject(i, s), this._cameraOptions.system("inner_solar_system", "Inner"), this._cameraOptions.system("outer_solar_system", "Outer"), this._cameraOptions.cameraFollow()];
     this._renderOptions(n, e);
   }
+  /** @eyes-analysis
+   * 执行 _addSpacecraftOptions 对应的组件业务步骤；调用 this._app.getManager, this._app.getView, Manager.getEntityInfo, this._app.pioneer.getScene, Manager.hasLanded, this._cameraOptions.nearEvent, this._cameraOptions.cameraFollow, this._cameraOptions.nearInstrument, this._cameraOptions.nearSpacecraft, this._cameraOptions.aboveParent, this.app.getManager, Manager.hasTrajectoryOptions, this._cameraOptions.trajectory, this._cameraOptions.alignSpacecraftPlanet。
+   * 调用线索：contentManager.getEntityInfo、contentManager.hasLanded、this._app.getManager、this._app.getManager("scene").getParent、this._app.getManager("scene").isReady等。
+   */
   async _addSpacecraftOptions(t, e = false) {
     const contentManager = this._app.getManager("content");
     const trajectoryManager = this._app.getManager("trajectory");
@@ -275,12 +312,20 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     } else u.push(this._cameraOptions.alignSpacecraftPlanet(r, a), this._cameraOptions.aboveParent(a));
     this._renderOptions(u, e);
   }
+  /** @eyes-analysis
+   * 执行 _addFeatureOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._renderOptions。
+   * 调用线索：this._cameraOptions.nearObject、this._cameraOptions.system、this._renderOptions。
+   */
   _addFeatureOptions(t, e = false) {
     const i = t.displayName || t.iauName;
     const s = t.id;
     const n = [this._cameraOptions.nearObject(i, s), this._cameraOptions.system(s)];
     this._renderOptions(n, e);
   }
+  /** @eyes-analysis
+   * 执行 _addDefaultOptions 对应的组件业务步骤；调用 this._app.getManager, Manager.getEntityInfo, this._cameraOptions.nearObject, this._cameraOptions.aboveParent, this._cameraOptions.cameraFollow, this._cameraOptions.aboveSun, this._renderOptions。
+   * 调用线索：a.push、contentManager.getEntityInfo、this._app.getManager、this._app.getManager("scene").getParent、this._app.getManager("scene").isReady等。
+   */
   async _addDefaultOptions(t, e) {
     const contentManager = this._app.getManager("content");
     const s = t.displayName || t.iauName;
@@ -292,6 +337,11 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     "sun" !== o && a.push(this._cameraOptions.aboveSun(n));
     this._renderOptions(a, e);
   }
+  /** @eyes-analysis
+   * 执行 _goToView 对应的组件业务步骤；调用 List.remove, List.add；写入 _prevCameraView, _currentCameraView, _prevCamOptIndex, _activeCamOptIndex。
+   * 状态写入：_activeCamOptIndex、_currentCameraView、_prevCamOptIndex、_prevCameraView。
+   * 调用线索：i.onDeselect、i?.option.classList.remove、s.onSelect、s?.option.classList.add。
+   */
   _goToView(currentCameraView) {
     const activeCamOptIndex = this._optionIndexMap[currentCameraView];
     if (activeCamOptIndex !== this._activeCamOptIndex) {
@@ -307,22 +357,46 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
       s?.option.classList.add("selected");
     }
   }
+  /** @eyes-analysis
+   * 执行 goBackToPreviousView 对应的组件业务步骤；调用 this._selectDefaultView, this._goToView。
+   * 调用线索：this._goToView、this._selectDefaultView。
+   */
   goBackToPreviousView() {
     null == this._prevCameraView ? this._selectDefaultView() : this._goToView(this._prevCameraView);
   }
+  /** @eyes-analysis
+   * 执行 goToFollowCameraView 对应的组件业务步骤；调用 this._goToView；写入 _followId。
+   * 状态写入：_followId。
+   * 调用线索：this._goToView。
+   */
   goToFollowCameraView(followId) {
     this._goToView("cameraFollow");
     this._followId = followId;
   }
+  /** @eyes-analysis
+   * 执行 goToTrajectoryView 对应的组件业务步骤；调用 this._goToView。
+   * 调用线索：this._goToView。
+   */
   goToTrajectoryView() {
     this._goToView("trajectory");
   }
+  /** @eyes-analysis
+   * 执行 goToDefaultView 对应的组件业务步骤；调用 this._selectDefaultView。
+   * 调用线索：this._selectDefaultView。
+   */
   goToDefaultView() {
     this._selectDefaultView();
   }
+  /** @eyes-analysis
+   * 执行 getCameraView 对应的组件业务步骤。
+   */
   getCameraView() {
     return this._currentCameraView;
   }
+  /** @eyes-analysis
+   * 执行 _selectDefaultView 对应的组件业务步骤；调用 this._goToView。
+   * 调用线索：this._goToView。
+   */
   _selectDefaultView() {
     const {
       defaultSelectionIndex: defaultSelectionIndex
@@ -330,6 +404,11 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     const e = this._activeCameraOptions[this._defaultViewIndexOverride || defaultSelectionIndex];
     this._goToView(e.id);
   }
+  /** @eyes-analysis
+   * 响应路径参数变化并刷新本模块；调用 this.app.getManager, FollowManager.setEnabled, this._app.getManager, this.setState, List.remove, this._addPlanetOptions, this._addMoonOptions, this._addStarOptions, this._addSpacecraftOptions, this._addFeatureOptions, this._addDefaultOptions, this._activeCameraOptions.find, this._processQuery, this._selectDefaultView；写入 _entityId, _defaultViewIndexOverride, onLoaded。
+   * 状态写入：_defaultViewIndexOverride、_entityId、onLoaded。
+   * 调用线索：cameraFollowManager.setEnabled、e.category.toLowerCase、e.onDeselect、e?.option.classList.remove、t等。
+   */
   async onRouteChange(t) {
     const e = t.entityInfo;
     const {
@@ -387,9 +466,17 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
     this.onLoaded.forEach(t => t());
     this.onLoaded = [];
   }
+  /** @eyes-analysis
+   * 响应查询参数变化；调用 this._processQuery。
+   * 调用线索：this._processQuery。
+   */
   async onQueryChange(t) {
     this._processQuery(t);
   }
+  /** @eyes-analysis
+   * 执行 _processQuery 对应的组件业务步骤；调用 this.app.getManager, Manager.parseQuery, Manager.setEntitiesForceVisible, FollowManager.follow, FollowManager.setEnabled, this._selectDefaultView, Manager.hasTrajectoryOptions, this._app.getManager, Manager.setEnabled。
+   * 调用线索：cameraFollowManager.follow、cameraFollowManager.setEnabled、routerManager.parseQuery、sceneManager.setEntitiesForceVisible、this._app.getManager等。
+   */
   _processQuery(t) {
     const routerManager = this.app.getManager("router");
     const sceneManager = this.app.getManager("scene");
@@ -427,6 +514,9 @@ class CameraViewBlock extends SolarSystemPublicApi.BaseContentBlock {
       trajectoryManager.setEnabled(true, this._entityId);
     } else this._currentCameraView || this._selectDefaultView();
   }
+  /** @eyes-analysis
+   * 执行 isLoaded 对应的组件业务步骤。
+   */
   get isLoaded() {
     return this._activeCameraOptions.length > 0;
   }

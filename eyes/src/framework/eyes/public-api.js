@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：公共导出适配层，将已恢复模块按应用接口重新导出
+ * 依据：imports: ../../engine/core/version-8.js, ../../engine/components/OrbiterLineOfSightComponent.js, ../../engine/components/DistanceLineComponent.js, ../../engine/core/CancelToken.js, ../../engine/core/AppUtils.js, ../../engine/core/AnimationUtils.js, ../../ui/components/BaseComponent.js, ../../engine/core/SettingsEntry.js, ../../engine/core/LoadIconEntry.js, ../../engine/core/OverlayEntry.js, ../../engine/core/SearchEntry.js, ../../engine/core/ClockEntry.js, ../../engine/core/ClockShortcutEntry.js, ../../engine/core/CarouselEntry.js, ../../engine/core/TutorialOverlayEntry.js, ../../engine/core/CarouselPanelEntry.js, ../../engine/core/ShareModalEntry.js, ../../engine/core/TimeControllerEntry…
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:6395-9522.
 import "../../engine/core/version-8.js";
 import "../../engine/components/OrbiterLineOfSightComponent.js";

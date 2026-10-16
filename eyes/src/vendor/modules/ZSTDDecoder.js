@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：初始化内嵌 WASM 模块并解压 Zstandard 数据
+ * 依据：// Recovered from vendors.js:836509-876315.；exports: ZSTDDecoder
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from vendors.js:836509-876315.
 let r, i, a;
 const s = {
@@ -7,13 +13,30 @@ const s = {
     }
   }
 };
+/** @eyes-analysis
+ * 类职责：初始化内嵌 WASM 模块并解压 Zstandard 数据
+ * 继承：无显式父类；导出：ZSTDDecoder。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class ZSTDDecoder {
+  /** @eyes-analysis
+   * 初始化延迟资源和运行时能力；必须先完成再使用依赖资源的方法
+   * 调用线索：Buffer.from、WebAssembly.instantiate、WebAssembly.instantiate(Buffer.from(o,"base64"),s).then、e.arrayBuffer、fetch等。
+   */
   init() {
     return r || (r = "undefined" != typeof fetch ? fetch("data:application/wasm;base64," + o).then(e => e.arrayBuffer()).then(e => WebAssembly.instantiate(e, s)).then(this._init) : WebAssembly.instantiate(Buffer.from(o, "base64"), s).then(this._init), r);
   }
+  /** @eyes-analysis
+   * 源码方法 _init；作用以类职责与源码实现为准，未猜测压缩参数含义
+   * 调用线索：s.env.emscripten_notify_memory_growth。
+   */
   _init(e) {
     i = e.instance, s.env.emscripten_notify_memory_growth(0);
   }
+  /** @eyes-analysis
+   * 解码压缩数据；保留输入类型和 decoder 初始化约束
+   * 调用线索：Number、a.set、a.slice、i.exports.ZSTD_decompress、i.exports.ZSTD_findDecompressedSize等。
+   */
   decode(e, t = 0) {
     if (!i) throw new Error("ZSTDDecoder: Await .init() before decoding.");
     const n = e.byteLength,

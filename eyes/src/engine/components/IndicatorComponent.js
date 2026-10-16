@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：在视口边缘/屏幕位置显示目标指示器，约束位置并处理遮挡与边距。
+ * 依据：import ../pioneer/public-api.js；IndicatorComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:336279-341094.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：在视口边缘/屏幕位置显示目标指示器，约束位置并处理遮挡与边距。
+ * 继承：PioneerPublicApi.BaseComponent；导出：IndicatorComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class IndicatorComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeCamera`、`_arrowClass`、`_bounds`、`_currentHTML`、`_div`、`_div.style.position`、`_div.style.translate`、`_hiddenClass`；调用 `document.createElement`、`new PioneerPublicApi.EntityRef`、`new PioneerPublicApi.Rect`、`super`、`this.__setRadius`、`this.getEntity`。
+   * 状态写入：_activeCamera、_arrowClass、_bounds、_currentHTML、_div、_div.style.position、_div.style.translate、_hiddenClass等；完整记录见索引。
+   * 调用线索：document.createElement、new PioneerPublicApi.EntityRef、new PioneerPublicApi.Rect、super、this.__setRadius等。
+   */
   constructor(t, e) {
     super(t, e);
     this._activeCamera = null;
@@ -20,51 +36,102 @@ class IndicatorComponent extends PioneerPublicApi.BaseComponent {
     this._currentHTML = "";
     this.__setRadius(Number.POSITIVE_INFINITY);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._div`。
+   */
   getDiv() {
     return this._div;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._activeCamera`。
+   */
   getActiveCamera() {
     return this._activeCamera;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeCamera`；调用 `this.resetResources`。
+   * 状态写入：_activeCamera。
+   * 调用线索：this.resetResources。
+   */
   setActiveCamera(activeCamera) {
     this._activeCamera = activeCamera;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._bounds`。
+   */
   getBounds() {
     return this._bounds;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._hiddenClass`。
+   */
   getHiddenClass() {
     return this._hiddenClass;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_hiddenClass`；调用 `this._div.classList.add`、`this._div.classList.contains`、`this._div.classList.remove`。
+   * 状态写入：_hiddenClass。
+   * 调用线索：this._div.classList.add、this._div.classList.contains、this._div.classList.remove。
+   */
   setHiddenClass(hiddenClass) {
     const e = this._div.classList.contains(this._hiddenClass);
     this._div.classList.remove(this._hiddenClass);
     this._hiddenClass = hiddenClass;
     e && this._div.classList.add(this._hiddenClass);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._arrowClass`。
+   */
   getArrowClass() {
     return this._arrowClass;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_arrowClass`；调用 `this._div.classList.remove`。
+   * 状态写入：_arrowClass。
+   * 调用线索：this._div.classList.remove。
+   */
   setArrowClass(arrowClass) {
     this._div.classList.remove(`${this._arrowClass}Left`);
     this._div.classList.remove(`${this._arrowClass}Right`);
     this._arrowClass = arrowClass;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_padding.bottom`、`_padding.left`、`_padding.right`、`_padding.top`。
+   * 状态写入：_padding.bottom、_padding.left、_padding.right、_padding.top。
+   */
   setPadding(t, e, i, s) {
     this._padding.left = t;
     this._padding.right = e;
     this._padding.top = i;
     this._padding.bottom = s;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `""!==this._sourceEntity.getName()?this._sourceEntity.getName():void 0`；调用 `this._sourceEntity.getName`。
+   * 调用线索：this._sourceEntity.getName。
+   */
   getSourceEntity() {
     return "" !== this._sourceEntity.getName() ? this._sourceEntity.getName() : void 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._sourceEntity.setName`。
+   * 调用线索：this._sourceEntity.setName。
+   */
   setSourceEntity(t) {
     this._sourceEntity.setName(t ?? "");
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._div.parentNode.removeChild`。
+   * 调用线索：this._div.parentNode.removeChild。
+   */
   __unloadResources() {
     null !== this._div.parentNode && this._div.parentNode.removeChild(this._div);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_activeCamera`、`_bounds.origin.x`、`_bounds.origin.y`、`_bounds.size.x`、`_bounds.size.y`、`_currentHTML`、`_div.style.rotate`、`_div.style.transformOrigin`；返回 `void` 或 `void this._div.remove()`；调用 `Math.atan`、`Math.cos`、`Math.floor`、`Math.min`、`Math.round`、`Math.sin`。
+   * 状态写入：_activeCamera、_bounds.origin.x、_bounds.origin.y、_bounds.size.x、_bounds.size.y、_currentHTML、_div.style.rotate、_div.style.transformOrigin等；完整记录见索引。
+   * 调用线索：Math.atan、Math.cos、Math.floor、Math.min、Math.round等。
+   */
   __prepareForRender(t) {
     if (!this._activeCamera) {
       const t = this.getEntity().getScene().getEngine().getViewportAt(0);
@@ -130,6 +197,11 @@ class IndicatorComponent extends PioneerPublicApi.BaseComponent {
     this._div.style.rotate = Math.round(100 * L) / 100 + "rad";
     this._div.style.transformOrigin = N ? "right center" : "left center";
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_div.style.translate`；调用 `Math.round`、`t.getBounds`、`this._activeCamera.getViewport`。
+   * 状态写入：_div.style.translate。
+   * 调用线索：Math.round、t.getBounds、this._activeCamera.getViewport。
+   */
   __setVisible(t) {
     if (!t && this._activeCamera) {
       const t = this._activeCamera.getViewport();
@@ -139,6 +211,10 @@ class IndicatorComponent extends PioneerPublicApi.BaseComponent {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.tan`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`、`n.getHorizontalFieldOfView`、`n.getVerticalFieldOfView`。
+   * 调用线索：Math.tan、PioneerPublicApi.Vector2.pool.get、PioneerPublicApi.Vector2.pool.release、n.getHorizontalFieldOfView、n.getVerticalFieldOfView。
+   */
   _getPixelSpaceFromFrameSpace(t, e, i, n) {
     const o = PioneerPublicApi.Vector2.pool.get();
     o.x = e.x / e.y / Math.tan(n.getHorizontalFieldOfView() / 2);

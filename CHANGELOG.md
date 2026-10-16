@@ -3,6 +3,19 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.31 - 2026-10-16
+
+Document and annotate the editable Eyes source without changing its executable AST.
+
+- Inventory all 1,105 tracked Eyes files, 552 classes and 5,513 class callables,
+  with imports, callers, state effects, provenance and scoped short-name evidence.
+- Add Chinese application, engine and vendor reviews, including Dynamo sampling,
+  component lifecycle, resource ownership, verified library versions and risks.
+- Annotate JavaScript files, classes and methods; distinguish semantic inference
+  from structural evidence and retain unresolved original identifiers explicitly.
+- Add reproducible analysis generation and stale-index checks, with regressions
+  for nested classes, scopes, accessors, update expressions and export aliases.
+
 ## 0.2.30 - 2026-10-16
 
 Cache original decoding dependencies locally instead of fetching them from NASA

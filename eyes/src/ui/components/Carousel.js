@@ -1,3 +1,9 @@
+/** @eyes-analysis
+ * 文件职责：轮播条目选择、滚动与响应式显示
+ * 依据：imports: ../../vendor/modules/animateFill-168.js, ../../framework/eyes/public-api.js, ../templates/CarouselTemplate-390.html, ../templates/CarouselTemplate-391.html；manager dependencies: router, spout
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:600844-609802.
 import * as animateFill from "../../vendor/modules/animateFill-168.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
@@ -6,7 +12,17 @@ import CarouselTemplateDependency from "../templates/CarouselTemplate-391.html";
 let defaultExport;
 var getCarouselTemplate = () => CarouselTemplate;
 var getCarouselTemplateDependency = () => CarouselTemplateDependency;
+/** @eyes-analysis
+ * 类职责：轮播条目选择、滚动与响应式显示；继承 EyesPublicApi.BaseComponent
+ * 继承：EyesPublicApi.BaseComponent；导出：default。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class Carousel extends EyesPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isPrimaryTouch, Object.assign, this._eventNames.push, this._initCallbacks, this.bindFunctions；写入 _children, _progressTooltip, _onEnter, _onLeave, _slideTypes, _currentInfo, _onSlideChange, _toggleControls。
+   * 状态写入：_children、_currentInfo、_onEnter、_onLeave、_onSlideChange、_progressTooltip、_slideTypes、_toggleControls。
+   * 调用线索：EyesPublicApi.AppUtils.isPrimaryTouch、Object.assign、super、this._eventNames.push、this._initCallbacks等。
+   */
   constructor(t, e, i = {}) {
     const s = EyesPublicApi.AppUtils.isPrimaryTouch() ? "Swipe/Tap" : "Scroll/Click";
     i.config = {
@@ -69,15 +85,31 @@ class Carousel extends EyesPublicApi.BaseComponent {
     this._initCallbacks();
     this.bindFunctions(["_setSlideTrackDimensions", "_updateCarousel", "_onScroll", "_toggleCollapse", "_onControlsToggle", "goToPrevSlide", "goToNextSlide", "close"]);
   }
+  /** @eyes-analysis
+   * 执行 currentInfo 对应的组件业务步骤。
+   */
   get currentInfo() {
     return this._currentInfo;
   }
+  /** @eyes-analysis
+   * 执行 _onControlsToggle 对应的组件业务步骤；调用 this._toggleControls。
+   * 调用线索：this._toggleControls。
+   */
   _onControlsToggle() {
     this._toggleControls();
   }
+  /** @eyes-analysis
+   * 执行 setOnControlsToggle 对应的组件业务步骤；写入 _toggleControls。
+   * 状态写入：_toggleControls。
+   */
   setOnControlsToggle(toggleControls) {
     this._toggleControls = toggleControls;
   }
+  /** @eyes-analysis
+   * 初始化模板与关联资源；调用 super.init, this._children.carousel.classList.add, this._createSlideTrack, this._updateCarousel, this._children.carousel.addEventListener, this.setState, this._children.progress.addEventListener, this._onScroll；写入 _touchStartY。
+   * 状态写入：_children.carousel.style.pointerEvents、_touchStartY。
+   * 调用线索：super.init、t.preventDefault、this._children.carousel.addEventListener、this._children.carousel.classList.add、this._children.progress.addEventListener等。
+   */
   init() {
     super.init();
     this._children.carousel.classList.add(this._config.vertical ? "vertical" : "horizontal");
@@ -121,11 +153,19 @@ class Carousel extends EyesPublicApi.BaseComponent {
       passive: false
     });
   }
+  /** @eyes-analysis
+   * 重排响应式界面；调用 super.resize, this._updateTooltipsProps。
+   * 调用线索：setTimeout、super.resize、this._updateTooltipsProps。
+   */
   resize() {
     super.resize();
     setTimeout(this._setSlideTrackDimensions, 100);
     this._updateTooltipsProps();
   }
+  /** @eyes-analysis
+   * 执行 _updateTooltipsProps 对应的组件业务步骤；调用 this._progressTooltip.setProps。
+   * 调用线索：this._progressTooltip.setProps。
+   */
   _updateTooltipsProps() {
     const {
       slideType: slideType
@@ -134,12 +174,20 @@ class Carousel extends EyesPublicApi.BaseComponent {
       offset: "overlay" === slideType ? [0, -30] : [0, 10]
     });
   }
+  /** @eyes-analysis
+   * 执行 _createSlideTrack 对应的组件业务步骤；调用 this._children.slides.forEach, this._children.track.appendChild, this._setSlideTrackDimensions。
+   * 调用线索：this._children.slides.forEach、this._children.track.appendChild、this._setSlideTrackDimensions。
+   */
   _createSlideTrack() {
     this._children.slides.forEach(t => {
       this._children.track.appendChild(t);
     });
     this._setSlideTrackDimensions();
   }
+  /** @eyes-analysis
+   * 执行 _setSlideTrackDimensions 对应的组件业务步骤；调用 this._updateTrackPosition。
+   * 调用线索：[...slides].reduce、e.getBoundingClientRect、slides.forEach、this._updateTrackPosition。
+   */
   _setSlideTrackDimensions() {
     const {
       track: track,
@@ -163,6 +211,11 @@ class Carousel extends EyesPublicApi.BaseComponent {
     });
     this._updateTrackPosition();
   }
+  /** @eyes-analysis
+   * 执行 _updateTrackPosition 对应的组件业务步骤。
+   * 状态写入：_children.track.style.transform。
+   * 调用线索：this._children.slides[i].getBoundingClientRect。
+   */
   _updateTrackPosition() {
     const {
       currentIndex: currentIndex
@@ -172,6 +225,10 @@ class Carousel extends EyesPublicApi.BaseComponent {
     const i = this._config.vertical ? `translateY(-${e}px)` : `translateX(-${e}px)`;
     this._children.track.style.transform = i;
   }
+  /** @eyes-analysis
+   * 执行 _updateSlides 对应的组件业务步骤；调用 List.remove, List.add。
+   * 调用线索：i.classList.add、i.classList.remove、s.classList.add、s.classList.remove。
+   */
   _updateSlides() {
     const {
       previousIndex: previousIndex,
@@ -182,10 +239,18 @@ class Carousel extends EyesPublicApi.BaseComponent {
     const s = this._children.slides[currentIndex];
     s && (s.classList.remove("hidden"), s.classList.add("active"));
   }
+  /** @eyes-analysis
+   * 执行 _updateCarousel 对应的组件业务步骤；调用 this._updateTrackPosition, this._updateSlides。
+   * 调用线索：this._updateSlides、this._updateTrackPosition。
+   */
   _updateCarousel() {
     this._updateTrackPosition();
     this._updateSlides();
   }
+  /** @eyes-analysis
+   * 执行 _onScroll 对应的组件业务步骤；调用 this.expand, Target.querySelector, Math.ceil, this.goToPrevSlide, this.goToNextSlide, this.setState。
+   * 调用线索：Math.ceil、["wheel","touchmove"].includes、i.getBoundingClientRect、setTimeout、t.currentTarget.querySelector等。
+   */
   _onScroll(t, e = "mouse") {
     if (this._state.isCollapsed && !this._state.isTimeout) this.expand();else if (!this._state.isScrolling && !this._state.isTimeout) {
       const i = t.currentTarget.querySelector(".os-viewport") || t.currentTarget;
@@ -201,6 +266,11 @@ class Carousel extends EyesPublicApi.BaseComponent {
     }), this._config.timeout));
     ["wheel", "touchmove"].includes(t.type) && t.stopPropagation();
   }
+  /** @eyes-analysis
+   * 源码扩展或访问入口；调用 0,animateFill.default, EyesPublicApi.AppUtils.addScrollbar, EyesPublicApi.AppUtils.htmlWithParamsToElement, c.classList.add, c.querySelector, c.querySelector(".content").appendChild, clearTimeout, console.warn, getCarouselTemplateDependency, h.addEventListener, setTimeout, t.hide, this._children.slides.push, this._children.track.appendChild, this._onScroll, this._setEventHandlersFromAttributes, this._setSlideTrackDimensions, this._setVariables, this._slideTypes.includes, this._updateCarousel；写入 _progressTooltip, _touchStartY。
+   * 状态写入：_progressTooltip、_touchStartY。
+   * 调用线索：0,animateFill.default、EyesPublicApi.AppUtils.addScrollbar、EyesPublicApi.AppUtils.htmlWithParamsToElement、c.classList.add、c.querySelector等。
+   */
   addSlide(t, {
     isLast: e = false,
     isFirst: i = false
@@ -266,18 +336,35 @@ class Carousel extends EyesPublicApi.BaseComponent {
       }
     }));
   }
+  /** @eyes-analysis
+   * 执行 addSlides 对应的组件业务步骤；调用 this.addSlide。
+   * 调用线索：this.addSlide。
+   */
   addSlides(t) {
     for (let e = 0; e < t.length; e++) this.addSlide(t[e]);
   }
+  /** @eyes-analysis
+   * 进入视图时准备界面和订阅。
+   * 调用线索：e[t]。
+   */
   async onEnter(t) {
     const e = this._onEnter[t];
     for (let t = 0; t < e?.length; t++) "function" == typeof e[t] && (await e[t]());
   }
+  /** @eyes-analysis
+   * 离开视图时恢复状态并解除订阅。
+   * 调用线索：e[t]。
+   */
   async onLeave(t) {
     "number" != typeof t && (t = this._state.currentIndex);
     const e = this._onLeave[t];
     for (let t = 0; t < e?.length; t++) "function" == typeof e[t] && (await e[t]());
   }
+  /** @eyes-analysis
+   * 执行 goToSlide 对应的组件业务步骤；调用 this.app.getManager, this.onLeave, this.setState, this._updateCarousel, this.triggerCallbacks, this._progressTooltip.setContent, this._updateTooltipsProps, this._progressTooltip.show, this.onEnter。
+   * 状态写入：_children.progress.style.top。
+   * 调用线索：this._children.slides[t].querySelector、this._progressTooltip.setContent、this._progressTooltip.show、this._updateCarousel、this._updateTooltipsProps等。
+   */
   async goToSlide(t) {
     const {
       spout: spout,
@@ -303,6 +390,10 @@ class Carousel extends EyesPublicApi.BaseComponent {
     await this.onEnter(t);
     true === spout && (await this.app.getManager("spout").setUpSpoutLabels(spoutFontSize));
   }
+  /** @eyes-analysis
+   * 执行 goToPrevSlide 对应的组件业务步骤；调用 this._onSlideChange。
+   * 调用线索：this._onSlideChange。
+   */
   goToPrevSlide() {
     const {
       currentIndex: currentIndex
@@ -311,6 +402,10 @@ class Carousel extends EyesPublicApi.BaseComponent {
     const i = currentIndex - 1;
     i < 0 ? this._config.infinite && this._onSlideChange(e) : this._onSlideChange(i);
   }
+  /** @eyes-analysis
+   * 执行 goToNextSlide 对应的组件业务步骤；调用 this._onSlideChange。
+   * 调用线索：this._onSlideChange。
+   */
   goToNextSlide() {
     const {
       currentIndex: currentIndex
@@ -318,12 +413,23 @@ class Carousel extends EyesPublicApi.BaseComponent {
     const e = currentIndex + 1;
     e > this._children.slides.length - 1 ? this._config.infinite && this._onSlideChange(0) : this._onSlideChange(e);
   }
+  /** @eyes-analysis
+   * 执行 goToFirstSlide 对应的组件业务步骤；调用 this._onSlideChange。
+   * 调用线索：this._onSlideChange。
+   */
   goToFirstSlide() {
     this._onSlideChange(0);
   }
+  /** @eyes-analysis
+   * 执行 isVisible 对应的组件业务步骤。
+   */
   isVisible() {
     return this._state.isVisible;
   }
+  /** @eyes-analysis
+   * 执行 collapse 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
+   * 调用线索：this.setState、this.triggerCallbacks。
+   */
   collapse() {
     this.setState({
       isCollapsed: true,
@@ -332,6 +438,10 @@ class Carousel extends EyesPublicApi.BaseComponent {
     });
     this.triggerCallbacks("expandtoggle", [false]);
   }
+  /** @eyes-analysis
+   * 执行 expand 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
+   * 调用线索：this.setState、this.triggerCallbacks。
+   */
   expand() {
     this.setState({
       isCollapsed: false,
@@ -340,12 +450,23 @@ class Carousel extends EyesPublicApi.BaseComponent {
     });
     this.triggerCallbacks("expandtoggle", [true]);
   }
+  /** @eyes-analysis
+   * 执行 close 对应的组件业务步骤。
+   */
   close() {}
+  /** @eyes-analysis
+   * 执行 show 对应的组件业务步骤；调用 super.show, this._updateCarousel, this._progressTooltip.show。
+   * 调用线索：super.show、this._progressTooltip.show、this._updateCarousel。
+   */
   show() {
     super.show();
     this._updateCarousel();
     null !== this._progressTooltip && this._children.slides.length > 1 && this._progressTooltip.show();
   }
+  /** @eyes-analysis
+   * 执行 clear 对应的组件业务步骤；写入 _onEnter, _onLeave, _currentInfo。
+   * 状态写入：_children.slides、_children.track.innerHTML、_currentInfo、_onEnter、_onLeave、_state.currentIndex、_state.previousIndex。
+   */
   clear() {
     this._children.track.innerHTML = "";
     this._children.slides = [];
@@ -355,6 +476,10 @@ class Carousel extends EyesPublicApi.BaseComponent {
     this._state.previousIndex = 1;
     this._state.currentIndex = this._config.initialSlideIndex || 0;
   }
+  /** @eyes-analysis
+   * 执行 _toggleCollapse 对应的组件业务步骤；调用 this.expand, this.collapse。
+   * 调用线索：this.collapse、this.expand。
+   */
   _toggleCollapse() {
     this._state.isCollapsed ? this.expand() : this.collapse();
   }

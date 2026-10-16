@@ -1,6 +1,22 @@
+/** @eyes-analysis
+ * 文件职责：按立方体面切分并异步细分地形瓦片，组合高程、颜色及辅助纹理，为地表夹持提供高度查询。
+ * 依据：import ../pioneer/public-api.js；CMTSComponent extends PioneerPublicApi.BaseComponent @3
+ * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
+ * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
+ */
 // Recovered from app.js:270137-303107.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
+/** @eyes-analysis
+ * 类职责：按立方体面切分并异步细分地形瓦片，组合高程、颜色及辅助纹理，为地表夹持提供高度查询。
+ * 继承：PioneerPublicApi.BaseComponent；导出：CMTSComponent。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CMTSComponent extends PioneerPublicApi.BaseComponent {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_atmosphereComponentRef`、`_cameraFieldsOfView`、`_cameraPositions`、`_colorTileSize`、`_endPoints`、`_engine`、`_heightOffset`、`_heightScale`；调用 `new PioneerPublicApi.ComponentRef`、`new PioneerPublicApi.FastMap`、`new PioneerPublicApi.FastSet`、`new Set`、`super`、`this.__setUsesEntityOrientation`。
+   * 状态写入：_atmosphereComponentRef、_cameraFieldsOfView、_cameraPositions、_colorTileSize、_endPoints、_engine、_heightOffset、_heightScale等；完整记录见索引。
+   * 调用线索：new PioneerPublicApi.ComponentRef、new PioneerPublicApi.FastMap、new PioneerPublicApi.FastSet、new Set、super等。
+   */
   constructor(t, e) {
     super(t, e);
     this._threeJsScene = this.getEntity().getScene().getThreeJsScene();
@@ -29,6 +45,10 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
     this.__setUsesEntityOrientation(true);
     this.setIsGroundComponent(true);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._endPoints.delete`、`this._endPoints.set`、`this.resetResources`。
+   * 调用线索：this._endPoints.delete、this._endPoints.set、this.resetResources。
+   */
   setBaseUrl(t, e) {
     this.resetResources();
     void 0 !== e ? this._endPoints.set(t, {
@@ -36,47 +56,97 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
       configuration: null
     }) : this._endPoints.delete(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._heightOffset`。
+   */
   getHeightOffset() {
     return this._heightOffset;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_heightOffset`；调用 `this.resetResources`。
+   * 状态写入：_heightOffset。
+   * 调用线索：this.resetResources。
+   */
   setHeightOffset(heightOffset) {
     this._heightOffset = heightOffset;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._heightScale`。
+   */
   getHeightScale() {
     return this._heightScale;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_heightScale`；调用 `this.resetResources`。
+   * 状态写入：_heightScale。
+   * 调用线索：this.resetResources。
+   */
   setHeightScale(heightScale) {
     this._heightScale = heightScale;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._minLevel`。
+   */
   getMinLevel() {
     return this._minLevel;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_minLevel`。
+   * 状态写入：_minLevel。
+   */
   setMinLevel(minLevel) {
     this._minLevel = minLevel;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._maxLevel`。
+   */
   getMaxLevel() {
     return this._maxLevel;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_maxLevel`。
+   * 状态写入：_maxLevel。
+   */
   setMaxLevel(maxLevel) {
     this._maxLevel = maxLevel;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._shadowEntities.length`。
+   */
   getNumShadowEntities() {
     return this._shadowEntities.length;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._shadowEntities[t]?.getName()`。
+   * 调用线索：this._shadowEntities[t]?.getName。
+   */
   getShadowEntity(t) {
     return this._shadowEntities[t]?.getName();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_shadowEntities`；调用 `PioneerPublicApi.ThreeJsHelper.setDefine`、`new PioneerPublicApi.EntityRef`、`this._shadowEntities.push`、`this.getEntity`、`this.getEntity().getScene`、`this.getThreeJsMaterials`。
+   * 状态写入：_shadowEntities。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setDefine、new PioneerPublicApi.EntityRef、this._shadowEntities.push、this.getEntity、this.getEntity().getScene等。
+   */
   setShadowEntities(t) {
     this._shadowEntities = [];
     for (const e of t) this._shadowEntities.push(new PioneerPublicApi.EntityRef(this.getEntity().getScene(), e));
     const e = t.length > 0;
     for (let t = 0, i = this.getThreeJsMaterials().length; t < i; t++) PioneerPublicApi.ThreeJsHelper.setDefine(this.getThreeJsMaterials()[t], "shadowEntities", e);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._materialOptions.has(t)`；调用 `this._materialOptions.has`。
+   * 调用线索：this._materialOptions.has。
+   */
   isMaterialOptionEnabled(t) {
     return this._materialOptions.has(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._materialOptions.add`、`this._materialOptions.delete`、`this._materialOptions.has`、`this.getThreeJsMaterials`。
+   * 调用线索：this._materialOptions.add、this._materialOptions.delete、this._materialOptions.has、this.getThreeJsMaterials。
+   */
   setMaterialOption(t, e) {
     const i = this.getThreeJsMaterials();
     if (e && !this._materialOptions.has(t)) {
@@ -95,6 +165,10 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
       }
     }
   }
+  /** @eyes-analysis
+   * 将输入 XYZ 转 LLA，在可见瓦片层级寻找高程，再由 spheroid.xyzFromLLA 转回地表位置；细分纹理状态会影响可用地形细节。
+   * 调用线索：Math.floor、PioneerPublicApi.CubeMap.xyzToUVFace、PioneerPublicApi.Geometry.getXYZFromLLAOnSphere、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release等。
+   */
   getGroundPosition(t, e, i) {
     const n = this._spheroidComponentRef.get();
     if (null === n) return void t.copy(PioneerPublicApi.Vector3.NaN);
@@ -124,9 +198,16 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
     e && n.upFromLLA(e, o);
     PioneerPublicApi.LatLonAlt.pool.release(o);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null===this._tilesLoadedPromise`。
+   */
   areTilesLoaded() {
     return null === this._tilesLoadedPromise;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `(0,PioneerPublicApi.waitUntil)(()=>{for(let t=0,e=this._loadedTiles.getSize();t<e;t++){if(!this._loadedTiles.getAt(t).isFullyLoaded())return false;}re`；调用 `0,PioneerPublicApi.waitUntil`、`this._loadedTiles.getAt`、`this._loadedTiles.getAt(t).isFullyLoaded`、`this._loadedTiles.getSize`。
+   * 调用线索：0,PioneerPublicApi.waitUntil、this._loadedTiles.getAt、this._loadedTiles.getAt(t).isFullyLoaded、this._loadedTiles.getSize。
+   */
   async getTilesLoadedPromise(t = .25, e = Number.POSITIVE_INFINITY) {
     return (0, PioneerPublicApi.waitUntil)(() => {
       for (let t = 0, e = this._loadedTiles.getSize(); t < e; t++) {
@@ -135,18 +216,36 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
       return true;
     }, t, e);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._spheroidComponentRef.set`、`this.getEntity`、`this.getEntity().getName`。
+   * 调用线索：this._spheroidComponentRef.set、this.getEntity、this.getEntity().getName。
+   */
   setSpheroidReference(t) {
     this._spheroidComponentRef.set(this.getEntity().getName(), t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_transparent`；调用 `this.resetResources`。
+   * 状态写入：_transparent。
+   * 调用线索：this.resetResources。
+   */
   setTransparent(transparent) {
     this._transparent = transparent;
     this.resetResources();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `super.__destroy`、`t.removeChangedCallback`、`this._spheroidComponentRef.get`。
+   * 调用线索：super.__destroy、t.removeChangedCallback、this._spheroidComponentRef.get。
+   */
   __destroy() {
     const t = this._spheroidComponentRef.get();
     null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
     super.__destroy();
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_cameraFieldsOfView[t]`、`_rootTiles`、`_tilesLoadedPromise`、`_transitionsCompleteCallback`；返回 `void`；调用 `cMTSTile.forceLoad`、`e.rotateInverse`、`i.getEntity`、`i.getEntity().getPositionRelativeToEntity`、`i.getFieldOfView`、`i.update`。
+   * 状态写入：_cameraFieldsOfView[t]、_rootTiles、_tilesLoadedPromise、_transitionsCompleteCallback。
+   * 调用线索：cMTSTile.forceLoad、e.rotateInverse、i.getEntity、i.getEntity().getPositionRelativeToEntity、i.getFieldOfView等。
+   */
   __update() {
     if (this._spheroidComponentRef.update(), "loaded" !== this.getLoadState().state || null === this._spheroidComponentRef.get()) return;
     if (null === this._rootTiles) {
@@ -185,6 +284,10 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
       transitionsCompleteCallback && transitionsCompleteCallback();
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MaterialUtils.setUniforms`、`PioneerPublicApi.ThreeJsHelper.setOrientationToEntity`、`this._atmosphereComponentRef.get`、`this._loadedTiles.getAt`、`this._loadedTiles.getAt(e).prepareForRender`、`this._loadedTiles.getSize`。
+   * 调用线索：PioneerPublicApi.MaterialUtils.setUniforms、PioneerPublicApi.ThreeJsHelper.setOrientationToEntity、this._atmosphereComponentRef.get、this._loadedTiles.getAt、this._loadedTiles.getAt(e).prepareForRender等。
+   */
   __prepareForRender(t) {
     for (let e = 0, i = this._loadedTiles.getSize(); e < i; e++) {
       this._loadedTiles.getAt(e).prepareForRender(t);
@@ -193,6 +296,11 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
     const e = this._atmosphereComponentRef.get();
     PioneerPublicApi.MaterialUtils.setUniforms(this.getThreeJsMaterials(), t, this.getEntity(), this._shadowEntities, e, true);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_colorTileSize`、`_numEndPointsLoading`；调用 `JSON.parse`、`Promise.allSettled`、`t.push`、`this._endPoints.getAt`、`this._endPoints.getSize`、`this.getEntity`。
+   * 状态写入：_colorTileSize、_numEndPointsLoading。
+   * 调用线索：JSON.parse、Promise.allSettled、t.push、this._endPoints.getAt、this._endPoints.getSize等。
+   */
   async __loadResources() {
     const t = [];
     for (let e = 0, i = this._endPoints.getSize(); e < i; e++) {
@@ -209,51 +317,103 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
     }
     await Promise.allSettled(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_rootTiles`；调用 `this._rootTiles[t].destroy`。
+   * 状态写入：_rootTiles。
+   * 调用线索：this._rootTiles[t].destroy。
+   */
   __unloadResources() {
     if (this._rootTiles) for (let t = 0; t < 6; t++) this._rootTiles[t].destroy();
     this._rootTiles = null;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._endPoints`。
+   */
   __getEndPoints() {
     return this._endPoints;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `0===this._numEndPointsLoading`。
+   */
   __endPointsAreLoaded() {
     return 0 === this._numEndPointsLoading;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._cameraPositions`。
+   */
   __getCameraPositions() {
     return this._cameraPositions;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._cameraFieldsOfView`。
+   */
   __getCameraFieldsOfView() {
     return this._cameraFieldsOfView;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._threeJsScene`。
+   */
   __getThreeJsScene() {
     return this._threeJsScene;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._splitJoinThresholdFactor`。
+   */
   __getSplitJoinThresholdFactor() {
     return this._splitJoinThresholdFactor;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._colorTileSize`。
+   */
   __getColorTileSize() {
     return this._colorTileSize;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._spheroidComponentRef.get()`；调用 `this._spheroidComponentRef.get`。
+   * 调用线索：this._spheroidComponentRef.get。
+   */
   __getSpheroidComponent() {
     return this._spheroidComponentRef.get();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._loadedTiles.add`。
+   * 调用线索：this._loadedTiles.add。
+   */
   __addLoadedTile(t) {
     this._loadedTiles.add(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._loadedTiles.delete`。
+   * 调用线索：this._loadedTiles.delete。
+   */
   __removeLoadedTile(t) {
     this._loadedTiles.delete(t);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._transparent`。
+   */
   __getTransparent() {
     return this._transparent;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._materialOptions`。
+   */
   __getMaterialOptions() {
     return this._materialOptions;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `e.addChangedCallback`、`t.removeChangedCallback`、`this._spheroidChangedCallback`。
+   * 调用线索：e.addChangedCallback、t.removeChangedCallback、this._spheroidChangedCallback。
+   */
   _spheroidRefChangedCallback(t, e) {
     t && t.removeChangedCallback(this._spheroidChangedCallback);
     e && e.addChangedCallback(this._spheroidChangedCallback);
     this._spheroidChangedCallback();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `Math.max`、`t.getEquatorialRadius`、`t.getPolarRadius`、`this.__setRadius`、`this._spheroidComponentRef.get`、`this.resetResources`。
+   * 调用线索：Math.max、t.getEquatorialRadius、t.getPolarRadius、this.__setRadius、this._spheroidComponentRef.get等。
+   */
   _spheroidChangedCallback() {
     const t = this._spheroidComponentRef.get();
     null !== t ? this.__setRadius(Math.max(t.getEquatorialRadius(), t.getPolarRadius())) : this.__setRadius(0);
@@ -281,7 +441,17 @@ class CMTSComponent extends PioneerPublicApi.BaseComponent {
   _atmosphereComponentRef;
   _spheroidComponentRef;
 }
+/** @eyes-analysis
+ * 类职责：CMTS 地形子瓦片：网格、高程采样、边界接缝与多图层纹理所有权。
+ * 继承：PioneerPublicApi.Tile；导出：模块内部声明。
+ * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
+ */
 class CMTSTile extends PioneerPublicApi.Tile {
+  /** @eyes-analysis
+   * 【结构证据】写入 `_center`、`_col`、`_component`、`_face`、`_fullyLoaded`、`_heightData`、`_heightOffset`、`_heightScale`；调用 `CMTSTile._isInABoundary`、`CMTSTile.cmtsCoordToPosition`、`Math.floor`、`Math.max`、`component.__getSpheroidComponent`、`component.getEngine`；含显式错误分支。
+   * 状态写入：_center、_col、_component、_face、_fullyLoaded、_heightData、_heightOffset、_heightScale等；完整记录见索引。
+   * 调用线索：CMTSTile._isInABoundary、CMTSTile.cmtsCoordToPosition、Math.floor、Math.max、component.__getSpheroidComponent等。
+   */
   constructor(component, e, face, level, o, row, col) {
     super(e);
     this._component = component;
@@ -359,18 +529,34 @@ class CMTSTile extends PioneerPublicApi.Tile {
     this._numVertsPerSide = 1 << Math.max(5 - this._level, 0) + 3;
     _ && (this._numVertsPerSide = Math.max(_.tile_size * this._uvScales.get("height") + 3, this._numVertsPerSide));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._level`。
+   */
   getLevel() {
     return this._level;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._tile`。
+   */
   getTileCoord() {
     return this._tile;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `null!==this._heightData`。
+   */
   hasHeightData() {
     return null !== this._heightData;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._fullyLoaded`。
+   */
   isFullyLoaded() {
     return this._fullyLoaded;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `d?(d.llaFromXYZ(latLonAlt,vector3),latLonAlt.alt):0`；调用 `d.llaFromXYZ`、`this._component.__getSpheroidComponent`、`this._getFromData`、`vector3.add`、`vector3.set`。
+   * 调用线索：d.llaFromXYZ、this._component.__getSpheroidComponent、this._getFromData、vector3.add、vector3.set。
+   */
   getHeight(t) {
     const e = 1 << this._level;
     const i = t.x * e - this._tile.x;
@@ -385,27 +571,48 @@ class CMTSTile extends PioneerPublicApi.Tile {
     const d = this._component.__getSpheroidComponent();
     return d ? (d.llaFromXYZ(latLonAlt, vector3), latLonAlt.alt) : 0;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `new CMTSTile(t._component,this,this._face,n,vector2,e,i)`；调用 `new CMTSTile`、`new PioneerPublicApi.Vector2`。
+   * 调用线索：new CMTSTile、new PioneerPublicApi.Vector2。
+   */
   createNewTile(t, e, i) {
     const n = this._level + 1;
     const vector2 = new PioneerPublicApi.Vector2(2 * t._tile.x + i, 2 * t._tile.y + e);
     return new CMTSTile(t._component, this, this._face, n, vector2, e, i);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `false` 或 `true`；调用 `this._component.__getColorTileSize`、`this._component.__getSplitJoinThresholdFactor`、`this._component.getMaxLevel`、`this._component.getMinLevel`、`this._getNearestDistance`。
+   * 调用线索：this._component.__getColorTileSize、this._component.__getSplitJoinThresholdFactor、this._component.getMaxLevel、this._component.getMinLevel、this._getNearestDistance。
+   */
   checkSplit() {
     if (this._isLeaf || this._level >= this._component.getMaxLevel()) return false;
     if (this._level < this._component.getMinLevel()) return true;
     const t = this._component.__getColorTileSize();
     return this._getNearestDistance() < this._component.__getSplitJoinThresholdFactor() * this._radius / t;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `true` 或 `false`；调用 `this._component.__getColorTileSize`、`this._component.__getSplitJoinThresholdFactor`、`this._component.getMaxLevel`、`this._component.getMinLevel`、`this._getNearestDistance`。
+   * 调用线索：this._component.__getColorTileSize、this._component.__getSplitJoinThresholdFactor、this._component.getMaxLevel、this._component.getMinLevel、this._getNearestDistance。
+   */
   checkJoin() {
     if (this._level >= this._component.getMaxLevel()) return true;
     if (this._level < this._component.getMinLevel()) return false;
     const t = this._component.__getColorTileSize();
     return this._getNearestDistance() > this._component.__getSplitJoinThresholdFactor() * this._radius / t * 4;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._component.__addLoadedTile`、`this._createObject`、`this._createTempObject`。
+   * 调用线索：this._component.__addLoadedTile、this._createObject、this._createTempObject。
+   */
   async load() {
     (await this._createTempObject()) ? this._createObject() : await this._createObject();
     this._component.__addLoadedTile(this);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_fullyLoaded`、`_heightData`、`_meshBitangents`、`_meshIndices`、`_meshNormals`、`_meshPositions`、`_meshTangents`、`_meshUVs`；调用 `new Float32Array`、`new PioneerPublicApi.FastMap`、`new Uint16Array`、`this._component.__removeLoadedTile`、`this._destroyObject`、`this._resourceManager.release`。
+   * 状态写入：_fullyLoaded、_heightData、_meshBitangents、_meshIndices、_meshNormals、_meshPositions、_meshTangents、_meshUVs等；完整记录见索引。
+   * 调用线索：new Float32Array、new PioneerPublicApi.FastMap、new Uint16Array、this._component.__removeLoadedTile、this._destroyObject等。
+   */
   unload() {
     this._component.__removeLoadedTile(this);
     this._fullyLoaded = false;
@@ -413,12 +620,24 @@ class CMTSTile extends PioneerPublicApi.Tile {
     this._threeJsObject && (this._meshPositions = new Float32Array(0), this._meshNormals = new Float32Array(0), this._meshTangents && (this._meshTangents = new Float32Array(0)), this._meshBitangents && (this._meshBitangents = new Float32Array(0)), this._meshUVs = new PioneerPublicApi.FastMap(), this._meshIndices = new Uint16Array(0), this._destroyObject(this._threeJsObject), this._threeJsMaterial = null, this._threeJsObject = null);
     this._heightData && (this._resourceManager.release(this._component, this._heightData, "imageData"), this._heightData = null);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `this._visible`。
+   */
   isVisible() {
     return this._visible;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_visible`。
+   * 状态写入：_visible。
+   */
   setVisible(visible) {
     this._visible = visible;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_numNonPositiveTexturesLoading`；返回 `false` 或 `this._numNonPositiveTexturesLoading>0||t`；调用 `PioneerPublicApi.ThreeJsHelper.setVertices`、`e.check`、`isFinite`、`t.getAt`、`t.getSize`、`this._component.__endPointsAreLoaded`。
+   * 状态写入：_numNonPositiveTexturesLoading。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setVertices、e.check、e?.getChildren、isFinite、t.getAt等。
+   */
   update() {
     if (!this._component.__endPointsAreLoaded()) return false;
     let t = this.check();
@@ -457,6 +676,11 @@ class CMTSTile extends PioneerPublicApi.Tile {
     }
     return this._numNonPositiveTexturesLoading > 0 || t;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_tempMeshPositions`、`_tempNumVertsPerSide`、`_tempThreeJsMaterial`、`_tempThreeJsMaterial.defines.shadowEntities`、`_tempThreeJsMaterial.defines[t]`、`_tempThreeJsObject`；返回 `false` 或 `true`；调用 `Math.max`、`PioneerPublicApi.MaterialUtils.get`、`PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.setIndices`、`PioneerPublicApi.ThreeJsHelper.setVertices`。
+   * 状态写入：_tempMeshPositions、_tempNumVertsPerSide、_tempThreeJsMaterial、_tempThreeJsMaterial.defines.shadowEntities、_tempThreeJsMaterial.defines[t]、_tempThreeJsObject。
+   * 调用线索：Math.max、PioneerPublicApi.MaterialUtils.get、PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.ThreeJsHelper.createMeshObject、PioneerPublicApi.ThreeJsHelper.setIndices等。
+   */
   async _createTempObject() {
     let t = this;
     const vector2 = new PioneerPublicApi.Vector2(0, 0);
@@ -578,6 +802,11 @@ class CMTSTile extends PioneerPublicApi.Tile {
     PioneerPublicApi.ThreeJsHelper.setIndices(this._tempThreeJsObject.geometry, m);
     return true;
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_fullyLoaded`、`_heightData`、`_heightOffset`、`_heightScale`、`_meshBitangents`、`_meshIndices`、`_meshIndices[6*i+0]`、`_meshIndices[6*i+1]`；返回 `void`；调用 `Math.floor`、`Math.max`、`PioneerPublicApi.MaterialUtils.get`、`PioneerPublicApi.ObjectUtils.entries`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.setIndices`。
+   * 状态写入：_fullyLoaded、_heightData、_heightOffset、_heightScale、_meshBitangents、_meshIndices、_meshIndices[6*i+0]、_meshIndices[6*i+1]等；完整记录见索引。
+   * 调用线索：Math.floor、Math.max、PioneerPublicApi.MaterialUtils.get、PioneerPublicApi.ObjectUtils.entries、PioneerPublicApi.ThreeJsHelper.createMeshObject等。
+   */
   async _createObject() {
     const t = this._component.__getEndPoints();
     const e = {};
@@ -691,6 +920,10 @@ class CMTSTile extends PioneerPublicApi.Tile {
       } else this.unload();
     } else this.unload();
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyMaterial`、`PioneerPublicApi.ThreeJsHelper.destroyObject`、`i.getAt`、`i.getSize`、`n.splice`、`o.splice`。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyMaterial、PioneerPublicApi.ThreeJsHelper.destroyObject、i.getAt、i.getSize、n.splice等。
+   */
   _destroyObject(t) {
     const e = t.material;
     const i = this._component.__getEndPoints();
@@ -713,6 +946,10 @@ class CMTSTile extends PioneerPublicApi.Tile {
       break;
     }
   }
+  /** @eyes-analysis
+   * 对高程/纹理数据网格做索引与插值采样；应遵循该文件像素边界和裙边布局，不能假定原始影像无边框。
+   * 调用线索：Math.floor、PioneerPublicApi.MathUtils.lerp。
+   */
   _getFromData(t, e, i, n, o, r) {
     const a = Math.floor(i);
     const l = Math.floor(n);
@@ -726,6 +963,11 @@ class CMTSTile extends PioneerPublicApi.Tile {
     t[e + 1] = PioneerPublicApi.MathUtils.lerp(PioneerPublicApi.MathUtils.lerp(o[d + 1], o[u + 1], h), PioneerPublicApi.MathUtils.lerp(o[p + 1], o[_ + 1], h), c);
     t[e + 2] = PioneerPublicApi.MathUtils.lerp(PioneerPublicApi.MathUtils.lerp(o[d + 2], o[u + 2], h), PioneerPublicApi.MathUtils.lerp(o[p + 2], o[_ + 2], h), c);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_meshBitangents[3*t+0]`、`_meshBitangents[3*t+1]`、`_meshBitangents[3*t+2]`、`_meshNormals[3*t+0]`、`_meshNormals[3*t+1]`、`_meshNormals[3*t+2]`、`_meshPositions[3*t+0]`、`_meshPositions[3*t+1]`；调用 `CMTSTile.cmtsCoordToBitangent`、`CMTSTile.cmtsCoordToPosition`、`CMTSTile.cmtsCoordToTangent`、`CMTSTile.getHeightPos`、`Math.floor`、`Math.max`。
+   * 状态写入：_meshBitangents[3*t+0]、_meshBitangents[3*t+1]、_meshBitangents[3*t+2]、_meshNormals[3*t+0]、_meshNormals[3*t+1]、_meshNormals[3*t+2]、_meshPositions[3*t+0]、_meshPositions[3*t+1]等；完整记录见索引。
+   * 调用线索：CMTSTile.cmtsCoordToBitangent、CMTSTile.cmtsCoordToPosition、CMTSTile.cmtsCoordToTangent、CMTSTile.getHeightPos、Math.floor等。
+   */
   _updateVertex(t, e, i, n, g) {
     const y = t % this._numVertsPerSide;
     const f = Math.floor(t / this._numVertsPerSide);
@@ -764,9 +1006,17 @@ class CMTSTile extends PioneerPublicApi.Tile {
       }
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.MathUtils.clamp`、`t.magnitude`、`t.setMagnitude`。
+   * 调用线索：PioneerPublicApi.MathUtils.clamp、t.magnitude、t.setMagnitude。
+   */
   _adjustForTagHeight(t) {
     t.setMagnitude(t, t.magnitude() - PioneerPublicApi.MathUtils.clamp(2 * this._heightScale * this._levelPow, .01 * this._radius, .05 * this._radius));
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `NaN` 或 `e.configuration.first_level`；调用 `Math.floor`、`Math.log2`、`Number.isFinite`、`PioneerPublicApi.MathUtils.clamp`、`this._component.__getEndPoints`、`this._component.__getEndPoints().get`。
+   * 调用线索：Math.floor、Math.log2、Number.isFinite、PioneerPublicApi.MathUtils.clamp、this._component.__getEndPoints等。
+   */
   _getNonPositiveLevel(t) {
     const e = this._component.__getEndPoints().get(t);
     if (!e?.configuration) return NaN;
@@ -775,6 +1025,10 @@ class CMTSTile extends PioneerPublicApi.Tile {
     const n = e.configuration.tile_size;
     return PioneerPublicApi.MathUtils.clamp(4 - Math.floor(Math.log2(i / this._radius / this._component.__getSplitJoinThresholdFactor() * n * 4)), e.configuration.first_level, 0);
   }
+  /** @eyes-analysis
+   * 读取所有视口相机的局部位置与视场，对瓦片距离按 tan(FOV/2) 归一以便屏幕尺度细分判定。
+   * 调用线索：Math.max、Math.tan、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、n.magnitude等。
+   */
   _getNearestDistance() {
     let t = Number.POSITIVE_INFINITY;
     const e = this._component.__getCameraPositions();
@@ -790,9 +1044,16 @@ class CMTSTile extends PioneerPublicApi.Tile {
     PioneerPublicApi.Vector3.pool.release(n);
     return t;
   }
+  /** @eyes-analysis
+   * 【结构证据】本访问器没有 AST 可见的 this 字段直接赋值。
+   */
   toString() {
     return `${this._face}/${this._level}/${this._tile.x}/${this._tile.y}`;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `void(e.visible=false)`；调用 `Math.acos`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`i.getCameraSpacePosition`、`i.getOrientation`。
+   * 调用线索：Math.acos、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、i.getCameraSpacePosition等。
+   */
   prepareForRender(t) {
     const e = this._fullyLoaded ? this._threeJsObject : this._tempThreeJsObject;
     if (e) {
@@ -808,12 +1069,21 @@ class CMTSTile extends PioneerPublicApi.Tile {
       PioneerPublicApi.ThreeJsHelper.setPositionToEntity(e, this._component.getEntity(), t, this._center, true);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `this._component.getEntity`、`this._component.getEntity().getLeastCameraDepth`、`this._resourceManager.acquire`、`this._resourceManager.release`、`this._setTexture`、`this.isDestroyed`。
+   * 调用线索：this._component.getEntity、this._component.getEntity().getLeastCameraDepth、this._resourceManager.acquire、this._resourceManager.release、this._setTexture等。
+   */
   async _loadTexture(t, e, i) {
     const s = -this._component.getEntity().getLeastCameraDepth() + this._level / 100;
     const n = "height" === t ? "imageData" : "texture";
     const o = await this._resourceManager.acquire(this._component, e, n, s);
     this.isDestroyed() ? this._resourceManager.release(this._component, o, n) : this._setTexture(t, o, i);
   }
+  /** @eyes-analysis
+   * 【结构证据】写入 `_heightData`；调用 `PioneerPublicApi.ThreeJsHelper.setTransparent`、`i.uniforms.normalScale.value.set`、`this._component.__getTransparent`、`this._component.getHeightScale`、`this._resourceManager.release`。
+   * 状态写入：_heightData。
+   * 调用线索：PioneerPublicApi.ThreeJsHelper.setTransparent、i.uniforms.normalScale.value.set、this._component.__getTransparent、this._component.getHeightScale、this._resourceManager.release。
+   */
   _setTexture(t, heightData, i) {
     if ("height" === t && heightData instanceof ImageData) {
       this._heightData && this._resourceManager.release(this._component, this._heightData, "imageData");
@@ -832,6 +1102,10 @@ class CMTSTile extends PioneerPublicApi.Tile {
       this._component.__getTransparent() && (PioneerPublicApi.ThreeJsHelper.setTransparent(i, true), i.side = PioneerPublicApi.THREE.DoubleSide, i.needsUpdate = true);
     }
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `n`；调用 `Math.floor`。
+   * 调用线索：Math.floor。
+   */
   static _isInABoundary(t, e, i, s) {
     let n = false;
     for (let o = 0, r = t.boundaries.length; o < r; o++) {
@@ -843,12 +1117,20 @@ class CMTSTile extends PioneerPublicApi.Tile {
     }
     return n;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.addMult`、`this.getLinearInterpolatedHeightPixel`。
+   * 调用线索：t.addMult、this.getLinearInterpolatedHeightPixel。
+   */
   static getHeightPos(t, e, i, s, n, o, r, a, l, c, h) {
     const d = (o.x + (i - 1) / (r - 3) * a) * l + 2;
     const u = l + 4 - ((o.y + (s - 1) / (r - 3) * a) * l + 2);
     const p = this.getLinearInterpolatedHeightPixel(d, u, n, l + 4);
     t.addMult(t, e, c + p * h);
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `h`；调用 `Math.abs`、`Math.floor`、`this.getHeightFromPixel`。
+   * 调用线索：Math.abs、Math.floor、this.getHeightFromPixel。
+   */
   static getLinearInterpolatedHeightPixel(t, e, i, s) {
     const n = Math.floor(t);
     const o = Math.floor(e);
@@ -861,11 +1143,19 @@ class CMTSTile extends PioneerPublicApi.Tile {
     a >= .5 ? h += this.getHeightFromPixel(n, o + 1, i, s) * ((1 - l) * c) : a < .5 && (h += this.getHeightFromPixel(n, o - 1, i, s) * ((1 - l) * c));
     return h;
   }
+  /** @eyes-analysis
+   * 【结构证据】返回 `i[o+0]/256+i[o+1]/65536+i[o+2]/16777216`；调用 `PioneerPublicApi.MathUtils.clamp`。
+   * 调用线索：PioneerPublicApi.MathUtils.clamp。
+   */
   static getHeightFromPixel(t, e, i, n) {
     t = PioneerPublicApi.MathUtils.clamp(t, 0, n - 1);
     const o = 4 * ((e = PioneerPublicApi.MathUtils.clamp(e, 0, n - 1)) * n + t);
     return i[o + 0] / 256 + i[o + 1] / 65536 + i[o + 2] / 16777216;
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `PioneerPublicApi.Geometry.getLLAFromXYZOnSphere`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`r.xyzFromLLA`、`t.normalize`、`t.set`。
+   * 调用线索：PioneerPublicApi.Geometry.getLLAFromXYZOnSphere、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、r.xyzFromLLA、t.normalize等。
+   */
   static cmtsCoordToPosition(t, e, i, n, o, r) {
     let a = n * i;
     let l = o * i;
@@ -933,11 +1223,19 @@ class CMTSTile extends PioneerPublicApi.Tile {
     r.xyzFromLLA(t, u);
     PioneerPublicApi.LatLonAlt.pool.release(u);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.setNormalTo`、`this.cmtsCoordToPosition`。
+   * 调用线索：t.setNormalTo、this.cmtsCoordToPosition。
+   */
   static cmtsCoordToTangent(t, e, i, s, n, o) {
     this.cmtsCoordToPosition(t, e, i, s, n, o);
     const r = this._basis[e];
     t.setNormalTo(t, r[0]);
   }
+  /** @eyes-analysis
+   * 【结构证据】调用 `t.setNormalTo`、`this.cmtsCoordToPosition`。
+   * 调用线索：t.setNormalTo、this.cmtsCoordToPosition。
+   */
   static cmtsCoordToBitangent(t, e, i, s, n, o) {
     this.cmtsCoordToPosition(t, e, i, s, n, o);
     const r = this._basis[e];
