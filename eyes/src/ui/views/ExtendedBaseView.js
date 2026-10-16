@@ -1,25 +1,9 @@
-/** @eyes-analysis
- * 文件职责：加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略
- * 依据：imports: ../../framework/eyes/index.js, ../../app/PreloadManager.js；manager dependencies: router, content, scene, layer
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1363886-1372305.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as PreloadManager from "../../app/PreloadManager.js";
-/** @eyes-analysis
- * 类职责：加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略；继承 Eyes.BaseView
- * 继承：Eyes.BaseView；导出：default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class ExtendedBaseView extends Eyes.BaseView {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 this.bindFunctions；写入 _collapsibleItemOptions, _collapsibleItems, _offsetPanel, embedQueries, kioskValues。
-   * 状态写入：_collapsibleItemOptions、_collapsibleItems、_offsetPanel、embedQueries、kioskValues。
-   * 调用线索：super、this.bindFunctions。
-   */
-  constructor(...t) {
-    super(...t);
+  constructor(...constructorArgs) {
+    super(...constructorArgs);
     this._collapsibleItemOptions = [{
       itemTitle: "Time Controls",
       componentNames: ["timeControls", "clock"],
@@ -54,12 +38,8 @@ class ExtendedBaseView extends Eyes.BaseView {
     };
     this.bindFunctions(["setViewportOffset", "_updateCollapsibleMenu", "_loaded"]);
   }
-  /** @eyes-analysis
-   * 进入视图时准备界面和订阅；调用 this.setViewportOffset, this._app.getManager, this.disableUIComponent, Eyes.AppUtils.isMobileMode, this._app.getComponent, this._updateCollapsibleMenu, super.onEnter。
-   * 状态写入：_app.getManager("router").configs[t]、embedQueries[t]。
-   * 调用线索：Eyes.AppUtils.isMobileMode、super.onEnter、this._app.getComponent、this._app.getComponent("searchDesktop")?.show、this._app.getManager等。
-   */
-  async onEnter(t) {
+  // 嵌入与 kiosk 配置在进入时折叠到组件集合；这里只协调已有 NASA 控件，不创建新的界面。
+  async onEnter(routeParams) {
     this._offsetPanel || this.setViewportOffset(false);
     const {
       menu: menu,
@@ -69,84 +49,55 @@ class ExtendedBaseView extends Eyes.BaseView {
       content: content,
       shareButton: shareButton
     } = this._app.getManager("router").configs;
-    for (const t in this.embedQueries) this.embedQueries[t] = this._app.getManager("router").configs[t];
-    if (true === t.kiosk) for (const t in this.kioskValues) {
-      this._app.getManager("router").configs[t] = this.kioskValues[t];
-      this.embedQueries[t] = this.kioskValues[t];
+    for (const configKey in this.embedQueries) this.embedQueries[configKey] = this._app.getManager("router").configs[configKey];
+    if (true === routeParams.kiosk) for (const kioskKey in this.kioskValues) {
+      this._app.getManager("router").configs[kioskKey] = this.kioskValues[kioskKey];
+      this.embedQueries[kioskKey] = this.kioskValues[kioskKey];
     }
     if (false === menu && (this.disableUIComponent("menu"), Eyes.AppUtils.isMobileMode() || this._app.getComponent("searchDesktop")?.show()), false === featured && this.disableUIComponent("featuredStoriesPanel"), true === noKeyboard || false === search) {
-      const t = ["searchDesktop", "searchMobile"];
-      for (let e = 0; e < t.length; e++) this.disableUIComponent(t[e]);
+      const searchComponentNames = ["searchDesktop", "searchMobile"];
+      for (let componentIndex = 0; componentIndex < searchComponentNames.length; componentIndex++) this.disableUIComponent(searchComponentNames[componentIndex]);
     }
     false === content && this.disableUIComponent("contentPanel");
     false === shareButton && this.disableUIComponent("shareModal");
     true === this.embedQueries.hideExternalLinks && this._app.getManager("content").hideExternalLinkStoryList();
     this._updateCollapsibleMenu();
-    await super.onEnter(t);
+    await super.onEnter(routeParams);
   }
-  /** @eyes-analysis
-   * 执行 disableUIComponent 对应的组件业务步骤；调用 this._components.indexOf, this._components.splice, this._app.removeComponent。
-   * 调用线索：this._app.removeComponent、this._components.indexOf、this._components.splice。
-   */
-  disableUIComponent(t) {
-    const e = this._components.indexOf(t);
-    e > -1 && (this._components.splice(e, 1), this._app.removeComponent(t));
+  disableUIComponent(componentName) {
+    const componentIndex = this._components.indexOf(componentName);
+    componentIndex > -1 && (this._components.splice(componentIndex, 1), this._app.removeComponent(componentName));
   }
-  /** @eyes-analysis
-   * 离开视图时恢复状态并解除订阅；调用 this.setViewportOffset, this._app.getComponent, ShortcutComponent.setCallback, ShortcutComponent.hide, super.onLeave。
-   * 调用线索：clockShortcutComponent.hide、clockShortcutComponent.setCallback、super.onLeave、this._app.getComponent、this.setViewportOffset。
-   */
-  async onLeave(t) {
+  async onLeave(routeParams) {
     this._offsetPanel && this.setViewportOffset(false, true);
     const clockShortcutComponent = this._app.getComponent("clockShortcut");
     clockShortcutComponent.setCallback(null);
     clockShortcutComponent.hide();
-    await super.onLeave(t);
+    await super.onLeave(routeParams);
   }
-  /** @eyes-analysis
-   * 登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getManager。
-   * 调用线索：super.registerCallbacks、this._app.getManager、this._app.getManager("scene").registerCallback、this._offsetPanel?.registerCallback。
-   */
   registerCallbacks() {
     super.registerCallbacks();
     this._offsetPanel?.registerCallback("expandtoggle", this.setViewportOffset);
     this._app.getManager("scene").registerCallback("loaded", this._loaded);
   }
-  /** @eyes-analysis
-   * 移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getManager。
-   * 调用线索：super.removeCallbacks、this._app.getManager、this._app.getManager("scene").removeCallback、this._offsetPanel?.removeCallback。
-   */
   removeCallbacks() {
     super.removeCallbacks();
     this._offsetPanel?.removeCallback("expandtoggle", this.setViewportOffset);
     this._app.getManager("scene").removeCallback("loaded", this._loaded);
   }
-  /** @eyes-analysis
-   * 重置上一目标留下的临时状态；调用 super._reset, this._app.getComponent。
-   * 调用线索：super._reset、this._app.getComponent、this._app.getComponent("timeControls")?.setCanUpdate。
-   */
   _reset() {
     super._reset();
     this._app.getComponent("timeControls")?.setCanUpdate(false);
   }
-  /** @eyes-analysis
-   * 把查询参数应用到时间、图层或模块状态；调用 super.processQuery。
-   * 调用线索：super.processQuery。
-   */
-  async processQuery(t) {
-    await super.processQuery(t);
+  async processQuery(routeParams) {
+    await super.processQuery(routeParams);
   }
-  /** @eyes-analysis
-   * 把当前目标数据交给 UI 组件；调用 this._components.includes, this.app.getComponent, this._app.getManager, this._components.indexOf, this._components.push, this._components.splice, this.app.getManager, this._updateCollapsibleMenu, Manager.getEntityInfo, this._app.getComponent, Manager.updateHDTarget, Manager.getHDToggleEntity, Manager.toggleHDTextureForEntity, Manager.getSpheroidLayers；写入 _collapsibleItems。
-   * 状态写入：_collapsibleItems。
-   * 调用线索：Object.keys、Promise.all、Promise.all(this._collapsibleItems).then、contentManager.getEntityInfo、contentManager.getSpheroidLayers等。
-   */
-  async _updateComponents(t) {
-    this._components.includes("timeControls") && this.app.getComponent("timeControls")?.setEnabled(false !== t.timeControls);
-    this._components.includes("clockShortcut") && this.app.getComponent("clockShortcut")?.setEnabled(false !== t.timeControls);
-    const e = !this._app.getManager("router").configs.locked && this._scOrderedEvents?.length > 1;
-    const i = this._components.indexOf("eventsTimeline");
-    e && -1 === i ? (this._components.push("eventsTimeline"), this.app.getComponent("eventsTimeline").setEnabled(true)) : !e && i > -1 && this._components.splice(i, 1);
+  async _updateComponents(routeParams) {
+    this._components.includes("timeControls") && this.app.getComponent("timeControls")?.setEnabled(false !== routeParams.timeControls);
+    this._components.includes("clockShortcut") && this.app.getComponent("clockShortcut")?.setEnabled(false !== routeParams.timeControls);
+    const shouldShowTimeline = !this._app.getManager("router").configs.locked && this._scOrderedEvents?.length > 1;
+    const timelineIndex = this._components.indexOf("eventsTimeline");
+    shouldShowTimeline && -1 === timelineIndex ? (this._components.push("eventsTimeline"), this.app.getComponent("eventsTimeline").setEnabled(true)) : !shouldShowTimeline && timelineIndex > -1 && this._components.splice(timelineIndex, 1);
     const routerManager = this.app.getManager("router");
     const {
       previousView: previousView,
@@ -155,39 +106,39 @@ class ExtendedBaseView extends Eyes.BaseView {
     const {
       params: params
     } = routerManager.previousRoute;
-    if ((params?.spaceObject !== t.spaceObject || previousView !== currentView) && this._updateCollapsibleMenu(), t.spaceObject) {
+    if ((params?.spaceObject !== routeParams.spaceObject || previousView !== currentView) && this._updateCollapsibleMenu(), routeParams.spaceObject) {
       const contentManager = this._app.getManager("content");
       const sceneManager = this._app.getManager("scene");
       if (true === this.embedQueries.hd) {
-        const s = contentManager.getEntityInfo(t.spaceObject);
-        if (this._app.getComponent("contentPanel")) this._app.getComponent("contentPanel").onChildParentChange(t.spaceObject, s);else {
-          await sceneManager.updateHDTarget(s, t.spaceObject);
-          const e = sceneManager.getHDToggleEntity();
-          e && (await sceneManager.toggleHDTextureForEntity(e));
+        const entityInfo = contentManager.getEntityInfo(routeParams.spaceObject);
+        if (this._app.getComponent("contentPanel")) this._app.getComponent("contentPanel").onChildParentChange(routeParams.spaceObject, entityInfo);else {
+          await sceneManager.updateHDTarget(entityInfo, routeParams.spaceObject);
+          const hdEntity = sceneManager.getHDToggleEntity();
+          hdEntity && (await sceneManager.toggleHDTextureForEntity(hdEntity));
         }
       }
       if (true === this.embedQueries.surfaceMapTiling) {
-        let s = t.spaceObject;
-        "moons" === t.feature && (s = t.child);
-        let n = contentManager.getSpheroidLayers(s);
-        if (!n) {
-          const o = await sceneManager.findClosestSpaceObjectTo(t.spaceObject);
-          n = contentManager.getSpheroidLayers(o);
-          s = o;
+        let mapTargetId = routeParams.spaceObject;
+        "moons" === routeParams.feature && (mapTargetId = routeParams.child);
+        let spheroidLayers = contentManager.getSpheroidLayers(mapTargetId);
+        if (!spheroidLayers) {
+          const closestEntityId = await sceneManager.findClosestSpaceObjectTo(routeParams.spaceObject);
+          spheroidLayers = contentManager.getSpheroidLayers(closestEntityId);
+          mapTargetId = closestEntityId;
         }
-        if (n) {
-          const t = n.find(t => "wmts" === t.type);
-          t && this._app.getManager("layer").changeSpheroidMap(s, t);
+        if (spheroidLayers) {
+          const wmtsLayer = spheroidLayers.find(candidateLayer => "wmts" === candidateLayer.type);
+          wmtsLayer && this._app.getManager("layer").changeSpheroidMap(mapTargetId, wmtsLayer);
         }
       }
     }
-    this._handleInfoPanelEmbedQueries(t);
-    true === t.kiosk && this._app.getManager("router").removeConfigs(Object.keys(this.kioskValues));
+    this._handleInfoPanelEmbedQueries(routeParams);
+    true === routeParams.kiosk && this._app.getManager("router").removeConfigs(Object.keys(this.kioskValues));
     if (this._components.includes("timeControls")) {
       const timeControlsComponent = this._app.getComponent("timeControls");
-      this._collapsibleItems = await Promise.all(this._collapsibleItems).then(t => t.filter(t => t));
-      this._target ? this._app.scene.getEntity(this._target).getLoadedPromise().then(() => (timeControlsComponent.setCanUpdate(true), true)).catch(t => {
-        throw t;
+      this._collapsibleItems = await Promise.all(this._collapsibleItems).then(resolvedItems => resolvedItems.filter(collapsibleItem => collapsibleItem));
+      this._target ? this._app.scene.getEntity(this._target).getLoadedPromise().then(() => (timeControlsComponent.setCanUpdate(true), true)).catch(loadError => {
+        throw loadError;
       }) : timeControlsComponent.setCanUpdate(true);
     }
     await this._app.getComponent("settings").setConfig({
@@ -205,57 +156,36 @@ class ExtendedBaseView extends Eyes.BaseView {
     });
     this._app.getManager("layer").syncLayerVisibilityWithQueries();
   }
-  /** @eyes-analysis
-   * 执行 _loaded 对应的组件业务步骤；调用 PreloadManager.default.updateEmbedLoadPercent, PreloadManager.default.showEmbedViewButton。
-   * 调用线索：PreloadManager.default.showEmbedViewButton、PreloadManager.default.updateEmbedLoadPercent。
-   */
-  _loaded(t) {
+  _loaded(loadedEntityId) {
     PreloadManager.default.embedLoading && (PreloadManager.default.updateEmbedLoadPercent(100), PreloadManager.default.showEmbedViewButton());
   }
-  /** @eyes-analysis
-   * 把目标组件加载状态关联到场景加载提示；调用 super._updateLoading, this._app.getManager, this._loaded。
-   * 调用线索：super._updateLoading、this._app.getManager、this._loaded。
-   */
-  _updateLoading(t) {
-    super._updateLoading(t);
+  _updateLoading(routeParams) {
+    super._updateLoading(routeParams);
     const {
       _isLoading: _isLoading
     } = this._app.getManager("scene");
     _isLoading || this._loaded();
   }
-  /** @eyes-analysis
-   * 执行 _updateCollapsibleMenu 对应的组件业务步骤；调用 this._app.getComponent, this._components.includes, MenuComponent.removeAllItems, this._app.getManager, this._collapsibleItemOptions.filter, this._collapsibleItemOptions.map, Names.every, MenuComponent.addItem；写入 _collapsibleItemOptions, _collapsibleItems。
-   * 状态写入：_collapsibleItemOptions、_collapsibleItems。
-   * 调用线索：collapsibleMenuComponent.addItem、collapsibleMenuComponent.removeAllItems、e.componentNames.every、t?.componentNames?.includes、this._app.getComponent等。
-   */
   _updateCollapsibleMenu() {
     const collapsibleMenuComponent = this._app.getComponent("collapsibleMenu");
-    const e = this._components.includes("collapsibleMenu");
+    const hasCollapsibleMenu = this._components.includes("collapsibleMenu");
     if (!collapsibleMenuComponent) return;
     collapsibleMenuComponent.removeAllItems();
-    const i = false === this._app.getManager("router").configs.timeControls;
-    e && (i && (this._collapsibleItemOptions = this._collapsibleItemOptions.filter(t => !t?.componentNames?.includes("timeControls"))), this._collapsibleItems = this._collapsibleItemOptions.map(e => e.componentNames.every(t => this._components.includes(t)) && collapsibleMenuComponent.addItem(e)));
+    const hideTimeControls = false === this._app.getManager("router").configs.timeControls;
+    hasCollapsibleMenu && (hideTimeControls && (this._collapsibleItemOptions = this._collapsibleItemOptions.filter(itemOptions => !itemOptions?.componentNames?.includes("timeControls"))), this._collapsibleItems = this._collapsibleItemOptions.map(itemOptions => itemOptions.componentNames.every(componentName => this._components.includes(componentName)) && collapsibleMenuComponent.addItem(itemOptions)));
   }
-  /** @eyes-analysis
-   * 执行 _handleInfoPanelEmbedQueries 对应的组件业务步骤；调用 this._components.includes, this._app.getComponent, Object.keys, HTML.replace。
-   * 调用线索：Object.keys、e[t].innerHTML.replace、e[t].innerHTML?.match、this._app.getComponent、this._components.includes。
-   */
-  _handleInfoPanelEmbedQueries(t) {
+  _handleInfoPanelEmbedQueries(routeParams) {
     if (this._components.includes("infoPanel")) {
       const infoPanelComponent = this._app.getComponent("infoPanel");
       if (Object.keys(infoPanelComponent._children).length > 0) {
-        const e = infoPanelComponent._children;
-        if (e) for (const t in e) {
-          true === this.embedQueries.hideExternalLinks && e[t].innerHTML?.match(/\/?http[^"]*/) && (e[t].innerHTML = e[t].innerHTML.replace(/\/?http[^"]*/, ""), e[t].innerHTML = e[t].innerHTML.replace("You can also check out this video tutorial.", ""), e[t].innerHTML = e[t].innerHTML.replace('<div class="videoWrapper" style="', '<div class="videoWrapper" style="display: none; '));
-          true === this.embedQueries.hideFullScreenToggle && (e[t].innerHTML = e[t].innerHTML.replace("expand to full screen,", ""));
+        const panelChildren = infoPanelComponent._children;
+        if (panelChildren) for (const childKey in panelChildren) {
+          true === this.embedQueries.hideExternalLinks && panelChildren[childKey].innerHTML?.match(/\/?http[^"]*/) && (panelChildren[childKey].innerHTML = panelChildren[childKey].innerHTML.replace(/\/?http[^"]*/, ""), panelChildren[childKey].innerHTML = panelChildren[childKey].innerHTML.replace("You can also check out this video tutorial.", ""), panelChildren[childKey].innerHTML = panelChildren[childKey].innerHTML.replace('<div class="videoWrapper" style="', '<div class="videoWrapper" style="display: none; '));
+          true === this.embedQueries.hideFullScreenToggle && (panelChildren[childKey].innerHTML = panelChildren[childKey].innerHTML.replace("expand to full screen,", ""));
         }
       }
     }
   }
-  /** @eyes-analysis
-   * 执行 _showControls 对应的组件业务步骤；调用 this._app.getComponent, MenuComponent.show, Component.show, List.remove, List.add, this._app.getManager, Eyes.AppUtils.isMobileMode, Component.collapse, MenuComponent.collapse。
-   * 调用线索：Eyes.AppUtils.isMobileMode、collapsibleMenuComponent.collapse、collapsibleMenuComponent.show、document.getElementById、document.getElementById("float-mid-bottom").classList.add等。
-   */
   _showControls() {
     const settingsComponent = this._app.getComponent("settings");
     const collapsibleMenuComponent = this._app.getComponent("collapsibleMenu");
@@ -277,10 +207,6 @@ class ExtendedBaseView extends Eyes.BaseView {
       menuComponent?.setEnabled(false);
     }
   }
-  /** @eyes-analysis
-   * 执行 _hideControls 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this._app.getComponent, List.add, List.remove, TimelineComponent.hide。
-   * 调用线索：Eyes.AppUtils.isMobileMode、document.getElementById、document.getElementById("float-mid-bottom").classList.add、document.getElementById("float-mid-bottom").classList.remove、eventsTimelineComponent.hide等。
-   */
   _hideControls() {
     if (Eyes.AppUtils.isMobileMode()) {
       this._app.getComponent("clock").hide();
@@ -293,59 +219,40 @@ class ExtendedBaseView extends Eyes.BaseView {
       this._app.getComponent("contentPanel")?.getState("isOverlay") && eventsTimelineComponent.hide();
     }
   }
-  /** @eyes-analysis
-   * 执行 toggleViewUI 对应的组件业务步骤；调用 this._app.getManager, this._components.forEach, this._app.getComponent, List.remove, this.updateVisibility, List.add, this.setViewportOffset。
-   * 调用线索：document.getElementById、i.includes、t.classList.add、t.classList.remove、this._app.getComponent等。
-   */
   toggleViewUI() {
-    const t = document.getElementById("extended-controls");
+    const controlsElement = document.getElementById("extended-controls");
     const {
       visible: visible
     } = this._app.getManager("layer").getLayer("ui");
-    const i = ["breadcrumb", "settings", "layerPanel", "kioskMode", "kioskSessionClock"];
-    visible ? (this._components.forEach(t => {
-      "contentPanel" === t ? this._app.getComponent(t).show() : this._app.getComponent(t).setEnabled(true);
-    }), t && t.classList.remove("hidden"), this.updateVisibility()) : (this._components.forEach(t => {
-      i.includes(t) || this._app.getComponent(t).setEnabled(false);
-      "settings" === t && this._app.getComponent(t).collapse();
-      "layerPanel" !== t && "contentPanel" !== t || this._app.getComponent(t).hide();
-    }), t && t.classList.add("hidden"));
+    const persistentComponentNames = ["breadcrumb", "settings", "layerPanel", "kioskMode", "kioskSessionClock"];
+    visible ? (this._components.forEach(componentName => {
+      "contentPanel" === componentName ? this._app.getComponent(componentName).show() : this._app.getComponent(componentName).setEnabled(true);
+    }), controlsElement && controlsElement.classList.remove("hidden"), this.updateVisibility()) : (this._components.forEach(componentName => {
+      persistentComponentNames.includes(componentName) || this._app.getComponent(componentName).setEnabled(false);
+      "settings" === componentName && this._app.getComponent(componentName).collapse();
+      "layerPanel" !== componentName && "contentPanel" !== componentName || this._app.getComponent(componentName).hide();
+    }), controlsElement && controlsElement.classList.add("hidden"));
     this.setViewportOffset(visible, true);
   }
-  /** @eyes-analysis
-   * 执行 shouldOffsetRight 对应的组件业务步骤；调用 Eyes.AppUtils.isDesktop。
-   * 调用线索：Eyes.AppUtils.isDesktop。
-   */
   get shouldOffsetRight() {
     return Eyes.AppUtils.isDesktop();
   }
-  /** @eyes-analysis
-   * 执行 shouldOffsetUp 对应的组件业务步骤；调用 Eyes.AppUtils.isDesktop。
-   * 调用线索：Eyes.AppUtils.isDesktop。
-   */
   get shouldOffsetUp() {
     return !Eyes.AppUtils.isDesktop();
   }
-  /** @eyes-analysis
-   * 执行 setViewportOffset 对应的组件业务步骤；调用 this._app.getManager, List.toggle。
-   * 调用线索：document.body.classList.toggle、this._app.getManager、this._app.getManager("layer").getLayer、this._offsetPanel?.getState、this._offsetPanel?.isEnabled。
-   */
-  setViewportOffset(t, e = false) {
+  // 偏移同时取决于 UI 图层、面板启用与展开状态及设备方向；usePanelState 用于退出或整层切换时直接读取面板状态。
+  setViewportOffset(isExpanded, usePanelState = false) {
     const {
       visible: visible
     } = this._app.getManager("layer").getLayer("ui");
-    let s = this._offsetPanel?.isEnabled() && this._offsetPanel?.getState?.("isVisible");
-    null !== this._offsetPanel?.getState?.("isExpanded") && (s = s && this._offsetPanel?.getState?.("isExpanded"));
-    const n = e ? s : (t && this._offsetPanel?.getState?.("isExpanded") && visible) ?? s;
-    const o = this.shouldOffsetRight && n;
-    const r = this.shouldOffsetUp && n;
-    document.body.classList.toggle("offset-right", o);
-    document.body.classList.toggle("offset-up", r);
+    let panelVisible = this._offsetPanel?.isEnabled() && this._offsetPanel?.getState?.("isVisible");
+    null !== this._offsetPanel?.getState?.("isExpanded") && (panelVisible = panelVisible && this._offsetPanel?.getState?.("isExpanded"));
+    const shouldOffset = usePanelState ? panelVisible : (isExpanded && this._offsetPanel?.getState?.("isExpanded") && visible) ?? panelVisible;
+    const offsetRight = this.shouldOffsetRight && shouldOffset;
+    const offsetUp = this.shouldOffsetUp && shouldOffset;
+    document.body.classList.toggle("offset-right", offsetRight);
+    document.body.classList.toggle("offset-up", offsetUp);
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 this.setViewportOffset, super.resize。
-   * 调用线索：super.resize、this.setViewportOffset。
-   */
   resize() {
     this.setViewportOffset();
     super.resize();

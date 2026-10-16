@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：以球体网格/立方体映射和 TextureLOD 为行星选择纹理分辨率，协调大气及阴影材质。
- * 依据：import ../pioneer/public-api.js；SpheroidLODComponent extends PioneerPublicApi.BaseComponent @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 椭球表面每个纹理通道、每个映射面各持有一个 TextureLOD；切换圆柱/立方映射先禁用旧 LOD 再重建。位置由 Spheroid 坐标转换生成，法线取地理 up；立方面基的叉积方向决定三角绕序，法线贴图存在时重算切线。
 // Recovered from app.js:397115-407521.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：以球体网格/立方体映射和 TextureLOD 为行星选择纹理分辨率，协调大气及阴影材质。
- * 继承：PioneerPublicApi.BaseComponent；导出：SpheroidLODComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SpheroidLODComponent extends PioneerPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_atmosphereComponentRef`、`_cubeMapFaceFrames`、`_longitudinalRotation`、`_lowerLeftBounds`、`_mapping`、`_materialOptions`、`_numFaces`、`_shadowEntities`；调用 `new PioneerPublicApi.ComponentRef`、`new PioneerPublicApi.FastMap`、`new PioneerPublicApi.LatLonAlt`、`new Set`、`super`、`this.__setUsesEntityOrientation`。
-   * 状态写入：_atmosphereComponentRef、_cubeMapFaceFrames、_longitudinalRotation、_lowerLeftBounds、_mapping、_materialOptions、_numFaces、_shadowEntities等；完整记录见索引。
-   * 调用线索：new PioneerPublicApi.ComponentRef、new PioneerPublicApi.FastMap、new PioneerPublicApi.LatLonAlt、new Set、super等。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._textureInfos = new PioneerPublicApi.FastMap();
     this._mapping = "cylinder";
     this._longitudinalRotation = 0;
@@ -34,175 +19,132 @@ class SpheroidLODComponent extends PioneerPublicApi.BaseComponent {
     this._spheroidChangedCallback = this._spheroidChangedCallback.bind(this);
     this.__setUsesEntityOrientation(true);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t`；调用 `t.push`、`this._textureInfos.getAt`、`this._textureInfos.getSize`。
-   * 调用线索：t.push、this._textureInfos.getAt、this._textureInfos.getSize。
-   */
   getTextureNames() {
-    const t = [];
-    for (let e = 0; e < this._textureInfos.getSize(); e++) t.push(this._textureInfos.getAt(e).key);
-    return t;
+    const names = [];
+    for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) names.push(this._textureInfos.getAt(textureIndex).key);
+    return names;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._textureInfos.get(t)?.url`；调用 `this._textureInfos.get`。
-   * 调用线索：this._textureInfos.get。
-   */
-  getTextureUrl(t) {
-    return this._textureInfos.get(t)?.url;
+  getTextureUrl(textureName) {
+    return this._textureInfos.get(textureName)?.url;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._textureInfos.get(t)?.sizes`；调用 `this._textureInfos.get`。
-   * 调用线索：this._textureInfos.get。
-   */
-  getTextureSizes(t) {
-    return this._textureInfos.get(t)?.sizes;
+  getTextureSizes(textureName) {
+    return this._textureInfos.get(textureName)?.sizes;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.replace`、`new PioneerPublicApi.TextureLOD`、`o.lods.push`、`s.setSizes`、`s.setUrl`、`t.toString`。
-   * 调用线索：e.replace、new PioneerPublicApi.TextureLOD、o.lods.push、s.setSizes、s.setUrl等。
-   */
-  setTexture(t, e, i = [4, 512, 4096]) {
-    const n = this.getThreeJsMaterials();
-    for (let e = 0, i = n.length; e < i; e++) {
-      const i = n[e];
-      i.defines[`${t}Map`] = true;
-      i.needsUpdate = true;
+  setTexture(textureName, url, sizes = [4, 512, 4096]) {
+    const materials = this.getThreeJsMaterials();
+    for (let materialIndex = 0, materialCount = materials.length; materialIndex < materialCount; materialIndex++) {
+      const material = materials[materialIndex];
+      material.defines[`${textureName}Map`] = true;
+      material.needsUpdate = true;
     }
-    let o = this._textureInfos.get(t);
-    if (o) {
-      o.url = e;
-      o.sizes = [...i];
+    let textureInfo = this._textureInfos.get(textureName);
+    if (textureInfo) {
+      textureInfo.url = url;
+      textureInfo.sizes = [...sizes];
     } else {
-      o = {
-        url: e,
-        sizes: [...i],
+      textureInfo = {
+        url: url,
+        sizes: [...sizes],
         lods: []
       };
-      for (let e = 0, numFaces = this._numFaces; e < numFaces; e++) {
+      for (let faceIndex = 0, numFaces = this._numFaces; faceIndex < numFaces; faceIndex++) {
         const textureLOD = new PioneerPublicApi.TextureLOD(this);
-        const r = n[e]?.uniforms[`${t}Texture`];
-        void 0 !== r && textureLOD.setUniform(r);
-        o.lods.push(textureLOD);
+        const uniform = materials[faceIndex]?.uniforms[`${textureName}Texture`];
+        if (void 0 !== uniform) {
+          textureLOD.setUniform(uniform);
+        }
+        textureInfo.lods.push(textureLOD);
       }
-      this._textureInfos.set(t, o);
+      this._textureInfos.set(textureName, textureInfo);
     }
-    for (let t = 0, numFaces = this._numFaces; t < numFaces; t++) {
-      const s = o.lods[t];
-      s.setUrl(e.replace("$FACE", t.toString()));
-      s.setSizes(i);
+    for (let faceIndex = 0, numFaces = this._numFaces; faceIndex < numFaces; faceIndex++) {
+      const lod = textureInfo.lods[faceIndex];
+      lod.setUrl(url.replace("$FACE", faceIndex.toString()));
+      lod.setSizes(sizes);
     }
-    "normal" === t && this._updateMeshes();
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.lods[t].setForcedSize`、`new Error`、`this._textureInfos.get`；含显式错误分支。
-   * 调用线索：i.lods[t].setForcedSize、new Error、this._textureInfos.get。
-   */
-  forceTextureSize(t, e) {
-    const i = this._textureInfos.get(t);
-    if (void 0 === i) throw new Error(`No texture named "${t}" has been defined.`);
-    for (let t = 0; t < i.lods.length; t++) i.lods[t].setForcedSize(e);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._textureInfos.delete`、`this._updateMeshes`、`this.getEngine`、`this.getEngine().getResourceManager`、`this.getEngine().getResourceManager().release`、`this.getThreeJsMaterials`。
-   * 调用线索：this._textureInfos.delete、this._updateMeshes、this.getEngine、this.getEngine().getResourceManager、this.getEngine().getResourceManager().release等。
-   */
-  unsetTexture(t) {
-    const e = this.getThreeJsMaterials();
-    for (let i = 0, s = e.length; i < s; i++) {
-      const s = e[i];
-      delete s.defines[`${t}Map`];
-      s.needsUpdate = true;
+    if ("normal" === textureName) {
+      this._updateMeshes();
     }
-    this._textureInfos.delete(t);
-    for (let i = 0, n = e.length; i < n; i++) {
-      const n = e[i].uniforms[`${t}Texture`];
-      n?.value instanceof PioneerPublicApi.THREE.Texture && (this.getEngine().getResourceManager().release(this, n.value, "texture"), n.value = null);
+  }
+  forceTextureSize(textureName, size) {
+    const textureInfo = this._textureInfos.get(textureName);
+    if (void 0 === textureInfo) throw new Error(`No texture named "${textureName}" has been defined.`);
+    for (let faceIndex = 0; faceIndex < textureInfo.lods.length; faceIndex++) textureInfo.lods[faceIndex].setForcedSize(size);
+  }
+  unsetTexture(textureName) {
+    const materials = this.getThreeJsMaterials();
+    for (let materialIndex = 0, materialCount = materials.length; materialIndex < materialCount; materialIndex++) {
+      const material = materials[materialIndex];
+      delete material.defines[`${textureName}Map`];
+      material.needsUpdate = true;
     }
-    "normal" === t && this._updateMeshes();
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `i.lods[e].getCurrentSize()`；调用 `i.lods[e].getCurrentSize`、`this._textureInfos.get`。
-   * 调用线索：i.lods[e].getCurrentSize、this._textureInfos.get。
-   */
-  getTextureCurrentSize(t, e) {
-    const i = this._textureInfos.get(t);
-    if (void 0 !== i?.lods[e]) return i.lods[e].getCurrentSize();
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._materialOptions.has(t)`；调用 `this._materialOptions.has`。
-   * 调用线索：this._materialOptions.has。
-   */
-  isMaterialOptionEnabled(t) {
-    return this._materialOptions.has(t);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._materialOptions.add`、`this._materialOptions.delete`、`this._materialOptions.has`、`this.getThreeJsMaterials`。
-   * 调用线索：this._materialOptions.add、this._materialOptions.delete、this._materialOptions.has、this.getThreeJsMaterials。
-   */
-  setMaterialOption(t, e) {
-    const i = this.getThreeJsMaterials();
-    if (e && !this._materialOptions.has(t)) {
-      this._materialOptions.add(t);
-      for (let e = 0, s = i.length; e < s; e++) {
-        const s = i[e];
-        s.defines[t] = true;
-        s.needsUpdate = true;
+    this._textureInfos.delete(textureName);
+    for (let materialIndex = 0, materialCount = materials.length; materialIndex < materialCount; materialIndex++) {
+      const uniform = materials[materialIndex].uniforms[`${textureName}Texture`];
+      if (uniform?.value instanceof PioneerPublicApi.THREE.Texture) {
+        this.getEngine().getResourceManager().release(this, uniform.value, "texture");
+        uniform.value = null;
       }
-    } else if (!e && this._materialOptions.has(t)) {
-      this._materialOptions.delete(t);
-      for (let e = 0, s = i.length; e < s; e++) {
-        const s = i[e];
-        delete s.defines[t];
-        s.needsUpdate = true;
+    }
+    if ("normal" === textureName) {
+      this._updateMeshes();
+    }
+  }
+  getTextureCurrentSize(textureName, faceIndex) {
+    const textureInfo = this._textureInfos.get(textureName);
+    if (void 0 !== textureInfo?.lods[faceIndex]) return textureInfo.lods[faceIndex].getCurrentSize();
+  }
+  isMaterialOptionEnabled(option) {
+    return this._materialOptions.has(option);
+  }
+  setMaterialOption(option, enabled) {
+    const materials = this.getThreeJsMaterials();
+    if (enabled && !this._materialOptions.has(option)) {
+      this._materialOptions.add(option);
+      for (let materialIndex = 0, materialCount = materials.length; materialIndex < materialCount; materialIndex++) {
+        const material = materials[materialIndex];
+        material.defines[option] = true;
+        material.needsUpdate = true;
+      }
+    } else if (!enabled && this._materialOptions.has(option)) {
+      this._materialOptions.delete(option);
+      for (let materialIndex = 0, materialCount = materials.length; materialIndex < materialCount; materialIndex++) {
+        const material = materials[materialIndex];
+        delete material.defines[option];
+        material.needsUpdate = true;
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._mapping`。
-   */
   getMapping() {
     return this._mapping;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_mapping`、`_numFaces`；调用 `e.lods.push`、`e.lods[t].setEnabled`、`e.url.replace`、`new PioneerPublicApi.TextureLOD`、`t.toString`、`textureLOD.setSizes`。
-   * 状态写入：_mapping、_numFaces。
-   * 调用线索：e.lods.push、e.lods[t].setEnabled、e.url.replace、new PioneerPublicApi.TextureLOD、t.toString等。
-   */
+  // 先归还旧 LOD 的 uniform 引用，再按新面数重建，避免旧纹理仍挂在已替换材质上。
   setMapping(mapping) {
     if (this._mapping !== mapping) {
       this._numFaces = "cylinder" === mapping ? 1 : 6;
-      for (let t = 0; t < this._textureInfos.getSize(); t++) {
-        const e = this._textureInfos.getAt(t).value;
-        for (let t = 0; t < e.lods.length; t++) e.lods[t].setEnabled(false);
-        e.lods = [];
-        for (let t = 0, numFaces = this._numFaces; t < numFaces; t++) {
+      for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) {
+        const textureInfo = this._textureInfos.getAt(textureIndex).value;
+        for (let lodIndex = 0; lodIndex < textureInfo.lods.length; lodIndex++) textureInfo.lods[lodIndex].setEnabled(false);
+        textureInfo.lods = [];
+        for (let faceIndex = 0, numFaces = this._numFaces; faceIndex < numFaces; faceIndex++) {
           const textureLOD = new PioneerPublicApi.TextureLOD(this);
-          textureLOD.setUrl(e.url.replace("$FACE", t.toString()));
-          textureLOD.setSizes(e.sizes);
-          e.lods.push(textureLOD);
+          textureLOD.setUrl(textureInfo.url.replace("$FACE", faceIndex.toString()));
+          textureLOD.setSizes(textureInfo.sizes);
+          textureInfo.lods.push(textureLOD);
         }
       }
       this.resetResources();
       this._mapping = mapping;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._lowerLeftBounds.copy`、`this._updateMeshes`、`this._upperRightBounds.copy`。
-   * 调用线索：this._lowerLeftBounds.copy、this._updateMeshes、this._upperRightBounds.copy。
-   */
-  setBounds(t, e) {
-    this._lowerLeftBounds.copy(t);
-    this._upperRightBounds.copy(e);
+  setBounds(lowerLeft, upperRight) {
+    this._lowerLeftBounds.copy(lowerLeft);
+    this._upperRightBounds.copy(upperRight);
     this._updateMeshes();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_cubeMapFaceFrames`；调用 `PioneerPublicApi.Tuple.create3Tuple`、`PioneerPublicApi.Tuple.create6Tuple`、`new Error`、`this._updateMeshes`；含显式错误分支。
-   * 状态写入：_cubeMapFaceFrames。
-   * 调用线索：PioneerPublicApi.Tuple.create3Tuple、PioneerPublicApi.Tuple.create6Tuple、new Error、this._updateMeshes。
-   */
-  setCubeMapLayout(t) {
-    this._cubeMapFaceFrames = PioneerPublicApi.Tuple.create6Tuple(e => PioneerPublicApi.Tuple.create3Tuple(i => {
-      switch (t[e][i]) {
+  setCubeMapLayout(layout) {
+    this._cubeMapFaceFrames = PioneerPublicApi.Tuple.create6Tuple(faceIndex => PioneerPublicApi.Tuple.create3Tuple(axisIndex => {
+      switch (layout[faceIndex][axisIndex]) {
         case "+x":
           return PioneerPublicApi.Vector3.XAxis;
         case "-x":
@@ -221,122 +163,79 @@ class SpheroidLODComponent extends PioneerPublicApi.BaseComponent {
     }));
     this._updateMeshes();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._shadowEntities.length`。
-   */
   getNumShadowEntities() {
     return this._shadowEntities.length;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._shadowEntities[t]?.getName()`。
-   * 调用线索：this._shadowEntities[t]?.getName。
-   */
-  getShadowEntity(t) {
-    return this._shadowEntities[t]?.getName();
+  getShadowEntity(shadowIndex) {
+    return this._shadowEntities[shadowIndex]?.getName();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_shadowEntities`；调用 `PioneerPublicApi.ThreeJsHelper.setDefine`、`new PioneerPublicApi.EntityRef`、`this._shadowEntities.push`、`this.getEntity`、`this.getEntity().getScene`、`this.getThreeJsMaterials`。
-   * 状态写入：_shadowEntities。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setDefine、new PioneerPublicApi.EntityRef、this._shadowEntities.push、this.getEntity、this.getEntity().getScene等。
-   */
-  setShadowEntities(t) {
+  setShadowEntities(entityNames) {
     this._shadowEntities = [];
-    for (const e of t) this._shadowEntities.push(new PioneerPublicApi.EntityRef(this.getEntity().getScene(), e));
-    const e = t.length > 0;
-    for (let t = 0, i = this.getThreeJsMaterials().length; t < i; t++) PioneerPublicApi.ThreeJsHelper.setDefine(this.getThreeJsMaterials()[t], "shadowEntities", e);
+    for (const entityName of entityNames) this._shadowEntities.push(new PioneerPublicApi.EntityRef(this.getEntity().getScene(), entityName));
+    const hasShadows = entityNames.length > 0;
+    for (let materialIndex = 0, materialCount = this.getThreeJsMaterials().length; materialIndex < materialCount; materialIndex++) PioneerPublicApi.ThreeJsHelper.setDefine(this.getThreeJsMaterials()[materialIndex], "shadowEntities", hasShadows);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._longitudinalRotation`。
-   */
   getLongitudeRotation() {
     return this._longitudinalRotation;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_longitudinalRotation`。
-   * 状态写入：_longitudinalRotation。
-   */
   setLongitudeRotation(longitudinalRotation) {
     this._longitudinalRotation = longitudinalRotation;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.getLoadedPromise`、`this.getLoadState`、`this.getTexturesLoadedPromise`。
-   * 调用线索：super.getLoadedPromise、this.getLoadState、this.getTexturesLoadedPromise。
-   */
-  async getLoadedPromise(t = false, e = Number.POSITIVE_INFINITY) {
-    await super.getLoadedPromise(t, e);
-    "loaded" === this.getLoadState().state && (await this.getTexturesLoadedPromise(e));
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Promise.allSettled`、`e.push`、`i.every`、`i.filter`、`new Error`、`s.lods[i].getLoadedPromise`；含显式错误分支。
-   * 调用线索：Promise.allSettled、e.push、i.every、i.filter、i.filter(t=>"rejected"===t.status).map等。
-   */
-  async getTexturesLoadedPromise(t = Number.POSITIVE_INFINITY) {
-    const e = [];
-    for (let i = 0; i < this._textureInfos.getSize(); i++) {
-      const s = this._textureInfos.getAt(i).value;
-      for (let i = 0, n = s.lods.length; i < n; i++) e.push(s.lods[i].getLoadedPromise(t));
+  async getLoadedPromise(forceLoaded = false, timeout = Number.POSITIVE_INFINITY) {
+    await super.getLoadedPromise(forceLoaded, timeout);
+    if ("loaded" === this.getLoadState().state) {
+      await this.getTexturesLoadedPromise(timeout);
     }
-    const i = await Promise.allSettled(e);
-    if (!i.every(t => "fulfilled" === t.status)) throw new Error(i.filter(t => "rejected" === t.status).map(t => t.reason instanceof Error ? t.reason.message : "").filter(t => "" !== t).reduce((t, e) => `${t}\n${e}`, ""));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._spheroidComponentRef.set`、`this.getEntity`、`this.getEntity().getName`。
-   * 调用线索：this._spheroidComponentRef.set、this.getEntity、this.getEntity().getName。
-   */
-  setSpheroidReference(t) {
-    this._spheroidComponentRef.set(this.getEntity().getName(), t);
+  async getTexturesLoadedPromise(timeout = Number.POSITIVE_INFINITY) {
+    const requests = [];
+    for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) {
+      const textureInfo = this._textureInfos.getAt(textureIndex).value;
+      for (let lodIndex = 0, lodCount = textureInfo.lods.length; lodIndex < lodCount; lodIndex++) requests.push(textureInfo.lods[lodIndex].getLoadedPromise(timeout));
+    }
+    const results = await Promise.allSettled(requests);
+    if (!results.every(result => "fulfilled" === result.status)) throw new Error(results.filter(result => "rejected" === result.status).map(result => result.reason instanceof Error ? result.reason.message : "").filter(message => "" !== message).reduce((errorMessages, message) => `${errorMessages}\n${message}`, ""));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.__destroy`、`t.removeChangedCallback`、`this._spheroidComponentRef.get`。
-   * 调用线索：super.__destroy、t.removeChangedCallback、this._spheroidComponentRef.get。
-   */
+  setSpheroidReference(nameOrClassIndex) {
+    this._spheroidComponentRef.set(this.getEntity().getName(), nameOrClassIndex);
+  }
   __destroy() {
-    const t = this._spheroidComponentRef.get();
-    null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
+    const spheroid = this._spheroidComponentRef.get();
+    if (null !== spheroid) {
+      spheroid.removeChangedCallback(this._spheroidChangedCallback);
+    }
     super.__destroy();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.lods[t].update`、`this._spheroidComponentRef.update`、`this._textureInfos.getAt`、`this._textureInfos.getSize`。
-   * 调用线索：e.lods[t].update、this._spheroidComponentRef.update、this._textureInfos.getAt、this._textureInfos.getSize。
-   */
   __update() {
-    for (let t = 0; t < this._textureInfos.getSize(); t++) {
-      const e = this._textureInfos.getAt(t).value;
-      for (let t = 0, i = e.lods.length; t < i; t++) e.lods[t].update();
+    for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) {
+      const textureInfo = this._textureInfos.getAt(textureIndex).value;
+      for (let lodIndex = 0, lodCount = textureInfo.lods.length; lodIndex < lodCount; lodIndex++) textureInfo.lods[lodIndex].update();
     }
     this._spheroidComponentRef.update();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.MaterialUtils.setUniforms`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.ThreeJsHelper.setOrientationToEntity`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`i.setFromAxisAngle`。
-   * 调用线索：PioneerPublicApi.MaterialUtils.setUniforms、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.ThreeJsHelper.setOrientationToEntity、PioneerPublicApi.ThreeJsHelper.setPositionToEntity等。
-   */
-  __prepareForRender(t) {
-    const e = this.getThreeJsObjects();
-    const i = PioneerPublicApi.Quaternion.pool.get();
-    i.setFromAxisAngle(PioneerPublicApi.Vector3.ZAxis, this._longitudinalRotation);
-    for (let n = 0; n < e.length; n++) {
-      PioneerPublicApi.ThreeJsHelper.setOrientationToEntity(e[n], this.getEntity(), i);
-      PioneerPublicApi.ThreeJsHelper.setPositionToEntity(e[n], this.getEntity(), t);
+  __prepareForRender(camera) {
+    const objects = this.getThreeJsObjects();
+    const longitudeRotation = PioneerPublicApi.Quaternion.pool.get();
+    longitudeRotation.setFromAxisAngle(PioneerPublicApi.Vector3.ZAxis, this._longitudinalRotation);
+    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) {
+      PioneerPublicApi.ThreeJsHelper.setOrientationToEntity(objects[objectIndex], this.getEntity(), longitudeRotation);
+      PioneerPublicApi.ThreeJsHelper.setPositionToEntity(objects[objectIndex], this.getEntity(), camera);
     }
-    PioneerPublicApi.Quaternion.pool.release(i);
-    const n = this._atmosphereComponentRef.get();
-    PioneerPublicApi.MaterialUtils.setUniforms(this.getThreeJsMaterials(), t, this.getEntity(), this._shadowEntities, n, true);
+    PioneerPublicApi.Quaternion.pool.release(longitudeRotation);
+    const atmosphere = this._atmosphereComponentRef.get();
+    PioneerPublicApi.MaterialUtils.setUniforms(this.getThreeJsMaterials(), camera, this.getEntity(), this._shadowEntities, atmosphere, true);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.MaterialUtils.get`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.useInDynEnvMap`、`e.setEnabled`、`e.setUniform`、`this._textureInfos.getAt`。
-   * 调用线索：PioneerPublicApi.MaterialUtils.get、PioneerPublicApi.ThreeJsHelper.createMeshObject、PioneerPublicApi.ThreeJsHelper.useInDynEnvMap、e.setEnabled、e.setUniform等。
-   */
   async __loadResources() {
-    for (let t = 0; t < this._numFaces; t++) {
-      const e = PioneerPublicApi.MaterialUtils.get();
-      this.getThreeJsMaterials().push(e);
-      for (const t of this._materialOptions) {
-        e.defines[t] = true;
-        e.needsUpdate = true;
+    for (let faceIndex = 0; faceIndex < this._numFaces; faceIndex++) {
+      const material = PioneerPublicApi.MaterialUtils.get();
+      this.getThreeJsMaterials().push(material);
+      for (const option of this._materialOptions) {
+        material.defines[option] = true;
+        material.needsUpdate = true;
       }
-      e.defines.shadowEntities = this.getNumShadowEntities() > 0;
-      e.defines.nightMapEmissive = this._textureInfos.has("night");
-      const i = PioneerPublicApi.ThreeJsHelper.createMeshObject(this, e, [{
+      material.defines.shadowEntities = this.getNumShadowEntities() > 0;
+      material.defines.nightMapEmissive = this._textureInfos.has("night");
+      const mesh = PioneerPublicApi.ThreeJsHelper.createMeshObject(this, material, [{
         name: "position",
         dimensions: 3
       }, {
@@ -346,152 +245,178 @@ class SpheroidLODComponent extends PioneerPublicApi.BaseComponent {
         name: "uv",
         dimensions: 2
       }], false);
-      this.getThreeJsObjects().push(i);
-      PioneerPublicApi.ThreeJsHelper.useInDynEnvMap(i, true);
-      for (let i = 0; i < this._textureInfos.getSize(); i++) {
+      this.getThreeJsObjects().push(mesh);
+      PioneerPublicApi.ThreeJsHelper.useInDynEnvMap(mesh, true);
+      for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) {
         const {
           key: key,
           value: value
-        } = this._textureInfos.getAt(i);
-        const o = e.uniforms[`${key}Texture`];
-        if (void 0 !== o) {
-          const e = value.lods[t];
-          e.setEnabled(true);
-          e.setUniform(o);
+        } = this._textureInfos.getAt(textureIndex);
+        const uniform = material.uniforms[`${key}Texture`];
+        if (void 0 !== uniform) {
+          const lod = value.lods[faceIndex];
+          lod.setEnabled(true);
+          lod.setUniform(uniform);
         }
-        e.defines[`${key}Map`] = true;
-        e.needsUpdate = true;
+        material.defines[`${key}Map`] = true;
+        material.needsUpdate = true;
       }
     }
     this._updateMeshes();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`、`i.setEnabled`、`i.setUniform`、`this._textureInfos.getAt`、`this._textureInfos.getSize`、`this.getThreeJsMaterials`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials、i.setEnabled、i.setUniform、this._textureInfos.getAt、this._textureInfos.getSize等。
-   */
+  // LOD 负责归还纹理；销毁 mesh/material 时不再跟随销毁 uniform 中的共享纹理。
   __unloadResources() {
-    for (let t = 0; t < this.getThreeJsMaterials().length; t++) {
-      const e = this.getThreeJsMaterials()[t];
-      e.uniforms.shadowRingsTexture && null !== e.uniforms.shadowRingsTexture.value && (e.uniforms.shadowRingsTexture.value = null);
+    for (let materialIndex = 0; materialIndex < this.getThreeJsMaterials().length; materialIndex++) {
+      const material = this.getThreeJsMaterials()[materialIndex];
+      if (material.uniforms.shadowRingsTexture && null !== material.uniforms.shadowRingsTexture.value) {
+        material.uniforms.shadowRingsTexture.value = null;
+      }
     }
-    for (let t = 0; t < this._textureInfos.getSize(); t++) {
-      const e = this._textureInfos.getAt(t).value;
-      for (let t = 0; t < e.lods.length; t++) {
-        const i = e.lods[t];
-        i.setEnabled(false);
-        i.setUniform(null);
+    for (let textureIndex = 0; textureIndex < this._textureInfos.getSize(); textureIndex++) {
+      const textureInfo = this._textureInfos.getAt(textureIndex).value;
+      for (let lodIndex = 0; lodIndex < textureInfo.lods.length; lodIndex++) {
+        const lod = textureInfo.lods[lodIndex];
+        lod.setEnabled(false);
+        lod.setUniform(null);
       }
     }
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this, false);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Math.ceil`、`Math.max`、`PioneerPublicApi.Geometry.getLLAFromXYZOnSphere`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`PioneerPublicApi.ThreeJsHelper.computeTangents`。
-   * 调用线索：Math.ceil、Math.max、PioneerPublicApi.Geometry.getLLAFromXYZOnSphere、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release等。
-   */
   _updateMeshes() {
     if (0 === this.getThreeJsObjects().length) return;
-    const t = this._spheroidComponentRef.get();
-    if (null !== t) if ("cylinder" === this._mapping) {
-      const e = this._upperRightBounds.lat - this._lowerLeftBounds.lat;
-      const i = this._upperRightBounds.lon - this._lowerLeftBounds.lon;
-      const n = Math.max(Math.ceil(100 * e / PioneerPublicApi.MathUtils.Pi), 4);
-      const o = Math.max(Math.ceil(200 * i / PioneerPublicApi.MathUtils.TwoPi), 4);
-      const r = e / (n - 1);
-      const a = i / (o - 1);
-      const l = o * n;
-      const float32Array = new Float32Array(3 * l);
-      const h = new Float32Array(3 * l);
-      const d = new Float32Array(2 * l);
-      const uint16Array = new Uint16Array((o - 1) * (n - 1) * 6);
-      const p = PioneerPublicApi.Vector3.pool.get();
-      const _ = PioneerPublicApi.LatLonAlt.pool.get();
-      for (let e = 0; e < n; e++) for (let i = 0; i < o; i++) {
-        _.lat = this._lowerLeftBounds.lat + e * r;
-        _.lon = this._lowerLeftBounds.lon + i * a;
-        _.alt = 0;
-        const s = e * o + i;
-        if (t.xyzFromLLA(p, _), float32Array[3 * s + 0] = p.x, float32Array[3 * s + 1] = p.y, float32Array[3 * s + 2] = p.z, t.upFromLLA(p, _), h[3 * s + 0] = p.x, h[3 * s + 1] = p.y, h[3 * s + 2] = p.z, d[2 * s + 0] = i / (o - 1), d[2 * s + 1] = 1 - e / (n - 1), e + 1 < n && i + 1 < o) {
-          const t = e * (o - 1) + i;
-          uint16Array[6 * t + 0] = o * (e + 0) + (i + 0);
-          uint16Array[6 * t + 1] = o * (e + 1) + (i + 1);
-          uint16Array[6 * t + 2] = o * (e + 1) + (i + 0);
-          uint16Array[6 * t + 3] = o * (e + 0) + (i + 0);
-          uint16Array[6 * t + 4] = o * (e + 0) + (i + 1);
-          uint16Array[6 * t + 5] = o * (e + 1) + (i + 1);
+    const spheroid = this._spheroidComponentRef.get();
+    if (null !== spheroid) if ("cylinder" === this._mapping) {
+      const latitudeSpan = this._upperRightBounds.lat - this._lowerLeftBounds.lat;
+      const longitudeSpan = this._upperRightBounds.lon - this._lowerLeftBounds.lon;
+      const latitudeCount = Math.max(Math.ceil(100 * latitudeSpan / PioneerPublicApi.MathUtils.Pi), 4);
+      const longitudeCount = Math.max(Math.ceil(200 * longitudeSpan / PioneerPublicApi.MathUtils.TwoPi), 4);
+      const latitudeStep = latitudeSpan / (latitudeCount - 1);
+      const longitudeStep = longitudeSpan / (longitudeCount - 1);
+      const vertexCount = longitudeCount * latitudeCount;
+      const positions = new Float32Array(3 * vertexCount);
+      const normals = new Float32Array(3 * vertexCount);
+      const uvs = new Float32Array(2 * vertexCount);
+      const indices = new Uint16Array((longitudeCount - 1) * (latitudeCount - 1) * 6);
+      const position = PioneerPublicApi.Vector3.pool.get();
+      const geodetic = PioneerPublicApi.LatLonAlt.pool.get();
+      for (let latitudeIndex = 0; latitudeIndex < latitudeCount; latitudeIndex++) for (let longitudeIndex = 0; longitudeIndex < longitudeCount; longitudeIndex++) {
+        geodetic.lat = this._lowerLeftBounds.lat + latitudeIndex * latitudeStep;
+        geodetic.lon = this._lowerLeftBounds.lon + longitudeIndex * longitudeStep;
+        geodetic.alt = 0;
+        const vertexIndex = latitudeIndex * longitudeCount + longitudeIndex;
+        spheroid.xyzFromLLA(position, geodetic);
+        positions[3 * vertexIndex + 0] = position.x;
+        positions[3 * vertexIndex + 1] = position.y;
+        positions[3 * vertexIndex + 2] = position.z;
+        spheroid.upFromLLA(position, geodetic);
+        normals[3 * vertexIndex + 0] = position.x;
+        normals[3 * vertexIndex + 1] = position.y;
+        normals[3 * vertexIndex + 2] = position.z;
+        uvs[2 * vertexIndex + 0] = longitudeIndex / (longitudeCount - 1);
+        uvs[2 * vertexIndex + 1] = 1 - latitudeIndex / (latitudeCount - 1);
+        if (latitudeIndex + 1 < latitudeCount && longitudeIndex + 1 < longitudeCount) {
+          const cellIndex = latitudeIndex * (longitudeCount - 1) + longitudeIndex;
+          indices[6 * cellIndex + 0] = longitudeCount * (latitudeIndex + 0) + (longitudeIndex + 0);
+          indices[6 * cellIndex + 1] = longitudeCount * (latitudeIndex + 1) + (longitudeIndex + 1);
+          indices[6 * cellIndex + 2] = longitudeCount * (latitudeIndex + 1) + (longitudeIndex + 0);
+          indices[6 * cellIndex + 3] = longitudeCount * (latitudeIndex + 0) + (longitudeIndex + 0);
+          indices[6 * cellIndex + 4] = longitudeCount * (latitudeIndex + 0) + (longitudeIndex + 1);
+          indices[6 * cellIndex + 5] = longitudeCount * (latitudeIndex + 1) + (longitudeIndex + 1);
         }
       }
-      PioneerPublicApi.LatLonAlt.pool.release(_);
-      PioneerPublicApi.Vector3.pool.release(p);
-      const m = this.getThreeJsObjects()[0];
-      PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "position", float32Array);
-      PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "normal", h);
-      PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "uv", d);
-      PioneerPublicApi.ThreeJsHelper.setIndices(m.geometry, uint16Array);
-      this._textureInfos.has("normal") && PioneerPublicApi.ThreeJsHelper.computeTangents(m.geometry);
+      PioneerPublicApi.LatLonAlt.pool.release(geodetic);
+      PioneerPublicApi.Vector3.pool.release(position);
+      const mesh = this.getThreeJsObjects()[0];
+      PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "position", positions);
+      PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "normal", normals);
+      PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "uv", uvs);
+      PioneerPublicApi.ThreeJsHelper.setIndices(mesh.geometry, indices);
+      if (this._textureInfos.has("normal")) {
+        PioneerPublicApi.ThreeJsHelper.computeTangents(mesh.geometry);
+      }
     } else {
-      const e = 50;
-      const i = PioneerPublicApi.Vector3.pool.get();
-      const n = PioneerPublicApi.LatLonAlt.pool.get();
-      for (let o = 0; o < 6; o++) {
-        const r = this._cubeMapFaceFrames[o];
-        const float32Array = new Float32Array(e * e * 3);
-        const l = new Float32Array(e * e * 3);
-        const c = new Float32Array(e * e * 2);
-        const uint16Array = new Uint16Array((e - 1) * (e - 1) * 6);
-        let d = false;
-        const u = PioneerPublicApi.Vector3.pool.get();
-        u.cross(r[0], r[1]);
-        u.x === r[2].x && u.y === r[2].y && u.z === r[2].z || (d = true);
-        PioneerPublicApi.Vector3.pool.release(u);
-        let p = 0;
-        let _ = 0;
-        for (let o = 0; o < e; o++) for (let u = 0; u < e; u++) {
-          i.mult(r[0], 2 * u / (e - 1) - 1);
-          i.addMult(i, r[1], 2 * o / (e - 1) - 1);
-          i.addMult(i, r[2], 1);
-          i.normalize(i);
-          PioneerPublicApi.Geometry.getLLAFromXYZOnSphere(n, i, 0);
-          n.alt = 0;
-          t.xyzFromLLA(i, n);
-          float32Array[3 * p + 0] = i.x;
-          float32Array[3 * p + 1] = i.y;
-          float32Array[3 * p + 2] = i.z;
-          t.upFromLLA(i, n);
-          l[3 * p + 0] = i.x;
-          l[3 * p + 1] = i.y;
-          l[3 * p + 2] = i.z;
-          c[2 * p + 0] = u / (e - 1);
-          c[2 * p + 1] = 1 - o / (e - 1);
-          u < e - 1 && o < e - 1 && (uint16Array[6 * _ + 0] = (o + 0) * e + (u + 0), uint16Array[6 * _ + 3] = (o + 1) * e + (u + 1), d ? (uint16Array[6 * _ + 1] = (o + 1) * e + (u + 1), uint16Array[6 * _ + 2] = (o + 0) * e + (u + 1), uint16Array[6 * _ + 4] = (o + 0) * e + (u + 0), uint16Array[6 * _ + 5] = (o + 1) * e + (u + 0)) : (uint16Array[6 * _ + 1] = (o + 0) * e + (u + 1), uint16Array[6 * _ + 2] = (o + 1) * e + (u + 1), uint16Array[6 * _ + 4] = (o + 1) * e + (u + 0), uint16Array[6 * _ + 5] = (o + 0) * e + (u + 0)), _ += 1);
-          p += 1;
+      const gridSize = 50;
+      const position = PioneerPublicApi.Vector3.pool.get();
+      const geodetic = PioneerPublicApi.LatLonAlt.pool.get();
+      for (let faceIndex = 0; faceIndex < 6; faceIndex++) {
+        const faceFrame = this._cubeMapFaceFrames[faceIndex];
+        const positions = new Float32Array(gridSize * gridSize * 3);
+        const normals = new Float32Array(gridSize * gridSize * 3);
+        const uvs = new Float32Array(gridSize * gridSize * 2);
+        const indices = new Uint16Array((gridSize - 1) * (gridSize - 1) * 6);
+        let reverseWinding = false;
+        const crossAxis = PioneerPublicApi.Vector3.pool.get();
+        crossAxis.cross(faceFrame[0], faceFrame[1]);
+        if (!(crossAxis.x === faceFrame[2].x && crossAxis.y === faceFrame[2].y && crossAxis.z === faceFrame[2].z)) {
+          reverseWinding = true;
         }
-        const m = this.getThreeJsObjects()[o];
-        PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "position", float32Array);
-        PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "normal", l);
-        PioneerPublicApi.ThreeJsHelper.setVertices(m.geometry, "uv", c);
-        PioneerPublicApi.ThreeJsHelper.setIndices(m.geometry, uint16Array);
-        this._textureInfos.has("normal") && PioneerPublicApi.ThreeJsHelper.computeTangents(m.geometry);
+        PioneerPublicApi.Vector3.pool.release(crossAxis);
+        let vertexIndex = 0;
+        let cellIndex = 0;
+        for (let rowIndex = 0; rowIndex < gridSize; rowIndex++) for (let columnIndex = 0; columnIndex < gridSize; columnIndex++) {
+          position.mult(faceFrame[0], 2 * columnIndex / (gridSize - 1) - 1);
+          position.addMult(position, faceFrame[1], 2 * rowIndex / (gridSize - 1) - 1);
+          position.addMult(position, faceFrame[2], 1);
+          position.normalize(position);
+          PioneerPublicApi.Geometry.getLLAFromXYZOnSphere(geodetic, position, 0);
+          geodetic.alt = 0;
+          spheroid.xyzFromLLA(position, geodetic);
+          positions[3 * vertexIndex + 0] = position.x;
+          positions[3 * vertexIndex + 1] = position.y;
+          positions[3 * vertexIndex + 2] = position.z;
+          spheroid.upFromLLA(position, geodetic);
+          normals[3 * vertexIndex + 0] = position.x;
+          normals[3 * vertexIndex + 1] = position.y;
+          normals[3 * vertexIndex + 2] = position.z;
+          uvs[2 * vertexIndex + 0] = columnIndex / (gridSize - 1);
+          uvs[2 * vertexIndex + 1] = 1 - rowIndex / (gridSize - 1);
+          if (columnIndex < gridSize - 1 && rowIndex < gridSize - 1) {
+            indices[6 * cellIndex + 0] = (rowIndex + 0) * gridSize + (columnIndex + 0);
+            indices[6 * cellIndex + 3] = (rowIndex + 1) * gridSize + (columnIndex + 1);
+            if (reverseWinding) {
+              indices[6 * cellIndex + 1] = (rowIndex + 1) * gridSize + (columnIndex + 1);
+              indices[6 * cellIndex + 2] = (rowIndex + 0) * gridSize + (columnIndex + 1);
+              indices[6 * cellIndex + 4] = (rowIndex + 0) * gridSize + (columnIndex + 0);
+              indices[6 * cellIndex + 5] = (rowIndex + 1) * gridSize + (columnIndex + 0);
+            } else {
+              indices[6 * cellIndex + 1] = (rowIndex + 0) * gridSize + (columnIndex + 1);
+              indices[6 * cellIndex + 2] = (rowIndex + 1) * gridSize + (columnIndex + 1);
+              indices[6 * cellIndex + 4] = (rowIndex + 1) * gridSize + (columnIndex + 0);
+              indices[6 * cellIndex + 5] = (rowIndex + 0) * gridSize + (columnIndex + 0);
+            }
+            cellIndex += 1;
+          }
+          vertexIndex += 1;
+        }
+        const mesh = this.getThreeJsObjects()[faceIndex];
+        PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "position", positions);
+        PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "normal", normals);
+        PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "uv", uvs);
+        PioneerPublicApi.ThreeJsHelper.setIndices(mesh.geometry, indices);
+        if (this._textureInfos.has("normal")) {
+          PioneerPublicApi.ThreeJsHelper.computeTangents(mesh.geometry);
+        }
       }
-      PioneerPublicApi.LatLonAlt.pool.release(n);
-      PioneerPublicApi.Vector3.pool.release(i);
+      PioneerPublicApi.LatLonAlt.pool.release(geodetic);
+      PioneerPublicApi.Vector3.pool.release(position);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.addChangedCallback`、`t.removeChangedCallback`、`this._spheroidChangedCallback`。
-   * 调用线索：e.addChangedCallback、t.removeChangedCallback、this._spheroidChangedCallback。
-   */
-  _spheroidRefChangedCallback(t, e) {
-    null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
-    null !== e && e.addChangedCallback(this._spheroidChangedCallback);
+  _spheroidRefChangedCallback(previousSpheroid, nextSpheroid) {
+    if (null !== previousSpheroid) {
+      previousSpheroid.removeChangedCallback(this._spheroidChangedCallback);
+    }
+    if (null !== nextSpheroid) {
+      nextSpheroid.addChangedCallback(this._spheroidChangedCallback);
+    }
     this._spheroidChangedCallback();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.max`、`t.getEquatorialRadius`、`t.getPolarRadius`、`this.__setRadius`、`this._spheroidComponentRef.get`、`this.resetResources`。
-   * 调用线索：Math.max、t.getEquatorialRadius、t.getPolarRadius、this.__setRadius、this._spheroidComponentRef.get等。
-   */
   _spheroidChangedCallback() {
-    const t = this._spheroidComponentRef.get();
-    null !== t ? this.__setRadius(Math.max(t.getEquatorialRadius(), t.getPolarRadius())) : this.__setRadius(0);
+    const spheroid = this._spheroidComponentRef.get();
+    if (null !== spheroid) {
+      this.__setRadius(Math.max(spheroid.getEquatorialRadius(), spheroid.getPolarRadius()));
+    } else {
+      this.__setRadius(0);
+    }
     this.resetResources();
   }
   _textureInfos;

@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：提供独立工程 HTTP 开发服务器及 MIME/路径限制，伴随源码监听构建
- * 依据：当前源码声明、导入关系及工程调用链
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 import http from 'node:http';
 import path from 'node:path';
 import { readFile, stat } from 'node:fs/promises';

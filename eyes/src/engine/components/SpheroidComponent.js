@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：描述扁球体几何，负责 XYZ 与经纬高转换、地表法线和局部姿态求解；不负责贴图 LOD。
- * 依据：import ../pioneer/public-api.js；SpheroidComponent extends PioneerPublicApi.BaseComponent @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 椭球坐标区分行星地理纬度与地心纬度；射线求交先按赤道/极半径比缩放 Z 成球体，求交后还原。局部 up/east/north 与 AER 均从地理法线构建，保留迭代次数及原公式。
 // Recovered from app.js:392139-397114.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：描述扁球体几何，负责 XYZ 与经纬高转换、地表法线和局部姿态求解；不负责贴图 LOD。
- * 继承：PioneerPublicApi.BaseComponent；导出：SpheroidComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SpheroidComponent extends PioneerPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_changed`、`_changedCallbacks`、`_equatorialRadius`、`_planetographic`、`_polarRadius`；调用 `Math.max`、`new PioneerPublicApi.FastSet`、`super`、`this.__setRadius`、`this.setIsGroundComponent`。
-   * 状态写入：_changed、_changedCallbacks、_equatorialRadius、_planetographic、_polarRadius。
-   * 调用线索：Math.max、new PioneerPublicApi.FastSet、super、this.__setRadius、this.setIsGroundComponent。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._equatorialRadius = 1;
     this._polarRadius = 1;
     this._planetographic = false;
@@ -27,271 +12,210 @@ class SpheroidComponent extends PioneerPublicApi.BaseComponent {
     this.setIsGroundComponent(true);
     this.__setRadius(Math.max(this._polarRadius, this._equatorialRadius));
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._equatorialRadius`。
-   */
   getEquatorialRadius() {
     return this._equatorialRadius;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_changed`、`_equatorialRadius`；调用 `Math.max`、`this.__setRadius`。
-   * 状态写入：_changed、_equatorialRadius。
-   * 调用线索：Math.max、this.__setRadius。
-   */
   setEquatorialRadius(equatorialRadius) {
     this._equatorialRadius = equatorialRadius;
     this.__setRadius(Math.max(this._polarRadius, this._equatorialRadius));
     this._changed = true;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._polarRadius`。
-   */
   getPolarRadius() {
     return this._polarRadius;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_changed`、`_polarRadius`；调用 `Math.max`、`this.__setRadius`。
-   * 状态写入：_changed、_polarRadius。
-   * 调用线索：Math.max、this.__setRadius。
-   */
   setPolarRadius(polarRadius) {
     this._polarRadius = polarRadius;
     this.__setRadius(Math.max(this._polarRadius, this._equatorialRadius));
     this._changed = true;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._planetographic`。
-   */
   isPlanetographic() {
     return this._planetographic;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_changed`、`_planetographic`。
-   * 状态写入：_changed、_planetographic。
-   */
   setPlanetographic(planetographic) {
     this._planetographic = planetographic;
     this._changed = true;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._changedCallbacks.add`。
-   * 调用线索：this._changedCallbacks.add。
-   */
-  addChangedCallback(t) {
-    this._changedCallbacks.add(t);
+  addChangedCallback(callback) {
+    this._changedCallbacks.add(callback);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._changedCallbacks.delete`。
-   * 调用线索：this._changedCallbacks.delete。
-   */
-  removeChangedCallback(t) {
-    this._changedCallbacks.delete(t);
+  removeChangedCallback(callback) {
+    this._changedCallbacks.delete(callback);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_changed`；调用 `this._changedCallbacks.getAt`、`this._changedCallbacks.getAt(t)`、`this._changedCallbacks.getSize`。
-   * 状态写入：_changed。
-   * 调用线索：this._changedCallbacks.getAt、this._changedCallbacks.getAt(t)、this._changedCallbacks.getSize。
-   */
   __update() {
     if (this._changed) {
-      for (let t = 0; t < this._changedCallbacks.getSize(); t++) this._changedCallbacks.getAt(t)();
+      for (let callbackIndex = 0; callbackIndex < this._changedCallbacks.getSize(); callbackIndex++) this._changedCallbacks.getAt(callbackIndex)();
       this._changed = false;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sin`、`Math.sqrt`。
-   * 调用线索：Math.cos、Math.sin、Math.sqrt。
-   */
-  xyzFromLLA(t, e) {
-    const i = Math.cos(e.lat);
-    const s = Math.sin(e.lat);
+  xyzFromLLA(output, geodetic) {
+    const latitudeCos = Math.cos(geodetic.lat);
+    const latitudeSin = Math.sin(geodetic.lat);
     if (this._planetographic) {
-      const n = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
-      const o = this._equatorialRadius / Math.sqrt(1 - n * s * s);
-      t.x = (o + e.alt) * i * Math.cos(e.lon);
-      t.y = (o + e.alt) * i * Math.sin(e.lon);
-      t.z = ((1 - n) * o + e.alt) * s;
+      const eccentricitySquared = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
+      const primeVerticalRadius = this._equatorialRadius / Math.sqrt(1 - eccentricitySquared * latitudeSin * latitudeSin);
+      output.x = (primeVerticalRadius + geodetic.alt) * latitudeCos * Math.cos(geodetic.lon);
+      output.y = (primeVerticalRadius + geodetic.alt) * latitudeCos * Math.sin(geodetic.lon);
+      output.z = ((1 - eccentricitySquared) * primeVerticalRadius + geodetic.alt) * latitudeSin;
     } else {
       const equatorialRadius = this._equatorialRadius;
       const polarRadius = this._polarRadius;
-      const r = equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * i * i + equatorialRadius * equatorialRadius * s * s);
-      t.x = (r + e.alt) * i * Math.cos(e.lon);
-      t.y = (r + e.alt) * i * Math.sin(e.lon);
-      t.z = (r + e.alt) * s;
+      const radialRadius = equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * latitudeCos * latitudeCos + equatorialRadius * equatorialRadius * latitudeSin * latitudeSin);
+      output.x = (radialRadius + geodetic.alt) * latitudeCos * Math.cos(geodetic.lon);
+      output.y = (radialRadius + geodetic.alt) * latitudeCos * Math.sin(geodetic.lon);
+      output.z = (radialRadius + geodetic.alt) * latitudeSin;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `o` 或 `equatorialRadius*polarRadius/Math.sqrt(polarRadius*polarRadius*s+equatorialRadius*equatorialRadius*n)`；调用 `Math.atan`、`Math.sin`、`Math.sqrt`、`t.magnitudeXY`。
-   * 调用线索：Math.atan、Math.sin、Math.sqrt、t.magnitudeXY。
-   */
-  radiusFromXYZ(t, e = 5) {
+  // 地理纬度分支迭代求卯酉圈曲率半径；地心纬度分支直接按射线方向求椭球表面半径。
+  radiusFromXYZ(position, iterations = 5) {
     if (this._planetographic) {
-      const i = t.magnitudeXY();
-      const s = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
-      let n = Math.atan(t.z / ((1 - s) * i));
-      let o = 0;
-      for (let r = 0; r < e; r++) {
-        const e = Math.sin(n);
-        o = this._equatorialRadius / Math.sqrt(1 - s * e * e);
-        n = Math.atan((t.z + o * s * e) / i);
+      const horizontalRadius = position.magnitudeXY();
+      const eccentricitySquared = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
+      let latitude = Math.atan(position.z / ((1 - eccentricitySquared) * horizontalRadius));
+      let primeVerticalRadius = 0;
+      for (let iteration = 0; iteration < iterations; iteration++) {
+        const latitudeSin = Math.sin(latitude);
+        primeVerticalRadius = this._equatorialRadius / Math.sqrt(1 - eccentricitySquared * latitudeSin * latitudeSin);
+        latitude = Math.atan((position.z + primeVerticalRadius * eccentricitySquared * latitudeSin) / horizontalRadius);
       }
-      return o;
+      return primeVerticalRadius;
     }
-    const i = t.z * t.z / (t.x * t.x + t.y * t.y);
-    const s = 1 / (1 + i);
-    const n = i * s;
+    const slopeSquared = position.z * position.z / (position.x * position.x + position.y * position.y);
+    const latitudeCosSquared = 1 / (1 + slopeSquared);
+    const latitudeSinSquared = slopeSquared * latitudeCosSquared;
     const equatorialRadius = this._equatorialRadius;
     const polarRadius = this._polarRadius;
-    return equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * s + equatorialRadius * equatorialRadius * n);
+    return equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * latitudeCosSquared + equatorialRadius * equatorialRadius * latitudeSinSquared);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.atan`、`Math.atan2`、`Math.cos`、`Math.sin`、`Math.sqrt`、`e.magnitude`。
-   * 调用线索：Math.atan、Math.atan2、Math.cos、Math.sin、Math.sqrt等。
-   */
-  llaFromXYZ(t, e, i = 5) {
+  llaFromXYZ(output, position, iterations = 5) {
     if (this._planetographic) {
-      t.lon = Math.atan2(e.y, e.x);
-      const s = e.magnitudeXY();
-      const n = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
-      t.lat = Math.atan(e.z / ((1 - n) * s));
-      let o = 0;
-      for (let r = 0; r < i; r++) {
-        const i = Math.sin(t.lat);
-        o = 1 / Math.sqrt(1 - n * i * i);
-        t.lat = Math.atan((e.z + this._equatorialRadius * o * n * i) / s);
+      output.lon = Math.atan2(position.y, position.x);
+      const horizontalRadius = position.magnitudeXY();
+      const eccentricitySquared = 1 - this._polarRadius * this._polarRadius / (this._equatorialRadius * this._equatorialRadius);
+      output.lat = Math.atan(position.z / ((1 - eccentricitySquared) * horizontalRadius));
+      let radiusFactor = 0;
+      for (let iteration = 0; iteration < iterations; iteration++) {
+        const latitudeSin = Math.sin(output.lat);
+        radiusFactor = 1 / Math.sqrt(1 - eccentricitySquared * latitudeSin * latitudeSin);
+        output.lat = Math.atan((position.z + this._equatorialRadius * radiusFactor * eccentricitySquared * latitudeSin) / horizontalRadius);
       }
-      t.alt = s / Math.cos(t.lat) - this._equatorialRadius * o;
+      output.alt = horizontalRadius / Math.cos(output.lat) - this._equatorialRadius * radiusFactor;
     } else {
-      const i = e.magnitudeXY();
-      t.lon = Math.atan2(e.y, e.x);
-      t.lat = Math.atan(e.z / i);
-      const s = Math.cos(t.lat);
-      const n = Math.sin(t.lat);
+      const horizontalRadius = position.magnitudeXY();
+      output.lon = Math.atan2(position.y, position.x);
+      output.lat = Math.atan(position.z / horizontalRadius);
+      const latitudeCos = Math.cos(output.lat);
+      const latitudeSin = Math.sin(output.lat);
       const equatorialRadius = this._equatorialRadius;
       const polarRadius = this._polarRadius;
-      const a = equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * s * s + equatorialRadius * equatorialRadius * n * n);
-      t.alt = e.magnitude() - a;
+      const radialRadius = equatorialRadius * polarRadius / Math.sqrt(polarRadius * polarRadius * latitudeCos * latitudeCos + equatorialRadius * equatorialRadius * latitudeSin * latitudeSin);
+      output.alt = position.magnitude() - radialRadius;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_planetographic`；调用 `PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`this.llaFromXYZ`、`this.xyzFromLLA`。
-   * 状态写入：_planetographic。
-   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、this.llaFromXYZ、this.xyzFromLLA。
-   */
-  llaToggleGraphicCentric(t, e) {
-    const i = PioneerPublicApi.Vector3.pool.get();
-    this.xyzFromLLA(i, e);
+  llaToggleGraphicCentric(output, geodetic) {
+    const position = PioneerPublicApi.Vector3.pool.get();
+    this.xyzFromLLA(position, geodetic);
     this._planetographic = !this._planetographic;
-    this.llaFromXYZ(t, i);
+    this.llaFromXYZ(output, position);
     this._planetographic = !this._planetographic;
-    PioneerPublicApi.Vector3.pool.release(i);
+    PioneerPublicApi.Vector3.pool.release(position);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sin`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`i.copy`、`this.llaToggleGraphicCentric`。
-   * 调用线索：Math.cos、Math.sin、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、i.copy等。
-   */
-  upFromLLA(t, e) {
-    const i = PioneerPublicApi.LatLonAlt.pool.get();
-    this._planetographic ? i.copy(e) : this.llaToggleGraphicCentric(i, e);
-    t.x = Math.cos(i.lat) * Math.cos(i.lon);
-    t.y = Math.cos(i.lat) * Math.sin(i.lon);
-    t.z = Math.sin(i.lat);
-    PioneerPublicApi.LatLonAlt.pool.release(i);
+  upFromLLA(output, geodetic) {
+    const graphicCoordinates = PioneerPublicApi.LatLonAlt.pool.get();
+    if (this._planetographic) {
+      graphicCoordinates.copy(geodetic);
+    } else {
+      this.llaToggleGraphicCentric(graphicCoordinates, geodetic);
+    }
+    output.x = Math.cos(graphicCoordinates.lat) * Math.cos(graphicCoordinates.lon);
+    output.y = Math.cos(graphicCoordinates.lat) * Math.sin(graphicCoordinates.lon);
+    output.z = Math.sin(graphicCoordinates.lat);
+    PioneerPublicApi.LatLonAlt.pool.release(graphicCoordinates);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sin`。
-   * 调用线索：Math.cos、Math.sin。
-   */
-  eastFromLLA(t, e) {
-    t.x = -Math.sin(e.lon);
-    t.y = Math.cos(e.lon);
-    t.z = 0;
+  eastFromLLA(output, geodetic) {
+    output.x = -Math.sin(geodetic.lon);
+    output.y = Math.cos(geodetic.lon);
+    output.z = 0;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sin`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`i.copy`、`this.llaToggleGraphicCentric`。
-   * 调用线索：Math.cos、Math.sin、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、i.copy等。
-   */
-  northFromLLA(t, e) {
-    const i = PioneerPublicApi.LatLonAlt.pool.get();
-    this._planetographic ? i.copy(e) : this.llaToggleGraphicCentric(i, e);
-    t.x = -Math.sin(i.lat) * Math.cos(i.lon);
-    t.y = -Math.sin(i.lat) * Math.sin(i.lon);
-    t.z = Math.cos(i.lat);
-    PioneerPublicApi.LatLonAlt.pool.release(i);
+  northFromLLA(output, geodetic) {
+    const graphicCoordinates = PioneerPublicApi.LatLonAlt.pool.get();
+    if (this._planetographic) {
+      graphicCoordinates.copy(geodetic);
+    } else {
+      this.llaToggleGraphicCentric(graphicCoordinates, geodetic);
+    }
+    output.x = -Math.sin(graphicCoordinates.lat) * Math.cos(graphicCoordinates.lon);
+    output.y = -Math.sin(graphicCoordinates.lat) * Math.sin(graphicCoordinates.lon);
+    output.z = Math.cos(graphicCoordinates.lat);
+    PioneerPublicApi.LatLonAlt.pool.release(graphicCoordinates);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sign`、`Math.sin`、`Math.sqrt`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`。
-   * 调用线索：Math.cos、Math.sign、Math.sin、Math.sqrt、PioneerPublicApi.LatLonAlt.pool.get等。
-   */
-  orientationFromLLA(t, e) {
-    const i = PioneerPublicApi.LatLonAlt.pool.get();
-    this._planetographic ? i.copy(e) : this.llaToggleGraphicCentric(i, e);
-    const n = Math.sin(i.lat);
-    const o = Math.sin(i.lon);
-    const r = Math.cos(i.lon);
-    t.w = .5 * Math.sqrt((1 + n) * (1 - o));
-    t.x = .5 * Math.sqrt((1 - n) * (1 - o));
-    t.y = .5 * Math.sqrt((1 - n) * (1 + o)) * Math.sign(r);
-    t.z = .5 * Math.sqrt((1 + n) * (1 + o)) * Math.sign(r);
-    PioneerPublicApi.LatLonAlt.pool.release(i);
+  orientationFromLLA(output, geodetic) {
+    const graphicCoordinates = PioneerPublicApi.LatLonAlt.pool.get();
+    if (this._planetographic) {
+      graphicCoordinates.copy(geodetic);
+    } else {
+      this.llaToggleGraphicCentric(graphicCoordinates, geodetic);
+    }
+    const latitudeSin = Math.sin(graphicCoordinates.lat);
+    const longitudeSin = Math.sin(graphicCoordinates.lon);
+    const longitudeCos = Math.cos(graphicCoordinates.lon);
+    output.w = .5 * Math.sqrt((1 + latitudeSin) * (1 - longitudeSin));
+    output.x = .5 * Math.sqrt((1 - latitudeSin) * (1 - longitudeSin));
+    output.y = .5 * Math.sqrt((1 - latitudeSin) * (1 + longitudeSin)) * Math.sign(longitudeCos);
+    output.z = .5 * Math.sqrt((1 + latitudeSin) * (1 + longitudeSin)) * Math.sign(longitudeCos);
+    PioneerPublicApi.LatLonAlt.pool.release(graphicCoordinates);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.acos`、`Math.atan2`、`PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
-   * 调用线索：Math.acos、Math.atan2、PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、PioneerPublicApi.Vector3.pool.get等。
-   */
-  aerFromXYZRelToLLA(t, e, i) {
-    const n = PioneerPublicApi.Vector3.pool.get();
-    this.xyzFromLLA(n, i);
-    const o = PioneerPublicApi.LatLonAlt.pool.get();
-    this._planetographic ? o.copy(i) : this.llaFromXYZ(o, n);
-    n.sub(e, n);
-    t.range = n.magnitude();
-    n.mult(n, 1 / t.range);
-    const r = PioneerPublicApi.Vector3.pool.get();
-    this.upFromLLA(r, o);
-    const a = n.dot(r);
-    t.elevation = PioneerPublicApi.MathUtils.HalfPi - Math.acos(a);
-    n.addMult(n, r, -a);
-    PioneerPublicApi.Vector3.pool.release(r);
-    const l = PioneerPublicApi.Vector3.pool.get();
-    this.northFromLLA(l, o);
-    const c = PioneerPublicApi.Vector3.pool.get();
-    this.eastFromLLA(c, o);
-    t.azimuth = Math.atan2(n.dot(c), n.dot(l));
-    PioneerPublicApi.Vector3.pool.release(l);
-    PioneerPublicApi.Vector3.pool.release(c);
-    PioneerPublicApi.LatLonAlt.pool.release(o);
-    PioneerPublicApi.Vector3.pool.release(n);
+  aerFromXYZRelToLLA(output, position, observerGeodetic) {
+    const direction = PioneerPublicApi.Vector3.pool.get();
+    this.xyzFromLLA(direction, observerGeodetic);
+    const observerCoordinates = PioneerPublicApi.LatLonAlt.pool.get();
+    if (this._planetographic) {
+      observerCoordinates.copy(observerGeodetic);
+    } else {
+      this.llaFromXYZ(observerCoordinates, direction);
+    }
+    direction.sub(position, direction);
+    output.range = direction.magnitude();
+    direction.mult(direction, 1 / output.range);
+    const surfaceNormal = PioneerPublicApi.Vector3.pool.get();
+    this.upFromLLA(surfaceNormal, observerCoordinates);
+    const verticalProjection = direction.dot(surfaceNormal);
+    output.elevation = PioneerPublicApi.MathUtils.HalfPi - Math.acos(verticalProjection);
+    direction.addMult(direction, surfaceNormal, -verticalProjection);
+    PioneerPublicApi.Vector3.pool.release(surfaceNormal);
+    const north = PioneerPublicApi.Vector3.pool.get();
+    this.northFromLLA(north, observerCoordinates);
+    const east = PioneerPublicApi.Vector3.pool.get();
+    this.eastFromLLA(east, observerCoordinates);
+    output.azimuth = Math.atan2(direction.dot(east), direction.dot(north));
+    PioneerPublicApi.Vector3.pool.release(north);
+    PioneerPublicApi.Vector3.pool.release(east);
+    PioneerPublicApi.LatLonAlt.pool.release(observerCoordinates);
+    PioneerPublicApi.Vector3.pool.release(direction);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Geometry.getLineSphereIntersectionWithSphereAtOrigin`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`o.set`、`r.set`、`t.addMult`。
-   * 调用线索：PioneerPublicApi.Geometry.getLineSphereIntersectionWithSphereAtOrigin、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、o.set、r.set等。
-   */
-  getRayIntersection(t, e, i) {
-    const n = this._equatorialRadius / this._polarRadius;
-    const o = PioneerPublicApi.Vector3.pool.get();
-    const r = PioneerPublicApi.Vector3.pool.get();
-    o.set(e.x, e.y, e.z * n);
-    r.set(i.x, i.y, i.z * n);
-    const a = PioneerPublicApi.Geometry.getLineSphereIntersectionWithSphereAtOrigin(o, r, this._equatorialRadius);
-    t.addMult(o, r, a);
-    PioneerPublicApi.Vector3.pool.release(o);
-    PioneerPublicApi.Vector3.pool.release(r);
-    t.z /= n;
+  // 缩放 Z 后椭球化为赤道半径球；相同线参数仍适用，返回点最后撤销 Z 缩放。
+  getRayIntersection(output, rayOrigin, rayDirection) {
+    const polarScale = this._equatorialRadius / this._polarRadius;
+    const scaledOrigin = PioneerPublicApi.Vector3.pool.get();
+    const scaledDirection = PioneerPublicApi.Vector3.pool.get();
+    scaledOrigin.set(rayOrigin.x, rayOrigin.y, rayOrigin.z * polarScale);
+    scaledDirection.set(rayDirection.x, rayDirection.y, rayDirection.z * polarScale);
+    const rayParameter = PioneerPublicApi.Geometry.getLineSphereIntersectionWithSphereAtOrigin(scaledOrigin, scaledDirection, this._equatorialRadius);
+    output.addMult(scaledOrigin, scaledDirection, rayParameter);
+    PioneerPublicApi.Vector3.pool.release(scaledOrigin);
+    PioneerPublicApi.Vector3.pool.release(scaledDirection);
+    output.z /= polarScale;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.LatLonAlt.pool.get`、`PioneerPublicApi.LatLonAlt.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`this.llaFromXYZ`、`this.upFromLLA`。
-   * 调用线索：PioneerPublicApi.LatLonAlt.pool.get、PioneerPublicApi.LatLonAlt.pool.release、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、this.llaFromXYZ等。
-   */
-  getGroundPosition(t, e, i) {
-    const n = PioneerPublicApi.LatLonAlt.pool.get();
-    this.llaFromXYZ(n, i);
-    n.alt = 0;
-    this.xyzFromLLA(t, n);
-    const o = PioneerPublicApi.Vector3.pool.get();
-    e && this.upFromLLA(e, n);
-    PioneerPublicApi.LatLonAlt.pool.release(n);
-    PioneerPublicApi.Vector3.pool.release(o);
+  getGroundPosition(output, normal, position) {
+    const geodetic = PioneerPublicApi.LatLonAlt.pool.get();
+    this.llaFromXYZ(geodetic, position);
+    geodetic.alt = 0;
+    this.xyzFromLLA(output, geodetic);
+    const scratchPosition = PioneerPublicApi.Vector3.pool.get();
+    if (normal) {
+      this.upFromLLA(normal, geodetic);
+    }
+    PioneerPublicApi.LatLonAlt.pool.release(geodetic);
+    PioneerPublicApi.Vector3.pool.release(scratchPosition);
   }
   _equatorialRadius;
   _polarRadius;

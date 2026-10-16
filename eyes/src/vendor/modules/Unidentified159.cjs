@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：限制函数调用频率，复用防抖和最大等待窗口
- * 依据：// Recovered from vendors.js:987055-988899.；literal: Expected a function
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:987055-988899.
 var r = "Expected a function",
   i = /^\s+|\s+$/g,

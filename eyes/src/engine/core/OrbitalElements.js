@@ -1,16 +1,6 @@
-/** @eyes-analysis
- * 文件职责：椭圆/双曲轨道元素及开普勒传播，把时间转换为三维位置和速度。
- * 依据：import ../pioneer/public-api.js；OrbitalElements @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:53647-59688.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：椭圆/双曲轨道元素及开普勒传播，把时间转换为三维位置和速度。
- * 继承：无显式父类；导出：OrbitalElements。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 角量均为弧度；时间、长度和引力参数必须使用相容单位。此实现不额外处理抛物线或圆轨道的退化情况。 */
 class OrbitalElements {
   epoch;
   eccentricity;
@@ -19,240 +9,237 @@ class OrbitalElements {
   meanAnomalyAtEpoch;
   orientation;
   static pool = new PioneerPublicApi.Pool(OrbitalElements);
-  /** @eyes-analysis
-   * 【结构证据】写入 `eccentricity`、`epoch`、`meanAngularMotion`、`meanAnomalyAtEpoch`、`orientation`、`semiMajorAxis`；调用 `new PioneerPublicApi.Quaternion`、`this.orientation.copy`、`this.setFromPositionAndVelocity`、`this.setOrientationFromElements`。
-   * 状态写入：eccentricity、epoch、meanAngularMotion、meanAnomalyAtEpoch、orientation、semiMajorAxis。
-   * 调用线索：new PioneerPublicApi.Quaternion、this.orientation.copy、this.setFromPositionAndVelocity、this.setOrientationFromElements。
-   */
-  constructor(t) {
-    t ? "eccentricity" in t ? (this.epoch = t.epoch, this.eccentricity = t.eccentricity, this.semiMajorAxis = t.semiMajorAxis, this.meanAngularMotion = t.meanAngularMotion, this.meanAnomalyAtEpoch = t.meanAnomalyAtEpoch, this.orientation = new PioneerPublicApi.Quaternion(), "orientation" in t ? this.orientation.copy(t.orientation) : this.setOrientationFromElements(t.inclination, t.longitudeOfAscendingNode, t.argumentOfPeriapsis)) : this.setFromPositionAndVelocity(t.position, t.velocity, t.epoch, t.gm) : (this.epoch = 0, this.eccentricity = 0, this.semiMajorAxis = 0, this.meanAngularMotion = 0, this.meanAnomalyAtEpoch = 0, this.orientation = new PioneerPublicApi.Quaternion());
-  }
-  /** @eyes-analysis
-   * 【结构证据】写入 `eccentricity`、`epoch`、`meanAngularMotion`、`meanAnomalyAtEpoch`、`semiMajorAxis`；调用 `this.orientation.copy`。
-   * 状态写入：eccentricity、epoch、meanAngularMotion、meanAnomalyAtEpoch、semiMajorAxis。
-   * 调用线索：this.orientation.copy。
-   */
-  copy(t) {
-    this.epoch = t.epoch;
-    this.eccentricity = t.eccentricity;
-    this.semiMajorAxis = t.semiMajorAxis;
-    this.meanAnomalyAtEpoch = t.meanAnomalyAtEpoch;
-    this.meanAngularMotion = t.meanAngularMotion;
-    this.orientation.copy(t.orientation);
-  }
-  /** @eyes-analysis
-   * eccentricity<1 使用 sin/cos 椭圆参数，否则使用 sinh/cosh 双曲参数；先计算轨道平面位置/速度，设 z=0 后按 orientation 旋转到实体参考系。
-   * 调用线索：Math.cos、Math.cosh、Math.sin、Math.sinh、Math.sqrt等。
-   */
-  projectFromMeanAnomaly(t, e, i) {
-    if (this.eccentricity < 1) {
-      const s = this.getEccentricAnomalyFromMeanAnomaly(i);
-      const n = this.semiMajorAxis * (1 - this.eccentricity * Math.cos(s));
-      const o = this.meanAngularMotion * this.semiMajorAxis * this.semiMajorAxis / n;
-      t && (t.x = this.semiMajorAxis * (Math.cos(s) - this.eccentricity), t.y = this.semiMajorAxis * Math.sqrt(1 - this.eccentricity * this.eccentricity) * Math.sin(s));
-      e && (e.x = -o * Math.sin(s), e.y = o * Math.sqrt(1 - this.eccentricity * this.eccentricity) * Math.cos(s));
-    } else {
-      const s = this.getEccentricAnomalyFromMeanAnomaly(i);
-      const n = -this.semiMajorAxis * (1 - this.eccentricity * Math.cosh(s));
-      const o = this.meanAngularMotion * this.semiMajorAxis * this.semiMajorAxis / n;
-      t && (t.x = this.semiMajorAxis * (this.eccentricity - Math.cosh(s)), t.y = this.semiMajorAxis * Math.sqrt(this.eccentricity * this.eccentricity - 1) * Math.sinh(s));
-      e && (e.x = -o * Math.sinh(s), e.y = o * Math.sqrt(this.eccentricity * this.eccentricity - 1) * Math.cosh(s));
-    }
-    t && (t.z = 0, t.rotate(this.orientation, t));
-    e && (e.z = 0, e.rotate(this.orientation, e));
-  }
-  /** @eyes-analysis
-   * meanAnomaly=meanAnomalyAtEpoch+meanAngularMotion*(time-epoch)，椭圆分支将角度 wrap 到 [-π,π]，再调用 projectFromMeanAnomaly 输出位置/速度。
-   * 调用线索：PioneerPublicApi.MathUtils.wrap、this.projectFromMeanAnomaly。
-   */
-  project(t, e, i) {
-    let n = this.meanAnomalyAtEpoch + this.meanAngularMotion * (i - this.epoch);
-    this.eccentricity < 1 && (n = PioneerPublicApi.MathUtils.wrap(n, -PioneerPublicApi.MathUtils.Pi, +PioneerPublicApi.MathUtils.Pi));
-    this.projectFromMeanAnomaly(t, e, n);
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `i`；调用 `Math.atan2`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.rotateInverse`。
-   * 调用线索：Math.atan2、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、e.rotateInverse。
-   */
-  getTrueAnomalyFromPosition(t) {
-    const e = PioneerPublicApi.Vector3.pool.get();
-    e.rotateInverse(this.orientation, t);
-    const i = Math.atan2(e.y, e.x);
-    PioneerPublicApi.Vector3.pool.release(e);
-    return i;
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `Math.atan`、`Math.atanh`、`Math.sin`、`Math.sinh`、`Math.sqrt`、`Math.tan`。
-   * 调用线索：Math.atan、Math.atanh、Math.sin、Math.sinh、Math.sqrt等。
-   */
-  getMeanAnomalyFromTrueAnomaly(t) {
-    let e;
-    if (this.eccentricity < 1) {
-      const i = 2 * Math.atan(Math.tan(t / 2) * Math.sqrt((1 - this.eccentricity) / (1 + this.eccentricity)));
-      e = i - this.eccentricity * Math.sin(i);
-    } else {
-      const i = 2 * Math.atanh(Math.tan(t / 2) * Math.sqrt((this.eccentricity - 1) / (1 + this.eccentricity)));
-      e = this.eccentricity * Math.sinh(i) - i;
-    }
-    return e;
-  }
-  /** @eyes-analysis
-   * 分别解 E-e*sin(E)=M 或 e*sinh(H)-H=M。最多 20 次牛顿迭代，以更新量绝对值小于 0.00174532925 退出；未提供额外收敛失败标记。
-   * 调用线索：Math.abs、Math.cos、Math.cosh、Math.log、Math.sign等。
-   */
-  getEccentricAnomalyFromMeanAnomaly(t) {
-    if (this.eccentricity < 1) {
-      let e = t;
-      this.eccentricity >= .8 && (e = Math.sign(t) * PioneerPublicApi.MathUtils.Pi);
-      for (let i = 0; i < 20; i++) {
-        const i = (e - this.eccentricity * Math.sin(e) - t) / (this.eccentricity * Math.cos(e) - 1);
-        if (e += i, Math.abs(i) < .00174532925) break;
+  constructor(initialState) {
+    if (initialState) {
+      if ("eccentricity" in initialState) {
+        this.epoch = initialState.epoch;
+        this.eccentricity = initialState.eccentricity;
+        this.semiMajorAxis = initialState.semiMajorAxis;
+        this.meanAngularMotion = initialState.meanAngularMotion;
+        this.meanAnomalyAtEpoch = initialState.meanAnomalyAtEpoch;
+        this.orientation = new PioneerPublicApi.Quaternion();
+        if ("orientation" in initialState) {
+          this.orientation.copy(initialState.orientation);
+        } else {
+          this.setOrientationFromElements(initialState.inclination, initialState.longitudeOfAscendingNode, initialState.argumentOfPeriapsis);
+        }
+      } else {
+        this.setFromPositionAndVelocity(initialState.position, initialState.velocity, initialState.epoch, initialState.gm);
       }
-      return e;
+    } else {
+      this.epoch = 0;
+      this.eccentricity = 0;
+      this.semiMajorAxis = 0;
+      this.meanAngularMotion = 0;
+      this.meanAnomalyAtEpoch = 0;
+      this.orientation = new PioneerPublicApi.Quaternion();
     }
-    let e = Math.log(2 * Math.abs(t) / Math.E + 1.8);
-    this.eccentricity <= 1.2 && (e = Math.log(2 * Math.abs(t) / Math.E + 1.8));
-    t < 0 && (e *= -1);
-    for (let i = 0; i < 20; i++) {
-      const i = (e - this.eccentricity * Math.sinh(e) + t) / (this.eccentricity * Math.cosh(e) - 1);
-      if (e += i, Math.abs(i) < .00174532925) break;
-    }
-    return e;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `PioneerPublicApi.MathUtils.wrap(e,-Math.PI,+Math.PI)` 或 `this.eccentricity*Math.sinh(t)-t`；调用 `Math.sin`、`Math.sinh`、`PioneerPublicApi.MathUtils.wrap`。
-   * 调用线索：Math.sin、Math.sinh、PioneerPublicApi.MathUtils.wrap。
-   */
-  getMeanAnomalyFromEccentricAnomaly(t) {
+  copy(sourceElements) {
+    this.epoch = sourceElements.epoch;
+    this.eccentricity = sourceElements.eccentricity;
+    this.semiMajorAxis = sourceElements.semiMajorAxis;
+    this.meanAnomalyAtEpoch = sourceElements.meanAnomalyAtEpoch;
+    this.meanAngularMotion = sourceElements.meanAngularMotion;
+    this.orientation.copy(sourceElements.orientation);
+  }
+  /** 先在轨道平面计算位置与速度，再用同一 orientation 转到参考系；输出参数可省略，函数不替调用者分配向量。 */
+  projectFromMeanAnomaly(positionOut, velocityOut, meanAnomaly) {
     if (this.eccentricity < 1) {
-      const e = t - this.eccentricity * Math.sin(t);
-      return PioneerPublicApi.MathUtils.wrap(e, -Math.PI, +Math.PI);
+      const eccentricAnomaly = this.getEccentricAnomalyFromMeanAnomaly(meanAnomaly);
+      const orbitalRadius = this.semiMajorAxis * (1 - this.eccentricity * Math.cos(eccentricAnomaly));
+      const velocityScale = this.meanAngularMotion * this.semiMajorAxis * this.semiMajorAxis / orbitalRadius;
+      if (positionOut) {
+        positionOut.x = this.semiMajorAxis * (Math.cos(eccentricAnomaly) - this.eccentricity);
+        positionOut.y = this.semiMajorAxis * Math.sqrt(1 - this.eccentricity * this.eccentricity) * Math.sin(eccentricAnomaly);
+      }
+      if (velocityOut) {
+        velocityOut.x = -velocityScale * Math.sin(eccentricAnomaly);
+        velocityOut.y = velocityScale * Math.sqrt(1 - this.eccentricity * this.eccentricity) * Math.cos(eccentricAnomaly);
+      }
+    } else {
+      const eccentricAnomaly = this.getEccentricAnomalyFromMeanAnomaly(meanAnomaly);
+      const orbitalRadius = -this.semiMajorAxis * (1 - this.eccentricity * Math.cosh(eccentricAnomaly));
+      const velocityScale = this.meanAngularMotion * this.semiMajorAxis * this.semiMajorAxis / orbitalRadius;
+      if (positionOut) {
+        positionOut.x = this.semiMajorAxis * (this.eccentricity - Math.cosh(eccentricAnomaly));
+        positionOut.y = this.semiMajorAxis * Math.sqrt(this.eccentricity * this.eccentricity - 1) * Math.sinh(eccentricAnomaly);
+      }
+      if (velocityOut) {
+        velocityOut.x = -velocityScale * Math.sinh(eccentricAnomaly);
+        velocityOut.y = velocityScale * Math.sqrt(this.eccentricity * this.eccentricity - 1) * Math.cosh(eccentricAnomaly);
+      }
     }
-    return this.eccentricity * Math.sinh(t) - t;
+    if (positionOut) {
+      positionOut.z = 0;
+      positionOut.rotate(this.orientation, positionOut);
+    }
+    if (velocityOut) {
+      velocityOut.z = 0;
+      velocityOut.rotate(this.orientation, velocityOut);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this.eccentricity<1?2*Math.atan(Math.sqrt((1+this.eccentricity)/(1-this.eccentricity))*Math.tan(t/2)):2*Math.atan(Math.sqrt((1+this.eccentricity)/(thi`；调用 `Math.atan`、`Math.sqrt`、`Math.tan`、`Math.tanh`。
-   * 调用线索：Math.atan、Math.sqrt、Math.tan、Math.tanh。
-   */
-  getTrueAnomalyFromEccentricAnomaly(t) {
-    return this.eccentricity < 1 ? 2 * Math.atan(Math.sqrt((1 + this.eccentricity) / (1 - this.eccentricity)) * Math.tan(t / 2)) : 2 * Math.atan(Math.sqrt((1 + this.eccentricity) / (this.eccentricity - 1)) * Math.tanh(t / 2));
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `PioneerPublicApi.MathUtils.wrap(e,-Math.PI,+Math.PI)` 或 `2*Math.atanh(Math.sqrt((this.eccentricity-1)/(this.eccentricity+1))*Math.tan(t/2))`；调用 `Math.atan2`、`Math.atanh`、`Math.sqrt`、`Math.tan`、`PioneerPublicApi.MathUtils.wrap`。
-   * 调用线索：Math.atan2、Math.atanh、Math.sqrt、Math.tan、PioneerPublicApi.MathUtils.wrap。
-   */
-  getEccentricAnomalyFromTrueAnomaly(t) {
+  /** M=M0+n·(time−epoch)；只对椭圆周期角归一化，双曲轨道保留非周期平近点角。 */
+  project(positionOut, velocityOut, time) {
+    let meanAnomaly = this.meanAnomalyAtEpoch + this.meanAngularMotion * (time - this.epoch);
     if (this.eccentricity < 1) {
-      const e = 2 * Math.atan2(Math.tan(t / 2), Math.sqrt((1 + this.eccentricity) / (1 - this.eccentricity)));
-      return PioneerPublicApi.MathUtils.wrap(e, -Math.PI, +Math.PI);
+      meanAnomaly = PioneerPublicApi.MathUtils.wrap(meanAnomaly, -PioneerPublicApi.MathUtils.Pi, +PioneerPublicApi.MathUtils.Pi);
     }
-    return 2 * Math.atanh(Math.sqrt((this.eccentricity - 1) / (this.eccentricity + 1)) * Math.tan(t / 2));
+    this.projectFromMeanAnomaly(positionOut, velocityOut, meanAnomaly);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`t.angle`、`this.orientation.getAxis`。
-   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、t.angle、this.orientation.getAxis。
-   */
+  getTrueAnomalyFromPosition(position) {
+    const orbitalPosition = PioneerPublicApi.Vector3.pool.get();
+    orbitalPosition.rotateInverse(this.orientation, position);
+    const trueAnomaly = Math.atan2(orbitalPosition.y, orbitalPosition.x);
+    PioneerPublicApi.Vector3.pool.release(orbitalPosition);
+    return trueAnomaly;
+  }
+  getMeanAnomalyFromTrueAnomaly(trueAnomaly) {
+    let meanAnomaly;
+    if (this.eccentricity < 1) {
+      const eccentricAnomaly = 2 * Math.atan(Math.tan(trueAnomaly / 2) * Math.sqrt((1 - this.eccentricity) / (1 + this.eccentricity)));
+      meanAnomaly = eccentricAnomaly - this.eccentricity * Math.sin(eccentricAnomaly);
+    } else {
+      const eccentricAnomaly = 2 * Math.atanh(Math.tan(trueAnomaly / 2) * Math.sqrt((this.eccentricity - 1) / (1 + this.eccentricity)));
+      meanAnomaly = this.eccentricity * Math.sinh(eccentricAnomaly) - eccentricAnomaly;
+    }
+    return meanAnomaly;
+  }
+  /** 牛顿法解椭圆 E−e sin E=M 或双曲 e sinh H−H=M；最多 20 次，更新量小于 0.00174532925 弧度退出。 */
+  getEccentricAnomalyFromMeanAnomaly(meanAnomaly) {
+    if (this.eccentricity < 1) {
+      let eccentricAnomaly = meanAnomaly;
+      if (this.eccentricity >= .8) {
+        eccentricAnomaly = Math.sign(meanAnomaly) * PioneerPublicApi.MathUtils.Pi;
+      }
+      for (let iteration = 0; iteration < 20; iteration++) {
+        const newtonCorrection = (eccentricAnomaly - this.eccentricity * Math.sin(eccentricAnomaly) - meanAnomaly) / (this.eccentricity * Math.cos(eccentricAnomaly) - 1);
+        eccentricAnomaly += newtonCorrection;
+        if (Math.abs(newtonCorrection) < .00174532925) {
+          break;
+        }
+      }
+      return eccentricAnomaly;
+    }
+    let eccentricAnomaly = Math.log(2 * Math.abs(meanAnomaly) / Math.E + 1.8);
+    if (this.eccentricity <= 1.2) {
+      eccentricAnomaly = Math.log(2 * Math.abs(meanAnomaly) / Math.E + 1.8);
+    }
+    if (meanAnomaly < 0) {
+      eccentricAnomaly *= -1;
+    }
+    for (let iteration = 0; iteration < 20; iteration++) {
+      const newtonCorrection = (eccentricAnomaly - this.eccentricity * Math.sinh(eccentricAnomaly) + meanAnomaly) / (this.eccentricity * Math.cosh(eccentricAnomaly) - 1);
+      eccentricAnomaly += newtonCorrection;
+      if (Math.abs(newtonCorrection) < .00174532925) {
+        break;
+      }
+    }
+    return eccentricAnomaly;
+  }
+  getMeanAnomalyFromEccentricAnomaly(eccentricAnomaly) {
+    if (this.eccentricity < 1) {
+      const meanAnomaly = eccentricAnomaly - this.eccentricity * Math.sin(eccentricAnomaly);
+      return PioneerPublicApi.MathUtils.wrap(meanAnomaly, -Math.PI, +Math.PI);
+    }
+    return this.eccentricity * Math.sinh(eccentricAnomaly) - eccentricAnomaly;
+  }
+  getTrueAnomalyFromEccentricAnomaly(eccentricAnomaly) {
+    return this.eccentricity < 1 ? 2 * Math.atan(Math.sqrt((1 + this.eccentricity) / (1 - this.eccentricity)) * Math.tan(eccentricAnomaly / 2)) : 2 * Math.atan(Math.sqrt((1 + this.eccentricity) / (this.eccentricity - 1)) * Math.tanh(eccentricAnomaly / 2));
+  }
+  getEccentricAnomalyFromTrueAnomaly(trueAnomaly) {
+    if (this.eccentricity < 1) {
+      const eccentricAnomaly = 2 * Math.atan2(Math.tan(trueAnomaly / 2), Math.sqrt((1 + this.eccentricity) / (1 - this.eccentricity)));
+      return PioneerPublicApi.MathUtils.wrap(eccentricAnomaly, -Math.PI, +Math.PI);
+    }
+    return 2 * Math.atanh(Math.sqrt((this.eccentricity - 1) / (this.eccentricity + 1)) * Math.tan(trueAnomaly / 2));
+  }
   getInclination() {
-    const t = PioneerPublicApi.Vector3.pool.get();
-    this.orientation.getAxis(t, 2);
-    const e = t.angle(PioneerPublicApi.Vector3.ZAxis);
-    PioneerPublicApi.Vector3.pool.release(t);
-    return e;
+    const orbitNormal = PioneerPublicApi.Vector3.pool.get();
+    this.orientation.getAxis(orbitNormal, 2);
+    const inclination = orbitNormal.angle(PioneerPublicApi.Vector3.ZAxis);
+    PioneerPublicApi.Vector3.pool.release(orbitNormal);
+    return inclination;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `PioneerPublicApi.MathUtils.wrap(e,0,PioneerPublicApi.MathUtils.TwoPi)`；调用 `Math.atan2`、`PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`this.orientation.getAxis`。
-   * 调用线索：Math.atan2、PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、this.orientation.getAxis。
-   */
   getLongitudeOfAscendingNode() {
-    const t = PioneerPublicApi.Vector3.pool.get();
-    this.orientation.getAxis(t, 2);
-    const e = Math.atan2(t.x, -t.y);
-    PioneerPublicApi.Vector3.pool.release(t);
-    return PioneerPublicApi.MathUtils.wrap(e, 0, PioneerPublicApi.MathUtils.TwoPi);
+    const orbitNormal = PioneerPublicApi.Vector3.pool.get();
+    this.orientation.getAxis(orbitNormal, 2);
+    const longitudeOfAscendingNode = Math.atan2(orbitNormal.x, -orbitNormal.y);
+    PioneerPublicApi.Vector3.pool.release(orbitNormal);
+    return PioneerPublicApi.MathUtils.wrap(longitudeOfAscendingNode, 0, PioneerPublicApi.MathUtils.TwoPi);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `PioneerPublicApi.MathUtils.wrap(i,0,PioneerPublicApi.MathUtils.TwoPi)`；调用 `PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`t.angle`、`t.set`、`this.orientation.getAxis`。
-   * 调用线索：PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、t.angle、t.set等。
-   */
+  /** 升交点方向与近心点方向取向量夹角再 wrap；保留原实现的无符号夹角选择，不补造象限信息。 */
   getArgumentOfPeriapsis() {
-    const t = PioneerPublicApi.Vector3.pool.get();
-    const e = PioneerPublicApi.Vector3.pool.get();
-    this.orientation.getAxis(t, 2);
-    t.set(-t.y, t.x, 0);
-    this.orientation.getAxis(e, 0);
-    const i = t.angle(e);
-    PioneerPublicApi.Vector3.pool.release(e);
-    PioneerPublicApi.Vector3.pool.release(t);
-    return PioneerPublicApi.MathUtils.wrap(i, 0, PioneerPublicApi.MathUtils.TwoPi);
+    const ascendingNodeDirection = PioneerPublicApi.Vector3.pool.get();
+    const periapsisDirection = PioneerPublicApi.Vector3.pool.get();
+    this.orientation.getAxis(ascendingNodeDirection, 2);
+    ascendingNodeDirection.set(-ascendingNodeDirection.y, ascendingNodeDirection.x, 0);
+    this.orientation.getAxis(periapsisDirection, 0);
+    const argumentOfPeriapsis = ascendingNodeDirection.angle(periapsisDirection);
+    PioneerPublicApi.Vector3.pool.release(periapsisDirection);
+    PioneerPublicApi.Vector3.pool.release(ascendingNodeDirection);
+    return PioneerPublicApi.MathUtils.wrap(argumentOfPeriapsis, 0, PioneerPublicApi.MathUtils.TwoPi);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `PioneerPublicApi.MathUtils.TwoPi/this.meanAngularMotion`。
-   */
   getPeriod() {
     return PioneerPublicApi.MathUtils.TwoPi / this.meanAngularMotion;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this.semiMajorAxis*(1-this.eccentricity)`。
-   */
   getPeriapsis() {
     return this.semiMajorAxis * (1 - this.eccentricity);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this.semiMajorAxis*(1+this.eccentricity)`。
-   */
   getApoapsis() {
     return this.semiMajorAxis * (1 + this.eccentricity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.cos`、`Math.sin`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
-   * 调用线索：Math.cos、Math.sin、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.Vector3.pool.get等。
-   */
-  setOrientationFromElements(t, e, i) {
-    const n = PioneerPublicApi.Vector3.pool.get();
-    const o = PioneerPublicApi.Vector3.pool.get();
-    const r = PioneerPublicApi.Quaternion.pool.get();
-    n.set(Math.cos(e), Math.sin(e), 0);
-    o.set(Math.sin(e) * Math.sin(t), -Math.cos(e) * Math.sin(t), Math.cos(t));
-    this.orientation.setFromAxes(n, void 0, o);
-    r.setFromAxisAngle(o, i);
-    this.orientation.mult(r, this.orientation);
-    PioneerPublicApi.Quaternion.pool.release(r);
-    PioneerPublicApi.Vector3.pool.release(o);
-    PioneerPublicApi.Vector3.pool.release(n);
+  /** 升交点方向和轨道法线确定初始坐标架，再绕法线转近心点幅角；所有输入角均为弧度。 */
+  setOrientationFromElements(inclination, longitudeOfAscendingNode, argumentOfPeriapsis) {
+    const ascendingNodeDirection = PioneerPublicApi.Vector3.pool.get();
+    const orbitNormal = PioneerPublicApi.Vector3.pool.get();
+    const periapsisRotation = PioneerPublicApi.Quaternion.pool.get();
+    ascendingNodeDirection.set(Math.cos(longitudeOfAscendingNode), Math.sin(longitudeOfAscendingNode), 0);
+    orbitNormal.set(Math.sin(longitudeOfAscendingNode) * Math.sin(inclination), -Math.cos(longitudeOfAscendingNode) * Math.sin(inclination), Math.cos(inclination));
+    this.orientation.setFromAxes(ascendingNodeDirection, void 0, orbitNormal);
+    periapsisRotation.setFromAxisAngle(orbitNormal, argumentOfPeriapsis);
+    this.orientation.mult(periapsisRotation, this.orientation);
+    PioneerPublicApi.Quaternion.pool.release(periapsisRotation);
+    PioneerPublicApi.Vector3.pool.release(orbitNormal);
+    PioneerPublicApi.Vector3.pool.release(ascendingNodeDirection);
   }
-  /** @eyes-analysis
-   * 用 r×v 得角动量，(v×h)/gm-r/|r| 得偏心率向量，推导半长轴、真近点角与姿态，再算历元平近点角和平均角运动；圆轨道/奇异输入应另做数值验证。
-   * 状态写入：eccentricity、epoch、meanAngularMotion、meanAnomalyAtEpoch、semiMajorAxis。
-   * 调用线索：Math.acos、Math.sqrt、PioneerPublicApi.MathUtils.clamp、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release等。
-   */
-  setFromPositionAndVelocity(t, e, epoch, n) {
-    const o = 1 / n;
+  /** 由 r×v 得轨道法线，由 (v×h)/μ−r̂ 得偏心率向量；长度和速度单位必须与 μ 相容。池内向量在建立姿态后释放。 */
+  setFromPositionAndVelocity(position, velocity, epoch, gravitationalParameter) {
+    const inverseGravitationalParameter = 1 / gravitationalParameter;
     this.epoch = epoch;
-    const r = PioneerPublicApi.Vector3.pool.get();
-    r.cross(t, e);
-    const a = PioneerPublicApi.Vector3.pool.get();
-    const l = PioneerPublicApi.Vector3.pool.get();
-    l.normalize(t);
-    a.cross(e, r);
-    a.mult(a, o);
-    a.sub(a, l);
-    this.eccentricity = a.magnitude();
-    const c = r.dot(r) * o;
-    this.semiMajorAxis = c / (1 - this.eccentricity * this.eccentricity);
-    this.eccentricity > 1 && (this.semiMajorAxis *= -1);
-    let h = Math.acos(PioneerPublicApi.MathUtils.clamp(a.dot(l) / this.eccentricity, -1, 1));
-    t.dot(e) < 0 && (h *= -1);
-    h < -Math.PI && (h += PioneerPublicApi.MathUtils.TwoPi);
-    h >= Math.PI && (h -= PioneerPublicApi.MathUtils.TwoPi);
-    a.normalize(a);
-    r.normalize(r);
-    this.orientation.setFromAxes(a, void 0, r);
-    PioneerPublicApi.Vector3.pool.release(l);
-    PioneerPublicApi.Vector3.pool.release(r);
-    PioneerPublicApi.Vector3.pool.release(a);
-    const d = this.getEccentricAnomalyFromTrueAnomaly(h);
-    this.meanAnomalyAtEpoch = this.getMeanAnomalyFromEccentricAnomaly(d);
-    this.meanAngularMotion = Math.sqrt(n / (this.semiMajorAxis * this.semiMajorAxis * this.semiMajorAxis));
+    const angularMomentum = PioneerPublicApi.Vector3.pool.get();
+    angularMomentum.cross(position, velocity);
+    const eccentricityVector = PioneerPublicApi.Vector3.pool.get();
+    const radialDirection = PioneerPublicApi.Vector3.pool.get();
+    radialDirection.normalize(position);
+    eccentricityVector.cross(velocity, angularMomentum);
+    eccentricityVector.mult(eccentricityVector, inverseGravitationalParameter);
+    eccentricityVector.sub(eccentricityVector, radialDirection);
+    this.eccentricity = eccentricityVector.magnitude();
+    const semiLatusRectum = angularMomentum.dot(angularMomentum) * inverseGravitationalParameter;
+    this.semiMajorAxis = semiLatusRectum / (1 - this.eccentricity * this.eccentricity);
+    if (this.eccentricity > 1) {
+      this.semiMajorAxis *= -1;
+    }
+    let trueAnomaly = Math.acos(PioneerPublicApi.MathUtils.clamp(eccentricityVector.dot(radialDirection) / this.eccentricity, -1, 1));
+    if (position.dot(velocity) < 0) {
+      trueAnomaly *= -1;
+    }
+    if (trueAnomaly < -Math.PI) {
+      trueAnomaly += PioneerPublicApi.MathUtils.TwoPi;
+    }
+    if (trueAnomaly >= Math.PI) {
+      trueAnomaly -= PioneerPublicApi.MathUtils.TwoPi;
+    }
+    eccentricityVector.normalize(eccentricityVector);
+    angularMomentum.normalize(angularMomentum);
+    this.orientation.setFromAxes(eccentricityVector, void 0, angularMomentum);
+    PioneerPublicApi.Vector3.pool.release(radialDirection);
+    PioneerPublicApi.Vector3.pool.release(angularMomentum);
+    PioneerPublicApi.Vector3.pool.release(eccentricityVector);
+    const eccentricAnomaly = this.getEccentricAnomalyFromTrueAnomaly(trueAnomaly);
+    this.meanAnomalyAtEpoch = this.getMeanAnomalyFromEccentricAnomaly(eccentricAnomaly);
+    this.meanAngularMotion = Math.sqrt(gravitationalParameter / (this.semiMajorAxis * this.semiMajorAxis * this.semiMajorAxis));
   }
 }
 export { OrbitalElements };

@@ -1,81 +1,57 @@
-/** @eyes-analysis
- * 文件职责：相关对象链接内容块
- * 依据：imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/RelatedBlockTemplate.html, ../../styles/extracted/RelatedBlockStyles.js；manager dependencies: content, router, camera
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1510277-1513762.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as SolarSystemPublicApi from "../../app/public-api.js";
 import RelatedBlockTemplate from "../templates/RelatedBlockTemplate.html";
 import "../../styles/extracted/RelatedBlockStyles.js";
 var getRelatedBlockTemplate = () => RelatedBlockTemplate;
-/** @eyes-analysis
- * 类职责：相关对象链接内容块；继承 SolarSystemPublicApi.BaseContentBlock
- * 继承：SolarSystemPublicApi.BaseContentBlock；导出：RelatedBlock。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 相关对象列表按目录分类生成形状；故事卡片可跳外部、内部或故事路由。内部链接等待场景与相机完成后才选择内容标签页。 */
 class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、super、this.setState。
-   */
-  constructor(t) {
-    super(t, null, {
+  constructor(app) {
+    super(app, null, {
       relatedMessage: "Related"
     });
-    const e = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
+    const isCompact = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
     this.setState({
-      showTitleLabel: e ? "hidden" : ""
+      showTitleLabel: isCompact ? "hidden" : ""
     });
   }
-  /** @eyes-analysis
-   * 响应路径参数变化并刷新本模块；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.populateStoryCard, this.setState, this._app.getManager, List.add, this._children.relatedList.appendChild, this.hide。
-   * 状态写入：_children.relatedList.innerHTML。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、document.createElement、document.createTextNode、e.forEach等。
-   */
-  onRouteChange(t, e, i, n) {
-    const o = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
-    null !== this._children.relatedList && (this._children.relatedList.innerHTML = "", this.populateStoryCard(i), void 0 !== e && 0 !== e.length ? (this.setState({
+  onRouteChange(sectionTitle, relatedEntityIds, relatedStories, cancelToken) {
+    const isCompact = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
+    null !== this._children.relatedList && (this._children.relatedList.innerHTML = "", this.populateStoryCard(relatedStories), void 0 !== relatedEntityIds && 0 !== relatedEntityIds.length ? (this.setState({
       moreShowing: false,
       moreMessage: "Show More",
       moreIcon: "icon-plus",
-      relatedMessage: t,
-      showTitleLabel: o ? "hidden" : ""
-    }), e.forEach(t => {
-      const e = this._app.getManager("content").getEntityInfo(t);
-      if (null !== e) {
-        const i = this._app.getManager("content").getCategoryShapeMap();
-        const s = i[e.category] ? i[e.category].shape : "circle";
-        const n = i[e.category] ? i[e.category].color : "brown";
-        const o = document.createElement("li");
-        const r = document.createElement("span");
-        r.classList.add("shape");
-        r.classList.add(s);
-        n && r.classList.add(n);
-        o.appendChild(r);
-        o.appendChild(document.createTextNode(e.displayName ?? e.iauName));
-        o.addEventListener("click", () => {
-          this._app.getManager("router").navigate(t);
+      relatedMessage: sectionTitle,
+      showTitleLabel: isCompact ? "hidden" : ""
+    }), relatedEntityIds.forEach(entityId => {
+      const entityInfo = this._app.getManager("content").getEntityInfo(entityId);
+      if (null !== entityInfo) {
+        const categoryShapes = this._app.getManager("content").getCategoryShapeMap();
+        const shapeType = categoryShapes[entityInfo.category] ? categoryShapes[entityInfo.category].shape : "circle";
+        const shapeColor = categoryShapes[entityInfo.category] ? categoryShapes[entityInfo.category].color : "brown";
+        const listItem = document.createElement("li");
+        const shapeElement = document.createElement("span");
+        shapeElement.classList.add("shape");
+        shapeElement.classList.add(shapeType);
+        shapeColor && shapeElement.classList.add(shapeColor);
+        listItem.appendChild(shapeElement);
+        listItem.appendChild(document.createTextNode(entityInfo.displayName ?? entityInfo.iauName));
+        listItem.addEventListener("click", () => {
+          this._app.getManager("router").navigate(entityId);
         }, false);
-        o.setAttribute("data-value", t);
-        o.classList.add("item");
-        o.classList.add("clickable");
-        this._children.relatedList.appendChild(o);
+        listItem.setAttribute("data-value", entityId);
+        listItem.classList.add("item");
+        listItem.classList.add("clickable");
+        this._children.relatedList.appendChild(listItem);
       }
     })) : this.hide());
   }
-  /** @eyes-analysis
-   * 执行 populateStoryCard 对应的组件业务步骤；调用 this.setEnabled, List.add, this._app.getManager, this._app.scene.getLoadedPromise, this._app.getComponent, this._storyList.appendChild；写入 _storyList。
-   * 状态写入：_storyList、_storyList.innerHTML。
-   * 调用线索：_.appendChild、_.classList.add、document.createElement、document.createTextNode、e.appendChild等。
-   */
-  populateStoryCard(t) {
-    if (this._storyList && (this._storyList.innerHTML = ""), null !== t && t?.length > 0) {
+  populateStoryCard(stories) {
+    if (this._storyList && (this._storyList.innerHTML = ""), null !== stories && stories?.length > 0) {
       if (this._storyList = this._children.storyList, null === this._storyList || void 0 === this._storyList) return void this.setEnabled(false);
-      t.forEach(e => {
-        const i = document.createElement("li");
-        const s = e.storyId && t.hasOwn(e.storyId) ? t[e.storyId] : e;
+      stories.forEach(storyEntry => {
+        const listItem = document.createElement("li");
+        const storyInfo = storyEntry.storyId && stories.hasOwn(storyEntry.storyId) ? stories[storyEntry.storyId] : storyEntry;
         const {
           title: title,
           subtitle: subtitle,
@@ -86,65 +62,61 @@ class RelatedBlock extends SolarSystemPublicApi.BaseContentBlock {
           titleStyle: titleStyle,
           iconFullSize: iconFullSize,
           contentPanelTab: contentPanelTab
-        } = s;
-        const p = document.createElement("div");
-        if (p.classList.add("story-container"), !iconFullSize) {
-          const t = document.createElement("div");
-          t.appendChild(document.createTextNode((e.isExternal ? "External" : "") + " Story"));
-          t.classList.add("story-tag");
-          p.appendChild(t);
+        } = storyInfo;
+        const storyContainer = document.createElement("div");
+        if (storyContainer.classList.add("story-container"), !iconFullSize) {
+          const tagElement = document.createElement("div");
+          tagElement.appendChild(document.createTextNode((storyEntry.isExternal ? "External" : "") + " Story"));
+          tagElement.classList.add("story-tag");
+          storyContainer.appendChild(tagElement);
         }
-        if (i.appendChild(p), title) {
-          const t = document.createElement("div");
-          t.classList.add("story-title");
-          const e = document.createElement("h2");
-          e.appendChild(document.createTextNode(title));
-          t.appendChild(e);
-          "spaced" === titleStyle && t.classList.add("spaced");
-          p.appendChild(t);
+        if (listItem.appendChild(storyContainer), title) {
+          const titleContainer = document.createElement("div");
+          titleContainer.classList.add("story-title");
+          const titleElement = document.createElement("h2");
+          titleElement.appendChild(document.createTextNode(title));
+          titleContainer.appendChild(titleElement);
+          "spaced" === titleStyle && titleContainer.classList.add("spaced");
+          storyContainer.appendChild(titleContainer);
         }
         if (subtitle) {
-          const t = document.createElement("div");
-          t.classList.add("story-list", "story-subtitle", "wide-text", "color", "x-small");
-          t.appendChild(document.createTextNode(subtitle));
-          p.appendChild(t);
+          const subtitleElement = document.createElement("div");
+          subtitleElement.classList.add("story-list", "story-subtitle", "wide-text", "color", "x-small");
+          subtitleElement.appendChild(document.createTextNode(subtitle));
+          storyContainer.appendChild(subtitleElement);
         }
-        const _ = document.createElement("div");
-        _.classList.add("story-icon");
-        iconFullSize && (_.classList.add("full-size-icon"), p.classList.add("full-size-icon"));
-        const m = document.createElement("img");
-        const g = `${subtitle ?? ""} ${title ?? s.id}`;
-        if (m.setAttribute("alt", g), m.setAttribute("src", icon), m.classList.add("story-icon-image"), _.appendChild(m), p.appendChild(_), isExternal) i.addEventListener("click", () => {
+        const iconContainer = document.createElement("div");
+        iconContainer.classList.add("story-icon");
+        iconFullSize && (iconContainer.classList.add("full-size-icon"), storyContainer.classList.add("full-size-icon"));
+        const imageElement = document.createElement("img");
+        const imageAltText = `${subtitle ?? ""} ${title ?? storyInfo.id}`;
+        if (imageElement.setAttribute("alt", imageAltText), imageElement.setAttribute("src", icon), imageElement.classList.add("story-icon-image"), iconContainer.appendChild(imageElement), storyContainer.appendChild(iconContainer), isExternal) listItem.addEventListener("click", () => {
           window.open(link);
-        }, false);else if (isInternal) i.addEventListener("click", async () => {
+        }, false);else if (isInternal) listItem.addEventListener("click", async () => {
           this._app.getManager("router").navigate(link);
           await this._app.scene.getLoadedPromise();
           await this._app.getManager("camera").waitForTransitionComplete();
           contentPanelTab && this._app.getComponent("contentPanel")?.selectTab(contentPanelTab);
         }, false);else {
-          const t = "story/" + e.id;
-          i.addEventListener("click", () => {
-            this._app.getManager("router").navigate(t);
+          const storyRoute = "story/" + storyEntry.id;
+          listItem.addEventListener("click", () => {
+            this._app.getManager("router").navigate(storyRoute);
           }, false);
         }
         if (isExternal) {
-          const t = document.createElement("div");
-          t.classList.add("icon", "icon-external");
-          p.appendChild(t);
+          const externalIcon = document.createElement("div");
+          externalIcon.classList.add("icon", "icon-external");
+          storyContainer.appendChild(externalIcon);
         }
-        i.classList.add("clickable");
-        this._storyList.appendChild(i);
+        listItem.classList.add("clickable");
+        this._storyList.appendChild(listItem);
       });
     }
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTabletPortrait、this.setState。
-   */
   resize() {
-    const t = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
+    const isCompact = Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTabletPortrait();
     this.setState({
-      showTitleLabel: t ? "hidden" : ""
+      showTitleLabel: isCompact ? "hidden" : ""
     });
   }
 }

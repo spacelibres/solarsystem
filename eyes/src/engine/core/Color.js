@@ -1,198 +1,106 @@
-/** @eyes-analysis
- * 文件职责：RGBA 颜色值、复制/混合与格式转换工具。
- * 依据：import ../pioneer/public-api.js；Color @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:46209-47563.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：RGBA 颜色值、复制/混合与格式转换工具。
- * 继承：无显式父类；导出：Color。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** RGBA 分量逐项运算，标量乘除同样作用于 alpha；不自动夹紧到 [0,1]，value/min/max 仅统计 RGB。 */
+
 class Color {
   static Black = new Color(0, 0, 0, 1);
   static Clear = new Color(1, 1, 1, 0);
   static pool = new PioneerPublicApi.Pool(Color);
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  constructor(t = 1, e = 1, i = 1, s = 1) {
-    this._r = t;
-    this._g = e;
-    this._b = i;
-    this._a = s;
+  constructor(red = 1, green = 1, blue = 1, alpha = 1) {
+    this._r = red;
+    this._g = green;
+    this._b = blue;
+    this._a = alpha;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._r`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get r() {
     return this._r;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_r`。
-   * 状态写入：_r。
-   */
-  set r(t) {
-    this._r = t;
+  set r(red) {
+    this._r = red;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._g`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get g() {
     return this._g;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_g`。
-   * 状态写入：_g。
-   */
-  set g(t) {
-    this._g = t;
+  set g(green) {
+    this._g = green;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._b`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get b() {
     return this._b;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_b`。
-   * 状态写入：_b。
-   */
-  set b(t) {
-    this._b = t;
+  set b(blue) {
+    this._b = blue;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._a`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get a() {
     return this._a;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_a`。
-   * 状态写入：_a。
-   */
-  set a(t) {
-    this._a = t;
+  set a(alpha) {
+    this._a = alpha;
   }
-  /** @eyes-analysis
-   * 【结构证据】本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   toString() {
     return `[${this._r}, ${this._g}, ${this._b}, ${this._a}]`;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  copy(t) {
-    this._r = t.r;
-    this._g = t.g;
-    this._b = t.b;
-    this._a = t.a;
+  copy(source) {
+    this._r = source.r;
+    this._g = source.g;
+    this._b = source.b;
+    this._a = source.a;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  set(t, e, i, s = 1) {
-    this._r = t;
-    this._g = e;
-    this._b = i;
-    this._a = s;
+  set(red, green, blue, alpha = 1) {
+    this._r = red;
+    this._g = green;
+    this._b = blue;
+    this._a = alpha;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  add(t, e) {
-    this._r = t.r + e.r;
-    this._g = t.g + e.g;
-    this._b = t.b + e.b;
-    this._a = t.a + e.a;
+  add(left, right) {
+    this._r = left.r + right.r;
+    this._g = left.g + right.g;
+    this._b = left.b + right.b;
+    this._a = left.a + right.a;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  sub(t, e) {
-    this._r = t.r - e.r;
-    this._g = t.g - e.g;
-    this._b = t.b - e.b;
-    this._a = t.a - e.a;
+  sub(left, right) {
+    this._r = left.r - right.r;
+    this._g = left.g - right.g;
+    this._b = left.b - right.b;
+    this._a = left.a - right.a;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  mult(t, e) {
-    this._r = t.r * e;
-    this._g = t.g * e;
-    this._b = t.b * e;
-    this._a = t.a * e;
+  mult(source, scalar) {
+    this._r = source.r * scalar;
+    this._g = source.g * scalar;
+    this._b = source.b * scalar;
+    this._a = source.a * scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  addMult(t, e, i) {
-    this._r = t.r + e.r * i;
-    this._g = t.g + e.g * i;
-    this._b = t.b + e.b * i;
-    this._a = t.a + e.a * i;
+  addMult(base, direction, scalar) {
+    this._r = base.r + direction.r * scalar;
+    this._g = base.g + direction.g * scalar;
+    this._b = base.b + direction.b * scalar;
+    this._a = base.a + direction.a * scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  div(t, e) {
-    this._r = t.r / e;
-    this._g = t.g / e;
-    this._b = t.b / e;
-    this._a = t.a / e;
+  div(source, scalar) {
+    this._r = source.r / scalar;
+    this._g = source.g / scalar;
+    this._b = source.b / scalar;
+    this._a = source.a / scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`。
-   * 状态写入：_a、_b、_g、_r。
-   */
-  scale(t, e) {
-    this._r = t.r * e.r;
-    this._g = t.g * e.g;
-    this._b = t.b * e.b;
-    this._a = t.a * e.a;
+  scale(left, right) {
+    this._r = left.r * right.r;
+    this._g = left.g * right.g;
+    this._b = left.b * right.b;
+    this._a = left.a * right.a;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `(this._r+this._g+this._b)/3`。
-   */
   value() {
     return (this._r + this._g + this._b) / 3;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Math.min(this._r,this._g,this._b)`；调用 `Math.min`。
-   * 调用线索：Math.min。
-   */
   min() {
     return Math.min(this._r, this._g, this._b);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Math.max(this._r,this._g,this._b)`；调用 `Math.max`。
-   * 调用线索：Math.max。
-   */
   max() {
     return Math.max(this._r, this._g, this._b);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_a`、`_b`、`_g`、`_r`；调用 `PioneerPublicApi.MathUtils.lerp`。
-   * 状态写入：_a、_b、_g、_r。
-   * 调用线索：PioneerPublicApi.MathUtils.lerp。
-   */
-  lerp(t, e, i) {
-    this._r = PioneerPublicApi.MathUtils.lerp(t.r, e.r, i);
-    this._g = PioneerPublicApi.MathUtils.lerp(t.g, e.g, i);
-    this._b = PioneerPublicApi.MathUtils.lerp(t.b, e.b, i);
-    this._a = PioneerPublicApi.MathUtils.lerp(t.a, e.a, i);
+  lerp(start, end, fraction) {
+    this._r = PioneerPublicApi.MathUtils.lerp(start.r, end.r, fraction);
+    this._g = PioneerPublicApi.MathUtils.lerp(start.g, end.g, fraction);
+    this._b = PioneerPublicApi.MathUtils.lerp(start.b, end.b, fraction);
+    this._a = PioneerPublicApi.MathUtils.lerp(start.a, end.a, fraction);
   }
   _r;
   _g;

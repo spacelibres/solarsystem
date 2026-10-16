@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 14 个实体/参考系（如 "1i_oumuamua"、"1p_halley"、"103p_hartley_2"、"9p_tempel_1"、"81p_wild_2"、"67p_churyumov_gerasimenko"），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 彗星与星际天体注册目录；67P 创建后按固定局部原点和方向添加多股喷流，几何参数与坐标转换保留原数值。
 // Recovered from app.js:854970-860930.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -153,13 +148,13 @@ Entity.Entity.register({
       type: "dynamo",
       url: "67p_churyumov_gerasimenko/ori"
     }],
-    postCreateFunction: t => {
-      t.setOrientation(new Pioneer.Quaternion(.26732846830704055, .017948528101847026, .22012096235022358, .9379552773483394));
-      EntityUtils.EntityUtils.addGeyser(t, 1, 1, 100, 1, 1, [1, -.25, 1.2], [0, 0, 1]);
-      EntityUtils.EntityUtils.addGeyser(t, 2, .5, 100, 1, 1, [-1.2, -.25, .6], [.2, -.5, 1]);
-      EntityUtils.EntityUtils.addGeyser(t, 1, .07, 100, 1, 10, [-1.2, .1, .6], [.2, -.5, 1]);
-      EntityUtils.EntityUtils.addGeyser(t, 1, 1, 100, 1, 1, [-.8, .75, 1], [.2, .5, 1]);
-      EntityUtils.EntityUtils.addGeyser(t, 1, .5, 100, 1, 1, [-.8, .35, -1], [.2, .25, -1]);
+    postCreateFunction: entity => {
+      entity.setOrientation(new Pioneer.Quaternion(.26732846830704055, .017948528101847026, .22012096235022358, .9379552773483394));
+      EntityUtils.EntityUtils.addGeyser(entity, 1, 1, 100, 1, 1, [1, -.25, 1.2], [0, 0, 1]);
+      EntityUtils.EntityUtils.addGeyser(entity, 2, .5, 100, 1, 1, [-1.2, -.25, .6], [.2, -.5, 1]);
+      EntityUtils.EntityUtils.addGeyser(entity, 1, .07, 100, 1, 10, [-1.2, .1, .6], [.2, -.5, 1]);
+      EntityUtils.EntityUtils.addGeyser(entity, 1, 1, 100, 1, 1, [-.8, .75, 1], [.2, .5, 1]);
+      EntityUtils.EntityUtils.addGeyser(entity, 1, .5, 100, 1, 1, [-.8, .35, -1], [.2, .25, -1]);
     }
   },
   "19p_borrelly": {

@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 11 个实体/参考系（如 observable_universe、milky_way、sun、mercury、venus、earth），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 太阳系主天体注册表，postCreate 按选项接入大气、行星环、星空与日球层；木星表面经度通过旋转观测表插值并换算 System II/III。所有天体参数、日期、轴向和资产路径保持原值。
 // Recovered from app.js:794403-805627.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -20,8 +15,8 @@ Entity.Entity.register({
       position: Pioneer.Vector3.Zero,
       orientation: Pioneer.Quaternion.Identity
     }],
-    postCreateFunction: t => {
-      t.setCanOcclude(false);
+    postCreateFunction: entity => {
+      entity.setCanOcclude(false);
     }
   },
   milky_way: {
@@ -35,36 +30,38 @@ Entity.Entity.register({
       position: Pioneer.Vector3.Zero,
       orientation: Pioneer.Quaternion.Identity
     }],
-    postCreateFunction: (t, e) => {
-      t.setCanOcclude(false);
-      const i = t.getController(Pioneer.FixedController);
-      if (!i) return;
+    postCreateFunction: (entity, options) => {
+      entity.setCanOcclude(false);
+      const fixedController = entity.getController(Pioneer.FixedController);
+      if (!fixedController) return;
       const vector3 = new Pioneer.Vector3();
-      const o = 192.85948120833 * Math.PI / 180;
-      const r = 27.12825119444 * Math.PI / 180;
-      vector3.x = Math.cos(o) * Math.cos(r);
-      vector3.y = Math.sin(o) * Math.cos(r);
-      vector3.z = Math.sin(r);
-      const a = new Pioneer.Vector3();
-      const l = 266.40499625 * Math.PI / 180;
-      const c = -28.93617241667 * Math.PI / 180;
-      a.x = Math.cos(l) * Math.cos(c);
-      a.y = Math.sin(l) * Math.cos(c);
-      a.z = Math.sin(c);
+      const poleRightAscension = 192.85948120833 * Math.PI / 180;
+      const poleDeclination = 27.12825119444 * Math.PI / 180;
+      vector3.x = Math.cos(poleRightAscension) * Math.cos(poleDeclination);
+      vector3.y = Math.sin(poleRightAscension) * Math.cos(poleDeclination);
+      vector3.z = Math.sin(poleDeclination);
+      const galacticCenter = new Pioneer.Vector3();
+      const centerRightAscension = 266.40499625 * Math.PI / 180;
+      const centerDeclination = -28.93617241667 * Math.PI / 180;
+      galacticCenter.x = Math.cos(centerRightAscension) * Math.cos(centerDeclination);
+      galacticCenter.y = Math.sin(centerRightAscension) * Math.cos(centerDeclination);
+      galacticCenter.z = Math.sin(centerDeclination);
       const quaternion = new Pioneer.Quaternion();
-      if (quaternion.setFromAxes(a, void 0, vector3), i.setOrientation(quaternion), e && true === e.milkyWaySprite) {
-        const e = t.addComponent(Pioneer.SpriteComponent);
-        e.setTextureUrl("$STATIC_ASSETS_URL/sprites/milky_way.png");
-        e.setSize(new Pioneer.Vector2(12e17, 12e17));
-        e.setTransparent(true);
-        e.setBlending("normal");
-        e.setVisibleInterval(new Pioneer.VisibleInterval(12e15, Number.POSITIVE_INFINITY, "z-distance"));
+      quaternion.setFromAxes(galacticCenter, void 0, vector3);
+      fixedController.setOrientation(quaternion);
+      if (options && true === options.milkyWaySprite) {
+        const sprite = entity.addComponent(Pioneer.SpriteComponent);
+        sprite.setTextureUrl("$STATIC_ASSETS_URL/sprites/milky_way.png");
+        sprite.setSize(new Pioneer.Vector2(12e17, 12e17));
+        sprite.setTransparent(true);
+        sprite.setBlending("normal");
+        sprite.setVisibleInterval(new Pioneer.VisibleInterval(12e15, Number.POSITIVE_INFINITY, "z-distance"));
       }
-      const d = t.addController(Pioneer.SpinController);
-      d.setAxis(new Pioneer.Vector3(-.8676661356982597, -.19807638974470915, .45598379452940485), false);
-      d.setRate(-2192686e-23);
-      d.setReferenceAngle(0);
-      d.setReferenceTime(0);
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setAxis(new Pioneer.Vector3(-.8676661356982597, -.19807638974470915, .45598379452940485), false);
+      spinController.setRate(-2192686e-23);
+      spinController.setReferenceAngle(0);
+      spinController.setReferenceTime(0);
     }
   },
   sun: {
@@ -99,31 +96,40 @@ Entity.Entity.register({
       type: "fixed",
       orientation: Pioneer.Quaternion.Identity
     }],
-    postCreateFunction: (t, e) => {
-      t.addComponent(Pioneer.LightSourceComponent).setAbsoluteMagnitude(4.83);
-      const i = t.addComponent(Pioneer.AtmosphereComponent);
-      i.setEmissivity(1);
-      i.setScaleHeight(2e5);
-      i.setDensity(8e-7);
-      i.setColor(new Pioneer.Color(1, 1, 64 / 255));
-      const n = t.addComponent(Pioneer.SpriteComponent);
-      if (n.setBillboard(true), n.setTextureUrl("$STATIC_ASSETS_URL/sprites/sun_glow.png"), n.setSize(new Pioneer.Vector2(100, 100)), n.setSizeUnits("pixels"), n.setTransparent(true), n.setColorMultiplier(new Pioneer.Color(1, 1, .5)), n.setRenderOrder(-2), void 0 !== e && true === e.skybox) {
-        t.addComponent(Pioneer.SkyboxComponent).setTextureUrl(`$STATIC_ASSETS_URL/env_maps/starmap_${e.skyboxResolution ?? 2048}.jpg`);
+    postCreateFunction: (entity, options) => {
+      entity.addComponent(Pioneer.LightSourceComponent).setAbsoluteMagnitude(4.83);
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setEmissivity(1);
+      atmosphere.setScaleHeight(2e5);
+      atmosphere.setDensity(8e-7);
+      atmosphere.setColor(new Pioneer.Color(1, 1, 64 / 255));
+      const glow = entity.addComponent(Pioneer.SpriteComponent);
+      glow.setBillboard(true);
+      glow.setTextureUrl("$STATIC_ASSETS_URL/sprites/sun_glow.png");
+      glow.setSize(new Pioneer.Vector2(100, 100));
+      glow.setSizeUnits("pixels");
+      glow.setTransparent(true);
+      glow.setColorMultiplier(new Pioneer.Color(1, 1, .5));
+      glow.setRenderOrder(-2);
+      if (void 0 !== options && true === options.skybox) {
+        entity.addComponent(Pioneer.SkyboxComponent).setTextureUrl(`$STATIC_ASSETS_URL/env_maps/starmap_${options.skyboxResolution ?? 2048}.jpg`);
       }
-      if (void 0 === e || true === e.skybox && true === e.starfield || false !== e.starfield) {
-        t.addComponent(Pioneer.StarfieldComponent).setUrl("$STATIC_ASSETS_URL/stars/galaxies.0.bin");
-        const i = e?.starfieldSize;
-        for (let e = 0; e < 6; e++) {
-          const n = t.addComponent(Pioneer.StarfieldComponent);
-          n.setUrl(`$STATIC_ASSETS_URL/stars/stars.${e}.bin`);
-          void 0 !== i && n.setParticleSize(i);
+      if (void 0 === options || true === options.skybox && true === options.starfield || false !== options.starfield) {
+        entity.addComponent(Pioneer.StarfieldComponent).setUrl("$STATIC_ASSETS_URL/stars/galaxies.0.bin");
+        const starfieldSize = options?.starfieldSize;
+        for (let starfieldIndex = 0; starfieldIndex < 6; starfieldIndex++) {
+          const starfield = entity.addComponent(Pioneer.StarfieldComponent);
+          starfield.setUrl(`$STATIC_ASSETS_URL/stars/stars.${starfieldIndex}.bin`);
+          if (void 0 !== starfieldSize) {
+            starfield.setParticleSize(starfieldSize);
+          }
         }
       }
-      if (void 0 !== e && true === e.heliosphere) {
-        const e = t.addComponent(Pioneer.ModelComponent);
-        e.setUrl("$STATIC_ASSETS_URL/models/heliosphere/voyager_heliosphere.gltf");
-        e.setScale(new Pioneer.Vector3(201e6, 19e7, 19e7));
-        e.setForceLoaded(true);
+      if (void 0 !== options && true === options.heliosphere) {
+        const heliosphere = entity.addComponent(Pioneer.ModelComponent);
+        heliosphere.setUrl("$STATIC_ASSETS_URL/models/heliosphere/voyager_heliosphere.gltf");
+        heliosphere.setScale(new Pioneer.Vector3(201e6, 19e7, 19e7));
+        heliosphere.setForceLoaded(true);
         const latLonAlt = new Pioneer.LatLonAlt(0, -105 * Math.PI / 180, 0);
         const vector3 = new Pioneer.Vector3();
         Pioneer.Geometry.getXYZFromLLAOnSphere(vector3, latLonAlt, 1);
@@ -131,7 +137,7 @@ Entity.Entity.register({
         vector3.normalize(vector3);
         const quaternion = new Pioneer.Quaternion();
         quaternion.setFromVectorFromTo(new Pioneer.Vector3(.9937396508197329, .11171728072160429, .0008692392338424033), vector3);
-        e.setRotation(quaternion);
+        heliosphere.setRotation(quaternion);
       }
     }
   },
@@ -196,12 +202,12 @@ Entity.Entity.register({
       type: "dynamo",
       url: "venus/ori"
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.AtmosphereComponent);
-      e.setScaleHeight(15);
-      e.setDensity(.001);
-      e.setColor(new Pioneer.Color(213 / 255, 160 / 255, 94 / 255));
-      e.setSunBrightness(.25);
+    postCreateFunction: entity => {
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(15);
+      atmosphere.setDensity(.001);
+      atmosphere.setColor(new Pioneer.Color(213 / 255, 160 / 255, 94 / 255));
+      atmosphere.setSunBrightness(.25);
     }
   },
   earth: {
@@ -251,19 +257,19 @@ Entity.Entity.register({
       type: "dynamo",
       url: "earth/ori"
     }],
-    postCreateFunction: (t, e) => {
-      if (e && false === e.clouds) {
-        const e = t.getComponent(Pioneer.SpheroidLODComponent);
-        if (!e) return;
-        e.setTexture("decal", "");
+    postCreateFunction: (entity, options) => {
+      if (options && false === options.clouds) {
+        const surface = entity.getComponent(Pioneer.SpheroidLODComponent);
+        if (!surface) return;
+        surface.setTexture("decal", "");
       }
-      const i = t.addComponent(Pioneer.AtmosphereComponent);
-      i.setScaleHeight(8);
-      i.setDensity(.0015);
-      i.setColor(new Pioneer.Color(214.5 / 255, 267 / 255, 1.5));
-      i.setSunBrightness(2);
-      i.setSunsetColor(new Pioneer.Color(1, .5, 0));
-      i.setSunsetIntensity(1.2);
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(8);
+      atmosphere.setDensity(.0015);
+      atmosphere.setColor(new Pioneer.Color(214.5 / 255, 267 / 255, 1.5));
+      atmosphere.setSunBrightness(2);
+      atmosphere.setSunsetColor(new Pioneer.Color(1, .5, 0));
+      atmosphere.setSunsetIntensity(1.2);
     }
   },
   mars: {
@@ -297,18 +303,18 @@ Entity.Entity.register({
       type: "dynamo",
       url: "mars/ori"
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.AtmosphereComponent);
-      e.setScaleHeight(10.8);
-      e.setDensity(.001);
-      e.setColor(new Pioneer.Color(225 / 255, 178 / 255, 112 / 255));
-      e.setSunBrightness(.8);
-      e.setSunsetColor(new Pioneer.Color(10 / 255, 75 / 255, 140 / 255));
-      e.setSunsetIntensity(1);
-      const i = t.addComponent(Pioneer.SpheroidComponent, "aero");
-      i.setEquatorialRadius(3396.19);
-      i.setPolarRadius(3376.2);
-      i.setPlanetographic(true);
+    postCreateFunction: entity => {
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(10.8);
+      atmosphere.setDensity(.001);
+      atmosphere.setColor(new Pioneer.Color(225 / 255, 178 / 255, 112 / 255));
+      atmosphere.setSunBrightness(.8);
+      atmosphere.setSunsetColor(new Pioneer.Color(10 / 255, 75 / 255, 140 / 255));
+      atmosphere.setSunsetIntensity(1);
+      const graphicSpheroid = entity.addComponent(Pioneer.SpheroidComponent, "aero");
+      graphicSpheroid.setEquatorialRadius(3396.19);
+      graphicSpheroid.setPolarRadius(3376.2);
+      graphicSpheroid.setPlanetographic(true);
     }
   },
   jupiter: {
@@ -344,31 +350,38 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY],
-      update: t => {
-        if (t.getOrientation().isNaN()) return;
-        const e = t.getScene().getEngine().getTime();
-        const i = r.rotations;
-        let n = (i[i.length - 1][1] - i[i.length - 2][1]) / (i[i.length - 1][0] - i[i.length - 2][0]);
-        let o = r.hintIndex;
-        if (e < i[o][0] || o < i.length - 1 && i[o + 1][0] <= e) {
-          if (e >= i[i.length - 1][0]) o = i.length - 1;else if (e < i[0][0]) {
-            o = 0;
-            n = 0;
-          } else for (let t = i.length - 2; t >= 0; t--) i[t][0] <= e && e < i[t + 1][0] && (o = t, n = (i[t + 1][1] - i[t][1]) / (i[t + 1][0] - i[t][0]));
-        } else o < i.length - 1 && (n = (i[o + 1][1] - i[o][1]) / (i[o + 1][0] - i[o][0]));
-        r.hintIndex = o;
-        const a = i[o][1] + (e - i[o][0]) * n;
-        const l = Pioneer.MathUtils.wrap(r.referenceAngleInSystemIII - (a + r.textureAngleOffset - r.referenceAngleInSystemII) + (e - r.referenceTime) * r.offsetFactor, 0, 360);
-        const c = t.getComponent(Pioneer.SpheroidLODComponent);
-        null !== c && c.setLongitudeRotation(Pioneer.MathUtils.degToRad(l));
+      update: entity => {
+        if (entity.getOrientation().isNaN()) return;
+        const time = entity.getScene().getEngine().getTime();
+        const rotations = jupiterRotationTable.rotations;
+        let angularRate = (rotations[rotations.length - 1][1] - rotations[rotations.length - 2][1]) / (rotations[rotations.length - 1][0] - rotations[rotations.length - 2][0]);
+        let hintIndex = jupiterRotationTable.hintIndex;
+        if (time < rotations[hintIndex][0] || hintIndex < rotations.length - 1 && rotations[hintIndex + 1][0] <= time) {
+          if (time >= rotations[rotations.length - 1][0]) hintIndex = rotations.length - 1;else if (time < rotations[0][0]) {
+            hintIndex = 0;
+            angularRate = 0;
+          } else for (let rotationIndex = rotations.length - 2; rotationIndex >= 0; rotationIndex--) if (rotations[rotationIndex][0] <= time && time < rotations[rotationIndex + 1][0]) {
+            hintIndex = rotationIndex;
+            angularRate = (rotations[rotationIndex + 1][1] - rotations[rotationIndex][1]) / (rotations[rotationIndex + 1][0] - rotations[rotationIndex][0]);
+          }
+        } else if (hintIndex < rotations.length - 1) {
+          angularRate = (rotations[hintIndex + 1][1] - rotations[hintIndex][1]) / (rotations[hintIndex + 1][0] - rotations[hintIndex][0]);
+        }
+        jupiterRotationTable.hintIndex = hintIndex;
+        const rotationAngle = rotations[hintIndex][1] + (time - rotations[hintIndex][0]) * angularRate;
+        const textureLongitude = Pioneer.MathUtils.wrap(jupiterRotationTable.referenceAngleInSystemIII - (rotationAngle + jupiterRotationTable.textureAngleOffset - jupiterRotationTable.referenceAngleInSystemII) + (time - jupiterRotationTable.referenceTime) * jupiterRotationTable.offsetFactor, 0, 360);
+        const surface = entity.getComponent(Pioneer.SpheroidLODComponent);
+        if (null !== surface) {
+          surface.setLongitudeRotation(Pioneer.MathUtils.degToRad(textureLongitude));
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.AtmosphereComponent);
-      e.setScaleHeight(200);
-      e.setDensity(5e-5);
-      e.setColor(new Pioneer.Color(234 / 255, 202 / 255, 170 / 255));
-      e.setSunBrightness(.25);
+    postCreateFunction: entity => {
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(200);
+      atmosphere.setDensity(5e-5);
+      atmosphere.setColor(new Pioneer.Color(234 / 255, 202 / 255, 170 / 255));
+      atmosphere.setSunBrightness(.25);
     }
   },
   saturn: {
@@ -403,17 +416,17 @@ Entity.Entity.register({
       type: "dynamo",
       url: "saturn/ori"
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.RingsComponent);
-      e.setInnerRadius(74270.580913);
-      e.setOuterRadius(140478.924731);
-      e.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/saturn_rings_top.png");
-      e.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/saturn_rings_bottom.png");
-      e.setShadowEntities(["iapetus", "dione", "rhea", "tethys", "titan", "mimas", "enceladus"]);
-      const i = t.addComponent(Pioneer.AtmosphereComponent);
-      i.setScaleHeight(200);
-      i.setDensity(5e-5);
-      i.setColor(new Pioneer.Color(234 / 255, 202 / 255, 151 / 255));
+    postCreateFunction: entity => {
+      const rings = entity.addComponent(Pioneer.RingsComponent);
+      rings.setInnerRadius(74270.580913);
+      rings.setOuterRadius(140478.924731);
+      rings.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/saturn_rings_top.png");
+      rings.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/saturn_rings_bottom.png");
+      rings.setShadowEntities(["iapetus", "dione", "rhea", "tethys", "titan", "mimas", "enceladus"]);
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(200);
+      atmosphere.setDensity(5e-5);
+      atmosphere.setColor(new Pioneer.Color(234 / 255, 202 / 255, 151 / 255));
     }
   },
   uranus: {
@@ -447,19 +460,19 @@ Entity.Entity.register({
       type: "dynamo",
       url: "uranus/ori"
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.RingsComponent);
-      e.setInnerRadius(26840);
-      e.setOuterRadius(103e3);
-      e.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/uranus_rings.png");
-      e.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/uranus_rings.png");
-      e.setShadowEntities(["miranda", "ariel", "umbriel", "titania", "oberon"]);
-      const i = t.addComponent(Pioneer.AtmosphereComponent);
-      i.setScaleHeight(200);
-      i.setDensity(5e-5);
-      i.setColor(new Pioneer.Color(147 / 255, 183 / 255, 201 / 255));
-      i.setSunsetColor(new Pioneer.Color(164 / 255, 168 / 255, .4));
-      i.setSunsetIntensity(1);
+    postCreateFunction: entity => {
+      const rings = entity.addComponent(Pioneer.RingsComponent);
+      rings.setInnerRadius(26840);
+      rings.setOuterRadius(103e3);
+      rings.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/uranus_rings.png");
+      rings.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/uranus_rings.png");
+      rings.setShadowEntities(["miranda", "ariel", "umbriel", "titania", "oberon"]);
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(200);
+      atmosphere.setDensity(5e-5);
+      atmosphere.setColor(new Pioneer.Color(147 / 255, 183 / 255, 201 / 255));
+      atmosphere.setSunsetColor(new Pioneer.Color(164 / 255, 168 / 255, .4));
+      atmosphere.setSunsetIntensity(1);
     }
   },
   neptune: {
@@ -493,20 +506,20 @@ Entity.Entity.register({
       type: "dynamo",
       url: "neptune/ori"
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.RingsComponent);
-      e.setInnerRadius(40900);
-      e.setOuterRadius(62964);
-      e.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/neptune_rings.png");
-      e.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/neptune_rings.png");
-      const i = t.addComponent(Pioneer.AtmosphereComponent);
-      i.setScaleHeight(200);
-      i.setDensity(5e-5);
-      i.setColor(new Pioneer.Color(138 / 255, 160 / 255, 1));
+    postCreateFunction: entity => {
+      const rings = entity.addComponent(Pioneer.RingsComponent);
+      rings.setInnerRadius(40900);
+      rings.setOuterRadius(62964);
+      rings.setTopTextureUrl("$STATIC_ASSETS_URL/sprites/neptune_rings.png");
+      rings.setBottomTextureUrl("$STATIC_ASSETS_URL/sprites/neptune_rings.png");
+      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);
+      atmosphere.setScaleHeight(200);
+      atmosphere.setDensity(5e-5);
+      atmosphere.setColor(new Pioneer.Color(138 / 255, 160 / 255, 1));
     }
   }
 });
-const r = {
+const jupiterRotationTable = {
   hintIndex: 0,
   textureAngleOffset: -60.38,
   referenceTime: 617098056,

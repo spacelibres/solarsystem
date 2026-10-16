@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：基于历史运动及恒星加速度生成彗尾粒子，并按相机设置精灵材质。
- * 依据：import ../pioneer/public-api.js；CometTailComponent extends PioneerPublicApi.BaseComponent @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 彗尾粒子记录相对第零粒子时刻的 originTime，重置第零粒子时平移全部时间偏移以保持数值精度；越出尾长时间窗的粒子按 wrap 重生，GPU 按光源亮度与随机加速度展开尾迹。
 // Recovered from app.js:303108-312075.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：基于历史运动及恒星加速度生成彗尾粒子，并按相机设置精灵材质。
- * 继承：PioneerPublicApi.BaseComponent；导出：CometTailComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class CometTailComponent extends PioneerPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_color`、`_lightSource`、`_numberOfParticles`、`_starAccelerationMultiplier`、`_timeLength`、`_timeOfParticle0`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.EntityRef`、`super`、`this.getEntity`、`this.getEntity().getScene`。
-   * 状态写入：_color、_lightSource、_numberOfParticles、_starAccelerationMultiplier、_timeLength、_timeOfParticle0。
-   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.EntityRef、super、this.getEntity、this.getEntity().getScene。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._lightSource = new PioneerPublicApi.EntityRef(this.getEntity().getScene());
     this._timeLength = 6e5;
     this._numberOfParticles = 200;
@@ -26,120 +11,78 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
     this._starAccelerationMultiplier = 1;
     this._timeOfParticle0 = 0;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._lightSource.getName()`；调用 `this._lightSource.getName`。
-   * 调用线索：this._lightSource.getName。
-   */
   getLightSource() {
     return this._lightSource.getName();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._lightSource.setName`。
-   * 调用线索：this._lightSource.setName。
-   */
-  setLightSource(t) {
-    this._lightSource.setName(t);
+  setLightSource(entityName) {
+    this._lightSource.setName(entityName);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._timeLength`。
-   */
   getTimeLength() {
     return this._timeLength;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_timeLength`；调用 `this.resetResources`。
-   * 状态写入：_timeLength。
-   * 调用线索：this.resetResources。
-   */
   setTimeLength(timeLength) {
     this._timeLength = timeLength;
     this.resetResources();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._starAccelerationMultiplier`。
-   */
   getStarAccelerationMultiplier() {
     return this._starAccelerationMultiplier;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_starAccelerationMultiplier`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
-   * 状态写入：_starAccelerationMultiplier。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
-   */
   setStarAccelerationMultiplier(starAccelerationMultiplier) {
     this._starAccelerationMultiplier = starAccelerationMultiplier;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAccelerationMultiplier", this._starAccelerationMultiplier);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._numberOfParticles`。
-   */
   getNumberOfParticles() {
     return this._numberOfParticles;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_numberOfParticles`；调用 `this.resetResources`。
-   * 状态写入：_numberOfParticles。
-   * 调用线索：this.resetResources。
-   */
   setNumberOfParticles(numberOfParticles) {
     this._numberOfParticles = numberOfParticles;
     this.resetResources();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._color`。
-   */
   getColor() {
     return this._color;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`this._color.copy`、`this.getThreeJsMaterials`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、this._color.copy、this.getThreeJsMaterials。
-   */
-  setColor(t) {
-    this._color.copy(t);
+  setColor(color) {
+    this._color.copy(color);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Math.max`、`PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
-   * 调用线索：Math.max、PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector3、PioneerPublicApi.Vector3.pool.get等。
-   */
   __update() {
-    if (this.__setRadius(Math.max(this.getEntity().getExtentsRadius(), this._timeLength * this.getEntity().getVelocity().magnitude())), "loaded" !== this.getLoadState().state) return;
-    const t = this.getEntity().getScene().getEngine().getTime();
-    const e = this.getThreeJsObjects()[0].geometry.attributes.originTime.array;
-    for (let i = 0, numberOfParticles = this._numberOfParticles; i < numberOfParticles; i++) {
-      const n = e[i] + this._timeOfParticle0;
-      (n < t - this._timeLength || n > t) && this._newParticle(i, PioneerPublicApi.MathUtils.wrap(n, t - this._timeLength, t));
+    this.__setRadius(Math.max(this.getEntity().getExtentsRadius(), this._timeLength * this.getEntity().getVelocity().magnitude()));
+    if ("loaded" !== this.getLoadState().state) return;
+    const time = this.getEntity().getScene().getEngine().getTime();
+    const originTimes = this.getThreeJsObjects()[0].geometry.attributes.originTime.array;
+    for (let particleIndex = 0, numberOfParticles = this._numberOfParticles; particleIndex < numberOfParticles; particleIndex++) {
+      const originTime = originTimes[particleIndex] + this._timeOfParticle0;
+      if (originTime < time - this._timeLength || originTime > time) {
+        this._newParticle(particleIndex, PioneerPublicApi.MathUtils.wrap(originTime, time - this._timeLength, time));
+      }
     }
-    this._numberOfParticles > 1 ? PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "time", t - this._timeOfParticle0) : PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "time", 0);
-    const i = this._lightSource.get();
-    if (null !== i) {
-      const t = i.getComponent(PioneerPublicApi.LightSourceComponent);
-      null !== t && PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAbsoluteMagnitude", t.getAbsoluteMagnitude());
-      const e = PioneerPublicApi.Vector3.pool.get();
-      this.getEntity().getPositionRelativeToEntity(e, PioneerPublicApi.Vector3.Zero, i);
-      PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "positionOfEntity", e);
-      PioneerPublicApi.Vector3.pool.release(e);
+    if (this._numberOfParticles > 1) {
+      PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "time", time - this._timeOfParticle0);
+    } else {
+      PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "time", 0);
+    }
+    const lightEntity = this._lightSource.get();
+    if (null !== lightEntity) {
+      const lightComponent = lightEntity.getComponent(PioneerPublicApi.LightSourceComponent);
+      if (null !== lightComponent) {
+        PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAbsoluteMagnitude", lightComponent.getAbsoluteMagnitude());
+      }
+      const lightRelativePosition = PioneerPublicApi.Vector3.pool.get();
+      this.getEntity().getPositionRelativeToEntity(lightRelativePosition, PioneerPublicApi.Vector3.Zero, lightEntity);
+      PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "positionOfEntity", lightRelativePosition);
+      PioneerPublicApi.Vector3.pool.release(lightRelativePosition);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `getThreeJsMaterials()[0].uniforms.color.value.w`；调用 `PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformVector3`、`e.magnitude`、`this.__setVisible`、`this.getEntity`。
-   * 状态写入：getThreeJsMaterials()[0].uniforms.color.value.w。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformVector3、e.magnitude、this.__setVisible等。
-   */
-  __prepareForRender(t) {
-    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects(), this.getEntity(), t);
-    const e = this.getEntity().getCameraSpacePosition(t);
-    if (PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "positionInCamera", e), e.magnitude() < 4e4) this.__setVisible(false);else {
-      const t = (e.magnitude() - 4e4) / 4e5;
-      this.getThreeJsMaterials()[0].uniforms.color.value.w = this._color.a * PioneerPublicApi.MathUtils.clamp01(t);
+  __prepareForRender(camera) {
+    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects(), this.getEntity(), camera);
+    const cameraPosition = this.getEntity().getCameraSpacePosition(camera);
+    PioneerPublicApi.ThreeJsHelper.setUniformVector3(this.getThreeJsMaterials()[0], "positionInCamera", cameraPosition);
+    if (cameraPosition.magnitude() < 4e4) this.__setVisible(false);else {
+      const fadeFactor = (cameraPosition.magnitude() - 4e4) / 4e5;
+      this.getThreeJsMaterials()[0].uniforms.color.value.w = this._color.a * PioneerPublicApi.MathUtils.clamp01(fadeFactor);
       this.__setVisible(true);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry`、`PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`instancedBufferGeometry.setAttribute`、`instancedBufferGeometry.setIndex`、`new Float32Array`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry、PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA、PioneerPublicApi.ThreeJsHelper.setUniformNumber、instancedBufferGeometry.setAttribute、instancedBufferGeometry.setIndex等。
-   */
   async __loadResources() {
     const rawShaderMaterial = new PioneerPublicApi.THREE.RawShaderMaterial({
       uniforms: {
@@ -161,60 +104,54 @@ class CometTailComponent extends PioneerPublicApi.BaseComponent {
       side: PioneerPublicApi.THREE.DoubleSide
     });
     this.getThreeJsMaterials().push(rawShaderMaterial);
-    const float32Array = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);
-    const uint16Array = new Uint16Array([0, 1, 2, 2, 3, 0]);
-    const n = new Float32Array(1 * this._numberOfParticles);
-    const o = new Float32Array(3 * this._numberOfParticles);
-    const r = new Float32Array(1 * this._numberOfParticles);
+    const quadPositions = new Float32Array([-1, -1, 0, 1, -1, 0, 1, 1, 0, -1, 1, 0]);
+    const quadIndices = new Uint16Array([0, 1, 2, 2, 3, 0]);
+    const originTimes = new Float32Array(1 * this._numberOfParticles);
+    const originPositions = new Float32Array(3 * this._numberOfParticles);
+    const accelerationMultipliers = new Float32Array(1 * this._numberOfParticles);
     const instancedBufferGeometry = new PioneerPublicApi.THREE.InstancedBufferGeometry();
-    instancedBufferGeometry.setAttribute("position", new PioneerPublicApi.THREE.BufferAttribute(float32Array, 3));
-    instancedBufferGeometry.setAttribute("originTime", new PioneerPublicApi.THREE.InstancedBufferAttribute(n, 1));
-    instancedBufferGeometry.setAttribute("originPosition", new PioneerPublicApi.THREE.InstancedBufferAttribute(o, 3));
-    instancedBufferGeometry.setAttribute("accelerationMultiplier", new PioneerPublicApi.THREE.InstancedBufferAttribute(r, 1));
-    instancedBufferGeometry.setIndex(new PioneerPublicApi.THREE.BufferAttribute(uint16Array, 1));
+    instancedBufferGeometry.setAttribute("position", new PioneerPublicApi.THREE.BufferAttribute(quadPositions, 3));
+    instancedBufferGeometry.setAttribute("originTime", new PioneerPublicApi.THREE.InstancedBufferAttribute(originTimes, 1));
+    instancedBufferGeometry.setAttribute("originPosition", new PioneerPublicApi.THREE.InstancedBufferAttribute(originPositions, 3));
+    instancedBufferGeometry.setAttribute("accelerationMultiplier", new PioneerPublicApi.THREE.InstancedBufferAttribute(accelerationMultipliers, 1));
+    instancedBufferGeometry.setIndex(new PioneerPublicApi.THREE.BufferAttribute(quadIndices, 1));
     instancedBufferGeometry.instanceCount = this._numberOfParticles;
-    const l = PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry(this, rawShaderMaterial, instancedBufferGeometry);
-    this.getThreeJsObjects().push(l);
-    const c = this.getEntity().getScene().getEngine().getTime();
-    for (let t = 0, numberOfParticles = this._numberOfParticles; t < numberOfParticles; t++) this._newParticle(t, c - t / numberOfParticles * this._timeLength);
+    const mesh = PioneerPublicApi.ThreeJsHelper.createMeshObjectGivenGeometry(this, rawShaderMaterial, instancedBufferGeometry);
+    this.getThreeJsObjects().push(mesh);
+    const time = this.getEntity().getScene().getEngine().getTime();
+    for (let particleIndex = 0, numberOfParticles = this._numberOfParticles; particleIndex < numberOfParticles; particleIndex++) this._newParticle(particleIndex, time - particleIndex / numberOfParticles * this._timeLength);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "timeLength", this._timeLength);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "starAccelerationMultiplier", this._starAccelerationMultiplier);
     PioneerPublicApi.ThreeJsHelper.setUniformColorRGBA(this.getThreeJsMaterials()[0], "color", this._color);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
-   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_timeOfParticle0`；调用 `Math.random`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`this._lightSource.get`、`this.getEntity`、`this.getEntity().getPositionRelativeToEntity`。
-   * 状态写入：_timeOfParticle0。
-   * 调用线索：Math.random、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、this._lightSource.get、this.getEntity等。
-   */
-  _newParticle(t, timeOfParticle0) {
-    const i = this.getThreeJsObjects()[0].geometry.attributes.originTime;
-    const n = i.array;
-    if (t > 0) n[t] = timeOfParticle0 - this._timeOfParticle0;else {
-      for (let t = 1, numberOfParticles = this._numberOfParticles; t < numberOfParticles; t++) n[t] += this._timeOfParticle0 - timeOfParticle0;
+  // 第零粒子决定浮点时间原点，重置它时给其他粒子偏移相反的差值以保持绝对出生时刻。
+  _newParticle(particleIndex, timeOfParticle0) {
+    const timeAttribute = this.getThreeJsObjects()[0].geometry.attributes.originTime;
+    const originTimes = timeAttribute.array;
+    if (particleIndex > 0) originTimes[particleIndex] = timeOfParticle0 - this._timeOfParticle0;else {
+      for (let particleIndex = 1, numberOfParticles = this._numberOfParticles; particleIndex < numberOfParticles; particleIndex++) originTimes[particleIndex] += this._timeOfParticle0 - timeOfParticle0;
       this._timeOfParticle0 = timeOfParticle0;
-      n[0] = 0;
+      originTimes[0] = 0;
     }
-    i.needsUpdate = true;
-    const o = PioneerPublicApi.Vector3.pool.get();
-    const r = this._lightSource.get();
-    null !== r && this.getEntity().getPositionRelativeToEntity(o, PioneerPublicApi.Vector3.Zero, r, timeOfParticle0);
-    const a = this.getThreeJsObjects()[0].geometry.attributes.originPosition;
-    const l = a.array;
-    l[3 * t + 0] = o.x;
-    l[3 * t + 1] = o.y;
-    l[3 * t + 2] = o.z;
-    a.needsUpdate = true;
-    PioneerPublicApi.Vector3.pool.release(o);
-    const c = this.getThreeJsObjects()[0].geometry.attributes.accelerationMultiplier;
-    c.array[t] = 0 + 1 * Math.random();
-    c.needsUpdate = true;
+    timeAttribute.needsUpdate = true;
+    const originPosition = PioneerPublicApi.Vector3.pool.get();
+    const lightEntity = this._lightSource.get();
+    if (null !== lightEntity) {
+      this.getEntity().getPositionRelativeToEntity(originPosition, PioneerPublicApi.Vector3.Zero, lightEntity, timeOfParticle0);
+    }
+    const positionAttribute = this.getThreeJsObjects()[0].geometry.attributes.originPosition;
+    const originPositions = positionAttribute.array;
+    originPositions[3 * particleIndex + 0] = originPosition.x;
+    originPositions[3 * particleIndex + 1] = originPosition.y;
+    originPositions[3 * particleIndex + 2] = originPosition.z;
+    positionAttribute.needsUpdate = true;
+    PioneerPublicApi.Vector3.pool.release(originPosition);
+    const accelerationAttribute = this.getThreeJsObjects()[0].geometry.attributes.accelerationMultiplier;
+    accelerationAttribute.array[particleIndex] = 0 + 1 * Math.random();
+    accelerationAttribute.needsUpdate = true;
   }
   _lightSource;
   _timeLength;

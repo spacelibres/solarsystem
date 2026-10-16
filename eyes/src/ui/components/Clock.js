@@ -1,27 +1,13 @@
-/** @eyes-analysis
- * 文件职责：时间编辑、显示、时区和边界提示
- * 依据：imports: ../../framework/eyes/public-api.js, ../../vendor/modules/FollowName.cjs, ../templates/ClockTemplate.html；manager dependencies: time, router
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:588680-592849.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import "../../vendor/modules/FollowName.cjs";
 import ClockTemplate from "../templates/ClockTemplate.html";
 let defaultExport;
 var getClockTemplate = () => ClockTemplate;
-/** @eyes-analysis
- * 类职责：时间编辑、显示、时区和边界提示；继承 EyesPublicApi.BaseComponent
- * 继承：EyesPublicApi.BaseComponent；导出：Clock, default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 时钟格式由 time 管理器统一持有，普通时钟订阅 update，kiosk 计时器由调用者直接传文本。编辑提交经解析后写入路由；停用时取消限时提示的隐藏计时器。 */
 class Clock extends EyesPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions。
-   * 调用线索：Object.assign、super、this.bindFunctions。
-   */
-  constructor(t, e = {}) {
-    super(t, null, {
+  constructor(app, options = {}) {
+    super(app, null, {
       isVisible: false,
       isDateVisible: true,
       isTimeVisible: true,
@@ -32,7 +18,7 @@ class Clock extends EyesPublicApi.BaseComponent {
       meridiem: "",
       alert: "",
       isKioskSessionTimer: false,
-      ...e
+      ...options
     });
     Object.assign(this._state, {
       isDateVisibleClass: this._class.isVisible[this._state.isDateVisible],
@@ -41,10 +27,6 @@ class Clock extends EyesPublicApi.BaseComponent {
     });
     this.bindFunctions(["update", "onDateTimeClick"]);
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._app.getManager, Container.classList.add, Input.addEventListener, Form.classList.add, Form.addEventListener, Input.blur, this._parseTime, Container.classList.remove, this._setVariables, this._children.date.classList.add, this._children.time.classList.add, this._children.meridiem.classList.add, this._children.timeInput.classList.add。
-   * 调用线索：displayContainer.classList.add、displayContainer.classList.remove、super.init、t.preventDefault、t.stopPropagation等。
-   */
   init() {
     super.init();
     const {
@@ -69,15 +51,15 @@ class Clock extends EyesPublicApi.BaseComponent {
       timeInput: timeInput,
       timeForm: timeForm
     } = this._children;
-    allowEdit && (displayContainer.classList.add("editable"), timeInput.addEventListener("keyup", t => {
-      t.stopPropagation();
-    }), timeInput.addEventListener("keydown", t => {
-      t.stopPropagation();
-    }), timeForm.classList.add("editable"), timeForm.addEventListener("submit", t => {
+    allowEdit && (displayContainer.classList.add("editable"), timeInput.addEventListener("keyup", keyEvent => {
+      keyEvent.stopPropagation();
+    }), timeInput.addEventListener("keydown", keyEvent => {
+      keyEvent.stopPropagation();
+    }), timeForm.classList.add("editable"), timeForm.addEventListener("submit", submitEvent => {
       timeInput.blur();
       this._parseTime(timeInput.value);
-      t.preventDefault();
-    }), timeInput.addEventListener("blur", t => {
+      submitEvent.preventDefault();
+    }), timeInput.addEventListener("blur", blurEvent => {
       timeForm.classList.add("hidden");
       displayContainer.classList.remove("hidden");
     }));
@@ -93,10 +75,6 @@ class Clock extends EyesPublicApi.BaseComponent {
       callback: this.update
     });
   }
-  /** @eyes-analysis
-   * 执行 onDateTimeClick 对应的组件业务步骤；调用 this._app.getManager, Route.url.includes, Container.classList.add, Form.classList.remove, Input.focus。
-   * 调用线索：displayContainer.classList.add、this._app.getManager、this._app.getManager("router").currentRoute.url.includes、timeForm.classList.remove、timeInput.focus。
-   */
   onDateTimeClick() {
     const {
       displayContainer: displayContainer,
@@ -106,130 +84,98 @@ class Clock extends EyesPublicApi.BaseComponent {
       time: time,
       meridiem: meridiem
     } = this._children;
-    const r = this._app.getManager("router").currentRoute.url.includes("story");
-    if (!this._state.allowEdit || r) return;
-    const a = this._state.meridiem ? ` ${meridiem.innerHTML}` : "";
-    timeInput.value = `${date.innerHTML} ${time.innerHTML}${a}`;
+    const isStoryRoute = this._app.getManager("router").currentRoute.url.includes("story");
+    if (!this._state.allowEdit || isStoryRoute) return;
+    const meridiemText = this._state.meridiem ? ` ${meridiem.innerHTML}` : "";
+    timeInput.value = `${date.innerHTML} ${time.innerHTML}${meridiemText}`;
     displayContainer.classList.add("hidden");
     timeForm.classList.remove("hidden");
     timeInput.focus();
   }
-  /** @eyes-analysis
-   * 执行 isERT 对应的组件业务步骤。
-   */
   isERT() {
     return this._isERT;
   }
-  /** @eyes-analysis
-   * 执行 toggle 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  toggle(t, e) {
-    switch (t) {
+  toggle(fieldName, isVisible) {
+    switch (fieldName) {
       case "date":
         this.setState({
-          isDateVisible: e,
-          isDateVisibleClass: this._class.isVisible[e]
+          isDateVisible: isVisible,
+          isDateVisibleClass: this._class.isVisible[isVisible]
         });
         break;
       case "time":
         this.setState({
-          isTimeVisible: e,
-          isTimeVisibleClass: this._class.isVisible[e]
+          isTimeVisible: isVisible,
+          isTimeVisibleClass: this._class.isVisible[isVisible]
         });
         break;
       case "meridiem":
         this.setState({
-          isMeridiemVisible: e,
-          isMeridiemVisibleClass: this._class.isVisible[e]
+          isMeridiemVisible: isVisible,
+          isMeridiemVisibleClass: this._class.isVisible[isVisible]
         });
     }
   }
-  /** @eyes-analysis
-   * 执行 _parseTime 对应的组件业务步骤；调用 this._app.getManager, Manager.navigate。
-   * 调用线索：console.error、i.isUTC、i.isValid、routerManager.navigate、this._app.getManager等。
-   */
-  _parseTime(t) {
+  _parseTime(inputText) {
     const routerManager = this._app.getManager("router");
-    const i = this._app.getManager("time").parseTime(t, "parse");
-    if (i.isValid()) {
-      this._app.getManager("time").setDisplayUTC(i.isUTC());
-      const t = this._app.getManager("time").getTimeUrl(i);
+    const parsedTime = this._app.getManager("time").parseTime(inputText, "parse");
+    if (parsedTime.isValid()) {
+      this._app.getManager("time").setDisplayUTC(parsedTime.isUTC());
+      const timeUrl = this._app.getManager("time").getTimeUrl(parsedTime);
       routerManager.navigate({
-        time: t
+        time: timeUrl
       }, routerManager.currentRoute.url);
     } else {
-      console.error("Invalid input: " + t);
+      console.error("Invalid input: " + inputText);
       routerManager.navigate({
         __remove: ["time"]
       }, routerManager.currentRoute.url);
     }
   }
-  /** @eyes-analysis
-   * 执行 update 对应的组件业务步骤；调用 this.setState, this._app.getManager。
-   * 调用线索：t.format、this._app.getManager、this._app.getManager("time").getDateFormat、this._app.getManager("time").isUTC、this.setState。
-   */
-  update(t, e = false) {
-    this._state.isVisible && (e ? this.setState({
-      time: t
+  update(timeValue, isTimerText = false) {
+    this._state.isVisible && (isTimerText ? this.setState({
+      time: timeValue
     }) : this.setState({
-      date: t.format(this._app.getManager("time").getDateFormat("date")),
-      time: t.format(this._app.getManager("time").getDateFormat("time")),
-      meridiem: this._app.getManager("time").isUTC() ? "" : t.format(this._app.getManager("time").getDateFormat("meridiem")),
+      date: timeValue.format(this._app.getManager("time").getDateFormat("date")),
+      time: timeValue.format(this._app.getManager("time").getDateFormat("time")),
+      meridiem: this._app.getManager("time").isUTC() ? "" : timeValue.format(this._app.getManager("time").getDateFormat("meridiem")),
       alert: this._app.getManager("time").forcedPause ? "alert" : ""
     }));
   }
-  /** @eyes-analysis
-   * 执行 backToLive 对应的组件业务步骤；调用 this._app.getManager, Manager.isNow, Manager.getTimeUrl, Manager.getNow, Manager.navigate, Manager.setTimeRate, Manager.setToNow。
-   * 调用线索：routerManager.navigate、this._app.getManager、timeManager.getNow、timeManager.getTimeUrl、timeManager.isNow等。
-   */
   backToLive() {
     const routerManager = this._app.getManager("router");
     const timeManager = this._app.getManager("time");
     if (!timeManager.isNow()) {
-      const i = timeManager.getTimeUrl(timeManager.getNow());
-      const s = routerManager.query.time;
+      const liveTimeUrl = timeManager.getTimeUrl(timeManager.getNow());
+      const routeTime = routerManager.query.time;
       routerManager.navigate({
         __remove: ["time", "rate"]
       }, routerManager.currentRoute.url);
-      s !== i && (timeManager.setTimeRate(1), timeManager.setToNow());
+      routeTime !== liveTimeUrl && (timeManager.setTimeRate(1), timeManager.setToNow());
     }
   }
-  /** @eyes-analysis
-   * 执行 setLimitMessage 对应的组件业务步骤；调用 this._app.getManager, this._app.getView, this._displayLimitMessage；写入 limitMessageTimeout。
-   * 状态写入：limitMessageTimeout。
-   * 调用线索：setTimeout、this._app.getManager、this._app.getView、this._children.displayContainer?.style.setProperty、this._displayLimitMessage。
-   */
-  setLimitMessage(t, e) {
-    let i;
-    if (e) i = `"${e}"`;else {
+  setLimitMessage(limitDirection, customMessage) {
+    let quotedMessage;
+    if (customMessage) quotedMessage = `"${customMessage}"`;else {
       const {
         currentView: currentView
       } = this._app.getManager("router");
       const {
         _isSpacecraft: _isSpacecraft
       } = this._app.getView(currentView);
-      let n = "time " + (1 === t ? "maximum" : "minimum");
-      "event" === currentView ? n = "event " + (1 === t ? "end" : "start") : _isSpacecraft && (n = "mission " + (1 === t ? "end" : "start"));
-      i = 1 === t ? `"cannot exceed ${n}"` : `"cannot precede ${n}"`;
+      let limitLabel = "time " + (1 === limitDirection ? "maximum" : "minimum");
+      "event" === currentView ? limitLabel = "event " + (1 === limitDirection ? "end" : "start") : _isSpacecraft && (limitLabel = "mission " + (1 === limitDirection ? "end" : "start"));
+      quotedMessage = 1 === limitDirection ? `"cannot exceed ${limitLabel}"` : `"cannot precede ${limitLabel}"`;
     }
-    this._children.displayContainer?.style.setProperty("--limit-message", i);
+    this._children.displayContainer?.style.setProperty("--limit-message", quotedMessage);
     this._displayLimitMessage(true);
     this.limitMessageTimeout = setTimeout(() => {
       this._displayLimitMessage(false);
     }, 3e3);
   }
-  /** @eyes-analysis
-   * 执行 _displayLimitMessage 对应的组件业务步骤；调用 List.toggle。
-   * 调用线索：this._children.displayContainer?.classList.toggle。
-   */
-  _displayLimitMessage(t) {
-    this._children.displayContainer?.classList.toggle("limit", t);
+  _displayLimitMessage(isVisible) {
+    this._children.displayContainer?.classList.toggle("limit", isVisible);
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 this._displayLimitMessage, super.__disable。
-   * 调用线索：clearTimeout、super.__disable、this._displayLimitMessage。
-   */
   __disable() {
     this._displayLimitMessage(false);
     clearTimeout(this.limitMessageTimeout);

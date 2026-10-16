@@ -1,17 +1,12 @@
-/** @eyes-analysis
- * 文件职责：帕克太阳探测器近日点故事定义，协调 2024-12-24 事件时间和观察步骤。
- * 依据：顶层副作用 defaultExport={type:"nonsequential",entities:["sc_parker_solar_probe"],onEnter:async t=>{t.getManager("layer").toggleLayer("spacecraft",{},false);},slides:[{id:"slide_1",type:"overlay",classList:["opaque","black"],conten；实际标题：Parker Solar Probe's Closest Pass by the Sun ；Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS；Venus as seen by Parker Solar Probe. Credit: NASA；Coronal streamers up close. Credit: NASA SVS；Conceptual image of Parker Solar Probe passing through the corona. Credit: NASA SVS
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1734753-1739455.
-let defaultExport;
-const s = "2024-12-24T12:56:00Z";
-defaultExport = {
+/** 帕克近日点故事：复用近日点时刻，按 slide 设置空间器视角；进入/退出显式切换 spacecraft 图层。 */
+let parkerSolarProbePerihelionStory;
+const perihelionTime = "2024-12-24T12:56:00Z";
+parkerSolarProbePerihelionStory = {
   type: "nonsequential",
   entities: ["sc_parker_solar_probe"],
-  onEnter: async t => {
-    t.getManager("layer").toggleLayer("spacecraft", {}, false);
+  onEnter: async app => {
+    app.getManager("layer").toggleLayer("spacecraft", {}, false);
   },
   slides: [{
     id: "slide_1",
@@ -22,8 +17,8 @@ defaultExport = {
       title: "Parker Solar Probe's Closest Pass by the Sun "
     }],
     rate: 0,
-    camera: [async t => {
-      await t.cameraScripts.goToSpacecraft("sc_parker_solar_probe");
+    camera: [async app => {
+      await app.cameraScripts.goToSpacecraft("sc_parker_solar_probe");
     }]
   }, {
     id: "slide_2",
@@ -38,11 +33,11 @@ defaultExport = {
       alt: "Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS",
       clickable: true
     }],
-    time: s,
+    time: perihelionTime,
     rate: 1814400,
     entities: ["sc_parker_solar_probe", "sun"],
-    camera: [async t => {
-      await t.cameraScripts.viewFromSide("sun", {
+    camera: [async app => {
+      await app.cameraScripts.viewFromSide("sun", {
         distance: 4e8,
         verticalOffset: -50,
         upVector: "z-axis"
@@ -66,8 +61,8 @@ defaultExport = {
     time: "2024-10-15T00:10:00",
     rate: 432e3,
     entities: ["sc_parker_solar_probe", "venus"],
-    camera: [async t => {
-      await t.cameraScripts.goToCenter(["sun", "venus"], "sun", 782223069.182, {
+    camera: [async app => {
+      await app.cameraScripts.goToCenter(["sun", "venus"], "sun", 782223069.182, {
         distance: 35e7
       });
     }]
@@ -86,11 +81,11 @@ defaultExport = {
       alt: "Coronal streamers up close. Credit: NASA SVS",
       clickable: true
     }],
-    time: s,
+    time: perihelionTime,
     rate: 600,
     entities: ["sc_parker_solar_probe", "sun"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_parker_solar_probe", "sun", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_parker_solar_probe", "sun", {
         distance: .04
       });
     }]
@@ -112,14 +107,14 @@ defaultExport = {
     time: "2024-12-27T12:16:25.007",
     rate: 10800,
     entities: ["sc_parker_solar_probe", "sun"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_parker_solar_probe", "sun", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_parker_solar_probe", "sun", {
         distance: .04
       });
     }]
   }],
-  onLeave: async t => {
-    t.getManager("layer").toggleLayer("spacecraft", {}, true);
+  onLeave: async app => {
+    app.getManager("layer").toggleLayer("spacecraft", {}, true);
   }
 };
-export { defaultExport as default };
+export { parkerSolarProbePerihelionStory as default };

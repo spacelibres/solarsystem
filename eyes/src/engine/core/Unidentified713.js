@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 19 个实体/参考系（如 sc_dart、sc_dawn、sc_deep_impact、sc_deep_impact_impactor、sc_deep_impact_impactor_impact_site、sc_deep_space_1），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Animation.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 小天体任务目录包含 OSIRIS-REx TAGSAM 关节动画、Stardust 采集机构关键帧、返回舱与着陆轨迹；模型节点名和原时间表属于动画接口，不在整理中改变。
 // Recovered from app.js:1172019-1197285.
 import * as Pioneer from "../pioneer/index.js";
 import * as Animation from "./Animation.js";
@@ -33,11 +28,11 @@ Entity.Entity.register({
       url: "sc_dart/65803_didymos/pos"
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(717503237, new Pioneer.Vector3(-10320.163052194115, 13421.106828492655, 5349.381737812169));
-        e.addPositionKeyframe(717506127.238318, new Pioneer.Vector3(-.9047084058613565, -.7147384471771195, -.30125475602973617));
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(717503237, new Pioneer.Vector3(-10320.163052194115, 13421.106828492655, 5349.381737812169));
+        keyframeController.addPositionKeyframe(717506127.238318, new Pioneer.Vector3(-.9047084058613565, -.7147384471771195, -.30125475602973617));
+        return keyframeController;
       }
     }, {
       type: "align",
@@ -174,12 +169,12 @@ Entity.Entity.register({
     },
     controllers: [{
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(173642464.18400002, new Pioneer.Vector3(-713e-6, -55e-6, 0), "sc_deep_impact", void 0, "sc_deep_impact");
-        e.addPositionKeyframe(173656621.40411958, new Pioneer.Vector3(-123095.24746842826, -48294.70341251187, 61743.99881253781), "sc_deep_impact", 173642464.18400002);
-        e.addPositionKeyframe(173727938.18158135, new Pioneer.Vector3(1.580046751199936, 3.178179950746365, -.628457454223176));
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(173642464.18400002, new Pioneer.Vector3(-713e-6, -55e-6, 0), "sc_deep_impact", void 0, "sc_deep_impact");
+        keyframeController.addPositionKeyframe(173656621.40411958, new Pioneer.Vector3(-123095.24746842826, -48294.70341251187, 61743.99881253781), "sc_deep_impact", 173642464.18400002);
+        keyframeController.addPositionKeyframe(173727938.18158135, new Pioneer.Vector3(1.580046751199936, 3.178179950746365, -.628457454223176));
+        return keyframeController;
       }
     }, {
       type: "fixed",
@@ -537,13 +532,17 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [469053367.183, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setHiddenObject("Philae", true);
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("Philae", true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setHiddenObject("Philae", false);
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("Philae", false);
+        }
       }
     }]
   },
@@ -625,83 +624,87 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [748838793, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        null !== e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("REx", "APEX"));
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (null !== label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("REx", "APEX");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        null !== e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("APEX", "REx"));
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (null !== label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("APEX", "REx");
+        }
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeSubobjectVisibleAnimation(e, "Tagsam_housing_cover", true, [[593036911, false]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeSubobjectVisibleAnimation(model, "Tagsam_housing_cover", true, [[593036911, false]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Tagsam_rod_bottom", "z", [[595442726, 0], [595442906, -2.51758508612], [595443086, -2.51758508612], [595443266, 0], [656489486, 0], [656489846, -3.71758508612], [656502896, -3.71758508612], [656503076, 0], [657366686, 0], [657367046, -2.73771997401], [657367406, 0]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Tagsam_rod_bottom", "z", [[595442726, 0], [595442906, -2.51758508612], [595443086, -2.51758508612], [595443266, 0], [656489486, 0], [656489846, -3.71758508612], [656502896, -3.71758508612], [656503076, 0], [657366686, 0], [657367046, -2.73771997401], [657367406, 0]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Tagsam_rod_top", "z", [[593728111, 0], [593728113, .15], [595442726, .15], [595442906, 2.73247002363], [595443086, 2.73247002363], [595443266, .15], [656489486, .15], [656489846, 3.73247002363], [656502896, 3.73247002363], [656503076, .15], [657366686, .15], [657366866, 1.16136826422], [657367046, .509601235], [657367226, 1.16136826422], [657367406, .15]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Tagsam_rod_top", "z", [[593728111, 0], [593728113, .15], [595442726, .15], [595442906, 2.73247002363], [595443086, 2.73247002363], [595443266, .15], [656489486, .15], [656489846, 3.73247002363], [656502896, 3.73247002363], [656503076, .15], [657366686, .15], [657366866, 1.16136826422], [657367046, .509601235], [657367226, 1.16136826422], [657367406, .15]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "tagsam_head", "z", [[595442906, 0], [595442996, 1.57079632679], [595443086, 1.57079632679], [656489486, 0], [656489576, 1.57079632679], [656502806, 1.57079632679], [656502896, 0], [657366686, 0], [657367046, 1.01463145268]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "tagsam_head", "z", [[595442906, 0], [595442996, 1.57079632679], [595443086, 1.57079632679], [656489486, 0], [656489576, 1.57079632679], [656502806, 1.57079632679], [656502896, 0], [657366686, 0], [657367046, 1.01463145268]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeSubobjectVisibleAnimation(e, "tagsam_head", true, [[657367046, false]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeSubobjectVisibleAnimation(model, "tagsam_head", true, [[657367046, false]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Gimbal_Base_Right", "z", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Gimbal_Base_Right", "z", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Gimbal_Base_Left", "z", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Gimbal_Base_Left", "z", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Gimbal_Pivot_Right", "x", [[656501603, 0], [656501723, 38 * Math.PI / 180], [656503242, 38 * Math.PI / 180], [656503362, 0]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Gimbal_Pivot_Right", "x", [[656501603, 0], [656501723, 38 * Math.PI / 180], [656503242, 38 * Math.PI / 180], [656503362, 0]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeJointRotationAnimation(e, "Gimbal_Pivot_Left", "x", [[656501603, 0], [656501723, -38 * Math.PI / 180], [656503242, -38 * Math.PI / 180], [656503362, 0]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeJointRotationAnimation(model, "Gimbal_Pivot_Left", "x", [[656501603, 0], [656501723, -38 * Math.PI / 180], [656503242, -38 * Math.PI / 180], [656503362, 0]]);
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
-        return Animation.Animation.makeSubobjectVisibleAnimation(e, "heatshield", true, [[748824183.985732, false]]);
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
+        return Animation.Animation.makeSubobjectVisibleAnimation(model, "heatshield", true, [[748824183.985732, false]]);
       }
     }]
   },
@@ -733,27 +736,33 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [748838642, 748839373],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(true);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(false);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+        }
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.TranslateController);
-        e.setTranslation(new Pioneer.Vector3(0, 0, .0012));
-        e.setRelativeToOrientation(true);
-        return e;
+      func: entity => {
+        const translationController = entity.addController(Pioneer.TranslateController);
+        translationController.setTranslation(new Pioneer.Vector3(0, 0, .0012));
+        translationController.setRelativeToOrientation(true);
+        return translationController;
       },
       coverage: [748824183.985732, 748839215]
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.ModelComponent);
-      e && e.setTranslation(new Pioneer.Vector3(0, 0, -.0012));
+    postCreateFunction: entity => {
+      const model = entity.getComponent(Pioneer.ModelComponent);
+      if (model) {
+        model.setTranslation(new Pioneer.Vector3(0, 0, -.0012));
+      }
     }
   },
   sc_philae: {
@@ -781,15 +790,15 @@ Entity.Entity.register({
       orientation: new Pioneer.Quaternion(.05763938670269045, .04093459828351704, .6750586755218195, .7343690110337115)
     }, {
       type: "custom",
-      func: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) throw new Error();
+      func: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) throw new Error();
         const vector3 = new Pioneer.Vector3(.0021658104318583687, .0011575046500869896, .00011875498849156656);
-        const n = new Pioneer.Vector3(.00147, 0, 0);
-        const o = t.addController(Pioneer.TranslateController);
-        o.setTranslation(vector3);
-        e.setTranslation(n);
-        return o;
+        const modelOffset = new Pioneer.Vector3(.00147, 0, 0);
+        const translationController = entity.addController(Pioneer.TranslateController);
+        translationController.setTranslation(vector3);
+        model.setTranslation(modelOffset);
+        return translationController;
       },
       coverage: [469053367.183, 469078512.324]
     }]
@@ -931,18 +940,22 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [190576690.7833838, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (e) for (const t of o) e.setHiddenObject(t, true);
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) for (const partName of stardustModelParts) model.setHiddenObject(partName, true);
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (e) for (const t of o) e.setHiddenObject(t, false);
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) for (const partName of stardustModelParts) model.setHiddenObject(partName, false);
       }
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.ModelComponent);
-      e && (Animation.Animation.makeJointRotationAnimation(e, "Stardust_capsule", "x", r(1.481785, 0, 600)), Animation.Animation.makeJointRotationAnimation(e, "Stardust_Sample_Collection1", "x", r(-Math.PI, 610, 300)), Animation.Animation.makeJointRotationAnimation(e, "Stardust_Sample_Collection2", "x", r(-Math.PI, 920, 300)));
+    postCreateFunction: entity => {
+      const model = entity.getComponent(Pioneer.ModelComponent);
+      if (model) {
+        Animation.Animation.makeJointRotationAnimation(model, "Stardust_capsule", "x", createCollectionKeyframes(1.481785, 0, 600));
+        Animation.Animation.makeJointRotationAnimation(model, "Stardust_Sample_Collection1", "x", createCollectionKeyframes(-Math.PI, 610, 300));
+        Animation.Animation.makeJointRotationAnimation(model, "Stardust_Sample_Collection2", "x", createCollectionKeyframes(-Math.PI, 920, 300));
+      }
     }
   },
   sc_stardust_src: {
@@ -972,30 +985,36 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [190591100, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(true), e.setStartTime(1600));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+          trail.setStartTime(1600);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(false), e.setStartTime(18e3));
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+          trail.setStartTime(18e3);
+        }
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(190576690.7833838, new Pioneer.Vector3(-.0010057, 0, 1569e-7), "sc_stardust", void 0, "sc_stardust", void 0);
-        e.addPositionKeyframe(190576755.185, new Pioneer.Vector3(-.016734488308429718, -.019199222326278687, -.00404781848192215), "sc_stardust");
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(190576690.7833838, new Pioneer.Vector3(-.0010057, 0, 1569e-7), "sc_stardust", void 0, "sc_stardust", void 0);
+        keyframeController.addPositionKeyframe(190576755.185, new Pioneer.Vector3(-.016734488308429718, -.019199222326278687, -.00404781848192215), "sc_stardust");
+        return keyframeController;
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(190591163, new Pioneer.Vector3(-1979.4577357598625, -4478.591383446022, 4136.322858267745), "earth");
-        e.addPositionKeyframe(190591445.184, new Pioneer.Vector3(-1947.8360605285134, -4491.082890234251, 4123.1018367103425), "earth");
-        e.addPositionKeyframe(190591985.184, new Pioneer.Vector3(-1918.7633689113482, -4478.864184129612, 4103.897124245734), "earth");
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(190591163, new Pioneer.Vector3(-1979.4577357598625, -4478.591383446022, 4136.322858267745), "earth");
+        keyframeController.addPositionKeyframe(190591445.184, new Pioneer.Vector3(-1947.8360605285134, -4491.082890234251, 4123.1018367103425), "earth");
+        keyframeController.addPositionKeyframe(190591985.184, new Pioneer.Vector3(-1918.7633689113482, -4478.864184129612, 4103.897124245734), "earth");
+        return keyframeController;
       }
     }, {
       type: "rotateByEntityOrientation",
@@ -1003,7 +1022,7 @@ Entity.Entity.register({
     }]
   }
 });
-const o = ["Stardust_capsule", "Stardust_tex_01_c", "Stardust_tex_02_c", "Stardust_tex_03_c", "Stardust_tex_02_c2", "Stardust_Sample_Collection1"];
-function r(t, e, i) {
-  return [[4449664 + e, t], [4449664 + e + i, 0], [10411264 - e - i, 0], [10411264 - e, t], [81864064 + e, t], [81864064 + e + i, 0], [92664064 - e - i, 0], [92664064 - e, t], [125496064 + e, t], [125496064 + e + i, 0], [126363664 - e - i, 0], [126363664 - e, t]];
+const stardustModelParts = ["Stardust_capsule", "Stardust_tex_01_c", "Stardust_tex_02_c", "Stardust_tex_03_c", "Stardust_tex_02_c2", "Stardust_Sample_Collection1"];
+function createCollectionKeyframes(angle, timeOffset, duration) {
+  return [[4449664 + timeOffset, angle], [4449664 + timeOffset + duration, 0], [10411264 - timeOffset - duration, 0], [10411264 - timeOffset, angle], [81864064 + timeOffset, angle], [81864064 + timeOffset + duration, 0], [92664064 - timeOffset - duration, 0], [92664064 - timeOffset, angle], [125496064 + timeOffset, angle], [125496064 + timeOffset + duration, 0], [126363664 - timeOffset - duration, 0], [126363664 - timeOffset, angle]];
 }

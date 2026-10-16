@@ -1,28 +1,13 @@
-/** @eyes-analysis
- * 文件职责：目标与比较对象的尺寸、距离或照片比较交互
- * 依据：imports: ../../framework/eyes/index.js, ../../engine/pioneer/index.js, ../../styles/extracted/ComparisonStyles.js, ../templates/ComparisonTemplate.html；manager dependencies: router, content, comparison
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1551222-1557945.
 import * as Eyes from "../../framework/eyes/index.js";
 import * as Pioneer from "../../engine/pioneer/index.js";
 import "../../styles/extracted/ComparisonStyles.js";
 import ComparisonTemplate from "../templates/ComparisonTemplate.html";
 var getComparisonTemplate = () => ComparisonTemplate;
-/** @eyes-analysis
- * 类职责：目标与比较对象的尺寸、距离或照片比较交互；继承 Eyes.BaseComponent
- * 继承：Eyes.BaseComponent；导出：Comparison。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 两侧对象说明异步读取后转换成单份模板状态；航天器等按长度显示，天体右侧按半径比显示。小单位切换发生在数值格式化前，保持 NASA 原比较规则。 */
 class Comparison extends Eyes.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions；写入 list, name, compare, unitConverter。
-   * 状态写入：_class.fontSize.default、_class.fontSize.small、_class.fontSize.xSmall、compare、list、name、unitConverter。
-   * 调用线索：Object.assign、super、this.bindFunctions。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(app, element) {
+    super(app, element);
     this.list = [];
     this.name = null;
     this.compare = null;
@@ -54,20 +39,16 @@ class Comparison extends Eyes.BaseComponent {
     });
     this.bindFunctions(["closeView", "nextCompare", "previousCompare", "unitchange", "clearLeftPanelText", "clearRightPanelText"]);
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._children.exitIcon.classList.add, this._children.exitIcon.classList.remove, this._children.next.addEventListener, this._children.previous.addEventListener。
-   * 调用线索：super.init、t.addEventListener、this._children.exitIcon.classList.add、this._children.exitIcon.classList.remove、this._children.next.addEventListener等。
-   */
   init() {
     super.init();
-    const t = this._children.exit;
-    t && (t.addEventListener("click", this.closeView, {
+    const exitButton = this._children.exit;
+    exitButton && (exitButton.addEventListener("click", this.closeView, {
       passive: false
-    }), t.addEventListener("mouseenter", () => {
+    }), exitButton.addEventListener("mouseenter", () => {
       this._children.exitIcon.classList.add("hover");
     }, {
       passive: false
-    }), t.addEventListener("mouseleave", () => {
+    }), exitButton.addEventListener("mouseleave", () => {
       this._children.exitIcon.classList.remove("hover");
     }, {
       passive: false
@@ -79,214 +60,166 @@ class Comparison extends Eyes.BaseComponent {
       passive: false
     });
   }
-  /** @eyes-analysis
-   * 执行 _updateFontSize 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, Eyes.AppUtils.is2K, Eyes.AppUtils.is4K, this.setState。
-   * 调用线索：Eyes.AppUtils.is2K、Eyes.AppUtils.is4K、Eyes.AppUtils.isMobileMode、this.setState。
-   */
   _updateFontSize() {
-    let t = this._class.fontSize.default;
-    let e = this._class.fontSize.small;
-    Eyes.AppUtils.isMobileMode() ? (t = this._class.fontSize.xSmall, e = this._class.fontSize.xSmall) : (Eyes.AppUtils.is2K() || Eyes.AppUtils.is4K()) && (t = this._class.fontSize.default, e = this._class.fontSize.small);
+    let primaryFontClass = this._class.fontSize.default;
+    let secondaryFontClass = this._class.fontSize.small;
+    Eyes.AppUtils.isMobileMode() ? (primaryFontClass = this._class.fontSize.xSmall, secondaryFontClass = this._class.fontSize.xSmall) : (Eyes.AppUtils.is2K() || Eyes.AppUtils.is4K()) && (primaryFontClass = this._class.fontSize.default, secondaryFontClass = this._class.fontSize.small);
     this.setState({
-      fontSizeClass: t,
-      altFontSizeClass: e
+      fontSizeClass: primaryFontClass,
+      altFontSizeClass: secondaryFontClass
     });
   }
-  /** @eyes-analysis
-   * 执行 unitchange 对应的组件业务步骤；调用 this.setState, this.generateValues。
-   * 调用线索：this.generateValues、this.setState。
-   */
-  unitchange(t) {
+  unitchange(isMetric) {
     this.setState({
-      unitSystem: t ? "metric" : "imperial"
+      unitSystem: isMetric ? "metric" : "imperial"
     });
     this.generateValues();
   }
-  /** @eyes-analysis
-   * 执行 nextCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
-   * 状态写入：compare。
-   * 调用线索：this._app.getManager、this._app.getManager("router").navigate、this.clearRightPanelText、this.list.indexOf。
-   */
   nextCompare() {
-    const t = this.list.indexOf(this.compare) || 0;
-    this.compare = this.list[(t + 1) % this.list.length];
+    const compareIndex = this.list.indexOf(this.compare) || 0;
+    this.compare = this.list[(compareIndex + 1) % this.list.length];
     this.clearRightPanelText(this.compare);
     this._app.getManager("router").navigate(`${this.name}/compare?id=${this.compare}`);
   }
-  /** @eyes-analysis
-   * 执行 previousCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
-   * 状态写入：compare。
-   * 调用线索：this._app.getManager、this._app.getManager("router").navigate、this.clearRightPanelText、this.list.indexOf。
-   */
   previousCompare() {
-    const t = this.list.indexOf(this.compare) || 0;
-    this.compare = this.list[t - 1 < 0 ? this.list.length - 1 : t - 1];
+    const compareIndex = this.list.indexOf(this.compare) || 0;
+    this.compare = this.list[compareIndex - 1 < 0 ? this.list.length - 1 : compareIndex - 1];
     this.clearRightPanelText(this.compare);
     this._app.getManager("router").navigate(`${this.name}/compare?id=${this.compare}`);
   }
-  /** @eyes-analysis
-   * 执行 clearRightPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
-   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this.setState。
-   */
-  clearRightPanelText(t) {
-    const e = this._app.getManager("content").getEntityInfo(t);
-    const i = e?.displayName || e?.iauName;
-    const s = e?.subcategory || e?.category;
+  clearRightPanelText(entityId) {
+    const entityInfo = this._app.getManager("content").getEntityInfo(entityId);
+    const entityTitle = entityInfo?.displayName || entityInfo?.iauName;
+    const entityType = entityInfo?.subcategory || entityInfo?.category;
     this.setState({
-      rightTitle: i ?? "",
-      rightType: s ?? "",
+      rightTitle: entityTitle ?? "",
+      rightType: entityType ?? "",
       rightRadius: "",
       rightUnit: "",
       rightIdentifier: "loading...",
       rightGenericDisclaimerClass: "hidden"
     });
   }
-  /** @eyes-analysis
-   * 执行 clearLeftPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
-   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityInfo、this.setState。
-   */
-  clearLeftPanelText(t) {
-    const e = this._app.getManager("content").getEntityInfo(t);
-    const i = e?.displayName || e?.iauName;
-    const s = e?.subcategory || e?.category;
+  clearLeftPanelText(entityId) {
+    const entityInfo = this._app.getManager("content").getEntityInfo(entityId);
+    const entityTitle = entityInfo?.displayName || entityInfo?.iauName;
+    const entityType = entityInfo?.subcategory || entityInfo?.category;
     this.setState({
-      leftTitle: i ?? "",
-      leftType: s ?? "",
+      leftTitle: entityTitle ?? "",
+      leftType: entityType ?? "",
       leftRadius: "",
       leftUnit: "",
       leftIdentifier: "loading...",
       leftGenericDisclaimerClass: "hidden"
     });
   }
-  /** @eyes-analysis
-   * 执行 setup 对应的组件业务步骤；调用 Object.keys, this.list.slice, this.generateValues；写入 list, name, compare, unitConverter。
-   * 状态写入：compare、list、name、unitConverter。
-   * 调用线索：Object.keys、this.generateValues、this.list.slice、this.list.slice(0,t).concat。
-   */
-  async setup(t = {}) {
-    if (t.cancelToken.isCanceled) return;
-    this.list = t.list || this.list;
-    this.name = t.name || this.name;
-    this.compare = t.compare || this.compare;
-    this.unitConverter = t.unitConverter || this.unitConverter;
-    const e = Object.keys(this.list);
-    for (let t = 0; t < e.length; t++) this.list[e[t]] === this.name && (this.list = this.list.slice(0, t).concat(this.list.slice(t + 1)));
+  async setup(comparisonOptions = {}) {
+    if (comparisonOptions.cancelToken.isCanceled) return;
+    this.list = comparisonOptions.list || this.list;
+    this.name = comparisonOptions.name || this.name;
+    this.compare = comparisonOptions.compare || this.compare;
+    this.unitConverter = comparisonOptions.unitConverter || this.unitConverter;
+    const candidateKeys = Object.keys(this.list);
+    for (let candidateIndex = 0; candidateIndex < candidateKeys.length; candidateIndex++) this.list[candidateKeys[candidateIndex]] === this.name && (this.list = this.list.slice(0, candidateIndex).concat(this.list.slice(candidateIndex + 1)));
     this.generateValues();
   }
-  /** @eyes-analysis
-   * 执行 formatValue 对应的组件业务步骤；调用 Number.parseFloat, Math.round, Math.pow。
-   * 调用线索：Math.pow、Math.round、Number.parseFloat、i.toFixed、i.toString等。
-   */
-  formatValue(t, e = 1) {
-    if (t < 1) {
-      let i = t.toFixed(2 * e);
-      if (0 === Number.parseFloat(i)) for (let s = e; s < e + 5 && (i = t.toFixed(s), 0 === Number.parseFloat(i)); s += 1);
-      return i;
+  formatValue(numericValue, fractionDigits = 1) {
+    if (numericValue < 1) {
+      let formattedValue = numericValue.toFixed(2 * fractionDigits);
+      if (0 === Number.parseFloat(formattedValue)) for (let precision = fractionDigits; precision < fractionDigits + 5 && (formattedValue = numericValue.toFixed(precision), 0 === Number.parseFloat(formattedValue)); precision += 1);
+      return formattedValue;
     }
-    if (t < 1e3) return t.toFixed(e);
-    let i = Math.round(t);
-    const s = Math.pow(10, i.toString().length - 5);
-    i = Math.round(i / s) * s;
-    return i.toFixed(e);
+    if (numericValue < 1e3) return numericValue.toFixed(fractionDigits);
+    let roundedValue = Math.round(numericValue);
+    const roundingScale = Math.pow(10, roundedValue.toString().length - 5);
+    roundedValue = Math.round(roundedValue / roundingScale) * roundingScale;
+    return roundedValue.toFixed(fractionDigits);
   }
-  /** @eyes-analysis
-   * 执行 generateValues 对应的组件业务步骤；调用 this._app.getManager, this.entityCompareLookup, this.formatValue, Title.toUpperCase, this.setState；写入 leftDescription, rightDescription。
-   * 状态写入：leftDescription、rightDescription。
-   * 调用线索：h.getComponent、h.getComponent(Pioneer.ModelComponent)?.getUrl、h.getComponent(Pioneer.ModelComponent)?.getUrl().includes、l.getComponent、l.getComponent(Pioneer.ModelComponent)?.getUrl等。
-   */
   async generateValues() {
     this.leftDescription = (await this._app.getManager("content").getEntityDesc(this.name)) || {};
-    const t = this._app.getManager("content").getEntityInfo(this.name);
-    const e = this.leftDescription.data || this.leftDescription || {};
-    e.type = t ? t.subcategory || t.category : "";
+    const leftInfo = this._app.getManager("content").getEntityInfo(this.name);
+    const leftData = this.leftDescription.data || this.leftDescription || {};
+    leftData.type = leftInfo ? leftInfo.subcategory || leftInfo.category : "";
     this.rightDescription = (await this._app.getManager("content").getEntityDesc(this.compare)) || {};
-    const i = this._app.getManager("content").getEntityInfo(this.compare);
-    const s = this.rightDescription.data || this.rightDescription || {};
-    s.type = i ? i.subcategory || i.category : "";
+    const rightInfo = this._app.getManager("content").getEntityInfo(this.compare);
+    const rightData = this.rightDescription.data || this.rightDescription || {};
+    rightData.type = rightInfo ? rightInfo.subcategory || rightInfo.category : "";
     const {
       unitSystem: unitSystem
     } = this._state;
-    const r = this.leftDescription.title || t.displayName || t.iauName || this.name;
-    const a = this.rightDescription.title || i.displayName || i.iauName || this.compare;
-    const l = this._app.getManager("comparison").entityLeft;
-    const c = l.getComponent(Pioneer.ModelComponent)?.getUrl().includes("generic");
-    const h = this._app.getManager("comparison").entityRight;
-    const d = h.getComponent(Pioneer.ModelComponent)?.getUrl().includes("generic");
-    const u = {
+    const leftTitle = this.leftDescription.title || leftInfo.displayName || leftInfo.iauName || this.name;
+    const rightTitle = this.rightDescription.title || rightInfo.displayName || rightInfo.iauName || this.compare;
+    const leftEntity = this._app.getManager("comparison").entityLeft;
+    const isLeftGeneric = leftEntity.getComponent(Pioneer.ModelComponent)?.getUrl().includes("generic");
+    const rightEntity = this._app.getManager("comparison").entityRight;
+    const isRightGeneric = rightEntity.getComponent(Pioneer.ModelComponent)?.getUrl().includes("generic");
+    const comparisonState = {
       leftValueClass: "color " + this._app.getManager("content").getColorClass(this.name),
       rightValueClass: "color " + this._app.getManager("content").getColorClass(this.compare),
-      leftTitle: r,
-      rightTitle: a,
-      leftCategory: t.category,
-      leftType: e.type,
+      leftTitle: leftTitle,
+      rightTitle: rightTitle,
+      leftCategory: leftInfo.category,
+      leftType: leftData.type,
       leftRadius: "",
       leftIdentifier: "Radius",
-      leftGenericDisclaimerClass: c ? "" : "hidden",
-      rightCategory: i.category,
-      rightType: s.type,
+      leftGenericDisclaimerClass: isLeftGeneric ? "" : "hidden",
+      rightCategory: rightInfo.category,
+      rightType: rightData.type,
       rightRadius: "",
-      rightUnit: r,
+      rightUnit: leftTitle,
       rightIdentifier: "Radius",
-      rightGenericDisclaimerClass: d ? "" : "hidden",
+      rightGenericDisclaimerClass: isRightGeneric ? "" : "hidden",
       unit: this.unitConverter[unitSystem].radius.unit
     };
     if (this.unitConverter[unitSystem].radius) {
-      let n = e.radius;
-      if (!n) {
-        const t = this.entityCompareLookup(this.name, "left");
-        n = t ? t.radius : null;
+      let leftRadius = leftData.radius;
+      if (!leftRadius) {
+        const leftFallbackInfo = this.entityCompareLookup(this.name, "left");
+        leftRadius = leftFallbackInfo ? leftFallbackInfo.radius : null;
       }
-      let r = s.radius;
-      if (!r) {
-        const t = this.entityCompareLookup(this.compare, "right");
-        r = t ? t.radius : null;
+      let rightRadius = rightData.radius;
+      if (!rightRadius) {
+        const rightFallbackInfo = this.entityCompareLookup(this.compare, "right");
+        rightRadius = rightFallbackInfo ? rightFallbackInfo.radius : null;
       }
-      if (!n || !r) return;
-      const a = r / n;
-      const l = ["Spacecraft", "Human", "Building", "Vehicle"];
-      t && l.indexOf(t.category) >= 0 && (n *= 2, u.leftIdentifier = "Length");
-      let c = this.unitConverter[unitSystem].radius.multiplier || 1;
-      let h = n * c;
-      if (h < 1 && (c = this.unitConverter[unitSystem].radius.small.multiplier, h = n * c, u.unit = this.unitConverter[unitSystem].radius.small.unit), n = h, u.leftRadius = this.formatValue(n), i && l.indexOf(i.category) >= 0) {
-        r *= 2;
-        u.rightIdentifier = "Length";
-        let t = this.unitConverter[unitSystem].radius.multiplier || 1;
-        let e = r * t;
-        u.rightUnit = this.unitConverter[unitSystem].radius.unit;
-        e < 1 && (t = this.unitConverter[unitSystem].radius.small.multiplier, e = r * t, u.rightUnit = this.unitConverter[unitSystem].radius.small.unit);
-        r = e;
-        u.rightRadius = this.formatValue(r);
+      if (!leftRadius || !rightRadius) return;
+      const radiusRatio = rightRadius / leftRadius;
+      const lengthCategories = ["Spacecraft", "Human", "Building", "Vehicle"];
+      leftInfo && lengthCategories.indexOf(leftInfo.category) >= 0 && (leftRadius *= 2, comparisonState.leftIdentifier = "Length");
+      let leftUnitMultiplier = this.unitConverter[unitSystem].radius.multiplier || 1;
+      let convertedLeftRadius = leftRadius * leftUnitMultiplier;
+      if (convertedLeftRadius < 1 && (leftUnitMultiplier = this.unitConverter[unitSystem].radius.small.multiplier, convertedLeftRadius = leftRadius * leftUnitMultiplier, comparisonState.unit = this.unitConverter[unitSystem].radius.small.unit), leftRadius = convertedLeftRadius, comparisonState.leftRadius = this.formatValue(leftRadius), rightInfo && lengthCategories.indexOf(rightInfo.category) >= 0) {
+        rightRadius *= 2;
+        comparisonState.rightIdentifier = "Length";
+        let rightUnitMultiplier = this.unitConverter[unitSystem].radius.multiplier || 1;
+        let convertedRightRadius = rightRadius * rightUnitMultiplier;
+        comparisonState.rightUnit = this.unitConverter[unitSystem].radius.unit;
+        convertedRightRadius < 1 && (rightUnitMultiplier = this.unitConverter[unitSystem].radius.small.multiplier, convertedRightRadius = rightRadius * rightUnitMultiplier, comparisonState.rightUnit = this.unitConverter[unitSystem].radius.small.unit);
+        rightRadius = convertedRightRadius;
+        comparisonState.rightRadius = this.formatValue(rightRadius);
       } else {
-        u.rightRadius = this.formatValue(a);
-        u.leftTitle && (u.rightUnit = "× " + u.leftTitle.toUpperCase());
+        comparisonState.rightRadius = this.formatValue(radiusRatio);
+        comparisonState.leftTitle && (comparisonState.rightUnit = "× " + comparisonState.leftTitle.toUpperCase());
       }
     }
-    this.setState(u);
+    this.setState(comparisonState);
   }
-  /** @eyes-analysis
-   * 执行 entityCompareLookup 对应的组件业务步骤；调用 this._app.getManager。
-   * 调用线索：(i.subcategory||i.category||"").toLowerCase、(i.subcategory||i.category||"").toLowerCase().replace、i.subcategory.toLowerCase、i.subcategory.toLowerCase().replace、s.getExtentsRadius等。
-   */
-  entityCompareLookup(t, e) {
-    const i = this._app.getManager("content").getEntityInfo(t) || {};
-    const s = "left" === e ? this._app.getManager("comparison").entityLeft : this._app.getManager("comparison").entityRight;
-    if (!s) return null;
-    let n = i.category || "NA";
-    let o = (i.subcategory || i.category || "").toLowerCase().replace(/ /g, "-");
-    void 0 !== i.subcategory && (n = i.subcategory, "Spacecraft" === i.category && (n += " " + i.category, o += " " + i.subcategory.toLowerCase().replace(/ /g, "-")));
+  entityCompareLookup(entityId, side) {
+    const entityInfo = this._app.getManager("content").getEntityInfo(entityId) || {};
+    const sceneEntity = "left" === side ? this._app.getManager("comparison").entityLeft : this._app.getManager("comparison").entityRight;
+    if (!sceneEntity) return null;
+    let categoryLabel = entityInfo.category || "NA";
+    let iconClass = (entityInfo.subcategory || entityInfo.category || "").toLowerCase().replace(/ /g, "-");
+    void 0 !== entityInfo.subcategory && (categoryLabel = entityInfo.subcategory, "Spacecraft" === entityInfo.category && (categoryLabel += " " + entityInfo.category, iconClass += " " + entityInfo.subcategory.toLowerCase().replace(/ /g, "-")));
     return {
-      icon: o,
-      category: n,
-      type: i.category || "NA",
-      className: this._app.getManager("content").getClassName(t),
-      name: i.displayName || i.iauName || i.name || s.getName(),
-      radius: "Spacecraft" === i.category ? s.getExtentsRadius() : s.getOcclusionRadius()
+      icon: iconClass,
+      category: categoryLabel,
+      type: entityInfo.category || "NA",
+      className: this._app.getManager("content").getClassName(entityId),
+      name: entityInfo.displayName || entityInfo.iauName || entityInfo.name || sceneEntity.getName(),
+      radius: "Spacecraft" === entityInfo.category ? sceneEntity.getExtentsRadius() : sceneEntity.getOcclusionRadius()
     };
   }
-  /** @eyes-analysis
-   * 执行 closeView 对应的组件业务步骤；调用 this._app.getManager。
-   * 调用线索：this._app.getManager、this._app.getManager("comparison").exit、this._app.getManager("router").navigate。
-   */
   closeView() {
     this._app.getManager("comparison").exit();
     this._app.getManager("router").navigate(`/${this.name}`);

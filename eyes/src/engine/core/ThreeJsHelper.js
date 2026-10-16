@@ -1,430 +1,360 @@
-/** @eyes-analysis
- * 文件职责：集中创建/更新/销毁 Three.js 网格、属性、材质、纹理并把实体状态转换到相机坐标。
- * 依据：import ../pioneer/public-api.js；ThreeJsHelper @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// Three.js 桥接层负责手动矩阵对象创建与递归销毁、池向量转换、材质 uniform 更新和 GL 缓冲上传。destroyTextures 决定是否连同纹理释放；setUniformTexture 会销毁旧值，计数共享纹理必须由上层避免重复释放。
 // Recovered from app.js:151412-159259.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：集中创建/更新/销毁 Three.js 网格、属性、材质、纹理并把实体状态转换到相机坐标。
- * 继承：无显式父类；导出：ThreeJsHelper。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class ThreeJsHelper {
-  /** @eyes-analysis
-   * 【结构证据】返回 `bufferGeometry`；调用 `bufferGeometry.setAttribute`、`bufferGeometry.setIndex`、`new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.BufferGeometry`、`new PioneerPublicApi.THREE.InterleavedBuffer`。
-   * 调用线索：bufferGeometry.setAttribute、bufferGeometry.setIndex、new Float32Array、new PioneerPublicApi.THREE.BufferAttribute、new PioneerPublicApi.THREE.BufferGeometry等。
-   */
-  static createGeometry(t, e) {
+  static createGeometry(attributes, interleaved) {
     const bufferGeometry = new PioneerPublicApi.THREE.BufferGeometry();
-    if (e) {
-      let e = 0;
-      for (let i = 0; i < t.length; i++) e += t[i].dimensions;
-      const interleavedBuffer = new PioneerPublicApi.THREE.InterleavedBuffer(new Float32Array(0), e);
-      let o = 0;
-      for (let e = 0; e < t.length; e++) {
-        const r = t[e];
-        bufferGeometry.setAttribute(r.name, new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, r.dimensions, o));
-        o += r.dimensions;
+    if (interleaved) {
+      let stride = 0;
+      for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) stride += attributes[attributeIndex].dimensions;
+      const interleavedBuffer = new PioneerPublicApi.THREE.InterleavedBuffer(new Float32Array(0), stride);
+      let offset = 0;
+      for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
+        const descriptor = attributes[attributeIndex];
+        bufferGeometry.setAttribute(descriptor.name, new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, descriptor.dimensions, offset));
+        offset += descriptor.dimensions;
       }
-    } else for (let e = 0; e < t.length; e++) {
-      const n = t[e];
-      bufferGeometry.setAttribute(n.name, new PioneerPublicApi.THREE.BufferAttribute(new Float32Array(0), n.dimensions));
+    } else for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
+      const descriptor = attributes[attributeIndex];
+      bufferGeometry.setAttribute(descriptor.name, new PioneerPublicApi.THREE.BufferAttribute(new Float32Array(0), descriptor.dimensions));
     }
     bufferGeometry.setIndex(new PioneerPublicApi.THREE.BufferAttribute(new Uint16Array(0), 1));
     return bufferGeometry;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.floor`、`Math.random`、`t.getEntity`、`t.getEntity().getScene`、`t.getEntity().getScene().getThreeJsScene`、`t.getEntity().getScene().getThreeJsScene().add`。
-   * 调用线索：Math.floor、Math.random、t.getEntity、t.getEntity().getScene、t.getEntity().getScene().getThreeJsScene等。
-   */
-  static setupObject(t, e) {
-    e.name = `${t}.${Math.floor(1e4 * Math.random())}`;
-    e.matrixAutoUpdate = false;
-    e.frustumCulled = false;
-    e.visible = false;
-    t.getEntity().getScene().getThreeJsScene().add(e);
+  static setupObject(component, object) {
+    object.name = `${component}.${Math.floor(1e4 * Math.random())}`;
+    object.matrixAutoUpdate = false;
+    object.frustumCulled = false;
+    object.visible = false;
+    component.getEntity().getScene().getThreeJsScene().add(object);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `mesh`；调用 `new PioneerPublicApi.THREE.Mesh`、`this.setupObject`。
-   * 调用线索：new PioneerPublicApi.THREE.Mesh、this.setupObject。
-   */
-  static createMeshObjectGivenGeometry(t, e, i) {
-    const mesh = new PioneerPublicApi.THREE.Mesh(i, e);
-    this.setupObject(t, mesh);
+  static createMeshObjectGivenGeometry(component, material, geometry) {
+    const mesh = new PioneerPublicApi.THREE.Mesh(geometry, material);
+    this.setupObject(component, mesh);
     return mesh;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this.createMeshObjectGivenGeometry(t,e,n)`；调用 `this.createGeometry`、`this.createMeshObjectGivenGeometry`。
-   * 调用线索：this.createGeometry、this.createMeshObjectGivenGeometry。
-   */
-  static createMeshObject(t, e, i, s) {
-    const n = this.createGeometry(i, s);
-    return this.createMeshObjectGivenGeometry(t, e, n);
+  static createMeshObject(component, material, attributes, interleaved) {
+    const geometry = this.createGeometry(attributes, interleaved);
+    return this.createMeshObjectGivenGeometry(component, material, geometry);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Object.values`、`t.dispose`。
-   * 调用线索：Object.values、e?.getEntity、e?.getEntity().getScene、e?.getEntity().getScene().getEngine、e?.getEntity().getScene().getEngine().__getThreeJsRenderer等。
-   */
-  static destroyGeometry(t, e) {
-    const i = e?.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
-    for (const e of Object.values(t.attributes)) e instanceof PioneerPublicApi.THREE.GLBufferAttribute && i?.deleteBuffer(e.buffer);
-    t.dispose();
+  static destroyGeometry(geometry, component) {
+    const context = component?.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
+    for (const attribute of Object.values(geometry.attributes)) if (attribute instanceof PioneerPublicApi.THREE.GLBufferAttribute) {
+      context?.deleteBuffer(attribute.buffer);
+    }
+    geometry.dispose();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.parent.remove`、`this.destroyGeometry`、`this.destroyObject`。
-   * 调用线索：t.parent.remove、this.destroyGeometry、this.destroyObject。
-   */
-  static destroyObject(t, e) {
-    for (; t.children.length > 0;) this.destroyObject(t.children[t.children.length - 1]);
-    null !== t.parent && t.parent.remove(t);
-    t instanceof PioneerPublicApi.THREE.Mesh && t.geometry instanceof PioneerPublicApi.THREE.BufferGeometry && this.destroyGeometry(t.geometry, e);
+  static destroyObject(object, component) {
+    for (; object.children.length > 0;) this.destroyObject(object.children[object.children.length - 1]);
+    if (null !== object.parent) {
+      object.parent.remove(object);
+    }
+    if (object instanceof PioneerPublicApi.THREE.Mesh && object.geometry instanceof PioneerPublicApi.THREE.BufferGeometry) {
+      this.destroyGeometry(object.geometry, component);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Object.hasOwn`、`ThreeJsHelper.destroyTexture`、`t.dispose`。
-   * 调用线索：Object.hasOwn、ThreeJsHelper.destroyTexture、t.dispose。
-   */
-  static destroyMaterial(t, e) {
-    if (e) {
-      const e = t.uniforms;
-      for (const t in e) if (Object.hasOwn(e, t)) {
-        const i = e[t].value;
-        i instanceof PioneerPublicApi.THREE.Texture && ThreeJsHelper.destroyTexture(i);
+  // 只有调用者授予纹理所有权时才遍历 uniform 销毁贴图；材质本身始终 dispose。
+  static destroyMaterial(material, destroyTextures) {
+    if (destroyTextures) {
+      const uniforms = material.uniforms;
+      for (const name in uniforms) if (Object.hasOwn(uniforms, name)) {
+        const value = uniforms[name].value;
+        if (value instanceof PioneerPublicApi.THREE.Texture) {
+          ThreeJsHelper.destroyTexture(value);
+        }
       }
     }
-    t.dispose();
+    material.dispose();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`i.close`、`t.dispose`、`t.source.data.close`。
-   * 调用线索：Array.isArray、i.close、t.dispose、t.source.data.close。
-   */
-  static destroyTexture(t) {
-    if (Array.isArray(t.source.data)) for (let e = 0, i = t.source.data.length; e < i; e++) {
-      const i = t.source.data[e];
-      i instanceof ImageBitmap && i.close();
-    } else t.source.data instanceof ImageBitmap && t.source.data.close();
-    t.dispose();
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.dispose`。
-   * 调用线索：t.dispose。
-   */
-  static destroyRenderTarget(t) {
-    t.dispose();
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.getThreeJsMaterials`、`t.getThreeJsObjects`、`this.destroyMaterial`、`this.destroyObject`。
-   * 调用线索：t.getThreeJsMaterials、t.getThreeJsObjects、this.destroyMaterial、this.destroyObject。
-   */
-  static destroyAllObjectsAndMaterials(t, e = true) {
-    const i = t.getThreeJsObjects();
-    const s = t.getThreeJsMaterials();
-    for (let t = 0; t < i.length; t++) this.destroyObject(i[t]);
-    for (let t = 0; t < s.length; t++) this.destroyMaterial(s[t], e);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`t.position.set`、`t[i].position.set`。
-   * 调用线索：Array.isArray、t.position.set、t[i].position.set。
-   */
-  static setPosition(t, e) {
-    if (t) if (Array.isArray(t)) for (let i = 0, s = t.length; i < s; i++) t[i].position.set(e.x, e.y, e.z);else t.position.set(e.x, e.y, e.z);
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.isArray`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`PioneerPublicApi.Vector3.threeJsPool.get`、`PioneerPublicApi.Vector3.threeJsPool.release`、`a.set`。
-   * 调用线索：Array.isArray、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、PioneerPublicApi.Vector3.threeJsPool.get、PioneerPublicApi.Vector3.threeJsPool.release等。
-   */
-  static setPositionToEntity(t, e, i, n, o) {
-    if (!t) return;
-    const r = e.getCameraSpacePosition(i);
-    const a = PioneerPublicApi.Vector3.threeJsPool.get();
-    if (a.set(r.x, r.y, r.z), n) {
-      const t = PioneerPublicApi.Vector3.pool.get();
-      true === o ? t.rotate(e.getOrientation(), n) : t.copy(n);
-      a.x += t.x;
-      a.y += t.y;
-      a.z += t.z;
-      PioneerPublicApi.Vector3.pool.release(t);
+  static destroyTexture(texture) {
+    if (Array.isArray(texture.source.data)) for (let imageIndex = 0, imageCount = texture.source.data.length; imageIndex < imageCount; imageIndex++) {
+      const image = texture.source.data[imageIndex];
+      if (image instanceof ImageBitmap) {
+        image.close();
+      }
+    } else if (texture.source.data instanceof ImageBitmap) {
+      texture.source.data.close();
     }
-    if (Array.isArray(t)) for (let e = 0, i = t.length; e < i; e++) t[e].position.copy(a);else t.position.copy(a);
-    PioneerPublicApi.Vector3.threeJsPool.release(a);
+    texture.dispose();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`t.scale.set`、`t[i].scale.set`。
-   * 调用线索：Array.isArray、t.scale.set、t[i].scale.set。
-   */
-  static setScale(t, e) {
-    if (t) if (Array.isArray(t)) for (let i = 0, s = t.length; i < s; i++) "number" == typeof e ? t[i].scale.set(e, e, e) : t[i].scale.set(e.x, e.y, e.z);else "number" == typeof e ? t.scale.set(e, e, e) : t.scale.set(e.x, e.y, e.z);
+  static destroyRenderTarget(renderTarget) {
+    renderTarget.dispose();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.isArray`、`PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`i.set`、`t.setRotationFromQuaternion`、`t[e].setRotationFromQuaternion`。
-   * 调用线索：Array.isArray、PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release、i.set、t.setRotationFromQuaternion等。
-   */
-  static setOrientation(t, e) {
-    if (!t) return;
-    const i = PioneerPublicApi.Quaternion.threeJsPool.get();
-    if (i.set(e.x, e.y, e.z, e.w), Array.isArray(t)) for (let e = 0, s = t.length; e < s; e++) t[e].setRotationFromQuaternion(i);else t.setRotationFromQuaternion(i);
-    PioneerPublicApi.Quaternion.threeJsPool.release(i);
+  static destroyAllObjectsAndMaterials(component, destroyTextures = true) {
+    const objects = component.getThreeJsObjects();
+    const materials = component.getThreeJsMaterials();
+    for (let objectIndex = 0; objectIndex < objects.length; objectIndex++) this.destroyObject(objects[objectIndex]);
+    for (let materialIndex = 0; materialIndex < materials.length; materialIndex++) this.destroyMaterial(materials[materialIndex], destroyTextures);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.isArray`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`PioneerPublicApi.Vector3.pool.get`。
-   * 调用线索：Array.isArray、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release等。
-   */
-  static setOrientationToBillboard(t, e) {
-    if (!t) return;
-    const i = PioneerPublicApi.Quaternion.pool.get();
-    const n = PioneerPublicApi.Vector3.pool.get();
-    const o = PioneerPublicApi.Vector3.pool.get();
-    e.getEntity().getOrientation().getAxis(n, 1);
-    e.getEntity().getOrientation().getAxis(o, 0);
-    o.setNormalTo(n, o);
-    i.setFromAxes(o, void 0, n);
-    const r = PioneerPublicApi.Quaternion.threeJsPool.get();
-    if (r.set(i.x, i.y, i.z, i.w), Array.isArray(t)) for (let e = 0, i = t.length; e < i; e++) t[e].setRotationFromQuaternion(r);else t.setRotationFromQuaternion(r);
-    PioneerPublicApi.Quaternion.threeJsPool.release(r);
-    PioneerPublicApi.Quaternion.pool.release(i);
-    PioneerPublicApi.Vector3.pool.release(n);
-    PioneerPublicApi.Vector3.pool.release(o);
+  static setPosition(objects, position) {
+    if (objects) if (Array.isArray(objects)) for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) objects[objectIndex].position.set(position.x, position.y, position.z);else objects.position.set(position.x, position.y, position.z);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.isArray`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Quaternion.threeJsPool.get`、`PioneerPublicApi.Quaternion.threeJsPool.release`、`e.getOrientation`。
-   * 调用线索：Array.isArray、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.Quaternion.threeJsPool.get、PioneerPublicApi.Quaternion.threeJsPool.release等。
-   */
-  static setOrientationToEntity(t, e, i) {
-    if (!t) return;
-    const n = e.getOrientation();
-    const o = PioneerPublicApi.Quaternion.threeJsPool.get();
-    if (void 0 === i) o.set(n.x, n.y, n.z, n.w);else {
-      const t = PioneerPublicApi.Quaternion.pool.get();
-      t.mult(n, i);
-      o.set(t.x, t.y, t.z, t.w);
-      PioneerPublicApi.Quaternion.pool.release(t);
+  static setPositionToEntity(objects, entity, camera, offset, relativeToEntity) {
+    if (!objects) return;
+    const cameraPosition = entity.getCameraSpacePosition(camera);
+    const threePosition = PioneerPublicApi.Vector3.threeJsPool.get();
+    threePosition.set(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+    if (offset) {
+      const rotatedOffset = PioneerPublicApi.Vector3.pool.get();
+      if (true === relativeToEntity) {
+        rotatedOffset.rotate(entity.getOrientation(), offset);
+      } else {
+        rotatedOffset.copy(offset);
+      }
+      threePosition.x += rotatedOffset.x;
+      threePosition.y += rotatedOffset.y;
+      threePosition.z += rotatedOffset.z;
+      PioneerPublicApi.Vector3.pool.release(rotatedOffset);
     }
-    if (Array.isArray(t)) for (let e = 0, i = t.length; e < i; e++) t[e].setRotationFromQuaternion(o);else t.setRotationFromQuaternion(o);
-    PioneerPublicApi.Quaternion.threeJsPool.release(o);
+    if (Array.isArray(objects)) for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) objects[objectIndex].position.copy(threePosition);else objects.position.copy(threePosition);
+    PioneerPublicApi.Vector3.threeJsPool.release(threePosition);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.layers.disable`、`t.layers.enable`。
-   * 调用线索：t.layers.disable、t.layers.enable。
-   */
-  static useInDynEnvMap(t, e) {
-    e ? t.layers.enable(1) : t.layers.disable(1);
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `new PioneerPublicApi.THREE.GLBufferAttribute(a,h,n,d,e.length/n)`；调用 `new PioneerPublicApi.THREE.GLBufferAttribute`、`o.getEntity`、`o.getEntity().getScene`、`o.getEntity().getScene().getEngine`、`o.getEntity().getScene().getEngine().__getThreeJsRenderer`、`o.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext`。
-   * 调用线索：new PioneerPublicApi.THREE.GLBufferAttribute、o.getEntity、o.getEntity().getScene、o.getEntity().getScene().getEngine、o.getEntity().getScene().getEngine().__getThreeJsRenderer等。
-   */
-  static createGLBufferAttribute(t, e, i, n, o) {
-    const r = o.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
-    const a = r.createBuffer();
-    const l = "vertex" === t ? r.ARRAY_BUFFER : r.ELEMENT_ARRAY_BUFFER;
-    let c;
-    l === r.ELEMENT_ARRAY_BUFFER && (c = r.getParameter(r.ELEMENT_ARRAY_BUFFER_BINDING));
-    r.bindBuffer(l, a);
-    let h = r.FLOAT;
-    let d = 4;
-    "unsignedByte" === i ? (h = r.UNSIGNED_BYTE, d = 1) : "unsignedShort" === i ? (h = r.UNSIGNED_SHORT, d = 2) : "unsignedInt" === i && (h = r.UNSIGNED_INT, d = 4);
-    r.bufferData(l, e.length * d, r.STATIC_DRAW);
-    c && r.bindBuffer(r.ELEMENT_ARRAY_BUFFER, c);
-    return new PioneerPublicApi.THREE.GLBufferAttribute(a, h, n, d, e.length / n);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `o.getEntity`、`o.getEntity().getScene`、`o.getEntity().getScene().getEngine`、`o.getEntity().getScene().getEngine().__getThreeJsRenderer`、`o.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext`、`r.bindBuffer`。
-   * 调用线索：o.getEntity、o.getEntity().getScene、o.getEntity().getScene().getEngine、o.getEntity().getScene().getEngine().__getThreeJsRenderer、o.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext等。
-   */
-  static updateGLBufferAttribute(t, e, i, s, n, o) {
-    const r = o.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
-    const a = "vertex" === e ? r.ARRAY_BUFFER : r.ELEMENT_ARRAY_BUFFER;
-    let l;
-    a === r.ELEMENT_ARRAY_BUFFER && (l = r.getParameter(r.ELEMENT_ARRAY_BUFFER_BINDING));
-    r.bindBuffer(a, t.buffer);
-    r.bufferSubData(a, s * t.elementSize, i, s, n);
-    l && r.bindBuffer(r.ELEMENT_ARRAY_BUFFER, l);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `n.copyArray`、`new PioneerPublicApi.THREE.BufferAttribute`、`t.getAttribute`、`t.setAttribute`。
-   * 调用线索：n.copyArray、new PioneerPublicApi.THREE.BufferAttribute、t.getAttribute、t.setAttribute。
-   */
-  static setVertices(t, e, i) {
-    const n = t.getAttribute(e);
-    n instanceof PioneerPublicApi.THREE.BufferAttribute && (n.array.length === i.length ? (n.copyArray(i), n.needsUpdate = true) : t.setAttribute(e, new PioneerPublicApi.THREE.BufferAttribute(i, t.getAttribute(e).itemSize)));
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.copyArray`、`new PioneerPublicApi.THREE.BufferAttribute`、`t.getIndex`、`t.setIndex`。
-   * 调用线索：i.copyArray、new PioneerPublicApi.THREE.BufferAttribute、t.getIndex、t.setIndex。
-   */
-  static setIndices(t, e) {
-    const i = t.getIndex();
-    i && i.array.length === e.length ? (i.copyArray(e), i.needsUpdate = true) : t.setIndex(new PioneerPublicApi.THREE.BufferAttribute(e, 1));
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.computeTangents`。
-   * 调用线索：t.computeTangents。
-   */
-  static computeTangents(t) {
-    t.computeTangents();
-  }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setRenderOrder(t, e) {
-    t && (t.renderOrder = e);
-  }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `Object.entries`、`t.clone`、`this._cloneUniformValue`。
-   * 调用线索：Object.entries、t.clone、this._cloneUniformValue。
-   */
-  static cloneMaterial(t) {
-    const e = t.clone();
-    for (const [i, s] of Object.entries(t.uniforms)) {
-      const t = s.value;
-      e.uniforms[i].value = this._cloneUniformValue(t);
+  static setScale(objects, scale) {
+    if (objects) if (Array.isArray(objects)) {
+      for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) if ("number" == typeof scale) {
+        objects[objectIndex].scale.set(scale, scale, scale);
+      } else {
+        objects[objectIndex].scale.set(scale.x, scale.y, scale.z);
+      }
+    } else if ("number" == typeof scale) {
+      objects.scale.set(scale, scale, scale);
+    } else {
+      objects.scale.set(scale.x, scale.y, scale.z);
     }
-    e.needsUpdate = true;
-    return e;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `t`；调用 `Array.isArray`、`e.push`、`t.clone`、`this._cloneUniformValue`。
-   * 调用线索：Array.isArray、e.push、t.clone、this._cloneUniformValue。
-   */
-  static _cloneUniformValue(t) {
-    if (null === t) return null;
-    if ("number" == typeof t) return t;
-    if (Array.isArray(t)) {
-      const e = [];
-      for (let i = 0; i < t.length; i++) e.push(this._cloneUniformValue(t[i]));
-      return e;
+  static setOrientation(objects, orientation) {
+    if (!objects) return;
+    const threeOrientation = PioneerPublicApi.Quaternion.threeJsPool.get();
+    threeOrientation.set(orientation.x, orientation.y, orientation.z, orientation.w);
+    if (Array.isArray(objects)) for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) objects[objectIndex].setRotationFromQuaternion(threeOrientation);else objects.setRotationFromQuaternion(threeOrientation);
+    PioneerPublicApi.Quaternion.threeJsPool.release(threeOrientation);
+  }
+  static setOrientationToBillboard(objects, camera) {
+    if (!objects) return;
+    const orientation = PioneerPublicApi.Quaternion.pool.get();
+    const cameraForward = PioneerPublicApi.Vector3.pool.get();
+    const cameraRight = PioneerPublicApi.Vector3.pool.get();
+    camera.getEntity().getOrientation().getAxis(cameraForward, 1);
+    camera.getEntity().getOrientation().getAxis(cameraRight, 0);
+    cameraRight.setNormalTo(cameraForward, cameraRight);
+    orientation.setFromAxes(cameraRight, void 0, cameraForward);
+    const threeOrientation = PioneerPublicApi.Quaternion.threeJsPool.get();
+    threeOrientation.set(orientation.x, orientation.y, orientation.z, orientation.w);
+    if (Array.isArray(objects)) for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) objects[objectIndex].setRotationFromQuaternion(threeOrientation);else objects.setRotationFromQuaternion(threeOrientation);
+    PioneerPublicApi.Quaternion.threeJsPool.release(threeOrientation);
+    PioneerPublicApi.Quaternion.pool.release(orientation);
+    PioneerPublicApi.Vector3.pool.release(cameraForward);
+    PioneerPublicApi.Vector3.pool.release(cameraRight);
+  }
+  static setOrientationToEntity(objects, entity, offset) {
+    if (!objects) return;
+    const entityOrientation = entity.getOrientation();
+    const threeOrientation = PioneerPublicApi.Quaternion.threeJsPool.get();
+    if (void 0 === offset) threeOrientation.set(entityOrientation.x, entityOrientation.y, entityOrientation.z, entityOrientation.w);else {
+      const combinedOrientation = PioneerPublicApi.Quaternion.pool.get();
+      combinedOrientation.mult(entityOrientation, offset);
+      threeOrientation.set(combinedOrientation.x, combinedOrientation.y, combinedOrientation.z, combinedOrientation.w);
+      PioneerPublicApi.Quaternion.pool.release(combinedOrientation);
     }
-    return t.clone();
+    if (Array.isArray(objects)) for (let objectIndex = 0, objectCount = objects.length; objectIndex < objectCount; objectIndex++) objects[objectIndex].setRotationFromQuaternion(threeOrientation);else objects.setRotationFromQuaternion(threeOrientation);
+    PioneerPublicApi.Quaternion.threeJsPool.release(threeOrientation);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.getEntity().getScene().getEngine().getTextureLoader().loadTexture(e,-t.getEntity().getLeastCameraDepth(),i)`；调用 `t.getEntity`、`t.getEntity().getLeastCameraDepth`、`t.getEntity().getScene`、`t.getEntity().getScene().getEngine`、`t.getEntity().getScene().getEngine().getTextureLoader`、`t.getEntity().getScene().getEngine().getTextureLoader().loadTexture`。
-   * 调用线索：t.getEntity、t.getEntity().getLeastCameraDepth、t.getEntity().getScene、t.getEntity().getScene().getEngine、t.getEntity().getScene().getEngine().getTextureLoader等。
-   */
-  static async loadTexture(t, e, i) {
-    return t.getEntity().getScene().getEngine().getTextureLoader().loadTexture(e, -t.getEntity().getLeastCameraDepth(), i);
+  static useInDynEnvMap(object, enabled) {
+    if (enabled) {
+      object.layers.enable(1);
+    } else {
+      object.layers.disable(1);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `canvasTexture`；调用 `new PioneerPublicApi.THREE.CanvasTexture`。
-   * 调用线索：new PioneerPublicApi.THREE.CanvasTexture。
-   */
-  static loadTextureFromCanvas(t) {
-    const canvasTexture = new PioneerPublicApi.THREE.CanvasTexture(t);
+  // 分配 GPU 缓冲后保留 elementSize/count，后续上传以元素偏移换算字节；索引缓冲绑定按原条件恢复。
+  static createGLBufferAttribute(bufferKind, data, elementType, dimensions, component) {
+    const context = component.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
+    const buffer = context.createBuffer();
+    const target = "vertex" === bufferKind ? context.ARRAY_BUFFER : context.ELEMENT_ARRAY_BUFFER;
+    let previousIndexBuffer;
+    if (target === context.ELEMENT_ARRAY_BUFFER) {
+      previousIndexBuffer = context.getParameter(context.ELEMENT_ARRAY_BUFFER_BINDING);
+    }
+    context.bindBuffer(target, buffer);
+    let glType = context.FLOAT;
+    let bytesPerElement = 4;
+    if ("unsignedByte" === elementType) {
+      glType = context.UNSIGNED_BYTE;
+      bytesPerElement = 1;
+    } else {
+      if ("unsignedShort" === elementType) {
+        glType = context.UNSIGNED_SHORT;
+        bytesPerElement = 2;
+      } else {
+        if ("unsignedInt" === elementType) {
+          glType = context.UNSIGNED_INT;
+          bytesPerElement = 4;
+        }
+      }
+    }
+    context.bufferData(target, data.length * bytesPerElement, context.STATIC_DRAW);
+    if (previousIndexBuffer) {
+      context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, previousIndexBuffer);
+    }
+    return new PioneerPublicApi.THREE.GLBufferAttribute(buffer, glType, dimensions, bytesPerElement, data.length / dimensions);
+  }
+  static updateGLBufferAttribute(attribute, bufferKind, data, offset, count, component) {
+    const context = component.getEntity().getScene().getEngine().__getThreeJsRenderer().getContext();
+    const target = "vertex" === bufferKind ? context.ARRAY_BUFFER : context.ELEMENT_ARRAY_BUFFER;
+    let previousIndexBuffer;
+    if (target === context.ELEMENT_ARRAY_BUFFER) {
+      previousIndexBuffer = context.getParameter(context.ELEMENT_ARRAY_BUFFER_BINDING);
+    }
+    context.bindBuffer(target, attribute.buffer);
+    context.bufferSubData(target, offset * attribute.elementSize, data, offset, count);
+    if (previousIndexBuffer) {
+      context.bindBuffer(context.ELEMENT_ARRAY_BUFFER, previousIndexBuffer);
+    }
+  }
+  static setVertices(geometry, name, vertices) {
+    const attribute = geometry.getAttribute(name);
+    if (attribute instanceof PioneerPublicApi.THREE.BufferAttribute) {
+      if (attribute.array.length === vertices.length) {
+        attribute.copyArray(vertices);
+        attribute.needsUpdate = true;
+      } else {
+        geometry.setAttribute(name, new PioneerPublicApi.THREE.BufferAttribute(vertices, geometry.getAttribute(name).itemSize));
+      }
+    }
+  }
+  static setIndices(geometry, indices) {
+    const attribute = geometry.getIndex();
+    if (attribute && attribute.array.length === indices.length) {
+      attribute.copyArray(indices);
+      attribute.needsUpdate = true;
+    } else {
+      geometry.setIndex(new PioneerPublicApi.THREE.BufferAttribute(indices, 1));
+    }
+  }
+  static computeTangents(geometry) {
+    geometry.computeTangents();
+  }
+  static setRenderOrder(object, renderOrder) {
+    if (object) {
+      object.renderOrder = renderOrder;
+    }
+  }
+  // uniform 数字/null 直接复制，数组递归复制，其余对象调用 clone，避免实例共享可变向量。
+  static cloneMaterial(material) {
+    const clone = material.clone();
+    for (const [name, uniform] of Object.entries(material.uniforms)) {
+      const value = uniform.value;
+      clone.uniforms[name].value = this._cloneUniformValue(value);
+    }
+    clone.needsUpdate = true;
+    return clone;
+  }
+  static _cloneUniformValue(value) {
+    if (null === value) return null;
+    if ("number" == typeof value) return value;
+    if (Array.isArray(value)) {
+      const elements = [];
+      for (let index = 0; index < value.length; index++) elements.push(this._cloneUniformValue(value[index]));
+      return elements;
+    }
+    return value.clone();
+  }
+  static async loadTexture(component, url, options) {
+    return component.getEntity().getScene().getEngine().getTextureLoader().loadTexture(url, -component.getEntity().getLeastCameraDepth(), options);
+  }
+  static loadTextureFromCanvas(canvas) {
+    const canvasTexture = new PioneerPublicApi.THREE.CanvasTexture(canvas);
     canvasTexture.magFilter = PioneerPublicApi.THREE.NearestFilter;
     canvasTexture.minFilter = PioneerPublicApi.THREE.NearestFilter;
     canvasTexture.flipY = false;
     canvasTexture.needsUpdate = true;
     return canvasTexture;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `ThreeJsHelper.destroyTexture`、`this.loadTexture`。
-   * 调用线索：ThreeJsHelper.destroyTexture、this.loadTexture。
-   */
-  static async loadTextureIntoUniform(t, e, i, s) {
-    const n = await this.loadTexture(t, i, s);
-    e.value && ThreeJsHelper.destroyTexture(e.value);
-    e.value = n;
+  static async loadTextureIntoUniform(component, uniform, url, options) {
+    const texture = await this.loadTexture(component, url, options);
+    if (uniform.value) {
+      ThreeJsHelper.destroyTexture(uniform.value);
+    }
+    uniform.value = texture;
   }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setOverlay(t, e) {
-    t && (t.depthFunc = e ? PioneerPublicApi.THREE.AlwaysDepth : PioneerPublicApi.THREE.LessEqualDepth);
-  }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setTransparent(t, e) {
-    t && (t.transparent = e, t.depthWrite = !e);
-  }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setBlending(t, e) {
-    if (t) {
-      switch (e) {
-        case "normal":
-          t.blending = PioneerPublicApi.THREE.NormalBlending;
-          break;
-        case "additive":
-          t.blending = PioneerPublicApi.THREE.AdditiveBlending;
-          break;
-        case "subtractive":
-          t.blending = PioneerPublicApi.THREE.SubtractiveBlending;
-          break;
-        case "multiply":
-          t.blending = PioneerPublicApi.THREE.MultiplyBlending;
-          break;
-        case "custom":
-          t.blending = PioneerPublicApi.THREE.CustomBlending;
-          break;
-        case "none":
-          t.blending = PioneerPublicApi.THREE.NoBlending;
-      }
-      t.needsUpdate = true;
+  static setOverlay(material, overlay) {
+    if (material) {
+      material.depthFunc = overlay ? PioneerPublicApi.THREE.AlwaysDepth : PioneerPublicApi.THREE.LessEqualDepth;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setDefine(t, e, i) {
-    !i || false !== t.defines[e] && void 0 !== t.defines[e] ? i || true !== t.defines[e] || (delete t.defines[e], t.needsUpdate = true) : (t.defines[e] = true, t.needsUpdate = true);
+  static setTransparent(material, transparent) {
+    if (material) {
+      material.transparent = transparent;
+      material.depthWrite = !transparent;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  static setUniformNumber(t, e, i) {
-    t && (t.uniforms[e].value = i);
+  static setBlending(material, blending) {
+    if (material) {
+      switch (blending) {
+        case "normal":
+          material.blending = PioneerPublicApi.THREE.NormalBlending;
+          break;
+        case "additive":
+          material.blending = PioneerPublicApi.THREE.AdditiveBlending;
+          break;
+        case "subtractive":
+          material.blending = PioneerPublicApi.THREE.SubtractiveBlending;
+          break;
+        case "multiply":
+          material.blending = PioneerPublicApi.THREE.MultiplyBlending;
+          break;
+        case "custom":
+          material.blending = PioneerPublicApi.THREE.CustomBlending;
+          break;
+        case "none":
+          material.blending = PioneerPublicApi.THREE.NoBlending;
+      }
+      material.needsUpdate = true;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `t.uniforms[e].value.set`。
-   * 调用线索：t.uniforms[e].value.set。
-   */
-  static setUniformVector2(t, e, i) {
-    if (!t) return;
-    t.uniforms[e].value.set(i.x, i.y);
+  static setDefine(material, name, enabled) {
+    if (!enabled || false !== material.defines[name] && void 0 !== material.defines[name]) {
+      if (!(enabled || true !== material.defines[name])) {
+        delete material.defines[name];
+        material.needsUpdate = true;
+      }
+    } else {
+      material.defines[name] = true;
+      material.needsUpdate = true;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `t.uniforms[e].value.set`。
-   * 调用线索：t.uniforms[e].value.set。
-   */
-  static setUniformVector3(t, e, i) {
-    if (!t) return;
-    t.uniforms[e].value.set(i.x, i.y, i.z);
+  static setUniformNumber(material, name, value) {
+    if (material) {
+      material.uniforms[name].value = value;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `t.uniforms[e].value.set`。
-   * 调用线索：t.uniforms[e].value.set。
-   */
-  static setUniformColorRGB(t, e, i) {
-    if (!t) return;
-    t.uniforms[e].value.set(i.r, i.g, i.b);
+  static setUniformVector2(material, name, vector) {
+    if (!material) return;
+    material.uniforms[name].value.set(vector.x, vector.y);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `t.uniforms[e].value.set`。
-   * 调用线索：t.uniforms[e].value.set。
-   */
-  static setUniformColorRGBA(t, e, i, s = 1) {
-    if (!t) return;
-    t.uniforms[e].value.set(i.r, i.g, i.b, i.a * s);
+  static setUniformVector3(material, name, vector) {
+    if (!material) return;
+    material.uniforms[name].value.set(vector.x, vector.y, vector.z);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `t.uniforms[e].value.set`。
-   * 调用线索：t.uniforms[e].value.set。
-   */
-  static setUniformQuaternion(t, e, i) {
-    if (!t) return;
-    t.uniforms[e].value.set(i.x, i.y, i.z, i.w);
+  static setUniformColorRGB(material, name, color) {
+    if (!material) return;
+    material.uniforms[name].value.set(color.r, color.g, color.b);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `ThreeJsHelper.destroyTexture`。
-   * 调用线索：ThreeJsHelper.destroyTexture。
-   */
-  static setUniformTexture(t, e, i) {
-    if (!t) return;
-    const s = t.uniforms[e].value;
-    s && ThreeJsHelper.destroyTexture(s);
-    t.uniforms[e].value = i;
+  static setUniformColorRGBA(material, name, color, alphaMultiplier = 1) {
+    if (!material) return;
+    material.uniforms[name].value.set(color.r, color.g, color.b, color.a * alphaMultiplier);
+  }
+  static setUniformQuaternion(material, name, orientation) {
+    if (!material) return;
+    material.uniforms[name].value.set(orientation.x, orientation.y, orientation.z, orientation.w);
+  }
+  static setUniformTexture(material, name, texture) {
+    if (!material) return;
+    const previousTexture = material.uniforms[name].value;
+    if (previousTexture) {
+      ThreeJsHelper.destroyTexture(previousTexture);
+    }
+    material.uniforms[name].value = texture;
   }
 }
 export { ThreeJsHelper };

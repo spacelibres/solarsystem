@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",
@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run && node --test tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs",
+    "test": "vitest run && node --test --test-concurrency=2 tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs tools/semantic-*.node-check.cjs",
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run lint && npm run eyes:check && npm run eyes:analyze:check",
     "mirror:park": "node scripts/park-mirror.mjs park",

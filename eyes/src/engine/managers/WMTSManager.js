@@ -1,141 +1,102 @@
-/** @eyes-analysis
- * 文件职责：获取 WMTS 配置，核验日期与后备图源，创建并配置 WMTSComponent。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1241306-1244021.
+/* WMTS 元数据先验证日期图层与样例瓦片 HEAD，再创建/配置组件；验证失败移除半成品并记录失败状态。验证请求与五秒超时竞争，原计时器不额外取消，所有服务路径与替换规则保持原样。 */
 import "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：获取 WMTS 配置，核验日期与后备图源，创建并配置 WMTSComponent。
- * 继承：EyesPublicApi.BaseManager；导出：WMTSManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WMTSManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_wmtsComponentStates`；调用 `new Map`、`super`、`this.bindFunctions`。
-   * 状态写入：_wmtsComponentStates。
-   * 调用线索：new Map、super、this.bindFunctions。
-   */
-  constructor(t) {
-    super(t);
+  constructor(app) {
+    super(app);
     this._wmtsComponentStates = new Map();
     this.bindFunctions(["getWMTSComponentState", "initWMTS"]);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._wmtsComponentStates.get(t)`；调用 `this._wmtsComponentStates.get`。
-   * 调用线索：this._wmtsComponentStates.get。
-   */
-  getWMTSComponentState(t) {
-    return this._wmtsComponentStates.get(t);
+  getWMTSComponentState(entityId) {
+    return this._wmtsComponentStates.get(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._wmtsComponentStates.set`。
-   * 调用线索：this._wmtsComponentStates.set。
-   */
-  setWMTSComponentState(t, e) {
-    this._wmtsComponentStates.set(t, e);
+  setWMTSComponentState(entityId, componentState) {
+    this._wmtsComponentStates.set(entityId, componentState);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `date.getFullYear()+"-"+String(date.getMonth()+1).padStart(2,"0")+"-"+String(date.getDate()).padStart(2,"0")`；调用 `String`、`String(date.getDate()).padStart`、`String(date.getMonth()+1).padStart`、`console.warn`、`date.getDate`、`date.getFullYear`。
-   * 调用线索：String、String(date.getDate()).padStart、String(date.getMonth()+1).padStart、console.warn、date.getDate等。
-   */
-  getImageDate(t) {
+  getImageDate(requestedTime) {
     const date = new Date();
-    if ("yesterday" === t) date.setDate(date.getDate() - 1);else if ("now" !== t) {
+    if ("yesterday" === requestedTime) date.setDate(date.getDate() - 1);else if ("now" !== requestedTime) {
       console.warn("Invalid time parameter");
       return null;
     }
     return date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0");
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `await Promise.race([n,promise])` 或 `false`；调用 `Promise.race`、`a.startsWith`、`console.error`、`e`、`fetch`、`n.querySelector`；含显式错误分支。
-   * 调用线索：Promise.race、a.startsWith、async()=>{const s=(await this.app.pioneer.getDownloader().download(t+"/1.0.0/WMTSCapabilities.xml","text",-1)).content;if("string"!=typeof s)throw new Error("XML is not a string");const n=new DOMParser().parseFromString(s,"application/xml");const o=n.querySelector("Contents > Layer ResourceURL")?.getAttribute("template").replace("{Time}",e).replace("{TileMatrixSet}",i).replace("{TileMatrix}","0").replace("{TileRow}","0").replace("{TileCol}","0");if(!o)throw new Error("Template URL not found");const r=await fetch(o,{method:"HEAD"});if(!r.ok)throw new Error("Image URL fetch failed: "+r.status);const a=r.headers.get("content-type");if(!a||!a.startsWith("image/"))t…
-   */
-  async verifyImageURL(t, e, i) {
+  async verifyImageURL(endpoint, imageDate, tileMatrixSet) {
     try {
-      const promise = new Promise((t, e) => {
-        setTimeout(() => e(new Error("Image Server Timed Out")), 5e3);
+      const promise = new Promise((resolveTimeout, rejectTimeout) => {
+        setTimeout(() => rejectTimeout(new Error("Image Server Timed Out")), 5e3);
       });
-      const n = (async () => {
-        const s = (await this.app.pioneer.getDownloader().download(t + "/1.0.0/WMTSCapabilities.xml", "text", -1)).content;
-        if ("string" != typeof s) throw new Error("XML is not a string");
-        const n = new DOMParser().parseFromString(s, "application/xml");
-        const o = n.querySelector("Contents > Layer ResourceURL")?.getAttribute("template").replace("{Time}", e).replace("{TileMatrixSet}", i).replace("{TileMatrix}", "0").replace("{TileRow}", "0").replace("{TileCol}", "0");
-        if (!o) throw new Error("Template URL not found");
-        const r = await fetch(o, {
+      const verificationPromise = (async () => {
+        const capabilitiesXml = (await this.app.pioneer.getDownloader().download(endpoint + "/1.0.0/WMTSCapabilities.xml", "text", -1)).content;
+        if ("string" != typeof capabilitiesXml) throw new Error("XML is not a string");
+        const capabilitiesDocument = new DOMParser().parseFromString(capabilitiesXml, "application/xml");
+        const tileUrl = capabilitiesDocument.querySelector("Contents > Layer ResourceURL")?.getAttribute("template").replace("{Time}", imageDate).replace("{TileMatrixSet}", tileMatrixSet).replace("{TileMatrix}", "0").replace("{TileRow}", "0").replace("{TileCol}", "0");
+        if (!tileUrl) throw new Error("Template URL not found");
+        const response = await fetch(tileUrl, {
           method: "HEAD"
         });
-        if (!r.ok) throw new Error("Image URL fetch failed: " + r.status);
-        const a = r.headers.get("content-type");
-        if (!a || !a.startsWith("image/")) throw new Error("Fetched resource is not an image.");
+        if (!response.ok) throw new Error("Image URL fetch failed: " + response.status);
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.startsWith("image/")) throw new Error("Fetched resource is not an image.");
         return true;
       })();
-      return await Promise.race([n, promise]);
-    } catch (t) {
-      console.error("Error verifying WMTS layer:", t);
+      return await Promise.race([verificationPromise, promise]);
+    } catch (verificationError) {
+      console.error("Error verifying WMTS layer:", verificationError);
       return false;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t` 或 `null`；调用 `JSON.parse`、`[t,...fallbacks].find`、`console.error`、`console.warn`、`t.content.toString`、`this.app.pioneer.getDownloader`。
-   * 调用线索：JSON.parse、[t,...fallbacks].find、console.error、console.warn、t.content.toString等。
-   */
-  async getValidWMTSData(t) {
+  async getValidWMTSData(wmtsOptions) {
     const {
       wmtsManifest: wmtsManifest,
       time: time,
       fallbacks: fallbacks
-    } = t;
-    if (!wmtsManifest) return t;
-    let n;
+    } = wmtsOptions;
+    if (!wmtsManifest) return wmtsOptions;
+    let manifest;
     try {
-      const t = await this.app.pioneer.getDownloader().download(wmtsManifest, "text", -1);
-      n = JSON.parse(t.content.toString());
-    } catch (t) {
-      console.error("Error downloading or parsing wmtsManifest:", t);
+      const downloadedManifest = await this.app.pioneer.getDownloader().download(wmtsManifest, "text", -1);
+      manifest = JSON.parse(downloadedManifest.content.toString());
+    } catch (manifestError) {
+      console.error("Error downloading or parsing wmtsManifest:", manifestError);
       return null;
     }
-    const o = this.getImageDate(time);
-    const r = n.availableDates[o];
-    if (!r) {
-      console.warn(`No layer info found for date ${o}`);
+    const imageDate = this.getImageDate(time);
+    const dateLayerInfo = manifest.availableDates[imageDate];
+    if (!dateLayerInfo) {
+      console.warn(`No layer info found for date ${imageDate}`);
       return null;
     }
-    const a = [t, ...fallbacks].find(t => t.layer === r.layerId).endPoint;
-    const l = r.layerId;
-    return (await this.verifyImageURL(a, o, t.tile)) ? {
-      ...t,
-      layer: l,
-      endPoint: a
-    } : (console.warn(`Invalid layer for date ${o}`), null);
+    const endpoint = [wmtsOptions, ...fallbacks].find(candidateOptions => candidateOptions.layer === dateLayerInfo.layerId).endPoint;
+    const layerId = dateLayerInfo.layerId;
+    return (await this.verifyImageURL(endpoint, imageDate, wmtsOptions.tile)) ? {
+      ...wmtsOptions,
+      layer: layerId,
+      endPoint: endpoint
+    } : (console.warn(`Invalid layer for date ${imageDate}`), null);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `n`；调用 `i.addComponent`、`i.getComponent`、`i.removeComponent`、`n.setDimensionValue`、`n.setEnabled`、`n.setEndPoint`。
-   * 调用线索：i.addComponent、i.getComponent、i.removeComponent、n.setDimensionValue、n.setEnabled等。
-   */
-  async initWMTS(t, e) {
-    const i = this.app.pioneer.getScene("main").getEntity(t);
-    let n = i.getComponent(SolarSystemSceneExports.WMTSComponent);
-    null === n && (n = i.addComponent(SolarSystemSceneExports.WMTSComponent, e.id));
-    n.setEnabled(false);
-    const o = await this.getValidWMTSData(e);
-    if (!o) {
-      i.removeComponent(n);
-      this.setWMTSComponentState(t, false);
+  async initWMTS(entityId, wmtsOptions) {
+    const entity = this.app.pioneer.getScene("main").getEntity(entityId);
+    let wmtsComponent = entity.getComponent(SolarSystemSceneExports.WMTSComponent);
+    null === wmtsComponent && (wmtsComponent = entity.addComponent(SolarSystemSceneExports.WMTSComponent, wmtsOptions.id));
+    wmtsComponent.setEnabled(false);
+    const validOptions = await this.getValidWMTSData(wmtsOptions);
+    if (!validOptions) {
+      entity.removeComponent(wmtsComponent);
+      this.setWMTSComponentState(entityId, false);
       return null;
     }
-    n.setEndPoint(o.endPoint);
-    n.setLayer(o.layer);
-    o.tile && n.setTileMatrixSet(o.tile);
-    const r = this.getImageDate(o.time);
-    n.setDimensionValue("Time", r);
-    n.setMaxLevel(o.level || 1 / 0);
-    n.setMinLevel(2);
-    this.setWMTSComponentState(t, true);
-    return n;
+    wmtsComponent.setEndPoint(validOptions.endPoint);
+    wmtsComponent.setLayer(validOptions.layer);
+    validOptions.tile && wmtsComponent.setTileMatrixSet(validOptions.tile);
+    const imageDate = this.getImageDate(validOptions.time);
+    wmtsComponent.setDimensionValue("Time", imageDate);
+    wmtsComponent.setMaxLevel(validOptions.level || 1 / 0);
+    wmtsComponent.setMinLevel(2);
+    this.setWMTSComponentState(entityId, true);
+    return wmtsComponent;
   }
 }
 export { WMTSManager };

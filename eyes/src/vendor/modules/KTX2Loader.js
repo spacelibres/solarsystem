@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：KTX2Loader 对应资源的请求、解析与缓存协作
- * 依据：// Recovered from vendors.js:792719-811296.；exports: KTX2Loader
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:792719-811296.
 import * as ThreeCore from "../three/core.js";
 import * as WorkerPool from "./WorkerPool.js";
@@ -17,46 +11,19 @@ const c = new URL(Unidentified78, document.baseURI).toString(),
   weakMap = new WeakMap();
 let d,
   h = 0;
-/** @eyes-analysis
- * 类职责：KTX2Loader 对应资源的请求、解析与缓存协作
- * 继承：ThreeCore.Loader；导出：KTX2Loader。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class KTX2Loader extends ThreeCore.Loader {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：transcoderBinary、transcoderPath、transcoderPending、workerConfig、workerPool、workerSourceURL。
-   * 调用线索：console.warn、new WorkerPool.WorkerPool、super。
-   */
   constructor(e) {
     super(e), this.transcoderPath = "", this.transcoderBinary = null, this.transcoderPending = null, this.workerPool = new WorkerPool.WorkerPool(), this.workerSourceURL = "", this.workerConfig = null, "undefined" != typeof MSC_TRANSCODER && console.warn('THREE.KTX2Loader: Please update to latest "basis_transcoder". "msc_basis_transcoder" is no longer supported in three.js r125+.');
   }
-  /** @eyes-analysis
-   * 源码方法 setTranscoderPath；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：transcoderPath。
-   */
   setTranscoderPath(transcoderPath) {
     return this.transcoderPath = transcoderPath, this;
   }
-  /** @eyes-analysis
-   * 源码方法 setWorkerLimit；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this.workerPool.setWorkerLimit。
-   */
   setWorkerLimit(e) {
     return this.workerPool.setWorkerLimit(e), this;
   }
-  /** @eyes-analysis
-   * 源码方法 detectSupportAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：console.warn、e.init、this.detectSupport。
-   */
   async detectSupportAsync(e) {
     return console.warn('KTX2Loader: "detectSupportAsync()" has been deprecated. Use "detectSupport()" and "await renderer.init();" when creating the renderer.'), await e.init(), this.detectSupport(e);
   }
-  /** @eyes-analysis
-   * 源码方法 detectSupport；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：workerConfig、workerConfig.astcSupported、workerConfig.etc1Supported、workerConfig.etc2Supported。
-   * 调用线索：e.extensions.get、e.extensions.get("WEBGL_compressed_texture_astc").getSupportedProfiles、e.extensions.get("WEBGL_compressed_texture_astc").getSupportedProfiles().includes、e.extensions.has、e.hasFeature等。
-   */
   detectSupport(e) {
     return !0 === e.isWebGPURenderer ? this.workerConfig = {
       astcSupported: e.hasFeature("texture-compression-astc"),
@@ -76,11 +43,6 @@ class KTX2Loader extends ThreeCore.Loader {
       pvrtcSupported: e.extensions.has("WEBGL_compressed_texture_pvrtc") || e.extensions.has("WEBKIT_WEBGL_compressed_texture_pvrtc")
     }, "undefined" != typeof navigator && void 0 !== navigator.platform && void 0 !== navigator.userAgent && navigator.platform.indexOf("Linux") >= 0 && navigator.userAgent.indexOf("Android") < 0 && this.workerConfig.astcSupported && this.workerConfig.etc2Supported && this.workerConfig.bptcSupported && this.workerConfig.dxtSupported && (this.workerConfig.astcSupported = !1, this.workerConfig.etc1Supported = !1, this.workerConfig.etc2Supported = !1)), this;
   }
-  /** @eyes-analysis
-   * 初始化延迟资源和运行时能力；必须先完成再使用依赖资源的方法
-   * 状态写入：transcoderBinary、transcoderPending、workerSourceURL。
-   * 调用线索：JSON.stringify、KTX2Loader.BasisWorker.toString、Promise.all、Promise.all([n,i]).then、URL.createObjectURL等。
-   */
   init() {
     if (!this.transcoderPending) {
       const fileLoader = new ThreeCore.FileLoader(this.manager);
@@ -103,10 +65,6 @@ class KTX2Loader extends ThreeCore.Loader {
     }
     return this.transcoderPending;
   }
-  /** @eyes-analysis
-   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
-   * 调用线索：fileLoader.load、fileLoader.setCrossOrigin、fileLoader.setPath、fileLoader.setRequestHeader、fileLoader.setResponseType等。
-   */
   load(e, t, n, i) {
     if (null === this.workerConfig) throw new Error("THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.");
     const fileLoader = new ThreeCore.FileLoader(this.manager);
@@ -114,10 +72,6 @@ class KTX2Loader extends ThreeCore.Loader {
       this.parse(e, t, i);
     }, n, i);
   }
-  /** @eyes-analysis
-   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
-   * 调用线索：new Error、t、this._createTexture、this._createTexture(e).then、this._createTexture(e).then(e=>t?t(e):null).catch等。
-   */
   parse(e, t, n) {
     if (null === this.workerConfig) throw new Error("THREE.KTX2Loader: Missing initialization with `.detectSupport( renderer )`.");
     if (weakMap.has(e)) {
@@ -125,10 +79,6 @@ class KTX2Loader extends ThreeCore.Loader {
     }
     this._createTexture(e).then(e => t ? t(e) : null).catch(n);
   }
-  /** @eyes-analysis
-   * 源码方法 _createTextureFrom；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.reject、_、new ThreeCore.CompressedArrayTexture、new ThreeCore.CompressedCubeTexture、new ThreeCore.CompressedTexture。
-   */
   _createTextureFrom(e, t) {
     const {
       type: type,
@@ -150,10 +100,6 @@ class KTX2Loader extends ThreeCore.Loader {
     }
     return h.minFilter = 1 === faces[0].mipmaps.length ? ThreeCore.LinearFilter : ThreeCore.LinearMipmapLinearFilter, h.magFilter = ThreeCore.LinearFilter, h.generateMipmaps = !1, h.needsUpdate = !0, h.colorSpace = _(t), h.premultiplyAlpha = !!(dfdFlags & Ci.KHR_DF_FLAG_ALPHA_PREMULTIPLIED), h;
   }
-  /** @eyes-analysis
-   * 源码方法 _createTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：0,Ci.read、Math.max、Promise.resolve、_、async function(e){const{vkFormat:vkFormat}=e;if(void 0===m[vkFormat])throw new Error("THREE.KTX2Loader: Unsupported vkFormat: "+vkFormat);void 0===M[vkFormat]&&console.warn('THREE.KTX2Loader: Missing ".type" for vkFormat: '+vkFormat);let n;e.supercompressionScheme===Ci.KHR_SUPERCOMPRESSION_ZSTD&&(d||(d=new Promise(async e=>{const zSTDDecoder=new ZSTDDecoder.ZSTDDecoder();await zSTDDecoder.init(),e(zSTDDecoder);})),n=await d);const i=[];for(let s=0;s<e.levels.length;s++){const o=Math.max(1,e.pixelWidth>>s),c=Math.max(1,e.pixelHeight>>s),l=e.pixelDepth?Math.max(1,e.pixelDepth>>s):0,u=e.levels[s];let d,h;if(e.supercompressionScheme===Ci.KHR_SUPERCOMPRES…
-   */
   async _createTexture(e, t = {}) {
     const n = (0, Ci.read)(new Uint8Array(e)),
       i = n.vkFormat === Ci.VK_FORMAT_ASTC_4x4_SFLOAT_BLOCK_EXT && 167 === n.dataFormatDescriptor[0].colorModel;
@@ -204,10 +150,6 @@ class KTX2Loader extends ThreeCore.Loader {
       promise: c
     }), c;
   }
-  /** @eyes-analysis
-   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
-   * 调用线索：URL.revokeObjectURL、this.workerPool.dispose。
-   */
   dispose() {
     this.workerPool.dispose(), this.workerSourceURL && URL.revokeObjectURL(this.workerSourceURL), h--;
   }

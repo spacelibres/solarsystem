@@ -1,14 +1,9 @@
-/** @eyes-analysis
- * 文件职责：组件名称、类型、实例选项及 postCreationFunction 配置
- * 依据：imports: ../../framework/eyes/index.js, ./settings.js；manager dependencies: cameraFollow
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1350654-1354281.
+/** 组件注册及创建后连接：应用实例与新组件是不同参数，搜索焦点/重置显式通知距离或相机跟随面板。 */
 import * as Eyes from "../../framework/eyes/index.js";
 import * as SettingsOptions from "./settings.js";
-let defaultExport;
-defaultExport = [{
+let componentDefinitions;
+componentDefinitions = [{
   type: "Breadcrumb",
   name: "breadcrumb",
   options: {
@@ -109,8 +104,8 @@ defaultExport = [{
 }, {
   type: "Comparison",
   name: "comparison",
-  postCreationFunction: (t, e) => {
-    t.getComponent("settings")?.registerCallback("unitchange", e.unitchange);
+  postCreationFunction: (app, comparisonComponent) => {
+    app.getComponent("settings")?.registerCallback("unitchange", comparisonComponent.unitchange);
   }
 }, {
   type: "Search",
@@ -121,9 +116,13 @@ defaultExport = [{
       searchType: "desktop"
     }
   },
-  postCreationFunction: (t, e) => {
-    e.onResize = () => {
-      Eyes.AppUtils.isMobileMode() ? e.hide() : e.show();
+  postCreationFunction: (app, searchComponent) => {
+    searchComponent.onResize = () => {
+      if (Eyes.AppUtils.isMobileMode()) {
+        searchComponent.hide();
+      } else {
+        searchComponent.show();
+      }
     };
   }
 }, {
@@ -139,9 +138,13 @@ defaultExport = [{
       searchType: "mobile"
     }
   },
-  postCreationFunction: (t, e) => {
-    e.onResize = () => {
-      Eyes.AppUtils.isMobileMode() ? e.show() : e.hide();
+  postCreationFunction: (app, searchComponent) => {
+    searchComponent.onResize = () => {
+      if (Eyes.AppUtils.isMobileMode()) {
+        searchComponent.show();
+      } else {
+        searchComponent.hide();
+      }
     };
   }
 }, {
@@ -157,19 +160,21 @@ defaultExport = [{
       allowDetail: false,
       searchType: "distanceSource",
       maxEntries: 8,
-      onSearchFocus: t => {
-        t.eraseInput();
-        t.app.getComponent("distancePanel")?.setIsSearching?.(true);
+      onSearchFocus: searchComponent => {
+        searchComponent.eraseInput();
+        searchComponent.app.getComponent("distancePanel")?.setIsSearching?.(true);
       },
-      onReset: t => {
+      onReset: searchComponent => {
         const {
           defaultText: defaultText
-        } = t._config;
+        } = searchComponent._config;
         const {
           input: input
-        } = t._children;
-        defaultText && (input.value = defaultText);
-        t.app.getComponent("distancePanel")?.setIsSearching?.(false);
+        } = searchComponent._children;
+        if (defaultText) {
+          input.value = defaultText;
+        }
+        searchComponent.app.getComponent("distancePanel")?.setIsSearching?.(false);
       }
     }
   }
@@ -186,19 +191,21 @@ defaultExport = [{
       allowDetail: false,
       searchType: "distanceTarget",
       maxEntries: 6,
-      onSearchFocus: t => {
-        t.eraseInput();
-        t.app.getComponent("distancePanel")?.setIsSearching?.(true);
+      onSearchFocus: searchComponent => {
+        searchComponent.eraseInput();
+        searchComponent.app.getComponent("distancePanel")?.setIsSearching?.(true);
       },
-      onReset: t => {
+      onReset: searchComponent => {
         const {
           defaultText: defaultText
-        } = t._config;
+        } = searchComponent._config;
         const {
           input: input
-        } = t._children;
-        defaultText && (input.value = defaultText);
-        t.app.getComponent("distancePanel")?.setIsSearching?.(false);
+        } = searchComponent._children;
+        if (defaultText) {
+          input.value = defaultText;
+        }
+        searchComponent.app.getComponent("distancePanel")?.setIsSearching?.(false);
       }
     }
   }
@@ -218,9 +225,9 @@ defaultExport = [{
       allowInfo: true,
       searchType: "cameraFollow",
       maxEntries: 6,
-      onSearchFocus: t => {
-        t.eraseInput();
-        const cameraFollowManager = t.app.getManager("cameraFollow");
+      onSearchFocus: searchComponent => {
+        searchComponent.eraseInput();
+        const cameraFollowManager = searchComponent.app.getManager("cameraFollow");
         cameraFollowManager.showSearch();
         cameraFollowManager.setSearchOptions();
       }
@@ -242,4 +249,4 @@ defaultExport = [{
     isVisible: true
   }
 }];
-export { defaultExport as default };
+export { componentDefinitions as default };

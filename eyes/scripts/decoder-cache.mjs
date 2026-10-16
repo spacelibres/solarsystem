@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：按清单验证本地解码器的大小、摘要和 WASM 头，缺失时下载并原子写入
- * 依据：当前源码声明、导入关系及工程调用链
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile, writeFile, mkdir, rename, unlink } from 'node:fs/promises';
 import path from 'node:path';

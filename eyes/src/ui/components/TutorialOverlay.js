@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：教程步骤遮罩与提示定位
- * 依据：imports: ../../vendor/modules/A11y.js, ../../styles/extracted/TutorialOverlayStyles-497.js, ../../styles/extracted/TutorialOverlayStyles-498.js, ../../styles/extracted/TutorialOverlayStyles-499.js, ../../styles/extracted/TutorialOverlayStyles-500.js, ../../framework/eyes/public-api.js, ../templates/TutorialOverlayTemplate.html；manager dependencies: router, layer, content
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:612114-618466.
 import * as A11y from "../../vendor/modules/A11y.js";
 import "../../styles/extracted/TutorialOverlayStyles-497.js";
@@ -15,21 +9,12 @@ import TutorialOverlayTemplate from "../templates/TutorialOverlayTemplate.html";
 let defaultExport;
 var getTutorialOverlayTemplate = () => TutorialOverlayTemplate;
 A11y.default.use([A11y.Navigation, A11y.Keyboard, A11y.Mousewheel]);
-const a = "OK, got it. Thanks!";
-const l = "OK, let's go!";
-/** @eyes-analysis
- * 类职责：教程步骤遮罩与提示定位；继承 EyesPublicApi.BaseComponent
- * 继承：EyesPublicApi.BaseComponent；导出：default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+const dismissLabel = "OK, got it. Thanks!";
+const finalDismissLabel = "OK, let's go!";
+/* 教程实例持有 Swiper、目标测量缓存及延迟初始化/已读计时器。路由只在主页且未取消时驱动教程，mask 百分比由目标视口比例换算，已读索引写入 localStorage。 */
 class TutorialOverlay extends EyesPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；写入 _swiper, _allTutorials, _elementMeasures, _currIndex, _slideViewedTimeout, _initTimeout, _bulletClass, _activeBulletClass, _swiperSlideClass, _storageName。
-   * 状态写入：_activeBulletClass、_allTutorials、_bulletClass、_currIndex、_elementMeasures、_initTimeout、_slideViewedTimeout、_storageName等；完整记录见索引。
-   * 调用线索：super。
-   */
-  constructor(t, e = {}) {
-    e.config = {
+  constructor(app, options = {}) {
+    options.config = {
       direction: "horizontal",
       speed: 600,
       slidesPerView: 1,
@@ -45,14 +30,14 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
         prevEl: ".tutorial-carousel-prev",
         nextEl: ".tutorial-carousel-next"
       },
-      ...e.config
+      ...options.config
     };
-    super(t, null, {
+    super(app, null, {
       isVisible: false,
       carouselClass: "tutorial-carousel",
       slideClass: "",
-      dismissText: a,
-      ...e
+      dismissText: dismissLabel,
+      ...options
     });
     this._swiper = null;
     this._allTutorials = null;
@@ -65,31 +50,18 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
     this._swiperSlideClass = "swiper-slide";
     this._storageName = "EoA_Tutorials";
   }
-  /** @eyes-analysis
-   * 执行 setTutorials 对应的组件业务步骤；调用 this._createSlides；写入 _allTutorials。
-   * 状态写入：_allTutorials。
-   * 调用线索：this._createSlides。
-   */
   setTutorials(allTutorials) {
     this._allTutorials = allTutorials;
     this._createSlides();
   }
-  /** @eyes-analysis
-   * 执行 hideTutorialSlide 对应的组件业务步骤。
-   * 调用线索：tutorials.filter。
-   */
-  hideTutorialSlide(t) {
+  hideTutorialSlide(tutorialId) {
     const {
       tutorials: tutorials
     } = this.app;
     return tutorials.filter(({
       id: id
-    }) => id !== t);
+    }) => id !== tutorialId);
   }
-  /** @eyes-analysis
-   * 执行 _addEvents 对应的组件业务步骤；调用 this._swiper.on, this._setHighlightedElement, this._setActiveBullet, this.navigateToTutorial, this.setState, this._children.swiperSlides.addEventListener, this._app.getComponent。
-   * 调用线索：this._app.getComponent、this._app.getComponent("definitionOverlay").navigateToDefinition、this._children.swiperSlides.addEventListener、this._setActiveBullet、this._setHighlightedElement等。
-   */
   _addEvents() {
     this._swiper.on("slideChange", ({
       realIndex: realIndex
@@ -100,22 +72,18 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
       const {
         id: id
       } = this._allTutorials[realIndex] || {};
-      const i = realIndex === this._allTutorials.length - 1;
-      const s = id ? `tutorial-slide-${id}` : "";
+      const isLastSlide = realIndex === this._allTutorials.length - 1;
+      const slideClass = id ? `tutorial-slide-${id}` : "";
       this.setState({
-        dismissText: i ? l : a,
-        slideClass: s
+        dismissText: isLastSlide ? finalDismissLabel : dismissLabel,
+        slideClass: slideClass
       });
     });
-    this._children.swiperSlides.addEventListener("click", t => {
-      const e = t?.target?.dataset?.def;
-      e && this._app.getComponent("definitionOverlay").navigateToDefinition(e);
+    this._children.swiperSlides.addEventListener("click", clickEvent => {
+      const definitionId = clickEvent?.target?.dataset?.def;
+      definitionId && this._app.getComponent("definitionOverlay").navigateToDefinition(definitionId);
     });
   }
-  /** @eyes-analysis
-   * 执行 _createSlides 对应的组件业务步骤；调用 this._allTutorials.forEach, this._addSlide。
-   * 调用线索：document.createElement、o.push、this._addSlide、this._allTutorials.forEach。
-   */
   _createSlides() {
     const {
       isTouch: isTouch
@@ -126,47 +94,39 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
       description: description,
       extra: extra
     }) => {
-      const o = [];
+      const slideElements = [];
       if (title) {
-        const t = document.createElement("h2");
-        t.innerHTML = title;
-        o.push(t);
+        const titleElement = document.createElement("h2");
+        titleElement.innerHTML = title;
+        slideElements.push(titleElement);
       }
       if (description) {
-        const e = "object" == typeof description ? isTouch ? description.touch : description.desktop : description;
-        if ("string" == typeof e) {
-          const t = document.createElement("p");
-          t.innerHTML = e;
-          o.push(t);
+        const descriptionText = "object" == typeof description ? isTouch ? description.touch : description.desktop : description;
+        if ("string" == typeof descriptionText) {
+          const descriptionElement = document.createElement("p");
+          descriptionElement.innerHTML = descriptionText;
+          slideElements.push(descriptionElement);
         }
       }
       if (extra) {
-        const e = "object" == typeof extra ? isTouch ? extra.touch : extra.desktop : extra;
-        if ("string" == typeof e) {
-          const t = document.createElement("div");
-          t.className = "tutorial-extra";
-          t.innerHTML = e;
-          o.push(t);
+        const extraHtml = "object" == typeof extra ? isTouch ? extra.touch : extra.desktop : extra;
+        if ("string" == typeof extraHtml) {
+          const extraElement = document.createElement("div");
+          extraElement.className = "tutorial-extra";
+          extraElement.innerHTML = extraHtml;
+          slideElements.push(extraElement);
         }
       }
-      const r = `${this._swiperSlideClass} tutorial-slide-${id}`;
-      o.length && this._addSlide(o, r);
+      const slideClass = `${this._swiperSlideClass} tutorial-slide-${id}`;
+      slideElements.length && this._addSlide(slideElements, slideClass);
     });
   }
-  /** @eyes-analysis
-   * 执行 _addSlide 对应的组件业务步骤；调用 this._children.swiperSlides.append。
-   * 调用线索：document.createElement、i.replaceChildren、this._children.swiperSlides.append。
-   */
-  _addSlide(t = [], e) {
-    const i = document.createElement("div");
-    i.className = e;
-    i.replaceChildren(...t);
-    this._children.swiperSlides.append(i);
+  _addSlide(slideElements = [], slideClass) {
+    const slideElement = document.createElement("div");
+    slideElement.className = slideClass;
+    slideElement.replaceChildren(...slideElements);
+    this._children.swiperSlides.append(slideElement);
   }
-  /** @eyes-analysis
-   * 执行 _createBullets 对应的组件业务步骤；调用 List.add, this._swiper.slideTo。
-   * 调用线索：[...slides].map、bullets.replaceChildren、document.createElement、i.addEventListener、i.classList.add等。
-   */
   _createBullets() {
     const {
       bullets: bullets
@@ -174,73 +134,59 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
     const {
       slides: slides
     } = this._swiper;
-    const i = [...slides].map((t, e) => {
-      const i = document.createElement("span");
-      i.classList.add(this._bulletClass);
-      i.addEventListener("click", t => this._swiper.slideTo(e));
-      return i;
+    const bulletElements = [...slides].map((slideElement, slideIndex) => {
+      const bulletElement = document.createElement("span");
+      bulletElement.classList.add(this._bulletClass);
+      bulletElement.addEventListener("click", clickEvent => this._swiper.slideTo(slideIndex));
+      return bulletElement;
     });
-    bullets.replaceChildren(...i);
+    bullets.replaceChildren(...bulletElements);
   }
-  /** @eyes-analysis
-   * 执行 _setActiveBullet 对应的组件业务步骤；调用 Nodes.forEach, List.remove, List.add。
-   * 调用线索：bullets.childNodes.forEach、e.classList.add、e.classList.remove。
-   */
-  _setActiveBullet(t = this._currIndex) {
+  _setActiveBullet(slideIndex = this._currIndex) {
     const {
       bullets: bullets
     } = this._children;
-    bullets.childNodes.forEach((e, i) => {
-      e.classList.remove(this._activeBulletClass);
-      i === t && e.classList.add(this._activeBulletClass);
+    bullets.childNodes.forEach((bulletElement, bulletIndex) => {
+      bulletElement.classList.remove(this._activeBulletClass);
+      bulletIndex === slideIndex && bulletElement.classList.add(this._activeBulletClass);
     });
   }
-  /** @eyes-analysis
-   * 执行 _setHighlightedElement 对应的组件业务步骤；调用 this._calcElementMeasures, Math.max, this._element.style.setProperty；写入 _elementMeasures。
-   * 状态写入：_elementMeasures。
-   * 调用线索：(100*(.5-.5*p+xPos*p)).toFixed、(100*m).toFixed、Math.max、this._calcElementMeasures、this._element.style.setProperty。
-   */
-  _setHighlightedElement(t = this._currIndex, e = false) {
-    (!this._elementMeasures || e) && (this._elementMeasures = this._calcElementMeasures());
-    const i = this._elementMeasures[t];
+  _setHighlightedElement(slideIndex = this._currIndex, recalculateMeasures = false) {
+    (!this._elementMeasures || recalculateMeasures) && (this._elementMeasures = this._calcElementMeasures());
+    const targetMeasures = this._elementMeasures[slideIndex];
     const {
       mask: mask
-    } = this._allTutorials[t];
-    if (i) {
+    } = this._allTutorials[slideIndex];
+    if (targetMeasures) {
       const {
         xPos: xPos,
         yPos: yPos,
         relWidth: relWidth,
         relHeight: relHeight
-      } = i;
+      } = targetMeasures;
       const {
-        xSizeMult: r = 1,
-        ySizeMult: a = 1
+        xSizeMult: widthMultiplier = 1,
+        ySizeMult: heightMultiplier = 1
       } = mask || {};
-      const l = 15;
-      const c = (200 + relWidth * l * 100) * r;
-      const h = (200 + relHeight * l * 100) * a;
-      const d = Math.max(200, c);
-      const u = Math.max(200, h);
-      const p = 100 / (d - 100);
-      const _ = 100 / (u - 100);
-      const m = .5 - .5 * _ + yPos * _;
-      const g = (100 * (.5 - .5 * p + xPos * p)).toFixed(2);
-      const y = (100 * m).toFixed(2);
+      const maskScale = 15;
+      const requestedWidthPercent = (200 + relWidth * maskScale * 100) * widthMultiplier;
+      const requestedHeightPercent = (200 + relHeight * maskScale * 100) * heightMultiplier;
+      const maskWidthPercent = Math.max(200, requestedWidthPercent);
+      const maskHeightPercent = Math.max(200, requestedHeightPercent);
+      const horizontalPositionScale = 100 / (maskWidthPercent - 100);
+      const verticalPositionScale = 100 / (maskHeightPercent - 100);
+      const normalizedMaskY = .5 - .5 * verticalPositionScale + yPos * verticalPositionScale;
+      const maskXPercent = (100 * (.5 - .5 * horizontalPositionScale + xPos * horizontalPositionScale)).toFixed(2);
+      const maskYPercent = (100 * normalizedMaskY).toFixed(2);
       this._element.style.setProperty("--tutorial-mask-grad", "radial-gradient(transparent, black 5%)");
-      this._element.style.setProperty("--tutorial-mask-pos", `${g}% ${y}%`);
-      this._element.style.setProperty("--tutorial-mask-size", `${d}% ${u}%`);
+      this._element.style.setProperty("--tutorial-mask-pos", `${maskXPercent}% ${maskYPercent}%`);
+      this._element.style.setProperty("--tutorial-mask-size", `${maskWidthPercent}% ${maskHeightPercent}%`);
     } else {
       this._element.style.setProperty("--tutorial-mask-grad", null);
       this._element.style.setProperty("--tutorial-mask-pos", null);
       this._element.style.setProperty("--tutorial-mask-size", null);
     }
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 clearTimeout, this._getIndexByTutorialId, this._setSlideViewedTimeout, this._swiper.slideTo, this.app.getManager, this.hide, this.show；写入 _currIndex。
-   * 状态写入：_currIndex。
-   * 调用线索：clearTimeout、this._getIndexByTutorialId、this._setSlideViewedTimeout、this._swiper.slideTo、this.app.getManager等。
-   */
   onQueryChange({
     cancelToken: cancelToken,
     tutorial: tutorial
@@ -254,17 +200,12 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
     const currIndex = this._getIndexByTutorialId(tutorial);
     currIndex !== this._currIndex && (this._currIndex = currIndex, this._currIndex > -1 ? (this._state.isVisible ? this._swiper.slideTo(this._currIndex) : this.show(), this._setSlideViewedTimeout(currIndex)) : this.hide());
   }
-  /** @eyes-analysis
-   * 执行 _initSwiper 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady, this._swiper.update, this._swiper.slideTo, A11y.default, this._postSwiperInitFunction, this._setActiveBullet, this._setHighlightedElement, super.show；写入 _initTimeout, _swiper。
-   * 状态写入：_initTimeout、_swiper。
-   * 调用线索：EyesPublicApi.AppUtils.elementReady、EyesPublicApi.AppUtils.elementReady(e).then、new A11y.default、setTimeout、super.show等。
-   */
   _initSwiper() {
     const {
       carouselClass: carouselClass
     } = this._state;
-    const e = `.${carouselClass} .swiper-wrapper > div`;
-    EyesPublicApi.AppUtils.elementReady(e).then(() => {
+    const slideSelector = `.${carouselClass} .swiper-wrapper > div`;
+    EyesPublicApi.AppUtils.elementReady(slideSelector).then(() => {
       this._initTimeout = setTimeout(() => {
         this._swiper ? (this._swiper.update(), this._swiper.slideTo(this._currIndex)) : (this._swiper = new A11y.default(`.${carouselClass}`, this._config), this._postSwiperInitFunction(this._swiper));
         0 === this._currIndex && (this._setActiveBullet(), this._setHighlightedElement());
@@ -272,39 +213,22 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
       }, 500);
     });
   }
-  /** @eyes-analysis
-   * 执行 _postSwiperInitFunction 对应的组件业务步骤；调用 this._addEvents, this._createBullets, this._swiper.slideTo。
-   * 调用线索：this._addEvents、this._createBullets、this._swiper.slideTo。
-   */
   _postSwiperInitFunction() {
     this._addEvents();
     this._createBullets();
     this._swiper.slideTo(this._currIndex);
   }
-  /** @eyes-analysis
-   * 执行 _getIndexByTutorialId 对应的组件业务步骤。
-   * 调用线索：this._allTutorials?.findIndex。
-   */
-  _getIndexByTutorialId(t) {
+  _getIndexByTutorialId(tutorialId) {
     return this._allTutorials?.findIndex(({
       id: id
-    }) => id === t);
+    }) => id === tutorialId);
   }
-  /** @eyes-analysis
-   * 执行 _setSlideViewedTimeout 对应的组件业务步骤；写入 _slideViewedTimeout。
-   * 状态写入：_slideViewedTimeout。
-   * 调用线索：e.includes、e.push、e.sort、localStorage?.getItem、localStorage?.getItem(this._storageName)?.split等。
-   */
-  _setSlideViewedTimeout(t) {
+  _setSlideViewedTimeout(slideIndex) {
     this._slideViewedTimeout = setTimeout(() => {
-      const e = localStorage?.getItem(this._storageName)?.split(",") || [];
-      e.includes(t.toString()) || (e.push(t), e.sort(), localStorage?.setItem(this._storageName, e));
+      const viewedIndices = localStorage?.getItem(this._storageName)?.split(",") || [];
+      viewedIndices.includes(slideIndex.toString()) || (viewedIndices.push(slideIndex), viewedIndices.sort(), localStorage?.setItem(this._storageName, viewedIndices));
     }, 3e3);
   }
-  /** @eyes-analysis
-   * 执行 _calcElementMeasures 对应的组件业务步骤；调用 this._allTutorials.map。
-   * 调用线索：[...document.body.querySelectorAll(targetSelector)].filter、document.body.querySelectorAll、s[0].getBoundingClientRect、this._allTutorials.map。
-   */
   _calcElementMeasures() {
     const {
       clientWidth: clientWidth,
@@ -313,14 +237,14 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
     return this._allTutorials.map(({
       targetSelector: targetSelector
     }) => {
-      const s = [...document.body.querySelectorAll(targetSelector)].filter(t => null !== t.offsetParent);
-      if (!s.length) return false;
+      const visibleTargets = [...document.body.querySelectorAll(targetSelector)].filter(targetElement => null !== targetElement.offsetParent);
+      if (!visibleTargets.length) return false;
       const {
         left: left,
         width: width,
         top: top,
         height: height
-      } = s[0].getBoundingClientRect();
+      } = visibleTargets[0].getBoundingClientRect();
       return {
         xPos: 1 - (left + .5 * width) / clientWidth,
         yPos: 1 - (top + .5 * height) / clientHeight,
@@ -329,72 +253,47 @@ class TutorialOverlay extends EyesPublicApi.BaseComponent {
       };
     });
   }
-  /** @eyes-analysis
-   * 执行 show 对应的组件业务步骤；调用 this._app.getManager, Manager.getLayer, Manager.toggleLayer, this._initSwiper。
-   * 调用线索：document.getElementsByClassName、layerManager.getLayer、layerManager.toggleLayer、this._app.getManager、this._app.getManager("content").hideExternalLinksInText等。
-   */
   show() {
     const layerManager = this._app.getManager("layer");
     layerManager.getLayer("ui").visible || layerManager.toggleLayer("ui");
-    const e = this._children.swiperSlides?.childNodes?.length;
-    e && this._initSwiper();
+    const slideCount = this._children.swiperSlides?.childNodes?.length;
+    slideCount && this._initSwiper();
     if (true === this._app.getManager("router").configs.hideExternalLinks) {
-      const t = document.getElementsByClassName("tutorial-smallprint")[0].innerHTML;
-      document.getElementsByClassName("tutorial-smallprint")[0].innerHTML = this._app.getManager("content").hideExternalLinksInText(t);
+      const smallprintHtml = document.getElementsByClassName("tutorial-smallprint")[0].innerHTML;
+      document.getElementsByClassName("tutorial-smallprint")[0].innerHTML = this._app.getManager("content").hideExternalLinksInText(smallprintHtml);
     }
   }
-  /** @eyes-analysis
-   * 执行 hide 对应的组件业务步骤；调用 super.hide；写入 _currIndex。
-   * 状态写入：_currIndex。
-   * 调用线索：clearTimeout、super.hide。
-   */
   hide() {
     clearTimeout(this._initTimeout);
     this._currIndex = null;
     super.hide();
   }
-  /** @eyes-analysis
-   * 执行 calcPriorityIndex 对应的组件业务步骤；调用 this._allTutorials.filter, this._getIndexByTutorialId。
-   * 调用线索：i.toString、localStorage?.getItem、localStorage?.getItem(this._storageName)?.split、t.includes、this._allTutorials.filter等。
-   */
   calcPriorityIndex() {
-    const t = localStorage?.getItem(this._storageName)?.split(",") || [];
-    const e = this._allTutorials.filter((e, i) => !t.includes(i.toString()));
-    return e.length ? this._getIndexByTutorialId(e[0].id) : null;
+    const viewedIndices = localStorage?.getItem(this._storageName)?.split(",") || [];
+    const unviewedTutorials = this._allTutorials.filter((tutorial, tutorialIndex) => !viewedIndices.includes(tutorialIndex.toString()));
+    return unviewedTutorials.length ? this._getIndexByTutorialId(unviewedTutorials[0].id) : null;
   }
-  /** @eyes-analysis
-   * 执行 navigateToTutorial 对应的组件业务步骤；调用 this.app.getManager。
-   * 调用线索：navigate、this.app.getManager。
-   */
-  navigateToTutorial(t, e = false) {
+  navigateToTutorial(tutorialIndex, useHomeRoute = false) {
     const {
       homeRoute: homeRoute,
       currentRoute: currentRoute,
       navigate: navigate
     } = this.app.getManager("router");
-    const o = e ? homeRoute : currentRoute.url ?? "";
-    if ("number" == typeof t && t > -1 && t < this._allTutorials.length) {
+    const destinationRoute = useHomeRoute ? homeRoute : currentRoute.url ?? "";
+    if ("number" == typeof tutorialIndex && tutorialIndex > -1 && tutorialIndex < this._allTutorials.length) {
       const {
         id: id
-      } = this._allTutorials[t];
+      } = this._allTutorials[tutorialIndex];
       navigate({
         tutorial: id
-      }, o);
+      }, destinationRoute);
     }
   }
-  /** @eyes-analysis
-   * 执行 close 对应的组件业务步骤；调用 this.app.getManager。
-   * 调用线索：this.app.getManager、this.app.getManager("router").navigate。
-   */
   close() {
     this.app.getManager("router").navigate({
       __remove: ["tutorial"]
     });
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 this._setHighlightedElement。
-   * 调用线索：this._setHighlightedElement。
-   */
   resize() {
     this._state.isVisible && null !== this._currIndex && this._setHighlightedElement(this._currIndex, true);
   }

@@ -1,28 +1,13 @@
-/** @eyes-analysis
- * 文件职责：距离源目标选择和距离计算显示面板
- * 依据：imports: ../../framework/eyes/index.js, ../../styles/extracted/DistancePanelStyles.js, ../templates/DistancePanelTemplate.html；manager dependencies: router, distance
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1566763-1579808.
 import * as Eyes from "../../framework/eyes/index.js";
 import "../../styles/extracted/DistancePanelStyles.js";
 import DistancePanelTemplate from "../templates/DistancePanelTemplate.html";
 var getDistancePanelTemplate = () => DistancePanelTemplate;
-const r = "« Select or search for a target »";
-/** @eyes-analysis
- * 类职责：距离源目标选择和距离计算显示面板；继承 Eyes.BaseComponent
- * 继承：Eyes.BaseComponent；导出：DistancePanel。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+const selectTargetMessage = "« Select or search for a target »";
+/* 测距计算归 distance 管理器，面板持有拖动坐标、移动布局与线条交互状态。按下时登记窗口移动/抬起监听，抬起保存限位坐标并解除监听；屏幕中心改变时补偿面板位置。线条点击吸附到源、中心或目标，再由管理器转换到三维线偏移。原 removeAllEvents 的 hover 监听添加行为保留，未在去混淆中修复。 */
 class DistancePanel extends Eyes.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, this.bindFunctions；写入 _isTouch, _touchOptions, _canHover, _isMobile, isMobileChangedCallback, _dragState, _size, _lineGraphic。
-   * 状态写入：_canHover、_dragState、_isMobile、_isTouch、_lineGraphic、_size、_touchOptions、isMobileChangedCallback。
-   * 调用线索：Eyes.AppUtils.isMobile、super、this.bindFunctions。
-   */
-  constructor(t, e = {}) {
-    super(t, null, {
+  constructor(app, options = {}) {
+    super(app, null, {
       isVisible: true,
       isSearchingClass: "",
       isMinimized: null,
@@ -90,11 +75,6 @@ class DistancePanel extends Eyes.BaseComponent {
     };
     this.bindFunctions(["onMouseDown", "onMouseMove", "onMouseUp", "onTouchStart", "onTouchMove", "onTouchEnd", "onLineMouseEnter", "onLineMouseLeave", "onLineMouseMove", "_onLineTouchStart", "_onLineTouchEnd", "_calcNewXandY", "setPanelProps"]);
   }
-  /** @eyes-analysis
-   * 执行 initSearchUI 对应的组件业务步骤；调用 this.app.getComponent, SearchContainer.appendChild, this.sourceSearch.show, this.targetSearch.show；写入 sourceSearch, targetSearch。
-   * 状态写入：sourceSearch、targetSearch。
-   * 调用线索：input.setAttribute、s.setAttribute、sourceSearchContainer.appendChild、targetSearchContainer.appendChild、this.app.getComponent等。
-   */
   initSearchUI() {
     const {
       sourceSearchContainer: sourceSearchContainer,
@@ -110,33 +90,25 @@ class DistancePanel extends Eyes.BaseComponent {
       input: input
     } = this.sourceSearch?._children || {};
     const {
-      input: s
+      input: targetInput
     } = this.targetSearch?._children || {};
     input && input.setAttribute("placeholder", "Name of source");
-    s && s.setAttribute("placeholder", "Name of target");
+    targetInput && targetInput.setAttribute("placeholder", "Name of target");
     this.sourceSearch.show();
     this.targetSearch.show();
   }
-  /** @eyes-analysis
-   * 执行 onMouseDown 对应的组件业务步骤；调用 this.setCurrentlyDragging, this.setDownXY。
-   * 调用线索：this.setCurrentlyDragging、this.setDownXY、window.addEventListener。
-   */
-  onMouseDown(t) {
+  onMouseDown(mouseEvent) {
     this.setCurrentlyDragging(true);
-    this.setDownXY(t.clientX, t.clientY);
+    this.setDownXY(mouseEvent.clientX, mouseEvent.clientY);
     window.addEventListener("mousemove", this.onMouseMove);
     window.addEventListener("mouseup", this.onMouseUp);
   }
-  /** @eyes-analysis
-   * 执行 onMouseMove 对应的组件业务步骤；调用 this._calcNewXandY, this.getLimitedXandY, this.setLimitXY, this.setTransformCSSVars, this.calcMaxMinBtnPos。
-   * 调用线索：this._calcNewXandY、this.calcMaxMinBtnPos、this.getLimitedXandY、this.setLimitXY、this.setTransformCSSVars。
-   */
-  onMouseMove(t) {
-    if (1 === t.buttons && this.currentlyDragging) {
+  onMouseMove(mouseEvent) {
+    if (1 === mouseEvent.buttons && this.currentlyDragging) {
       const {
         newX: newX,
         newY: newY
-      } = this._calcNewXandY(t.clientX, t.clientY);
+      } = this._calcNewXandY(mouseEvent.clientX, mouseEvent.clientY);
       const {
         limitX: limitX,
         limitY: limitY
@@ -146,10 +118,6 @@ class DistancePanel extends Eyes.BaseComponent {
       this.calcMaxMinBtnPos(limitX);
     }
   }
-  /** @eyes-analysis
-   * 执行 onMouseUp 对应的组件业务步骤；调用 this.setDragXY, this.setCurrentlyDragging。
-   * 调用线索：this.setCurrentlyDragging、this.setDragXY、window.removeEventListener。
-   */
   onMouseUp() {
     const {
       limitX: limitX,
@@ -160,30 +128,22 @@ class DistancePanel extends Eyes.BaseComponent {
     window.removeEventListener("mousemove", this.onMouseMove);
     window.removeEventListener("mouseup", this.onMouseUp);
   }
-  /** @eyes-analysis
-   * 执行 onTouchStart 对应的组件业务步骤；调用 this.setCurrentlyDragging, this.setDownXY。
-   * 调用线索：this.setCurrentlyDragging、this.setDownXY、window.addEventListener。
-   */
-  onTouchStart(t) {
+  onTouchStart(touchEvent) {
     this.setCurrentlyDragging(true);
     const {
       clientX: clientX,
       clientY: clientY
-    } = t.touches[0];
+    } = touchEvent.touches[0];
     this.setDownXY(clientX, clientY);
     window.addEventListener("touchmove", this.onTouchMove);
     window.addEventListener("touchend", this.onTouchEnd);
   }
-  /** @eyes-analysis
-   * 执行 onTouchMove 对应的组件业务步骤；调用 this._calcNewXandY, this.getLimitedXandY, this.setLimitXY, this.setTransformCSSVars, this.calcMaxMinBtnPos。
-   * 调用线索：this._calcNewXandY、this.calcMaxMinBtnPos、this.getLimitedXandY、this.setLimitXY、this.setTransformCSSVars。
-   */
-  onTouchMove(t) {
+  onTouchMove(touchEvent) {
     if (this.currentlyDragging) {
       const {
         clientX: clientX,
         clientY: clientY
-      } = t.touches[0];
+      } = touchEvent.touches[0];
       const {
         newX: newX,
         newY: newY
@@ -197,10 +157,6 @@ class DistancePanel extends Eyes.BaseComponent {
       this.calcMaxMinBtnPos(limitX);
     }
   }
-  /** @eyes-analysis
-   * 执行 onTouchEnd 对应的组件业务步骤；调用 this.setDragXY, this.setCurrentlyDragging。
-   * 调用线索：this.setCurrentlyDragging、this.setDragXY、window.removeEventListener。
-   */
   onTouchEnd() {
     const {
       limitX: limitX,
@@ -211,10 +167,7 @@ class DistancePanel extends Eyes.BaseComponent {
     window.removeEventListener("touchmove", this.onTouchMove);
     window.removeEventListener("touchend", this.onTouchEnd);
   }
-  /** @eyes-analysis
-   * 执行 _calcNewXandY 对应的组件业务步骤。
-   */
-  _calcNewXandY(t, e) {
+  _calcNewXandY(pointerX, pointerY) {
     const {
       downX: downX,
       downY: downY,
@@ -222,14 +175,10 @@ class DistancePanel extends Eyes.BaseComponent {
       dragY: dragY
     } = this._dragState;
     return {
-      newX: dragX + (t - downX),
-      newY: dragY + (e - downY)
+      newX: dragX + (pointerX - downX),
+      newY: dragY + (pointerY - downY)
     };
   }
-  /** @eyes-analysis
-   * 执行 exit 对应的组件业务步骤；调用 this.app.getManager, Manager.navigate。
-   * 调用线索：routerManager.navigate、this.app.getManager。
-   */
   exit() {
     const routerManager = this.app.getManager("router");
     const {
@@ -240,10 +189,6 @@ class DistancePanel extends Eyes.BaseComponent {
       keepTime: true
     });
   }
-  /** @eyes-analysis
-   * 执行 toggleSourceMP 对应的组件业务步骤；调用 this.distanceManager.toggleSourceMeasurePoint, this.onLineClick。
-   * 调用线索：this.distanceManager.toggleSourceMeasurePoint、this.onLineClick。
-   */
   toggleSourceMP() {
     const {
       dotPos: dotPos
@@ -251,10 +196,6 @@ class DistancePanel extends Eyes.BaseComponent {
     this.distanceManager.toggleSourceMeasurePoint();
     0 === dotPos && this.onLineClick(null, 0);
   }
-  /** @eyes-analysis
-   * 执行 toggleTargetMP 对应的组件业务步骤；调用 this.distanceManager.toggleTargetMeasurePoint, this.onLineClick。
-   * 调用线索：this.distanceManager.toggleTargetMeasurePoint、this.onLineClick。
-   */
   toggleTargetMP() {
     const {
       dotPos: dotPos
@@ -262,47 +203,26 @@ class DistancePanel extends Eyes.BaseComponent {
     this.distanceManager.toggleTargetMeasurePoint();
     1 === dotPos && this.onLineClick(null, 1);
   }
-  /** @eyes-analysis
-   * 执行 onSwapClick 对应的组件业务步骤。
-   * 调用线索：this.distanceManager?.swapSourceAndTarget。
-   */
   onSwapClick() {
     this.distanceManager?.swapSourceAndTarget();
   }
-  /** @eyes-analysis
-   * 执行 toggleUnitSystem 对应的组件业务步骤。
-   * 调用线索：t.stopPropagation、this.distanceManager?.toggleCurrentUnitSystem、this.distanceManager?.updateMeasurement。
-   */
-  toggleUnitSystem(t) {
-    t.stopPropagation();
+  toggleUnitSystem(clickEvent) {
+    clickEvent.stopPropagation();
     this.distanceManager?.toggleCurrentUnitSystem();
     this.distanceManager?.updateMeasurement(false);
   }
-  /** @eyes-analysis
-   * 执行 onResultClick 对应的组件业务步骤；调用 this._cMenuParent.setExpanded。
-   * 调用线索：Boolean、this._cMenuParent.setExpanded、this._cMenuParent?.setExpanded、this.targetSearch?.onInputFocus。
-   */
-  onResultClick(t) {
+  onResultClick(clickEvent) {
     const {
       resultText: resultText
     } = this._state;
-    const i = Boolean(this._isMobile && this._cMenuParent) && !this._cMenuParent._state.isExpanded;
-    const s = resultText === r;
-    i && this._cMenuParent.setExpanded(true);
-    s ? this.targetSearch?.onInputFocus() : i || this._cMenuParent?.setExpanded(true);
+    const isMobileCollapsed = Boolean(this._isMobile && this._cMenuParent) && !this._cMenuParent._state.isExpanded;
+    const needsTarget = resultText === selectTargetMessage;
+    isMobileCollapsed && this._cMenuParent.setExpanded(true);
+    needsTarget ? this.targetSearch?.onInputFocus() : isMobileCollapsed || this._cMenuParent?.setExpanded(true);
   }
-  /** @eyes-analysis
-   * 执行 onContainerClick 对应的组件业务步骤。
-   * 调用线索：this.sourceSearch?.reset、this.targetSearch?.reset。
-   */
-  onContainerClick(t) {
-    t.target === this.element && (this.sourceSearch?.reset(), this.targetSearch?.reset());
+  onContainerClick(clickEvent) {
+    clickEvent.target === this.element && (this.sourceSearch?.reset(), this.targetSearch?.reset());
   }
-  /** @eyes-analysis
-   * 执行 addEvents 对应的组件业务步骤；调用 Area.addEventListener, Graphic.addEventListener；写入 _isTouch, _canHover。
-   * 状态写入：_canHover、_isTouch。
-   * 调用线索：dragArea.addEventListener、lineGraphic.addEventListener。
-   */
   addEvents() {
     const {
       isDraggable: isDraggable
@@ -321,10 +241,6 @@ class DistancePanel extends Eyes.BaseComponent {
     this._isTouch = isTouch;
     this._canHover = canHover;
   }
-  /** @eyes-analysis
-   * 执行 removeAllEvents 对应的组件业务步骤；调用 Area.removeEventListener, Graphic.addEventListener, Graphic.removeEventListener。
-   * 调用线索：dragArea.removeEventListener、lineGraphic.addEventListener、lineGraphic.removeEventListener。
-   */
   removeAllEvents() {
     const {
       dragArea: dragArea,
@@ -338,27 +254,15 @@ class DistancePanel extends Eyes.BaseComponent {
     lineGraphic.removeEventListener("touchstart", this._onLineTouchStart);
     lineGraphic.removeEventListener("touchend", this._onLineTouchEnd);
   }
-  /** @eyes-analysis
-   * 执行 setIsSearching 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setIsSearching(t) {
+  setIsSearching(isSearching) {
     this.setState({
-      isSearchingClass: t ? "searching" : ""
+      isSearchingClass: isSearching ? "searching" : ""
     });
   }
-  /** @eyes-analysis
-   * 执行 setScreenCenter 对应的组件业务步骤。
-   * 状态写入：_dragState.screenCenterX、_dragState.screenCenterY。
-   */
-  setScreenCenter(t, e) {
-    this._dragState.screenCenterX = t;
-    this._dragState.screenCenterY = e;
+  setScreenCenter(centerX, centerY) {
+    this._dragState.screenCenterX = centerX;
+    this._dragState.screenCenterY = centerY;
   }
-  /** @eyes-analysis
-   * 执行 setPanelProps 对应的组件业务步骤；调用 this._element.style.setProperty, Eyes.AppUtils.isLandscape, this.getLimitedXandY, this.setDragXY, this.setTransformCSSVars, this.calcMaxMinBtnPos, this.setScreenCenter。
-   * 调用线索：Eyes.AppUtils.isLandscape、this._element.style.setProperty、this.calcMaxMinBtnPos、this.getLimitedXandY、this.setDragXY等。
-   */
   setPanelProps() {
     const {
       width: width,
@@ -377,114 +281,74 @@ class DistancePanel extends Eyes.BaseComponent {
       screenCenterX: screenCenterX,
       screenCenterY: screenCenterY
     } = this._dragState;
-    const h = .5 * window.innerWidth;
-    const d = .5 * window.innerHeight;
-    const u = h - screenCenterX;
-    const p = d - screenCenterY;
-    const _ = Eyes.AppUtils.isLandscape();
-    const m = null !== dragX ? dragX + u : h - width * (_ ? 1.5 : .5);
-    const g = null !== dragY ? dragY + p : d - height * (_ ? .5 : -1);
+    const currentCenterX = .5 * window.innerWidth;
+    const currentCenterY = .5 * window.innerHeight;
+    const centerDeltaX = currentCenterX - screenCenterX;
+    const centerDeltaY = currentCenterY - screenCenterY;
+    const isLandscape = Eyes.AppUtils.isLandscape();
+    const desiredX = null !== dragX ? dragX + centerDeltaX : currentCenterX - width * (isLandscape ? 1.5 : .5);
+    const desiredY = null !== dragY ? dragY + centerDeltaY : currentCenterY - height * (isLandscape ? .5 : -1);
     const {
       limitX: limitX,
       limitY: limitY
-    } = this.getLimitedXandY(m, g);
+    } = this.getLimitedXandY(desiredX, desiredY);
     this.setDragXY(limitX, limitY);
     isDraggable ? (this.setTransformCSSVars(limitX, limitY), this.calcMaxMinBtnPos(limitX)) : (this.setTransformCSSVars(), this.calcMaxMinBtnPos());
-    this.setScreenCenter(h, d);
+    this.setScreenCenter(currentCenterX, currentCenterY);
   }
-  /** @eyes-analysis
-   * 执行 currentlyDragging 对应的组件业务步骤。
-   */
   get currentlyDragging() {
     return this._dragState.currentlyDragging;
   }
-  /** @eyes-analysis
-   * 执行 setCurrentlyDragging 对应的组件业务步骤；调用 this.setState。
-   * 状态写入：_dragState.currentlyDragging。
-   * 调用线索：this.setState。
-   */
-  setCurrentlyDragging(t) {
-    this._dragState.currentlyDragging = t;
+  setCurrentlyDragging(isDragging) {
+    this._dragState.currentlyDragging = isDragging;
     this.setState({
-      currDraggingClass: t ? "dragging" : ""
+      currDraggingClass: isDragging ? "dragging" : ""
     });
   }
-  /** @eyes-analysis
-   * 执行 setDownXY 对应的组件业务步骤。
-   * 状态写入：_dragState.downX、_dragState.downY。
-   */
-  setDownXY(t, e) {
-    this._dragState.downX = t;
-    this._dragState.downY = e;
+  setDownXY(pointerX, pointerY) {
+    this._dragState.downX = pointerX;
+    this._dragState.downY = pointerY;
   }
-  /** @eyes-analysis
-   * 执行 setLimitXY 对应的组件业务步骤。
-   * 状态写入：_dragState.limitX、_dragState.limitY。
-   */
-  setLimitXY(t, e) {
-    this._dragState.limitX = t;
-    this._dragState.limitY = e;
+  setLimitXY(limitX, limitY) {
+    this._dragState.limitX = limitX;
+    this._dragState.limitY = limitY;
   }
-  /** @eyes-analysis
-   * 执行 setDragXY 对应的组件业务步骤。
-   * 状态写入：_dragState.dragX、_dragState.dragY。
-   */
-  setDragXY(t = this._dragState.x, e = this._dragState.y) {
-    this._dragState.dragX = t;
-    this._dragState.dragY = e;
+  setDragXY(dragX = this._dragState.x, dragY = this._dragState.y) {
+    this._dragState.dragX = dragX;
+    this._dragState.dragY = dragY;
   }
-  /** @eyes-analysis
-   * 执行 setTransformCSSVars 对应的组件业务步骤；调用 this._element.style.setProperty。
-   * 调用线索：this._element.style.setProperty。
-   */
-  setTransformCSSVars(t, e) {
-    const i = void 0 === t && void 0 === e;
-    this._element.style.setProperty("--d-panel-x", i ? "" : `${t}px`);
-    this._element.style.setProperty("--d-panel-y", i ? "" : `${e}px`);
+  setTransformCSSVars(panelX, panelY) {
+    const clearTransform = void 0 === panelX && void 0 === panelY;
+    this._element.style.setProperty("--d-panel-x", clearTransform ? "" : `${panelX}px`);
+    this._element.style.setProperty("--d-panel-y", clearTransform ? "" : `${panelY}px`);
   }
-  /** @eyes-analysis
-   * 执行 setCanMinimize 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setCanMinimize(t) {
+  setCanMinimize(canMinimize) {
     this.setState({
-      canMinimizeClass: t ? "minimizable" : ""
+      canMinimizeClass: canMinimize ? "minimizable" : ""
     });
   }
-  /** @eyes-analysis
-   * 执行 setSwapButtonVisible 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setSwapButtonVisible(t) {
+  setSwapButtonVisible(isVisible) {
     this.setState({
-      swapIsVisibleClass: t ? "" : "hidden"
+      swapIsVisibleClass: isVisible ? "" : "hidden"
     });
   }
-  /** @eyes-analysis
-   * 执行 calcMaxMinBtnPos 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  calcMaxMinBtnPos(t) {
+  calcMaxMinBtnPos(panelX) {
     const {
       width: width
     } = this._size;
     const {
       maxMinBtnPosition: maxMinBtnPosition
     } = this._state;
-    const s = void 0 === t;
-    const n = .5 * (window.innerWidth - width);
-    const o = !s && t > n ? "left" : "right";
-    const r = "left" === o ? "offset" : "";
-    o !== maxMinBtnPosition && this.setState({
-      maxMinBtnPosition: o,
-      swapOffsetClass: r
+    const useDefaultPosition = void 0 === panelX;
+    const screenMidpoint = .5 * (window.innerWidth - width);
+    const buttonSide = !useDefaultPosition && panelX > screenMidpoint ? "left" : "right";
+    const swapOffsetClass = "left" === buttonSide ? "offset" : "";
+    buttonSide !== maxMinBtnPosition && this.setState({
+      maxMinBtnPosition: buttonSide,
+      swapOffsetClass: swapOffsetClass
     });
   }
-  /** @eyes-analysis
-   * 执行 getLimitedXandY 对应的组件业务步骤；调用 Math.min, Math.max。
-   * 调用线索：Math.max、Math.min。
-   */
-  getLimitedXandY(t, e) {
+  getLimitedXandY(desiredX, desiredY) {
     const {
       isExpandedClass: isExpandedClass
     } = this._state;
@@ -494,76 +358,60 @@ class DistancePanel extends Eyes.BaseComponent {
       padding: padding,
       expandedHeight: expandedHeight
     } = this._size;
-    const a = padding.top;
-    const l = window.innerWidth - width;
-    const c = window.innerHeight - (isExpandedClass ? expandedHeight : height) - padding.bottom;
+    const minimumY = padding.top;
+    const maximumX = window.innerWidth - width;
+    const maximumY = window.innerHeight - (isExpandedClass ? expandedHeight : height) - padding.bottom;
     return {
-      limitX: Math.min(Math.max(0, t), l),
-      limitY: Math.min(Math.max(a, e), c)
+      limitX: Math.min(Math.max(0, desiredX), maximumX),
+      limitY: Math.min(Math.max(minimumY, desiredY), maximumY)
     };
   }
-  /** @eyes-analysis
-   * 执行 toggleIsMinimized 对应的组件业务步骤；调用 this.setState, MinButton.setAttribute。
-   * 调用线索：maxMinButton.setAttribute、this.setState。
-   */
-  toggleIsMinimized(t, e) {
+  toggleIsMinimized(clickEvent, requestedMinimized) {
     const {
       isMinimized: isMinimized
     } = this._state;
     const {
       maxMinButton: maxMinButton
     } = this._children;
-    const n = e ?? !isMinimized;
-    const o = n ? "minimized" : "maximized";
-    const r = n ? "icon-plus" : "icon-minus";
+    const shouldMinimize = requestedMinimized ?? !isMinimized;
+    const minimizedClass = shouldMinimize ? "minimized" : "maximized";
+    const buttonIconClass = shouldMinimize ? "icon-plus" : "icon-minus";
     this.setState({
-      isMinimized: n,
-      isMinimizedClass: o,
-      maxMinIconClass: r
+      isMinimized: shouldMinimize,
+      isMinimizedClass: minimizedClass,
+      maxMinIconClass: buttonIconClass
     });
-    const a = (n ? "Maximize" : "Minimize") + " distance tool panel";
-    maxMinButton.setAttribute("alt", a);
+    const buttonAltText = (shouldMinimize ? "Maximize" : "Minimize") + " distance tool panel";
+    maxMinButton.setAttribute("alt", buttonAltText);
   }
-  /** @eyes-analysis
-   * 执行 setIsDraggable 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setIsDraggable(t) {
+  setIsDraggable(isDraggable) {
     this.setState({
-      isDraggable: t,
-      isDraggableClass: t ? "draggable" : "fixed"
+      isDraggable: isDraggable,
+      isDraggableClass: isDraggable ? "draggable" : "fixed"
     });
   }
-  /** @eyes-analysis
-   * 执行 setIsLoading 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setIsLoading(t) {
+  setIsLoading(isLoading) {
     this.setState({
-      isLoadingClass: t ? "" : "hidden"
+      isLoadingClass: isLoading ? "" : "hidden"
     });
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 clearTimeout, this._element.style.setProperty, this.app.getManager, this.setState；写入 。
-   * 调用线索：clearTimeout、this._element.style.setProperty、this.app.getManager、this.setState。
-   */
   setResult({
     text: text,
     unit: unit,
     relText: relText,
     relUnit: relUnit,
-    isRelVelocity: n = false,
-    isDistance: o = false
+    isRelVelocity = false,
+    isDistance = false
   } = {}) {
     clearTimeout(this.app.getManager("distance")?.errorResultTimeout);
     this.setState({
-      resultText: text ?? r,
+      resultText: text ?? selectTargetMessage,
       resultUnit: unit ?? "",
-      resultTextClass: o ? "distance monospace" : "info semi small color gray med",
+      resultTextClass: isDistance ? "distance monospace" : "info semi small color gray med",
       relVelocityText: relText ?? "",
       relVelocityUnit: relUnit ?? "",
-      relVelocityClass: n ? "rel-velocity monospace" : "hidden",
-      isExpandedClass: n ? "expanded" : "",
+      relVelocityClass: isRelVelocity ? "rel-velocity monospace" : "hidden",
+      isExpandedClass: isRelVelocity ? "expanded" : "",
       lightTimeVisibleClass: "hidden",
       lightTimeText: ""
     });
@@ -575,132 +423,92 @@ class DistancePanel extends Eyes.BaseComponent {
     const {
       isDraggable: isDraggable
     } = this._state;
-    this._element.style.setProperty("--d-panel-height", isDraggable ? `${n ? expandedHeight : height}px` : "");
+    this._element.style.setProperty("--d-panel-height", isDraggable ? `${isRelVelocity ? expandedHeight : height}px` : "");
     this._element.style.setProperty("--d-panel-height-factor", isDraggable ? `${heightFactor}rem` : "");
   }
-  /** @eyes-analysis
-   * 执行 setLightTime 对应的组件业务步骤；调用 this._element.style.setProperty, this.setState。
-   * 调用线索：this._element.style.setProperty、this.setState。
-   */
-  setLightTime(t) {
+  setLightTime(lightTimeText) {
     const {
       heightFactor: heightFactor
     } = this._size;
     const {
       isDraggable: isDraggable
     } = this._state;
-    this._element.style.setProperty("--d-panel-height-factor", isDraggable ? `${t ? heightFactor + 1.5 : heightFactor}rem` : "");
-    t ? this.setState({
+    this._element.style.setProperty("--d-panel-height-factor", isDraggable ? `${lightTimeText ? heightFactor + 1.5 : heightFactor}rem` : "");
+    lightTimeText ? this.setState({
       lightTimeVisibleClass: "",
-      lightTimeText: t ?? ""
+      lightTimeText: lightTimeText ?? ""
     }) : this.setState({
       lightTimeVisibleClass: "hidden",
       lightTimeText: ""
     });
   }
-  /** @eyes-analysis
-   * 执行 setSourceText 对应的组件业务步骤。
-   * 调用线索：this.sourceSearch?.setConfig。
-   */
-  setSourceText(t) {
+  setSourceText(sourceText) {
     const {
       input: input
     } = this.sourceSearch?._children || {};
-    input && (input.value = t);
-    t && this.sourceSearch?.setConfig({
-      defaultText: t
+    input && (input.value = sourceText);
+    sourceText && this.sourceSearch?.setConfig({
+      defaultText: sourceText
     });
   }
-  /** @eyes-analysis
-   * 执行 setSourceMpState 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setSourceMpState(t) {
-    const e = "Moon" === this.distanceManager?.sourceDisplayName ? " the" : "";
-    const i = t ? `<span>from the <span class="mp-highlight">${t}</span> of${e}</span>` : `<span>from${e}</span>`;
-    const s = t ? "" : "hidden";
-    const n = t || "no-toggle";
+  setSourceMpState(measurePointName) {
+    const sourceArticle = "Moon" === this.distanceManager?.sourceDisplayName ? " the" : "";
+    const fromHtml = measurePointName ? `<span>from the <span class="mp-highlight">${measurePointName}</span> of${sourceArticle}</span>` : `<span>from${sourceArticle}</span>`;
+    const toggleVisibleClass = measurePointName ? "" : "hidden";
+    const measurePointClass = measurePointName || "no-toggle";
     this.setState({
-      fromText: i,
-      showSourceMPToggleClass: s,
-      sourceMpClass: n
+      fromText: fromHtml,
+      showSourceMPToggleClass: toggleVisibleClass,
+      sourceMpClass: measurePointClass
     });
   }
-  /** @eyes-analysis
-   * 执行 setTargetText 对应的组件业务步骤。
-   * 调用线索：this.targetSearch?.setConfig。
-   */
-  setTargetText(t) {
+  setTargetText(targetText) {
     const {
       input: input
     } = this.targetSearch?._children || {};
-    input && (input.value = t ?? "");
-    "string" == typeof t && this.targetSearch?.setConfig({
-      defaultText: t
+    input && (input.value = targetText ?? "");
+    "string" == typeof targetText && this.targetSearch?.setConfig({
+      defaultText: targetText
     });
   }
-  /** @eyes-analysis
-   * 执行 setTargetMpState 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
-  setTargetMpState(t) {
-    const e = "Moon" === this.distanceManager?.targetDisplayNames[0] ? " the" : "";
-    const i = t ? `<span>to the <span class="mp-highlight">${t}</span> of${e}</span>` : `<span>to${e}</span>`;
-    const s = t ? "" : "hidden";
-    const n = t || "no-toggle";
+  setTargetMpState(measurePointName) {
+    const targetArticle = "Moon" === this.distanceManager?.targetDisplayNames[0] ? " the" : "";
+    const toHtml = measurePointName ? `<span>to the <span class="mp-highlight">${measurePointName}</span> of${targetArticle}</span>` : `<span>to${targetArticle}</span>`;
+    const toggleVisibleClass = measurePointName ? "" : "hidden";
+    const measurePointClass = measurePointName || "no-toggle";
     this.setState({
-      toText: i,
-      showTargetMPToggleClass: s,
-      targetMpClass: n
+      toText: toHtml,
+      showTargetMPToggleClass: toggleVisibleClass,
+      targetMpClass: measurePointClass
     });
   }
-  /** @eyes-analysis
-   * 执行 onIsMobileChanged 对应的组件业务步骤；调用 this._updateTitleAndCloseBtnParent, this.setIsDraggable, this.isMobileChangedCallback；写入 _isMobile。
-   * 状态写入：_isMobile。
-   * 调用线索：this._updateTitleAndCloseBtnParent、this.isMobileChangedCallback、this.setIsDraggable。
-   */
   onIsMobileChanged(isMobile) {
     this._isMobile = isMobile;
     this._updateTitleAndCloseBtnParent(this._isMobile);
     this.setIsDraggable(!this._isMobile);
     "function" == typeof this.isMobileChangedCallback && this.isMobileChangedCallback(this._isMobile);
   }
-  /** @eyes-analysis
-   * 执行 _updateTitleAndCloseBtnParent 对应的组件业务步骤；调用 this.app._dynamicElement.prepend, Area.append。
-   * 调用线索：dragArea.append、this.app._dynamicElement.prepend。
-   */
-  _updateTitleAndCloseBtnParent(t = this._isMobile) {
+  _updateTitleAndCloseBtnParent(isMobile = this._isMobile) {
     const {
       dpTitle: dpTitle,
       dpCloseButton: dpCloseButton,
       dragArea: dragArea
     } = this._children;
-    t ? this.app._dynamicElement.prepend(dpTitle, dpCloseButton) : dragArea.append(dpTitle, dpCloseButton);
+    isMobile ? this.app._dynamicElement.prepend(dpTitle, dpCloseButton) : dragArea.append(dpTitle, dpCloseButton);
   }
-  /** @eyes-analysis
-   * 执行 allowBpOffset 对应的组件业务步骤。
-   */
   get allowBpOffset() {
     return this._state.isDraggable && this._state.isMinimized;
   }
-  /** @eyes-analysis
-   * 执行 setBpCSSOffsets 对应的组件业务步骤；调用 this.app.pioneer.getInput, this._element.style.setProperty。
-   * 调用线索：this._element.style.setProperty、this.app.pioneer.getInput、this.app.pioneer.getInput().getActiveViewport、this.app.pioneer.getInput().getActiveViewport().getCamera、this.distanceManager._betweenPosEntity?.getPixelSpacePosition。
-   */
   setBpCSSOffsets() {
-    const t = this.app.pioneer.getInput().getActiveViewport().getCamera();
+    const viewportCamera = this.app.pioneer.getInput().getActiveViewport().getCamera();
     const {
-      x: e = 0,
-      y: i = 0
-    } = this.distanceManager._betweenPosEntity?.getPixelSpacePosition(t) || {};
-    this._element.style.setProperty("--d-panel-bpX", `${e}px`);
-    this._element.style.setProperty("--d-panel-bpY", `${i}px`);
+      x: betweenPixelX = 0,
+      y: betweenPixelY = 0
+    } = this.distanceManager._betweenPosEntity?.getPixelSpacePosition(viewportCamera) || {};
+    this._element.style.setProperty("--d-panel-bpX", `${betweenPixelX}px`);
+    this._element.style.setProperty("--d-panel-bpY", `${betweenPixelY}px`);
   }
-  /** @eyes-analysis
-   * 执行 onLineClick 对应的组件业务步骤；调用 this.distanceManager.hideTooltip, this.setState, this.distanceManager.getOffsetU, this.distanceManager.on3dLineClick, this.distanceManager.setHoldU。
-   * 调用线索：clearTimeout、this.distanceManager.getOffsetU、this.distanceManager.hideTooltip、this.distanceManager.on3dLineClick、this.distanceManager.setHoldU等。
-   */
-  onLineClick(t, e) {
+  onLineClick(clickEvent, requestedPosition) {
     const {
       lineGraphic: lineGraphic
     } = this._children;
@@ -711,25 +519,21 @@ class DistancePanel extends Eyes.BaseComponent {
     const {
       hasTarget: hasTarget
     } = this.distanceManager;
-    if (!hasTarget && void 0 === e && (null === t || t.target !== lineGraphic)) return;
+    if (!hasTarget && void 0 === requestedPosition && (null === clickEvent || clickEvent.target !== lineGraphic)) return;
     clearTimeout(this._touchOptions.activeTimeout);
     this.distanceManager.hideTooltip();
-    const r = e ?? (t.clientY - top) / height;
-    const a = r < .4 ? 0 : r > .6 ? 1 : .5;
-    const l = 1 === a ? "target-dot" : .5 === a ? "centered-dot" : "source-dot";
+    const normalizedPosition = requestedPosition ?? (clickEvent.clientY - top) / height;
+    const snappedPosition = normalizedPosition < .4 ? 0 : normalizedPosition > .6 ? 1 : .5;
+    const dotPositionClass = 1 === snappedPosition ? "target-dot" : .5 === snappedPosition ? "centered-dot" : "source-dot";
     this.setState({
-      dotPosClass: l,
+      dotPosClass: dotPositionClass,
       touchActiveClass: ""
     });
-    const c = this.distanceManager.getOffsetU(a);
-    this.distanceManager.on3dLineClick(null, c);
-    this.distanceManager.setHoldU(a);
+    const offsetPosition = this.distanceManager.getOffsetU(snappedPosition);
+    this.distanceManager.on3dLineClick(null, offsetPosition);
+    this.distanceManager.setHoldU(snappedPosition);
   }
-  /** @eyes-analysis
-   * 执行 onLineMouseMove 对应的组件业务步骤；调用 this.setLineGraphicDotOffset。
-   * 调用线索：this.setLineGraphicDotOffset。
-   */
-  onLineMouseMove(t) {
+  onLineMouseMove(mouseEvent) {
     const {
       lineGraphic: lineGraphic
     } = this._children;
@@ -737,33 +541,20 @@ class DistancePanel extends Eyes.BaseComponent {
       top: top,
       height: height
     } = this._lineGraphic;
-    if (t.target !== lineGraphic) return;
+    if (mouseEvent.target !== lineGraphic) return;
     const {
       clientY: clientY
-    } = t;
-    const o = (clientY - top) / height;
-    const r = o < .4 ? 0 : o > .6 ? 1 : .5;
-    this.setLineGraphicDotOffset(r);
+    } = mouseEvent;
+    const normalizedPosition = (clientY - top) / height;
+    const snappedPosition = normalizedPosition < .4 ? 0 : normalizedPosition > .6 ? 1 : .5;
+    this.setLineGraphicDotOffset(snappedPosition);
   }
-  /** @eyes-analysis
-   * 执行 onLineMouseEnter 对应的组件业务步骤；调用 this.setLineGraphicDimensions。
-   * 调用线索：this.setLineGraphicDimensions。
-   */
   onLineMouseEnter() {
     this.setLineGraphicDimensions();
   }
-  /** @eyes-analysis
-   * 执行 onLineMouseLeave 对应的组件业务步骤；调用 this.setLineGraphicDotOffset。
-   * 调用线索：this.setLineGraphicDotOffset。
-   */
   onLineMouseLeave() {
     this.setLineGraphicDotOffset(null);
   }
-  /** @eyes-analysis
-   * 执行 setLineGraphicDimensions 对应的组件业务步骤；调用 Graphic.getBoundingClientRect。
-   * 状态写入：_lineGraphic.height、_lineGraphic.top。
-   * 调用线索：lineGraphic.getBoundingClientRect。
-   */
   setLineGraphicDimensions() {
     const {
       lineGraphic: lineGraphic
@@ -775,11 +566,7 @@ class DistancePanel extends Eyes.BaseComponent {
     this._lineGraphic.top = top;
     this._lineGraphic.height = height;
   }
-  /** @eyes-analysis
-   * 执行 _onLineTouchStart 对应的组件业务步骤；调用 this.setState, this.setLineGraphicDimensions, this.distanceManager.showTooltip。
-   * 调用线索：clearTimeout、t.preventDefault、this.distanceManager.showTooltip、this.setLineGraphicDimensions、this.setState。
-   */
-  _onLineTouchStart(t) {
+  _onLineTouchStart(touchEvent) {
     clearTimeout(this._touchOptions.activeTimeout);
     const {
       touchActiveClass: touchActiveClass
@@ -787,15 +574,10 @@ class DistancePanel extends Eyes.BaseComponent {
     const {
       hasTarget: hasTarget
     } = this.distanceManager;
-    hasTarget && !touchActiveClass && (t.preventDefault(), this.setState({
+    hasTarget && !touchActiveClass && (touchEvent.preventDefault(), this.setState({
       touchActiveClass: "touchactive"
     }), this.setLineGraphicDimensions(), this.distanceManager.showTooltip());
   }
-  /** @eyes-analysis
-   * 执行 _onLineTouchEnd 对应的组件业务步骤；调用 this.setState, this.distanceManager.hideTooltip。
-   * 状态写入：_touchOptions.activeTimeout。
-   * 调用线索：setTimeout、this.distanceManager.hideTooltip、this.setState。
-   */
   _onLineTouchEnd() {
     this._touchOptions.activeTimeout = setTimeout(() => {
       this.setState({
@@ -804,61 +586,39 @@ class DistancePanel extends Eyes.BaseComponent {
       this.distanceManager.hideTooltip();
     }, this._touchOptions.activeDelay);
   }
-  /** @eyes-analysis
-   * 执行 setLineGraphicDotPos 对应的组件业务步骤。
-   * 状态写入：_lineGraphic.dotPos。
-   * 调用线索：lineGraphic?.style.setProperty、parseFloat、t.toFixed。
-   */
-  setLineGraphicDotPos(t) {
+  setLineGraphicDotPos(normalizedPosition) {
     const {
       lineGraphic: lineGraphic
     } = this._children;
-    const i = parseFloat(t.toFixed(5));
-    const s = 0 === i || 1 === i ? i : t;
-    this._lineGraphic.dotPos = s;
-    lineGraphic?.style.setProperty("--focus-dot-pos", 100 * t + "%");
+    const roundedPosition = parseFloat(normalizedPosition.toFixed(5));
+    const storedPosition = 0 === roundedPosition || 1 === roundedPosition ? roundedPosition : normalizedPosition;
+    this._lineGraphic.dotPos = storedPosition;
+    lineGraphic?.style.setProperty("--focus-dot-pos", 100 * normalizedPosition + "%");
   }
-  /** @eyes-analysis
-   * 执行 setLineGraphicDotOffset 对应的组件业务步骤。
-   * 调用线索：lineGraphic?.style.setProperty。
-   */
-  setLineGraphicDotOffset(t) {
+  setLineGraphicDotOffset(normalizedOffset) {
     const {
       lineGraphic: lineGraphic
     } = this._children;
-    const i = null !== t ? 100 * t + "%" : "unset";
-    lineGraphic?.style.setProperty("--focus-dot-offset", i);
+    const offsetValue = null !== normalizedOffset ? 100 * normalizedOffset + "%" : "unset";
+    lineGraphic?.style.setProperty("--focus-dot-offset", offsetValue);
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 Eyes.AppUtils.isMobile, this.onIsMobileChanged, this.removeAllEvents, this.addEvents, this.setPanelProps。
-   * 调用线索：Eyes.AppUtils.isMobile、this.addEvents、this.onIsMobileChanged、this.removeAllEvents、this.setPanelProps。
-   */
-  resize(t, e = false) {
+  resize(resizeEvent, forceUpdate = false) {
     const {
       isTouch: isTouch,
       canHover: canHover
     } = this.app;
-    const o = Eyes.AppUtils.isMobile();
-    const r = this._isMobile !== o;
-    const a = this._isTouch !== isTouch;
-    const l = this._canHover !== canHover;
-    (e || r) && this.onIsMobileChanged(o);
-    (e || a || l || r) && (this.removeAllEvents(), this.addEvents());
+    const isMobile = Eyes.AppUtils.isMobile();
+    const mobileChanged = this._isMobile !== isMobile;
+    const touchChanged = this._isTouch !== isTouch;
+    const hoverChanged = this._canHover !== canHover;
+    (forceUpdate || mobileChanged) && this.onIsMobileChanged(isMobile);
+    (forceUpdate || touchChanged || hoverChanged || mobileChanged) && (this.removeAllEvents(), this.addEvents());
     this.setPanelProps();
   }
-  /** @eyes-analysis
-   * 执行 show 对应的组件业务步骤；调用 this.app.getManager, this.toggleIsMinimized。
-   * 状态写入：distanceManager。
-   * 调用线索：this.app.getManager、this.toggleIsMinimized。
-   */
   show() {
     this.distanceManager ??= this.app.getManager("distance");
     this.toggleIsMinimized(null, false);
   }
-  /** @eyes-analysis
-   * 执行 hide 对应的组件业务步骤；调用 this.toggleIsMinimized, Element.getAttribute。
-   * 调用线索：parentElement.getAttribute、this.toggleIsMinimized。
-   */
   hide() {
     this.toggleIsMinimized(null, true);
     const {
@@ -866,18 +626,10 @@ class DistancePanel extends Eyes.BaseComponent {
     } = this.element;
     "componentContainer" === parentElement.getAttribute("key") && (parentElement.style.opacity = 1, parentElement.style.visibility = "visible");
   }
-  /** @eyes-analysis
-   * 挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this.resize。
-   * 调用线索：super.__enable、this.resize。
-   */
   __enable() {
     super.__enable();
     this.resize(null, true);
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 this.removeAllEvents, this._updateTitleAndCloseBtnParent, super.__disable。
-   * 调用线索：super.__disable、this._updateTitleAndCloseBtnParent、this.removeAllEvents。
-   */
   __disable() {
     this.removeAllEvents();
     this._updateTitleAndCloseBtnParent(false);

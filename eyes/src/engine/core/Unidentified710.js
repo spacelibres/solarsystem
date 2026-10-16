@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 31 个实体/参考系（如 sc_escapade_blue、sc_escapade_gold、sc_mars_2020、sc_mars_2020_landing_site、sc_mars_science_laboratory、sc_mars_science_laboratory_landing_site），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 火星任务目录将巡航/着陆模型、地面约束、标签和轨迹参考系按覆盖时间切换；回调重新解析组件，保留原字符串替换未赋回等既有行为，不改任务数据。
 // Recovered from app.js:1117756-1148264.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -111,10 +106,10 @@ Entity.Entity.register({
       url: "sc_mars_2020/surface/lin"
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.TranslateController);
-        e.setTranslation(new Pioneer.Vector3(-.125148, .026867, -.023641));
-        return e;
+      func: entity => {
+        const translationController = entity.addController(Pioneer.TranslateController);
+        translationController.setTranslation(new Pioneer.Vector3(-.125148, .026867, -.023641));
+        return translationController;
       },
       coverage: [666952859, 666953098.003]
     }, {
@@ -135,79 +130,110 @@ Entity.Entity.register({
       coverage: [666952859, Number.POSITIVE_INFINITY]
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.GroundClampController);
-        e.setDistanceFromGround(.001);
-        e.setGroundEntityRef("mars");
-        e.setUp(Pioneer.Vector3.ZAxisNeg);
-        e.setCoverage(new Pioneer.Interval(666953086.614, Number.POSITIVE_INFINITY));
-        return e;
+      func: entity => {
+        const groundClampController = entity.addController(Pioneer.GroundClampController);
+        groundClampController.setDistanceFromGround(.001);
+        groundClampController.setGroundEntityRef("mars");
+        groundClampController.setUp(Pioneer.Vector3.ZAxisNeg);
+        groundClampController.setCoverage(new Pioneer.Interval(666953086.614, Number.POSITIVE_INFINITY));
+        return groundClampController;
       }
     }, {
       type: "coverage",
       coverage: [666953086.614, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && e.getDiv().innerHTML.replace("Mars 2020", "Perseverance");
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML.replace("Mars 2020", "Perseverance");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && e.getDiv().innerHTML.replace("Perseverance", "Mars 2020");
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML.replace("Perseverance", "Mars 2020");
+        }
       }
     }, {
       type: "coverage",
       coverage: [666953098.003, 676629898.003],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setStartTime(666953098.003), e.setRelativeStartTime(false));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setStartTime(666953098.003);
+          trail.setRelativeStartTime(false);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeStartTime(true);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeStartTime(true);
+        }
       }
     }, {
       type: "coverage",
       coverage: [666932224, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(true);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(false);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+        }
       }
     }, {
       type: "coverage",
       coverage: [666953086.614, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_2020/rover/perseverance.gltf"), e.setRotation(new Pioneer.Quaternion(.5, -.5, .5, -.5)), e.setTranslation(new Pioneer.Vector3(0, 0, .001)));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_2020/rover/perseverance.gltf");
+          model.setRotation(new Pioneer.Quaternion(.5, -.5, .5, -.5));
+          model.setTranslation(new Pioneer.Vector3(0, 0, .001));
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_2020/cruise_whole/msl_cruise_stage.gltf"), e.setRotation(new Pioneer.Quaternion(.7071067811865478, -.7071067811865472, 0, 0)), e.setTranslation(new Pioneer.Vector3(0, 0, 0)));
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_2020/cruise_whole/msl_cruise_stage.gltf");
+          model.setRotation(new Pioneer.Quaternion(.7071067811865478, -.7071067811865472, 0, 0));
+          model.setTranslation(new Pioneer.Vector3(0, 0, 0));
+        }
       }
     }, {
       type: "coverage",
       coverage: [666953098.003, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+        }
       }
     }, {
       type: "coverage",
       coverage: [666952458, 666953086.614],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setHiddenObject("solar_panels", true), e.setHiddenObject("frame_etc", true));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("solar_panels", true);
+          model.setHiddenObject("frame_etc", true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setHiddenObject("solar_panels", false), e.setHiddenObject("frame_etc", false));
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("solar_panels", false);
+          model.setHiddenObject("frame_etc", false);
+        }
       }
     }]
   },
@@ -255,10 +281,10 @@ Entity.Entity.register({
       url: "sc_mars_science_laboratory/edl/pos"
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.TranslateController);
-        e.setTranslation(new Pioneer.Vector3(.002583, .002995, .001937));
-        return e;
+      func: entity => {
+        const translationController = entity.addController(Pioneer.TranslateController);
+        translationController.setTranslation(new Pioneer.Vector3(.002583, .002995, .001937));
+        return translationController;
       },
       coverage: [397501373, 397502386.832]
     }, {
@@ -288,68 +314,94 @@ Entity.Entity.register({
       coverage: [397502386.832, Number.POSITIVE_INFINITY]
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.GroundClampController);
-        e.setDistanceFromGround(98e-5);
-        e.setGroundEntityRef("mars");
-        e.setUp(Pioneer.Vector3.ZAxisNeg);
-        e.setCoverage(new Pioneer.Interval(397502386.832, Number.POSITIVE_INFINITY));
-        return e;
+      func: entity => {
+        const groundClampController = entity.addController(Pioneer.GroundClampController);
+        groundClampController.setDistanceFromGround(98e-5);
+        groundClampController.setGroundEntityRef("mars");
+        groundClampController.setUp(Pioneer.Vector3.ZAxisNeg);
+        groundClampController.setCoverage(new Pioneer.Interval(397502386.832, Number.POSITIVE_INFINITY));
+        return groundClampController;
       }
     }, {
       type: "coverage",
       coverage: [397502386.832, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && e.getDiv().innerHTML.replace("Mars Science Laboratory", "Curiosity");
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML.replace("Mars Science Laboratory", "Curiosity");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && e.getDiv().innerHTML.replace("Curiosity", "Mars Science Laboratory");
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML.replace("Curiosity", "Mars Science Laboratory");
+        }
       }
     }, {
       type: "coverage",
       coverage: [397501373, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(true);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(false);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+        }
       }
     }, {
       type: "coverage",
       coverage: [397502324, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_science_laboratory/rover/curiosity_static.gltf"), e.setRotation(new Pioneer.Quaternion(.5, -.5, .5, -.5)), e.setTranslation(new Pioneer.Vector3(0, 0, .001)));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_science_laboratory/rover/curiosity_static.gltf");
+          model.setRotation(new Pioneer.Quaternion(.5, -.5, .5, -.5));
+          model.setTranslation(new Pioneer.Vector3(0, 0, .001));
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_science_laboratory/cruise/msl_cruisestage.gltf"), e.setRotation(new Pioneer.Quaternion(.7071067811865478, -.7071067811865472, 0, 0)), e.setTranslation(new Pioneer.Vector3(0, 0, 0)));
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_science_laboratory/cruise/msl_cruisestage.gltf");
+          model.setRotation(new Pioneer.Quaternion(.7071067811865478, -.7071067811865472, 0, 0));
+          model.setTranslation(new Pioneer.Vector3(0, 0, 0));
+        }
       }
     }, {
       type: "coverage",
       coverage: [397502386.832, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+        }
       }
     }, {
       type: "coverage",
       coverage: [397501758, 397502386.832],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setHiddenObject("solar_panels", true), e.setHiddenObject("frame_etc", true));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("solar_panels", true);
+          model.setHiddenObject("frame_etc", true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setHiddenObject("solar_panels", false), e.setHiddenObject("frame_etc", false));
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("solar_panels", false);
+          model.setHiddenObject("frame_etc", false);
+        }
       }
     }]
   },
@@ -401,13 +453,13 @@ Entity.Entity.register({
       url: "sc_mars_exploration_rover_1/surface/lin"
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.RotateController);
+      func: entity => {
+        const rotationController = entity.addController(Pioneer.RotateController);
         const quaternion = new Pioneer.Quaternion();
         quaternion.setFromAxes(Pioneer.Vector3.YAxis, Pioneer.Vector3.XAxisNeg, void 0);
-        e.setRotation(quaternion);
-        e.setRotatingOrientation(false);
-        return e;
+        rotationController.setRotation(quaternion);
+        rotationController.setRotatingOrientation(false);
+        return rotationController;
       },
       coverage: [128278419, 581920316.856]
     }, {
@@ -416,11 +468,11 @@ Entity.Entity.register({
       coverage: [128278419, 581920316.856]
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.GroundClampController);
-        e.setGroundEntityRef("mars");
-        e.setUp(Pioneer.Vector3.ZAxisNeg);
-        return e;
+      func: entity => {
+        const groundClampController = entity.addController(Pioneer.GroundClampController);
+        groundClampController.setGroundEntityRef("mars");
+        groundClampController.setUp(Pioneer.Vector3.ZAxisNeg);
+        return groundClampController;
       },
       coverage: [128278523, 581920316.856]
     }, {
@@ -462,35 +514,50 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [128278419, 581920316.856],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(true), e.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+          trail.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(false), e.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar));
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+          trail.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+        }
       }
     }, {
       type: "coverage",
       coverage: [128278523, 137955323],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setStartTime(128278523), e.setRelativeStartTime(false));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setStartTime(128278523);
+          trail.setRelativeStartTime(false);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeStartTime(true);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeStartTime(true);
+        }
       }
     }, {
       type: "coverage",
       coverage: [128278523, 581920316.856],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/rover/mer_static.gltf");
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/rover/mer_static.gltf");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/cruise/mpf_mera_merb_cruise.gltf");
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/cruise/mpf_mera_merb_cruise.gltf");
+        }
       }
     }]
   },
@@ -541,13 +608,13 @@ Entity.Entity.register({
       url: "sc_mars_exploration_rover_2/surface/lin"
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.RotateController);
+      func: entity => {
+        const rotationController = entity.addController(Pioneer.RotateController);
         const quaternion = new Pioneer.Quaternion();
         quaternion.setFromAxes(Pioneer.Vector3.YAxis, Pioneer.Vector3.XAxisNeg, void 0);
-        e.setRotation(quaternion);
-        e.setRotatingOrientation(false);
-        return e;
+        rotationController.setRotation(quaternion);
+        rotationController.setRotatingOrientation(false);
+        return rotationController;
       },
       coverage: [126462105, 322567479.38962]
     }, {
@@ -556,11 +623,11 @@ Entity.Entity.register({
       coverage: [126462105, 322567479.38962]
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.GroundClampController);
-        e.setGroundEntityRef("mars");
-        e.setUp(Pioneer.Vector3.ZAxisNeg);
-        return e;
+      func: entity => {
+        const groundClampController = entity.addController(Pioneer.GroundClampController);
+        groundClampController.setGroundEntityRef("mars");
+        groundClampController.setUp(Pioneer.Vector3.ZAxisNeg);
+        return groundClampController;
       },
       coverage: [126462396, 322567479.38962]
     }, {
@@ -602,35 +669,50 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [126462105, 322567479.38962],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(true), e.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+          trail.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setRelativeToEntityOrientation(false), e.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar));
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+          trail.setVisibleInterval(Pioneer.VisibleInterval.DefaultVisibleFar);
+        }
       }
     }, {
       type: "coverage",
       coverage: [126462396, 136139196],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && (e.setStartTime(126462396), e.setRelativeStartTime(false));
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setStartTime(126462396);
+          trail.setRelativeStartTime(false);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeStartTime(true);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeStartTime(true);
+        }
       }
     }, {
       type: "coverage",
       coverage: [126462396, 322567479.38962],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/rover/mer_static.gltf");
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/rover/mer_static.gltf");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/cruise/mpf_mera_merb_cruise.gltf");
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_mars_exploration_rover/cruise/mpf_mera_merb_cruise.gltf");
+        }
       }
     }]
   },
@@ -701,27 +783,39 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [596529871.284, 596533602],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(true);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(false);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+        }
       }
     }, {
       type: "coverage",
       coverage: [578795968.9654216, 596533602],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_insight/cruise/model.gltf"), e.setRotation(new Pioneer.Quaternion(Math.sqrt(.5), 0, Math.sqrt(.5), 0)), e.setTranslation(Pioneer.Vector3.Zero));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_insight/cruise/model.gltf");
+          model.setRotation(new Pioneer.Quaternion(Math.sqrt(.5), 0, Math.sqrt(.5), 0));
+          model.setTranslation(Pioneer.Vector3.Zero);
+        }
       }
     }, {
       type: "coverage",
       coverage: [596533602, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && (e.setUrl("$STATIC_ASSETS_URL/models/sc_insight/lander/insight.gltf"), e.setRotation(new Pioneer.Quaternion(Math.sqrt(.5), Math.sqrt(.5), 0, 0)), e.setTranslation(new Pioneer.Vector3(0, 0, 85e-5)));
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_insight/lander/insight.gltf");
+          model.setRotation(new Pioneer.Quaternion(Math.sqrt(.5), Math.sqrt(.5), 0, 0));
+          model.setTranslation(new Pioneer.Vector3(0, 0, 85e-5));
+        }
       }
     }]
   },
@@ -1019,21 +1113,33 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [265029904, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_phoenix/edl/phoenix_edl.gltf");
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_phoenix/edl/phoenix_edl.gltf");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_phoenix/cruise/phoenix_cruise.gltf");
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_phoenix/cruise/phoenix_cruise.gltf");
+        }
       }
     }],
-    postCreateFunction: t => {
-      t.addParentChangedCallback((t, e, i) => {
-        if (null !== i) {
-          const e = i.getName();
-          const n = t.getComponent(Pioneer.TrailComponent);
-          n && ("sc_phoenix_landing_site" === e ? (n.setRelativeToEntity("mars"), n.setRelativeToEntityOrientation(true)) : (n.setRelativeToEntity(""), n.setRelativeToEntityOrientation(false)));
+    postCreateFunction: entity => {
+      entity.addParentChangedCallback((entity, previousParent, nextParent) => {
+        if (null !== nextParent) {
+          const parentName = nextParent.getName();
+          const trail = entity.getComponent(Pioneer.TrailComponent);
+          if (trail) {
+            if ("sc_phoenix_landing_site" === parentName) {
+              trail.setRelativeToEntity("mars");
+              trail.setRelativeToEntityOrientation(true);
+            } else {
+              trail.setRelativeToEntity("");
+              trail.setRelativeToEntityOrientation(false);
+            }
+          }
         }
       });
     }
@@ -1282,19 +1388,19 @@ Entity.Entity.register({
     },
     controllers: [{
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.OrbitalElementsController);
-        const i = -768916753;
-        e.addOrbitalElements(i, new Pioneer.OrbitalElements({
-          epoch: i,
+      func: entity => {
+        const orbitalController = entity.addController(Pioneer.OrbitalElementsController);
+        const epoch = -768916753;
+        orbitalController.addOrbitalElements(epoch, new Pioneer.OrbitalElements({
+          epoch: epoch,
           eccentricity: .24781032090592367,
           semiMajorAxis: 199304047.36272663,
           meanAngularMotion: 1.2947372404056059e-7,
           meanAnomalyAtEpoch: -.17563763365135676,
           orientation: new Pioneer.Quaternion(.9780085682498194, .16676729106030264, .041633746528088954, -.1181293452634939)
         }));
-        e.setCoverage(new Pioneer.Interval(i, -742936101));
-        return e;
+        orbitalController.setCoverage(new Pioneer.Interval(epoch, -742936101));
+        return orbitalController;
       }
     }, {
       type: "dynamo",
@@ -1329,19 +1435,19 @@ Entity.Entity.register({
     },
     controllers: [{
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.OrbitalElementsController);
-        const i = -767190013;
-        e.addOrbitalElements(i, new Pioneer.OrbitalElements({
-          epoch: i,
+      func: entity => {
+        const orbitalController = entity.addController(Pioneer.OrbitalElementsController);
+        const epoch = -767190013;
+        orbitalController.addOrbitalElements(epoch, new Pioneer.OrbitalElements({
+          epoch: epoch,
           eccentricity: .24703340916784627,
           semiMajorAxis: 199805187.99925858,
           meanAngularMotion: 1.2898692104667572e-7,
           meanAnomalyAtEpoch: -.04222563359483367,
           orientation: new Pioneer.Quaternion(.9813245661511657, .1770589344739274, .0190380802985824, -.07273088126599732)
         }));
-        e.setCoverage(new Pioneer.Interval(i, -738643374));
-        return e;
+        orbitalController.setCoverage(new Pioneer.Interval(epoch, -738643374));
+        return orbitalController;
       }
     }, {
       type: "dynamo",

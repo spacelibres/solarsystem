@@ -1,2709 +1,2607 @@
-# 应用层逐文件中文参考
+# 应用当前源码逐文件参考
 
-范围：`eyes/src/` 排除 `engine/`、`vendor/`，共 224 个当前文件。类与方法项目根据实际源码声明及调用提取；调用摘要描述可见副作用，不声称恢复压缩前的局部命名或作者意图。完整结构化索引见 `application-notes.json`。其中 66 个类的 AST 方法/访问器共 924 项（文本摘要初始匹配 910 项），结构覆盖不等于逐分支人工正确性验证。核心启动、组件与路由经过人工语义复核，其他方法给出实际调用、写入和依赖证据。
+当前 224 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
-## 启动与模块边界
+## `eyes/src/app/PreloadManager.js`
 
-`main.js:2` 首先导入 `PreloadManager`，预加载模块在末尾创建单例并建立加载界面；随后导入样式占位和 `SolarSystemApp`。`SolarSystemApp` 继承 `Eyes.BaseApp`，构造器提供 TimeInfo、SceneInfo、ViewInfo、组件配置及视图构造器。`setUpRoutes` 按声明顺序加入首页、故事、对象、比较、望远镜、距离、特征及事件路由。`setUpManagers` 接入 link/cameraFollow/trajectory，向 content 注册故事，向 search 提供实体数据库，再初始化 title/autoplay。
+在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度。[源码](../../eyes/src/app/PreloadManager.js)。语义状态：`verified-behavior-fix`。
 
-`framework/eyes/public-api.js` 和 `app/public-api.js` 是不同层的聚合接口。它们与组件及 SolarSystemApp 相互引用，形成原生 ESM 循环。命名空间导入延迟读取有助于保留运行时关系；不能随意把字段访问改成求值期解构或合并同名类。`Recovered from app.js:start-end` 中数字是来源 bundle 的字符区间，不是当前源码行号、类型 id 或 NASA 资产版本。
+[总文档中的完整条目](README.md#file-eyes-src-app-PreloadManager-js)
 
-## DOM 与组件所有权
+### `PreloadManager`
 
-`BaseComponent.js:4` 构造器保存 app、根节点、parent、config、params、state、子组件及回调表。`init` 从静态 html 生成节点，扫描 `key` 到 `_children`，把完整 `{{stateKey}}` 文本或 class 占位登记到 `_vars`。模板 `on*="method"` 解析成当前实例方法后删除原始属性；它不是 React 或浏览器内联脚本执行。`setState` 浅比较并保存 `_oldState`，仅为变化键触发 `_render`。HTML 状态可能 replaceChild，绑定目标会更新。
+主应用初始化前显示的加载界面：普通模式拥有 loading-screen，嵌入模式拥有 embed-overlay。 实例保留启动 URL 与输入设备能力；模块只暴露主应用使用的单例操作接口。。父类 `无`。
 
-`setEnabled` 控制 __enable/__disable 和子组件启用；show/hide 只改变可见性状态。业务订阅通过 `_callbackRegistry` 对称注册移除。已观察到 resize 监听器身份不匹配，属于现状风险，本参考没有修改行为。constructor 对传入 options 删除 config/params，调用者不得默认输入对象保持不变。
+- `constructor()` [源码:10](../../eyes/src/app/PreloadManager.js#L10)：当前操作：写入 _canHover、_embedEl、_entityInfo、_hashRoute、_isTouch、_loadingScreenEl、_storyList、_urlParams；返回 PreloadManager.instance。
+- `_isEmbed()` [源码:34](../../eyes/src/app/PreloadManager.js#L34)：当前操作：写入 无直接字段写入；返回 this._urlParams.get("embed")==="true"。
+- `_isInteractPrompt()` [源码:38](../../eyes/src/app/PreloadManager.js#L38)：当前操作：写入 无直接字段写入；返回 this._urlParams.get("interactPrompt")==="true"。
+- `_showLoadingScreen()` [源码:43](../../eyes/src/app/PreloadManager.js#L43)：CSS 用 2px、1px 节点形成疏密星层，两组阴影必须分别写入各自节点。
+- `_createStarShadows(starCount)` [源码:73](../../eyes/src/app/PreloadManager.js#L73)：每颗星仍消耗三个随机数，保持原位置分布及 20–99% 灰阶亮度；阴影复制星点。
+- `_showEmbedScreen()` [源码:85](../../eyes/src/app/PreloadManager.js#L85)：长标题以 HTML 换行；短标题作为纯文本。这里不等待主应用组件系统初始化。
+- `showEmbedInteraction()` [源码:122](../../eyes/src/app/PreloadManager.js#L122)：同一回调解除触摸和鼠标监听，避免双输入设备重复关闭交互提示。
+- `showEmbedViewButton()` [源码:136](../../eyes/src/app/PreloadManager.js#L136)：加载完成进入 view 阶段；document 级释放事件继续进入交互提示阶段。
+- `_getTitleFromURL()` [源码:153](../../eyes/src/app/PreloadManager.js#L153)：用预加载目录推导标题，不依赖 content manager。 已知实体的 events 路由缺少事件 ID 时返回 null；其他无法识别的目标回退 Home。
+- `_getNameFromEntityInfo(entityId)` [源码:199](../../eyes/src/app/PreloadManager.js#L199)：名称优先级与预加载目录一致：别名 → 展示名 → IAU 名称。
+- `hideLoadingScreen()` [源码:205](../../eyes/src/app/PreloadManager.js#L205)：等待 400ms 淡出结束再移除 DOM，让过渡实际可见。
+- `updateEmbedLoadPercent(loadPercent)` [源码:213](../../eyes/src/app/PreloadManager.js#L213)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get embedLoading()` [源码:217](../../eyes/src/app/PreloadManager.js#L217)：当前操作：写入 无直接字段写入；返回 this._embedEl?.classList.contains("loading")。
 
-## 路由、视图和管理器调用链
+## `eyes/src/app/SolarSystemApp.js`
 
-`BaseView.onRouteChange` 顺序为 before → reset → resources → processQuery（速率、时间、图层、标题）→ components visibility → ready → camera → loading → after；cancelToken 在阶段之间阻止陈旧结果继续提交。`onEnter` 根据 ViewInfo 启停组件并添加 body view class；onLeave 移除订阅、清除 selection/forceLoad 和该视图专属 query。`ExtendedBaseView` 加入 embed/kiosk/locked、内容面板偏移、控件显示规则。
+装配太阳系应用的路由、管理器、组件配置和启动实例。[源码](../../eyes/src/app/SolarSystemApp.js)。语义状态：`verified-semantic-refactor`。
 
-ObjectView 准备目标及父子实体、描述、事件、轨道和相机跟随；FeatureView 将特征与对象内容分开；EventView 将时间收敛到事件并支持重播；HomeView 管理精选故事；CompareView 控制比较和照片模式；DistanceView 校验源目标时间覆盖交集；TelescopeView 委托 Telescope 组件；StoryView 在故事与 slide 切换中保存/恢复时钟、点击性和相机状态。每个文件下列出的 manager/component dependencies 是实际字符串查询。
+[总文档中的完整条目](README.md#file-eyes-src-app-SolarSystemApp-js)
 
-## 故事与未知模块的已验证关联
+### `SolarSystemApp`
 
-`engine/core/STORIES.js:9` 的注册表提供精确关联：Unidentified1081 → AnnularSolarEclipseStory；1082 → TotalSolarEclipseStory；1083 → EnceladusDiscoveryStory；1084 → VoyagerGrandTourStory；1085 → ParkerSolarProbePerihelionStory。这是模块语义名，不能自动作为内部所有 helper class 的名字。`StoryCatalog` 提供卡片和 slide 元数据，注册表提供实际故事行为。数据 Unidentified381/916 是两份 2021a 时区表；Unidentified775 是分类精选实体列表。
+装配太阳系应用的路由、管理器、组件配置和启动实例；继承 Eyes.BaseApp。父类 `Eyes.BaseApp`。
 
-## 模板、样式与配置
+- `constructor()` [源码:16](../../eyes/src/app/SolarSystemApp.js#L16)：当前操作：写入 _componentInfo、_sceneInfo、_timeInfo、_viewClasses、_viewInfo；返回 无显式返回。
+- `init()` [源码:26](../../eyes/src/app/SolarSystemApp.js#L26)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpRoutes()` [源码:33](../../eyes/src/app/SolarSystemApp.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpScene()` [源码:63](../../eyes/src/app/SolarSystemApp.js#L63)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpManagers()` [源码:68](../../eyes/src/app/SolarSystemApp.js#L68)：标题解析器读取路由参数而不修改路由；故事、子对象、事件及比较对象各有独立的标题优先级。Autoplay 管理器必须等待初始化后才能交给应用使用。
+- `setUpComponents()` [源码:148](../../eyes/src/app/SolarSystemApp.js#L148)：图层面板负责执行开关操作，保持管理器状态与 NASA 原界面的按钮状态同步；这里只确定启动时的显隐集合。
+- `getVersion()` [源码:173](../../eyes/src/app/SolarSystemApp.js#L173)：当前操作：写入 无直接字段写入；返回 SolarSystemPublicApi.AppVersion。
+- `getVersions()` [源码:176](../../eyes/src/app/SolarSystemApp.js#L176)：当前操作：写入 无直接字段写入；返回 {pioneer:this.getPioneerVersion(),eyes:this.getEyesVersion(),app:this.getVersion()}。
 
-ViewInfo 的 class 对应 app/config/views 构造器；components 数组对应 app/config/components 的 name。组件类静态 html 指向 templates 中具体模板；同名 DescriptionBlock 有故事层（-541）和应用对象层（-1005）两个构造器，分别继承 StoryBaseContentBlock、BaseContentBlock，不能按显示类名合并。所有 extracted 样式文件当前只有来源注释，逐文件确认无 CSS 实现。不要据文件名描述不存在的颜色、动画或选择器。
+## `eyes/src/app/config/components.js`
 
-## 逐文件与类方法目录
+组件名称、类型、实例选项及 postCreationFunction 配置。[源码](../../eyes/src/app/config/components.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/app/config/components.js`
+[总文档中的完整条目](README.md#file-eyes-src-app-config-components-js)
 
-组件名称、类型、实例选项及 postCreationFunction 配置。
+## `eyes/src/app/config/settings.js`
 
-- `imports: ../../framework/eyes/index.js, ./settings.js`
-- `manager dependencies: cameraFollow`
-- `component dependencies: settings, distancePanel`
+设置及分享/嵌入 UI 使用的选项定义。[源码](../../eyes/src/app/config/settings.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/app/config/settings.js`
+[总文档中的完整条目](README.md#file-eyes-src-app-config-settings-js)
 
-设置及分享/嵌入 UI 使用的选项定义。
+## `eyes/src/app/config/views.js`
 
-### `eyes/src/app/config/views.js`
+视图构造器注册表，与 ViewInfo class 字段对应。[源码](../../eyes/src/app/config/views.js)。语义状态：`verified-semantic-refactor`。
 
-视图构造器注册表，与 ViewInfo class 字段对应。
+[总文档中的完整条目](README.md#file-eyes-src-app-config-views-js)
 
-- `imports: ../../ui/views/CompareView.js, ../../ui/views/EventView.js, ../../ui/views/FeatureView.js, ../../ui/views/HomeView.js, ../../ui/views/ObjectView.js, ../../ui/views/StoryView.js, ../../ui/views/TelescopeView.js, ../../ui/views/DistanceView.js`
+## `eyes/src/app/public-api.js`
 
-### `eyes/src/app/PreloadManager.js`
+公共导出适配层，将已恢复模块按应用接口重新导出。[源码](../../eyes/src/app/public-api.js)。语义状态：`not-semantically-accepted`。
 
-在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度。
+[总文档中的完整条目](README.md#file-eyes-src-app-public-api-js)
 
-- `imports: ../data/StoryCatalog.json, ../data/EntityCatalog.json`
+## `eyes/src/app/version.js`
 
-**PreloadManager**：在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度。
+保存恢复的 NASA 应用版本常量，不等于仓库发行版本。[源码](../../eyes/src/app/version.js)。语义状态：`not-semantically-accepted`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._isEmbed, this._isInteractPrompt, this._showEmbedScreen, this._showLoadingScreen；写入 _isTouch, _canHover, _embedEl, _loadingScreenEl, _storyList, _entityInfo, _urlParams, _hashRoute。
-- `_isEmbed`：执行 _isEmbed 对应的组件业务步骤；调用 this._urlParams.get。
-- `_isInteractPrompt`：执行 _isInteractPrompt 对应的组件业务步骤；调用 this._urlParams.get。
-- `_showLoadingScreen`：执行 _showLoadingScreen 对应的组件业务步骤；调用 this._loadingScreenEl.appendChild, Math.random, this._loadingScreenEl.classList.add。
-- `_showEmbedScreen`：执行 _showEmbedScreen 对应的组件业务步骤；调用 this._embedEl.appendChild, this._getTitleFromURL, this._embedEl.classList.add, this.updateEmbedLoadPercent。
-- `showEmbedInteraction`：执行 showEmbedInteraction 对应的组件业务步骤；调用 this._embedEl.classList.remove, this._embedEl.classList.add。
-- `showEmbedViewButton`：执行 showEmbedViewButton 对应的组件业务步骤；调用 this._embedEl.classList.remove, this._embedEl.classList.add, this.showEmbedInteraction。
-- `_getTitleFromURL`：执行 _getTitleFromURL 对应的组件业务步骤；调用 this._hashRoute.includes, this._hashRoute.split, this._urlParams.get, this._getNameFromEntityInfo。
-- `_getNameFromEntityInfo`：执行 _getNameFromEntityInfo 对应的组件业务步骤。
-- `hideLoadingScreen`：执行 hideLoadingScreen 对应的组件业务步骤；调用 this._loadingScreenEl.classList.remove, this._loadingScreenEl.remove。
-- `updateEmbedLoadPercent`：执行 updateEmbedLoadPercent 对应的组件业务步骤。
-- `embedLoading`：执行 embedLoading 对应的组件业务步骤。
+[总文档中的完整条目](README.md#file-eyes-src-app-version-js)
 
-### `eyes/src/app/public-api.js`
+## `eyes/src/data/EntityCatalog.json`
 
-公共导出适配层，将已恢复模块按应用接口重新导出。
+实体索引：名称、类别、可搜索性等元数据；供内容与搜索管理器使用。[源码](../../eyes/src/data/EntityCatalog.json)。语义状态：`not-semantically-accepted`。
 
-- `imports: ./version.js, ./SolarSystemApp.js, ../engine/managers/TimeManager-922.js, ../engine/managers/LinkManager.js, ../engine/managers/LabelManager-924.js, ../engine/managers/SelectionManager-925.js, ../engine/managers/TrajectoryManager.js, ../ui/components/MobileExpandButton.js, ../ui/components/Menu.js, ../engine/core/BaseContentBlock.js, ../engine/core/OptionsBlock.js, ../ui/components/FeaturedStoryBlock.js, ../ui/components/EventsBlock.js, ../ui/components/OverviewBlock.js, ../ui/components/DescriptionBlock-1005.js, ../ui/components/FeaturedMoonsBlock.js, ../ui/components/FeaturedEventsBlock.js, ../ui/components/ExplorationBlock.js, ../ui/components/ToolboxBlock.js, ../ui/components/CameraViewBlock.js, ../ui/components/SpecialFeaturesBlock.js, ../ui/components/ReplayBlock.js, ../ui/components/LayersBlock.js, ../ui/components/InstrumentFOVBlock.js, ../ui/components/SurfaceMapBlock.js, ../ui/components/TextureQualityBlock.js, ../ui/components/FeaturesBlock.js, ../ui/components/RelatedBlock.js, ../ui/components/ContentPanel.js, ../ui/components/FeaturedStoriesPanel.js, ../ui/components/Comparison.js, ../ui/components/InfoPanel.js, ../ui/components/DistancePanel.js, ../ui/components/EventsTimeline.js, ../ui/components/CollapsibleMenu.js, ../ui/components/CollapsibleMenuItem.js, ../ui/components/TimeControls.js, ../ui/components/Telescope.js, ../engine/core/Search.js, ../engine/core/KioskMode.js, ../engine/core/Settings.js, ../engine/core/Types-1075.js, ./version.js, ../engine/core/BaseContentBlock.js, ../ui/components/CameraViewBlock.js, ../ui/components/CollapsibleMenu.js, ../ui/components/CollapsibleMenuItem.js, ../ui/components/Comparison.js, ../ui/components/ContentPanel.js, ../ui/components/DescriptionBlock-1005.js, ../ui/components/DistancePanel.js, ../ui/components/EventsBlock.js, ../ui/components/EventsTimeline.js, ../ui/components/ExplorationBlock.js, ../ui/components/FeaturedEventsBlock.js, ../ui/components/FeaturedMoonsBlock.js, ../ui/components/FeaturedStoriesPanel.js, ../ui/components/FeaturedStoryBlock.js, ../ui/components/FeaturesBlock.js, ../ui/components/InfoPanel.js, ../ui/components/InstrumentFOVBlock.js, ../engine/core/KioskMode.js, ../engine/managers/LabelManager-924.js, ../ui/components/LayersBlock.js, ../engine/managers/LinkManager.js, ../ui/components/Menu.js, ../ui/components/MobileExpandButton.js, ../engine/core/OptionsBlock.js, ../ui/components/OverviewBlock.js, ../ui/components/RelatedBlock.js, ../ui/components/ReplayBlock.js, ../engine/core/Search.js, ../engine/managers/SelectionManager-925.js, ../engine/core/Settings.js, ./SolarSystemApp.js, ../ui/components/SpecialFeaturesBlock.js, ../ui/components/SurfaceMapBlock.js, ../ui/components/Telescope.js, ../ui/components/TextureQualityBlock.js, ../ui/components/TimeControls.js, ../engine/managers/TimeManager-922.js, ../ui/components/ToolboxBlock.js, ../engine/managers/TrajectoryManager.js, ../engine/core/Types-1075.js`
+[总文档中的完整条目](README.md#file-eyes-src-data-EntityCatalog-json)
 
-- 注意：聚合模块参与循环依赖；导出绑定存在不代表导入求值时即可安全读取所有类。
+## `eyes/src/data/SceneInfo.json`
 
-### `eyes/src/app/SolarSystemApp.js`
+场景配置：静态组、动态实体、实体选项及 metadata URL。[源码](../../eyes/src/data/SceneInfo.json)。语义状态：`not-semantically-accepted`。
 
-装配太阳系应用的路由、管理器、组件配置和启动实例。
+[总文档中的完整条目](README.md#file-eyes-src-data-SceneInfo-json)
 
-- `imports: ../framework/eyes/index.js, ../styles/index.js, ./config/components.js, ../data/TimeInfo.json, ../data/SceneInfo.json, ../data/ViewInfo.json, ./config/views.js, ../engine/core/STORIES.js, ../ui/templates/SolarSystemAppTemplate.html, ./public-api.js, ../engine/solar-system/public-api.js, ./PreloadManager.js`
-- `manager dependencies: router, content, search, layer`
-- `component dependencies: menu, layerPanel, breadcrumb`
+## `eyes/src/data/StoryCatalog.json`
 
-**SolarSystemApp**：装配太阳系应用的路由、管理器、组件配置和启动实例；继承 Eyes.BaseApp。
+故事卡片与 slide 目录；故事 id 与 STORIES 注册键对应。[源码](../../eyes/src/data/StoryCatalog.json)。语义状态：`not-semantically-accepted`。
 
-- `constructor`：建立实例初始字段和依赖；写入 _timeInfo, _sceneInfo, _viewClasses, _viewInfo, _componentInfo。
-- `init`：初始化模板与关联资源；调用 super.init, SolarSystemSceneExports.Entity._entities.get, PreloadManager.default.hideLoadingScreen, PreloadManager.default.updateEmbedLoadPercent, this.getComponent。
-- `setUpRoutes`：执行 setUpRoutes 对应的组件业务步骤；调用 this.getManager。
-- `setUpScene`：执行 setUpScene 对应的组件业务步骤；调用 super.setUpScene, this.scene.getLoadedPromise。
-- `setUpManagers`：执行 setUpManagers 对应的组件业务步骤；调用 super.setUpManagers, this.addManager, this.getManager, Manager.setStoryList, Manager.setStories, Manager.getEntityList, this.getView, SolarSystemPublicApi.Types.get。
-- `setUpComponents`：执行 setUpComponents 对应的组件业务步骤；调用 super.setUpComponents, this.getManager, Manager.getLayer, this.getComponent, PanelComponent.toggleLayer。
-- `getVersion`：执行 getVersion 对应的组件业务步骤。
-- `getVersions`：执行 getVersions 对应的组件业务步骤；调用 this.getPioneerVersion, this.getEyesVersion, this.getVersion。
+[总文档中的完整条目](README.md#file-eyes-src-data-StoryCatalog-json)
 
-### `eyes/src/app/version.js`
+## `eyes/src/data/TimeInfo.json`
 
-保存恢复的 NASA 应用版本常量，不等于仓库发行版本。
+默认时间范围 1949-12-31 至 2049-12-31 UTC。[源码](../../eyes/src/data/TimeInfo.json)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/data/EntityCatalog.json`
+[总文档中的完整条目](README.md#file-eyes-src-data-TimeInfo-json)
 
-实体索引：名称、类别、可搜索性等元数据；供内容与搜索管理器使用。
+## `eyes/src/data/Unidentified381.json`
 
-- `top-level: observable_universe, milky_way, l1, l2, l3, l4, l5, sun, mercury, venus, earth, mars, jupiter, saturn, neptune, uranus, 134340_pluto, 134340_pluto_barycenter, 617_patroclus_barycenter, 21_lutetia, 253_mathilde, 11351_leucus, 15094_polymele, 21900_orus, 3548_eurybates, 5535_annefrank, 52246_donaldjohanson, 617_patroclus`
+Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/data/Unidentified381.json)。语义状态：`not-semantically-accepted`。
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+[总文档中的完整条目](README.md#file-eyes-src-data-Unidentified381-json)
 
-### `eyes/src/data/SceneInfo.json`
+## `eyes/src/data/Unidentified775.json`
 
-场景配置：静态组、动态实体、实体选项及 metadata URL。
+按 Planet/Moon/Spacecraft 等类别列出的精选搜索实体 id。[源码](../../eyes/src/data/Unidentified775.json)。语义状态：`not-semantically-accepted`。
 
-- `top-level: zoomMax, staticEntityGroups, dynamicEntities, entityOptions, meta`
+[总文档中的完整条目](README.md#file-eyes-src-data-Unidentified775-json)
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+## `eyes/src/data/Unidentified916.json`
 
-### `eyes/src/data/StoryCatalog.json`
+第二份 Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/data/Unidentified916.json)。语义状态：`not-semantically-accepted`。
 
-故事卡片与 slide 目录；故事 id 与 STORIES 注册键对应。
+[总文档中的完整条目](README.md#file-eyes-src-data-Unidentified916-json)
 
-- `top-level: stories, external, internal, featured`
+## `eyes/src/data/ViewInfo.json`
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+视图类、名称及启用组件列表的声明式映射。[源码](../../eyes/src/data/ViewInfo.json)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/data/TimeInfo.json`
+[总文档中的完整条目](README.md#file-eyes-src-data-ViewInfo-json)
 
-默认时间范围 1949-12-31 至 2049-12-31 UTC。
+## `eyes/src/framework/eyes/index.js`
 
-- `top-level: limits`
+模块聚合入口，使用显式导出或副作用 import 连接依赖。[源码](../../eyes/src/framework/eyes/index.js)。语义状态：`not-semantically-accepted`。
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+[总文档中的完整条目](README.md#file-eyes-src-framework-eyes-index-js)
 
-### `eyes/src/data/Unidentified381.json`
+## `eyes/src/framework/eyes/public-api.js`
 
-Moment Timezone 打包时区数据库，版本 2021a。
+公共导出适配层，将已恢复模块按应用接口重新导出。[源码](../../eyes/src/framework/eyes/public-api.js)。语义状态：`not-semantically-accepted`。
 
-- `top-level: version, zones, links, countries`
+[总文档中的完整条目](README.md#file-eyes-src-framework-eyes-public-api-js)
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+## `eyes/src/main.js`
 
-### `eyes/src/data/Unidentified775.json`
+启动入口：先加载 preload，再初始化应用依赖图。[源码](../../eyes/src/main.js)。语义状态：`not-semantically-accepted`。
 
-按 Planet/Moon/Spacecraft 等类别列出的精选搜索实体 id。
+[总文档中的完整条目](README.md#file-eyes-src-main-js)
 
-- `top-level: Planet, Moon, Asteroid, Comet, DwarfPlanet, Spacecraft, default`
+## `eyes/src/runtime/decoder-paths.js`
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+按 decoder manifest revision 构造解码器资源绝对 URL。[源码](../../eyes/src/runtime/decoder-paths.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/data/Unidentified916.json`
+[总文档中的完整条目](README.md#file-eyes-src-runtime-decoder-paths-js)
 
-第二份 Moment Timezone 打包时区数据库，版本 2021a。
+## `eyes/src/runtime/interop.cjs`
 
-- `top-level: version, zones, links, countries`
+兼容 CommonJS/ESModule 默认导出访问器。[源码](../../eyes/src/runtime/interop.cjs)。语义状态：`not-semantically-accepted`。
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+[总文档中的完整条目](README.md#file-eyes-src-runtime-interop-cjs)
 
-### `eyes/src/data/ViewInfo.json`
+## `eyes/src/styles/extracted/AppUtilsStyles.js`
 
-视图类、名称及启用组件列表的声明式映射。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/AppUtilsStyles.js)。语义状态：`not-semantically-accepted`。
 
-- `top-level: home, object, story, compare, event, telescope, feature, distance`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-AppUtilsStyles-js)
 
-- 注意：JSON 只提供静态数据；运行时加载行为属于其引用者。
+## `eyes/src/styles/extracted/BaseContentBlockStyles.js`
 
-### `eyes/src/framework/eyes/index.js`
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/BaseContentBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-模块聚合入口，使用显式导出或副作用 import 连接依赖。
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-BaseContentBlockStyles-js)
 
-- `imports: ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js, ./public-api.js`
+## `eyes/src/styles/extracted/BreadcrumbStyles.js`
 
-- 注意：聚合模块参与循环依赖；导出绑定存在不代表导入求值时即可安全读取所有类。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/BreadcrumbStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/framework/eyes/public-api.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-BreadcrumbStyles-js)
 
-公共导出适配层，将已恢复模块按应用接口重新导出。
+## `eyes/src/styles/extracted/ButtonsBlockStyles.js`
 
-- `imports: ../../engine/core/version-8.js, ../../engine/components/OrbiterLineOfSightComponent.js, ../../engine/components/DistanceLineComponent.js, ../../engine/core/CancelToken.js, ../../engine/core/AppUtils.js, ../../engine/core/AnimationUtils.js, ../../ui/components/BaseComponent.js, ../../engine/core/SettingsEntry.js, ../../engine/core/LoadIconEntry.js, ../../engine/core/OverlayEntry.js, ../../engine/core/SearchEntry.js, ../../engine/core/ClockEntry.js, ../../engine/core/ClockShortcutEntry.js, ../../engine/core/CarouselEntry.js, ../../engine/core/TutorialOverlayEntry.js, ../../engine/core/CarouselPanelEntry.js, ../../engine/core/ShareModalEntry.js, ../../engine/core/TimeControllerEntry.js, ../../engine/core/CheckboxMultistate.js, ../../ui/components/LayerPanel.js, ../../ui/components/Breadcrumb.js, ../../engine/core/StoryBaseContentBlock.js, ../../ui/components/HintBlock.js, ../../ui/components/ToggleBlock.js, ../../ui/components/TitleBlock.js, ../../ui/components/ImageBlock.js, ../../ui/components/DescriptionBlock-541.js, ../../ui/components/ReplayButtonBlock.js, ../../ui/components/ButtonsBlock.js, ../../ui/components/CheckboxBlock.js, ../../engine/core/Story.js, ../../ui/components/KioskBase.js, ../../ui/components/Toast.js, ../../engine/managers/BaseManager.js, ../../engine/managers/SelectionManager-562.js, ../../engine/managers/LabelManager-563.js, ../../engine/managers/RouteManager.js, ../../engine/managers/ContentManager.js, ../../engine/managers/SceneManager.js, ../../engine/managers/WMTSManager.js, ../../engine/managers/LayerManager.js, ../../engine/managers/TrailManager.js, ../../engine/managers/CameraManager.js, ../../engine/core/CameraScripts.js, ../../engine/managers/ERTManager.js, ../../engine/managers/TimeManager-728.js, ../../engine/managers/ComparisonManager.js, ../../engine/managers/SearchManager.js, ../../engine/managers/TitleManager.js, ../../engine/managers/SpoutManager.js, ../../engine/managers/CameraFollowManager.js, ../../engine/managers/AutoplayManager.js, ../../ui/views/BaseView.js, ../../engine/core/BaseApp.js, ../../engine/core/Types-754.js, ../../engine/core/AnimationUtils.js, ../../engine/core/AppUtils.js, ../../engine/managers/AutoplayManager.js, ../../engine/core/BaseApp.js, ../../ui/components/BaseComponent.js, ../../engine/managers/BaseManager.js, ../../ui/views/BaseView.js, ../../ui/components/Breadcrumb.js, ../../ui/components/ButtonsBlock.js, ../../engine/managers/CameraFollowManager.js, ../../engine/managers/CameraManager.js, ../../engine/core/CameraScripts.js, ../../engine/core/CancelToken.js, ../../engine/core/CarouselEntry.js, ../../engine/core/CarouselPanelEntry.js, ../../engine/core/CheckboxMultistate.js, ../../ui/components/CheckboxBlock.js, ../../engine/core/CheckboxMultistate.js, ../../engine/core/ClockEntry.js, ../../engine/core/ClockShortcutEntry.js, ../../engine/managers/ComparisonManager.js, ../../engine/managers/ContentManager.js, ../../ui/components/DescriptionBlock-541.js, ../../engine/components/DistanceLineComponent.js, ../../engine/managers/ERTManager.js, ../../engine/core/version-8.js, ../../ui/components/HintBlock.js, ../../ui/components/ImageBlock.js, ../../ui/components/KioskBase.js, ../../engine/managers/LabelManager-563.js, ../../engine/managers/LayerManager.js, ../../ui/components/LayerPanel.js, ../../engine/core/LoadIconEntry.js, ../../engine/components/OrbiterLineOfSightComponent.js, ../../engine/core/OverlayEntry.js, ../../ui/components/ReplayButtonBlock.js, ../../engine/managers/RouteManager.js, ../../engine/managers/SceneManager.js, ../../engine/core/SearchEntry.js, ../../engine/managers/SearchManager.js, ../../engine/managers/SelectionManager-562.js, ../../engine/core/SettingsEntry.js, ../../engine/core/ShareModalEntry.js, ../../engine/managers/SpoutManager.js, ../../engine/core/Story.js, ../../engine/core/StoryBaseContentBlock.js, ../../engine/core/TimeControllerEntry.js, ../../engine/managers/TimeManager-728.js, ../../ui/components/TitleBlock.js, ../../engine/managers/TitleManager.js, ../../ui/components/Toast.js, ../../ui/components/ToggleBlock.js, ../../engine/managers/TrailManager.js, ../../engine/core/TutorialOverlayEntry.js, ../../engine/core/Types-754.js, ../../engine/managers/WMTSManager.js`
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ButtonsBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-- 注意：聚合模块参与循环依赖；导出绑定存在不代表导入求值时即可安全读取所有类。
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ButtonsBlockStyles-js)
 
-### `eyes/src/main.js`
+## `eyes/src/styles/extracted/CameraViewBlockStyles.js`
 
-启动入口：先加载 preload，再初始化应用依赖图。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/CameraViewBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-- `imports: ./app/PreloadManager.js, ./styles/extracted/PreloadStyles.js, ./styles/extracted/VendorStyles.js, ./app/SolarSystemApp.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-CameraViewBlockStyles-js)
 
-### `eyes/src/runtime/decoder-paths.js`
+## `eyes/src/styles/extracted/CheckboxBlockStyles.js`
 
-按 decoder manifest revision 构造解码器资源绝对 URL。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/CheckboxBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-- `imports: ../../decoders/manifest.json`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-CheckboxBlockStyles-js)
 
-### `eyes/src/runtime/interop.cjs`
+## `eyes/src/styles/extracted/CollapsibleMenuItemStyles.js`
 
-兼容 CommonJS/ESModule 默认导出访问器。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/CollapsibleMenuItemStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/AppUtilsStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-CollapsibleMenuItemStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/CollapsibleMenuStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/CollapsibleMenuStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/BaseContentBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-CollapsibleMenuStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ComparisonStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ComparisonStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/BreadcrumbStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ComparisonStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ContentPanelStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ContentPanelStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ButtonsBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ContentPanelStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/DescriptionBlockStyles-1007.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/DescriptionBlockStyles-1007.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/CameraViewBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-DescriptionBlockStyles-1007-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/DescriptionBlockStyles-543.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/DescriptionBlockStyles-543.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/CheckboxBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-DescriptionBlockStyles-543-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/DistancePanelStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/DistancePanelStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/CollapsibleMenuItemStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-DistancePanelStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/EventsBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/EventsBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/CollapsibleMenuStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-EventsBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/EventsTimelineStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/EventsTimelineStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ComparisonStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-EventsTimelineStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/FeaturedStoriesPanelStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/FeaturedStoriesPanelStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ContentPanelStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-FeaturedStoriesPanelStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/FeaturedStoryBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/FeaturedStoryBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/DescriptionBlockStyles-1007.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-FeaturedStoryBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/HintBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/HintBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/DescriptionBlockStyles-543.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-HintBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ImageBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ImageBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/DistancePanelStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ImageBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/InfoPanelStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/InfoPanelStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/EventsBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-InfoPanelStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/InstrumentFOVBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/InstrumentFOVBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/EventsTimelineStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-InstrumentFOVBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/KioskBaseStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/KioskBaseStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/FeaturedStoriesPanelStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-KioskBaseStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/LayerPanelStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/LayerPanelStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/FeaturedStoryBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-LayerPanelStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/MenuStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/MenuStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/HintBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-MenuStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/MobileExpandButtonStyles-928.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/MobileExpandButtonStyles-928.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ImageBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-MobileExpandButtonStyles-928-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/MobileExpandButtonStyles-987.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/MobileExpandButtonStyles-987.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/InfoPanelStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-MobileExpandButtonStyles-987-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/OptionsBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/OptionsBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/InstrumentFOVBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-OptionsBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/OverviewBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/OverviewBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/KioskBaseStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-OverviewBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/PreloadStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/PreloadStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/LayerPanelStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-PreloadStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/RelatedBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/RelatedBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/MenuStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-RelatedBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ReplayBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ReplayBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/MobileExpandButtonStyles-928.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ReplayBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ReplayButtonBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ReplayButtonBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/MobileExpandButtonStyles-987.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ReplayButtonBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/SpecialFeaturesBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/SpecialFeaturesBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/OptionsBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-SpecialFeaturesBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/StoryBaseContentBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/StoryBaseContentBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/OverviewBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-StoryBaseContentBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/StoryStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/StoryStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/PreloadStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-StoryStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TelescopeStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TelescopeStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/RelatedBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TelescopeStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TextureQualityBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TextureQualityBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ReplayBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TextureQualityBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TimeControlsStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TimeControlsStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ReplayButtonBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TimeControlsStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ToastStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ToastStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/SpecialFeaturesBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ToastStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ToggleBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ToggleBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/StoryBaseContentBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ToggleBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/ToolboxBlockStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/ToolboxBlockStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/StoryStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-ToolboxBlockStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TutorialOverlayStyles-497.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TutorialOverlayStyles-497.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TelescopeStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TutorialOverlayStyles-497-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TutorialOverlayStyles-498.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TutorialOverlayStyles-498.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TextureQualityBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TutorialOverlayStyles-498-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TutorialOverlayStyles-499.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TutorialOverlayStyles-499.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TimeControlsStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TutorialOverlayStyles-499-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/TutorialOverlayStyles-500.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/TutorialOverlayStyles-500.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ToastStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-TutorialOverlayStyles-500-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified226.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified226.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ToggleBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified226-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified227.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified227.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/ToolboxBlockStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified227-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified231.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified231.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TutorialOverlayStyles-497.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified231-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified235.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified235.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TutorialOverlayStyles-498.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified235-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified239.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified239.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TutorialOverlayStyles-499.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified239-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified383.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified383.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/TutorialOverlayStyles-500.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified383-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified387.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified387.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified226.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified387-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified392.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified392.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified227.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified392-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified502.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified502.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified231.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified502-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified506.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified506.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified235.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified506-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified507.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified507.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified239.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified507-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified512.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified512.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified383.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified512-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified516.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified516.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified387.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified516-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified521.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified521.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified392.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified521-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified739.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified739.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified502.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified739-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified740.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified740.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified506.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified740-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified741.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified741.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified507.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified741-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified742.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified742.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified512.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified742-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified743.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified743.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified516.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified743-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified744.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified744.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified521.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified744-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified745.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified745.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified739.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified745-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified746.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified746.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified740.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified746-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified747.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified747.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified741.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified747-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified748.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified748.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified742.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified748-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified749.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified749.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified743.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified749-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified750.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified750.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified744.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified750-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified751.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified751.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified745.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified751-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified756.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified756.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified746.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified756-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified757.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified757.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified747.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified757-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified758.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified758.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified748.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified758-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified759.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified759.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified749.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified759-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified760.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified760.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified750.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified760-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified761.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified761.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified751.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified761-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified762.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified762.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified756.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified762-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified763.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified763.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified757.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified763-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified764.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified764.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified758.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified764-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified765.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified765.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified759.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified765-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/Unidentified766.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/Unidentified766.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified760.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-Unidentified766-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/extracted/VendorStyles.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。[源码](../../eyes/src/styles/extracted/VendorStyles.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified761.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-extracted-VendorStyles-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/styles/index.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+模块聚合入口，使用显式导出或副作用 import 连接依赖。[源码](../../eyes/src/styles/index.js)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/styles/extracted/Unidentified762.js`
+[总文档中的完整条目](README.md#file-eyes-src-styles-index-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/ui/components/BaseComponent.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+组件模板、状态绑定、DOM 挂载和回调订阅的共同基类。[源码](../../eyes/src/ui/components/BaseComponent.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/styles/extracted/Unidentified763.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-BaseComponent-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+### `BaseComponent`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+组件模板、状态绑定、DOM 挂载和回调订阅的共同基类。父类 `无`。
 
-### `eyes/src/styles/extracted/Unidentified764.js`
+- `constructor(app, element, initialOptions={parent:null,config:{},params:{},isVisible:true})` [源码:5](../../eyes/src/ui/components/BaseComponent.js#L5)：config 与 params 被取出后从传入对象删除，剩余选项进入状态。保留这项调用方可观察到的修改，避免去混淆顺带改变构造契约。
+- `get components()` [源码:49](../../eyes/src/ui/components/BaseComponent.js#L49)：当前操作：写入 无直接字段写入；返回 this._components。
+- `get app()` [源码:52](../../eyes/src/ui/components/BaseComponent.js#L52)：当前操作：写入 无直接字段写入；返回 this._app。
+- `resize()` [源码:55](../../eyes/src/ui/components/BaseComponent.js#L55)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateFontSize()` [源码:58](../../eyes/src/ui/components/BaseComponent.js#L58)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get element()` [源码:65](../../eyes/src/ui/components/BaseComponent.js#L65)：当前操作：写入 无直接字段写入；返回 this._element。
+- `getParent()` [源码:68](../../eyes/src/ui/components/BaseComponent.js#L68)：当前操作：写入 无直接字段写入；返回 this._parent。
+- `setParent(parent, replacedElement=null)` [源码:71](../../eyes/src/ui/components/BaseComponent.js#L71)：当前操作：写入 _parent；返回 无显式返回。
+- `init(templateParams={})` [源码:76](../../eyes/src/ui/components/BaseComponent.js#L76)：当前操作：写入 _element；返回 无显式返回。
+- `getConfig()` [源码:82](../../eyes/src/ui/components/BaseComponent.js#L82)：当前操作：写入 无直接字段写入；返回 this._config。
+- `setConfig(configUpdates)` [源码:85](../../eyes/src/ui/components/BaseComponent.js#L85)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `bindFunctions(methodNames=[])` [源码:88](../../eyes/src/ui/components/BaseComponent.js#L88)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `isEnabled()` [源码:95](../../eyes/src/ui/components/BaseComponent.js#L95)：当前操作：写入 无直接字段写入；返回 this._enabled。
+- `setEnabled(shouldEnable)` [源码:98](../../eyes/src/ui/components/BaseComponent.js#L98)：当前操作：写入 _enabled；返回 无显式返回。
+- `destroy()` [源码:106](../../eyes/src/ui/components/BaseComponent.js#L106)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:109](../../eyes/src/ui/components/BaseComponent.js#L109)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:115](../../eyes/src/ui/components/BaseComponent.js#L115)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggle()` [源码:121](../../eyes/src/ui/components/BaseComponent.js#L121)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `loadHTML(templateUrl, parentElement=null)` [源码:124](../../eyes/src/ui/components/BaseComponent.js#L124)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getState(stateKey)` [源码:131](../../eyes/src/ui/components/BaseComponent.js#L131)：当前操作：写入 无直接字段写入；返回 stateKey in this._state?this._state[stateKey]:null。
+- `addState(stateKey, initialValue, rootElement)` [源码:134](../../eyes/src/ui/components/BaseComponent.js#L134)：当前操作：写入 _state[stateKey]；返回 无显式返回。
+- `setState(stateUpdates, onRendered)` [源码:139](../../eyes/src/ui/components/BaseComponent.js#L139)：只在至少一项值变化时保存旧状态、渲染并回调；相同值不会触发 onRendered。DOM 绑定由本组件持有，子组件启用状态另由 setEnabled 传播。
+- `_parseHTML(templateHtml, parentElement=null)` [源码:153](../../eyes/src/ui/components/BaseComponent.js#L153)：当前操作：写入 _roots；返回 void。
+- `_containVar(text)` [源码:164](../../eyes/src/ui/components/BaseComponent.js#L164)：当前操作：写入 无直接字段写入；返回 text&&"function"==typeof text.includes&&text.includes("{{")&&text.includes("}}")。
+- `_splitNonEmpty(text)` [源码:167](../../eyes/src/ui/components/BaseComponent.js#L167)：当前操作：写入 无直接字段写入；返回 text.split(/\s+/g).filter(token=>""!==token)。
+- `_setVariables(node, includeChildren=true)` [源码:171](../../eyes/src/ui/components/BaseComponent.js#L171)：文本占位符可能替换成 HTML 元素，因此绑定保存实际替换后的节点；后续渲染必须更新同一份绑定引用。倒序遍历避免节点替换影响尚未访问的兄弟。
+- `_setEventHandlersFromAttributes(element)` [源码:233](../../eyes/src/ui/components/BaseComponent.js#L233)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_render(stateUpdates)` [源码:249](../../eyes/src/ui/components/BaseComponent.js#L249)：当前操作：写入 _vars[stateKey][bindingIndex].element、_vars[stateKey][bindingIndex].field；返回 无显式返回。
+- `__enable()` [源码:286](../../eyes/src/ui/components/BaseComponent.js#L286)：启用时挂载本组件根节点并注册业务订阅。原实现用匿名 resize 包装器监听窗口，停用时移除的却是 this.resize；此处仅说明现状，不夹带监听器修复。
+- `__disable()` [源码:295](../../eyes/src/ui/components/BaseComponent.js#L295)：停用会取消待执行的尺寸更新、卸载根节点并解除登记的业务订阅；根节点引用保留供下一次启用复用。
+- `__destroy()` [源码:301](../../eyes/src/ui/components/BaseComponent.js#L301)：当前操作：写入 _element、_parent；返回 无显式返回。
+- `_initCallbacks()` [源码:306](../../eyes/src/ui/components/BaseComponent.js#L306)：当前操作：写入 _callbacks[this._eventNames[eventIndex]]；返回 无显式返回。
+- `registerCallback(eventName, callback)` [源码:309](../../eyes/src/ui/components/BaseComponent.js#L309)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallback(eventName, callback)` [源码:312](../../eyes/src/ui/components/BaseComponent.js#L312)：当前操作：写入 无直接字段写入；返回 void。
+- `triggerCallbacks(eventName, callbackArgs=[])` [源码:317](../../eyes/src/ui/components/BaseComponent.js#L317)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:322](../../eyes/src/ui/components/BaseComponent.js#L322)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:332](../../eyes/src/ui/components/BaseComponent.js#L332)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/ui/components/Breadcrumb.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+将路由和目标层级转换为可点击面包屑。[源码](../../eyes/src/ui/components/Breadcrumb.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/styles/extracted/Unidentified765.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Breadcrumb-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+### `Breadcrumb`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+面包屑每次路由变化重建动态节点，静态 logo 节点继续复用。每项点击闭包保存该层完整路径，locked 配置决定是否注册点击监听。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/styles/extracted/Unidentified766.js`
+- `constructor(app, options={params:{}})` [源码:8](../../eyes/src/ui/components/Breadcrumb.js#L8)：当前操作：写入 _class.isHomeActiveClass、_crumbTexts；返回 无显式返回。
+- `updateBreadcrumb(routeParts)` [源码:36](../../eyes/src/ui/components/Breadcrumb.js#L36)：当前操作：写入 _element.innerHTML；返回 无显式返回。
+- `onRouteChange({routeParts:routeParts}={})` [源码:54](../../eyes/src/ui/components/Breadcrumb.js#L54)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setCrumbClickHandler(onCrumbClick)` [源码:59](../../eyes/src/ui/components/Breadcrumb.js#L59)：当前操作：写入 _onCrumbClick；返回 无显式返回。
+- `_goToHome()` [源码:62](../../eyes/src/ui/components/Breadcrumb.js#L62)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getCrumbText(routePart)` [源码:68](../../eyes/src/ui/components/Breadcrumb.js#L68)：当前操作：写入 无直接字段写入；返回 this._crumbTexts[routePart]、entityInfo.displayName\|\|entityInfo.iauName、eventInfo.title、story?story.title:""。
+- `_createCrumb(routePart, crumbRoute)` [源码:77](../../eyes/src/ui/components/Breadcrumb.js#L77)：当前操作：写入 无直接字段写入；返回 crumbElement。
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+## `eyes/src/ui/components/ButtonsBlock.js`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+故事内容中的动作按钮组。[源码](../../eyes/src/ui/components/ButtonsBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/styles/extracted/VendorStyles.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ButtonsBlock-js)
 
-恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出。
+### `ButtonsBlock`
 
-- 注意：不要把占位模块误写成包含完整原始 CSS；原始 bundle 区间只是溯源位置。
+按钮定义由故事配置持有；场景就绪后创建 DOM，点击时先切换时间边界与速率，再执行该按钮提供的故事回调。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-### `eyes/src/styles/index.js`
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/ButtonsBlock.js#L8)：当前操作：写入 _app、_options；返回 无显式返回。
+- `setUpHTML(options)` [源码:18](../../eyes/src/ui/components/ButtonsBlock.js#L18)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `buttonClick(clickEvent)` [源码:44](../../eyes/src/ui/components/ButtonsBlock.js#L44)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-模块聚合入口，使用显式导出或副作用 import 连接依赖。
+## `eyes/src/ui/components/CameraViewBlock.js`
 
-- `imports: ./extracted/Unidentified756.js, ./extracted/Unidentified757.js, ./extracted/Unidentified758.js, ./extracted/Unidentified759.js, ./extracted/Unidentified760.js, ./extracted/Unidentified761.js, ./extracted/Unidentified762.js, ./extracted/Unidentified763.js, ./extracted/Unidentified764.js, ./extracted/Unidentified765.js, ./extracted/Unidentified766.js`
+对象内容中的相机视角选项。[源码](../../eyes/src/ui/components/CameraViewBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/BaseComponent.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CameraViewBlock-js)
 
-组件模板、状态绑定、DOM 挂载和回调订阅的共同基类。
+### `CameraViewBlock`
 
-- `imports: ../../framework/eyes/public-api.js`
+相机选项工厂保存目标 id 与各自选择/取消回调，切换时先取消旧选项再启用新选项。航天器选项等待实体就绪并核对当前视图目标，避免旧目标的异步结果覆盖新路由。renderFlag 是原有未使用的兼容参数，不推断其未证实含义。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-**BaseComponent**：组件模板、状态绑定、DOM 挂载和回调订阅的共同基类。
+- `constructor(app, options={})` [源码:10](../../eyes/src/ui/components/CameraViewBlock.js#L10)：当前操作：写入 _activeCamOptIndex、_activeCameraOptions、_cameraOptions、_currentCameraView、_defaultViewIndexOverride、_entityId、_followId、_optionIndexMap、_prevCamOptIndex、_prevCameraView、_trajectoryViewId、onLoaded；返回 无显式返回。
+- `_renderOptions(cameraOptions, renderFlag=false)` [源码:173](../../eyes/src/ui/components/CameraViewBlock.js#L173)：当前操作：写入 _activeCamOptIndex、_activeCameraOptions、_children.cameraOptions.innerHTML、_currentCameraView、_optionIndexMap、_optionIndexMap[id]、_prevCamOptIndex、_prevCameraView；返回 无显式返回。
+- `_addPlanetOptions(entityInfo, renderFlag=false)` [源码:229](../../eyes/src/ui/components/CameraViewBlock.js#L229)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addMoonOptions(entityInfo, renderFlag=false)` [源码:235](../../eyes/src/ui/components/CameraViewBlock.js#L235)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addStarOptions(entityInfo, renderFlag=false)` [源码:242](../../eyes/src/ui/components/CameraViewBlock.js#L242)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addSpacecraftOptions(entityInfo, renderFlag=false)` [源码:248](../../eyes/src/ui/components/CameraViewBlock.js#L248)：当前操作：写入 无直接字段写入；返回 void。
+- `_addFeatureOptions(entityInfo, renderFlag=false)` [源码:279](../../eyes/src/ui/components/CameraViewBlock.js#L279)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addDefaultOptions(entityInfo, renderFlag)` [源码:285](../../eyes/src/ui/components/CameraViewBlock.js#L285)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_goToView(currentCameraView)` [源码:296](../../eyes/src/ui/components/CameraViewBlock.js#L296)：当前操作：写入 _activeCamOptIndex、_currentCameraView、_prevCamOptIndex、_prevCameraView；返回 无显式返回。
+- `goBackToPreviousView()` [源码:311](../../eyes/src/ui/components/CameraViewBlock.js#L311)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToFollowCameraView(followId)` [源码:314](../../eyes/src/ui/components/CameraViewBlock.js#L314)：当前操作：写入 _followId；返回 无显式返回。
+- `goToTrajectoryView()` [源码:318](../../eyes/src/ui/components/CameraViewBlock.js#L318)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToDefaultView()` [源码:321](../../eyes/src/ui/components/CameraViewBlock.js#L321)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getCameraView()` [源码:324](../../eyes/src/ui/components/CameraViewBlock.js#L324)：当前操作：写入 无直接字段写入；返回 this._currentCameraView。
+- `_selectDefaultView()` [源码:327](../../eyes/src/ui/components/CameraViewBlock.js#L327)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(routeParams)` [源码:334](../../eyes/src/ui/components/CameraViewBlock.js#L334)：当前操作：写入 _defaultViewIndexOverride、_entityId、onLoaded；返回 无显式返回。
+- `onQueryChange(routeParams)` [源码:391](../../eyes/src/ui/components/CameraViewBlock.js#L391)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_processQuery(routeParams)` [源码:394](../../eyes/src/ui/components/CameraViewBlock.js#L394)：当前操作：写入 无直接字段写入；返回 void。
+- `get isLoaded()` [源码:431](../../eyes/src/ui/components/CameraViewBlock.js#L431)：当前操作：写入 无直接字段写入；返回 this._activeCameraOptions.length>0。
 
-- `components`：执行 components 对应的组件业务步骤。
-- `app`：执行 app 对应的组件业务步骤。
-- `resize`：重排响应式界面；调用 this._updateFontSize。
-- `_updateFontSize`：执行 _updateFontSize 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isMobile, EyesPublicApi.AppUtils.isTablet, EyesPublicApi.AppUtils.isPanorama, EyesPublicApi.AppUtils.is2K, EyesPublicApi.AppUtils.is4K, this.setState。
-- `element`：执行 element 对应的组件业务步骤。
-- `getParent`：执行 getParent 对应的组件业务步骤。
-- `setParent`：执行 setParent 对应的组件业务步骤；调用 this._parent.removeChild, this._parent.appendChild；写入 _parent。
-- `init`：初始化模板与关联资源；调用 Object.assign, EyesPublicApi.AppUtils.htmlWithParamsToElement, this._element.classList.add, this._setVariables, this._setEventHandlersFromAttributes, this._updateFontSize；写入 _element。
-- `getConfig`：执行 getConfig 对应的组件业务步骤。
-- `setConfig`：执行 setConfig 对应的组件业务步骤；调用 Object.assign。
-- `bindFunctions`：执行 bindFunctions 对应的组件业务步骤。
-- `isEnabled`：执行 isEnabled 对应的组件业务步骤。
-- `setEnabled`：切换当前组件及其子组件的启用状态；调用 this.__enable, this.__disable, this._components.forEach, this._app.getComponent；写入 _enabled。
-- `destroy`：执行 destroy 对应的组件业务步骤；调用 this.__destroy。
-- `show`：执行 show 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `toggle`：执行 toggle 对应的组件业务步骤；调用 this.hide, this.show。
-- `loadHTML`：执行 loadHTML 对应的组件业务步骤；调用 this._parseHTML。
-- `getState`：读取已登记状态键。
-- `addState`：执行 addState 对应的组件业务步骤；调用 this._setVariables。
-- `setState`：合并变化状态并更新对应 DOM 绑定；调用 EyesPublicApi.AppUtils.isEmptyObject, this._render；写入 _oldState, _state。
-- `_parseHTML`：执行 _parseHTML 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.htmlToElements, this._setVariables, this._setEventHandlersFromAttributes；写入 _roots。
-- `_containVar`：执行 _containVar 对应的组件业务步骤。
-- `_splitNonEmpty`：执行 _splitNonEmpty 对应的组件业务步骤。
-- `_setVariables`：扫描 key 与双花括号占位符，建立 DOM 状态索引；调用 this._containVar, Var.startsWith, Var.endsWith, Var.replace, List.remove, this._splitNonEmpty, List.add, EyesPublicApi.AppUtils.isHTML, EyesPublicApi.AppUtils.htmlToElement, Node.replaceChild, EyesPublicApi.AppUtils.hasHTML, this._setVariables。
-- `_setEventHandlersFromAttributes`：把模板 on* 属性解析为绑定当前实例的事件监听器；调用 this._setEventHandlersFromAttributes。
-- `_render`：将变化的状态写到文本、HTML 或 classList 绑定；调用 Object.keys, this._splitNonEmpty, EyesPublicApi.AppUtils.isHTML, EyesPublicApi.AppUtils.htmlToElement, Node.replaceChild, EyesPublicApi.AppUtils.hasHTML。
-- `__enable`：挂载 DOM 并登记窗口和业务订阅；调用 this.registerCallbacks, this._parent.appendChild, this.triggerCallbacks；写入 _resizeTimeout。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this._parent.contains, this.triggerCallbacks, this._parent.removeChild, this.removeCallbacks；写入 _element。
-- `__destroy`：执行停用并释放根节点和父节点引用；调用 this.__disable；写入 _element, _parent。
-- `_initCallbacks`：执行 _initCallbacks 对应的组件业务步骤。
-- `registerCallback`：执行 registerCallback 对应的组件业务步骤；调用 this._eventNames.indexOf。
-- `removeCallback`：执行 removeCallback 对应的组件业务步骤；调用 this._eventNames.indexOf。
-- `triggerCallbacks`：执行 triggerCallbacks 对应的组件业务步骤。
-- `registerCallbacks`：登记跨组件或管理器事件订阅。
-- `removeCallbacks`：移除本模块登记的事件订阅。
+## `eyes/src/ui/components/Carousel.js`
 
-- 注意：constructor 会 delete options.config/options.params，调用者传入对象被原地修改。
-- 注意：setState 仅在至少一个顶层键 !== 时渲染并回调；原地修改引用不会触发更新。
-- 注意：模板 HTML 分支使用 innerHTML/replaceChild，必须确保传入内容可信；这里只记录边界，不改变 NASA 内容。
-- 注意：__enable 注册匿名 resize 包装函数，__disable 却 removeEventListener(this.resize)：监听器身份不匹配，重复启停会累积窗口监听器。
-- 注意：show/hide 与 setEnabled 分开：前者改变 class 与状态，后者控制 DOM 挂载及订阅。
+轮播条目选择、滚动与响应式显示。[源码](../../eyes/src/ui/components/Carousel.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/Breadcrumb.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Carousel-js)
 
-将路由和目标层级转换为可点击面包屑。
+### `Carousel`
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/BreadcrumbTemplate.html, ../../styles/extracted/BreadcrumbStyles.js`
-- `manager dependencies: router, content`
+幻灯片节点与进入/离开回调按索引归轮播持有；切换先 await 旧页退出，再更新轨道和新页显示，最后 await 新页进入。滚动边界与触摸方向共同决定翻页，timeout 防止连续手势重复切换。。父类 `EyesPublicApi.BaseComponent`。
 
-**Breadcrumb**：将路由和目标层级转换为可点击面包屑；继承 EyesPublicApi.BaseComponent。
+- `constructor(app, element, options={})` [源码:11](../../eyes/src/ui/components/Carousel.js#L11)：当前操作：写入 _children、_currentInfo、_onEnter、_onLeave、_onSlideChange、_progressTooltip、_slideTypes、_toggleControls；返回 无显式返回。
+- `get currentInfo()` [源码:73](../../eyes/src/ui/components/Carousel.js#L73)：当前操作：写入 无直接字段写入；返回 this._currentInfo。
+- `_onControlsToggle()` [源码:76](../../eyes/src/ui/components/Carousel.js#L76)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setOnControlsToggle(toggleControls)` [源码:79](../../eyes/src/ui/components/Carousel.js#L79)：当前操作：写入 _toggleControls；返回 无显式返回。
+- `init()` [源码:82](../../eyes/src/ui/components/Carousel.js#L82)：当前操作：写入 _children.carousel.style.pointerEvents、_touchStartY；返回 无显式返回。
+- `resize()` [源码:125](../../eyes/src/ui/components/Carousel.js#L125)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateTooltipsProps()` [源码:130](../../eyes/src/ui/components/Carousel.js#L130)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createSlideTrack()` [源码:138](../../eyes/src/ui/components/Carousel.js#L138)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setSlideTrackDimensions()` [源码:144](../../eyes/src/ui/components/Carousel.js#L144)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateTrackPosition()` [源码:167](../../eyes/src/ui/components/Carousel.js#L167)：当前操作：写入 _children.track.style.transform；返回 无显式返回。
+- `_updateSlides()` [源码:176](../../eyes/src/ui/components/Carousel.js#L176)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCarousel()` [源码:186](../../eyes/src/ui/components/Carousel.js#L186)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onScroll(scrollEvent, inputMode="mouse")` [源码:190](../../eyes/src/ui/components/Carousel.js#L190)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addSlide(slideInfo, {isLast=false,isFirst=false}={})` [源码:205](../../eyes/src/ui/components/Carousel.js#L205)：当前操作：写入 _progressTooltip、_touchStartY；返回 无显式返回。
+- `addSlides(slideInfos)` [源码:270](../../eyes/src/ui/components/Carousel.js#L270)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onEnter(slideIndex)` [源码:273](../../eyes/src/ui/components/Carousel.js#L273)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave(slideIndex)` [源码:277](../../eyes/src/ui/components/Carousel.js#L277)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToSlide(slideIndex)` [源码:282](../../eyes/src/ui/components/Carousel.js#L282)：当前操作：写入 _children.progress.style.top；返回 无显式返回。
+- `goToPrevSlide()` [源码:307](../../eyes/src/ui/components/Carousel.js#L307)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToNextSlide()` [源码:315](../../eyes/src/ui/components/Carousel.js#L315)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToFirstSlide()` [源码:322](../../eyes/src/ui/components/Carousel.js#L322)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `isVisible()` [源码:325](../../eyes/src/ui/components/Carousel.js#L325)：当前操作：写入 无直接字段写入；返回 this._state.isVisible。
+- `collapse()` [源码:328](../../eyes/src/ui/components/Carousel.js#L328)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `expand()` [源码:336](../../eyes/src/ui/components/Carousel.js#L336)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `close()` [源码:344](../../eyes/src/ui/components/Carousel.js#L344)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:345](../../eyes/src/ui/components/Carousel.js#L345)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `clear()` [源码:350](../../eyes/src/ui/components/Carousel.js#L350)：当前操作：写入 _children.slides、_children.track.innerHTML、_currentInfo、_onEnter、_onLeave、_state.currentIndex、_state.previousIndex；返回 无显式返回。
+- `_toggleCollapse()` [源码:359](../../eyes/src/ui/components/Carousel.js#L359)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `updateBreadcrumb`：执行 updateBreadcrumb 对应的组件业务步骤；调用 this._app.getManager, this._children.staticLogo.classList.add, this._children.static.classList.remove, this.setState, this._createCrumb, this._element.appendChild。
-- `setCrumbClickHandler`：执行 setCrumbClickHandler 对应的组件业务步骤；写入 _onCrumbClick。
-- `_goToHome`：执行 _goToHome 对应的组件业务步骤；调用 this._app.getManager, this._app.cameraScripts.goToSystem, Manager.navigate。
-- `_getCrumbText`：执行 _getCrumbText 对应的组件业务步骤；调用 this._app.getManager。
-- `_createCrumb`：执行 _createCrumb 对应的组件业务步骤；调用 this._app.getManager, this._onCrumbClick, this._getCrumbText。
+## `eyes/src/ui/components/CarouselPanel.js`
 
-### `eyes/src/ui/components/ButtonsBlock.js`
+轮播面板及其条目生命周期。[源码](../../eyes/src/ui/components/CarouselPanel.js)。语义状态：`verified-semantic-refactor`。
 
-故事内容中的动作按钮组。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CarouselPanel-js)
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/ButtonsBlockTemplate.html, ../../styles/extracted/ButtonsBlockStyles.js`
-- `manager dependencies: time, content`
-- `component dependencies: story`
+### `CarouselPanel`
 
-**ButtonsBlock**：故事内容中的动作按钮组；继承 EyesPublicApi.StoryBaseContentBlock。
+Swiper 全局索引与标签页局部索引分开维护；分页圆点仅覆盖当前标签范围。每张长内容页持有滚动实例和拖动状态，mouseup 闭包成对撤销窗口鼠标监听。。父类 `EyesPublicApi.BaseComponent`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.setUpHTML；写入 _app, _options。
-- `setUpHTML`：执行 setUpHTML 对应的组件业务步骤；调用 Content.forEach, List.add。
+- `constructor(app, options={})` [源码:10](../../eyes/src/ui/components/CarouselPanel.js#L10)：当前操作：写入 _activeBulletClass、_activeTabIndex、_bulletClass、_expandOnShow、_isInitialized、_onSlideChange、_orientation、_resizeTimeout、_swiper、_swiperSlideClass、_tabElements、_tabIndices；返回 无显式返回。
+- `_addEvents()` [源码:73](../../eyes/src/ui/components/CarouselPanel.js#L73)：当前操作：写入 _activeTabIndex；返回 无显式返回。
+- `_hasOrientationChanged()` [源码:105](../../eyes/src/ui/components/CarouselPanel.js#L105)：当前操作：写入 _orientation；返回 didOrientationChange。
+- `_addScrollbars()` [源码:111](../../eyes/src/ui/components/CarouselPanel.js#L111)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `createTabs(tabInfos)` [源码:157](../../eyes/src/ui/components/CarouselPanel.js#L157)：当前操作：写入 _activeTabIndex、_tabElements、_tabIndices；返回 无显式返回。
+- `_createSlideElements(slideInfo)` [源码:187](../../eyes/src/ui/components/CarouselPanel.js#L187)：当前操作：写入 无直接字段写入；返回 slideElements。
+- `_createBullets(activeBulletIndex=0)` [源码:214](../../eyes/src/ui/components/CarouselPanel.js#L214)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setActiveBullet(activeBulletIndex)` [源码:248](../../eyes/src/ui/components/CarouselPanel.js#L248)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addSlide(slideElements=[], onClick)` [源码:257](../../eyes/src/ui/components/CarouselPanel.js#L257)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `initSwiper()` [源码:264](../../eyes/src/ui/components/CarouselPanel.js#L264)：当前操作：写入 _swiper；返回 EyesPublicApi.AppUtils.elementReady(slideSelector).then(()=>{this._swiper?(this._swiper.update(),this._addScrollbars(),this._createBullets(),this._swiper.slideTo(0)):(this._swiper=new A11y.default(ˋ.${carouselClass}ˋ,thi。
+- `_postSwiperInitFunction()` [源码:273](../../eyes/src/ui/components/CarouselPanel.js#L273)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_destroy()` [源码:280](../../eyes/src/ui/components/CarouselPanel.js#L280)：当前操作：写入 _children.swiperSlides.innerHTML；返回 无显式返回。
+- `_onTabClick(clickEvent)` [源码:284](../../eyes/src/ui/components/CarouselPanel.js#L284)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `expand()` [源码:291](../../eyes/src/ui/components/CarouselPanel.js#L291)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `collapse()` [源码:298](../../eyes/src/ui/components/CarouselPanel.js#L298)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setExpandState(isExpanded)` [源码:305](../../eyes/src/ui/components/CarouselPanel.js#L305)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show(initializeSwiper=true)` [源码:312](../../eyes/src/ui/components/CarouselPanel.js#L312)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:325](../../eyes/src/ui/components/CarouselPanel.js#L325)：当前操作：写入 _isInitialized；返回 无显式返回。
+- `resize()` [源码:336](../../eyes/src/ui/components/CarouselPanel.js#L336)：当前操作：写入 _resizeTimeout；返回 无显式返回。
 
-### `eyes/src/ui/components/CameraViewBlock.js`
+## `eyes/src/ui/components/Checkbox.js`
 
-对象内容中的相机视角选项。
+复选输入状态与 change 回调。[源码](../../eyes/src/ui/components/Checkbox.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/CameraViewBlockTemplate.html, ../../styles/extracted/CameraViewBlockStyles.js`
-- `manager dependencies: content, scene, camera, cameraFollow, trajectory, router`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Checkbox-js)
 
-**CameraViewBlock**：对象内容中的相机视角选项；继承 SolarSystemPublicApi.BaseContentBlock。
+### `Checkbox`
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.cameraScripts.goToCelestialObject, this._app.getManager, this._app.cameraScripts.goToSpacecraft, this._app.pioneer.getScene, this.app.getView, this._app.cameraScripts.alignObjects, this._app.cameraScripts.alignSpacecraftPlanet, this._app.cameraScripts.goToInstrument, this._app.cameraScripts.goToSystem, this._app.cameraScripts.showLocationInParentSystem, this._app.cameraScripts.showLocationInSolarSystem, this.app.getManager, FollowManager.initSearch, FollowManager.registerCallback；写入 onLoaded, _cameraOptions, _followId, _activeCameraOptions, _currentCameraView, _prevCameraView, _activeCamOptIndex, _prevCamOptIndex, _optionIndexMap, _trajectoryViewId, _defaultViewIndexOverride, _entityId。
-- `_renderOptions`：执行 _renderOptions 对应的组件业务步骤；调用 Text.toLowerCase, this._goToView, this._activeCameraOptions.push, this._children.cameraOptions.appendChild, this._setVariables；写入 _activeCameraOptions, _currentCameraView, _prevCameraView, _activeCamOptIndex, _prevCamOptIndex, _optionIndexMap。
-- `_addPlanetOptions`：执行 _addPlanetOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
-- `_addMoonOptions`：执行 _addMoonOptions 对应的组件业务步骤；调用 this._app.getManager, this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
-- `_addStarOptions`：执行 _addStarOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._cameraOptions.cameraFollow, this._renderOptions。
-- `_addSpacecraftOptions`：执行 _addSpacecraftOptions 对应的组件业务步骤；调用 this._app.getManager, this._app.getView, Manager.getEntityInfo, this._app.pioneer.getScene, Manager.hasLanded, this._cameraOptions.nearEvent, this._cameraOptions.cameraFollow, this._cameraOptions.nearInstrument, this._cameraOptions.nearSpacecraft, this._cameraOptions.aboveParent, this.app.getManager, Manager.hasTrajectoryOptions, this._cameraOptions.trajectory, this._cameraOptions.alignSpacecraftPlanet。
-- `_addFeatureOptions`：执行 _addFeatureOptions 对应的组件业务步骤；调用 this._cameraOptions.nearObject, this._cameraOptions.system, this._renderOptions。
-- `_addDefaultOptions`：执行 _addDefaultOptions 对应的组件业务步骤；调用 this._app.getManager, Manager.getEntityInfo, this._cameraOptions.nearObject, this._cameraOptions.aboveParent, this._cameraOptions.cameraFollow, this._cameraOptions.aboveSun, this._renderOptions。
-- `_goToView`：执行 _goToView 对应的组件业务步骤；调用 List.remove, List.add；写入 _prevCameraView, _currentCameraView, _prevCamOptIndex, _activeCamOptIndex。
-- `goBackToPreviousView`：执行 goBackToPreviousView 对应的组件业务步骤；调用 this._selectDefaultView, this._goToView。
-- `goToFollowCameraView`：执行 goToFollowCameraView 对应的组件业务步骤；调用 this._goToView；写入 _followId。
-- `goToTrajectoryView`：执行 goToTrajectoryView 对应的组件业务步骤；调用 this._goToView。
-- `goToDefaultView`：执行 goToDefaultView 对应的组件业务步骤；调用 this._selectDefaultView。
-- `getCameraView`：执行 getCameraView 对应的组件业务步骤。
-- `_selectDefaultView`：执行 _selectDefaultView 对应的组件业务步骤；调用 this._goToView。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.app.getManager, FollowManager.setEnabled, this._app.getManager, this.setState, List.remove, this._addPlanetOptions, this._addMoonOptions, this._addStarOptions, this._addSpacecraftOptions, this._addFeatureOptions, this._addDefaultOptions, this._activeCameraOptions.find, this._processQuery, this._selectDefaultView；写入 _entityId, _defaultViewIndexOverride, onLoaded。
-- `onQueryChange`：响应查询参数变化；调用 this._processQuery。
-- `_processQuery`：执行 _processQuery 对应的组件业务步骤；调用 this.app.getManager, Manager.parseQuery, Manager.setEntitiesForceVisible, FollowManager.follow, FollowManager.setEnabled, this._selectDefaultView, Manager.hasTrajectoryOptions, this._app.getManager, Manager.setEnabled。
-- `isLoaded`：执行 isLoaded 对应的组件业务步骤。
+勾选状态与三个模板 class 同步更新；skipCallback 用于程序化同步显示而不重复执行外部业务动作。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/components/Carousel.js`
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/Checkbox.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:42](../../eyes/src/ui/components/Checkbox.js#L42)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggle(clickEvent, skipCallback=false)` [源码:47](../../eyes/src/ui/components/Checkbox.js#L47)：当前操作：写入 无直接字段写入；返回 void。
 
-轮播条目选择、滚动与响应式显示。
+## `eyes/src/ui/components/CheckboxBlock.js`
 
-- `imports: ../../vendor/modules/animateFill-168.js, ../../framework/eyes/public-api.js, ../templates/CarouselTemplate-390.html, ../templates/CarouselTemplate-391.html`
-- `manager dependencies: router, spout`
+故事内容中的复选项组。[源码](../../eyes/src/ui/components/CheckboxBlock.js)。语义状态：`verified-semantic-refactor`。
 
-**Carousel**：轮播条目选择、滚动与响应式显示；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CheckboxBlock-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isPrimaryTouch, Object.assign, this._eventNames.push, this._initCallbacks, this.bindFunctions；写入 _children, _progressTooltip, _onEnter, _onLeave, _slideTypes, _currentInfo, _onSlideChange, _toggleControls。
-- `currentInfo`：执行 currentInfo 对应的组件业务步骤。
-- `_onControlsToggle`：执行 _onControlsToggle 对应的组件业务步骤；调用 this._toggleControls。
-- `setOnControlsToggle`：执行 setOnControlsToggle 对应的组件业务步骤；写入 _toggleControls。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.carousel.classList.add, this._createSlideTrack, this._updateCarousel, this._children.carousel.addEventListener, this.setState, this._children.progress.addEventListener, this._onScroll；写入 _touchStartY。
-- `resize`：重排响应式界面；调用 super.resize, this._updateTooltipsProps。
-- `_updateTooltipsProps`：执行 _updateTooltipsProps 对应的组件业务步骤；调用 this._progressTooltip.setProps。
-- `_createSlideTrack`：执行 _createSlideTrack 对应的组件业务步骤；调用 this._children.slides.forEach, this._children.track.appendChild, this._setSlideTrackDimensions。
-- `_setSlideTrackDimensions`：执行 _setSlideTrackDimensions 对应的组件业务步骤；调用 this._updateTrackPosition。
-- `_updateTrackPosition`：执行 _updateTrackPosition 对应的组件业务步骤。
-- `_updateSlides`：执行 _updateSlides 对应的组件业务步骤；调用 List.remove, List.add。
-- `_updateCarousel`：执行 _updateCarousel 对应的组件业务步骤；调用 this._updateTrackPosition, this._updateSlides。
-- `_onScroll`：执行 _onScroll 对应的组件业务步骤；调用 this.expand, Target.querySelector, Math.ceil, this.goToPrevSlide, this.goToNextSlide, this.setState。
-- `addSlides`：执行 addSlides 对应的组件业务步骤；调用 this.addSlide。
-- `onEnter`：进入视图时准备界面和订阅。
-- `onLeave`：离开视图时恢复状态并解除订阅。
-- `goToSlide`：执行 goToSlide 对应的组件业务步骤；调用 this.app.getManager, this.onLeave, this.setState, this._updateCarousel, this.triggerCallbacks, this._progressTooltip.setContent, this._updateTooltipsProps, this._progressTooltip.show, this.onEnter。
-- `goToPrevSlide`：执行 goToPrevSlide 对应的组件业务步骤；调用 this._onSlideChange。
-- `goToNextSlide`：执行 goToNextSlide 对应的组件业务步骤；调用 this._onSlideChange。
-- `goToFirstSlide`：执行 goToFirstSlide 对应的组件业务步骤；调用 this._onSlideChange。
-- `isVisible`：执行 isVisible 对应的组件业务步骤。
-- `collapse`：执行 collapse 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `expand`：执行 expand 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `close`：执行 close 对应的组件业务步骤。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this._updateCarousel, this._progressTooltip.show。
-- `clear`：执行 clear 对应的组件业务步骤；写入 _onEnter, _onLeave, _currentInfo。
-- `_toggleCollapse`：执行 _toggleCollapse 对应的组件业务步骤；调用 this.expand, this.collapse。
+### `CheckboxBlock`
 
-### `eyes/src/ui/components/CarouselPanel.js`
+故事提供 checkboxContent 和 onChange；此块只拥有生成的 label/input 节点，变更事件连同应用实例转交配置回调。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-轮播面板及其条目生命周期。
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/CheckboxBlock.js#L8)：当前操作：写入 options；返回 无显式返回。
+- `setUpHTML(options)` [源码:17](../../eyes/src/ui/components/CheckboxBlock.js#L17)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setChecked(checkboxId, isChecked)` [源码:46](../../eyes/src/ui/components/CheckboxBlock.js#L46)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `imports: ../../vendor/modules/A11y.js, ../../framework/eyes/public-api.js, ../templates/CarouselPanelTemplate.html`
-- `manager dependencies: layer`
-- `component dependencies: definitionOverlay`
+## `eyes/src/ui/components/CheckboxMultistate.js`
 
-**CarouselPanel**：轮播面板及其条目生命周期；继承 EyesPublicApi.BaseComponent。
+扩展复选框以表示多个状态。[源码](../../eyes/src/ui/components/CheckboxMultistate.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._eventNames.push, this._initCallbacks, this.bindFunctions；写入 _swiper, _tabIndices, _activeTabIndex, _tabElements, _bulletClass, _activeBulletClass, _swiperSlideClass, _onSlideChange, _expandOnShow, _orientation, _resizeTimeout, _isInitialized。
-- `_addEvents`：执行 _addEvents 对应的组件业务步骤；调用 this._swiper.on, this._onSlideChange, Instance.scroll, this._tabIndices.findIndex, this._tabElements.forEach, List.toggle, this._createBullets, this._setActiveBullet, this._children.swiperSlides.addEventListener, this._app.getComponent；写入 _activeTabIndex。
-- `_hasOrientationChanged`：执行 _hasOrientationChanged 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isPortrait；写入 _orientation。
-- `_addScrollbars`：执行 _addScrollbars 对应的组件业务步骤；调用 this._hasOrientationChanged, List.add, EyesPublicApi.AppUtils.addScrollbar, Instance.scroll。
-- `createTabs`：执行 createTabs 对应的组件业务步骤；调用 this._destroy, this._tabIndices.push, this._createSlideElements, this.addSlide, this._children.tabsContainer.replaceChildren, this.setState；写入 _tabIndices, _activeTabIndex, _tabElements。
-- `_createSlideElements`：执行 _createSlideElements 对应的组件业务步骤。
-- `_createBullets`：执行 _createBullets 对应的组件业务步骤；调用 List.add, this._swiper.slideTo, List.remove, this._setActiveBullet, List.contains。
-- `_setActiveBullet`：执行 _setActiveBullet 对应的组件业务步骤；调用 Nodes.forEach, List.remove, List.add。
-- `addSlide`：执行 addSlide 对应的组件业务步骤；调用 this._children.swiperSlides.append。
-- `initSwiper`：执行 initSwiper 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady, this._swiper.update, this._addScrollbars, this._createBullets, this._swiper.slideTo, A11y.default, this._postSwiperInitFunction；写入 _swiper。
-- `_postSwiperInitFunction`：执行 _postSwiperInitFunction 对应的组件业务步骤；调用 this._addEvents, this._addScrollbars, this._createBullets, this._swiper.update, this._swiper.slideTo。
-- `_destroy`：执行 _destroy 对应的组件业务步骤。
-- `_onTabClick`：执行 _onTabClick 对应的组件业务步骤；调用 this._tabElements.findIndex, this._swiper.slideTo。
-- `expand`：执行 expand 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `collapse`：执行 collapse 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `setExpandState`：执行 setExpandState 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `show`：执行 show 对应的组件业务步骤；调用 this._app.getManager, this.setState, this.triggerCallbacks, super.show, this.initSwiper。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks；写入 _isInitialized。
-- `resize`：重排响应式界面；调用 this._addScrollbars；写入 _resizeTimeout。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CheckboxMultistate-js)
 
-### `eyes/src/ui/components/Checkbox.js`
+### `CheckboxMultistate`
 
-复选输入状态与 change 回调。
+多态复选框替换父类的二态点击监听；状态索引循环，显式 requestedStateIndex 优先，class 表与回调收到同一新索引。。父类 `Checkbox.Checkbox`。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/CheckboxMultistateTemplate.html`
+- `constructor(app, options={})` [源码:9](../../eyes/src/ui/components/CheckboxMultistate.js#L9)：当前操作：写入 _numStates；返回 无显式返回。
+- `_initStates()` [源码:18](../../eyes/src/ui/components/CheckboxMultistate.js#L18)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:36](../../eyes/src/ui/components/CheckboxMultistate.js#L36)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setNumStates(numStates)` [源码:42](../../eyes/src/ui/components/CheckboxMultistate.js#L42)：当前操作：写入 _numStates；返回 无显式返回。
+- `getCurrentStateIndex()` [源码:45](../../eyes/src/ui/components/CheckboxMultistate.js#L45)：当前操作：写入 无直接字段写入；返回 this._state.stateIndex。
+- `setClassesForIndex(stateClasses, stateIndex)` [源码:48](../../eyes/src/ui/components/CheckboxMultistate.js#L48)：当前操作：写入 _class[classRole]、_class[classRole][stateIndex]；返回 无显式返回。
+- `cycle(clickEvent, skipCallback=false, requestedStateIndex=null)` [源码:61](../../eyes/src/ui/components/CheckboxMultistate.js#L61)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-**Checkbox**：复选输入状态与 change 回调；继承 EyesPublicApi.BaseComponent。
+## `eyes/src/ui/components/Clock.js`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions。
-- `init`：初始化模板与关联资源；调用 super.init, this._element.setAttribute, this._element.addEventListener。
-- `toggle`：执行 toggle 对应的组件业务步骤；调用 this.setState, this._config.function。
+时间编辑、显示、时区和边界提示。[源码](../../eyes/src/ui/components/Clock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/CheckboxBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Clock-js)
 
-故事内容中的复选项组。
+### `Clock`
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/CheckboxBlockTemplate.html, ../../styles/extracted/CheckboxBlockStyles.js`
+时钟格式由 time 管理器统一持有，普通时钟订阅 update，kiosk 计时器由调用者直接传文本。编辑提交经解析后写入路由；停用时取消限时提示的隐藏计时器。。父类 `EyesPublicApi.BaseComponent`。
 
-**CheckboxBlock**：故事内容中的复选项组；继承 EyesPublicApi.StoryBaseContentBlock。
+- `constructor(app, options={})` [源码:9](../../eyes/src/ui/components/Clock.js#L9)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:30](../../eyes/src/ui/components/Clock.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onDateTimeClick()` [源码:78](../../eyes/src/ui/components/Clock.js#L78)：当前操作：写入 无直接字段写入；返回 void。
+- `isERT()` [源码:95](../../eyes/src/ui/components/Clock.js#L95)：当前操作：写入 无直接字段写入；返回 this._isERT。
+- `toggle(fieldName, isVisible)` [源码:98](../../eyes/src/ui/components/Clock.js#L98)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_parseTime(inputText)` [源码:119](../../eyes/src/ui/components/Clock.js#L119)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `update(timeValue, isTimerText=false)` [源码:135](../../eyes/src/ui/components/Clock.js#L135)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `backToLive()` [源码:145](../../eyes/src/ui/components/Clock.js#L145)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setLimitMessage(limitDirection, customMessage)` [源码:157](../../eyes/src/ui/components/Clock.js#L157)：当前操作：写入 limitMessageTimeout；返回 无显式返回。
+- `_displayLimitMessage(isVisible)` [源码:176](../../eyes/src/ui/components/Clock.js#L176)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__disable()` [源码:179](../../eyes/src/ui/components/Clock.js#L179)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.setUpHTML；写入 options。
-- `setUpHTML`：执行 setUpHTML 对应的组件业务步骤；调用 Content.forEach, List.add。
-- `setChecked`：执行 setChecked 对应的组件业务步骤。
+## `eyes/src/ui/components/ClockShortcut.js`
 
-### `eyes/src/ui/components/CheckboxMultistate.js`
+快速日期时间选择入口。[源码](../../eyes/src/ui/components/ClockShortcut.js)。语义状态：`verified-semantic-refactor`。
 
-扩展复选框以表示多个状态。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ClockShortcut-js)
 
-- `imports: ../../framework/eyes/public-api.js, ./Checkbox.js, ../templates/CheckboxMultistateTemplate.html`
+### `ClockShortcut`
 
-**CheckboxMultistate**：扩展复选框以表示多个状态；继承 Checkbox.Checkbox。
+时间管理器 update 订阅通过基类注册表随启停解除。外部视图可接管返回实时操作，未接管时才修改路由时间与速率。。父类 `EyesPublicApi.BaseComponent`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._initStates, this.bindFunctions；写入 _numStates。
-- `_initStates`：执行 _initStates 对应的组件业务步骤；调用 Object.assign, Array.from, this.setState。
-- `init`：初始化模板与关联资源；调用 super.init, this._element.setAttribute, this._element.removeEventListener, this._element.addEventListener。
-- `setNumStates`：执行 setNumStates 对应的组件业务步骤；调用 this._initStates；写入 _numStates。
-- `getCurrentStateIndex`：执行 getCurrentStateIndex 对应的组件业务步骤。
-- `setClassesForIndex`：执行 setClassesForIndex 对应的组件业务步骤；调用 Object.keys, Array.from, this.setState。
-- `cycle`：执行 cycle 对应的组件业务步骤；调用 this.setState, this._config.function。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/ClockShortcut.js#L10)：当前操作：写入 _class.fontSize.small、_liveCallback、_state.replayClass；返回 无显式返回。
+- `init()` [源码:25](../../eyes/src/ui/components/ClockShortcut.js#L25)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setCallback(callback)` [源码:61](../../eyes/src/ui/components/ClockShortcut.js#L61)：当前操作：写入 _liveCallback；返回 无显式返回。
+- `backToLive()` [源码:64](../../eyes/src/ui/components/ClockShortcut.js#L64)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_replay()` [源码:78](../../eyes/src/ui/components/ClockShortcut.js#L78)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `update(timeUpdate)` [源码:83](../../eyes/src/ui/components/ClockShortcut.js#L83)：当前操作：写入 无直接字段写入；返回 void。
 
-### `eyes/src/ui/components/Clock.js`
+## `eyes/src/ui/components/CollapsibleMenu.js`
 
-时间编辑、显示、时区和边界提示。
+可折叠工具菜单和子项显示。[源码](../../eyes/src/ui/components/CollapsibleMenu.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/public-api.js, ../../vendor/modules/FollowName.cjs, ../templates/ClockTemplate.html`
-- `manager dependencies: time, router`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CollapsibleMenu-js)
 
-**Clock**：时间编辑、显示、时区和边界提示；继承 EyesPublicApi.BaseComponent。
+### `CollapsibleMenu`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions。
-- `init`：初始化模板与关联资源；调用 super.init, this._app.getManager, Container.classList.add, Input.addEventListener, Form.classList.add, Form.addEventListener, Input.blur, this._parseTime, Container.classList.remove, this._setVariables, this._children.date.classList.add, this._children.time.classList.add, this._children.meridiem.classList.add, this._children.timeInput.classList.add。
-- `onDateTimeClick`：执行 onDateTimeClick 对应的组件业务步骤；调用 this._app.getManager, Route.url.includes, Container.classList.add, Form.classList.remove, Input.focus。
-- `isERT`：执行 isERT 对应的组件业务步骤。
-- `toggle`：执行 toggle 对应的组件业务步骤；调用 this.setState。
-- `_parseTime`：执行 _parseTime 对应的组件业务步骤；调用 this._app.getManager, Manager.navigate。
-- `update`：执行 update 对应的组件业务步骤；调用 this.setState, this._app.getManager。
-- `backToLive`：执行 backToLive 对应的组件业务步骤；调用 this._app.getManager, Manager.isNow, Manager.getTimeUrl, Manager.getNow, Manager.navigate, Manager.setTimeRate, Manager.setToNow。
-- `setLimitMessage`：执行 setLimitMessage 对应的组件业务步骤；调用 this._app.getManager, this._app.getView, this._displayLimitMessage；写入 limitMessageTimeout。
-- `_displayLimitMessage`：执行 _displayLimitMessage 对应的组件业务步骤；调用 List.toggle。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this._displayLimitMessage, super.__disable。
+菜单保存项目顺序与已展开队列，依据各项最大高度计算剩余空间；新增项目可复用现存组件，组件订阅则登记在本菜单的回调注册表。。父类 `Eyes.BaseComponent`。
 
-### `eyes/src/ui/components/ClockShortcut.js`
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/CollapsibleMenu.js#L10)：当前操作：写入 _allowMultiple、_availableHeight、_expandedItems、_maxHeight、_menuItems、_resizeObserver；返回 无显式返回。
+- `init()` [源码:31](../../eyes/src/ui/components/CollapsibleMenu.js#L31)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getMaxHeight()` [源码:35](../../eyes/src/ui/components/CollapsibleMenu.js#L35)：当前操作：写入 无直接字段写入；返回 windowHeight>600?.4*windowHeight:.5*windowHeight。
+- `_calcUsedHeight()` [源码:39](../../eyes/src/ui/components/CollapsibleMenu.js#L39)：当前操作：写入 无直接字段写入；返回 usedHeight。
+- `_calcAvailableHeight()` [源码:51](../../eyes/src/ui/components/CollapsibleMenu.js#L51)：当前操作：写入 无直接字段写入；返回 this._maxHeight-usedHeight。
+- `_itemHasSpace({height:height})` [源码:55](../../eyes/src/ui/components/CollapsibleMenu.js#L55)：当前操作：写入 无直接字段写入；返回 this._availableHeight>height.max。
+- `_addExpandedItem(menuItem)` [源码:60](../../eyes/src/ui/components/CollapsibleMenu.js#L60)：当前操作：写入 _availableHeight；返回 无显式返回。
+- `_removeExpandedItem(menuItem)` [源码:64](../../eyes/src/ui/components/CollapsibleMenu.js#L64)：当前操作：写入 _availableHeight、_expandedItems；返回 无显式返回。
+- `_collapseLastItem()` [源码:68](../../eyes/src/ui/components/CollapsibleMenu.js#L68)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `collapse()` [源码:71](../../eyes/src/ui/components/CollapsibleMenu.js#L71)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setBtmGradScale()` [源码:75](../../eyes/src/ui/components/CollapsibleMenu.js#L75)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addItem({itemTitle:itemTitle,componentNames:componentNames,positionIndex:positionIndex,dimensions:dimensions,expand:shouldExpand=true})` [源码:80](../../eyes/src/ui/components/CollapsibleMenu.js#L80)：当前操作：写入 无直接字段写入；返回 menuItem。
+- `removeAllItems()` [源码:128](../../eyes/src/ui/components/CollapsibleMenu.js#L128)：当前操作：写入 _availableHeight、_expandedItems、_menuItems；返回 无显式返回。
+- `onItemToggle(isExpanded, menuItem)` [源码:139](../../eyes/src/ui/components/CollapsibleMenu.js#L139)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onItemVisibleChange()` [源码:153](../../eyes/src/ui/components/CollapsibleMenu.js#L153)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setAllowMultiple(allowMultiple)` [源码:159](../../eyes/src/ui/components/CollapsibleMenu.js#L159)：当前操作：写入 _allowMultiple；返回 无显式返回。
+- `get visibleItems()` [源码:162](../../eyes/src/ui/components/CollapsibleMenu.js#L162)：当前操作：写入 无直接字段写入；返回 this._menuItems.filter(menuItem=>menuItem.getState("isVisible"))。
+- `get allItems()` [源码:165](../../eyes/src/ui/components/CollapsibleMenu.js#L165)：当前操作：写入 无直接字段写入；返回 this._element?.childNodes。
 
-快速日期时间选择入口。
+## `eyes/src/ui/components/CollapsibleMenuItem.js`
 
-- `imports: ../../vendor/modules/animateFill-168.js, ../../vendor/modules/FollowName.cjs, ../../framework/eyes/public-api.js, ../templates/ClockShortcutTemplate.html`
-- `manager dependencies: time, router`
+工具菜单中的独立动作项。[源码](../../eyes/src/ui/components/CollapsibleMenuItem.js)。语义状态：`verified-semantic-refactor`。
 
-**ClockShortcut**：快速日期时间选择入口；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-CollapsibleMenuItem-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 this.bindFunctions；写入 _liveCallback。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.liveContainer.addEventListener, this.setState, Fill.default.setDefaultProps, this._children.live.classList.add, this._children.replay.classList.add, this._element.removeChild, this._callbackRegistry.push, this._app.getManager。
-- `setCallback`：执行 setCallback 对应的组件业务步骤；写入 _liveCallback。
-- `backToLive`：执行 backToLive 对应的组件业务步骤；调用 this._liveCallback, this._app.getManager, Manager.isNow, Manager.getTimeUrl, Manager.getNow, Manager.navigate, Manager.setTimeRate, Manager.setToNow。
-- `_replay`：执行 _replay 对应的组件业务步骤；调用 this._app.getManager。
-- `update`：执行 update 对应的组件业务步骤；调用 this._app.getManager, EyesPublicApi.AppUtils.isMobileMode, this.setState。
+### `CollapsibleMenuItem`
 
-### `eyes/src/ui/components/CollapsibleMenu.js`
+子组件 DOM 移入本项容器，同时记录 _cMenuParent 供视图访问；展开事件先发出，再更新本项状态、子组件可见性和尺寸。。父类 `Eyes.BaseComponent`。
 
-可折叠工具菜单和子项显示。
+- `constructor(app, parentComponent, options={})` [源码:8](../../eyes/src/ui/components/CollapsibleMenuItem.js#L8)：当前操作：写入 _components、_parentComponent；返回 无显式返回。
+- `init()` [源码:21](../../eyes/src/ui/components/CollapsibleMenuItem.js#L21)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addComponent(component, followEnabledState=false)` [源码:38](../../eyes/src/ui/components/CollapsibleMenuItem.js#L38)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onToggleClick()` [源码:50](../../eyes/src/ui/components/CollapsibleMenuItem.js#L50)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onCollapseClick()` [源码:57](../../eyes/src/ui/components/CollapsibleMenuItem.js#L57)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setToggleAriaLabel(isExpanded)` [源码:60](../../eyes/src/ui/components/CollapsibleMenuItem.js#L60)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setExpanded(isExpanded)` [源码:70](../../eyes/src/ui/components/CollapsibleMenuItem.js#L70)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setContainerHeight(isExpanded)` [源码:78](../../eyes/src/ui/components/CollapsibleMenuItem.js#L78)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get parentComponent()` [源码:86](../../eyes/src/ui/components/CollapsibleMenuItem.js#L86)：当前操作：写入 无直接字段写入；返回 this._parentComponent。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../../styles/extracted/CollapsibleMenuStyles.js, ../templates/CollapsibleMenuTemplate.html, ./CollapsibleMenuItem.js`
-- `manager dependencies: router`
-- `component dependencies: timeControls`
+## `eyes/src/ui/components/Comparison.js`
 
-**CollapsibleMenu**：可折叠工具菜单和子项显示；继承 Eyes.BaseComponent。
+目标与比较对象的尺寸、距离或照片比较交互。[源码](../../eyes/src/ui/components/Comparison.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._getMaxHeight, this._calcAvailableHeight, this._collapseLastItem, this._eventNames.push, this._initCallbacks, this.bindFunctions；写入 _menuItems, _expandedItems, _allowMultiple, _maxHeight, _availableHeight, _resizeObserver。
-- `init`：初始化模板与关联资源；调用 super.init, this._resizeObserver.observe。
-- `_getMaxHeight`：执行 _getMaxHeight 对应的组件业务步骤。
-- `_calcUsedHeight`：执行 _calcUsedHeight 对应的组件业务步骤；调用 this._expandedItems.forEach。
-- `_calcAvailableHeight`：执行 _calcAvailableHeight 对应的组件业务步骤；调用 this._calcUsedHeight。
-- `_addExpandedItem`：执行 _addExpandedItem 对应的组件业务步骤；调用 this._expandedItems.push, this._calcAvailableHeight；写入 _availableHeight。
-- `_removeExpandedItem`：执行 _removeExpandedItem 对应的组件业务步骤；调用 this._expandedItems.filter, this._calcAvailableHeight；写入 _expandedItems, _availableHeight。
-- `_collapseLastItem`：执行 _collapseLastItem 对应的组件业务步骤。
-- `collapse`：执行 collapse 对应的组件业务步骤；调用 this.triggerCallbacks。
-- `_setBtmGradScale`：执行 _setBtmGradScale 对应的组件业务步骤；调用 this._calcUsedHeight。
-- `removeAllItems`：执行 removeAllItems 对应的组件业务步骤；调用 this._menuItems.forEach, this._element.removeChild, this.onItemVisibleChange, this._calcAvailableHeight；写入 _menuItems, _expandedItems, _availableHeight。
-- `onItemToggle`：执行 onItemToggle 对应的组件业务步骤；调用 this._itemHasSpace, this._collapseLastItem, this._addExpandedItem, this._removeExpandedItem, this.setState, this.triggerCallbacks, this._setBtmGradScale。
-- `onItemVisibleChange`：执行 onItemVisibleChange 对应的组件业务步骤；调用 this.setState。
-- `setAllowMultiple`：执行 setAllowMultiple 对应的组件业务步骤；写入 _allowMultiple。
-- `visibleItems`：执行 visibleItems 对应的组件业务步骤；调用 this._menuItems.filter。
-- `allItems`：执行 allItems 对应的组件业务步骤。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Comparison-js)
 
-### `eyes/src/ui/components/CollapsibleMenuItem.js`
+### `Comparison`
 
-工具菜单中的独立动作项。
+两侧对象说明异步读取后转换成单份模板状态；航天器等按长度显示，天体右侧按半径比显示。小单位切换发生在数值格式化前，保持 NASA 原比较规则。。父类 `Eyes.BaseComponent`。
 
-- `imports: ../../framework/eyes/index.js, ../../styles/extracted/CollapsibleMenuItemStyles.js, ../templates/CollapsibleMenuItemTemplate.html`
+- `constructor(app, element)` [源码:9](../../eyes/src/ui/components/Comparison.js#L9)：当前操作：写入 _class.fontSize.default、_class.fontSize.small、_class.fontSize.xSmall、compare、list、name、unitConverter；返回 无显式返回。
+- `init()` [源码:42](../../eyes/src/ui/components/Comparison.js#L42)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateFontSize()` [源码:63](../../eyes/src/ui/components/Comparison.js#L63)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `unitchange(isMetric)` [源码:72](../../eyes/src/ui/components/Comparison.js#L72)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `nextCompare()` [源码:78](../../eyes/src/ui/components/Comparison.js#L78)：当前操作：写入 compare；返回 无显式返回。
+- `previousCompare()` [源码:84](../../eyes/src/ui/components/Comparison.js#L84)：当前操作：写入 compare；返回 无显式返回。
+- `clearRightPanelText(entityId)` [源码:90](../../eyes/src/ui/components/Comparison.js#L90)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `clearLeftPanelText(entityId)` [源码:103](../../eyes/src/ui/components/Comparison.js#L103)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setup(comparisonOptions={})` [源码:116](../../eyes/src/ui/components/Comparison.js#L116)：当前操作：写入 compare、list、name、unitConverter；返回 void。
+- `formatValue(numericValue, fractionDigits=1)` [源码:126](../../eyes/src/ui/components/Comparison.js#L126)：当前操作：写入 无直接字段写入；返回 formattedValue、numericValue.toFixed(fractionDigits)、roundedValue.toFixed(fractionDigits)。
+- `generateValues()` [源码:138](../../eyes/src/ui/components/Comparison.js#L138)：当前操作：写入 leftDescription、rightDescription；返回 void。
+- `entityCompareLookup(entityId, side)` [源码:207](../../eyes/src/ui/components/Comparison.js#L207)：当前操作：写入 无直接字段写入；返回 null、{icon:iconClass,category:categoryLabel,type:entityInfo.category\|\|"NA",className:this._app.getManager("content").getClassName(entityId),name:entityInfo.displayName\|\|entityInfo.iauName\|\|entityInfo.name\|\|sceneEntity.getName。
+- `closeView()` [源码:223](../../eyes/src/ui/components/Comparison.js#L223)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-**CollapsibleMenuItem**：工具菜单中的独立动作项；继承 Eyes.BaseComponent。
+## `eyes/src/ui/components/ContentPanel.js`
 
-- `constructor`：建立实例初始字段和依赖；调用 this._eventNames.push, this._initCallbacks；写入 _parentComponent, _components。
-- `init`：初始化模板与关联资源；调用 super.init, Button.setAttribute, Title.toLowerCase, this._element.style.setProperty, this._setContainerHeight, this._setToggleAriaLabel。
-- `addComponent`：执行 addComponent 对应的组件业务步骤；调用 this._components.push, this.show, this.hide, Container.appendChild。
-- `onToggleClick`：执行 onToggleClick 对应的组件业务步骤；调用 this.setExpanded。
-- `onCollapseClick`：执行 onCollapseClick 对应的组件业务步骤；调用 this.setExpanded。
-- `_setToggleAriaLabel`：执行 _setToggleAriaLabel 对应的组件业务步骤；调用 Button.setAttribute, Title.toLowerCase。
-- `setExpanded`：执行 setExpanded 对应的组件业务步骤；调用 this.triggerCallbacks, this.setState, this._setToggleAriaLabel, this._components.forEach, this._setContainerHeight。
-- `_setContainerHeight`：执行 _setContainerHeight 对应的组件业务步骤；调用 this._element.style.setProperty。
-- `parentComponent`：执行 parentComponent 对应的组件业务步骤。
+按路由描述装配对象内容块并控制面板折叠与覆盖。[源码](../../eyes/src/ui/components/ContentPanel.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/Comparison.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ContentPanel-js)
 
-目标与比较对象的尺寸、距离或照片比较交互。
+### `ContentPanel`
 
-- `imports: ../../framework/eyes/index.js, ../../engine/pioneer/index.js, ../../styles/extracted/ComparisonStyles.js, ../templates/ComparisonTemplate.html`
-- `manager dependencies: router, content, comparison`
+面板拥有对象/事件/特征内容块与 tab 拓扑，路由刷新先停用旧块并克隆默认拓扑，再按资源能力增删块。加载完成后的对象阶段单独补入相机与贴图选项，多处取消检查还核对当前目标。移动布局把 overview 和 replay 作为持久块处理，拖动结束吸附到计算出的高度档位；桌面改用展开/折叠状态。routeFlag、refreshFlag 为原有未读取参数，保留签名但不推断业务用途。。父类 `Eyes.BaseComponent`。
 
-**Comparison**：目标与比较对象的尺寸、距离或照片比较交互；继承 Eyes.BaseComponent。
+- `constructor(app, options)` [源码:33](../../eyes/src/ui/components/ContentPanel.js#L33)：当前操作：写入 _adjustedMobileHeight、_backButtonVisibleClass、_backRoute、_blockState、_cameraViewBlock、_class.iconCollapse、_class.iconExpand、_class.isCollapsed、_class.isExpanded、_class.isOverlay、_class.isScrollToTopVisible、_compareSizeBlock、_components、_currentId、_defaultState、_descriptionBlock、_distanceToolBlock、_eventsBlock、_featuredMoonsBlock、_featuresBlock、_instrumentFOVBlock、_isDragging、_layersBlock、_mainViewportEl、_moonsBlock、_overviewBlock、_pioneerParentEl、_relatedBlock、_replayBlock、_resizeTimeoutAmount、_scrollbar、_snapHeights、_surfaceMapBlock、_telescopeModeBlock、_textureQualityBlock；返回 无显式返回。
+- `getScrollbar()` [源码:154](../../eyes/src/ui/components/ContentPanel.js#L154)：当前操作：写入 无直接字段写入；返回 this._scrollbar。
+- `_showTab(tabName)` [源码:157](../../eyes/src/ui/components/ContentPanel.js#L157)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_hideTab(tabName)` [源码:162](../../eyes/src/ui/components/ContentPanel.js#L162)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:167](../../eyes/src/ui/components/ContentPanel.js#L167)：当前操作：写入 _cameraViewBlock、_compareSizeBlock、_descriptionBlock、_distanceToolBlock、_eventsBlock、_featuredMoonsBlock、_featuresBlock、_instrumentFOVBlock、_isLandscape、_isMobile、_layersBlock、_moonsBlock、_overviewBlock、_relatedBlock、_replayBlock、_surfaceMapBlock、_tabContent、_telescopeModeBlock、_textureQualityBlock；返回 无显式返回。
+- `_onRouteChange(currentId, routeParts)` [源码:214](../../eyes/src/ui/components/ContentPanel.js#L214)：当前操作：写入 _currentId、_defaultState.title、_persistingBlocks、_tabContent；返回 无显式返回。
+- `getParentTabOfSubtab(subtabName)` [源码:217](../../eyes/src/ui/components/ContentPanel.js#L217)：当前操作：写入 无直接字段写入；返回 tabName、""。
+- `selectTab(tabName, isMainTab=true)` [源码:221](../../eyes/src/ui/components/ContentPanel.js#L221)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTabSelect(clickEvent)` [源码:248](../../eyes/src/ui/components/ContentPanel.js#L248)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addBlockToTab(blockName, tabName=defaultMainTab, subtabName=null)` [源码:255](../../eyes/src/ui/components/ContentPanel.js#L255)：当前操作：写入 _blockState[ˋ${blockName}Blockˋ]；返回 无显式返回。
+- `removeBlockFromTab(blockName, tabName=defaultMainTab, subtabName=null)` [源码:260](../../eyes/src/ui/components/ContentPanel.js#L260)：当前操作：写入 _blockState[ˋ${blockName}Blockˋ]；返回 无显式返回。
+- `populateTabs(tabs, persistingBlocks=[])` [源码:267](../../eyes/src/ui/components/ContentPanel.js#L267)：当前操作：写入 无直接字段写入；返回 void。
+- `createSubtabHTML()` [源码:289](../../eyes/src/ui/components/ContentPanel.js#L289)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onQueryChange(queryParams)` [源码:328](../../eyes/src/ui/components/ContentPanel.js#L328)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setupBackButton(routeParts)` [源码:331](../../eyes/src/ui/components/ContentPanel.js#L331)：当前操作：写入 _backButtonVisibleClass、_backRoute；返回 无显式返回。
+- `onRouteChangeEvent(entityId, eventId, eventInfo, eventDescription, orderedEvents, cancelToken, routeParts)` [源码:340](../../eyes/src/ui/components/ContentPanel.js#L340)：当前操作：写入 _persistingBlocks；返回 void。
+- `onRouteChangeObject(entityId, entityInfo, entityDescription, events, featuredStories, cancelToken, routeParts, routeFlag=false)` [源码:370](../../eyes/src/ui/components/ContentPanel.js#L370)：当前操作：写入 _defaultState.title；返回 void。
+- `onRouteChangeObjectLoaded(entityId, entityInfo, entityDescription, events, featuredStories, routeParams, routeParts)` [源码:390](../../eyes/src/ui/components/ContentPanel.js#L390)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChangeFeature(entityId, entityInfo, featureInfo, featureDescription, cancelToken, routeParts)` [源码:398](../../eyes/src/ui/components/ContentPanel.js#L398)：当前操作：写入 无直接字段写入；返回 void。
+- `onChildParentChange(entityId, entityInfo, refreshFlag)` [源码:412](../../eyes/src/ui/components/ContentPanel.js#L412)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `determineToolboxBlocksState(entityInfo)` [源码:422](../../eyes/src/ui/components/ContentPanel.js#L422)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `determineViewOptionBlocksState(entityId, cancelToken=null)` [源码:456](../../eyes/src/ui/components/ContentPanel.js#L456)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `determineSurfaceMapBlockState(entityId)` [源码:464](../../eyes/src/ui/components/ContentPanel.js#L464)：当前操作：写入 无直接字段写入；返回 void。
+- `determineLayersBlockState(entityId, cancelToken=null)` [源码:476](../../eyes/src/ui/components/ContentPanel.js#L476)：当前操作：写入 无直接字段写入；返回 void。
+- `determineInstrumentFOVBlockState(entityId)` [源码:500](../../eyes/src/ui/components/ContentPanel.js#L500)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `determineTextureQualityBlockState(entityId)` [源码:511](../../eyes/src/ui/components/ContentPanel.js#L511)：当前操作：写入 无直接字段写入；返回 void。
+- `determineFeaturesBlockState(entityId, entityInfo)` [源码:523](../../eyes/src/ui/components/ContentPanel.js#L523)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `backRoute()` [源码:533](../../eyes/src/ui/components/ContentPanel.js#L533)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onClickShowCollapse()` [源码:544](../../eyes/src/ui/components/ContentPanel.js#L544)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:547](../../eyes/src/ui/components/ContentPanel.js#L547)：当前操作：写入 _isLandscape、_isMobile；返回 无显式返回。
+- `onDragStart(touchEvent)` [源码:560](../../eyes/src/ui/components/ContentPanel.js#L560)：当前操作：写入 _isDragging；返回 无显式返回。
+- `onDrag(touchEvent)` [源码:564](../../eyes/src/ui/components/ContentPanel.js#L564)：当前操作：写入 element.style.height；返回 void。
+- `onDragEnd(touchEvent)` [源码:571](../../eyes/src/ui/components/ContentPanel.js#L571)：当前操作：写入 _isDragging、_snapHeights.index、element.style.height；返回 无显式返回。
+- `expand()` [源码:597](../../eyes/src/ui/components/ContentPanel.js#L597)：当前操作：写入 _snapHeights.index、element.style.height；返回 void。
+- `collapse()` [源码:618](../../eyes/src/ui/components/ContentPanel.js#L618)：当前操作：写入 _snapHeights.index、element.style.height；返回 void。
+- `toggleExpandCollapse()` [源码:638](../../eyes/src/ui/components/ContentPanel.js#L638)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:650](../../eyes/src/ui/components/ContentPanel.js#L650)：当前操作：写入 _scrollbar；返回 无显式返回。
+- `hide()` [源码:655](../../eyes/src/ui/components/ContentPanel.js#L655)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_delayedResize()` [源码:659](../../eyes/src/ui/components/ContentPanel.js#L659)：当前操作：写入 _adjustedMobileHeight；返回 无显式返回。
+- `_getParentTabOfSubtab(subtabName)` [源码:671](../../eyes/src/ui/components/ContentPanel.js#L671)：当前操作：写入 无直接字段写入；返回 tabName、""。
+- `_calcTabPanelBottomMargin()` [源码:675](../../eyes/src/ui/components/ContentPanel.js#L675)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getBlockHeight(blockElement)` [源码:686](../../eyes/src/ui/components/ContentPanel.js#L686)：当前操作：写入 无直接字段写入；返回 new Promise(resolveHeight=>{const heightInterval=setInterval(()=>{const blockHeight=parseFloat(window.getComputedStyle(blockElement).height);isNaN(blockHeight)\|\|(clearInterval(heightInterval),resolveHeight(parseFloat(win。
+- `_calculateAdjustedMobileHeight()` [源码:696](../../eyes/src/ui/components/ContentPanel.js#L696)：当前操作：写入 _adjustedMobileHeight；返回 void。
+- `_setUpMobileCollapse(forceCollapsed=false)` [源码:716](../../eyes/src/ui/components/ContentPanel.js#L716)：当前操作：写入 _snapHeights.index、_snapHeights.value、element.style.height；返回 无显式返回。
+- `_determineCollapsedBlockVisiblity()` [源码:763](../../eyes/src/ui/components/ContentPanel.js#L763)：当前操作：写入 无直接字段写入；返回 new Promise(resolveVisibility=>{collapsibleBlockNames&&collapsibleBlockNames.forEach(blockName=>{const blockElement=this._app.getComponent(ˋ${blockName}Blockˋ).element;isFullyCollapsed?panelElement.contains(blockElement)。
+- `_disableAllComponents()` [源码:791](../../eyes/src/ui/components/ContentPanel.js#L791)：当前操作：写入 _blockState[componentName]；返回 无显式返回。
+- `clearPanel(targetTitle=null)` [源码:797](../../eyes/src/ui/components/ContentPanel.js#L797)：当前操作：写入 _defaultState.title；返回 无显式返回。
+- `reset()` [源码:806](../../eyes/src/ui/components/ContentPanel.js#L806)：当前操作：写入 _currentId；返回 无显式返回。
+- `__disable()` [源码:812](../../eyes/src/ui/components/ContentPanel.js#L812)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions；写入 list, name, compare, unitConverter。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.exitIcon.classList.add, this._children.exitIcon.classList.remove, this._children.next.addEventListener, this._children.previous.addEventListener。
-- `_updateFontSize`：执行 _updateFontSize 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, Eyes.AppUtils.is2K, Eyes.AppUtils.is4K, this.setState。
-- `unitchange`：执行 unitchange 对应的组件业务步骤；调用 this.setState, this.generateValues。
-- `nextCompare`：执行 nextCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
-- `previousCompare`：执行 previousCompare 对应的组件业务步骤；调用 this.list.indexOf, this.clearRightPanelText, this._app.getManager；写入 compare。
-- `clearRightPanelText`：执行 clearRightPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
-- `clearLeftPanelText`：执行 clearLeftPanelText 对应的组件业务步骤；调用 this._app.getManager, this.setState。
-- `setup`：执行 setup 对应的组件业务步骤；调用 Object.keys, this.list.slice, this.generateValues；写入 list, name, compare, unitConverter。
-- `formatValue`：执行 formatValue 对应的组件业务步骤；调用 Number.parseFloat, Math.round, Math.pow。
-- `generateValues`：执行 generateValues 对应的组件业务步骤；调用 this._app.getManager, this.entityCompareLookup, this.formatValue, Title.toUpperCase, this.setState；写入 leftDescription, rightDescription。
-- `entityCompareLookup`：执行 entityCompareLookup 对应的组件业务步骤；调用 this._app.getManager。
-- `closeView`：执行 closeView 对应的组件业务步骤；调用 this._app.getManager。
+## `eyes/src/ui/components/DescriptionBlock-1005.js`
 
-### `eyes/src/ui/components/ContentPanel.js`
+DescriptionBlock-1005 模块。[源码](../../eyes/src/ui/components/DescriptionBlock-1005.js)。语义状态：`verified-semantic-refactor`。
 
-按路由描述装配对象内容块并控制面板折叠与覆盖。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-DescriptionBlock-1005-js)
 
-- `imports: ../../styles/extracted/MobileExpandButtonStyles-928.js, ../../vendor/modules/animateFill-929.js, ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/ContentPanelTemplate.html, ../../styles/extracted/ContentPanelStyles.js`
-- `manager dependencies: content, router, scene, layer, time`
-- `component dependencies: collapsibleMenu`
+### `DescriptionBlock`
 
-**ContentPanel**：按路由描述装配对象内容块并控制面板折叠与覆盖；继承 Eyes.BaseComponent。
+描述文本中的月球计数来自实体分组，必要时退回父实体；移动布局直接显示更多内容，桌面展开时保留原滚动位置规则。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.keys, this._eventNames.push, this._initCallbacks, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, Fill.default.setDefaultProps, this.bindFunctions；写入 _backRoute, _backButtonVisibleClass, _defaultState, _blockState, _components, _currentId, _overviewBlock, _cameraViewBlock, _descriptionBlock, _relatedBlock, _eventsBlock, _featuredMoonsBlock。
-- `getScrollbar`：执行 getScrollbar 对应的组件业务步骤。
-- `_showTab`：执行 _showTab 对应的组件业务步骤；调用 this.setState。
-- `_hideTab`：执行 _hideTab 对应的组件业务步骤；调用 this.setState。
-- `init`：初始化模板与关联资源；调用 super.init, this._app.addComponent, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, Eyes.AppUtils.isLandscape, Eyes.AppUtils.deepClone, this.setState, this._app.getComponent, this.resize；写入 _overviewBlock, _descriptionBlock, _relatedBlock, _eventsBlock, _replayBlock, _featuredMoonsBlock, _compareSizeBlock, _distanceToolBlock, _moonsBlock, _telescopeModeBlock, _cameraViewBlock, _surfaceMapBlock。
-- `_onRouteChange`：执行 _onRouteChange 对应的组件业务步骤；调用 this.isEnabled, this._disableAllComponents, this.setupBackButton, Eyes.AppUtils.deepClone, this.selectTab；写入 _currentId, _tabContent, _persistingBlocks。
-- `getParentTabOfSubtab`：执行 getParentTabOfSubtab 对应的组件业务步骤；调用 Object.entries, Object.keys。
-- `selectTab`：执行 selectTab 对应的组件业务步骤；调用 this.getParentTabOfSubtab, Object.keys, this.setState, this._calcTabPanelBottomMargin, this.populateTabs, List.toggle。
-- `_onTabSelect`：执行 _onTabSelect 对应的组件业务步骤；调用 Element.classList.contains, this.selectTab。
-- `addBlockToTab`：执行 addBlockToTab 对应的组件业务步骤；调用 Blocks.includes, Blocks.push。
-- `removeBlockFromTab`：执行 removeBlockFromTab 对应的组件业务步骤；调用 Blocks.includes, Blocks.indexOf, Blocks.splice。
-- `populateTabs`：执行 populateTabs 对应的组件业务步骤；调用 this.createSubtabHTML, this._children.tabGroup.contains, this._overviewBlock.element.parentElement.removeChild, this._app.getComponent。
-- `createSubtabHTML`：执行 createSubtabHTML 对应的组件业务步骤；调用 Array.from, this._children.tabGroup.insertBefore, this._app.getManager, Object.keys, TabNav.appendChild, List.toggle, this.setState。
-- `onQueryChange`：响应查询参数变化；调用 this._cameraViewBlock.onQueryChange。
-- `setupBackButton`：执行 setupBackButton 对应的组件业务步骤；调用 this._app.getManager；写入 _backButtonVisibleClass, _backRoute。
-- `onRouteChangeEvent`：执行 onRouteChangeEvent 对应的组件业务步骤；调用 this._onRouteChange, this._app.getManager, this._overviewBlock.onRouteChange, this._replayBlock.onRouteChange, this.addBlockToTab, this._delayedResize, this._descriptionBlock.onRouteChange, this._app.getView, this.removeBlockFromTab, this._eventsBlock.onRouteChange, this._relatedBlock.onRouteChange, this._hideTab, this.selectTab, this._cameraViewBlock.onRouteChange；写入 _persistingBlocks。
-- `onRouteChangeObject`：执行 onRouteChangeObject 对应的组件业务步骤；调用 this._onRouteChange, this._app.getManager, this._overviewBlock.onRouteChange, this._delayedResize, this.setState, this._descriptionBlock.onRouteChange, this.addBlockToTab, this._app.getView, this._eventsBlock.onRouteChange, this.removeBlockFromTab, this._relatedBlock.onRouteChange, this._hideTab, this.determineToolboxBlocksState, this._showTab。
-- `onRouteChangeObjectLoaded`：执行 onRouteChangeObjectLoaded 对应的组件业务步骤；调用 this._app.getView, this._app.getManager, this._relatedBlock.onRouteChange, this.addBlockToTab, this._cameraViewBlock.onRouteChange, this.determineViewOptionBlocksState, this.populateTabs。
-- `onRouteChangeFeature`：执行 onRouteChangeFeature 对应的组件业务步骤；调用 this._onRouteChange, SolarSystemSceneExports.Entity.getEntityNamesInGroup, this._overviewBlock.onRouteChange, this._delayedResize, this._descriptionBlock.onRouteChange, this.addBlockToTab, this._featuredMoonsBlock.onRouteChange, this._hideTab, this._cameraViewBlock.onRouteChange, this._app.getView, this.determineViewOptionBlocksState, this.populateTabs, this._setUpMobileCollapse。
-- `onChildParentChange`：执行 onChildParentChange 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, this.determineViewOptionBlocksState, this._app.getView, this.populateTabs。
-- `determineToolboxBlocksState`：执行 determineToolboxBlocksState 对应的组件业务步骤；调用 this._compareSizeBlock.onRouteChange, this._distanceToolBlock.onRouteChange, SolarSystemSceneExports.Entity.getEntityNamesInGroup, this._moonsBlock.onRouteChange, this._telescopeModeBlock.onRouteChange, this.addBlockToTab。
-- `determineViewOptionBlocksState`：执行 determineViewOptionBlocksState 对应的组件业务步骤；调用 this._app.getManager, this.determineSurfaceMapBlockState, this.determineInstrumentFOVBlockState, this.determineLayersBlockState, this.determineTextureQualityBlockState, this.determineFeaturesBlockState。
-- `determineSurfaceMapBlockState`：执行 determineSurfaceMapBlockState 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, Manager.getEntityInfo, Manager.getSpheroidLayers, this.addBlockToTab, this._surfaceMapBlock.onRouteChange, this.removeBlockFromTab。
-- `determineLayersBlockState`：执行 determineLayersBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getContextualLayers, Manager.getEntityInfo, this._app.pioneer.getScene, this.addBlockToTab, this._layersBlock.onRouteChange, this._app.getView, Manager.getSpheroidLayers, this.removeBlockFromTab。
-- `determineInstrumentFOVBlockState`：执行 determineInstrumentFOVBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getEntityInfo, this._instrumentFOVBlock.hasInstrumentsWithFOV, this.addBlockToTab, this._instrumentFOVBlock.onRouteChange, this.removeBlockFromTab。
-- `determineTextureQualityBlockState`：执行 determineTextureQualityBlockState 对应的组件业务步骤；调用 this._app.getManager, this._app.pioneer.getScene, Manager.getEntityInfo, Manager.hasHD, Eyes.AppUtils.isiPhone, this.addBlockToTab, this._textureQualityBlock.onRouteChange, this.removeBlockFromTab, Eyes.AppUtils.isAppleDevice。
-- `determineFeaturesBlockState`：执行 determineFeaturesBlockState 对应的组件业务步骤；调用 this._app.getManager, Manager.getSpheroidFeatures, this.addBlockToTab, this._featuresBlock.onRouteChange, this.removeBlockFromTab。
-- `backRoute`：执行 backRoute 对应的组件业务步骤；调用 this._app.getManager, Manager.getTimeUrl, Manager.getTimeRate。
-- `onClickShowCollapse`：执行 onClickShowCollapse 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.hideOverlay, this.hide, this.show。
-- `resize`：重排响应式界面；调用 super.resize, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, Eyes.AppUtils.isLandscape, this.selectTab, this.populateTabs, this._setUpMobileCollapse；写入 _isMobile, _isLandscape。
-- `onDragStart`：执行 onDragStart 对应的组件业务步骤；写入 _isDragging。
-- `onDrag`：执行 onDrag 对应的组件业务步骤。
-- `onDragEnd`：执行 onDragEnd 对应的组件业务步骤；调用 this._snapHeights.value.reduce, Math.abs, this._snapHeights.value.indexOf, this.setState, this._setUpMobileCollapse；写入 _isDragging。
-- `expand`：执行 expand 对应的组件业务步骤；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, this._setUpMobileCollapse, this.toggleExpandCollapse。
-- `collapse`：执行 collapse 对应的组件业务步骤；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, this._setUpMobileCollapse, this.toggleExpandCollapse。
-- `toggleExpandCollapse`：执行 toggleExpandCollapse 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `show`：执行 show 对应的组件业务步骤；调用 this._app.getManager, super.show, this.setEnabled, this._components.forEach, this._app.getComponent, this.triggerCallbacks, Eyes.AppUtils.addScrollbar, this._element.querySelector；写入 _scrollbar。
-- `hide`：执行 hide 对应的组件业务步骤；调用 super.hide, this.triggerCallbacks。
-- `_delayedResize`：执行 _delayedResize 对应的组件业务步骤；调用 this.resize；写入 _adjustedMobileHeight。
-- `_getParentTabOfSubtab`：执行 _getParentTabOfSubtab 对应的组件业务步骤；调用 Object.entries, Object.keys。
-- `_calcTabPanelBottomMargin`：执行 _calcTabPanelBottomMargin 对应的组件业务步骤；调用 Array.from, this._element.style.setProperty。
-- `_getBlockHeight`：执行 _getBlockHeight 对应的组件业务步骤。
-- `_calculateAdjustedMobileHeight`：执行 _calculateAdjustedMobileHeight 对应的组件业务步骤；调用 this._getBlockHeight, this._determineCollapsedBlockVisiblity, Array.from, Element.style.setProperty, this._app.getComponent；写入 _adjustedMobileHeight。
-- `_setUpMobileCollapse`：执行 _setUpMobileCollapse 对应的组件业务步骤；调用 this._calculateAdjustedMobileHeight, Eyes.AppUtils.isLandscape, this._snapHeights.value.push, this._calcTabPanelBottomMargin, this.element.classList.add, this.element.classList.remove, this.setState, this.populateTabs, this.triggerCallbacks。
-- `_determineCollapsedBlockVisiblity`：执行 _determineCollapsedBlockVisiblity 对应的组件业务步骤；调用 this._app.getComponent, Blocks.includes, this._element.style.setProperty。
-- `_disableAllComponents`：执行 _disableAllComponents 对应的组件业务步骤；调用 this._components.forEach, this._app.getComponent。
-- `clearPanel`：执行 clearPanel 对应的组件业务步骤；调用 this._disableAllComponents, this.setState。
-- `reset`：执行 reset 对应的组件业务步骤；调用 this.setState, this._app.getComponent, Element.style.setProperty；写入 _currentId。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.reset, super.__disable。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/DescriptionBlock-1005.js#L10)：当前操作：写入 _app；返回 无显式返回。
+- `onRouteChange(entityId, entityDescription)` [源码:23](../../eyes/src/ui/components/DescriptionBlock-1005.js#L23)：当前操作：写入 无直接字段写入；返回 void。
+- `resetScrollbar()` [源码:52](../../eyes/src/ui/components/DescriptionBlock-1005.js#L52)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:55](../../eyes/src/ui/components/DescriptionBlock-1005.js#L55)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onClickReadMore()` [源码:65](../../eyes/src/ui/components/DescriptionBlock-1005.js#L65)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-### `eyes/src/ui/components/DescriptionBlock-1005.js`
+## `eyes/src/ui/components/DescriptionBlock-541.js`
 
-DescriptionBlock-1005 模块。
+DescriptionBlock-541 模块。[源码](../../eyes/src/ui/components/DescriptionBlock-541.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../../engine/solar-system/public-api.js, ../templates/DescriptionBlockTemplate-1006.html, ../../styles/extracted/DescriptionBlockStyles-1007.js`
-- `manager dependencies: router, content`
-- `component dependencies: contentPanel`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-DescriptionBlock-541-js)
 
-**DescriptionBlock**：可展开的描述正文与更多内容；继承 SolarSystemPublicApi.BaseContentBlock。
+### `DescriptionBlock`
 
-- `constructor`：建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState；写入 _app。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this._app.getManager, SolarSystemSceneExports.Entity.getEntityNamesInGroup, this.app.pioneer.getScene, this.setState, this.resetScrollbar。
-- `resetScrollbar`：执行 resetScrollbar 对应的组件业务步骤；调用 this._app.getComponent。
-- `resize`：重排响应式界面；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
-- `onClickReadMore`：执行 onClickReadMore 对应的组件业务步骤；调用 this.getState, Element.style.setProperty, this.resetScrollbar, this.setState。
+故事描述的更多内容由 info.more 决定；_more 保存完整按钮文字、图标和 class 快照，切换时与 isMoreVisible 一并提交。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-- 注意：此 DescriptionBlock 是应用 BaseContentBlock 子类；不能与 -541 故事内容类合并。
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/DescriptionBlock-541.js#L8)：当前操作：写入 _class.hasMoreClass、_more；返回 无显式返回。
+- `init()` [源码:34](../../eyes/src/ui/components/DescriptionBlock-541.js#L34)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `showMore()` [源码:42](../../eyes/src/ui/components/DescriptionBlock-541.js#L42)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hideMore()` [源码:48](../../eyes/src/ui/components/DescriptionBlock-541.js#L48)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleMore()` [源码:54](../../eyes/src/ui/components/DescriptionBlock-541.js#L54)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-### `eyes/src/ui/components/DescriptionBlock-541.js`
+## `eyes/src/ui/components/DistancePanel.js`
 
-DescriptionBlock-541 模块。
+距离源目标选择和距离计算显示面板。[源码](../../eyes/src/ui/components/DistancePanel.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/DescriptionBlockTemplate-542.html, ../../styles/extracted/DescriptionBlockStyles-543.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-DistancePanel-js)
 
-**DescriptionBlock**：可展开的描述正文与更多内容；继承 EyesPublicApi.StoryBaseContentBlock。
+### `DistancePanel`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign；写入 _more。
-- `init`：初始化模板与关联资源；调用 super.init, this.setState。
-- `showMore`：执行 showMore 对应的组件业务步骤；调用 this.setState。
-- `hideMore`：执行 hideMore 对应的组件业务步骤；调用 this.setState。
-- `toggleMore`：执行 toggleMore 对应的组件业务步骤；调用 this.hideMore, this.showMore。
+测距计算归 distance 管理器，面板持有拖动坐标、移动布局与线条交互状态。按下时登记窗口移动/抬起监听，抬起保存限位坐标并解除监听；屏幕中心改变时补偿面板位置。线条点击吸附到源、中心或目标，再由管理器转换到三维线偏移。原 removeAllEvents 的 hover 监听添加行为保留，未在去混淆中修复。。父类 `Eyes.BaseComponent`。
 
-- 注意：此 DescriptionBlock 是 StoryBaseContentBlock 子类；与 -1005 的同名应用内容类不是同一个构造器。
+- `constructor(app, options={})` [源码:9](../../eyes/src/ui/components/DistancePanel.js#L9)：当前操作：写入 _canHover、_dragState、_isMobile、_isTouch、_lineGraphic、_size、_touchOptions、isMobileChangedCallback；返回 无显式返回。
+- `initSearchUI()` [源码:78](../../eyes/src/ui/components/DistancePanel.js#L78)：当前操作：写入 sourceSearch、targetSearch；返回 无显式返回。
+- `onMouseDown(mouseEvent)` [源码:100](../../eyes/src/ui/components/DistancePanel.js#L100)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onMouseMove(mouseEvent)` [源码:106](../../eyes/src/ui/components/DistancePanel.js#L106)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onMouseUp()` [源码:121](../../eyes/src/ui/components/DistancePanel.js#L121)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onTouchStart(touchEvent)` [源码:131](../../eyes/src/ui/components/DistancePanel.js#L131)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onTouchMove(touchEvent)` [源码:141](../../eyes/src/ui/components/DistancePanel.js#L141)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onTouchEnd()` [源码:160](../../eyes/src/ui/components/DistancePanel.js#L160)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_calcNewXandY(pointerX, pointerY)` [源码:170](../../eyes/src/ui/components/DistancePanel.js#L170)：当前操作：写入 无直接字段写入；返回 {newX:dragX+(pointerX-downX),newY:dragY+(pointerY-downY)}。
+- `exit()` [源码:182](../../eyes/src/ui/components/DistancePanel.js#L182)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleSourceMP()` [源码:192](../../eyes/src/ui/components/DistancePanel.js#L192)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleTargetMP()` [源码:199](../../eyes/src/ui/components/DistancePanel.js#L199)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onSwapClick()` [源码:206](../../eyes/src/ui/components/DistancePanel.js#L206)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleUnitSystem(clickEvent)` [源码:209](../../eyes/src/ui/components/DistancePanel.js#L209)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onResultClick(clickEvent)` [源码:214](../../eyes/src/ui/components/DistancePanel.js#L214)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onContainerClick(clickEvent)` [源码:223](../../eyes/src/ui/components/DistancePanel.js#L223)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addEvents()` [源码:226](../../eyes/src/ui/components/DistancePanel.js#L226)：当前操作：写入 _canHover、_isTouch；返回 无显式返回。
+- `removeAllEvents()` [源码:244](../../eyes/src/ui/components/DistancePanel.js#L244)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setIsSearching(isSearching)` [源码:257](../../eyes/src/ui/components/DistancePanel.js#L257)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setScreenCenter(centerX, centerY)` [源码:262](../../eyes/src/ui/components/DistancePanel.js#L262)：当前操作：写入 _dragState.screenCenterX、_dragState.screenCenterY；返回 无显式返回。
+- `setPanelProps()` [源码:266](../../eyes/src/ui/components/DistancePanel.js#L266)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get currentlyDragging()` [源码:299](../../eyes/src/ui/components/DistancePanel.js#L299)：当前操作：写入 无直接字段写入；返回 this._dragState.currentlyDragging。
+- `setCurrentlyDragging(isDragging)` [源码:302](../../eyes/src/ui/components/DistancePanel.js#L302)：当前操作：写入 _dragState.currentlyDragging；返回 无显式返回。
+- `setDownXY(pointerX, pointerY)` [源码:308](../../eyes/src/ui/components/DistancePanel.js#L308)：当前操作：写入 _dragState.downX、_dragState.downY；返回 无显式返回。
+- `setLimitXY(limitX, limitY)` [源码:312](../../eyes/src/ui/components/DistancePanel.js#L312)：当前操作：写入 _dragState.limitX、_dragState.limitY；返回 无显式返回。
+- `setDragXY(dragX=this._dragState.x, dragY=this._dragState.y)` [源码:316](../../eyes/src/ui/components/DistancePanel.js#L316)：当前操作：写入 _dragState.dragX、_dragState.dragY；返回 无显式返回。
+- `setTransformCSSVars(panelX, panelY)` [源码:320](../../eyes/src/ui/components/DistancePanel.js#L320)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setCanMinimize(canMinimize)` [源码:325](../../eyes/src/ui/components/DistancePanel.js#L325)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setSwapButtonVisible(isVisible)` [源码:330](../../eyes/src/ui/components/DistancePanel.js#L330)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `calcMaxMinBtnPos(panelX)` [源码:335](../../eyes/src/ui/components/DistancePanel.js#L335)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getLimitedXandY(desiredX, desiredY)` [源码:351](../../eyes/src/ui/components/DistancePanel.js#L351)：当前操作：写入 无直接字段写入；返回 {limitX:Math.min(Math.max(0,desiredX),maximumX),limitY:Math.min(Math.max(minimumY,desiredY),maximumY)}。
+- `toggleIsMinimized(clickEvent, requestedMinimized)` [源码:369](../../eyes/src/ui/components/DistancePanel.js#L369)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setIsDraggable(isDraggable)` [源码:387](../../eyes/src/ui/components/DistancePanel.js#L387)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setIsLoading(isLoading)` [源码:393](../../eyes/src/ui/components/DistancePanel.js#L393)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setResult({text:text,unit:unit,relText:relText,relUnit:relUnit,isRelVelocity=false,isDistance=false}={})` [源码:398](../../eyes/src/ui/components/DistancePanel.js#L398)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setLightTime(lightTimeText)` [源码:429](../../eyes/src/ui/components/DistancePanel.js#L429)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setSourceText(sourceText)` [源码:445](../../eyes/src/ui/components/DistancePanel.js#L445)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setSourceMpState(measurePointName)` [源码:454](../../eyes/src/ui/components/DistancePanel.js#L454)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setTargetText(targetText)` [源码:465](../../eyes/src/ui/components/DistancePanel.js#L465)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setTargetMpState(measurePointName)` [源码:474](../../eyes/src/ui/components/DistancePanel.js#L474)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onIsMobileChanged(isMobile)` [源码:485](../../eyes/src/ui/components/DistancePanel.js#L485)：当前操作：写入 _isMobile；返回 无显式返回。
+- `_updateTitleAndCloseBtnParent(isMobile=this._isMobile)` [源码:491](../../eyes/src/ui/components/DistancePanel.js#L491)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get allowBpOffset()` [源码:499](../../eyes/src/ui/components/DistancePanel.js#L499)：当前操作：写入 无直接字段写入；返回 this._state.isDraggable&&this._state.isMinimized。
+- `setBpCSSOffsets()` [源码:502](../../eyes/src/ui/components/DistancePanel.js#L502)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLineClick(clickEvent, requestedPosition)` [源码:511](../../eyes/src/ui/components/DistancePanel.js#L511)：当前操作：写入 无直接字段写入；返回 void。
+- `onLineMouseMove(mouseEvent)` [源码:536](../../eyes/src/ui/components/DistancePanel.js#L536)：当前操作：写入 无直接字段写入；返回 void。
+- `onLineMouseEnter()` [源码:552](../../eyes/src/ui/components/DistancePanel.js#L552)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLineMouseLeave()` [源码:555](../../eyes/src/ui/components/DistancePanel.js#L555)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setLineGraphicDimensions()` [源码:558](../../eyes/src/ui/components/DistancePanel.js#L558)：当前操作：写入 _lineGraphic.height、_lineGraphic.top；返回 无显式返回。
+- `_onLineTouchStart(touchEvent)` [源码:569](../../eyes/src/ui/components/DistancePanel.js#L569)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onLineTouchEnd()` [源码:581](../../eyes/src/ui/components/DistancePanel.js#L581)：当前操作：写入 _touchOptions.activeTimeout；返回 无显式返回。
+- `setLineGraphicDotPos(normalizedPosition)` [源码:589](../../eyes/src/ui/components/DistancePanel.js#L589)：当前操作：写入 _lineGraphic.dotPos；返回 无显式返回。
+- `setLineGraphicDotOffset(normalizedOffset)` [源码:598](../../eyes/src/ui/components/DistancePanel.js#L598)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize(resizeEvent, forceUpdate=false)` [源码:605](../../eyes/src/ui/components/DistancePanel.js#L605)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:618](../../eyes/src/ui/components/DistancePanel.js#L618)：当前操作：写入 distanceManager；返回 无显式返回。
+- `hide()` [源码:622](../../eyes/src/ui/components/DistancePanel.js#L622)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__enable()` [源码:629](../../eyes/src/ui/components/DistancePanel.js#L629)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__disable()` [源码:633](../../eyes/src/ui/components/DistancePanel.js#L633)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-### `eyes/src/ui/components/DistancePanel.js`
+## `eyes/src/ui/components/EventsBlock.js`
 
-距离源目标选择和距离计算显示面板。
+对象事件列表内容块。[源码](../../eyes/src/ui/components/EventsBlock.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/index.js, ../../styles/extracted/DistancePanelStyles.js, ../templates/DistancePanelTemplate.html`
-- `manager dependencies: router, distance`
-- `component dependencies: distanceSourceSearch, distanceTargetSearch`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-EventsBlock-js)
 
-**DistancePanel**：距离源目标选择和距离计算显示面板；继承 Eyes.BaseComponent。
+### `EventsBlock`
 
-- `constructor`：建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, this.bindFunctions；写入 _isTouch, _touchOptions, _canHover, _isMobile, isMobileChangedCallback, _dragState, _size, _lineGraphic。
-- `initSearchUI`：执行 initSearchUI 对应的组件业务步骤；调用 this.app.getComponent, SearchContainer.appendChild, this.sourceSearch.show, this.targetSearch.show；写入 sourceSearch, targetSearch。
-- `onMouseDown`：执行 onMouseDown 对应的组件业务步骤；调用 this.setCurrentlyDragging, this.setDownXY。
-- `onMouseMove`：执行 onMouseMove 对应的组件业务步骤；调用 this._calcNewXandY, this.getLimitedXandY, this.setLimitXY, this.setTransformCSSVars, this.calcMaxMinBtnPos。
-- `onMouseUp`：执行 onMouseUp 对应的组件业务步骤；调用 this.setDragXY, this.setCurrentlyDragging。
-- `onTouchStart`：执行 onTouchStart 对应的组件业务步骤；调用 this.setCurrentlyDragging, this.setDownXY。
-- `onTouchMove`：执行 onTouchMove 对应的组件业务步骤；调用 this._calcNewXandY, this.getLimitedXandY, this.setLimitXY, this.setTransformCSSVars, this.calcMaxMinBtnPos。
-- `onTouchEnd`：执行 onTouchEnd 对应的组件业务步骤；调用 this.setDragXY, this.setCurrentlyDragging。
-- `_calcNewXandY`：执行 _calcNewXandY 对应的组件业务步骤。
-- `exit`：执行 exit 对应的组件业务步骤；调用 this.app.getManager, Manager.navigate。
-- `toggleSourceMP`：执行 toggleSourceMP 对应的组件业务步骤；调用 this.distanceManager.toggleSourceMeasurePoint, this.onLineClick。
-- `toggleTargetMP`：执行 toggleTargetMP 对应的组件业务步骤；调用 this.distanceManager.toggleTargetMeasurePoint, this.onLineClick。
-- `onSwapClick`：执行 onSwapClick 对应的组件业务步骤。
-- `toggleUnitSystem`：执行 toggleUnitSystem 对应的组件业务步骤。
-- `onResultClick`：执行 onResultClick 对应的组件业务步骤；调用 this._cMenuParent.setExpanded。
-- `onContainerClick`：执行 onContainerClick 对应的组件业务步骤。
-- `addEvents`：执行 addEvents 对应的组件业务步骤；调用 Area.addEventListener, Graphic.addEventListener；写入 _isTouch, _canHover。
-- `removeAllEvents`：执行 removeAllEvents 对应的组件业务步骤；调用 Area.removeEventListener, Graphic.addEventListener, Graphic.removeEventListener。
-- `setIsSearching`：执行 setIsSearching 对应的组件业务步骤；调用 this.setState。
-- `setScreenCenter`：执行 setScreenCenter 对应的组件业务步骤。
-- `setPanelProps`：执行 setPanelProps 对应的组件业务步骤；调用 this._element.style.setProperty, Eyes.AppUtils.isLandscape, this.getLimitedXandY, this.setDragXY, this.setTransformCSSVars, this.calcMaxMinBtnPos, this.setScreenCenter。
-- `currentlyDragging`：执行 currentlyDragging 对应的组件业务步骤。
-- `setCurrentlyDragging`：执行 setCurrentlyDragging 对应的组件业务步骤；调用 this.setState。
-- `setDownXY`：执行 setDownXY 对应的组件业务步骤。
-- `setLimitXY`：执行 setLimitXY 对应的组件业务步骤。
-- `setDragXY`：执行 setDragXY 对应的组件业务步骤。
-- `setTransformCSSVars`：执行 setTransformCSSVars 对应的组件业务步骤；调用 this._element.style.setProperty。
-- `setCanMinimize`：执行 setCanMinimize 对应的组件业务步骤；调用 this.setState。
-- `setSwapButtonVisible`：执行 setSwapButtonVisible 对应的组件业务步骤；调用 this.setState。
-- `calcMaxMinBtnPos`：执行 calcMaxMinBtnPos 对应的组件业务步骤；调用 this.setState。
-- `getLimitedXandY`：执行 getLimitedXandY 对应的组件业务步骤；调用 Math.min, Math.max。
-- `toggleIsMinimized`：执行 toggleIsMinimized 对应的组件业务步骤；调用 this.setState, MinButton.setAttribute。
-- `setIsDraggable`：执行 setIsDraggable 对应的组件业务步骤；调用 this.setState。
-- `setIsLoading`：执行 setIsLoading 对应的组件业务步骤；调用 this.setState。
-- `setLightTime`：执行 setLightTime 对应的组件业务步骤；调用 this._element.style.setProperty, this.setState。
-- `setSourceText`：执行 setSourceText 对应的组件业务步骤。
-- `setSourceMpState`：执行 setSourceMpState 对应的组件业务步骤；调用 this.setState。
-- `setTargetText`：执行 setTargetText 对应的组件业务步骤。
-- `setTargetMpState`：执行 setTargetMpState 对应的组件业务步骤；调用 this.setState。
-- `onIsMobileChanged`：执行 onIsMobileChanged 对应的组件业务步骤；调用 this._updateTitleAndCloseBtnParent, this.setIsDraggable, this.isMobileChangedCallback；写入 _isMobile。
-- `_updateTitleAndCloseBtnParent`：执行 _updateTitleAndCloseBtnParent 对应的组件业务步骤；调用 this.app._dynamicElement.prepend, Area.append。
-- `allowBpOffset`：执行 allowBpOffset 对应的组件业务步骤。
-- `setBpCSSOffsets`：执行 setBpCSSOffsets 对应的组件业务步骤；调用 this.app.pioneer.getInput, this._element.style.setProperty。
-- `onLineClick`：执行 onLineClick 对应的组件业务步骤；调用 this.distanceManager.hideTooltip, this.setState, this.distanceManager.getOffsetU, this.distanceManager.on3dLineClick, this.distanceManager.setHoldU。
-- `onLineMouseMove`：执行 onLineMouseMove 对应的组件业务步骤；调用 this.setLineGraphicDotOffset。
-- `onLineMouseEnter`：执行 onLineMouseEnter 对应的组件业务步骤；调用 this.setLineGraphicDimensions。
-- `onLineMouseLeave`：执行 onLineMouseLeave 对应的组件业务步骤；调用 this.setLineGraphicDotOffset。
-- `setLineGraphicDimensions`：执行 setLineGraphicDimensions 对应的组件业务步骤；调用 Graphic.getBoundingClientRect。
-- `_onLineTouchStart`：执行 _onLineTouchStart 对应的组件业务步骤；调用 this.setState, this.setLineGraphicDimensions, this.distanceManager.showTooltip。
-- `_onLineTouchEnd`：执行 _onLineTouchEnd 对应的组件业务步骤；调用 this.setState, this.distanceManager.hideTooltip。
-- `setLineGraphicDotPos`：执行 setLineGraphicDotPos 对应的组件业务步骤。
-- `setLineGraphicDotOffset`：执行 setLineGraphicDotOffset 对应的组件业务步骤。
-- `resize`：重排响应式界面；调用 Eyes.AppUtils.isMobile, this.onIsMobileChanged, this.removeAllEvents, this.addEvents, this.setPanelProps。
-- `show`：执行 show 对应的组件业务步骤；调用 this.app.getManager, this.toggleIsMinimized。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.toggleIsMinimized, Element.getAttribute。
-- `__enable`：挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this.resize。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.removeAllEvents, this._updateTitleAndCloseBtnParent, super.__disable。
+此块在表格与共享 eventsTimeline 间切换；共享时间线重新挂到本块容器。实体就绪后才提交事件集合和选择，排序会替换本块的事件数组但不修改目录事件对象。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-### `eyes/src/ui/components/EventsBlock.js`
+- `constructor(app)` [源码:9](../../eyes/src/ui/components/EventsBlock.js#L9)：当前操作：写入 _app、_currentTab、_defaultTab、_introMessages、_minEventsForTimeline；返回 无显式返回。
+- `onRouteChange(entityId, events, selectedEvent)` [源码:29](../../eyes/src/ui/components/EventsBlock.js#L29)：当前操作：写入 _currentEvent、_currentTab、_events、_numEvents、_timeline；返回 无显式返回。
+- `startLoading()` [源码:66](../../eyes/src/ui/components/EventsBlock.js#L66)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `stopLoading()` [源码:80](../../eyes/src/ui/components/EventsBlock.js#L80)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTabSelect(clickEvent)` [源码:92](../../eyes/src/ui/components/EventsBlock.js#L92)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `selectTab(tabName)` [源码:99](../../eyes/src/ui/components/EventsBlock.js#L99)：当前操作：写入 _currentTab；返回 无显式返回。
+- `showTimeline()` [源码:111](../../eyes/src/ui/components/EventsBlock.js#L111)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `showTable()` [源码:124](../../eyes/src/ui/components/EventsBlock.js#L124)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resetScrollbar()` [源码:137](../../eyes/src/ui/components/EventsBlock.js#L137)：当前操作：写入 _children.tableContainer.scrollTop；返回 无显式返回。
+- `populateTable()` [源码:140](../../eyes/src/ui/components/EventsBlock.js#L140)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `sortEventsByTitle()` [源码:174](../../eyes/src/ui/components/EventsBlock.js#L174)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `sortEventsByYear()` [源码:180](../../eyes/src/ui/components/EventsBlock.js#L180)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `sortEventsByTarget()` [源码:186](../../eyes/src/ui/components/EventsBlock.js#L186)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `rotateSortTriangle(sortField)` [源码:192](../../eyes/src/ui/components/EventsBlock.js#L192)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `sortTable(sortField)` [源码:195](../../eyes/src/ui/components/EventsBlock.js#L195)：当前操作：写入 _events；返回 无显式返回。
+- `showContainer(container, isVisible=true)` [源码:212](../../eyes/src/ui/components/EventsBlock.js#L212)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `rowClick(clickEvent)` [源码:215](../../eyes/src/ui/components/EventsBlock.js#L215)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:221](../../eyes/src/ui/components/EventsBlock.js#L221)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-对象事件列表内容块。
+## `eyes/src/ui/components/EventsTimeline.js`
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/EventsBlockTemplate.html, ../../styles/extracted/EventsBlockStyles.js`
-- `manager dependencies: router, time, content`
-- `component dependencies: eventsTimeline`
+航天器事件时间轴、播放和当前事件选择。[源码](../../eyes/src/ui/components/EventsTimeline.js)。语义状态：`verified-semantic-refactor`。
 
-**EventsBlock**：对象事件列表内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-EventsTimeline-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 this.setState；写入 _introMessages, _currentTab, _defaultTab, _minEventsForTimeline, _app。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.startLoading, this._app.getComponent, this._timeline.setParent, this._app.pioneer.getScene, this._app.pioneer.getTime, this._events.find, this._app.getManager, Object.keys, this.setState, List.remove, this._timeline.setTarget, this.selectTab, this.stopLoading；写入 _currentTab, _timeline, _events, _currentEvent, _numEvents。
-- `startLoading`：执行 startLoading 对应的组件业务步骤；调用 this.showContainer, this.setState。
-- `stopLoading`：执行 stopLoading 对应的组件业务步骤；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, this.selectTab。
-- `_onTabSelect`：执行 _onTabSelect 对应的组件业务步骤；调用 List.contains, Array.from, this.selectTab。
-- `selectTab`：执行 selectTab 对应的组件业务步骤；调用 Array.from, List.contains, List.toggle, Child.innerText.toLowerCase, this.setState, this.showTimeline, this.showTable；写入 _currentTab。
-- `showTimeline`：执行 showTimeline 对应的组件业务步骤；调用 this.showContainer, this.setState, this._timeline.checkForZoom, this._timeline.show。
-- `showTable`：执行 showTable 对应的组件业务步骤；调用 this.showContainer, this._timeline.hide, this.populateTable, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState。
-- `resetScrollbar`：执行 resetScrollbar 对应的组件业务步骤。
-- `populateTable`：执行 populateTable 对应的组件业务步骤；调用 Object.values, List.add, this._app.getManager, Table.appendChild, List.toggle。
-- `rotateSortTriangle`：执行 rotateSortTriangle 对应的组件业务步骤；调用 Array.from, List.contains, List.toggle。
-- `sortTable`：执行 sortTable 对应的组件业务步骤；调用 this._app.getManager, this.setState, this.getState, Object.values, Manager.getEntityInfo；写入 _events。
-- `showContainer`：执行 showContainer 对应的组件业务步骤；调用 List.toggle。
-- `resize`：重排响应式界面；调用 super.resize, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setState, Eyes.AppUtils.isLandscape, Object.keys, this._timeline.show。
+### `EventsTimeline`
 
-### `eyes/src/ui/components/EventsTimeline.js`
+时间线分为总览标记与放大 focusPanel 两个坐标空间，各自保存 hover/touch/双击和时间指示线状态。事件按像素间隔与容量聚类，焦点区另做碰撞让位；时间与像素换算必须保留各自 padding 和范围。动画先退出旧簇、重建焦点节点再进入新簇，onfinish 解除 animating 门闩；鼠标和触摸的方向、阈值与延迟提示独立。_setEvents 只复制数组，仍会把传入事件对象的起止值改为 Moment，保留这项原有所有权行为。。父类 `Eyes.BaseComponent`。
 
-航天器事件时间轴、播放和当前事件选择。
+- `constructor(app, element, options={})` [源码:17](../../eyes/src/ui/components/EventsTimeline.js#L17)：当前操作：写入 _animations、_events、_localState、_markers、_onFpMouseLeaveDebounced、_onFpTouchMoveThrottled、_onMarkerMouseEnterDebounced、_onMarkerMouseLeaveDebounced、_onTimelineMouseLeaveDebounced、_resizeDebounced、_resizeTimeout、_setEventNameDebounced、_setViewingLineXThrottled、_settings、_showToolTipDebounced、_tooltips、defaultOptions、routeManager；返回 无显式返回。
+- `init()` [源码:198](../../eyes/src/ui/components/EventsTimeline.js#L198)：当前操作：写入 _tooltips.timelinebar；返回 无显式返回。
+- `_addFpTooltips()` [源码:239](../../eyes/src/ui/components/EventsTimeline.js#L239)：当前操作：写入 _tooltips.focusPanel；返回 void。
+- `_createAnimation(element, keyframes, timingOptions)` [源码:273](../../eyes/src/ui/components/EventsTimeline.js#L273)：当前操作：写入 无直接字段写入；返回 new Animation(keyframeEffect,element.ownerDocument.timeline)。
+- `_depopulateFocusPanel()` [源码:277](../../eyes/src/ui/components/EventsTimeline.js#L277)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_populateFocusPanel(marker)` [源码:283](../../eyes/src/ui/components/EventsTimeline.js#L283)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createEventsAndMarkers()` [源码:346](../../eyes/src/ui/components/EventsTimeline.js#L346)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createEventElement(eventInfo)` [源码:368](../../eyes/src/ui/components/EventsTimeline.js#L368)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addToCluster(eventInfo, startNewCluster=true)` [源码:381](../../eyes/src/ui/components/EventsTimeline.js#L381)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createClusterEventLine()` [源码:420](../../eyes/src/ui/components/EventsTimeline.js#L420)：当前操作：写入 _clusterEventLine、_clusterEventLine.className；返回 void。
+- `_populate()` [源码:429](../../eyes/src/ui/components/EventsTimeline.js#L429)：当前操作：写入 无直接字段写入；返回 void。
+- `_destroy()` [源码:443](../../eyes/src/ui/components/EventsTimeline.js#L443)：当前操作：写入 _markers；返回 无显式返回。
+- `_setClickedOnce(stateSection, clickedOnce=true)` [源码:457](../../eyes/src/ui/components/EventsTimeline.js#L457)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTimelineMouseLeave(mouseEvent)` [源码:474](../../eyes/src/ui/components/EventsTimeline.js#L474)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTimelineMouseMove(mouseEvent)` [源码:490](../../eyes/src/ui/components/EventsTimeline.js#L490)：当前操作：写入 无直接字段写入；返回 void。
+- `_onTimelineClick(clickEvent)` [源码:518](../../eyes/src/ui/components/EventsTimeline.js#L518)：当前操作：写入 无直接字段写入；返回 void。
+- `_onMarkerMouseEnter(mouseEvent)` [源码:530](../../eyes/src/ui/components/EventsTimeline.js#L530)：当前操作：写入 无直接字段写入；返回 void。
+- `_onMarkerMouseLeave()` [源码:575](../../eyes/src/ui/components/EventsTimeline.js#L575)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onMarkerMouseMove(mouseEvent)` [源码:583](../../eyes/src/ui/components/EventsTimeline.js#L583)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpMouseEnter()` [源码:613](../../eyes/src/ui/components/EventsTimeline.js#L613)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpMouseLeave(mouseEvent)` [源码:622](../../eyes/src/ui/components/EventsTimeline.js#L622)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpEventMouseOver(mouseEvent)` [源码:625](../../eyes/src/ui/components/EventsTimeline.js#L625)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpTicksMouseEnter()` [源码:648](../../eyes/src/ui/components/EventsTimeline.js#L648)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpTicksMouseMove(mouseEvent)` [源码:657](../../eyes/src/ui/components/EventsTimeline.js#L657)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpTicksMouseLeave()` [源码:682](../../eyes/src/ui/components/EventsTimeline.js#L682)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpTicksClick()` [源码:685](../../eyes/src/ui/components/EventsTimeline.js#L685)：当前操作：写入 无直接字段写入；返回 void。
+- `_onViewClick(clickOrEventId)` [源码:698](../../eyes/src/ui/components/EventsTimeline.js#L698)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_zoomIntoCluster(fallbackMarker=null)` [源码:718](../../eyes/src/ui/components/EventsTimeline.js#L718)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_zoomOutOfCluster()` [源码:742](../../eyes/src/ui/components/EventsTimeline.js#L742)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpWheel(wheelEvent)` [源码:765](../../eyes/src/ui/components/EventsTimeline.js#L765)：当前操作：写入 无直接字段写入；返回 void、void this._onMarkerMouseEnter({target:adjacentMarker.element,force:true})。
+- `_onFpTouchStart(touchEvent)` [源码:800](../../eyes/src/ui/components/EventsTimeline.js#L800)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpTouchEnd()` [源码:809](../../eyes/src/ui/components/EventsTimeline.js#L809)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onFpTouchMove(touchEvent)` [源码:816](../../eyes/src/ui/components/EventsTimeline.js#L816)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpTicksTouchStart(touchEvent)` [源码:859](../../eyes/src/ui/components/EventsTimeline.js#L859)：当前操作：写入 无直接字段写入；返回 void、void this.setLocalState({focusPanel:{doubleClick:true}})。
+- `_onFpTicksTouchMove(touchEvent)` [源码:910](../../eyes/src/ui/components/EventsTimeline.js#L910)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpTicksTouchEnd(touchEvent)` [源码:943](../../eyes/src/ui/components/EventsTimeline.js#L943)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onMarkerTouch(touchEvent)` [源码:959](../../eyes/src/ui/components/EventsTimeline.js#L959)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onDateTouchStart(touchEvent)` [源码:1003](../../eyes/src/ui/components/EventsTimeline.js#L1003)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onDateTouchEnd()` [源码:1006](../../eyes/src/ui/components/EventsTimeline.js#L1006)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpEventTouch(touchEvent)` [源码:1018](../../eyes/src/ui/components/EventsTimeline.js#L1018)：当前操作：写入 无直接字段写入；返回 void。
+- `_onFpArrowClick(clickEvent)` [源码:1030](../../eyes/src/ui/components/EventsTimeline.js#L1030)：当前操作：写入 无直接字段写入；返回 void、void(adjacentMarker?this._onMarkerTouch({target:adjacentMarker.element,touches:[{clientX:movingLeft?timelinebar.width:0}]}):this._resetStates())。
+- `_onTimelineTouchStart(touchEvent)` [源码:1062](../../eyes/src/ui/components/EventsTimeline.js#L1062)：当前操作：写入 无直接字段写入；返回 void、void this.setLocalState({timelinebar:{doubleClick:true}})。
+- `_onTimelineTouchMove(touchEvent)` [源码:1109](../../eyes/src/ui/components/EventsTimeline.js#L1109)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTimelineTouchEnd()` [源码:1131](../../eyes/src/ui/components/EventsTimeline.js#L1131)：当前操作：写入 无直接字段写入；返回 void、void this.setLocalState({timelinebar:{doubleClick:false}})。
+- `_onOutsideTouch(touchEvent)` [源码:1181](../../eyes/src/ui/components/EventsTimeline.js#L1181)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setResizeTimeout(delayMillis=1e3)` [源码:1184](../../eyes/src/ui/components/EventsTimeline.js#L1184)：当前操作：写入 _resizeTimeout；返回 无显式返回。
+- `_onResize()` [源码:1188](../../eyes/src/ui/components/EventsTimeline.js#L1188)：当前操作：写入 _resizeTimeout；返回 无显式返回。
+- `resize()` [源码:1213](../../eyes/src/ui/components/EventsTimeline.js#L1213)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_calcEventClusterMax()` [源码:1216](../../eyes/src/ui/components/EventsTimeline.js#L1216)：当前操作：写入 无直接字段写入；返回 Math.max(Math.min(estimatedCapacity,events.clusterMax),events.clusterMin)。
+- `_calcMidpointX(startTime, endTime, rangeMinimum=this._options.min, timeRange=this._options.range, timelineWidth=this._localState.timelinebar.width)` [源码:1226](../../eyes/src/ui/components/EventsTimeline.js#L1226)：当前操作：写入 无直接字段写入；返回 this._calcXfromTime(midpointTime,rangeMinimum,timeRange,timelineWidth)。
+- `_calcWidthBtwnTimes(startTime, endTime, timeRange=this._options.range, timelineWidth=this._localState.timelinebar.width, minimumWidth=1, maximumWidth=this._options.range, roundPixels=true)` [源码:1230](../../eyes/src/ui/components/EventsTimeline.js#L1230)：当前操作：写入 无直接字段写入；返回 normalizedDuration&&!isNaN(normalizedDuration)?(widthPixels=Math.max(normalizedDuration*timelineWidth,widthPixels),widthPixels=Math.min(widthPixels,maximumWidth),roundPixels?Math.round(widthPixels):widthPixels):null。
+- `_calcXfromTime(timeValue, rangeMinimum=this._options.min, timeRange=this._options.range, timelineWidth=this._localState.timelinebar.width, fractionDigits=2)` [源码:1235](../../eyes/src/ui/components/EventsTimeline.js#L1235)：当前操作：写入 无直接字段写入；返回 "string"==typeof formattedPosition?parseFloat(formattedPosition.replace(/,/g,"")):null、null。
+- `_calcTimefromTimelineX(timelineX)` [源码:1243](../../eyes/src/ui/components/EventsTimeline.js#L1243)：当前操作：写入 无直接字段写入；返回 getMomentSecondary()(selectedTime)。
+- `_calcTimeFromFpX(focusX)` [源码:1251](../../eyes/src/ui/components/EventsTimeline.js#L1251)：当前操作：写入 无直接字段写入；返回 getMomentSecondary()(selectedTime)。
+- `_calcRelativeProgress(startValue, endValue, progress)` [源码:1265](../../eyes/src/ui/components/EventsTimeline.js#L1265)：当前操作：写入 无直接字段写入；返回 startValue+progress*(endValue-startValue)。
+- `_calcFpEventOffset(marker, eventIndex)` [源码:1268](../../eyes/src/ui/components/EventsTimeline.js#L1268)：当前操作：写入 无直接字段写入；返回 leftOffset-marker.fpEventXs[eventIndex]。
+- `_nestedPropsChanged(updates, previousState)` [源码:1274](../../eyes/src/ui/components/EventsTimeline.js#L1274)：当前操作：写入 无直接字段写入；返回 false、true。
+- `_showToolTip(tooltipSection="timelinebar")` [源码:1286](../../eyes/src/ui/components/EventsTimeline.js#L1286)：当前操作：写入 无直接字段写入；返回 void。
+- `_setTooltipModifiers(tooltip, offsetCallback, arrowPaddingCallback)` [源码:1338](../../eyes/src/ui/components/EventsTimeline.js#L1338)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_resetTooltip()` [源码:1358](../../eyes/src/ui/components/EventsTimeline.js#L1358)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_hideTooltip(resetPendingTooltip=true)` [源码:1362](../../eyes/src/ui/components/EventsTimeline.js#L1362)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_resetStates({hideFocusPanel=true,hideClusterLine=true,hideDate=true}={})` [源码:1366](../../eyes/src/ui/components/EventsTimeline.js#L1366)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setViewingLineX(currentTime)` [源码:1395](../../eyes/src/ui/components/EventsTimeline.js#L1395)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setFpViewingLineStart(viewingLineIsLeft)` [源码:1423](../../eyes/src/ui/components/EventsTimeline.js#L1423)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setClusterEvent(marker, eventIndex)` [源码:1431](../../eyes/src/ui/components/EventsTimeline.js#L1431)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setFpAnimation(previousMarker, nextMarker, selectedEventIndex)` [源码:1448](../../eyes/src/ui/components/EventsTimeline.js#L1448)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getFpViewingLineX(currentTime)` [源码:1530](../../eyes/src/ui/components/EventsTimeline.js#L1530)：当前操作：写入 无直接字段写入；返回 paddedX、null。
+- `_getNearestEvent(marker, timelineX)` [源码:1553](../../eyes/src/ui/components/EventsTimeline.js#L1553)：当前操作：写入 无直接字段写入；返回 marker.events[eventIndex]、marker.events[0]。
+- `_getNextEventIndexByTime(selectedTime=this._localState.time, marker, movingLeft)` [源码:1560](../../eyes/src/ui/components/EventsTimeline.js#L1560)：当前操作：写入 无直接字段写入；返回 movingLeft?previousEventIndex:previousEventIndex+1。
+- `_setDateAndPosition(selectedTime, timelineX)` [源码:1567](../../eyes/src/ui/components/EventsTimeline.js#L1567)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setEventName(eventTitle, eventTime=null)` [源码:1575](../../eyes/src/ui/components/EventsTimeline.js#L1575)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setActive(element, isActive)` [源码:1593](../../eyes/src/ui/components/EventsTimeline.js#L1593)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getNormDistance(previousMarker, nextMarker)` [源码:1596](../../eyes/src/ui/components/EventsTimeline.js#L1596)：当前操作：写入 无直接字段写入；返回 Math.abs(nextMarker.leftX-previousMarker.leftX)/timelinebar.width。
+- `_getFpEventsEnterAnim(durationMillis, movingRight, targetOffsetX)` [源码:1602](../../eyes/src/ui/components/EventsTimeline.js#L1602)：当前操作：写入 无直接字段写入；返回 this._createAnimation(this._children.fpContent,keyframes,timingOptions)。
+- `_getFpEventsExitAnim(durationMillis, movingRight)` [源码:1618](../../eyes/src/ui/components/EventsTimeline.js#L1618)：当前操作：写入 无直接字段写入；返回 this._createAnimation(this._children.fpContent,keyframes,timingOptions)。
+- `_getFpTickAnim(normalizedDistance, durationMillis, movingRight)` [源码:1632](../../eyes/src/ui/components/EventsTimeline.js#L1632)：当前操作：写入 无直接字段写入；返回 this._createAnimation(this._children.fpTicksContainer,keyframes,timingOptions)。
+- `_getFpLineAnim(durationMillis)` [源码:1652](../../eyes/src/ui/components/EventsTimeline.js#L1652)：当前操作：写入 无直接字段写入；返回 this._createAnimation(this._children.fpLine,[{opacity:0},{opacity:.6},{opacity:0}],timingOptions)。
+- `_setFpEventScaledClass(marker)` [源码:1666](../../eyes/src/ui/components/EventsTimeline.js#L1666)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setClusterLineTransform(timelineX)` [源码:1670](../../eyes/src/ui/components/EventsTimeline.js#L1670)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getMarkerAndIndexFromFocusEl(focusElement)` [源码:1673](../../eyes/src/ui/components/EventsTimeline.js#L1673)：当前操作：写入 无直接字段写入；返回 [marker,eventIndex]、null。
+- `_setFpElementActive(marker, activeElement)` [源码:1680](../../eyes/src/ui/components/EventsTimeline.js#L1680)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setFocusPanelPos({leftX:leftX,widthPx:widthPx})` [源码:1688](../../eyes/src/ui/components/EventsTimeline.js#L1688)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setNumOfTicks(contentWidth)` [源码:1726](../../eyes/src/ui/components/EventsTimeline.js#L1726)：当前操作：写入 _children.fpTicks.innerText；返回 无显式返回。
+- `_getLastCluster()` [源码:1734](../../eyes/src/ui/components/EventsTimeline.js#L1734)：当前操作：写入 无直接字段写入；返回 marker、null。
+- `_setMarkerPositions()` [源码:1741](../../eyes/src/ui/components/EventsTimeline.js#L1741)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getNearestIndex(targetPosition, positions)` [源码:1764](../../eyes/src/ui/components/EventsTimeline.js#L1764)：当前操作：写入 无直接字段写入；返回 positions.indexOf(nearestPosition)。
+- `setOptions(optionUpdates, useDefaults=false)` [源码:1768](../../eyes/src/ui/components/EventsTimeline.js#L1768)：当前操作：写入 _options；返回 无显式返回。
+- `setLocalState(stateUpdates)` [源码:1772](../../eyes/src/ui/components/EventsTimeline.js#L1772)：当前操作：写入 _localState；返回 无显式返回。
+- `_setEvents(events)` [源码:1776](../../eyes/src/ui/components/EventsTimeline.js#L1776)：当前操作：写入 _events；返回 无显式返回。
+- `_buildRangeOptions(dateRange)` [源码:1784](../../eyes/src/ui/components/EventsTimeline.js#L1784)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setStartEndDates()` [源码:1799](../../eyes/src/ui/components/EventsTimeline.js#L1799)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_calcCoverage(entityId, {start:start,end:end}={})` [源码:1813](../../eyes/src/ui/components/EventsTimeline.js#L1813)：当前操作：写入 无直接字段写入；返回 {start:min,end:max}。
+- `setTarget({id:id,title:title,dates:dates,orderedEvents:orderedEvents})` [源码:1831](../../eyes/src/ui/components/EventsTimeline.js#L1831)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `checkForZoom(eventInfo)` [源码:1850](../../eyes/src/ui/components/EventsTimeline.js#L1850)：当前操作：写入 无直接字段写入；返回 void。
+- `show()` [源码:1855](../../eyes/src/ui/components/EventsTimeline.js#L1855)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:1859](../../eyes/src/ui/components/EventsTimeline.js#L1859)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__disable()` [源码:1862](../../eyes/src/ui/components/EventsTimeline.js#L1862)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToTime(selectedTime)` [源码:1866](../../eyes/src/ui/components/EventsTimeline.js#L1866)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `goToEvent(eventId)` [源码:1875](../../eyes/src/ui/components/EventsTimeline.js#L1875)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setTime()` [源码:1882](../../eyes/src/ui/components/EventsTimeline.js#L1882)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `update(currentTime)` [源码:1888](../../eyes/src/ui/components/EventsTimeline.js#L1888)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `imports: ../../vendor/modules/MomentSecondary.cjs, ../../framework/eyes/index.js, ../../styles/extracted/EventsTimelineStyles.js, ../templates/EventsTimelineTemplate.html`
-- `manager dependencies: router, time, scene`
-- `component dependencies: settings, contentPanel, eventsBlock, collapsibleMenu`
+## `eyes/src/ui/components/ExplorationBlock.js`
 
-**EventsTimeline**：航天器事件时间轴、播放和当前事件选择；继承 Eyes.BaseComponent。
+对象探索入口内容块。[源码](../../eyes/src/ui/components/ExplorationBlock.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.getComponent, this.setState, this.bindFunctions, this.setOptions, this._app.getManager；写入 _settings, defaultOptions, _localState, _events, _markers, _tooltips, _animations, _setViewingLineXThrottled, _onFpTouchMoveThrottled, _showToolTipDebounced, _resizeDebounced, _onMarkerMouseEnterDebounced。
-- `init`：初始化模板与关联资源；调用 super.init, this._settings.addTooltips, this._callbackRegistry.push, this._app.getManager, this._app.getComponent, this._setResizeTimeout。
-- `_addFpTooltips`：执行 _addFpTooltips 对应的组件业务步骤；调用 this._settings.addTooltips。
-- `_createAnimation`：执行 _createAnimation 对应的组件业务步骤。
-- `_depopulateFocusPanel`：执行 _depopulateFocusPanel 对应的组件业务步骤；调用 Content.removeChild。
-- `_populateFocusPanel`：执行 _populateFocusPanel 对应的组件业务步骤；调用 this._calcXfromTime, EventXs.push, this._onViewClick, Array.from, Content.appendChild, this._setVariables。
-- `_createEventsAndMarkers`：执行 _createEventsAndMarkers 对应的组件业务步骤；调用 this._events.forEach, this._calcWidthBtwnTimes, this._addToCluster, this._markers.forEach, Array.from, List.contains, List.toggle。
-- `_createEventElement`：执行 _createEventElement 对应的组件业务步骤；调用 this._calcMidpointX, Container.appendChild。
-- `_addToCluster`：执行 _addToCluster 对应的组件业务步骤；调用 this._getLastCluster, this._calcEventClusterMax, this._onViewClick, Container.appendChild, this._markers.push, this._markers.find, List.add, Array.from, List.contains。
-- `_createClusterEventLine`：执行 _createClusterEventLine 对应的组件业务步骤；调用 this._children.markerContainer.appendChild；写入 _clusterEventLine。
-- `_populate`：执行 _populate 对应的组件业务步骤；调用 this._destroy, this._createEventsAndMarkers, this._setMarkerPositions, this._markers.some, this.setLocalState, this._createClusterEventLine, this._setVariables。
-- `_destroy`：执行 _destroy 对应的组件业务步骤；调用 this._depopulateFocusPanel, Container.removeChild, EventElements.filter；写入 _markers。
-- `_setClickedOnce`：执行 _setClickedOnce 对应的组件业务步骤；调用 this.setLocalState。
-- `_onTimelineMouseLeave`：执行 _onTimelineMouseLeave 对应的组件业务步骤；调用 this._hideTooltip, this.setState, this.setLocalState。
-- `_onTimelineMouseMove`：执行 _onTimelineMouseMove 对应的组件业务步骤；调用 this._hideTooltip, this._onMarkerMouseEnterDebounced.cancel, this._calcTimefromTimelineX, this.setState, this.setLocalState, this._setDateAndPosition, this._showToolTipDebounced。
-- `_onTimelineClick`：执行 _onTimelineClick 对应的组件业务步骤；调用 this._calcTimefromTimelineX, this.goToTime, this.setLocalState。
-- `_onMarkerMouseEnter`：执行 _onMarkerMouseEnter 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this.setLocalState, this._hideTooltip, this.setState, this._app.getComponent, Eyes.AppUtils.isMobilePortrait, this._markers.forEach, this._setActive, this._setFocusPanelPos, this._setEventName, this._setDateAndPosition。
-- `_onMarkerMouseLeave`：执行 _onMarkerMouseLeave 对应的组件业务步骤；调用 this._resetStates。
-- `_onMarkerMouseMove`：执行 _onMarkerMouseMove 对应的组件业务步骤；调用 this._onFpMouseLeaveDebounced.cancel, this._onMarkerMouseLeaveDebounced.cancel, this._markers.find, List.contains, this._getNearestIndex, this._setDateAndPosition, this._setClusterEvent, this._setEventName, this.setLocalState。
-- `_onFpMouseEnter`：执行 _onFpMouseEnter 对应的组件业务步骤；调用 this._onMarkerMouseLeaveDebounced.cancel, this._onFpMouseLeaveDebounced.cancel, this.setLocalState。
-- `_onFpMouseLeave`：执行 _onFpMouseLeave 对应的组件业务步骤；调用 this._resetStates。
-- `_onFpEventMouseOver`：执行 _onFpEventMouseOver 对应的组件业务步骤；调用 this._hideTooltip, this._getMarkerAndIndexFromFocusEl, this._setClusterEvent, EventElements.find, List.contains, this._setFocusPanelPos, this.setState, this._app.getComponent。
-- `_onFpTicksMouseEnter`：执行 _onFpTicksMouseEnter 对应的组件业务步骤；调用 this._setFpElementActive, this._setEventName。
-- `_onFpTicksMouseMove`：执行 _onFpTicksMouseMove 对应的组件业务步骤；调用 this._hideTooltip, this.setState, this.setLocalState, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty, this._showToolTipDebounced。
-- `_onFpTicksMouseLeave`：执行 _onFpTicksMouseLeave 对应的组件业务步骤；调用 this._hideTooltip。
-- `_onFpTicksClick`：执行 _onFpTicksClick 对应的组件业务步骤；调用 this._hideTooltip, this._calcTimeFromFpX, this.goToTime, this.setLocalState。
-- `_onViewClick`：执行 _onViewClick 对应的组件业务步骤；调用 this._hideTooltip, this._zoomIntoCluster, this.goToEvent, this._onDateTouchEnd, this.setLocalState。
-- `_zoomIntoCluster`：执行 _zoomIntoCluster 对应的组件业务步骤；调用 Container.removeChild, this._buildRangeOptions, this._setStartEndDates, this._populateFocusPanel, this.setState。
-- `_zoomOutOfCluster`：执行 _zoomOutOfCluster 对应的组件业务步骤；调用 this._app.getView, this._calcCoverage, this._buildRangeOptions, this._setStartEndDates, this.setState, this._populate。
-- `_onFpWheel`：执行 _onFpWheel 对应的组件业务步骤；调用 this._hideTooltip, Math.abs, this._onMarkerMouseEnter, this.setLocalState, this._createAnimation。
-- `_onFpTouchStart`：执行 _onFpTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState。
-- `_onFpTouchEnd`：执行 _onFpTouchEnd 对应的组件业务步骤；调用 this.setLocalState。
-- `_onFpTouchMove`：执行 _onFpTouchMove 对应的组件业务步骤；调用 Math.abs, this.setLocalState, this._onMarkerTouch, this._createAnimation。
-- `_onFpTicksTouchStart`：执行 _onFpTicksTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState, Math.abs, this._setClickedOnce, this.setState, this._setEventName, this._setFpElementActive, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty。
-- `_onFpTicksTouchMove`：执行 _onFpTicksTouchMove 对应的组件业务步骤；调用 this.setLocalState, this.setState, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty。
-- `_onFpTicksTouchEnd`：执行 _onFpTicksTouchEnd 对应的组件业务步骤；调用 this.setLocalState, this._onDateTouchEnd。
-- `_onMarkerTouch`：执行 _onMarkerTouch 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this._hideTooltip, this._markers.forEach, this._setActive, this.setState, Eyes.AppUtils.isMobilePortrait, this.setLocalState, this._getNearestIndex, this._setFpViewingLineStart, this._zoomIntoCluster, this._setFocusPanelPos, this._setFpAnimation, this._setEventNameDebounced.cancel。
-- `_onDateTouchStart`：执行 _onDateTouchStart 对应的组件业务步骤。
-- `_onDateTouchEnd`：执行 _onDateTouchEnd 对应的组件业务步骤；调用 this._calcTimeFromFpX, this._calcTimefromTimelineX, this.goToTime, this.setLocalState。
-- `_onFpEventTouch`：执行 _onFpEventTouch 对应的组件业务步骤；调用 this._getMarkerAndIndexFromFocusEl, this._hideTooltip, this._setClusterEvent, this._onViewClick。
-- `_onFpArrowClick`：执行 _onFpArrowClick 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this._calcTimeFromFpX, this._hideTooltip, this._getNextEventIndexByTime, this._zoomOutOfCluster, this._onMarkerTouch, this._resetStates, this._setClusterEvent。
-- `_onTimelineTouchStart`：执行 _onTimelineTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState, Math.abs, this._setClickedOnce, this._resetStates, this.setState, this._setDateAndPosition。
-- `_onTimelineTouchMove`：执行 _onTimelineTouchMove 对应的组件业务步骤；调用 this.setLocalState, this.setState, this._setDateAndPosition。
-- `_onTimelineTouchEnd`：执行 _onTimelineTouchEnd 对应的组件业务步骤；调用 this._onDateTouchEnd, this.setLocalState, this.setState。
-- `_onOutsideTouch`：执行 _onOutsideTouch 对应的组件业务步骤；调用 this._element.contains, this._resetStates。
-- `_setResizeTimeout`：执行 _setResizeTimeout 对应的组件业务步骤；写入 _resizeTimeout。
-- `_onResize`：执行 _onResize 对应的组件业务步骤；调用 this._resetStates, this._children.timelinebar.getBoundingClientRect, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setLocalState, this._children.timelinebar.style.setProperty, this._populate；写入 _resizeTimeout。
-- `resize`：重排响应式界面；调用 this._resizeDebounced。
-- `_calcEventClusterMax`：执行 _calcEventClusterMax 对应的组件业务步骤；调用 Math.floor, Math.max, Math.min。
-- `_calcMidpointX`：执行 _calcMidpointX 对应的组件业务步骤；调用 this._calcXfromTime。
-- `_calcWidthBtwnTimes`：执行 _calcWidthBtwnTimes 对应的组件业务步骤；调用 Math.max, Math.min, Math.round。
-- `_calcXfromTime`：执行 _calcXfromTime 对应的组件业务步骤。
-- `_calcTimefromTimelineX`：执行 _calcTimefromTimelineX 对应的组件业务步骤。
-- `_calcTimeFromFpX`：执行 _calcTimeFromFpX 对应的组件业务步骤。
-- `_calcRelativeProgress`：执行 _calcRelativeProgress 对应的组件业务步骤。
-- `_calcFpEventOffset`：执行 _calcFpEventOffset 对应的组件业务步骤。
-- `_nestedPropsChanged`：执行 _nestedPropsChanged 对应的组件业务步骤；调用 this._nestedPropsChanged。
-- `_showToolTip`：执行 _showToolTip 对应的组件业务步骤；调用 Math.min, Math.max, Math.abs, this._setTooltipModifiers, this.setLocalState。
-- `_setTooltipModifiers`：执行 _setTooltipModifiers 对应的组件业务步骤。
-- `_resetTooltip`：执行 _resetTooltip 对应的组件业务步骤；调用 this._showToolTipDebounced.cancel。
-- `_hideTooltip`：执行 _hideTooltip 对应的组件业务步骤；调用 this._resetTooltip, Object.values。
-- `_setViewingLineX`：执行 _setViewingLineX 对应的组件业务步骤；调用 this._calcXfromTime, this._getFpViewingLineX, this._children.timelinebar.style.setProperty, this._children.focusPanel.style.setProperty, this.setState, this.setLocalState。
-- `_setFpViewingLineStart`：执行 _setFpViewingLineStart 对应的组件业务步骤；调用 this._children.focusPanel.style.setProperty。
-- `_setClusterEvent`：执行 _setClusterEvent 对应的组件业务步骤；调用 this._setEventName, this._setDateAndPosition, this._setClusterLineTransform, this.setState, this._setFpElementActive。
-- `_setFpAnimation`：执行 _setFpAnimation 对应的组件业务步骤；调用 this._markers.indexOf, this._getNormDistance, this._calcRelativeProgress, this.setState, this.setLocalState, this._depopulateFocusPanel, this._populateFocusPanel, this._setClusterEvent, this._getFpEventsEnterAnim, this._getFpEventsExitAnim, this._getFpTickAnim, this._getFpLineAnim, this._createAnimation。
-- `_getFpViewingLineX`：执行 _getFpViewingLineX 对应的组件业务步骤；调用 this._calcXfromTime, Math.round。
-- `_getNearestEvent`：执行 _getNearestEvent 对应的组件业务步骤；调用 this._getNearestIndex。
-- `_getNextEventIndexByTime`：执行 _getNextEventIndexByTime 对应的组件业务步骤。
-- `_setDateAndPosition`：执行 _setDateAndPosition 对应的组件业务步骤。
-- `_setEventName`：执行 _setEventName 对应的组件业务步骤；调用 this._element.style.setProperty, this.setState。
-- `_setActive`：执行 _setActive 对应的组件业务步骤；调用 List.add, List.remove。
-- `_getNormDistance`：执行 _getNormDistance 对应的组件业务步骤；调用 Math.abs。
-- `_getFpEventsEnterAnim`：执行 _getFpEventsEnterAnim 对应的组件业务步骤；调用 this._createAnimation。
-- `_getFpEventsExitAnim`：执行 _getFpEventsExitAnim 对应的组件业务步骤；调用 this._createAnimation。
-- `_getFpTickAnim`：执行 _getFpTickAnim 对应的组件业务步骤；调用 this._calcRelativeProgress, this._createAnimation。
-- `_getFpLineAnim`：执行 _getFpLineAnim 对应的组件业务步骤；调用 this._createAnimation。
-- `_setFpEventScaledClass`：执行 _setFpEventScaledClass 对应的组件业务步骤；调用 EventElements.forEach, List.add, List.remove。
-- `_setClusterLineTransform`：执行 _setClusterLineTransform 对应的组件业务步骤；调用 this._clusterEventLine.style.setProperty。
-- `_getMarkerAndIndexFromFocusEl`：执行 _getMarkerAndIndexFromFocusEl 对应的组件业务步骤；调用 EventElements.indexOf。
-- `_setFpElementActive`：执行 _setFpElementActive 对应的组件业务步骤；调用 EventElements.forEach, List.toggle, EventElements.indexOf, this.setLocalState。
-- `_setNumOfTicks`：执行 _setNumOfTicks 对应的组件业务步骤；调用 Math.round, Char.repeat。
-- `_getLastCluster`：执行 _getLastCluster 对应的组件业务步骤。
-- `_setMarkerPositions`：执行 _setMarkerPositions 对应的组件业务步骤；调用 this._markers.forEach, Math.max, this._calcWidthBtwnTimes, this._calcMidpointX, Math.min, this._createEventElement。
-- `_getNearestIndex`：执行 _getNearestIndex 对应的组件业务步骤；调用 Math.abs。
-- `setOptions`：执行 setOptions 对应的组件业务步骤；写入 _options。
-- `setLocalState`：执行 setLocalState 对应的组件业务步骤；调用 this._nestedPropsChanged；写入 _localState。
-- `_setEvents`：执行 _setEvents 对应的组件业务步骤；调用 this._events.forEach, this._events.sort；写入 _events。
-- `_buildRangeOptions`：执行 _buildRangeOptions 对应的组件业务步骤；调用 this.setOptions。
-- `_setStartEndDates`：执行 _setStartEndDates 对应的组件业务步骤；调用 DateStart.setAttribute, DateEnd.setAttribute。
-- `checkForZoom`：执行 checkForZoom 对应的组件业务步骤；调用 this._markers.find, this._zoomIntoCluster, this._zoomOutOfCluster。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this._setResizeTimeout。
-- `hide`：执行 hide 对应的组件业务步骤；调用 super.hide。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 super.__disable。
-- `goToTime`：执行 goToTime 对应的组件业务步骤；调用 this._app.getManager, this.routeManager.navigate。
-- `goToEvent`：执行 goToEvent 对应的组件业务步骤；调用 this.routeManager.navigate。
-- `setTime`：执行 setTime 对应的组件业务步骤；调用 this.setLocalState。
-- `update`：执行 update 对应的组件业务步骤；调用 this.isEnabled, this._setViewingLineXThrottled。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ExplorationBlock-js)
 
-### `eyes/src/ui/components/ExplorationBlock.js`
+### `ExplorationBlock`
 
-对象探索入口内容块。
+初始列表和更多列表分别创建节点，更多项带状态占位符；创建完后重新扫描变量绑定，使继承的更多开关能控制这些新节点。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/ExplorationBlockTemplate.html`
-- `manager dependencies: content, router`
+- `constructor(app)` [源码:8](../../eyes/src/ui/components/ExplorationBlock.js#L8)：当前操作：写入 _explorationList；返回 无显式返回。
+- `onRouteChange(entityId, explorationInfo, cancelToken)` [源码:12](../../eyes/src/ui/components/ExplorationBlock.js#L12)：当前操作：写入 _explorationList、_explorationList.innerHTML；返回 void this.setEnabled(false)。
 
-**ExplorationBlock**：对象探索入口内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+## `eyes/src/ui/components/FeaturedEventsBlock.js`
 
-- `constructor`：建立实例初始字段和依赖；写入 _explorationList。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.setEnabled, this.setState, this._app.getManager, this._element.classList.remove, List.add, this._explorationList.appendChild, this._setVariables；写入 _explorationList。
+精选事件卡片内容块。[源码](../../eyes/src/ui/components/FeaturedEventsBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/FeaturedEventsBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-FeaturedEventsBlock-js)
 
-精选事件卡片内容块。
+### `FeaturedEventsBlock`
 
-- `imports: ../../vendor/modules/Unidentified777.cjs, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/FeaturedEventsBlockTemplate.html`
-- `manager dependencies: router, content`
+精选事件引用与事件详情分离：首屏从传入 eventsById 取详情，更多列表按原实现读取全局事件表；每项闭包保留独立事件路径。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-**FeaturedEventsBlock**：精选事件卡片内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/FeaturedEventsBlock.js#L10)：当前操作：写入 _featuredEventsList、_more.isHidden.moreMessage；返回 无显式返回。
+- `onRouteChange(entityId, entityDescription, eventsById, cancelToken)` [源码:15](../../eyes/src/ui/components/FeaturedEventsBlock.js#L15)：当前操作：写入 _featuredEventsList、_featuredEventsList.innerHTML；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；写入 _featuredEventsList。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 List.add, this._app.getManager, this._featuredEventsList.appendChild, this._setVariables, this.setState；写入 _featuredEventsList。
+## `eyes/src/ui/components/FeaturedMoonsBlock.js`
 
-### `eyes/src/ui/components/FeaturedMoonsBlock.js`
+精选卫星内容块。[源码](../../eyes/src/ui/components/FeaturedMoonsBlock.js)。语义状态：`verified-semantic-refactor`。
 
-精选卫星内容块。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-FeaturedMoonsBlock-js)
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/FeaturedMoonsBlockTemplate.html`
-- `manager dependencies: router`
+### `FeaturedMoonsBlock`
 
-**FeaturedMoonsBlock**：精选卫星内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+路由取消令牌同时守住整次刷新和逐项 DOM 构建；更多项重新登记模板 class 绑定，以便继承的展开逻辑控制可见性。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.resize。
-- `resize`：重排响应式界面；调用 super.resize, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.hideMore, this._element.classList.remove, Array.isArray, this.setState, this._createListElement, this._children.featuredMoonsList.appendChild, List.add, this.setEnabled, this._setVariables。
-- `_createListElement`：执行 _createListElement 对应的组件业务步骤；调用 this._app.getManager, List.add。
+- `constructor(...constructorArgs)` [源码:8](../../eyes/src/ui/components/FeaturedMoonsBlock.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:12](../../eyes/src/ui/components/FeaturedMoonsBlock.js#L12)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(entityId, moonLinks, cancelToken)` [源码:19](../../eyes/src/ui/components/FeaturedMoonsBlock.js#L19)：当前操作：写入 _children.featuredMoonsList.innerHTML；返回 无显式返回。
+- `_createListElement(moonLink)` [源码:35](../../eyes/src/ui/components/FeaturedMoonsBlock.js#L35)：当前操作：写入 无直接字段写入；返回 listItem。
 
-### `eyes/src/ui/components/FeaturedStoriesPanel.js`
+## `eyes/src/ui/components/FeaturedStoriesPanel.js`
 
-首页精选故事卡片面板。
+首页精选故事卡片面板。[源码](../../eyes/src/ui/components/FeaturedStoriesPanel.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../vendor/modules/Unidentified989.cjs, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/FeaturedStoriesPanelTemplate.html, ../../styles/extracted/FeaturedStoriesPanelStyles.js`
-- `manager dependencies: layer, router`
-- `component dependencies: mobileExpandButton`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-FeaturedStoriesPanel-js)
 
-**FeaturedStoriesPanel**：首页精选故事卡片面板；继承 Eyes.BaseComponent。
+### `FeaturedStoriesPanel`
 
-- `constructor`：建立实例初始字段和依赖；调用 this._eventNames.push, this._initCallbacks, this.bindFunctions；写入 _collapseMobile, _expandMobile, _collapseDesktop, _expandDesktop, _defaultState, _components, _scrollbar, _currentId, _storyBlock。
-- `init`：初始化模板与关联资源；调用 super.init, this._app.addComponentWithPlaceholder, Eyes.AppUtils.isLandscape, this._callbackRegistry.push, this._app.getManager；写入 _storyBlock, _isLandscape。
-- `_onRouteChange`：执行 _onRouteChange 对应的组件业务步骤；调用 this.isEnabled, this._disableAllComponents。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._onRouteChange, this._storyBlock.onRouteChange, this._storyBlock.setEnabled, this._scrollbar.scroll, Eyes.AppUtils.addScrollbar；写入 _scrollbar。
-- `showOverlay`：执行 showOverlay 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `hideOverlay`：执行 hideOverlay 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `onClickShowCollapse`：执行 onClickShowCollapse 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.hideOverlay, this.hide, this.show。
-- `shouldOffsetRight`：执行 shouldOffsetRight 对应的组件业务步骤；调用 Eyes.AppUtils.isDesktop。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this._app.getManager, this._app.getView, ToggleBtn.setAttribute, this._app.getComponent, this.setState。
-- `hide`：执行 hide 对应的组件业务步骤；调用 super.hide, this._app.getManager, this._app.getView, ToggleBtn.setAttribute, this._app.getComponent, this.setState。
-- `handleLayerToggle`：执行 handleLayerToggle 对应的组件业务步骤；调用 this.show, this.hide。
-- `_disableAllComponents`：执行 _disableAllComponents 对应的组件业务步骤；调用 this._components.forEach, this._app.getComponent。
-- `reset`：执行 reset 对应的组件业务步骤；调用 this.setState；写入 _currentId。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.reset, super.__disable。
+面板拥有 featuredStoryBlock 和滚动条；路由取消后不启用故事块。显隐同时通知当前视图调整视口，并同步移动展开按钮与可访问标签。。父类 `Eyes.BaseComponent`。
 
-### `eyes/src/ui/components/FeaturedStoryBlock.js`
+- `constructor(app, options)` [源码:10](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L10)：当前操作：写入 _class.isOpen、_class.isOverlay、_collapseDesktop、_collapseMobile、_components、_currentId、_defaultState、_expandDesktop、_expandMobile、_scrollbar、_state.desktopIconName、_state.mobileIconName、_storyBlock；返回 无显式返回。
+- `init()` [源码:45](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L45)：当前操作：写入 _isLandscape、_storyBlock；返回 无显式返回。
+- `_onRouteChange()` [源码:58](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L58)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(cancelToken, featuredStories)` [源码:61](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L61)：当前操作：写入 _scrollbar；返回 void。
+- `showOverlay()` [源码:70](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L70)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hideOverlay()` [源码:78](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L78)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onClickShowCollapse()` [源码:86](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L86)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get shouldOffsetRight()` [源码:89](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L89)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isDesktop()。
+- `show()` [源码:92](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L92)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:110](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L110)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `handleLayerToggle(layerName, isVisible)` [源码:128](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L128)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_disableAllComponents()` [源码:131](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L131)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `reset()` [源码:136](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L136)：当前操作：写入 _currentId；返回 无显式返回。
+- `__disable()` [源码:140](../../eyes/src/ui/components/FeaturedStoriesPanel.js#L140)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-单个精选故事卡片。
+## `eyes/src/ui/components/FeaturedStoryBlock.js`
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/FeaturedStoryBlockTemplate.html, ../../styles/extracted/FeaturedStoryBlockStyles.js`
-- `manager dependencies: content, router`
+单个精选故事卡片。[源码](../../eyes/src/ui/components/FeaturedStoryBlock.js)。语义状态：`verified-semantic-refactor`。
 
-**FeaturedStoryBlock**：单个精选故事卡片；继承 SolarSystemPublicApi.BaseContentBlock。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-FeaturedStoryBlock-js)
 
-- `constructor`：建立实例初始字段和依赖；写入 _storyList。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.setEnabled, this._app.getManager, List.add, this._storyList.appendChild, this._setVariables, this.setState；写入 _storyList。
+### `FeaturedStoryBlock`
 
-### `eyes/src/ui/components/FeaturesBlock.js`
+故事卡片支持外部链接、内部路由和故事 id 三种跳转。节点由此块重建，标题和颜色等 class 占位符在创建后登记到基类状态绑定。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-对象特征选项列表。
+- `constructor(app)` [源码:9](../../eyes/src/ui/components/FeaturedStoryBlock.js#L9)：当前操作：写入 _more.isHidden.moreMessage、_storyList；返回 无显式返回。
+- `onRouteChange(entityId, blockTitle, stories, cancelToken)` [源码:18](../../eyes/src/ui/components/FeaturedStoryBlock.js#L18)：当前操作：写入 _storyList、_storyList.innerHTML；返回 void this.setEnabled(false)、void。
 
-- `imports: ../../framework/eyes/index.js, ../../engine/solar-system/public-api.js, ../../app/public-api.js, ../templates/FeaturesBlockTemplate.html`
-- `manager dependencies: content, scene, layer`
+## `eyes/src/ui/components/FeaturesBlock.js`
 
-**FeaturesBlock**：对象特征选项列表；继承 SolarSystemPublicApi.OptionsBlock。
+对象特征选项列表。[源码](../../eyes/src/ui/components/FeaturesBlock.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign。
-- `addFeatures`：执行 addFeatures 对应的组件业务步骤；调用 this._app.getManager, Manager.getSpheroidFeatures, this.setState, SolarSystemSceneExports.Features.isEnabled, SolarSystemSceneExports.Features.setEnabled, this._createCheckbox, this._children.featuresList.appendChild, this._setVariables。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, this._app.scene.getEntity, Manager.getSpheroidFeatures, Manager.getEntityInfo, this.addFeatures；写入 _defaultTextureDescription, _previousEntity。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-FeaturesBlock-js)
 
-### `eyes/src/ui/components/HintBlock.js`
+### `FeaturesBlock`
 
-故事提示内容。
+特征定义上挂接的点击函数直接切换引擎 Features 状态；UI 复选框读取同一引擎状态，目标无可用特征时沿父实体查找。。父类 `SolarSystemPublicApi.OptionsBlock`。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/HintBlockTemplate.html, ../../styles/extracted/HintBlockStyles.js`
+- `constructor(app)` [源码:9](../../eyes/src/ui/components/FeaturesBlock.js#L9)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `addFeatures(entityId)` [源码:26](../../eyes/src/ui/components/FeaturesBlock.js#L26)：当前操作：写入 _children.featuresList.innerHTML；返回 无显式返回。
+- `onRouteChange(entityInfo)` [源码:48](../../eyes/src/ui/components/FeaturesBlock.js#L48)：当前操作：写入 _defaultTextureDescription、_previousEntity；返回 无显式返回。
 
-**HintBlock**：故事提示内容；继承 EyesPublicApi.StoryBaseContentBlock。
+## `eyes/src/ui/components/HintBlock.js`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign。
+故事提示内容。[源码](../../eyes/src/ui/components/HintBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/ImageBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-HintBlock-js)
 
-故事图像与说明内容。
+### `HintBlock`
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/ImageBlockTemplate.html, ../../styles/extracted/ImageBlockStyles.js`
-- `component dependencies: overlay`
+提示正文与前后图标来自故事 info；构造时写入模板状态，滚动叙事行为继续由 StoryBaseContentBlock 管理。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-**ImageBlock**：故事图像与说明内容；继承 EyesPublicApi.StoryBaseContentBlock。
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/HintBlock.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `onClick`：执行 onClick 对应的组件业务步骤；调用 this._element.cloneNode, List.add, List.remove, this._app.getComponent。
+## `eyes/src/ui/components/ImageBlock.js`
 
-### `eyes/src/ui/components/InfoPanel.js`
+故事图像与说明内容。[源码](../../eyes/src/ui/components/ImageBlock.js)。语义状态：`verified-semantic-refactor`。
 
-辅助对象信息面板。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ImageBlock-js)
 
-- `imports: ../../framework/eyes/index.js, ../../styles/extracted/InfoPanelStyles.js, ../templates/InfoPanelTemplate.html`
-- `component dependencies: overlay`
+### `ImageBlock`
 
-**InfoPanel**：辅助对象信息面板；继承 Eyes.BaseComponent。
+点击时复制当前图片节点交给共享 overlay；保留原图片在故事布局中的位置，覆盖层拥有副本的挂载位置。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions。
-- `openPanel`：执行 openPanel 对应的组件业务步骤；调用 this.show。
-- `closePanel`：执行 closePanel 对应的组件业务步骤；调用 this.hide。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.getState, super.hide, this._app.getComponent。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this._app.getComponent。
+- `onClick()` [源码:8](../../eyes/src/ui/components/ImageBlock.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-### `eyes/src/ui/components/InstrumentFOVBlock.js`
+## `eyes/src/ui/components/InfoPanel.js`
 
-仪器视场选项内容块。
+辅助对象信息面板。[源码](../../eyes/src/ui/components/InfoPanel.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../app/public-api.js, ../../styles/extracted/InstrumentFOVBlockStyles.js, ../templates/InstrumentFOVBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-InfoPanel-js)
 
-**InstrumentFOVBlock**：仪器视场选项内容块；继承 SolarSystemPublicApi.OptionsBlock。
+### `InfoPanel`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, Pioneer.Vector3, Pioneer.Color；写入 _previousEntity, _spacecraft, _instrumentCheckboxes。
-- `hasInstrumentsWithFOV`：执行 hasInstrumentsWithFOV 对应的组件业务步骤。
-- `init`：初始化模板与关联资源；调用 super.init。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.reset, this.setState, this._addInstrumentOptions, this._setVariables；写入 _previousEntity。
-- `_addInstrumentOptions`：执行 _addInstrumentOptions 对应的组件业务步骤；调用 this.reset, this._instrumentCheckboxes.forEach, this._toggleFrustums, this._createMultistateCheckbox, this._createCheckbox, this._children.instrumentsList.appendChild, this._instrumentCheckboxes.some, this._instrumentCheckboxes.push。
-- `_toggleFrustums`：执行 _toggleFrustums 对应的组件业务步骤；调用 this._app.scene.getEntity, Object.entries。
-- `reset`：执行 reset 对应的组件业务步骤；写入 _instrumentCheckboxes, _triggeredByInstrumentCheckbox, _triggeredByAllCheckbox。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity。
+面板把自身根节点交给共享 overlay 挂载，show/hide 同时协调覆盖层；重复 hide 仅在原面板可见时执行。。父类 `Eyes.BaseComponent`。
 
-### `eyes/src/ui/components/KioskBase.js`
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/InfoPanel.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `openPanel()` [源码:24](../../eyes/src/ui/components/InfoPanel.js#L24)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `closePanel()` [源码:27](../../eyes/src/ui/components/InfoPanel.js#L27)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:30](../../eyes/src/ui/components/InfoPanel.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:33](../../eyes/src/ui/components/InfoPanel.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-展陈模式基础界面及计时行为。
+## `eyes/src/ui/components/InstrumentFOVBlock.js`
 
-- `imports: ../../framework/eyes/public-api.js, ../../engine/pioneer/index.js, ../templates/KioskBaseTemplate.html, ../../styles/extracted/KioskBaseStyles.js`
-- `manager dependencies: router, camera, layer`
-- `component dependencies: kioskSessionClock, layerPanel, story, clock`
+仪器视场选项内容块。[源码](../../eyes/src/ui/components/InstrumentFOVBlock.js)。语义状态：`verified-semantic-refactor`。
 
-**KioskBase**：展陈模式基础界面及计时行为；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-InstrumentFOVBlock-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 this.app.getManager, Math.ceil, Pioneer.TimeUtils.now；写入 _router, inactivityInterval, sessionInterval, timeOfDaySessionStarted, componentDefaultVisibility, componentEnabledAutoplay。
-- `init`：初始化模板与关联资源；调用 super.init, this.app.pioneer.getScene, this.resetLastClicked, this.validateQueries, this._isValidTime, EyesPublicApi.AppUtils.minToSec, this.setUpSessionTimerComponent, this.startSessionTimer, this.setState, this.startInactivityTimer；写入 maxSessionTime, maxInactivityTime。
-- `validateQueries`：执行 validateQueries 对应的组件业务步骤；调用 Object.entries, this._isValidTime, Math.abs, this._router.setConfig。
-- `_isValidTime`：执行 _isValidTime 对应的组件业务步骤。
-- `setEnabled`：切换当前组件及其子组件的启用状态；调用 super.setEnabled, this._isValidTime, this.show。
-- `resetLastClicked`：执行 resetLastClicked 对应的组件业务步骤；调用 Math.ceil, Pioneer.TimeUtils.now。
-- `sessionStartOverButtonClick`：执行 sessionStartOverButtonClick 对应的组件业务步骤；调用 this.setState, this.resetApp, this.app.getManager。
-- `onWindowInteract`：执行 onWindowInteract 对应的组件业务步骤；调用 this.isHidden, this.setState, this.app.getManager, this.resetApp, this.resetLastClicked, this._isValidTime, this.resetSessionTimer, this.startInactivityTimer；写入 inactivityInterval。
-- `setUpSessionTimerComponent`：执行 setUpSessionTimerComponent 对应的组件业务步骤；调用 this.app.getComponent, SessionClockComponent.setState, SessionClockComponent.show, SessionClockComponent.setEnabled, SessionClockComponent.setParent, this.updateSessionTimerComponent。
-- `startSessionTimer`：执行 startSessionTimer 对应的组件业务步骤；调用 Math.ceil, Pioneer.TimeUtils.now, this.handleSessionTimer；写入 timeOfDaySessionStarted, sessionInterval。
-- `handleSessionTimer`：执行 handleSessionTimer 对应的组件业务步骤；调用 this.isHidden, Math.ceil, Pioneer.TimeUtils.now, this.setState, this.updateSessionTimerComponent, this.endSession；写入 timeElapsed。
-- `endSession`：执行 endSession 对应的组件业务步骤；调用 this.setState, this.isHidden, this.resetApp, this.setComponentsVisibility；写入 sessionInterval。
-- `resetSessionTimer`：执行 resetSessionTimer 对应的组件业务步骤；调用 this.setUpSessionTimerComponent, this.startSessionTimer, this.setState；写入 timeElapsed。
-- `updateSessionTimerComponent`：执行 updateSessionTimerComponent 对应的组件业务步骤；调用 this.app.getComponent, EyesPublicApi.AppUtils.formatCountdownTime, SessionClockComponent.update。
-- `startInactivityTimer`：执行 startInactivityTimer 对应的组件业务步骤；调用 this.handleMaxInactivityTime；写入 inactivityInterval。
-- `handleMaxInactivityTime`：执行 handleMaxInactivityTime 对应的组件业务步骤；调用 Math.ceil, Pioneer.TimeUtils.now；写入 currentTimeWithoutActivity。
-- `startAutoplay`：执行 startAutoplay 对应的组件业务步骤；调用 this.setState, this.resetApp, this.setComponentsEnabled；写入 inactivityInterval。
-- `resetLayers`：执行 resetLayers 对应的组件业务步骤；调用 Object.keys, this.app.getManager。
-- `setComponentsVisibility`：执行 setComponentsVisibility 对应的组件业务步骤；调用 Object.entries, this.app.getComponent。
-- `setComponentsEnabled`：执行 setComponentsEnabled 对应的组件业务步骤；调用 Object.entries, this.app.getComponent。
-- `resetApp`：执行 resetApp 对应的组件业务步骤；调用 this.app.getComponent, this.app.getManager, this.resetLayers, this.setComponentsVisibility, this._router.navigate, this.app.cameraScripts.goToSystem。
-- `isHidden`：执行 isHidden 对应的组件业务步骤；调用 List.contains。
+### `InstrumentFOVBlock`
 
-### `eyes/src/ui/components/LayerPanel.js`
+仪器配置与实例几何分离，实例属性优先于仪器公共属性。存在 keyframes 的仪器使用三态开关：关闭、覆盖区间、完整视锥；总开关与单仪器互相同步时跳过回调，避免循环触发。。父类 `SolarSystemPublicApi.OptionsBlock`。
 
-图层分组与可见性开关面板。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/InstrumentFOVBlock.js#L10)：当前操作：写入 _instrumentCheckboxes、_previousEntity、_spacecraft；返回 无显式返回。
+- `hasInstrumentsWithFOV(spacecraftId)` [源码:416](../../eyes/src/ui/components/InstrumentFOVBlock.js#L416)：当前操作：写入 无直接字段写入；返回 void 0!==this._spacecraft[spacecraftId]。
+- `init()` [源码:419](../../eyes/src/ui/components/InstrumentFOVBlock.js#L419)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(entityInfo, entityName)` [源码:422](../../eyes/src/ui/components/InstrumentFOVBlock.js#L422)：当前操作：写入 _children.instrumentsList.innerHTML、_previousEntity；返回 无显式返回。
+- `_addInstrumentOptions(spacecraftId, spacecraftInfo)` [源码:431](../../eyes/src/ui/components/InstrumentFOVBlock.js#L431)：当前操作：写入 _children.instrumentsList.innerHTML；返回 void console.warn(ˋSpacecraft ${spacecraftId} is missing instrumentsˋ)。
+- `_toggleFrustums(spacecraftId, instrumentInfo, allEnabled=false)` [源码:498](../../eyes/src/ui/components/InstrumentFOVBlock.js#L498)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `reset()` [源码:533](../../eyes/src/ui/components/InstrumentFOVBlock.js#L533)：当前操作：写入 _instrumentCheckboxes、_triggeredByAllCheckbox、_triggeredByInstrumentCheckbox；返回 无显式返回。
+- `__disable()` [源码:538](../../eyes/src/ui/components/InstrumentFOVBlock.js#L538)：当前操作：写入 _previousEntity；返回 无显式返回。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/LayerPanelTemplate.html, ../../styles/extracted/LayerPanelStyles.js`
-- `manager dependencies: layer`
+## `eyes/src/ui/components/KioskBase.js`
 
-**LayerPanel**：图层分组与可见性开关面板；继承 EyesPublicApi.BaseComponent。
+展陈模式基础界面及计时行为。[源码](../../eyes/src/ui/components/KioskBase.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions, EyesPublicApi.AppUtils.isMobileMode, this._initCallbacks；写入 _eyesCheck, _categories, _categoriesDisplay, _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom, _lastMode。
-- `getCategoriesDisplay`：执行 getCategoriesDisplay 对应的组件业务步骤。
-- `resize`：重排响应式界面；调用 super.resize, this._updatePosition。
-- `init`：初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager, this._config.layers.forEach, List.add, EyesPublicApi.Checkbox, this._components.push, this._setVariables。
-- `_createAnimations`：执行 _createAnimations 对应的组件业务步骤；调用 EyesPublicApi.AnimationUtils.directionalFade；写入 _fadeOutRight, _fadeInRight, _fadeOutBottom, _fadeInBottom。
-- `_resetAnimations`：执行 _resetAnimations 对应的组件业务步骤；调用 this._fadeInRight.pause, this._fadeOutRight.pause, this._fadeInBottom.pause, this._fadeOutBottom.pause。
-- `toggleLayer`：执行 toggleLayer 对应的组件业务步骤；调用 this._app.getManager。
-- `handleLayerToggle`：执行 handleLayerToggle 对应的组件业务步骤；调用 this.getState, this.setState, this._components.find, this._app.getManager。
-- `isCategoryEnabled`：执行 isCategoryEnabled 对应的组件业务步骤；调用 List.contains。
-- `setCategoryEnabled`：执行 setCategoryEnabled 对应的组件业务步骤；调用 List.toggle。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.getState, super.hide, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeOutBottom.play, this._fadeOutRight.play；写入 _fadeOutBottom, _fadeOutRight。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeInBottom.play, this._fadeInRight.play；写入 _fadeInBottom, _fadeInRight。
-- `_updatePosition`：执行 _updatePosition 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isMobileMode, this.show；写入 _lastMode。
-- `__enable`：挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createAnimations。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 super.__disable；写入 _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-KioskBase-js)
 
-### `eyes/src/ui/components/LayersBlock.js`
+### `KioskBase`
 
-对象相关图层选项内容块。
+会话与空闲分别使用独立 interval，交互时清理并重新启动空闲计时；重置应用等待相机转换再归还实时模式。组件显隐与启用配置分开保存，避免混淆暂时隐藏和停止订阅。。父类 `EyesPublicApi.BaseComponent`。
 
-- `imports: ../../engine/pioneer/index.js, ../../engine/solar-system/public-api.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/LayersBlockTemplate.html`
-- `manager dependencies: content, layer, router`
+- `constructor(app, options={})` [源码:10](../../eyes/src/ui/components/KioskBase.js#L10)：当前操作：写入 _router、componentDefaultVisibility、componentEnabledAutoplay、inactivityInterval、sessionInterval、timeOfDaySessionStarted；返回 无显式返回。
+- `init()` [源码:37](../../eyes/src/ui/components/KioskBase.js#L37)：当前操作：写入 maxInactivityTime、maxSessionTime；返回 无显式返回。
+- `validateQueries()` [源码:57](../../eyes/src/ui/components/KioskBase.js#L57)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_isValidTime(durationValue)` [源码:73](../../eyes/src/ui/components/KioskBase.js#L73)：当前操作：写入 无直接字段写入；返回 ""!==durationValue&&!isNaN(Number(durationValue))&&Number(durationValue)>-1。
+- `setEnabled(isEnabled)` [源码:76](../../eyes/src/ui/components/KioskBase.js#L76)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resetLastClicked()` [源码:85](../../eyes/src/ui/components/KioskBase.js#L85)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `sessionStartOverButtonClick()` [源码:88](../../eyes/src/ui/components/KioskBase.js#L88)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onWindowInteract()` [源码:99](../../eyes/src/ui/components/KioskBase.js#L99)：当前操作：写入 inactivityInterval；返回 无显式返回。
+- `setUpSessionTimerComponent()` [源码:135](../../eyes/src/ui/components/KioskBase.js#L135)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `startSessionTimer()` [源码:148](../../eyes/src/ui/components/KioskBase.js#L148)：当前操作：写入 sessionInterval、timeOfDaySessionStarted；返回 无显式返回。
+- `handleSessionTimer()` [源码:155](../../eyes/src/ui/components/KioskBase.js#L155)：当前操作：写入 timeElapsed；返回 无显式返回。
+- `endSession()` [源码:167](../../eyes/src/ui/components/KioskBase.js#L167)：当前操作：写入 sessionInterval；返回 无显式返回。
+- `resetSessionTimer()` [源码:184](../../eyes/src/ui/components/KioskBase.js#L184)：当前操作：写入 timeElapsed；返回 无显式返回。
+- `updateSessionTimerComponent()` [源码:195](../../eyes/src/ui/components/KioskBase.js#L195)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `startInactivityTimer()` [源码:200](../../eyes/src/ui/components/KioskBase.js#L200)：当前操作：写入 inactivityInterval；返回 无显式返回。
+- `handleMaxInactivityTime()` [源码:206](../../eyes/src/ui/components/KioskBase.js#L206)：当前操作：写入 currentTimeWithoutActivity；返回 无显式返回。
+- `startAutoplay()` [源码:209](../../eyes/src/ui/components/KioskBase.js#L209)：当前操作：写入 inactivityInterval；返回 无显式返回。
+- `resetLayers(layerCategories)` [源码:224](../../eyes/src/ui/components/KioskBase.js#L224)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setComponentsVisibility(visibilityByComponent)` [源码:232](../../eyes/src/ui/components/KioskBase.js#L232)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setComponentsEnabled(enabledByComponent)` [源码:239](../../eyes/src/ui/components/KioskBase.js#L239)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resetApp()` [源码:245](../../eyes/src/ui/components/KioskBase.js#L245)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `isHidden(element)` [源码:262](../../eyes/src/ui/components/KioskBase.js#L262)：当前操作：写入 无直接字段写入；返回 element?.classList.contains("hidden")。
 
-**LayersBlock**：对象相关图层选项内容块；继承 SolarSystemPublicApi.OptionsBlock。
+## `eyes/src/ui/components/LayerPanel.js`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this._app.getManager, SolarSystemSceneExports.Entity.getEntityNamesInGroup, Manager.getEntityInfo, this._defaultLayers.includes, this.bindFunctions；写入 _layers, _previousEntity, _previousChildEntity, _defaultLayers。
-- `init`：初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager。
-- `_addLayerOptions`：执行 _addLayerOptions 对应的组件业务步骤；调用 this._app.getManager, this._createCheckbox, this._components.push, this._children.layersList.appendChild。
-- `_addDefaultOptions`：执行 _addDefaultOptions 对应的组件业务步骤；调用 this._app.getManager, this.setState, this._defaultLayers.push, this._defaultLayers.includes, this._addLayerOptions, this._setVariables。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.scene.getEntity, this.reset, this.setState, this._addDefaultOptions, this._app.getManager, Manager.getLayer, this._defaultLayers.includes, this._components.find；写入 _previousEntity, _previousChildEntity。
-- `syncSpacecraftLayer`：执行 syncSpacecraftLayer 对应的组件业务步骤；调用 this._components.find, this.syncCheckbox。
-- `syncAllLayerCheckboxes`：执行 syncAllLayerCheckboxes 对应的组件业务步骤；调用 this._components.find, this.syncCheckbox, this._app.getManager。
-- `syncCheckbox`：执行 syncCheckbox 对应的组件业务步骤；调用 this._app.getManager。
-- `reset`：执行 reset 对应的组件业务步骤；调用 this._app.getManager, this._components.find, this.syncCheckbox；写入 _defaultLayers, _components。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity, _previousChildEntity。
+图层分组与可见性开关面板。[源码](../../eyes/src/ui/components/LayerPanel.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/LoadIcon.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-LayerPanel-js)
 
-加载指示器显示与隐藏。
+### `LayerPanel`
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/LoadIconTemplate.html`
-- `manager dependencies: scene`
+两种复选框实现共享 layer 管理器事件：NASA eyes 原生 input 与组件 Checkbox。事件回流只同步 UI 状态，程序化 toggle 传 skipCallback 避免再次发出图层切换。。父类 `EyesPublicApi.BaseComponent`。
 
-**LoadIcon**：加载指示器显示与隐藏；继承 EyesPublicApi.BaseComponent。
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/LayerPanel.js#L8)：当前操作：写入 _categories、_categoriesDisplay、_eyesCheck、_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight、_lastMode；返回 无显式返回。
+- `getCategoriesDisplay()` [源码:106](../../eyes/src/ui/components/LayerPanel.js#L106)：当前操作：写入 无直接字段写入；返回 this._categoriesDisplay。
+- `resize()` [源码:109](../../eyes/src/ui/components/LayerPanel.js#L109)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:113](../../eyes/src/ui/components/LayerPanel.js#L113)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createAnimations()` [源码:169](../../eyes/src/ui/components/LayerPanel.js#L169)：当前操作：写入 _fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight；返回 无显式返回。
+- `_resetAnimations()` [源码:191](../../eyes/src/ui/components/LayerPanel.js#L191)：当前操作：写入 _fadeInBottom.currentTime、_fadeInRight.currentTime、_fadeOutBottom.currentTime、_fadeOutRight.currentTime；返回 无显式返回。
+- `toggleLayer(eventOrLayerName)` [源码:201](../../eyes/src/ui/components/LayerPanel.js#L201)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `handleLayerToggle(layerName, isVisible, layerOptions)` [源码:207](../../eyes/src/ui/components/LayerPanel.js#L207)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `isCategoryEnabled(categoryName)` [源码:225](../../eyes/src/ui/components/LayerPanel.js#L225)：当前操作：写入 无直接字段写入；返回 !this._children[categoryName]?.classList.contains("disabled")。
+- `setCategoryEnabled(categoryName, isEnabled=true)` [源码:228](../../eyes/src/ui/components/LayerPanel.js#L228)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:231](../../eyes/src/ui/components/LayerPanel.js#L231)：当前操作：写入 _fadeOutBottom、_fadeOutRight；返回 无显式返回。
+- `show()` [源码:242](../../eyes/src/ui/components/LayerPanel.js#L242)：当前操作：写入 _fadeInBottom、_fadeInRight；返回 无显式返回。
+- `_updatePosition()` [源码:255](../../eyes/src/ui/components/LayerPanel.js#L255)：当前操作：写入 _lastMode；返回 无显式返回。
+- `__enable()` [源码:259](../../eyes/src/ui/components/LayerPanel.js#L259)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__disable()` [源码:263](../../eyes/src/ui/components/LayerPanel.js#L263)：当前操作：写入 _fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight；返回 无显式返回。
 
-- `init`：初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager, this.hide。
+## `eyes/src/ui/components/LayersBlock.js`
 
-### `eyes/src/ui/components/Menu.js`
+对象相关图层选项内容块。[源码](../../eyes/src/ui/components/LayersBlock.js)。语义状态：`verified-semantic-refactor`。
 
-主菜单、搜索和导航入口。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-LayersBlock-js)
 
-- `imports: ../../vendor/modules/Unidentified989.cjs, ../../framework/eyes/index.js, ../templates/MenuTemplate.html, ../../styles/extracted/MenuStyles.js`
-- `manager dependencies: router, content`
-- `component dependencies: searchMobile`
+### `LayersBlock`
 
-**Menu**：主菜单、搜索和导航入口；继承 Eyes.BaseComponent。
+上下文图层工厂闭包保存父实体与卫星组；majorMoons 文本计算也更新 minorMoons 数量。主 spacecraft 图层事件同步 orbiters/landers 等子项，重置时沿用查询与默认可见性优先级。。父类 `SolarSystemPublicApi.OptionsBlock`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.bindFunctions；写入 _backFunction, _categories, _listMenuContainer, _listMenu, _aToZMenu, _scrollbar。
-- `handleBackButton`：执行 handleBackButton 对应的组件业务步骤；调用 this._backFunction。
-- `init`：初始化模板与关联资源；调用 super.init, Eyes.AppUtils.htmlToElement, this._setEventHandlersFromAttributes, this.resize。
-- `resize`：重排响应式界面；调用 super.resize, Eyes.AppUtils.isMobileMode, this.setState, this.getState, this._goToMain；写入 _backFunction。
-- `setupAtoZ`：执行 setupAtoZ 对应的组件业务步骤；调用 List.add, this.clickOnEntry。
-- `_goToMain`：执行 _goToMain 对应的组件业务步骤；调用 this.setState, this._scrollbar.destroy, this._children.header.replaceChild, this._children.contentWrapper.replaceChild, this._children.contentWrapper.appendChild, Eyes.AppUtils.isMobileMode, this._app.getComponent, this._children.mainMenu.prepend, this.getState, this._initScrollbar；写入 _scrollbar。
-- `_goToList`：执行 _goToList 对应的组件业务步骤；调用 this.setState, this._scrollbar.destroy, this._children.header.replaceChild, this._children.contentWrapper.replaceChild, this.getState, this._initScrollbar；写入 _backFunction, _scrollbar。
-- `_goToAtoZ`：执行 _goToAtoZ 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.setState, this._scrollbar.destroy, this._children.header.replaceChild, this._children.contentWrapper.replaceChild, this.getState, this._initScrollbar；写入 _backFunction, _scrollbar。
-- `clickOnEntry`：执行 clickOnEntry 对应的组件业务步骤；调用 this.hide, this._app.getManager。
-- `_initScrollbar`：执行 _initScrollbar 对应的组件业务步骤；调用 Eyes.AppUtils.addScrollbar, this._scrollbar.scroll；写入 _scrollbar。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this._goToMain。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this._scrollbar.destroy, super.hide；写入 _scrollbar。
-- `updateMenuContent`：执行 updateMenuContent 对应的组件业务步骤；调用 this._app.getManager, Manager.getEntityInfo, Manager.getStoryList, Object.keys, this.setupContent, this._app.getComponent。
-- `setupContent`：执行 setupContent 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.setState, this._goToList, List.add, this.clickOnEntry, Math.min, this._goToAtoZ, this.setupAtoZ, this._app.getComponent, this._children.mainMenu.appendChild, this.resize, this._goToMain；写入 _contentInfo。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/LayersBlock.js#L10)：当前操作：写入 _defaultLayers、_layers、_previousChildEntity、_previousEntity、_state.numMinorMoons；返回 无显式返回。
+- `init()` [源码:112](../../eyes/src/ui/components/LayersBlock.js#L112)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addLayerOptions(layerOptions)` [源码:120](../../eyes/src/ui/components/LayersBlock.js#L120)：当前操作：写入 _children.layersList.innerHTML；返回 无显式返回。
+- `_addDefaultOptions(entityInfo, allowedLayers=null, childEntityInfo={})` [源码:133](../../eyes/src/ui/components/LayersBlock.js#L133)：当前操作：写入 _children.layersList.innerHTML；返回 无显式返回。
+- `onRouteChange(entityInfo, entityName, allowedLayers=null, childEntityInfo={})` [源码:165](../../eyes/src/ui/components/LayersBlock.js#L165)：当前操作：写入 _previousChildEntity、_previousEntity；返回 无显式返回。
+- `syncSpacecraftLayer(layerName, isVisible, layerOptions)` [源码:188](../../eyes/src/ui/components/LayersBlock.js#L188)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `syncAllLayerCheckboxes()` [源码:198](../../eyes/src/ui/components/LayersBlock.js#L198)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `syncCheckbox(checkbox, layerName, isVisible)` [源码:204](../../eyes/src/ui/components/LayersBlock.js#L204)：当前操作：写入 _app.getManager("layer").getLayer(layerName).visible；返回 无显式返回。
+- `reset()` [源码:209](../../eyes/src/ui/components/LayersBlock.js#L209)：当前操作：写入 _components、_defaultLayers；返回 无显式返回。
+- `__disable()` [源码:221](../../eyes/src/ui/components/LayersBlock.js#L221)：当前操作：写入 _previousChildEntity、_previousEntity；返回 无显式返回。
 
-### `eyes/src/ui/components/MobileExpandButton.js`
+## `eyes/src/ui/components/LoadIcon.js`
 
-移动端展开目标内容面板的按钮。
+加载指示器显示与隐藏。[源码](../../eyes/src/ui/components/LoadIcon.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/index.js, ../../styles/extracted/MobileExpandButtonStyles-928.js, ../../vendor/modules/animateFill-929.js, ../templates/MobileExpandButtonTemplate.html, ../../styles/extracted/MobileExpandButtonStyles-987.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-LoadIcon-js)
 
-**MobileExpandButton**：移动端展开目标内容面板的按钮；继承 Eyes.BaseComponent。
+### `LoadIcon`
 
-- `constructor`：建立实例初始字段和依赖；调用 this._expandButtonClicked.bind, this.showCPButton.bind, Fill.default.setDefaultProps；写入 _component, _expandButtonClicked, showCPButton。
-- `init`：初始化模板与关联资源；调用 super.init。
-- `_expandButtonClicked`：执行 _expandButtonClicked 对应的组件业务步骤；调用 this._app.getComponent, this.hide。
-- `showCPButton`：执行 showCPButton 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this.setState；写入 _component。
+场景 loading/loaded 事件直接映射为显示和隐藏，订阅登记交给 BaseComponent 随组件启停管理。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/components/Overlay.js`
+- `init()` [源码:8](../../eyes/src/ui/components/LoadIcon.js#L8)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-遮罩显示和关闭交互。
+## `eyes/src/ui/components/Menu.js`
 
-- `imports: ../../vendor/modules/Unidentified160.cjs, ../../framework/eyes/public-api.js, ../templates/OverlayTemplate.html`
+主菜单、搜索和导航入口。[源码](../../eyes/src/ui/components/Menu.js)。语义状态：`verified-semantic-refactor`。
 
-**Overlay**：遮罩显示和关闭交互；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Menu-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign；写入 _scrollbar。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.overlayContent.appendChild, this._element.addEventListener, this._children.overlay.classList.contains。
-- `setContent`：执行 setContent 对应的组件业务步骤；调用 this._children.overlayContent.appendChild, this._children.overlayContent.replaceChild。
-- `show`：执行 show 对应的组件业务步骤；调用 this._element.classList.add, super.show。
-- `__enable`：挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, EyesPublicApi.AppUtils.onAttachElement, EyesPublicApi.AppUtils.addScrollbar, this._scrollbar.scroll；写入 _scrollbar。
+### `Menu`
 
-### `eyes/src/ui/components/OverviewBlock.js`
+菜单缓存分类列表和按首字母分组的 DOM，移动布局把分类列表从主菜单移出再单独挂载。每次切换菜单销毁旧滚动条，跳转条目按外部链接、内部链接、故事与实体分别处理。。父类 `Eyes.BaseComponent`。
 
-对象概览内容块。
+- `constructor(app, options={})` [源码:9](../../eyes/src/ui/components/Menu.js#L9)：当前操作：写入 _aToZMenu、_aToZMenu[categoryName]、_backFunction、_categories、_listMenu、_listMenuContainer、_listMenuContainer[categoryName]、_listMenu[categoryName]、_scrollbar；返回 无显式返回。
+- `handleBackButton()` [源码:33](../../eyes/src/ui/components/Menu.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `init()` [源码:36](../../eyes/src/ui/components/Menu.js#L36)：当前操作：写入 _children.backButton；返回 无显式返回。
+- `resize()` [源码:42](../../eyes/src/ui/components/Menu.js#L42)：当前操作：写入 _backFunction；返回 无显式返回。
+- `setupAtoZ(categoryInfo)` [源码:66](../../eyes/src/ui/components/Menu.js#L66)：当前操作：写入 _aToZMenu[categoryInfo.id]；返回 无显式返回。
+- `_goToMain()` [源码:138](../../eyes/src/ui/components/Menu.js#L138)：当前操作：写入 _scrollbar；返回 无显式返回。
+- `_goToList()` [源码:149](../../eyes/src/ui/components/Menu.js#L149)：当前操作：写入 _backFunction、_scrollbar；返回 无显式返回。
+- `_goToAtoZ()` [源码:163](../../eyes/src/ui/components/Menu.js#L163)：当前操作：写入 _backFunction、_scrollbar；返回 无显式返回。
+- `clickOnEntry(entryInfo)` [源码:177](../../eyes/src/ui/components/Menu.js#L177)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_initScrollbar()` [源码:183](../../eyes/src/ui/components/Menu.js#L183)：当前操作：写入 _scrollbar；返回 无显式返回。
+- `show()` [源码:186](../../eyes/src/ui/components/Menu.js#L186)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:190](../../eyes/src/ui/components/Menu.js#L190)：当前操作：写入 _scrollbar；返回 无显式返回。
+- `updateMenuContent()` [源码:194](../../eyes/src/ui/components/Menu.js#L194)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setupContent(contentInfo, featuredStories, featuredPlanets, featuredAsteroids, featuredComets, featuredSpacecraft)` [源码:228](../../eyes/src/ui/components/Menu.js#L228)：当前操作：写入 _children.mainMenu.innerHTML、_contentInfo、_listMenuContainer[categoryInfos[categoryIndex].id]、_listMenu[categoryInfos[categoryIndex].id]；返回 无显式返回。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../../vendor/modules/Unidentified777.cjs, ../templates/OverviewBlockTemplate.html, ../../styles/extracted/OverviewBlockStyles.js, ../../engine/pioneer/index.js`
-- `manager dependencies: router, content, time, scene`
-- `component dependencies: contentPanel`
+## `eyes/src/ui/components/MobileExpandButton.js`
 
-**OverviewBlock**：对象概览内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+移动端展开目标内容面板的按钮。[源码](../../eyes/src/ui/components/MobileExpandButton.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.setState, this.bindFunctions。
-- `goBack`：执行 goBack 对应的组件业务步骤；调用 this._app.getManager, this._app.getComponent, Manager.navigate。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, this._app.scene.getEntity, this._determineOverviewContent, Pioneer.TimeUtils.now, this.setState, this._setVariables, this._app.getComponent, this._children.overviewTitle.classList.toggle, this._app.pioneer.getScene, this._app.pioneer.getTime；写入 _targetId。
-- `_determineOverviewContent`：执行 _determineOverviewContent 对应的组件业务步骤；调用 this._getSubheadingForObject。
-- `_getSubheadingForObject`：执行 _getSubheadingForObject 对应的组件业务步骤；调用 this._app.getManager。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-MobileExpandButton-js)
 
-### `eyes/src/ui/components/RelatedBlock.js`
+### `MobileExpandButton`
 
-相关对象链接内容块。
+按钮保存当前内容组件名，点击后调用该组件的展开接口并隐藏自身；桌面环境会强制抑制移动展开按钮。。父类 `Eyes.BaseComponent`。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/RelatedBlockTemplate.html, ../../styles/extracted/RelatedBlockStyles.js`
-- `manager dependencies: content, router, camera`
-- `component dependencies: contentPanel`
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/MobileExpandButton.js#L10)：当前操作：写入 _component、_expandButtonClicked、showCPButton；返回 无显式返回。
+- `init()` [源码:22](../../eyes/src/ui/components/MobileExpandButton.js#L22)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_expandButtonClicked()` [源码:29](../../eyes/src/ui/components/MobileExpandButton.js#L29)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `showCPButton(shouldShow, component)` [源码:33](../../eyes/src/ui/components/MobileExpandButton.js#L33)：当前操作：写入 _component；返回 无显式返回。
 
-**RelatedBlock**：相关对象链接内容块；继承 SolarSystemPublicApi.BaseContentBlock。
+## `eyes/src/ui/components/Overlay.js`
 
-- `constructor`：建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.populateStoryCard, this.setState, this._app.getManager, List.add, this._children.relatedList.appendChild, this.hide。
-- `populateStoryCard`：执行 populateStoryCard 对应的组件业务步骤；调用 this.setEnabled, List.add, this._app.getManager, this._app.scene.getLoadedPromise, this._app.getComponent, this._storyList.appendChild；写入 _storyList。
-- `resize`：重排响应式界面；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTabletPortrait, this.setState。
+遮罩显示和关闭交互。[源码](../../eyes/src/ui/components/Overlay.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/ReplayBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Overlay-js)
 
-对象事件重播控件。
+### `Overlay`
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/ReplayBlockTemplate.html, ../../styles/extracted/ReplayBlockStyles.js`
-- `manager dependencies: time, content`
-- `component dependencies: eventsReplayClock, clockShortcut, eventReplayTimeControls, eventsTimeline`
+覆盖层持有当前内容节点，替换内容时更新同一状态引用；动画结束后才将隐藏覆盖层 display 置为 none，重新显示前恢复 display。。父类 `EyesPublicApi.BaseComponent`。
 
-**ReplayBlock**：对象事件重播控件；继承 SolarSystemPublicApi.BaseContentBlock。
+- `constructor(app, options={})` [源码:9](../../eyes/src/ui/components/Overlay.js#L9)：当前操作：写入 _class.isOpenButtonVisibleClass、_scrollbar；返回 无显式返回。
+- `init()` [源码:25](../../eyes/src/ui/components/Overlay.js#L25)：当前操作：写入 _children.overlay.style.display；返回 无显式返回。
+- `setContent(contentElement)` [源码:33](../../eyes/src/ui/components/Overlay.js#L33)：当前操作：写入 _state.content；返回 无显式返回。
+- `show()` [源码:37](../../eyes/src/ui/components/Overlay.js#L37)：当前操作：写入 _children.overlay.style.display；返回 无显式返回。
+- `__enable()` [源码:42](../../eyes/src/ui/components/Overlay.js#L42)：当前操作：写入 _scrollbar；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；调用 this.bindFunctions；写入 _app, _isPlaying。
-- `init`：初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, Events.findIndex, Manager.getTime, Manager.getDateFormat, this.setState, this.app.getComponent, ReplayClockComponent.show, ReplayClockComponent.setEnabled, ReplayClockComponent.setParent, this._app.getComponent, InputRange.addEventListener, this._app.pioneer.getTimeRate；写入 _objectId, _eventStartTime, _eventEndTime, _currentEvent, _prevEventId, _nextEventId。
-- `_addTimeToDate`：执行 _addTimeToDate 对应的组件业务步骤。
-- `_onSliderMove`：执行 _onSliderMove 对应的组件业务步骤；调用 this._addTimeToDate, this._app.getManager, this.setState。
-- `update`：执行 update 对应的组件业务步骤；调用 this.setState, this._app.getManager, this._app.pioneer.getTimeRate；写入 _isAtEnd。
-- `setUpEventTimeControls`：执行 setUpEventTimeControls 对应的组件业务步骤；调用 this._app.getComponent, ReplayTimeControlsComponent.setState, ReplayTimeControlsComponent.show, ReplayTimeControlsComponent.element.classList.add, ReplayTimeControlsComponent.setCanUpdate, ReplayTimeControlsComponent.setEnabled, ReplayTimeControlsComponent.setParent。
-- `prevButtonClicked`：执行 prevButtonClicked 对应的组件业务步骤；调用 this._app.getComponent。
-- `nextButtonClicked`：执行 nextButtonClicked 对应的组件业务步骤；调用 this._app.getComponent。
-- `_pauseEvent`：执行 _pauseEvent 对应的组件业务步骤；调用 this.setState, this._app.getManager。
-- `_playEvent`：执行 _playEvent 对应的组件业务步骤；调用 this.setState, this._app.getManager。
-- `playPauseEvent`：执行 playPauseEvent 对应的组件业务步骤；调用 this._app.getView, this._app.pioneer.getTimeRate, this._playEvent, this._pauseEvent。
+## `eyes/src/ui/components/OverviewBlock.js`
 
-### `eyes/src/ui/components/ReplayButtonBlock.js`
+对象概览内容块。[源码](../../eyes/src/ui/components/OverviewBlock.js)。语义状态：`verified-semantic-refactor`。
 
-故事内重播按钮。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-OverviewBlock-js)
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/ReplayButtonBlockTemplate.html, ../../styles/extracted/ReplayButtonBlockStyles.js`
-- `manager dependencies: router`
+### `OverviewBlock`
 
-**ReplayButtonBlock**：故事内重播按钮；继承 EyesPublicApi.StoryBaseContentBlock。
+概览将实体/事件信息与描述日期合并成模板状态；通用模型免责声明取引擎当前模型 URL，返回按钮监听在实体就绪后挂接。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-- `init`：初始化模板与关联资源；调用 super.init。
-- `onClick`：执行 onClick 对应的组件业务步骤；调用 this._app.getManager, Manager.navigate, Manager.reload。
+- `constructor(app)` [源码:12](../../eyes/src/ui/components/OverviewBlock.js#L12)：当前操作：写入 _more.isHidden.moreMessage；返回 无显式返回。
+- `goBack()` [源码:33](../../eyes/src/ui/components/OverviewBlock.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(targetId, suppliedInfo, entityDescription)` [源码:38](../../eyes/src/ui/components/OverviewBlock.js#L38)：当前操作：写入 _targetId；返回 无显式返回。
+- `_determineOverviewContent(entityId, entityInfo, entityDescription)` [源码:89](../../eyes/src/ui/components/OverviewBlock.js#L89)：当前操作：写入 无直接字段写入；返回 {title:title,subHeadingString:subheading,missionStartDate:missionStart,missionEndDate:missionEnd}。
+- `_getSubheadingForObject(entityId, overviewInfo, entityDescription)` [源码:101](../../eyes/src/ui/components/OverviewBlock.js#L101)：当前操作：写入 无直接字段写入；返回 getUnidentified777()(overviewInfo.start).format("MMM DD, YYYY")、""、subheading。
 
-### `eyes/src/ui/components/Search.js`
+## `eyes/src/ui/components/RelatedBlock.js`
 
-搜索输入、建议结果和选择导航。
+相关对象链接内容块。[源码](../../eyes/src/ui/components/RelatedBlock.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/SearchTemplate.html`
-- `manager dependencies: search, content, router`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-RelatedBlock-js)
 
-**Search**：搜索输入、建议结果和选择导航；继承 EyesPublicApi.BaseComponent。
+### `RelatedBlock`
 
-- `init`：初始化模板与关联资源；调用 super.init, this._children.input.getAttribute, this.setState, this.resize, this.registerManager, this._app.getManager。
-- `onIconClick`：执行 onIconClick 对应的组件业务步骤；调用 this.open, this._children.input.focus, this.reset, this._children.results.querySelector, Child.click。
-- `resize`：重排响应式界面；调用 super.resize, this.onResize。
-- `reset`：执行 reset 对应的组件业务步骤；调用 this.eraseInput, this.close。
-- `keydown`：执行 keydown 对应的组件业务步骤；调用 this.eraseInput, this.close, this._handleClick, this.setSelected；写入 index。
-- `setSelected`：执行 setSelected 对应的组件业务步骤；调用 List.add, List.remove；写入 index。
-- `onInputFocus`：执行 onInputFocus 对应的组件业务步骤；调用 this.setState。
-- `eraseInput`：执行 eraseInput 对应的组件业务步骤；写入 _resultsScrollbar。
-- `registerManager`：执行 registerManager 对应的组件业务步骤；写入 _searchManager。
-- `_find`：执行 _find 对应的组件业务步骤；调用 this._searchManager.find, this._excludeResults.includes, this.renderResults；写入 _searchTimeout。
-- `renderResults`：执行 renderResults 对应的组件业务步骤；调用 this._children.results.classList.remove, Array.isArray, Search.find, String.toLowerCase, this._renderResultCard, this._renderResultList, this._renderSuggestions, this._createScrollbar, Math.min, this.setState, this.setSelected；写入 index, results, _searchString, _resultsScrollbar。
-- `_renderResultCard`：执行 _renderResultCard 对应的组件业务步骤；调用 this._getDetails, Display.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild, this._createStoryBlock, this._createEventsBlock, this._createExplorationBlock, this._createMoonsBlock, this._renderResultList。
-- `_createEventsBlock`：执行 _createEventsBlock 对应的组件业务步骤；调用 Array.isArray, this._app.getManager, this._createBlockContainer, List.add, this._createHeaderBlock, EyesPublicApi.AppUtils.addStartToPath, this._createSingleResult, this.results.push。
-- `_createMoonsBlock`：执行 _createMoonsBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
-- `_createExplorationBlock`：执行 _createExplorationBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
-- `_createStoryBlock`：执行 _createStoryBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._app.getManager, this._createHeaderBlock, this._createSingleResult, this.results.push。
-- `_createBlockContainer`：执行 _createBlockContainer 对应的组件业务步骤；调用 this._children.results.appendChild。
-- `_createHeaderBlock`：执行 _createHeaderBlock 对应的组件业务步骤。
-- `_createSingleResult`：执行 _createSingleResult 对应的组件业务步骤；调用 this._handleClick, this.setSelected。
-- `_renderResultList`：执行 _renderResultList 对应的组件业务步骤；调用 Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild。
-- `_renderSuggestions`：执行 _renderSuggestions 对应的组件业务步骤；调用 Math.min, Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.classList.add, this._children.results.appendChild。
-- `open`：执行 open 对应的组件业务步骤；调用 this.setState。
-- `close`：执行 close 对应的组件业务步骤；调用 this.getState, this.setState。
-- `setupFeaturedSuggestion`：执行 setupFeaturedSuggestion 对应的组件业务步骤；调用 this._handleClick, this._children.featured.appendChild。
-- `_createScrollbar`：执行 _createScrollbar 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.addScrollbar。
-- `_getLink`：执行 _getLink 对应的组件业务步骤。
-- `_handleClick`：执行 _handleClick 对应的组件业务步骤；调用 this.reset, this.triggerCallbacks, this._app.getManager, this._getLink, Manager.navigate。
-- `simulate`：执行 simulate 对应的组件业务步骤；调用 this.onIconClick, this._find。
-- `_getDetails`：执行 _getDetails 对应的组件业务步骤；调用 this._app.getManager。
-- `setExcludeResults`：执行 setExcludeResults 对应的组件业务步骤；写入 _excludeResults。
-- `__enable`：挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createScrollbar。
+相关对象列表按目录分类生成形状；故事卡片可跳外部、内部或故事路由。内部链接等待场景与相机完成后才选择内容标签页。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-### `eyes/src/ui/components/Settings.js`
+- `constructor(app)` [源码:9](../../eyes/src/ui/components/RelatedBlock.js#L9)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(sectionTitle, relatedEntityIds, relatedStories, cancelToken)` [源码:18](../../eyes/src/ui/components/RelatedBlock.js#L18)：当前操作：写入 _children.relatedList.innerHTML；返回 无显式返回。
+- `populateStoryCard(stories)` [源码:49](../../eyes/src/ui/components/RelatedBlock.js#L49)：当前操作：写入 _storyList、_storyList.innerHTML；返回 void this.setEnabled(false)。
+- `resize()` [源码:116](../../eyes/src/ui/components/RelatedBlock.js#L116)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-单位、图层等用户设置的交互界面。
+## `eyes/src/ui/components/ReplayBlock.js`
 
-- `imports: ../../vendor/modules/Unidentified167.js, ../../vendor/modules/animateFill-168.js, ../../engine/pioneer/index.js, ../../framework/eyes/public-api.js, ../templates/SettingsTemplate.html`
-- `manager dependencies: camera, time, router, comparison`
-- `component dependencies: layerPanel, infoPanel`
+对象事件重播控件。[源码](../../eyes/src/ui/components/ReplayBlock.js)。语义状态：`verified-semantic-refactor`。
 
-**Settings**：单位、图层等用户设置的交互界面；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ReplayBlock-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isPortrait, EyesPublicApi.AppUtils.isMobilePortrait, EyesPublicApi.AppUtils.isTabletPortrait, EyesPublicApi.AppUtils.isLandscape, EyesPublicApi.AppUtils.isMobileLandscape, EyesPublicApi.AppUtils.isTabletLandscape, EyesPublicApi.AppUtils.isPanorama, EyesPublicApi.AppUtils.isMobileMode, Object.assign, this.isHorizontal, this.app.getManager, Manager.getFullLightColor, Manager.getShadowLightColor, this._eventNames.push；写入 _ori, _isMobileMode, _isHorizontal, _fullLightColor, _shadowLightColor, _isMouseHold, _isContinuousZoom, _zoomInterval, _zoomTimeout, _tooltips。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.zoomInButton.addEventListener, this._stopZooming, this._zoomIn, this._children.zoomOutButton.addEventListener, this._zoomOut, this.toggleLightOptions.bind, this._children.shadow.classList.add, this.toggleLightOptions, Unidentified167.default.on, this.setState, this._element.querySelectorAll, this.addTooltips, this.setProps。
-- `addTooltips`：执行 addTooltips 对应的组件业务步骤；调用 this._tooltips.push。
-- `updateTooltips`：执行 updateTooltips 对应的组件业务步骤。
-- `setConfig`：执行 setConfig 对应的组件业务步骤；调用 this.app.getManager, super.setConfig, this.isHorizontal, this.setState, this.collapse, this.hideFullScreenOption, this.toggleLightOptions, this._updateSize。
-- `getOrientation`：执行 getOrientation 对应的组件业务步骤。
-- `setOrientation`：执行 setOrientation 对应的组件业务步骤；写入 _ori。
-- `isHorizontal`：执行 isHorizontal 对应的组件业务步骤。
-- `_updateSize`：执行 _updateSize 对应的组件业务步骤；调用 this.isHorizontal, Array.from, this._children.content.querySelectorAll, List.contains, this.updateTooltips；写入 _isHorizontal。
-- `_zoomContinuously`：执行 _zoomContinuously 对应的组件业务步骤；写入 _isMouseHold, _zoomTimeout, _isContinuousZoom, _zoomInterval。
-- `_zoomIn`：执行 _zoomIn 对应的组件业务步骤；调用 this._zoomContinuously, this._config.zoomIn。
-- `_zoomOut`：执行 _zoomOut 对应的组件业务步骤；调用 this._zoomContinuously, this._config.zoomOut。
-- `_stopZooming`：执行 _stopZooming 对应的组件业务步骤；写入 _isMouseHold, _isContinuousZoom。
-- `show`：执行 show 对应的组件业务步骤；调用 this.setState。
-- `hide`：执行 hide 对应的组件业务步骤；调用 this.setState。
-- `isVisible`：执行 isVisible 对应的组件业务步骤。
-- `expand`：执行 expand 对应的组件业务步骤；调用 this.setState。
-- `collapse`：执行 collapse 对应的组件业务步骤；调用 this.setState。
-- `toggleCollapse`：执行 toggleCollapse 对应的组件业务步骤；调用 this.expand, this.collapse, this.triggerCallbacks。
-- `toggleUnit`：执行 toggleUnit 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `toggleFullscreen`：执行 toggleFullscreen 对应的组件业务步骤；调用 Unidentified167.default.toggle。
-- `toggleLayers`：执行 toggleLayers 对应的组件业务步骤；调用 this._app.getComponent, this.collapse。
-- `togglePhotoMode`：执行 togglePhotoMode 对应的组件业务步骤；调用 this.setState, this.collapse, this.expand, this.triggerCallbacks。
-- `hideLightingOptions`：执行 hideLightingOptions 对应的组件业务步骤；调用 this.setState。
-- `hideFullScreenOption`：执行 hideFullScreenOption 对应的组件业务步骤；调用 this.setState。
-- `toggleLightOptions`：执行 toggleLightOptions 对应的组件业务步骤；调用 this.setState, this._app.getManager, List.remove, List.add。
-- `toggleLight`：执行 toggleLight 对应的组件业务步骤；调用 this.setState, this.getState。
-- `startGuidedCamera`：执行 startGuidedCamera 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `stopGuidedCamera`：执行 stopGuidedCamera 对应的组件业务步骤；调用 this.setState, this.triggerCallbacks。
-- `toggleGuidedCamera`：执行 toggleGuidedCamera 对应的组件业务步骤；调用 this.stopGuidedCamera, this.startGuidedCamera。
-- `toggleInfoPanel`：执行 toggleInfoPanel 对应的组件业务步骤；调用 this._app.getComponent。
-- `resize`：重排响应式界面；调用 super.resize, this.isHorizontal, this.setState, this._updateSize。
+### `ReplayBlock`
 
-### `eyes/src/ui/components/ShareModal.js`
+事件时间滑块持有起止 Date，时间 update 订阅反向同步进度；拖动结束恢复播放，接近终点暂停并切换重播图标。时钟组件重新挂到本块容器。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-分享 URL、嵌入设置和复制界面。
+- `constructor(app)` [源码:9](../../eyes/src/ui/components/ReplayBlock.js#L9)：当前操作：写入 _app、_isPlaying；返回 无显式返回。
+- `init()` [源码:27](../../eyes/src/ui/components/ReplayBlock.js#L27)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(objectId, eventId, eventInfo, orderedEvents, cancelToken)` [源码:35](../../eyes/src/ui/components/ReplayBlock.js#L35)：当前操作：写入 _currentEvent、_eventEndTime、_eventStartTime、_nextEventId、_objectId、_prevEventId；返回 void。
+- `_addTimeToDate(elapsedMillis)` [源码:70](../../eyes/src/ui/components/ReplayBlock.js#L70)：当前操作：写入 无直接字段写入；返回 date。
+- `_onSliderMove(inputEvent)` [源码:77](../../eyes/src/ui/components/ReplayBlock.js#L77)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `update(currentTime)` [源码:86](../../eyes/src/ui/components/ReplayBlock.js#L86)：当前操作：写入 _isAtEnd；返回 无显式返回。
+- `setUpEventTimeControls()` [源码:103](../../eyes/src/ui/components/ReplayBlock.js#L103)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `prevButtonClicked()` [源码:115](../../eyes/src/ui/components/ReplayBlock.js#L115)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `nextButtonClicked()` [源码:118](../../eyes/src/ui/components/ReplayBlock.js#L118)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_pauseEvent()` [源码:121](../../eyes/src/ui/components/ReplayBlock.js#L121)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_playEvent()` [源码:127](../../eyes/src/ui/components/ReplayBlock.js#L127)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `playPauseEvent()` [源码:133](../../eyes/src/ui/components/ReplayBlock.js#L133)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `imports: ../../framework/eyes/public-api.js, ../../vendor/modules/Unidentified160.cjs, ../templates/ShareModalTemplate.html, ../../vendor/modules/animateFill-168.js, ../../engine/core/Unidentified511.js`
-- `manager dependencies: title, router`
+## `eyes/src/ui/components/ReplayButtonBlock.js`
 
-**ShareModal**：分享 URL、嵌入设置和复制界面；继承 EyesPublicApi.BaseComponent。
+故事内重播按钮。[源码](../../eyes/src/ui/components/ReplayButtonBlock.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isiPhone, this.bindFunctions；写入 _activeTab, _srcURL, _embedOptionsScrollbar, _tippySingleton, _tippyItems, _tippyTimeout, _embedQueries, _inputElements。
-- `mergeEmbedControls`：执行 mergeEmbedControls 对应的组件业务步骤；调用 Unidentified511.default.map。
-- `init`：初始化模板与关联资源；调用 super.init, this.mergeEmbedControls, this.setEmbedParams, this.generateEmbedContent, this.setIsWide, this.createScrollbars, this.createShareButton, this.addShareButtonToParent, Fill.default.setDefaultProps；写入 _tippyTimeout。
-- `createScrollbars`：执行 createScrollbars 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.onAttachElement, EyesPublicApi.AppUtils.addScrollbar；写入 _embedOptionsScrollbar。
-- `getCurrentDevice`：执行 getCurrentDevice 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isTablet, EyesPublicApi.AppUtils.isMobile。
-- `createShareButton`：执行 createShareButton 对应的组件业务步骤；调用 this.shareButton.prepend, this.shareButton.addEventListener, this.setSrcURL, this.setPreviewDevice, this.getCurrentDevice, this.setActiveTab, Image.setAttribute, this._app.getManager, this.setState, this.show；写入 shareButton。
-- `setIsWide`：执行 setIsWide 对应的组件业务步骤；调用 this.setState。
-- `addShareButtonToParent`：执行 addShareButtonToParent 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady。
-- `setSrcURL`：执行 setSrcURL 对应的组件业务步骤；调用 Options.flatMap, this._app.getManager, Array.from, ToKeep.includes；写入 _srcURL。
-- `setEmbedParams`：执行 setEmbedParams 对应的组件业务步骤；调用 Options.forEach。
-- `updateEmbedParams`：执行 updateEmbedParams 对应的组件业务步骤；调用 this.updateEmbedCode。
-- `updateEmbedCode`：执行 updateEmbedCode 对应的组件业务步骤；调用 this.getEmbedCodeFromParams, EyesPublicApi.AppUtils.isiPhone, HTML.replace, PreviewParent.querySelector, Options.flatMap, ToKeep.includes, this._app.getManager, Object.keys, List.add, this.resize。
-- `calcTemplateWidth`：执行 calcTemplateWidth 对应的组件业务步骤。
-- `calcIframeTransform`：执行 calcIframeTransform 对应的组件业务步骤；调用 this.resize。
-- `_iframeLoadEventListener`：执行 _iframeLoadEventListener 对应的组件业务步骤；调用 this.setSrcURL, this.updateEmbedCode。
-- `calcIframeTransforms`：执行 calcIframeTransforms 对应的组件业务步骤；调用 this._element.style.setProperty, Math.min。
-- `setPreviewDevice`：执行 setPreviewDevice 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
-- `toggleIframeElements`：执行 toggleIframeElements 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
-- `getEmbedCodeFromParams`：执行 getEmbedCodeFromParams 对应的组件业务步骤；调用 Options.flatMap, this._srcURL.split, Object.entries, Object.fromEntries, Object.keys, RLSearchParams.set, RLSearchParams.toString。
-- `generateEmbedContent`：执行 generateEmbedContent 对应的组件业务步骤；调用 Options.forEach, this.createGroupLegend, this.createGroupInputs。
-- `createGroupLegend`：执行 createGroupLegend 对应的组件业务步骤。
-- `createGroupInputs`：执行 createGroupInputs 对应的组件业务步骤；调用 this.createGroupLegend, this.createGroupInputs, this.updateEmbedParams, List.toggle。
-- `destroyEmbedContent`：执行 destroyEmbedContent 对应的组件业务步骤。
-- `setActiveTab`：执行 setActiveTab 对应的组件业务步骤；调用 Headers.childNodes.forEach, List.contains, List.toggle, Content.childNodes.forEach, this.updateEmbedCode；写入 _tippyItems, _tippySingleton, _activeTab。
-- `copyToClipboard`：执行 copyToClipboard 对应的组件业务步骤；调用 Overlay.classList.remove, Overlay.classList.add。
-- `handleClick`：执行 handleClick 对应的组件业务步骤；调用 this.hide, this.resetScrollbar, this.resetEmbedOptions, this.destroyTooltips。
-- `handleTabClick`：执行 handleTabClick 对应的组件业务步骤；调用 this.setActiveTab。
-- `destroyTooltips`：执行 destroyTooltips 对应的组件业务步骤；写入 _tippyItems, _tippySingleton。
-- `resetEmbedOptions`：执行 resetEmbedOptions 对应的组件业务步骤；调用 this.setEmbedParams, this.destroyEmbedContent, this.generateEmbedContent。
-- `resetScrollbar`：执行 resetScrollbar 对应的组件业务步骤；调用 this._embedOptionsScrollbar.scroll。
-- `resize`：重排响应式界面；调用 this.calcIframeTransforms, this.setIsWide, this.addShareButtonToParent, this.resetScrollbar。
-- `setEnabled`：切换当前组件及其子组件的启用状态；调用 super.setEnabled, this.shareButton.classList.toggle, this.addShareButtonToParent。
-- `__destroy`：执行停用并释放根节点和父节点引用；调用 super.__disable；写入 shareButton。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ReplayButtonBlock-js)
 
-### `eyes/src/ui/components/SpecialFeaturesBlock.js`
+### `ReplayButtonBlock`
 
-对象特殊功能入口。
+fromStart 决定重新导航到故事入口还是重载当前路由，按钮文字也沿用同一故事配置，避免两种重播语义混淆。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-- `imports: ../../framework/eyes/index.js, ../../engine/solar-system/public-api.js, ../../app/public-api.js, ../templates/SpecialFeaturesBlockTemplate.html, ../../styles/extracted/SpecialFeaturesBlockStyles.js`
-- `manager dependencies: content, router`
+- `init()` [源码:8](../../eyes/src/ui/components/ReplayButtonBlock.js#L8)：当前操作：写入 _config.info.text；返回 无显式返回。
+- `onClick()` [源码:12](../../eyes/src/ui/components/ReplayButtonBlock.js#L12)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-**SpecialFeaturesBlock**：对象特殊功能入口；继承 SolarSystemPublicApi.BaseContentBlock。
+## `eyes/src/ui/components/Search.js`
 
-- `constructor`：建立实例初始字段和依赖；写入 _state。
-- `init`：初始化模板与关联资源；调用 super.init, this._element.classList.add。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, this.hide, this.show, this.setState, SolarSystemSceneExports.Entity.getEntityNamesInGroup, List.add, this._children.specialFeatures.appendChild。
+搜索输入、建议结果和选择导航。[源码](../../eyes/src/ui/components/Search.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/SurfaceMapBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Search-js)
 
-对象表面地图选择。
+### `Search`
 
-- `imports: ../../engine/pioneer/index.js, ../../engine/solar-system/public-api.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/SurfaceMapBlockTemplate.html`
-- `manager dependencies: layer, scene, content, router`
+输入防抖后由 search 管理器返回匹配，低分结果和建议分开渲染；结果数组同时保存链接与 DOM，供键盘与悬停共享选择索引。单结果详情失败为 404 时回退列表，相关故事/事件等块继续加入同一导航序列。。父类 `EyesPublicApi.BaseComponent`。
 
-**SurfaceMapBlock**：对象表面地图选择；继承 SolarSystemPublicApi.OptionsBlock。
+- `constructor(app, options={config:{}})` [源码:8](../../eyes/src/ui/components/Search.js#L8)：当前操作：写入 _class.isItemVisible、_excludeResults、_featuredScrollbar、_resultsScrollbar、_suggestionsThreshold、index、onResize、results；返回 无显式返回。
+- `init()` [源码:60](../../eyes/src/ui/components/Search.js#L60)：当前操作：写入 _children.input.onkeyup、_children.input.style.minWidth；返回 无显式返回。
+- `onIconClick()` [源码:77](../../eyes/src/ui/components/Search.js#L77)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:80](../../eyes/src/ui/components/Search.js#L80)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `reset()` [源码:84](../../eyes/src/ui/components/Search.js#L84)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `keydown(keyEvent)` [源码:88](../../eyes/src/ui/components/Search.js#L88)：当前操作：写入 index；返回 无显式返回。
+- `setSelected(index)` [源码:94](../../eyes/src/ui/components/Search.js#L94)：当前操作：写入 index；返回 无显式返回。
+- `onInputFocus()` [源码:101](../../eyes/src/ui/components/Search.js#L101)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `eraseInput()` [源码:106](../../eyes/src/ui/components/Search.js#L106)：当前操作：写入 _children.input.value、_children.results.innerHTML、_resultsScrollbar；返回 无显式返回。
+- `registerManager(searchManager)` [源码:112](../../eyes/src/ui/components/Search.js#L112)：当前操作：写入 _searchManager；返回 无显式返回。
+- `_find(inputEvent, searchText)` [源码:115](../../eyes/src/ui/components/Search.js#L115)：当前操作：写入 _searchTimeout；返回 无显式返回。
+- `renderResults(matches, searchString)` [源码:131](../../eyes/src/ui/components/Search.js#L131)：当前操作：写入 _children.results.innerHTML、_resultsScrollbar、_searchString、index、results；返回 void。
+- `_renderResultCard(match, searchText)` [源码:165](../../eyes/src/ui/components/Search.js#L165)：当前操作：写入 _children.results.innerHTML；返回 无显式返回。
+- `_createEventsBlock(featuredEvents, entityId)` [源码:213](../../eyes/src/ui/components/Search.js#L213)：当前操作：写入 无直接字段写入；返回 void。
+- `_createMoonsBlock(moonEntries)` [源码:231](../../eyes/src/ui/components/Search.js#L231)：当前操作：写入 无直接字段写入；返回 void。
+- `_createExplorationBlock(explorationLinks)` [源码:246](../../eyes/src/ui/components/Search.js#L246)：当前操作：写入 无直接字段写入；返回 void。
+- `_createStoryBlock(storyCards)` [源码:263](../../eyes/src/ui/components/Search.js#L263)：当前操作：写入 无直接字段写入；返回 void。
+- `_createBlockContainer()` [源码:285](../../eyes/src/ui/components/Search.js#L285)：当前操作：写入 无直接字段写入；返回 blockElement。
+- `_createHeaderBlock(headerText, blockElement)` [源码:291](../../eyes/src/ui/components/Search.js#L291)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createSingleResult(resultTitle, resultLink, parentElement)` [源码:300](../../eyes/src/ui/components/Search.js#L300)：当前操作：写入 无直接字段写入；返回 resultElement。
+- `_renderResultList(matches, searchText)` [源码:318](../../eyes/src/ui/components/Search.js#L318)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_renderSuggestions(suggestions, searchText)` [源码:354](../../eyes/src/ui/components/Search.js#L354)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `open()` [源码:399](../../eyes/src/ui/components/Search.js#L399)：当前操作：写入 app.isSearching；返回 无显式返回。
+- `close()` [源码:411](../../eyes/src/ui/components/Search.js#L411)：当前操作：写入 app.isSearching；返回 无显式返回。
+- `setupFeaturedSuggestion(suggestions=[])` [源码:428](../../eyes/src/ui/components/Search.js#L428)：当前操作：写入 _children.featured.innerHTML；返回 无显式返回。
+- `_createScrollbar(scrollElement)` [源码:445](../../eyes/src/ui/components/Search.js#L445)：当前操作：写入 无直接字段写入；返回 EyesPublicApi.AppUtils.addScrollbar(scrollElement,{sizeAutoCapable:true})。
+- `_getLink(link)` [源码:450](../../eyes/src/ui/components/Search.js#L450)：当前操作：写入 无直接字段写入；返回 link。
+- `_handleClick(selectedLink, searchText)` [源码:453](../../eyes/src/ui/components/Search.js#L453)：当前操作：写入 无直接字段写入；返回 void。
+- `simulate(searchText)` [源码:472](../../eyes/src/ui/components/Search.js#L472)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getDetails(match)` [源码:481](../../eyes/src/ui/components/Search.js#L481)：当前操作：写入 无直接字段写入；返回 this._app.getManager("content").getEntityDesc(match.item.id)。
+- `setExcludeResults(excludeResults)` [源码:484](../../eyes/src/ui/components/Search.js#L484)：当前操作：写入 _excludeResults；返回 无显式返回。
+- `__enable()` [源码:487](../../eyes/src/ui/components/Search.js#L487)：当前操作：写入 _featuredScrollbar；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet；写入 _defaultTextureDescription, _currentlyCheckedOption, _previousEntity, _previousChildEntity。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, this.setState, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.addSurfaceMaps, this._setVariables；写入 _currentLayer, _currentlyCheckedOption, _previousEntity, _previousChildEntity。
-- `addSurfaceMaps`：执行 addSurfaceMaps 对应的组件业务步骤；调用 this._app.getManager, this.setState, this.addDefaultTexture, this._createDefaultRadioButton, this._createRadioButton, this._children.surfaceMapList.appendChild, Array.from；写入 _currentlyCheckedOption。
-- `_createDefaultRadioButton`：执行 _createDefaultRadioButton 对应的组件业务步骤；调用 this.addDefaultTexture, this._app.getManager, this._children.surfaceMapList.appendChild；写入 _currentlyCheckedOption。
-- `addDefaultTexture`：执行 addDefaultTexture 对应的组件业务步骤；调用 this._app.pioneer.getScene, this._app.getManager；写入 _defaultTextureDescription, _defaultTextureType。
-- `resize`：重排响应式界面；调用 super.resize, this.setState, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet。
-- `reset`：执行 reset 对应的组件业务步骤；调用 this.app.getManager, this.addDefaultTexture, this.addSurfaceMaps, this._app.getManager；写入 _defaultTextureDescription。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity, _previousChildEntity。
+## `eyes/src/ui/components/Settings.js`
 
-### `eyes/src/ui/components/Telescope.js`
+单位、图层等用户设置的交互界面。[源码](../../eyes/src/ui/components/Settings.js)。语义状态：`verified-semantic-refactor`。
 
-望远镜观察目标、视场和相机控制。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Settings-js)
 
-- `imports: ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../styles/extracted/MobileExpandButtonStyles-928.js, ../../vendor/modules/animateFill-929.js, ../../engine/core/Unidentified1069.js, ../templates/TelescopeTemplate.html, ../../styles/extracted/TelescopeStyles.js`
-- `manager dependencies: label, selection, layer, router, scene, content`
-- `component dependencies: settings`
+### `Settings`
 
-**Telescope**：望远镜观察目标、视场和相机控制；继承 Eyes.BaseComponent。
+能力配置与按钮状态分离：视图可临时替换 zoom 回调和显示能力，方向规则按设备顺序匹配。长按缩放先等待阈值再开启 interval，松开重置持续缩放标记；光照同时同步常规相机与比较管理器。。父类 `EyesPublicApi.BaseComponent`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobileMode, Fill.default.setDefaultProps；写入 _target, _targetEntity, longitude, latitude, helper, _firstLoad。
-- `resize`：重排响应式界面；调用 super.resize, this.checkPlatform。
-- `onEnter`：进入视图时准备界面和订阅；调用 this.app.getManager, this.app.getComponent, this.toggleConstellation, this._toggleSurfaceMaps；写入 lightType。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._children.tapHint.classList.remove, Unidentified1069.default, this.app.getManager, this.setLatitudeLongitude；写入 _target, _targetEntity, _firstLoad, helper, lyrManager, orbiterVisibility。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this.helper.reset, this.app.scene.getEntity, this.toggleConstellation, this.app.getManager, this.app.getComponent, this._targetEntity.setOcclusionRadius, this.lyrManager.toggleLayer, this._app.pioneer.getScene, this._toggleSurfaceMaps；写入 helper。
-- `exitTelescope`：执行 exitTelescope 对应的组件业务步骤；调用 this._app.getManager。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 this._children.tapHint.classList.add, this.setLatitudeLongitude, this.setView, this.helper.flyToSurface, this._children.tapHint.classList.remove, this._app.getManager, this.toggleConstellation；写入 latitude, longitude, _firstLoad。
-- `checkPlatform`：执行 checkPlatform 对应的组件业务步骤；调用 this.setState, Eyes.AppUtils.isMobileMode。
-- `setView`：执行 setView 对应的组件业务步骤；调用 this.setState, this.app.getManager, this.app.cameraScripts.goToCelestialObject, this.app.cameraScripts.lookAtSurfaceLatLon, this.app.pioneer.getScene, this.app.scene.getEntity, this._pickController.setPickedEntity, this._pickController.setCallback, Pioneer.Vector3, this.position.rotateInverse, this._targetEntity.getOrientation, this.helper.getLatitudeLongitude, this.addPickLocation, this.setLatitudeLongitude；写入 azimathelevationInterval, _firstLoad, _pickController, position, latitude, longitude。
-- `exitSurfaceMode`：执行 exitSurfaceMode 对应的组件业务步骤；调用 this.toggleConstellation, this.validateLatLong, this.addPickLocation, this.app.getManager。
-- `toggleConstellation`：执行 toggleConstellation 对应的组件业务步骤；调用 this.setState, this.app.getManager；写入 constellations。
-- `latitudeInputChange`：执行 latitudeInputChange 对应的组件业务步骤；调用 this.validateLatLong, this.addPickLocation；写入 latitude。
-- `longitudeInputChange`：执行 longitudeInputChange 对应的组件业务步骤；调用 this.validateLatLong, this.addPickLocation；写入 longitude。
-- `validateLatLong`：执行 validateLatLong 对应的组件业务步骤；调用 this._children.latitude.classList.remove, this._children.longitude.classList.remove, Math.abs, this._children.latitude.classList.add, this._children.longitude.classList.add。
-- `goSurfaceViewClick`：执行 goSurfaceViewClick 对应的组件业务步骤；调用 this.setLatitudeLongitude, this.validateLatLong, this.helper.removePlacemark, this._toggleSurfaceMaps, this.app.getManager。
-- `_toggleSurfaceMaps`：执行 _toggleSurfaceMaps 对应的组件业务步骤；调用 this._app.pioneer.getScene, this._app.getManager, this.app.getManager。
-- `addPickLocation`：执行 addPickLocation 对应的组件业务步骤；调用 this.helper.addPlacemark, Pioneer.Vector2, this._placemarkEl.classList.remove, this.helper.formatLatitudeLongitude, this._placemarkEl.appendChild, this._setEventHandlersFromAttributes；写入 _placemarkEl。
-- `setLatitudeLongitude`：执行 setLatitudeLongitude 对应的组件业务步骤；调用 this.validateLatLong, this.setState。
-- `showCoordinateInputTip`：执行 showCoordinateInputTip 对应的组件业务步骤；调用 this._children.coordinateTipPopup.classList.value.includes, this.setState。
+- `constructor(app, options={})` [源码:11](../../eyes/src/ui/components/Settings.js#L11)：当前操作：写入 _fullLightColor、_isContinuousZoom、_isHorizontal、_isMobileMode、_isMouseHold、_ori、_shadowLightColor、_tooltips、_zoomInterval、_zoomTimeout；返回 无显式返回。
+- `init()` [源码:150](../../eyes/src/ui/components/Settings.js#L150)：当前操作：写入 _children.flood.onclick、_children.natural.onclick、_children.shadow.onclick；返回 无显式返回。
+- `addTooltips(elements, tooltipOptions)` [源码:229](../../eyes/src/ui/components/Settings.js#L229)：当前操作：写入 无直接字段写入；返回 1===tooltipInstances.length?tooltipInstances[0]:tooltipInstances。
+- `updateTooltips(isHorizontal)` [源码:237](../../eyes/src/ui/components/Settings.js#L237)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setConfig(configUpdates)` [源码:240](../../eyes/src/ui/components/Settings.js#L240)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getOrientation()` [源码:267](../../eyes/src/ui/components/Settings.js#L267)：当前操作：写入 无直接字段写入；返回 this._ori。
+- `setOrientation(ori="")` [源码:270](../../eyes/src/ui/components/Settings.js#L270)：当前操作：写入 _ori；返回 无显式返回。
+- `isHorizontal()` [源码:273](../../eyes/src/ui/components/Settings.js#L273)：当前操作：写入 无直接字段写入；返回 "horizontal"===this._ori、"horizontal"===orientationRule.ori、false。
+- `_updateSize(forceUpdate=false)` [源码:281](../../eyes/src/ui/components/Settings.js#L281)：当前操作：写入 _element.style.height、_element.style.width、_isHorizontal；返回 void。
+- `_zoomContinuously(zoomCallback)` [源码:292](../../eyes/src/ui/components/Settings.js#L292)：当前操作：写入 _isContinuousZoom、_isMouseHold、_zoomInterval、_zoomTimeout；返回 无显式返回。
+- `_zoomIn(startContinuous=false)` [源码:301](../../eyes/src/ui/components/Settings.js#L301)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_zoomOut(startContinuous=false)` [源码:304](../../eyes/src/ui/components/Settings.js#L304)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_stopZooming()` [源码:307](../../eyes/src/ui/components/Settings.js#L307)：当前操作：写入 _isContinuousZoom、_isMouseHold；返回 无显式返回。
+- `show()` [源码:312](../../eyes/src/ui/components/Settings.js#L312)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:318](../../eyes/src/ui/components/Settings.js#L318)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `isVisible()` [源码:325](../../eyes/src/ui/components/Settings.js#L325)：当前操作：写入 无直接字段写入；返回 this._state.isVisible。
+- `expand()` [源码:328](../../eyes/src/ui/components/Settings.js#L328)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `collapse()` [源码:334](../../eyes/src/ui/components/Settings.js#L334)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleCollapse()` [源码:341](../../eyes/src/ui/components/Settings.js#L341)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleUnit()` [源码:345](../../eyes/src/ui/components/Settings.js#L345)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleFullscreen()` [源码:354](../../eyes/src/ui/components/Settings.js#L354)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleLayers()` [源码:357](../../eyes/src/ui/components/Settings.js#L357)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `togglePhotoMode()` [源码:360](../../eyes/src/ui/components/Settings.js#L360)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hideLightingOptions(pointerEvent)` [源码:370](../../eyes/src/ui/components/Settings.js#L370)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hideFullScreenOption()` [源码:377](../../eyes/src/ui/components/Settings.js#L377)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleLightOptions(lightType)` [源码:382](../../eyes/src/ui/components/Settings.js#L382)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleLight()` [源码:393](../../eyes/src/ui/components/Settings.js#L393)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `startGuidedCamera()` [源码:399](../../eyes/src/ui/components/Settings.js#L399)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `stopGuidedCamera()` [源码:405](../../eyes/src/ui/components/Settings.js#L405)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleGuidedCamera()` [源码:411](../../eyes/src/ui/components/Settings.js#L411)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleInfoPanel()` [源码:414](../../eyes/src/ui/components/Settings.js#L414)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:417](../../eyes/src/ui/components/Settings.js#L417)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-### `eyes/src/ui/components/TextureQualityBlock.js`
+## `eyes/src/ui/components/ShareModal.js`
 
-对象纹理质量选择。
+分享 URL、嵌入设置和复制界面。[源码](../../eyes/src/ui/components/ShareModal.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/TextureQualityBlockTemplate.html, ../../styles/extracted/TextureQualityBlockStyles.js, ../../engine/solar-system/public-api.js`
-- `manager dependencies: scene, router`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ShareModal-js)
 
-**TextureQualityBlock**：对象纹理质量选择；继承 SolarSystemPublicApi.OptionsBlock。
+### `ShareModal`
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign, this._toggleHD, this._app.pioneer.getScene, this._app.getManager, List.toggle；写入 _previousEntity, _previousChildEntity, _defaultOptions。
-- `_addDefaultOptions`：执行 _addDefaultOptions 对应的组件业务步骤；调用 Object.entries, this._createToggle, this._app.getManager, Object.keys, this._children.optionsList.appendChild。
-- `_toggleHD`：执行 _toggleHD 对应的组件业务步骤；调用 this.app.getManager。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.scene.getEntity, this.reset, this._addDefaultOptions；写入 _hdToggleEntity, _previousEntity, _previousChildEntity。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 super.__disable；写入 _previousEntity, _previousChildEntity。
+分享源 URL 先过滤非保留查询，嵌入选项再按默认值与依赖条件生成最终参数。预览强制 tracking=false，iframe hash 变化只更新代码而不重建预览；更换预览 iframe 前解除旧 load 监听。表单 DOM 与帮助提示归此组件持有。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/components/TimeControls.js`
+- `constructor(app, options)` [源码:11](../../eyes/src/ui/components/ShareModal.js#L11)：当前操作：写入 _activeTab、_embedOptionsScrollbar、_embedQueries、_inputElements、_srcURL、_tippyItems、_tippySingleton、_tippyTimeout；返回 无显式返回。
+- `mergeEmbedControls()` [源码:59](../../eyes/src/ui/components/ShareModal.js#L59)：当前操作：写入 _config.embedOptions；返回 无显式返回。
+- `init()` [源码:90](../../eyes/src/ui/components/ShareModal.js#L90)：当前操作：写入 _tippyTimeout；返回 无显式返回。
+- `createScrollbars()` [源码:125](../../eyes/src/ui/components/ShareModal.js#L125)：当前操作：写入 _embedOptionsScrollbar；返回 无显式返回。
+- `getCurrentDevice()` [源码:134](../../eyes/src/ui/components/ShareModal.js#L134)：当前操作：写入 无直接字段写入；返回 EyesPublicApi.AppUtils.isTablet()?"tablet":EyesPublicApi.AppUtils.isMobile()?"phone":"desktop"。
+- `createShareButton()` [源码:137](../../eyes/src/ui/components/ShareModal.js#L137)：当前操作：写入 shareButton、shareButton.className、shareButton.innerText；返回 无显式返回。
+- `setIsWide()` [源码:175](../../eyes/src/ui/components/ShareModal.js#L175)：当前操作：写入 无直接字段写入；返回 isWide!==shouldBeWide&&(this.setState({isWide:shouldBeWide}),true)。
+- `addShareButtonToParent()` [源码:190](../../eyes/src/ui/components/ShareModal.js#L190)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setSrcURL(sourceUrl=window.location.href, updateLinkText=true)` [源码:205](../../eyes/src/ui/components/ShareModal.js#L205)：当前操作：写入 _srcURL；返回 无显式返回。
+- `setEmbedParams()` [源码:231](../../eyes/src/ui/components/ShareModal.js#L231)：当前操作：写入 _embedQueries[nestedQueryName]、_embedQueries[query]；返回 无显式返回。
+- `updateEmbedParams(queryName, queryValue)` [源码:259](../../eyes/src/ui/components/ShareModal.js#L259)：当前操作：写入 _embedQueries[queryName]；返回 无显式返回。
+- `updateEmbedCode(updateOptions)` [源码:262](../../eyes/src/ui/components/ShareModal.js#L262)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `calcTemplateWidth()` [源码:311](../../eyes/src/ui/components/ShareModal.js#L311)：当前操作：写入 无直接字段写入；返回 void。
+- `calcIframeTransform()` [源码:331](../../eyes/src/ui/components/ShareModal.js#L331)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_iframeLoadEventListener(loadEvent)` [源码:342](../../eyes/src/ui/components/ShareModal.js#L342)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `calcIframeTransforms()` [源码:353](../../eyes/src/ui/components/ShareModal.js#L353)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setPreviewDevice(changeEvent)` [源码:385](../../eyes/src/ui/components/ShareModal.js#L385)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleIframeElements(changeEvent)` [源码:398](../../eyes/src/ui/components/ShareModal.js#L398)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getEmbedCodeFromParams()` [源码:409](../../eyes/src/ui/components/ShareModal.js#L409)：当前操作：写入 无直接字段写入；返回 {srcURL:embedUrl,iframeString:ˋ<iframe src="${embedUrl}" allowfullscreen ></iframe>ˋ,noTrackingIframeString:ˋ<iframe src="${ˋ${urlParts[0]}${previewParams.size?"?":""}${previewParams.toString()}ˋ}" allowfullscreen ></ifr。
+- `generateEmbedContent()` [源码:445](../../eyes/src/ui/components/ShareModal.js#L445)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `createGroupLegend(groupName, groupElement)` [源码:466](../../eyes/src/ui/components/ShareModal.js#L466)：当前操作：写入 无直接字段写入；返回 legendElement。
+- `createGroupInputs(inputOptions, groupElement)` [源码:472](../../eyes/src/ui/components/ShareModal.js#L472)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `destroyEmbedContent()` [源码:592](../../eyes/src/ui/components/ShareModal.js#L592)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setActiveTab(activeTab)` [源码:600](../../eyes/src/ui/components/ShareModal.js#L600)：当前操作：写入 _activeTab、_tippyItems、_tippySingleton；返回 无显式返回。
+- `copyToClipboard(clickEvent)` [源码:618](../../eyes/src/ui/components/ShareModal.js#L618)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `handleClick(clickEvent)` [源码:630](../../eyes/src/ui/components/ShareModal.js#L630)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `handleTabClick(clickEvent)` [源码:637](../../eyes/src/ui/components/ShareModal.js#L637)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `destroyTooltips()` [源码:641](../../eyes/src/ui/components/ShareModal.js#L641)：当前操作：写入 _tippyItems、_tippySingleton；返回 无显式返回。
+- `resetEmbedOptions()` [源码:646](../../eyes/src/ui/components/ShareModal.js#L646)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resetScrollbar()` [源码:651](../../eyes/src/ui/components/ShareModal.js#L651)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:654](../../eyes/src/ui/components/ShareModal.js#L654)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setEnabled(isEnabled)` [源码:658](../../eyes/src/ui/components/ShareModal.js#L658)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `__destroy()` [源码:663](../../eyes/src/ui/components/ShareModal.js#L663)：当前操作：写入 shareButton；返回 无显式返回。
 
-时间播放速率与时间拖动控制。
+## `eyes/src/ui/components/SpecialFeaturesBlock.js`
 
-- `imports: ../../framework/eyes/index.js, ../../styles/extracted/TimeControlsStyles.js, ../templates/TimeControlsTemplate.html`
-- `manager dependencies: time, router`
+对象特殊功能入口。[源码](../../eyes/src/ui/components/SpecialFeaturesBlock.js)。语义状态：`verified-semantic-refactor`。
 
-**TimeControls**：时间播放速率与时间拖动控制；继承 Eyes.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-SpecialFeaturesBlock-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 Parent.setAttribute, this._drawCurve, this._drawKnob, this._app.getManager, this._manager.getTimeRate, this.setState, this.getRateDisplay, this.bindFunctions；写入 _curve, _rates, _resizeObserver, _normValue, _currentRate, _currentIsLive, _canUpdate, _rateBeforePause, _touchTimeout, _activeDelay, _manager, _router。
-- `init`：初始化模板与关联资源；调用 super.init, this._createRatesMap, this._app.getManager, this._callbackRegistry.push, Range.addEventListener, Range.blur, this._element.addEventListener, this._resizeObserver.observe。
-- `_onRateChange`：执行 _onRateChange 对应的组件业务步骤；调用 this._setRate, this._setQuery。
-- `_onSliderMove`：执行 _onSliderMove 对应的组件业务步骤；调用 this._drawKnobThrottled, this._setQueryDebounced；写入 _normValue, _currentRate。
-- `_onTouchStart`：执行 _onTouchStart 对应的组件业务步骤；调用 List.contains, this.setState。
-- `_onTouchEnd`：执行 _onTouchEnd 对应的组件业务步骤；调用 this.setState；写入 _touchTimeout。
-- `_createRatesMap`：执行 _createRatesMap 对应的组件业务步骤；调用 this._rates.indexOf, this._rates.slice, Math.round, this._roundRate, this._ratesMap.push, Math.floor；写入 _ratesMap。
-- `_roundRate`：执行 _roundRate 对应的组件业务步骤；调用 this.getRateUnit。
-- `_drawCurve`：执行 _drawCurve 对应的组件业务步骤；调用 Path.setAttribute。
-- `_drawKnob`：执行 _drawKnob 对应的组件业务步骤；调用 Math.pow, Math.abs, this._element.style.setProperty。
-- `_setRate`：执行 _setRate 对应的组件业务步骤；调用 this._getTimeLimit, this._getValueFromRate, this._drawKnob, this.setState, this.getRateDisplay；写入 _rateBeforePause, _normValue, _currentRate, _timeLimit。
-- `_getTimeLimit`：执行 _getTimeLimit 对应的组件业务步骤；调用 this._manager.getTime, Math.abs。
-- `_getValueFromRate`：执行 _getValueFromRate 对应的组件业务步骤；调用 this._ratesMap.indexOf。
-- `_setQuery`：执行 _setQuery 对应的组件业务步骤；调用 this._router.navigate, this._manager.getTimeUrl。
-- `decreaseRate`：执行 decreaseRate 对应的组件业务步骤；调用 this._getValueFromRate, Math.floor, this._setQuery。
-- `increaseRate`：执行 increaseRate 对应的组件业务步骤；调用 this._getValueFromRate, Math.ceil, this._setQuery。
-- `playPauseRate`：执行 playPauseRate 对应的组件业务步骤；调用 this._app.getView, this._setQuery。
-- `onRealtimeClick`：执行 onRealtimeClick 对应的组件业务步骤；调用 this._setQuery。
-- `getRateUnit`：执行 getRateUnit 对应的组件业务步骤；调用 Object.keys。
-- `getRateDisplay`：执行 getRateDisplay 对应的组件业务步骤；调用 this.getRateUnit。
-- `setCanUpdate`：执行 setCanUpdate 对应的组件业务步骤；写入 _canUpdate。
-- `update`：执行 update 对应的组件业务步骤；调用 this._manager.isNow, this.setState；写入 _currentIsLive。
-- `__disable`：卸载 DOM 并取消业务订阅；调用 super.__disable。
+### `SpecialFeaturesBlock`
 
-### `eyes/src/ui/components/TitleBlock.js`
+可用工具列表由实体能力生成，已着陆对象隐藏此块；各条目拥有独立查询和导航选项，距离工具保留时间。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-故事标题内容块。
+- `constructor(app, options)` [源码:10](../../eyes/src/ui/components/SpecialFeaturesBlock.js#L10)：当前操作：写入 _state；返回 无显式返回。
+- `init()` [源码:17](../../eyes/src/ui/components/SpecialFeaturesBlock.js#L17)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(entityInfo)` [源码:21](../../eyes/src/ui/components/SpecialFeaturesBlock.js#L21)：当前操作：写入 _children.specialFeatures.innerHTML；返回 void this.hide()、void。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/TitleBlockTemplate.html`
+## `eyes/src/ui/components/SurfaceMapBlock.js`
 
-**TitleBlock**：故事标题内容块；继承 EyesPublicApi.StoryBaseContentBlock。
+对象表面地图选择。[源码](../../eyes/src/ui/components/SurfaceMapBlock.js)。语义状态：`verified-semantic-refactor`。
 
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-SurfaceMapBlock-js)
 
-### `eyes/src/ui/components/Toast.js`
+### `SurfaceMapBlock`
 
-临时通知消息及定时隐藏。
+表面地图选项向 layer 管理器提交地图描述，并发出 surfaceMapEnabled 供 HD 开关同步。默认地图另保留原贴图信息；火星默认项恢复 CMTS，其余对象切回默认纹理。。父类 `SolarSystemPublicApi.OptionsBlock`。
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/ToastTemplate.html, ../../styles/extracted/ToastStyles.js`
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/SurfaceMapBlock.js#L10)：当前操作：写入 _currentlyCheckedOption、_defaultTextureDescription、_previousChildEntity、_previousEntity；返回 无显式返回。
+- `onRouteChange(entityInfo, entityName, cancelToken=null, childEntityInfo={}, featureRoute=null)` [源码:39](../../eyes/src/ui/components/SurfaceMapBlock.js#L39)：当前操作：写入 _currentLayer、_currentlyCheckedOption、_previousChildEntity、_previousEntity；返回 无显式返回。
+- `addSurfaceMaps(entityId)` [源码:58](../../eyes/src/ui/components/SurfaceMapBlock.js#L58)：当前操作：写入 _children.surfaceMapList.innerHTML、_currentlyCheckedOption；返回 无显式返回。
+- `_createDefaultRadioButton(entityId)` [源码:90](../../eyes/src/ui/components/SurfaceMapBlock.js#L90)：当前操作：写入 _currentlyCheckedOption；返回 无显式返回。
+- `addDefaultTexture(entityId)` [源码:125](../../eyes/src/ui/components/SurfaceMapBlock.js#L125)：当前操作：写入 _defaultTextureDescription、_defaultTextureType；返回 无显式返回。
+- `resize()` [源码:132](../../eyes/src/ui/components/SurfaceMapBlock.js#L132)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `reset()` [源码:138](../../eyes/src/ui/components/SurfaceMapBlock.js#L138)：当前操作：写入 _defaultTextureDescription；返回 无显式返回。
+- `__disable()` [源码:146](../../eyes/src/ui/components/SurfaceMapBlock.js#L146)：当前操作：写入 _previousChildEntity、_previousEntity；返回 无显式返回。
 
-**Toast**：临时通知消息及定时隐藏；继承 EyesPublicApi.BaseComponent。
+## `eyes/src/ui/components/Telescope.js`
 
-- `constructor`：建立实例初始字段和依赖；写入 _hideTimeout。
-- `setIcon`：执行 setIcon 对应的组件业务步骤；调用 this.setState。
-- `setContent`：执行 setContent 对应的组件业务步骤；调用 this.setState。
-- `setError`：执行 setError 对应的组件业务步骤；调用 this.setIcon, this.setState。
-- `show`：执行 show 对应的组件业务步骤；调用 super.show, this.hide；写入 _hideTimeout。
-- `hide`：执行 hide 对应的组件业务步骤；调用 super.hide, this.setState。
+望远镜观察目标、视场和相机控制。[源码](../../eyes/src/ui/components/Telescope.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/components/ToggleBlock.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Telescope-js)
 
-故事内开关交互。
+### `Telescope`
 
-- `imports: ../../framework/eyes/public-api.js, ../templates/ToggleBlockTemplate.html, ../../styles/extracted/ToggleBlockStyles.js`
+进入望远镜模式临时接管对象点击、光照与表面地图，退出归还原状态并清理拾取控制器和方位角计时器。拾取位置先逆旋转到目标局部坐标，再换算经纬度写入标记与路由。。父类 `Eyes.BaseComponent`。
 
-**ToggleBlock**：故事内开关交互；继承 EyesPublicApi.StoryBaseContentBlock。
+- `constructor(app, options={})` [源码:12](../../eyes/src/ui/components/Telescope.js#L12)：当前操作：写入 _firstLoad、_target、_targetEntity、helper、latitude、longitude；返回 无显式返回。
+- `resize()` [源码:39](../../eyes/src/ui/components/Telescope.js#L39)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onEnter(routeParams)` [源码:43](../../eyes/src/ui/components/Telescope.js#L43)：当前操作：写入 lightType；返回 无显式返回。
+- `onRouteChange(routeParams)` [源码:59](../../eyes/src/ui/components/Telescope.js#L59)：当前操作：写入 _firstLoad、_target、_targetEntity、helper、lyrManager、orbiterVisibility；返回 void。
+- `onLeave()` [源码:70](../../eyes/src/ui/components/Telescope.js#L70)：当前操作：写入 helper；返回 无显式返回。
+- `exitTelescope()` [源码:87](../../eyes/src/ui/components/Telescope.js#L87)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `processQuery(queryParams)` [源码:90](../../eyes/src/ui/components/Telescope.js#L90)：当前操作：写入 _firstLoad、_placemarkEl.innerHTML、latitude、longitude；返回 无显式返回。
+- `checkPlatform()` [源码:103](../../eyes/src/ui/components/Telescope.js#L103)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setView(isSurfaceView)` [源码:109](../../eyes/src/ui/components/Telescope.js#L109)：当前操作：写入 _firstLoad、_pickController、_placemarkEl.innerHTML、azimathelevationInterval、latitude、longitude、position；返回 无显式返回。
+- `exitSurfaceMode()` [源码:149](../../eyes/src/ui/components/Telescope.js#L149)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleConstellation(allowToggle=true)` [源码:154](../../eyes/src/ui/components/Telescope.js#L154)：当前操作：写入 constellations；返回 无显式返回。
+- `latitudeInputChange(inputEvent)` [源码:161](../../eyes/src/ui/components/Telescope.js#L161)：当前操作：写入 latitude；返回 无显式返回。
+- `longitudeInputChange(inputEvent)` [源码:166](../../eyes/src/ui/components/Telescope.js#L166)：当前操作：写入 longitude；返回 无显式返回。
+- `validateLatLong()` [源码:171](../../eyes/src/ui/components/Telescope.js#L171)：当前操作：写入 无直接字段写入；返回 null===this.latitude\|\|void 0===this.latitude\|\|isNaN(this.latitude)\|\|Math.abs(this.latitude)>90?(this._children.latitude.classList.add("error"),false):!(null===this.longitude\|\|void 0===this.longitude\|\|isNaN(this.longitude。
+- `goSurfaceViewClick(clickEvent)` [源码:176](../../eyes/src/ui/components/Telescope.js#L176)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_toggleSurfaceMaps(enableSurfaceMaps, entityId=this._target)` [源码:184](../../eyes/src/ui/components/Telescope.js#L184)：当前操作：写入 无直接字段写入；返回 void。
+- `addPickLocation(latitude, longitude)` [源码:211](../../eyes/src/ui/components/Telescope.js#L211)：当前操作：写入 _placemarkEl、_placemarkEl.id、_placemarkEl.innerHTML；返回 无显式返回。
+- `setLatitudeLongitude(latitude, longitude)` [源码:232](../../eyes/src/ui/components/Telescope.js#L232)：当前操作：写入 _children.latitude.value、_children.longitude.value；返回 void。
+- `showCoordinateInputTip()` [源码:243](../../eyes/src/ui/components/Telescope.js#L243)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `constructor`：建立实例初始字段和依赖；调用 Object.assign。
-- `onEnter`：进入视图时准备界面和订阅；调用 super.onEnter, this.onClick。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 super.onLeave, this.onClick。
-- `onClick`：执行 onClick 对应的组件业务步骤；调用 super.onClick, this.unselect, this.select。
-- `select`：执行 select 对应的组件业务步骤；调用 this.setState。
-- `unselect`：执行 unselect 对应的组件业务步骤；调用 this.setState。
+## `eyes/src/ui/components/TextureQualityBlock.js`
 
-### `eyes/src/ui/components/ToolboxBlock.js`
+对象纹理质量选择。[源码](../../eyes/src/ui/components/TextureQualityBlock.js)。语义状态：`verified-semantic-refactor`。
 
-对象工具入口集合。
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-TextureQualityBlock-js)
 
-- `imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/ToolboxBlockTemplate.html, ../../styles/extracted/ToolboxBlockStyles.js, ../../styles/extracted/MobileExpandButtonStyles-928.js, ../../vendor/modules/animateFill-929.js`
-- `manager dependencies: router`
+### `TextureQualityBlock`
 
-**ToolboxBlock**：对象工具入口集合；继承 SolarSystemPublicApi.BaseContentBlock。
+HD 开关依赖 scene 管理器的实际纹理状态，并受 surfaceMapEnabled 事件协调；URL 配置只在对应选项存在时应用。目标切换会重置旧选项上下文。。父类 `SolarSystemPublicApi.OptionsBlock`。
 
-- `constructor`：建立实例初始字段和依赖；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet；写入 _state, _isTouch。
-- `init`：初始化模板与关联资源；调用 super.init, this._children.clickableDiv.addEventListener, this._app.getManager, this._closeTooltip。
-- `_showTooltip`：执行 _showTooltip 对应的组件业务步骤；调用 this.element.style.setProperty, this._children.tooltipPopup.classList.value.includes, Array.from, List.toggle, this.setState, List.contains, this._closeTooltip。
-- `_closeTooltip`：执行 _closeTooltip 对应的组件业务步骤；调用 Array.from, List.add, this.setState。
-- `resize`：重排响应式界面；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet；写入 _isTouch。
+- `constructor(app)` [源码:10](../../eyes/src/ui/components/TextureQualityBlock.js#L10)：当前操作：写入 _defaultOptions、_previousChildEntity、_previousEntity；返回 无显式返回。
+- `_addDefaultOptions()` [源码:59](../../eyes/src/ui/components/TextureQualityBlock.js#L59)：当前操作：写入 _children.optionsList.innerHTML；返回 无显式返回。
+- `_toggleHD()` [源码:83](../../eyes/src/ui/components/TextureQualityBlock.js#L83)：当前操作：写入 无直接字段写入；返回 null!==this._hdToggleEntity&&void 0!==this._hdToggleEntity&&(await this.app.getManager("scene").toggleHDTextureForEntity(this._hdToggleEntity))。
+- `onRouteChange(entityInfo, entityDescription, cancelToken=null, childEntityInfo={})` [源码:86](../../eyes/src/ui/components/TextureQualityBlock.js#L86)：当前操作：写入 _hdToggleEntity、_previousChildEntity、_previousEntity；返回 无显式返回。
+- `__disable()` [源码:94](../../eyes/src/ui/components/TextureQualityBlock.js#L94)：当前操作：写入 _previousChildEntity、_previousEntity；返回 无显式返回。
 
-### `eyes/src/ui/components/TutorialOverlay.js`
+## `eyes/src/ui/components/TimeControls.js`
 
-教程步骤遮罩与提示定位。
+时间播放速率与时间拖动控制。[源码](../../eyes/src/ui/components/TimeControls.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../vendor/modules/A11y.js, ../../styles/extracted/TutorialOverlayStyles-497.js, ../../styles/extracted/TutorialOverlayStyles-498.js, ../../styles/extracted/TutorialOverlayStyles-499.js, ../../styles/extracted/TutorialOverlayStyles-500.js, ../../framework/eyes/public-api.js, ../templates/TutorialOverlayTemplate.html`
-- `manager dependencies: router, layer, content`
-- `component dependencies: definitionOverlay`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-TimeControls-js)
 
-**TutorialOverlay**：教程步骤遮罩与提示定位；继承 EyesPublicApi.BaseComponent。
+### `TimeControls`
 
-- `constructor`：建立实例初始字段和依赖；写入 _swiper, _allTutorials, _elementMeasures, _currIndex, _slideViewedTimeout, _initTimeout, _bulletClass, _activeBulletClass, _swiperSlideClass, _storageName。
-- `setTutorials`：执行 setTutorials 对应的组件业务步骤；调用 this._createSlides；写入 _allTutorials。
-- `hideTutorialSlide`：执行 hideTutorialSlide 对应的组件业务步骤。
-- `_addEvents`：执行 _addEvents 对应的组件业务步骤；调用 this._swiper.on, this._setHighlightedElement, this._setActiveBullet, this.navigateToTutorial, this.setState, this._children.swiperSlides.addEventListener, this._app.getComponent。
-- `_createSlides`：执行 _createSlides 对应的组件业务步骤；调用 this._allTutorials.forEach, this._addSlide。
-- `_addSlide`：执行 _addSlide 对应的组件业务步骤；调用 this._children.swiperSlides.append。
-- `_createBullets`：执行 _createBullets 对应的组件业务步骤；调用 List.add, this._swiper.slideTo。
-- `_setActiveBullet`：执行 _setActiveBullet 对应的组件业务步骤；调用 Nodes.forEach, List.remove, List.add。
-- `_setHighlightedElement`：执行 _setHighlightedElement 对应的组件业务步骤；调用 this._calcElementMeasures, Math.max, this._element.style.setProperty；写入 _elementMeasures。
-- `_initSwiper`：执行 _initSwiper 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady, this._swiper.update, this._swiper.slideTo, A11y.default, this._postSwiperInitFunction, this._setActiveBullet, this._setHighlightedElement, super.show；写入 _initTimeout, _swiper。
-- `_postSwiperInitFunction`：执行 _postSwiperInitFunction 对应的组件业务步骤；调用 this._addEvents, this._createBullets, this._swiper.slideTo。
-- `_getIndexByTutorialId`：执行 _getIndexByTutorialId 对应的组件业务步骤。
-- `_setSlideViewedTimeout`：执行 _setSlideViewedTimeout 对应的组件业务步骤；写入 _slideViewedTimeout。
-- `_calcElementMeasures`：执行 _calcElementMeasures 对应的组件业务步骤；调用 this._allTutorials.map。
-- `show`：执行 show 对应的组件业务步骤；调用 this._app.getManager, Manager.getLayer, Manager.toggleLayer, this._initSwiper。
-- `hide`：执行 hide 对应的组件业务步骤；调用 super.hide；写入 _currIndex。
-- `calcPriorityIndex`：执行 calcPriorityIndex 对应的组件业务步骤；调用 this._allTutorials.filter, this._getIndexByTutorialId。
-- `navigateToTutorial`：执行 navigateToTutorial 对应的组件业务步骤；调用 this.app.getManager。
-- `close`：执行 close 对应的组件业务步骤；调用 this.app.getManager。
-- `resize`：重排响应式界面；调用 this._setHighlightedElement。
+滑块位置通过双向分段速率表转换，反向速率限制为不高于 -1；旋钮图形只是速率的视觉投影。路由写入节流与绘图节流独立，停用清理触摸提示计时器。。父类 `Eyes.BaseComponent`。
 
-### `eyes/src/ui/templates/BreadcrumbTemplate.html`
+- `constructor(app, options={})` [源码:21](../../eyes/src/ui/components/TimeControls.js#L21)：当前操作：写入 _activeDelay、_canUpdate、_class.isPlaying、_currentIsLive、_currentRate、_curve、_curve.cp1x、_curve.cp2x、_curve.endx、_drawKnobThrottled、_manager、_normValue、_rateBeforePause、_rates、_resizeObserver、_router、_setQueryDebounced、_touchTimeout；返回 无显式返回。
+- `init()` [源码:86](../../eyes/src/ui/components/TimeControls.js#L86)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onRateChange(currentRate)` [源码:111](../../eyes/src/ui/components/TimeControls.js#L111)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onSliderMove(inputEvent)` [源码:114](../../eyes/src/ui/components/TimeControls.js#L114)：当前操作：写入 _currentRate、_normValue；返回 void(inputEvent.target.value=50)。
+- `_onTouchStart(touchEvent)` [源码:125](../../eyes/src/ui/components/TimeControls.js#L125)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_onTouchEnd()` [源码:137](../../eyes/src/ui/components/TimeControls.js#L137)：当前操作：写入 _touchTimeout；返回 无显式返回。
+- `_createRatesMap()` [源码:144](../../eyes/src/ui/components/TimeControls.js#L144)：当前操作：写入 _ratesMap；返回 无显式返回。
+- `_roundRate(currentRate)` [源码:173](../../eyes/src/ui/components/TimeControls.js#L173)：当前操作：写入 无直接字段写入；返回 rate*secondsPerUnit[unit]。
+- `_drawCurve()` [源码:180](../../eyes/src/ui/components/TimeControls.js#L180)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_drawKnob(normalizedPosition)` [源码:196](../../eyes/src/ui/components/TimeControls.js#L196)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setRate(currentRate)` [源码:208](../../eyes/src/ui/components/TimeControls.js#L208)：当前操作：写入 _currentRate、_normValue、_rateBeforePause、_timeLimit；返回 无显式返回。
+- `_getTimeLimit()` [源码:237](../../eyes/src/ui/components/TimeControls.js#L237)：当前操作：写入 无直接字段写入；返回 Math.abs(currentTime.valueOf()-max.valueOf())<10?"max":Math.abs(currentTime.valueOf()-min.valueOf())<10?"min":null。
+- `_getValueFromRate(currentRate)` [源码:245](../../eyes/src/ui/components/TimeControls.js#L245)：当前操作：写入 无直接字段写入；返回 exactIndex、rateIndex+(currentRate-lowerRate)/(upperRate-lowerRate)、50。
+- `_setQuery(currentRate, currentTime)` [源码:257](../../eyes/src/ui/components/TimeControls.js#L257)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `decreaseRate()` [源码:263](../../eyes/src/ui/components/TimeControls.js#L263)：当前操作：写入 无直接字段写入；返回 void。
+- `increaseRate()` [源码:276](../../eyes/src/ui/components/TimeControls.js#L276)：当前操作：写入 无直接字段写入；返回 void。
+- `playPauseRate(clickEvent, isPlaying=this._state.isPlaying)` [源码:289](../../eyes/src/ui/components/TimeControls.js#L289)：当前操作：写入 无直接字段写入；返回 void、void this._app.getView("event")?.replayEvent()。
+- `onRealtimeClick()` [源码:299](../../eyes/src/ui/components/TimeControls.js#L299)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `getRateUnit(currentRate, fractionDigits=0)` [源码:302](../../eyes/src/ui/components/TimeControls.js#L302)：当前操作：写入 无直接字段写入；返回 {rate:parseFloat(formatNumber(scaledRate,fractionDigits)),unit:unitName}。
+- `getRateDisplay(currentRate=this._manager.getTimeRate())` [源码:318](../../eyes/src/ui/components/TimeControls.js#L318)：当前操作：写入 无直接字段写入；返回 "paused"、"real rate"、ˋ${rate} ${unit}${1===rate?"":"s"}/sˋ。
+- `setCanUpdate(canUpdate)` [源码:327](../../eyes/src/ui/components/TimeControls.js#L327)：当前操作：写入 _canUpdate；返回 无显式返回。
+- `update()` [源码:330](../../eyes/src/ui/components/TimeControls.js#L330)：当前操作：写入 _currentIsLive；返回 无显式返回。
+- `__disable()` [源码:336](../../eyes/src/ui/components/TimeControls.js#L336)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-BreadcrumbTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/components/TitleBlock.js`
 
-- `key: static, staticLogo`
-- `handlers: _goToHome`
-- `state: isHomeActiveClass`
+故事标题内容块。[源码](../../eyes/src/ui/components/TitleBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/templates/ButtonsBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-TitleBlock-js)
 
-ButtonsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+### `TitleBlock`
 
-- `key: `
-- `handlers: `
-- `state: `
+此类只选择故事标题模板；状态、点击与进入退出行为完全继承 StoryBaseContentBlock，没有独立事件或资源所有权。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-### `eyes/src/ui/templates/CameraViewBlockTemplate.html`
 
-CameraViewBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/components/Toast.js`
 
-- `key: cameraOptions`
-- `handlers: `
-- `state: `
+临时通知消息及定时隐藏。[源码](../../eyes/src/ui/components/Toast.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/templates/CarouselPanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-Toast-js)
 
-CarouselPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+### `Toast`
 
-- `key: content, tabsContainer, swiperSlides, bullets`
-- `handlers: expand, collapse`
-- `state: panelTypeClass, isVisibleClass, isExpandedClass, preTitle, title, headerIconClass, captionClass, caption, tabsVisibleClass, tabNumClass, carouselClass, paginationClass, prevButtonClass, nextButtonClass`
+自动隐藏计时器归本组件持有，重复显示先取消旧计时器，手动隐藏也取消计时器并清除错误样式。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/templates/CarouselTemplate-390.html`
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/Toast.js#L8)：当前操作：写入 _hideTimeout；返回 无显式返回。
+- `setIcon(iconClass)` [源码:19](../../eyes/src/ui/components/Toast.js#L19)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setContent(messageText, appendedHtml=null)` [源码:24](../../eyes/src/ui/components/Toast.js#L24)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setError(isError)` [源码:30](../../eyes/src/ui/components/Toast.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `show()` [源码:36](../../eyes/src/ui/components/Toast.js#L36)：当前操作：写入 _hideTimeout；返回 无显式返回。
+- `hide()` [源码:45](../../eyes/src/ui/components/Toast.js#L45)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-CarouselTemplate-390 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/components/ToggleBlock.js`
 
-- `key: progress, carousel, track`
-- `handlers: close`
-- `state: isVisibleClass, slideType, isCloseButtonVisibleClass, closeButtonText, collapseClass, isScrollingClass`
+故事内开关交互。[源码](../../eyes/src/ui/components/ToggleBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/templates/CarouselTemplate-391.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ToggleBlock-js)
 
-CarouselTemplate-391 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+### `ToggleBlock`
 
-- `key: `
-- `handlers: goToPrevSlide, goToNextSlide, _onControlsToggle, _toggleCollapse, goToFirstSlide`
-- `state: collapseClass, isControlsVisibleClass, collapseButtonClass`
+进入时将选中状态同步到故事配置，退出时撤销选中；onClick 先执行父类动作，再更新模板选择状态，保持故事动作顺序。。父类 `EyesPublicApi.StoryBaseContentBlock`。
 
-### `eyes/src/ui/templates/CheckboxBlockTemplate.html`
+- `constructor(app, options={})` [源码:8](../../eyes/src/ui/components/ToggleBlock.js#L8)：当前操作：写入 _class.isSelectedClass、_config.info.selected；返回 无显式返回。
+- `onEnter()` [源码:22](../../eyes/src/ui/components/ToggleBlock.js#L22)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave()` [源码:26](../../eyes/src/ui/components/ToggleBlock.js#L26)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onClick()` [源码:30](../../eyes/src/ui/components/ToggleBlock.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `select()` [源码:34](../../eyes/src/ui/components/ToggleBlock.js#L34)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `unselect()` [源码:40](../../eyes/src/ui/components/ToggleBlock.js#L40)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-CheckboxBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/components/ToolboxBlock.js`
 
-- `key: `
-- `handlers: `
-- `state: `
+对象工具入口集合。[源码](../../eyes/src/ui/components/ToolboxBlock.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/templates/CheckboxMultistateTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-ToolboxBlock-js)
 
-CheckboxMultistateTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+### `ToolboxBlock`
 
-- `key: icon, text`
-- `handlers: `
-- `state: checkboxClass, isCheckedClass, iconCheckmarkClass, textClass, text`
+导航参数数组由此块保存并交给 router 展开调用；桌面提示交给 tippy，触摸端另用 DOM 弹层及外部点击关闭逻辑。。父类 `SolarSystemPublicApi.BaseContentBlock`。
 
-### `eyes/src/ui/templates/ClockShortcutTemplate.html`
+- `constructor(app, options={})` [源码:11](../../eyes/src/ui/components/ToolboxBlock.js#L11)：当前操作：写入 _isTouch、_state；返回 无显式返回。
+- `init()` [源码:27](../../eyes/src/ui/components/ToolboxBlock.js#L27)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange({entityId:entityId,link:link,query:queryParams={},options:navigationOptions={__remove:"all"},updatedTitle="",tooltipText=this._state.tooltipText})` [源码:36](../../eyes/src/ui/components/ToolboxBlock.js#L36)：当前操作：写入 _tippy；返回 无显式返回。
+- `_showTooltip(clickEvent)` [源码:59](../../eyes/src/ui/components/ToolboxBlock.js#L59)：当前操作：写入 无直接字段写入；返回 void。
+- `_closeTooltip(clickEvent)` [源码:74](../../eyes/src/ui/components/ToolboxBlock.js#L74)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:83](../../eyes/src/ui/components/ToolboxBlock.js#L83)：当前操作：写入 _isTouch；返回 无显式返回。
 
-ClockShortcutTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/components/TutorialOverlay.js`
 
-- `key: replayContainer, iconReplay, replay, liveContainer, iconLive, live`
-- `handlers: _replay, backToLive, Reset time to live.`
-- `state: isVisibleClass, replayClass, replayIcon, liveContainerClass, liveIcon, liveClass, liveText`
+教程步骤遮罩与提示定位。[源码](../../eyes/src/ui/components/TutorialOverlay.js)。语义状态：`verified-semantic-refactor`。
 
-### `eyes/src/ui/templates/ClockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-components-TutorialOverlay-js)
 
-ClockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+### `TutorialOverlay`
 
-- `key: displayContainer, date, time, meridiem, timeForm, timeInput`
-- `handlers: onDateTimeClick`
-- `state: isVisibleClass, alert, isDateVisibleClass, date, isTimeVisibleClass, time, isMeridiemVisibleClass, meridiem`
+教程实例持有 Swiper、目标测量缓存及延迟初始化/已读计时器。路由只在主页且未取消时驱动教程，mask 百分比由目标视口比例换算，已读索引写入 localStorage。。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/templates/CollapsibleMenuItemTemplate.html`
+- `constructor(app, options={})` [源码:16](../../eyes/src/ui/components/TutorialOverlay.js#L16)：当前操作：写入 _activeBulletClass、_allTutorials、_bulletClass、_currIndex、_elementMeasures、_initTimeout、_slideViewedTimeout、_storageName、_swiper、_swiperSlideClass；返回 无显式返回。
+- `setTutorials(allTutorials)` [源码:53](../../eyes/src/ui/components/TutorialOverlay.js#L53)：当前操作：写入 _allTutorials；返回 无显式返回。
+- `hideTutorialSlide(tutorialId)` [源码:57](../../eyes/src/ui/components/TutorialOverlay.js#L57)：当前操作：写入 无直接字段写入；返回 tutorials.filter(({id:id})=>id!==tutorialId)。
+- `_addEvents()` [源码:65](../../eyes/src/ui/components/TutorialOverlay.js#L65)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createSlides()` [源码:87](../../eyes/src/ui/components/TutorialOverlay.js#L87)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_addSlide(slideElements=[], slideClass)` [源码:124](../../eyes/src/ui/components/TutorialOverlay.js#L124)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_createBullets()` [源码:130](../../eyes/src/ui/components/TutorialOverlay.js#L130)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setActiveBullet(slideIndex=this._currIndex)` [源码:145](../../eyes/src/ui/components/TutorialOverlay.js#L145)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_setHighlightedElement(slideIndex=this._currIndex, recalculateMeasures=false)` [源码:154](../../eyes/src/ui/components/TutorialOverlay.js#L154)：当前操作：写入 _elementMeasures；返回 无显式返回。
+- `onQueryChange({cancelToken:cancelToken,tutorial:tutorial}={})` [源码:190](../../eyes/src/ui/components/TutorialOverlay.js#L190)：当前操作：写入 _currIndex；返回 void。
+- `_initSwiper()` [源码:203](../../eyes/src/ui/components/TutorialOverlay.js#L203)：当前操作：写入 _initTimeout、_swiper；返回 无显式返回。
+- `_postSwiperInitFunction()` [源码:216](../../eyes/src/ui/components/TutorialOverlay.js#L216)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_getIndexByTutorialId(tutorialId)` [源码:221](../../eyes/src/ui/components/TutorialOverlay.js#L221)：当前操作：写入 无直接字段写入；返回 this._allTutorials?.findIndex(({id:id})=>id===tutorialId)。
+- `_setSlideViewedTimeout(slideIndex)` [源码:226](../../eyes/src/ui/components/TutorialOverlay.js#L226)：当前操作：写入 _slideViewedTimeout；返回 无显式返回。
+- `_calcElementMeasures()` [源码:232](../../eyes/src/ui/components/TutorialOverlay.js#L232)：当前操作：写入 无直接字段写入；返回 this._allTutorials.map(({targetSelector:targetSelector})=>{const visibleTargets=[...document.body.querySelectorAll(targetSelector)].filter(targetElement=>null!==targetElement.offsetParent);if(!visibleTargets.length)retur。
+- `show()` [源码:256](../../eyes/src/ui/components/TutorialOverlay.js#L256)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `hide()` [源码:266](../../eyes/src/ui/components/TutorialOverlay.js#L266)：当前操作：写入 _currIndex；返回 无显式返回。
+- `calcPriorityIndex()` [源码:271](../../eyes/src/ui/components/TutorialOverlay.js#L271)：当前操作：写入 无直接字段写入；返回 unviewedTutorials.length?this._getIndexByTutorialId(unviewedTutorials[0].id):null。
+- `navigateToTutorial(tutorialIndex, useHomeRoute=false)` [源码:276](../../eyes/src/ui/components/TutorialOverlay.js#L276)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `close()` [源码:292](../../eyes/src/ui/components/TutorialOverlay.js#L292)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:297](../../eyes/src/ui/components/TutorialOverlay.js#L297)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-CollapsibleMenuItemTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/BreadcrumbTemplate.html`
 
-- `key: componentContainer, collapseButton, toggleButton`
-- `handlers: onCollapseClick, onToggleClick`
-- `state: expandedClass, isVisibleClass, collapseBtnVisibleClass, itemTitle`
+BreadcrumbTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/BreadcrumbTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/CollapsibleMenuTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-BreadcrumbTemplate-html)
 
-CollapsibleMenuTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ButtonsBlockTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: isVisibleClass, numMenusClass, expandedMenusClass`
+ButtonsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ButtonsBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ComparisonTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ButtonsBlockTemplate-html)
 
-ComparisonTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CameraViewBlockTemplate.html`
 
-- `key: left, right, previous, next, exit, exitIcon`
-- `handlers: `
-- `state: isVisibleClass, leftTitle, fontSizeClass, leftType, leftIdentifier, leftValueClass, leftRadius, altFontSizeClass, unit, leftGenericDisclaimerClass, leftCategory, rightTitle, rightType, rightIdentifier, rightValueClass, rightRadius, rightUnit, rightGenericDisclaimerClass, rightCategory`
+CameraViewBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CameraViewBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ContentPanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CameraViewBlockTemplate-html)
 
-ContentPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CarouselPanelTemplate.html`
 
-- `key: desktopCollapseExpandButton, tabGroup, dragHandle, expandButton, collapseButton, subTabNav, infoTab, toolboxTab, viewOptionsTab, infoPanel, toolboxPanel, viewOptionsPanel`
-- `handlers: Toggle content panel., onClickShowCollapse, onDragStart, onDrag, onDragEnd, Expand content panel., expand, Collapse content panel, collapse, info-tab-panel, _onTabSelect, toolbox-tab-panel, viewOptions-tab-panel`
-- `state: isVisibleClass, isOverlayClass, isExpandedClass, isCollapsedClass, desktopIconName, iconExpandClass, iconCollapseClass, tabsVisible, subtabsVisible, infoTabVisibleClass, toolboxTabVisibleClass, viewOptionsTabVisibleClass, viewOptionsSelectedClass`
+CarouselPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CarouselPanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/DescriptionBlockTemplate-1006.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CarouselPanelTemplate-html)
 
-DescriptionBlockTemplate-1006 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CarouselTemplate-390.html`
 
-- `key: copyContainer, moreContainer, moreCopy`
-- `handlers: onClickReadMore`
-- `state: isExpanded, showTitleLabel, blurbDescription, isMoreVisible, moreDescription, isButtonVisible, readMsg`
+CarouselTemplate-390 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CarouselTemplate-390.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/DescriptionBlockTemplate-542.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CarouselTemplate-390-html)
 
-DescriptionBlockTemplate-542 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CarouselTemplate-391.html`
 
-- `key: header, body, footer`
-- `handlers: toggleMore`
-- `state: moreClass, hasMoreClass, moreMessage, moreIcon`
+CarouselTemplate-391 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CarouselTemplate-391.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/DistancePanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CarouselTemplate-391-html)
 
-DistancePanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CheckboxBlockTemplate.html`
 
-- `key: dragArea, dpTitle, dpCloseButton, sourceSearchContainer, targetSearchContainer, lineGraphic, maxMinButton`
-- `handlers: onContainerClick, exit, toggleSourceMP, onSwapClick, toggleTargetMP, onLineClick, onResultClick, toggleUnitSystem, toggleIsMinimized`
-- `state: isVisibleClass, canMinimizeClass, isMinimizedClass, isSearchingClass, isDraggableClass, currDraggingClass, fromText, showSourceMPToggleClass, swapIsVisibleClass, swapOffsetClass, toText, showTargetMPToggleClass, touchActiveClass, dotPosClass, sourceMpClass, targetMpClass, isExpandedClass, resultTextClass, resultText, resultUnit, isLoadingClass, relVelocityClass, relVelocityText, relVelocityUnit, lightTimeVisibleClass, lightTimeText, maxMinIconClass, maxMinBtnPosition`
+CheckboxBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CheckboxBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/EventsBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CheckboxBlockTemplate-html)
 
-EventsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CheckboxMultistateTemplate.html`
 
-- `key: toggleContainer, timelineContainer, tableContainer, table, eventsTable`
-- `handlers: _onTabSelect, sortEventsByTitle, sortEventsByYear, sortEventsByTarget`
-- `state: isViewToggleVisible, isNumEventsVisible, numEvents, isIntroLabelVisible, introLabelText, isLoadingClass, isEventsViewContainerVisible`
+CheckboxMultistateTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CheckboxMultistateTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/EventsTimelineTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CheckboxMultistateTemplate-html)
 
-EventsTimelineTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ClockShortcutTemplate.html`
 
-- `key: focusPanel, fpMask, fpDetails, fpTicksContainer, fpLine, fpTicks, timelinebar, eventContainer, fpContent, markerContainer, rangeDateStart, rangeDateEnd`
-- `handlers: _onFpMouseEnter, _onFpMouseLeaveDebounced, _onFpWheel, _onFpArrowClick, _onFpTouchStart, _onFpTouchMoveThrottled, _onFpTouchEnd, _onFpTicksTouchStart, _onFpTicksTouchMove, _onFpTicksTouchEnd, _onFpTicksMouseEnter, _onFpTicksMouseMove, _onFpTicksMouseLeave, _onFpTicksClick, _onTimelineTouchStart, _onTimelineTouchMove, _onTimelineTouchEnd, _onTimelineMouseMove, _onTimelineMouseLeaveDebounced, _onTimelineClick, _onDateTouchStart, _onDateTouchEnd, _zoomOutOfCluster`
-- `state: isVisibleClass, fpVisibleClass, fpArrowVisible, fpEventName, fpEventTime, fpTargetLineVisibleClass, fpViewingLineVisibleClass, focusContentVisibleClass, viewingLineVisibleClass, targetLineVisibleClass, targetDateVisibleClass, targetDateColorClass, resetZoomVisibleClass`
+ClockShortcutTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ClockShortcutTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ExplorationBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ClockShortcutTemplate-html)
 
-ExplorationBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ClockTemplate.html`
 
-- `key: explorationList`
-- `handlers: toggleMore`
-- `state: colorClass, hideMoreMessage, moreMessage, moreIcon`
+ClockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ClockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/FeaturedEventsBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ClockTemplate-html)
 
-FeaturedEventsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CollapsibleMenuItemTemplate.html`
 
-- `key: featuredEventsList`
-- `handlers: toggleMore`
-- `state: colorClass, hideMoreMessage, moreMessage, moreIcon`
+CollapsibleMenuItemTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CollapsibleMenuItemTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/FeaturedMoonsBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CollapsibleMenuItemTemplate-html)
 
-FeaturedMoonsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/CollapsibleMenuTemplate.html`
 
-- `key: featuredMoonsList`
-- `handlers: toggleMore`
-- `state: showTitleLabel, hideMoreMessage, moreMessage, moreIcon`
+CollapsibleMenuTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/CollapsibleMenuTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/FeaturedStoriesPanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-CollapsibleMenuTemplate-html)
 
-FeaturedStoriesPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ComparisonTemplate.html`
 
-- `key: expandToggleBtn`
-- `handlers: onClickShowCollapse`
-- `state: isVisibleClass, isOverlayClass, isOpenTitleClass, desktopIconName, isOpenButtonClass, mobileIconName`
+ComparisonTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ComparisonTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/FeaturedStoryBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ComparisonTemplate-html)
 
-FeaturedStoryBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ContentPanelTemplate.html`
 
-- `key: storyBlock, storyList`
-- `handlers: `
-- `state: colorClass, hideTitle, blockTitle`
+ContentPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ContentPanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/FeaturesBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ContentPanelTemplate-html)
 
-FeaturesBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/DescriptionBlockTemplate-1006.html`
 
-- `key: featuresBlock, featuresList`
-- `handlers: `
-- `state: showFeatures`
+DescriptionBlockTemplate-1006 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/DescriptionBlockTemplate-1006.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/HintBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-DescriptionBlockTemplate-1006-html)
 
-HintBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/DescriptionBlockTemplate-542.html`
 
-- `key: `
-- `handlers: `
-- `state: iconBefore, isIconBeforeVisibleClass, text, iconAfter, isIconAfterVisibleClass`
+DescriptionBlockTemplate-542 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/DescriptionBlockTemplate-542.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ImageBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-DescriptionBlockTemplate-542-html)
 
-ImageBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/DistancePanelTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: `
+DistancePanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/DistancePanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/InfoPanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-DistancePanelTemplate-html)
 
-InfoPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/EventsBlockTemplate.html`
 
-- `key: infoPanel`
-- `handlers: `
-- `state: isVisibleClass`
+EventsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/EventsBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/InstrumentFOVBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-EventsBlockTemplate-html)
 
-InstrumentFOVBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/EventsTimelineTemplate.html`
 
-- `key: instrumentFOVBlock, instrumentsList`
-- `handlers: `
-- `state: `
+EventsTimelineTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/EventsTimelineTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/KioskBaseTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-EventsTimelineTemplate-html)
 
-KioskBaseTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ExplorationBlockTemplate.html`
 
-- `key: kioskContainer, kioskLoadingText, kioskSessionEnd, sessionEndButtons, kioskStartOverBtn, kioskContinueBtn, kioskAutoplay, kioskSessionTimer`
-- `handlers: onWindowInteract, sessionStartOverButtonClick`
-- `state: isVisibleClass, loadingTextVisibleClass, sessionEndVisibleClass, forceRestartClass, continueButtonVisibleClass, autoplayVisibleClass, sessionTimerVisibleClass, isKioskCountdownClass`
+ExplorationBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ExplorationBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/LayerPanelTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ExplorationBlockTemplate-html)
 
-LayerPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/FeaturedEventsBlockTemplate.html`
 
-- `key: layerPanelBody`
-- `handlers: hide`
-- `state: isVisibleClass`
+FeaturedEventsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/FeaturedEventsBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/LayersBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-FeaturedEventsBlockTemplate-html)
 
-LayersBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/FeaturedMoonsBlockTemplate.html`
 
-- `key: layersBlock, layersList`
-- `handlers: `
-- `state: showContextualLayers`
+FeaturedMoonsBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/FeaturedMoonsBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/LoadIconTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-FeaturedMoonsBlockTemplate-html)
 
-LoadIconTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/FeaturedStoriesPanelTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: isVisibleClass`
+FeaturedStoriesPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/FeaturedStoriesPanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/MenuTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-FeaturedStoriesPanelTemplate-html)
 
-MenuTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/FeaturedStoryBlockTemplate.html`
 
-- `key: container, header, branding, contentWrapper, mainMenu`
-- `handlers: toggle, hide`
-- `state: menuText, isVisibleClass, menuClass, brandingText, titleText`
+FeaturedStoryBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/FeaturedStoryBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/MobileExpandButtonTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-FeaturedStoryBlockTemplate-html)
 
-MobileExpandButtonTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/FeaturesBlockTemplate.html`
 
-- `key: mobileExpandButton`
-- `handlers: _expandButtonClicked, Expand content panel.`
-- `state: isVisibleClass`
+FeaturesBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/FeaturesBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/OverlayTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-FeaturesBlockTemplate-html)
 
-OverlayTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/HintBlockTemplate.html`
 
-- `key: overlay, overlayContent`
-- `handlers: show, hide`
-- `state: isOpenButtonVisibleClass, isVisibleClass`
+HintBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/HintBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/OverviewBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-HintBlockTemplate-html)
 
-OverviewBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ImageBlockTemplate.html`
 
-- `key: overviewTitle`
-- `handlers: goBack`
-- `state: isBackButtonVisible, title, shapeType, shapeColor, isShapeVisibleClass, isCategoryVisibleClass, category, isDateVisible, missionDates, disclaimerClass, disclaimerMessage`
+ImageBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ImageBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/RelatedBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ImageBlockTemplate-html)
 
-RelatedBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/InfoPanelTemplate.html`
 
-- `key: relatedBlock, storyBlock, storyList, relatedList`
-- `handlers: `
-- `state: showTitleLabel`
+InfoPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/InfoPanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ReplayBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-InfoPanelTemplate-html)
 
-ReplayBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/InstrumentFOVBlockTemplate.html`
 
-- `key: clockContainer, eventsSliderContainer, eventInputRange`
-- `handlers: prevButtonClicked, Pause / play, playPauseEvent, nextButtonClicked`
-- `state: dateText, isPrevBtnActive, playIconClass, hideNextEventButton, isNextBtnActive`
+InstrumentFOVBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/InstrumentFOVBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ReplayButtonBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-InstrumentFOVBlockTemplate-html)
 
-ReplayButtonBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/KioskBaseTemplate.html`
 
-- `key: `
-- `handlers: onClick`
-- `state: `
+KioskBaseTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/KioskBaseTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/SearchTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-KioskBaseTemplate-html)
 
-SearchTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/LayerPanelTemplate.html`
 
-- `key: container, input, results, featured`
-- `handlers: onIconClick, reset, _find, onInputFocus, keydown`
-- `state: isVisibleClass, magClass, searchClass, focusedClass, allowInfoClass, searchInfo, allowFeaturedClass, isFeaturedVisibleClass`
+LayerPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/LayerPanelTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/SettingsTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-LayerPanelTemplate-html)
 
-SettingsTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/LayersBlockTemplate.html`
 
-- `key: container, content, zoomInButton, zoomOutButton, lightToggle, lightOptions, flood, shadow, natural`
-- `handlers: toggleInfoPanel, Show info panel, toggleLayers, Toggle layers, toggleUnit, Toggle between metric and imperial units, togglePhotoMode, Show or hide UI, Zoom in, Zoom out, toggleLight, Toggle light modes, toggleGuidedCamera, Toggle auto camera, toggleFullscreen, Toggle fullscreen, toggleCollapse, Show or hide settings`
-- `state: isVisibleClass, orientationClass, containerClass, allowInfoPanelClass, infoButton, allowLayersClass, unitButton, allowToggleUnitClass, photoModeClass, allowPhotoModeClass, allowZoomClass, allowLightingClass, lightClass, guidedClass, allowGuidedCameraClass, showLightingOptionsClass, fullscreenClass, allowFullscreenClass, isCollapsibleClass`
+LayersBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/LayersBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ShareModalTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-LayersBlockTemplate-html)
 
-ShareModalTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/LoadIconTemplate.html`
 
-- `key: tabHeaders, closeButton, tabContent, linkContainer, linkImage, linkCode, embedContainer, embedPreviewParent, embedCode, embedOptsContent, embedAdvOptsContent, copiedOverlay`
-- `handlers: handleClick, handleTabClick, copyToClipboard, toggleIframeElements, Include the iframe HTML tags in the embed code`
-- `state: isVisibleClass, linkTitle, previewDevice, previewVisibleClass`
+LoadIconTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/LoadIconTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/SolarSystemAppTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-LoadIconTemplate-html)
 
-SolarSystemAppTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/MenuTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: `
+MenuTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/MenuTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/SpecialFeaturesBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-MenuTemplate-html)
 
-SpecialFeaturesBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/MobileExpandButtonTemplate.html`
 
-- `key: specialFeatures`
-- `handlers: `
-- `state: category`
+MobileExpandButtonTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/MobileExpandButtonTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/SurfaceMapBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-MobileExpandButtonTemplate-html)
 
-SurfaceMapBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/OverlayTemplate.html`
 
-- `key: surfaceMapBlock, surfaceMapList`
-- `handlers: `
-- `state: showSurfaceMaps, showSubtitle`
+OverlayTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/OverlayTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TelescopeTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-OverlayTemplate-html)
 
-TelescopeTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/OverviewBlockTemplate.html`
 
-- `key: coordinateTipPopup, coordinateInfo, latitude, longitude, constellationToggleButton, tapHint`
-- `handlers: showCoordinateInputTip, latitudeInputChange, longitudeInputChange, goSurfaceViewClick, exitTelescope, exitSurfaceMode, toggleConstellation`
-- `state: airClass, inputTipVisibleClass, latitudeTitle, longitudeTitle, surfaceClass, azimuth, elevation, formattedLatitude, formattedLongitude, constellationsClass`
+OverviewBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/OverviewBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TextureQualityBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-OverviewBlockTemplate-html)
 
-TextureQualityBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/RelatedBlockTemplate.html`
 
-- `key: textureQualityBlock, optionsList`
-- `handlers: `
-- `state: `
+RelatedBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/RelatedBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TimeControllerTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-RelatedBlockTemplate-html)
 
-TimeControllerTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ReplayBlockTemplate.html`
 
-- `key: toggleBtn, label, decreaseBtn, decreaseContainer, increaseBtn, increaseContainer, rateDisplay`
-- `handlers: Pause / play, togglePlayPause, Decrease time rate, decreaseRate, Increase time rate, increaseRate`
-- `state: isVisibleClass, playClass, rateDisplay`
+ReplayBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ReplayBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TimeControlsTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ReplayBlockTemplate-html)
 
-TimeControlsTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ReplayButtonBlockTemplate.html`
 
-- `key: sliderContainer, inputRange, svgParent, sliderPath`
-- `handlers: Decrease time rate, decreaseRate, Pause / play, playPauseRate, Increase time rate, increaseRate, Return to real time speed, onRealtimeClick`
-- `state: isVisibleClass, touchActiveClass, isLiveClass, isPlayingClass, dateValue, timeValue, isRateControlsVisible, rateDisplay, playIconClass, realTimeBtnClass`
+ReplayButtonBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ReplayButtonBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TitleBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ReplayButtonBlockTemplate-html)
 
-TitleBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/SearchTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: `
+SearchTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/SearchTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ToastTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-SearchTemplate-html)
 
-ToastTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/SettingsTemplate.html`
 
-- `key: toastContent`
-- `handlers: hide`
-- `state: isVisibleClass, errorClass, iconClass, toastContent`
+SettingsTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/SettingsTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ToggleBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-SettingsTemplate-html)
 
-ToggleBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/ShareModalTemplate.html`
 
-- `key: `
-- `handlers: `
-- `state: isSelectedClass`
+ShareModalTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ShareModalTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/ToolboxBlockTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ShareModalTemplate-html)
 
-ToolboxBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/SolarSystemAppTemplate.html`
 
-- `key: toolboxBlock, clickableDiv, tooltipIcon, goButton, tooltipPopup`
-- `handlers: _showTooltip, _closeTooltip`
-- `state: isVisibleClass, iconClass, title, inputTipVisibleClass, tooltipText`
+SolarSystemAppTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/SolarSystemAppTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/templates/TutorialOverlayTemplate.html`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-SolarSystemAppTemplate-html)
 
-TutorialOverlayTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。
+## `eyes/src/ui/templates/SpecialFeaturesBlockTemplate.html`
 
-- `key: swiperSlides, bullets`
-- `handlers: close`
-- `state: isVisibleClass, slideClass, carouselClass, dismissText`
+SpecialFeaturesBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/SpecialFeaturesBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/views/BaseView.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-SpecialFeaturesBlockTemplate-html)
 
-路由视图共同生命周期：资源、时间、组件、相机与清理。
+## `eyes/src/ui/templates/SurfaceMapBlockTemplate.html`
 
-- `imports: ../../vendor/modules/FollowName.cjs, ../../engine/solar-system/public-api.js, ../../framework/eyes/public-api.js, ../../engine/pioneer/index.js`
-- `manager dependencies: layer, router, label, selection, spout, title, scene, time, content`
-- `component dependencies: layerPanel, clock`
+SurfaceMapBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/SurfaceMapBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-**BaseView**：路由视图共同生命周期：资源、时间、组件、相机与清理；继承 EyesPublicApi.BaseComponent。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-SurfaceMapBlockTemplate-html)
 
-- `constructor`：建立实例初始字段和依赖；调用 this.bindFunctions；写入 _components, _validQueries, _rules, _target, _enabled。
-- `app`：执行 app 对应的组件业务步骤。
-- `_showControls`：执行 _showControls 对应的组件业务步骤。
-- `_hideControls`：执行 _hideControls 对应的组件业务步骤。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项。
-- `updateVisibility`：执行 updateVisibility 对应的组件业务步骤；调用 this._app.getManager, this._shouldHideControls, this._hideControls, this._showControls。
-- `resize`：重排响应式界面；调用 this.updateVisibility。
-- `toggleViewUI`：执行 toggleViewUI 对应的组件业务步骤。
-- `_shouldResetStatus`：执行 _shouldResetStatus 对应的组件业务步骤；调用 this._app.getManager。
-- `_resetStatus`：执行 _resetStatus 对应的组件业务步骤；调用 this._shouldResetStatus, Object.keys, this._app.getComponents, this._app.getComponent, this._components.includes。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 this._app.getManager。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 this._app.getManager。
-- `onEnter`：进入视图时准备界面和订阅；调用 this._resetStatus, this.registerCallbacks, this._app.getManager, List.add。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this.before, this._reset, this._updateResources, this.processQuery, this._updateComponentsVisibility, this._checkReady, this._updateCamera, this._updateLoading, this.after, this.app.getManager。
-- `onQueryChange`：响应查询参数变化；调用 this.processQuery。
-- `validateQuery`：检查查询规则并重定向、补默认值或报错；调用 Object.keys, this._app.getManager, this._rules.redirect, Manager.navigate, EyesPublicApi.AppUtils.isEmptyObject, this._handleError, JSON.stringify。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 this._updateTimeRate, this._updateTime, this._app.getManager, Manager.parseQuery, Object.keys, this._app.getComponent, Manager.getLayer, PanelComponent.toggleLayer, this.app.getManager。
-- `_handleError`：执行 _handleError 对应的组件业务步骤；调用 this._app.getManager。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this.removeCallbacks, this._app.getManager, List.remove。
-- `_reset`：重置上一目标留下的临时状态；调用 this._app.getManager。
-- `_updateResources`：按目标和路由准备数据及实体。
-- `_updateTimeRate`：执行 _updateTimeRate 对应的组件业务步骤；调用 this._app.getManager, Manager.setTimeRate, Manager.resetTimeRate。
-- `_updateTime`：按查询参数或当前目标设置时间；调用 this._app.getManager, Route.url.includes, Manager.resetMin, Manager.resetMax, this._updateTimeForTarget。
-- `_updateTimeForTarget`：将时间限制收敛到目标覆盖范围；调用 this._app.getManager, Manager.timeLimits.min.clone, Manager.timeLimits.max.clone, Manager.getDefaultLimits, Manager.parseTime, this._app.getComponent, Manager.navigate, Manager.setMax, Manager.setMin, Manager.setTime, Manager.setTimeRate, Manager.setToNow。
-- `_updateComponentsVisibility`：执行 _updateComponentsVisibility 对应的组件业务步骤；调用 this._updateComponents, this.updateVisibility。
-- `_updateComponents`：把当前目标数据交给 UI 组件。
-- `_updateCamera`：按当前模式定位相机与目标。
-- `_updateLoading`：把目标组件加载状态关联到场景加载提示；调用 this._app.getManager, Manager.getEntityInfo, Manager.addLoading, Manager._scene.getEntity, Manager.get, Manager.forceLoad, Manager.componentIsReady, Promise.all, Manager.removeLoading。
-- `_checkReady`：等待所需实体就位；调用 this._app.getManager, this._app.pioneer.getScene, this._app.pioneer.waitUntilNextFrame。
-- `before`：执行路由更新前置步骤。
-- `after`：执行路由更新后的收尾步骤；调用 this._app.getManager。
+## `eyes/src/ui/templates/TelescopeTemplate.html`
 
-- 注意：路由更新多处检查 cancelToken；异步任务取消后应由后续检查阻止新 UI/相机写入。
-- 注意：onRouteChange 的 finally(after) 只覆盖相机更新区间；更早阶段抛错不会自动执行 after。
-- 注意：_updateTimeForTarget 合并默认范围、scene coverage、description dates，并夹紧请求时间。
+TelescopeTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TelescopeTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/views/CompareView.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TelescopeTemplate-html)
 
-对象比较模式和照片模式切换。
+## `eyes/src/ui/templates/TextureQualityBlockTemplate.html`
 
-- `imports: ./ExtendedBaseView.js, ../../framework/eyes/index.js, ../../data/Unidentified775.json`
-- `manager dependencies: content, time, layer, comparison, router, camera`
-- `component dependencies: menu, comparison, breadcrumb, settings`
+TextureQualityBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TextureQualityBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-**CompareView**：对象比较模式和照片模式切换；继承 ExtendedBaseView.default。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TextureQualityBlockTemplate-html)
 
-- `constructor`：建立实例初始字段和依赖；调用 this._validQueries.push, this._app.getManager, this.bindFunctions；写入 defaultConfig, _category, _compare。
-- `onEnter`：进入视图时准备界面和订阅；调用 super.onEnter, this._app.getManager, this._app.getComponent, Eyes.AppUtils.isMobileMode。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this._app.getManager；写入 _category。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 super.processQuery, this._app.getComponent, this._app.getManager；写入 _compare, _compareTo, _entityInfo, _compareEntityInfo。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Route.url.match, this._app.getComponent, Component.getConfig, Eyes.AppUtils.deepCopy, Component.setConfig；写入 defaultConfig。
-- `togglePhotoMode`：执行 togglePhotoMode 对应的组件业务步骤；调用 this._app.getComponent。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 super.onLeave, this._app.getManager, this._app.getComponent, Component.setConfig；写入 _compare。
-- `resize`：重排响应式界面；调用 super.resize, this._app.getComponent, Eyes.AppUtils.isMobileMode。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent。
+## `eyes/src/ui/templates/TimeControllerTemplate.html`
 
-### `eyes/src/ui/views/DistanceView.js`
+TimeControllerTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TimeControllerTemplate.html)。语义状态：`not-semantically-accepted`。
 
-距离模式的源目标、覆盖时间交集及双目标相机。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TimeControllerTemplate-html)
 
-- `imports: ../../framework/eyes/index.js, ../../engine/managers/DistanceManager.js, ./ExtendedBaseView.js`
-- `manager dependencies: content, router, scene, time, layer, selection`
-- `component dependencies: distancePanel, collapsibleMenu, breadcrumb, timecontrolsCollapsible`
+## `eyes/src/ui/templates/TimeControlsTemplate.html`
 
-**DistanceView**：距离模式的源目标、覆盖时间交集及双目标相机；继承 ExtendedBaseView.default。
+TimeControlsTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TimeControlsTemplate.html)。语义状态：`not-semantically-accepted`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.getManager, Manager.getEntityInfo, Manager._entityStatuses.get, this.bindFunctions；写入 _rules, _forceLoadEntities, _spaceObjectChanged, _targetChanged, _timeChanged, _rateChanged, _redirect。
-- `onEnter`：进入视图时准备界面和订阅；调用 this.app.addManager, this.app.getComponent, this.distancePanel.show, this.distanceManager.init, this.distancePanel.initSearchUI, this.setBreadcrumbStaticTextVisible, this.updateVisibility, super.onEnter。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this.app.getComponent, this.distanceManager.deinit, this.setBreadcrumbStaticTextVisible, super.onLeave。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getManager。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getManager。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 super.processQuery, this.app.getManager, Manager.parseQuery, Token.cancel, this.distanceManager.setIsWaitingForEntities, this.distanceManager.setBetweenPosHidden, this._forceLoadEntities.push, this._forceLoadEntities.map, Manager.getDependencies, this._forceLoadEntities.flat, Manager.setEntitiesForceVisible, this.distanceManager.setTargetDistanceEntities；写入 _spaceObjectChanged, _targetChanged, _timeChanged, _rateChanged, _forceLoadEntities。
-- `onQueryChange`：响应查询参数变化；调用 this.distanceManager.setIsWaitingForEntities, super.onQueryChange, this.distanceManager.updateMeasurement, this._updateComponents, this._checkReady, this._updateCamera。
-- `_updateTime`：按查询参数或当前目标设置时间；调用 this.app.getManager, Manager.parseTime, Manager.setTime, this._app.getManager。
-- `_reset`：重置上一目标留下的临时状态；调用 super._reset, this.distanceManager.resetAllDistanceEntities；写入 _forceLoadEntities。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, this._app.getComponent, DisplayNames.join, Manager.currentRoute.url.match, Component.onRouteChange。
-- `_checkReady`：等待所需实体就位；调用 this.app.getManager, Manager.parseTime, Manager.getTime, Manager.momentToET, this.distanceManager.measureDistance, this.distancePanel.setIsLoading, this._app.scene.waitTillEntitiesInPlace, this._checkCoverageOverlap, this.distanceManager.setTempErrorResult, this._app.getManager, this.distanceManager.setIsWaitingForEntities, this.distanceManager.updateMeasurement；写入 _redirect。
-- `_checkCoverageOverlap`：执行 _checkCoverageOverlap 对应的组件业务步骤；调用 this.app.getManager, Manager.getDefaultLimits, Manager.getCoverage, Manager.setMin, Manager.setMax, Manager.getTime, Manager.isWithinLimits, Manager.getLimits, this.app.getComponent, Manager.navigate, Manager.getTimeUrl；写入 _redirect。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this.distanceManager.camToBetweenPos, this.app.cameraScripts.goToCelestialObject, this.distanceManager.setBetweenPosHidden。
-- `_updateCollapsibleMenu`：执行 _updateCollapsibleMenu 对应的组件业务步骤；调用 this._collapsibleItemOptions.filter, this._collapsibleItemOptions.push, super._updateCollapsibleMenu；写入 _collapsibleItemOptions。
-- `onIsMobileChange`：执行 onIsMobileChange 对应的组件业务步骤；调用 this._updateCollapsibleMenu, Promise.all, this._collapsibleItems.find, this.distancePanel.setParent；写入 _collapsibleItems。
-- `setBreadcrumbStaticTextVisible`：执行 setBreadcrumbStaticTextVisible 对应的组件业务步骤；调用 this._app.getComponent。
-- `resize`：重排响应式界面；调用 super.resize, this.setBreadcrumbStaticTextVisible。
-- `shouldOffsetRight`：执行 shouldOffsetRight 对应的组件业务步骤。
-- `shouldOffsetUp`：执行 shouldOffsetUp 对应的组件业务步骤。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TimeControlsTemplate-html)
 
-### `eyes/src/ui/views/EventView.js`
+## `eyes/src/ui/templates/TitleBlockTemplate.html`
 
-对象事件的有效时间、重播及相关实体相机。
+TitleBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TitleBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-- `imports: ../../framework/eyes/index.js, ./ExtendedBaseView.js, ../../vendor/modules/Unidentified777.cjs`
-- `manager dependencies: content, layer, cameraFollow, selection, scene, router, time`
-- `component dependencies: clockShortcut, contentPanel, timeControls, breadcrumb, eventsTimeline, clock`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TitleBlockTemplate-html)
 
-**EventView**：对象事件的有效时间、重播及相关实体相机；继承 ExtendedBaseView.default。
+## `eyes/src/ui/templates/ToastTemplate.html`
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.getManager, this.bindFunctions；写入 _entityInfo, _entityDesc, _scEvents, _scOrderedEvents, _eventName, _eventInfo, _eventDesc, _isSpacecraft, _hasLoaded, _onLoaded, _onAfter。
-- `onEnter`：进入视图时准备界面和订阅；调用 this._app.getComponent, super.onEnter；写入 _offsetPanel。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this._app.getManager, this.app.getManager, super.onLeave, this._app.getComponent, MenuParent.setExpanded。
-- `onQueryChange`：响应查询参数变化；调用 super.onQueryChange, this._app.getComponent, PanelComponent.onQueryChange。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent, PanelComponent.registerCallback。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent, PanelComponent.removeCallback。
-- `_reset`：重置上一目标留下的临时状态；调用 super._reset；写入 _entityInfo, _entityDesc, _scEvents, _scOrderedEvents, _eventName, _eventInfo, _eventDesc, _hasLoaded, _onLoaded, _target。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this._app.getManager, this._handleError, Eyes.AppUtils.deepCopy, this.app.getManager, Manager.setEntitiesForceVisible；写入 _entityInfo, _hasLoaded, _scEvents, _scOrderedEvents, _entityDesc, _eventName, _eventInfo, _eventDesc。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Manager.currentRoute.url.match, this._app.getComponent, PanelComponent.onRouteChangeEvent, PanelComponent.show, PanelComponent.collapse, MenuParent.setExpanded, Promise.all, this._collapsibleItems.find, TimelineComponent.setTarget, TimelineComponent.resize, this._onLoaded；写入 _collapsibleItems, _onLoaded。
-- `_updateTimeForTarget`：将时间限制收敛到目标覆盖范围；调用 super._updateTimeForTarget, this._app.getManager, Manager.getTime, this._setMinEventEnd, Manager.setMin, Manager.setMax, Manager.parseTime, Manager.isWithinLimits, Manager.setTime, Manager.getTimeUrl, C.isAfter, C.isBefore, Manager.getDefaultLimits, this._app.getComponent；写入 _onAfter。
-- `_setMinEventEnd`：执行 _setMinEventEnd 对应的组件业务步骤；调用 Math.abs。
-- `_loaded`：执行 _loaded 对应的组件业务步骤；调用 super._loaded, this._onLoaded；写入 _onLoaded, _hasLoaded。
-- `_backToLive`：执行 _backToLive 对应的组件业务步骤；调用 this._app.getManager, Manager.getTimeUrl, Manager.getNow。
-- `replayEvent`：执行 replayEvent 对应的组件业务步骤；调用 this._app.getManager, Manager.getTime, Manager.lastRouteResolved, this._updateCamera, Manager.getTimeUrl, Eyes.AppUtils.deepEqual, Manager.reload, Manager.navigate。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this._app.getManager, this._app.cameraScripts.alignSpacecraftPlanet, this._app.cameraScripts.alignObjects, this._app.cameraScripts.goToSpacecraft, this.app.getManager。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项；调用 this._app.getComponent, Eyes.AppUtils.isMobileMode。
-- `after`：执行路由更新后的收尾步骤；调用 this._onAfter；写入 _onAfter。
+ToastTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ToastTemplate.html)。语义状态：`not-semantically-accepted`。
 
-### `eyes/src/ui/views/ExtendedBaseView.js`
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ToastTemplate-html)
 
-加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略。
+## `eyes/src/ui/templates/ToggleBlockTemplate.html`
 
-- `imports: ../../framework/eyes/index.js, ../../app/PreloadManager.js`
-- `manager dependencies: router, content, scene, layer`
-- `component dependencies: searchDesktop, clockShortcut, timeControls, eventsTimeline, contentPanel, settings, collapsibleMenu, infoPanel, clock, mobileExpandButton, menu`
+ToggleBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ToggleBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-**ExtendedBaseView**：加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略；继承 Eyes.BaseView。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ToggleBlockTemplate-html)
 
-- `constructor`：建立实例初始字段和依赖；调用 this.bindFunctions；写入 _collapsibleItemOptions, _collapsibleItems, _offsetPanel, embedQueries, kioskValues。
-- `onEnter`：进入视图时准备界面和订阅；调用 this.setViewportOffset, this._app.getManager, this.disableUIComponent, Eyes.AppUtils.isMobileMode, this._app.getComponent, this._updateCollapsibleMenu, super.onEnter。
-- `disableUIComponent`：执行 disableUIComponent 对应的组件业务步骤；调用 this._components.indexOf, this._components.splice, this._app.removeComponent。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this.setViewportOffset, this._app.getComponent, ShortcutComponent.setCallback, ShortcutComponent.hide, super.onLeave。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getManager。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getManager。
-- `_reset`：重置上一目标留下的临时状态；调用 super._reset, this._app.getComponent。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 super.processQuery。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 this._components.includes, this.app.getComponent, this._app.getManager, this._components.indexOf, this._components.push, this._components.splice, this.app.getManager, this._updateCollapsibleMenu, Manager.getEntityInfo, this._app.getComponent, Manager.updateHDTarget, Manager.getHDToggleEntity, Manager.toggleHDTextureForEntity, Manager.getSpheroidLayers；写入 _collapsibleItems。
-- `_loaded`：执行 _loaded 对应的组件业务步骤；调用 PreloadManager.default.updateEmbedLoadPercent, PreloadManager.default.showEmbedViewButton。
-- `_updateLoading`：把目标组件加载状态关联到场景加载提示；调用 super._updateLoading, this._app.getManager, this._loaded。
-- `_updateCollapsibleMenu`：执行 _updateCollapsibleMenu 对应的组件业务步骤；调用 this._app.getComponent, this._components.includes, MenuComponent.removeAllItems, this._app.getManager, this._collapsibleItemOptions.filter, this._collapsibleItemOptions.map, Names.every, MenuComponent.addItem；写入 _collapsibleItemOptions, _collapsibleItems。
-- `_handleInfoPanelEmbedQueries`：执行 _handleInfoPanelEmbedQueries 对应的组件业务步骤；调用 this._components.includes, this._app.getComponent, Object.keys, HTML.replace。
-- `_showControls`：执行 _showControls 对应的组件业务步骤；调用 this._app.getComponent, MenuComponent.show, Component.show, List.remove, List.add, this._app.getManager, Eyes.AppUtils.isMobileMode, Component.collapse, MenuComponent.collapse。
-- `_hideControls`：执行 _hideControls 对应的组件业务步骤；调用 Eyes.AppUtils.isMobileMode, this._app.getComponent, List.add, List.remove, TimelineComponent.hide。
-- `toggleViewUI`：执行 toggleViewUI 对应的组件业务步骤；调用 this._app.getManager, this._components.forEach, this._app.getComponent, List.remove, this.updateVisibility, List.add, this.setViewportOffset。
-- `shouldOffsetRight`：执行 shouldOffsetRight 对应的组件业务步骤；调用 Eyes.AppUtils.isDesktop。
-- `shouldOffsetUp`：执行 shouldOffsetUp 对应的组件业务步骤；调用 Eyes.AppUtils.isDesktop。
-- `setViewportOffset`：执行 setViewportOffset 对应的组件业务步骤；调用 this._app.getManager, List.toggle。
-- `resize`：重排响应式界面；调用 this.setViewportOffset, super.resize。
+## `eyes/src/ui/templates/ToolboxBlockTemplate.html`
 
-### `eyes/src/ui/views/FeatureView.js`
+ToolboxBlockTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/ToolboxBlockTemplate.html)。语义状态：`not-semantically-accepted`。
 
-对象特征页资源与描述加载。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-ToolboxBlockTemplate-html)
 
-- `imports: ../../framework/eyes/index.js, ./ExtendedBaseView.js`
-- `manager dependencies: content, router, scene, layer, selection`
-- `component dependencies: contentPanel, breadcrumb`
+## `eyes/src/ui/templates/TutorialOverlayTemplate.html`
 
-**FeatureView**：对象特征页资源与描述加载；继承 ExtendedBaseView.default。
+TutorialOverlayTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值。[源码](../../eyes/src/ui/templates/TutorialOverlayTemplate.html)。语义状态：`not-semantically-accepted`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.getManager；写入 _entityInfo, _entityDesc, _featureDesc, _featureInfo, _forceLoadEntities。
-- `onEnter`：进入视图时准备界面和订阅；调用 this._app.getComponent, super.onEnter；写入 _offsetPanel。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent, PanelComponent.registerCallback。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent, PanelComponent.removeCallback。
-- `_reset`：重置上一目标留下的临时状态；调用 super._reset；写入 _entityInfo, _entityDesc, _featureDesc, _featureInfo, _forceLoadEntities, _target。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this._app.getManager, this._handleError, this.app.getManager, this._forceLoadEntities.push, this._app.cameraScripts.isBarycenter, this._app.cameraScripts.removeBarycenter, Manager.setEntitiesForceVisible, this._app.scene.waitTillEntitiesInPlace, Eyes.AppUtils.deepCopy；写入 _entityInfo, _featureInfo, _entityDesc, _featureDesc。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Route.url.match, this._app.getComponent, PanelComponent.onRouteChangeFeature, PanelComponent.show, PanelComponent.collapse。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this._app.getComponent, this._app.cameraScripts.goToSystem, this.app.getManager。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项；调用 this._app.getComponent, Eyes.AppUtils.isMobileMode。
+[总文档中的完整条目](README.md#file-eyes-src-ui-templates-TutorialOverlayTemplate-html)
 
-### `eyes/src/ui/views/HomeView.js`
+## `eyes/src/ui/views/BaseView.js`
 
-首页精选故事、默认目标及全景相机流程。
+路由视图共同生命周期：资源、时间、组件、相机与清理。[源码](../../eyes/src/ui/views/BaseView.js)。语义状态：`verified-semantic-refactor`。
 
-- `imports: ../../framework/eyes/index.js, ./ExtendedBaseView.js`
-- `manager dependencies: scene, time, layer, content, router`
-- `component dependencies: featuredStoriesPanel, mobileExpandButton, breadcrumb`
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-BaseView-js)
 
-**HomeView**：首页精选故事、默认目标及全景相机流程；继承 ExtendedBaseView.default。
+### `BaseView`
 
-- `onEnter`：进入视图时准备界面和订阅；调用 this._app.getComponent, super.onEnter；写入 _offsetPanel。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this.app.getManager, this._app.getManager, Eyes.AppUtils.deepCopy, this._featuredCardsList.push；写入 _featuredCardsList。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, this._app.getComponent, StoriesPanelComponent.onRouteChange, StoriesPanelComponent.hide, StoriesPanelComponent.show, StoriesPanelComponent.setEnabled。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this._app.cameraScripts.goToSystem, this.app.getManager。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项；调用 Eyes.AppUtils.isMobileMode, this._app.getComponent。
+路由视图共同生命周期：资源、时间、组件、相机与清理；继承 EyesPublicApi.BaseComponent。父类 `EyesPublicApi.BaseComponent`。
 
-### `eyes/src/ui/views/ObjectView.js`
+- `constructor(app, element, componentNames=[])` [源码:8](../../eyes/src/ui/views/BaseView.js#L8)：当前操作：写入 _components、_enabled、_rules、_target、_validQueries；返回 无显式返回。
+- `get app()` [源码:17](../../eyes/src/ui/views/BaseView.js#L17)：当前操作：写入 无直接字段写入；返回 super.app。
+- `_showControls()` [源码:20](../../eyes/src/ui/views/BaseView.js#L20)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_hideControls()` [源码:21](../../eyes/src/ui/views/BaseView.js#L21)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_shouldHideControls()` [源码:22](../../eyes/src/ui/views/BaseView.js#L22)：当前操作：写入 无直接字段写入；返回 false。
+- `updateVisibility()` [源码:25](../../eyes/src/ui/views/BaseView.js#L25)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:28](../../eyes/src/ui/views/BaseView.js#L28)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleViewUI()` [源码:31](../../eyes/src/ui/views/BaseView.js#L31)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_shouldResetStatus()` [源码:32](../../eyes/src/ui/views/BaseView.js#L32)：当前操作：写入 无直接字段写入；返回 this._app.getManager("layer").getLayer("ui").visible。
+- `_resetStatus(preservedComponentNames=[])` [源码:35](../../eyes/src/ui/views/BaseView.js#L35)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:44](../../eyes/src/ui/views/BaseView.js#L44)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:47](../../eyes/src/ui/views/BaseView.js#L47)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onEnter(routeParams, preservedComponentNames=[])` [源码:51](../../eyes/src/ui/views/BaseView.js#L51)：视图拥有窗口 resize 与图层 UI 订阅，离开时必须成对释放；组件的启用集合由当前视图配置决定。
+- `onRouteChange(routeParams)` [源码:61](../../eyes/src/ui/views/BaseView.js#L61)：路由更新分阶段串行执行；资源和界面准备后的取消检查阻止过期路由继续进入相机阶段。相机阶段进入后，无论成功还是抛错都执行 after 清理。
+- `onQueryChange(routeParams)` [源码:89](../../eyes/src/ui/views/BaseView.js#L89)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `validateQuery(routeParams)` [源码:92](../../eyes/src/ui/views/BaseView.js#L92)：当前操作：写入 无直接字段写入；返回 false、EyesPublicApi.AppUtils.isEmptyObject(defaultParams)?!!EyesPublicApi.AppUtils.isEmptyObject(invalidParams)\|\|(this._handleError(ˋvalidateQuery: Invalid input - ${JSON.stringify(invalidParams)}ˋ),false):(routerManager.navig。
+- `processQuery(routeParams)` [源码:124](../../eyes/src/ui/views/BaseView.js#L124)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_handleError(message="")` [源码:155](../../eyes/src/ui/views/BaseView.js#L155)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave(routeParams)` [源码:164](../../eyes/src/ui/views/BaseView.js#L164)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset(routeParams)` [源码:175](../../eyes/src/ui/views/BaseView.js#L175)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:178](../../eyes/src/ui/views/BaseView.js#L178)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateTimeRate(routeParams)` [源码:179](../../eyes/src/ui/views/BaseView.js#L179)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateTime(routeParams)` [源码:183](../../eyes/src/ui/views/BaseView.js#L183)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateTimeForTarget(routeParams, waitForEntity=true)` [源码:197](../../eyes/src/ui/views/BaseView.js#L197)：时间范围取默认范围、轨道数据覆盖和描述日期的交集。请求时间超界时按原规则夹到边界；不能将这些分支简化成统一的 setToNow。
+- `_updateComponentsVisibility(routeParams)` [源码:235](../../eyes/src/ui/views/BaseView.js#L235)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateComponents(routeParams)` [源码:239](../../eyes/src/ui/views/BaseView.js#L239)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:240](../../eyes/src/ui/views/BaseView.js#L240)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateLoading(routeParams)` [源码:241](../../eyes/src/ui/views/BaseView.js#L241)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_checkReady(routeParams)` [源码:260](../../eyes/src/ui/views/BaseView.js#L260)：当前操作：写入 无直接字段写入；返回 void。
+- `before(routeParams)` [源码:273](../../eyes/src/ui/views/BaseView.js#L273)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `after(routeParams)` [源码:274](../../eyes/src/ui/views/BaseView.js#L274)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-对象页的实体准备、子父对象切换、覆盖时间及相机跟随。
+## `eyes/src/ui/views/CompareView.js`
 
-- `imports: ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../framework/eyes/index.js, ../../app/public-api.js, ./ExtendedBaseView.js`
-- `manager dependencies: content, layer, scene, cameraFollow, trajectory, router, time, selection`
-- `component dependencies: contentPanel, breadcrumb, eventsTimeline, clock`
+对象比较模式和照片模式切换。[源码](../../eyes/src/ui/views/CompareView.js)。语义状态：`verified-semantic-refactor`。
 
-**ObjectView**：对象页的实体准备、子父对象切换、覆盖时间及相机跟随；继承 ExtendedBaseView.default。
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-CompareView-js)
 
-- `constructor`：建立实例初始字段和依赖；调用 this._app.getManager, this.bindFunctions；写入 _entityInfo, _entityDesc, _scEvents, _featuredCardsList, _isSpacecraft, _forceLoadEntities, _hasLoaded, _onLoaded, _onAfter。
-- `onEnter`：进入视图时准备界面和订阅；调用 this._app.getComponent, super.onEnter；写入 _offsetPanel。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 this._app.getManager, this.app.getManager, super.onLeave。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getManager, Manager.get, super.onRouteChange。
-- `onQueryChange`：响应查询参数变化；调用 super.onQueryChange, this._app.getComponent。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent, PanelComponent.registerCallback。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent, PanelComponent.removeCallback。
-- `_reset`：重置上一目标留下的临时状态；调用 super._reset；写入 _entityDesc, _scEvents, _featuredCardsList, _scOrderedEvents, _isSpacecraft, _forceLoadEntities, _hasLoaded, _onLoaded, _target。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this._app.getManager, this.app.getManager, this._app.pioneer.getScene, Manager.getEntityInfo, this._handleError, Manager.resetContext, this._forceLoadEntities.push, this._app.cameraScripts.isBarycenter, this._app.cameraScripts.removeBarycenter, Manager.setEntitiesForceVisible, this._app.scene.waitTillEntitiesInPlace, Manager.setTarget, this._entityInfo.category.toLowerCase, Manager.loadEvents；写入 _entityInfo, _isSpacecraft, _hasLoaded, _scEvents, _scOrderedEvents, _entityDesc, _featuredCardsList。
-- `getCurrentTarget`：执行 getCurrentTarget 对应的组件业务步骤。
-- `appendForceLoadEntities`：执行 appendForceLoadEntities 对应的组件业务步骤；调用 this._forceLoadEntities.push。
-- `removeForceLoadEntities`：执行 removeForceLoadEntities 对应的组件业务步骤；调用 this._forceLoadEntities.includes, this._forceLoadEntities.indexOf, this._forceLoadEntities.splice。
-- `onChildChanged`：执行 onChildChanged 对应的组件业务步骤；调用 this._app.getComponent, this._app.getManager, PanelComponent.onChildParentChange。
-- `onParentChanged`：执行 onParentChanged 对应的组件业务步骤；调用 this._app.getManager, Manager.resetContextualLayers, this._app.getComponent, PanelComponent.onChildParentChange, this._updateCamera。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Manager.currentRoute.url.match, this._app.getComponent, this._components.includes, Promise.all, this._collapsibleItems.find, TimelineComponent.setTarget, this._onLoaded.push, TimelineComponent.resize, PanelComponent.clearPanel, PanelComponent.onRouteChangeObject, this.getCurrentTarget, PanelComponent.onRouteChangeObjectLoaded；写入 _collapsibleItems, _onLoaded。
-- `_updateTimeForTarget`：将时间限制收敛到目标覆盖范围；调用 Math.abs, super._updateTimeForTarget, this._app.getManager, Manager.parseTime, Manager.isWithinLimits, Manager.getTimeUrl, this._app.getComponent, Manager.reroute；写入 _onAfter。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this._entityInfo.category.toLowerCase, this._app.getManager, this._app.getComponent, this._updateCameraOnParentChange, Scripts.alignSpacecraftPlanet, Scripts.goToSpacecraft, Scripts.goToInstrument, Scripts.goToCelestialObject, this.app.getManager, Manager.setEntitiesForceVisible, Manager.getCMTSEntity, SolarSystemSceneExports.Mapping.set, this._app.pioneer.getScene。
-- `_updateCameraOnParentChange`：执行 _updateCameraOnParentChange 对应的组件业务步骤。
-- `_loaded`：执行 _loaded 对应的组件业务步骤；调用 super._loaded；写入 _onLoaded, _hasLoaded。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项；调用 this._app.getComponent, Eyes.AppUtils.isMobileMode。
-- `after`：执行路由更新后的收尾步骤；调用 this._onAfter；写入 _onAfter。
+### `CompareView`
 
-### `eyes/src/ui/views/StoryView.js`
+对象比较模式和照片模式切换；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
 
-故事与 slide 查询切换、故事时钟及相机状态。
+- `constructor(...constructorArgs)` [源码:27](../../eyes/src/ui/views/CompareView.js#L27)：当前操作：写入 _category、_compare、_rules.spaceObject、defaultConfig；返回 无显式返回。
+- `onEnter(routeParams)` [源码:38](../../eyes/src/ui/views/CompareView.js#L38)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:43](../../eyes/src/ui/views/CompareView.js#L43)：当前操作：写入 _category；返回 无显式返回。
+- `processQuery(routeParams)` [源码:49](../../eyes/src/ui/views/CompareView.js#L49)：候选对象从分类列表中排除当前对象，查询 id 优先于默认候选；两侧文字清理与比较管理器更新顺序保持原样。
+- `_updateComponents(routeParams)` [源码:74](../../eyes/src/ui/views/CompareView.js#L74)：当前操作：写入 defaultConfig；返回 无显式返回。
+- `togglePhotoMode(isPhotoMode)` [源码:99](../../eyes/src/ui/views/CompareView.js#L99)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave(routeParams)` [源码:103](../../eyes/src/ui/views/CompareView.js#L103)：比较模式临时接管缩放回调与设置能力，退出时将保存的设置交还常规相机。
+- `resize()` [源码:111](../../eyes/src/ui/views/CompareView.js#L111)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:115](../../eyes/src/ui/views/CompareView.js#L115)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:119](../../eyes/src/ui/views/CompareView.js#L119)：当前操作：写入 无直接字段写入；返回 无显式返回。
 
-- `imports: ../../framework/eyes/index.js, ./ExtendedBaseView.js`
-- `manager dependencies: content, label, selection, time, router, layer, scene`
-- `component dependencies: story, clock, menu, breadcrumb, storyClock, timeControls, clockShortcut, settings`
+## `eyes/src/ui/views/DistanceView.js`
 
-**StoryView**：故事与 slide 查询切换、故事时钟及相机状态；继承 ExtendedBaseView.default。
+距离模式的源目标、覆盖时间交集及双目标相机。[源码](../../eyes/src/ui/views/DistanceView.js)。语义状态：`verified-semantic-refactor`。
 
-- `constructor`：建立实例初始字段和依赖；调用 this._validQueries.push, this._app.getManager, this.bindFunctions；写入 _story, _storyId, _slideId, _isStoryEntry, _isStoryExit。
-- `before`：执行路由更新前置步骤；调用 super.before；写入 _isStoryEntry, _isStoryExit。
-- `after`：执行路由更新后的收尾步骤；调用 super.after；写入 _isStoryEntry。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 super.onRouteChange, this._verifySlideInfo。
-- `onQueryChange`：响应查询参数变化；调用 this._verifySlideInfo, super.onQueryChange, this._app.getComponent, this._updateCamera；写入 _isStoryExit, _slideId, _isStoryEntry。
-- `onEnter`：进入视图时准备界面和订阅；调用 this._app.getComponent, super.onEnter, this._app.getManager, Eyes.AppUtils.isMobileMode；写入 _isStoryExit, _offsetPanel。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 super.onLeave, this._app.getComponent, Component.onLeave, Component.hide, this.setViewportOffset, this._app.getManager；写入 _story, _isStoryEntry, _isStoryExit。
-- `_verifySlideInfo`：执行 _verifySlideInfo 对应的组件业务步骤；调用 this._story.slides.find, this._app.getManager, Manager.reroute。
-- `_updateResources`：按目标和路由准备数据及实体；调用 super._updateResources, this._app.getManager, this._app.getComponent, Eyes.AppUtils.deepClone, this._story.slides.find, this.app.getManager, this._app.scene.waitTillEntitiesInPlace, this._handleError；写入 _isStoryExit, _story, _storyId, _slideId。
-- `_updateTime`：按查询参数或当前目标设置时间；调用 super._updateTime, this._app.getManager, this._story.slides.find, Manager.setTime, this._app.pioneer.waitUntilNextFrame, Manager.setMin, Manager.setMax。
-- `_shouldHideControls`：根据面板状态判断是否隐藏控制项；调用 Eyes.AppUtils.isMobileMode, this._app.getComponent。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Route.url.match, this._app.getComponent, Component.onRouteChange, Component.show, this.setViewportOffset。
-- `_updateCamera`：按当前模式定位相机与目标；调用 super._updateCamera, this._story.slides.find, this._app.getComponent, Component.getState, this._app.cameraScripts.goToSystem, this.app.getManager, this._app.scene.waitTillEntitiesInPlace。
-- `resize`：重排响应式界面；调用 super.resize, this._app.getComponent, Eyes.AppUtils.isMobileMode。
-- `registerCallbacks`：登记跨组件或管理器事件订阅；调用 super.registerCallbacks, this._app.getComponent, Component.registerCallback。
-- `removeCallbacks`：移除本模块登记的事件订阅；调用 super.removeCallbacks, this._app.getComponent, Component.removeCallback。
-- `setStorySlides`：执行 setStorySlides 对应的组件业务步骤。
-- `isStoryExit`：执行 isStoryExit 对应的组件业务步骤。
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-DistanceView-js)
 
-### `eyes/src/ui/views/TelescopeView.js`
+### `DistanceView`
 
-将路由生命周期转交望远镜组件。
+距离模式的源目标、覆盖时间交集及双目标相机；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
 
-- `imports: ./ExtendedBaseView.js`
-- `manager dependencies: scene, content, router`
-- `component dependencies: telescope, breadcrumb`
+- `constructor(...constructorArgs)` [源码:6](../../eyes/src/ui/views/DistanceView.js#L6)：当前操作：写入 _forceLoadEntities、_rateChanged、_redirect、_rules、_spaceObjectChanged、_targetChanged、_timeChanged；返回 无显式返回。
+- `onEnter(routeParams)` [源码:36](../../eyes/src/ui/views/DistanceView.js#L36)：当前操作：写入 distanceManager、distancePanel、distancePanel.isMobileChangedCallback；返回 无显式返回。
+- `onLeave(routeParams)` [源码:48](../../eyes/src/ui/views/DistanceView.js#L48)：当前操作：写入 distancePanel.isMobileChangedCallback；返回 无显式返回。
+- `registerCallbacks()` [源码:55](../../eyes/src/ui/views/DistanceView.js#L55)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:59](../../eyes/src/ui/views/DistanceView.js#L59)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `processQuery(routeParams)` [源码:64](../../eyes/src/ui/views/DistanceView.js#L64)：源与目标未变时取消本轮完整刷新，保留距离管理器既有实体。需要刷新时展开场景依赖并去重，保证测距之前依赖已就位。
+- `onQueryChange(routeParams)` [源码:94](../../eyes/src/ui/views/DistanceView.js#L94)：当前操作：写入 无直接字段写入；返回 void this.distanceManager.updateMeasurement(false)。
+- `_updateTime(routeParams)` [源码:103](../../eyes/src/ui/views/DistanceView.js#L103)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset(routeParams)` [源码:111](../../eyes/src/ui/views/DistanceView.js#L111)：当前操作：写入 _forceLoadEntities；返回 无显式返回。
+- `_updateResources({spaceObject:spaceObject})` [源码:116](../../eyes/src/ui/views/DistanceView.js#L116)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateComponents(routeParams)` [源码:124](../../eyes/src/ui/views/DistanceView.js#L124)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_checkReady(routeParams)` [源码:138](../../eyes/src/ui/views/DistanceView.js#L138)：当前操作：写入 _redirect；返回 void this._app.getManager("router").navigate({__remove:["to"]})。
+- `_checkCoverageOverlap(routeParams)` [源码:157](../../eyes/src/ui/views/DistanceView.js#L157)：比较源对象与首个目标的有效覆盖区间；无交集时由调用方移除目标查询。当前时间超界时重定向到交集起点，并保留原有重定向标记。
+- `_updateCamera()` [源码:208](../../eyes/src/ui/views/DistanceView.js#L208)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCollapsibleMenu(isMobile=Eyes.AppUtils.isMobile())` [源码:223](../../eyes/src/ui/views/DistanceView.js#L223)：当前操作：写入 _collapsibleItemOptions；返回 无显式返回。
+- `onIsMobileChange(isMobile)` [源码:242](../../eyes/src/ui/views/DistanceView.js#L242)：当前操作：写入 _collapsibleItems；返回 无显式返回。
+- `setBreadcrumbStaticTextVisible(isVisible=!Eyes.AppUtils.isMobile())` [源码:249](../../eyes/src/ui/views/DistanceView.js#L249)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `resize()` [源码:254](../../eyes/src/ui/views/DistanceView.js#L254)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get shouldOffsetRight()` [源码:258](../../eyes/src/ui/views/DistanceView.js#L258)：当前操作：写入 无直接字段写入；返回 false。
+- `get shouldOffsetUp()` [源码:261](../../eyes/src/ui/views/DistanceView.js#L261)：当前操作：写入 无直接字段写入；返回 false。
 
-**TelescopeView**：将路由生命周期转交望远镜组件；继承 ExtendedBaseView.default。
+## `eyes/src/ui/views/EventView.js`
 
-- `onEnter`：进入视图时准备界面和订阅；调用 super.onEnter, this._app.getComponent。
-- `onRouteChange`：响应路径参数变化并刷新本模块；调用 this._app.getComponent, super.onRouteChange。
-- `_updateResources`：按目标和路由准备数据及实体；调用 this.app.getManager；写入 _target。
-- `processQuery`：把查询参数应用到时间、图层或模块状态；调用 super.processQuery, this._app.getComponent。
-- `_updateComponents`：把当前目标数据交给 UI 组件；调用 super._updateComponents, this._app.getManager, Route.url.match, this._app.getComponent；写入 _entityInfo。
-- `_updateCamera`：按当前模式定位相机与目标；调用 this.app.getManager。
-- `onLeave`：离开视图时恢复状态并解除订阅；调用 super.onLeave, this._app.getComponent。
+对象事件的有效时间、重播及相关实体相机。[源码](../../eyes/src/ui/views/EventView.js)。语义状态：`verified-semantic-refactor`。
 
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-EventView-js)
 
-## 验证边界
+### `EventView`
 
-本次只读源码分析，不运行页面、服务器或 NASA 请求，不修改生产逻辑。`application-notes.json` 的 methodEvidence 保存 AST 方法行号、参数、读取/写入、调用、返回、管理器及组件依赖；包含 getter/setter 等文本扫描容易遗漏的入口。样式占位和时区表不具有业务类。未能从调用上下文唯一确定的压缩变量保留原名，不把推断包装成原始作者命名。
+对象事件的有效时间、重播及相关实体相机；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `constructor(...constructorArgs)` [源码:7](../../eyes/src/ui/views/EventView.js#L7)：当前操作：写入 _entityDesc、_entityInfo、_eventDesc、_eventInfo、_eventName、_hasLoaded、_isSpacecraft、_onAfter、_onLoaded、_rules.spaceObject、_scEvents、_scOrderedEvents；返回 无显式返回。
+- `onEnter(routeParams)` [源码:25](../../eyes/src/ui/views/EventView.js#L25)：当前操作：写入 _offsetPanel；返回 无显式返回。
+- `onLeave(routeParams)` [源码:30](../../eyes/src/ui/views/EventView.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onQueryChange(routeParams)` [源码:42](../../eyes/src/ui/views/EventView.js#L42)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:47](../../eyes/src/ui/views/EventView.js#L47)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:52](../../eyes/src/ui/views/EventView.js#L52)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset(routeParams)` [源码:57](../../eyes/src/ui/views/EventView.js#L57)：当前操作：写入 _entityDesc、_entityInfo、_eventDesc、_eventInfo、_eventName、_hasLoaded、_onLoaded、_scEvents、_scOrderedEvents、_target；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:71](../../eyes/src/ui/views/EventView.js#L71)：事件列表、对象描述与单事件描述分开加载；每次异步加载后检查取消令牌，避免已经离开的路由继续读取共享 content 上下文。
+- `_updateComponents(routeParams)` [源码:108](../../eyes/src/ui/views/EventView.js#L108)：当前操作：写入 _collapsibleItems、_onLoaded；返回 void。
+- `_updateTimeForTarget(routeParams, waitForEntity=true)` [源码:153](../../eyes/src/ui/views/EventView.js#L153)：事件时间与实体覆盖共同限定播放区间；显式暂停当前帧优先于默认事件速率。重定向延迟到 after，避免在本轮相机更新中途切换路由。
+- `_setMinEventEnd(eventStart, eventEnd)` [源码:218](../../eyes/src/ui/views/EventView.js#L218)：直接扩展传入的结束时间对象，使短于一分钟的事件仍有可操作的播放范围；调用方持有同一个时间对象。
+- `_loaded(loadedEntityId)` [源码:225](../../eyes/src/ui/views/EventView.js#L225)：当前操作：写入 _hasLoaded、_onLoaded；返回 无显式返回。
+- `_backToLive()` [源码:231](../../eyes/src/ui/views/EventView.js#L231)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `replayEvent(resetCamera=true)` [源码:239](../../eyes/src/ui/views/EventView.js#L239)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:264](../../eyes/src/ui/views/EventView.js#L264)：当前操作：写入 无直接字段写入；返回 void。
+- `_shouldHideControls()` [源码:294](../../eyes/src/ui/views/EventView.js#L294)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isMobileMode()&&isPanelVisible&&isPanelExpanded。
+- `after()` [源码:299](../../eyes/src/ui/views/EventView.js#L299)：当前操作：写入 _onAfter；返回 无显式返回。
+
+## `eyes/src/ui/views/ExtendedBaseView.js`
+
+加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略。[源码](../../eyes/src/ui/views/ExtendedBaseView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-ExtendedBaseView-js)
+
+### `ExtendedBaseView`
+
+加入 embed/kiosk 查询控制、面板偏移与全局 UI 可见性策略；继承 Eyes.BaseView。父类 `Eyes.BaseView`。
+
+- `constructor(...constructorArgs)` [源码:5](../../eyes/src/ui/views/ExtendedBaseView.js#L5)：当前操作：写入 _collapsibleItemOptions、_collapsibleItems、_offsetPanel、embedQueries、kioskValues；返回 无显式返回。
+- `onEnter(routeParams)` [源码:42](../../eyes/src/ui/views/ExtendedBaseView.js#L42)：嵌入与 kiosk 配置在进入时折叠到组件集合；这里只协调已有 NASA 控件，不创建新的界面。
+- `disableUIComponent(componentName)` [源码:67](../../eyes/src/ui/views/ExtendedBaseView.js#L67)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave(routeParams)` [源码:71](../../eyes/src/ui/views/ExtendedBaseView.js#L71)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:78](../../eyes/src/ui/views/ExtendedBaseView.js#L78)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:83](../../eyes/src/ui/views/ExtendedBaseView.js#L83)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset()` [源码:88](../../eyes/src/ui/views/ExtendedBaseView.js#L88)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `processQuery(routeParams)` [源码:92](../../eyes/src/ui/views/ExtendedBaseView.js#L92)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateComponents(routeParams)` [源码:95](../../eyes/src/ui/views/ExtendedBaseView.js#L95)：当前操作：写入 _collapsibleItems；返回 无显式返回。
+- `_loaded(loadedEntityId)` [源码:159](../../eyes/src/ui/views/ExtendedBaseView.js#L159)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateLoading(routeParams)` [源码:162](../../eyes/src/ui/views/ExtendedBaseView.js#L162)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCollapsibleMenu()` [源码:169](../../eyes/src/ui/views/ExtendedBaseView.js#L169)：当前操作：写入 _collapsibleItemOptions、_collapsibleItems；返回 void。
+- `_handleInfoPanelEmbedQueries(routeParams)` [源码:177](../../eyes/src/ui/views/ExtendedBaseView.js#L177)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_showControls()` [源码:189](../../eyes/src/ui/views/ExtendedBaseView.js#L189)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_hideControls()` [源码:210](../../eyes/src/ui/views/ExtendedBaseView.js#L210)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `toggleViewUI()` [源码:222](../../eyes/src/ui/views/ExtendedBaseView.js#L222)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `get shouldOffsetRight()` [源码:237](../../eyes/src/ui/views/ExtendedBaseView.js#L237)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isDesktop()。
+- `get shouldOffsetUp()` [源码:240](../../eyes/src/ui/views/ExtendedBaseView.js#L240)：当前操作：写入 无直接字段写入；返回 !Eyes.AppUtils.isDesktop()。
+- `setViewportOffset(isExpanded, usePanelState=false)` [源码:244](../../eyes/src/ui/views/ExtendedBaseView.js#L244)：偏移同时取决于 UI 图层、面板启用与展开状态及设备方向；usePanelState 用于退出或整层切换时直接读取面板状态。
+- `resize()` [源码:256](../../eyes/src/ui/views/ExtendedBaseView.js#L256)：当前操作：写入 无直接字段写入；返回 无显式返回。
+
+## `eyes/src/ui/views/FeatureView.js`
+
+对象特征页资源与描述加载。[源码](../../eyes/src/ui/views/FeatureView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-FeatureView-js)
+
+### `FeatureView`
+
+对象特征页资源与描述加载；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `constructor(...constructorArgs)` [源码:5](../../eyes/src/ui/views/FeatureView.js#L5)：当前操作：写入 _entityDesc、_entityInfo、_featureDesc、_featureInfo、_forceLoadEntities、_rules.feature、_rules.spaceObject；返回 无显式返回。
+- `onEnter(routeParams)` [源码:23](../../eyes/src/ui/views/FeatureView.js#L23)：当前操作：写入 _offsetPanel；返回 无显式返回。
+- `registerCallbacks()` [源码:28](../../eyes/src/ui/views/FeatureView.js#L28)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:33](../../eyes/src/ui/views/FeatureView.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset(routeParams)` [源码:38](../../eyes/src/ui/views/FeatureView.js#L38)：当前操作：写入 _entityDesc、_entityInfo、_featureDesc、_featureInfo、_forceLoadEntities、_target；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:48](../../eyes/src/ui/views/FeatureView.js#L48)：当前仅实现 moons 特征：过滤不存在的目录条目，前五个作为首屏，其余交给更多列表。描述键由目标和特征共同组成。
+- `_updateComponents(routeParams)` [源码:86](../../eyes/src/ui/views/FeatureView.js#L86)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:101](../../eyes/src/ui/views/FeatureView.js#L101)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_shouldHideControls()` [源码:106](../../eyes/src/ui/views/FeatureView.js#L106)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isMobileMode()&&isPanelVisible&&isPanelExpanded。
+
+## `eyes/src/ui/views/HomeView.js`
+
+首页精选故事、默认目标及全景相机流程。[源码](../../eyes/src/ui/views/HomeView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-HomeView-js)
+
+### `HomeView`
+
+首页精选故事、默认目标及全景相机流程；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `onEnter(routeParams)` [源码:5](../../eyes/src/ui/views/HomeView.js#L5)：当前操作：写入 _offsetPanel；返回 无显式返回。
+- `registerCallbacks()` [源码:11](../../eyes/src/ui/views/HomeView.js#L11)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:15](../../eyes/src/ui/views/HomeView.js#L15)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:20](../../eyes/src/ui/views/HomeView.js#L20)：精选故事在深拷贝目录上标记外部或内部链接类型，避免污染 content 管理器共享目录。
+- `_updateComponents(routeParams)` [源码:30](../../eyes/src/ui/views/HomeView.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:40](../../eyes/src/ui/views/HomeView.js#L40)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_shouldHideControls()` [源码:44](../../eyes/src/ui/views/HomeView.js#L44)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isMobileMode()&&this._app.getComponent("featuredStoriesPanel")?.getState("isVisible")。
+
+## `eyes/src/ui/views/ObjectView.js`
+
+对象页的实体准备、子父对象切换、覆盖时间及相机跟随。[源码](../../eyes/src/ui/views/ObjectView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-ObjectView-js)
+
+### `ObjectView`
+
+对象页的实体准备、子父对象切换、覆盖时间及相机跟随；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `constructor(...constructorArgs)` [源码:8](../../eyes/src/ui/views/ObjectView.js#L8)：当前操作：写入 _entityDesc、_entityInfo、_featuredCardsList、_forceLoadEntities、_hasLoaded、_isSpacecraft、_onAfter、_onLoaded、_rules.spaceObject、_scEvents；返回 无显式返回。
+- `onEnter(routeParams)` [源码:24](../../eyes/src/ui/views/ObjectView.js#L24)：当前操作：写入 _offsetPanel；返回 无显式返回。
+- `onLeave(routeParams)` [源码:29](../../eyes/src/ui/views/ObjectView.js#L29)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(routeParams)` [源码:43](../../eyes/src/ui/views/ObjectView.js#L43)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onQueryChange(routeParams)` [源码:67](../../eyes/src/ui/views/ObjectView.js#L67)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:71](../../eyes/src/ui/views/ObjectView.js#L71)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:76](../../eyes/src/ui/views/ObjectView.js#L76)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_reset(routeParams)` [源码:81](../../eyes/src/ui/views/ObjectView.js#L81)：当前操作：写入 _entityDesc、_featuredCardsList、_forceLoadEntities、_hasLoaded、_isSpacecraft、_onLoaded、_scEvents、_scOrderedEvents、_target；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:94](../../eyes/src/ui/views/ObjectView.js#L94)：对象、重心对应实体与跟随对象共同参与强制加载。描述和故事卡片取自 content 上下文的副本，路由取消后不再提交后续资源。
+- `getCurrentTarget()` [源码:136](../../eyes/src/ui/views/ObjectView.js#L136)：当前操作：写入 无直接字段写入；返回 this._target。
+- `appendForceLoadEntities(entityId)` [源码:139](../../eyes/src/ui/views/ObjectView.js#L139)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeForceLoadEntities(entityId)` [源码:142](../../eyes/src/ui/views/ObjectView.js#L142)：当前操作：写入 无直接字段写入；返回 void。
+- `onChildChanged(parentEntity, childEntity)` [源码:147](../../eyes/src/ui/views/ObjectView.js#L147)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onParentChanged(entity, oldParent, newParent)` [源码:158](../../eyes/src/ui/views/ObjectView.js#L158)：父实体变化会重建上下文图层并通知面板；相机收到旧、新父名称，避免把实体句柄误当作路由对象 id。
+- `_updateComponents(routeParams)` [源码:173](../../eyes/src/ui/views/ObjectView.js#L173)：时间线与内容面板的后半段刷新放入 _onLoaded 队列；加载完成后统一执行并清空。队列归当前对象视图持有，重置对象时重新创建。
+- `_updateTimeForTarget(routeParams)` [源码:224](../../eyes/src/ui/views/ObjectView.js#L224)：当前操作：写入 _onAfter；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:247](../../eyes/src/ui/views/ObjectView.js#L247)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateCameraOnParentChange(routeParams)` [源码:262](../../eyes/src/ui/views/ObjectView.js#L262)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_loaded(loadedEntityId)` [源码:263](../../eyes/src/ui/views/ObjectView.js#L263)：当前操作：写入 _hasLoaded、_onLoaded；返回 无显式返回。
+- `_shouldHideControls()` [源码:269](../../eyes/src/ui/views/ObjectView.js#L269)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isMobileMode()&&isPanelVisible&&isPanelExpanded。
+- `after()` [源码:274](../../eyes/src/ui/views/ObjectView.js#L274)：当前操作：写入 _onAfter；返回 无显式返回。
+
+## `eyes/src/ui/views/StoryView.js`
+
+故事与 slide 查询切换、故事时钟及相机状态。[源码](../../eyes/src/ui/views/StoryView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-StoryView-js)
+
+### `StoryView`
+
+故事与 slide 查询切换、故事时钟及相机状态；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `constructor(...constructorArgs)` [源码:5](../../eyes/src/ui/views/StoryView.js#L5)：当前操作：写入 _isStoryEntry、_isStoryExit、_rules.id、_slideId、_story、_storyId；返回 无显式返回。
+- `before(routeParams)` [源码:18](../../eyes/src/ui/views/StoryView.js#L18)：当前操作：写入 _isStoryEntry、_isStoryExit；返回 无显式返回。
+- `after(routeParams)` [源码:23](../../eyes/src/ui/views/StoryView.js#L23)：当前操作：写入 _isStoryEntry；返回 无显式返回。
+- `onRouteChange(routeParams)` [源码:27](../../eyes/src/ui/views/StoryView.js#L27)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onQueryChange(routeParams)` [源码:30](../../eyes/src/ui/views/StoryView.js#L30)：当前操作：写入 _isStoryEntry、_isStoryExit、_slideId；返回 无显式返回。
+- `onEnter(routeParams, preservedComponents=[])` [源码:33](../../eyes/src/ui/views/StoryView.js#L33)：当前操作：写入 _isStoryExit、_offsetPanel；返回 无显式返回。
+- `onLeave(routeParams)` [源码:45](../../eyes/src/ui/views/StoryView.js#L45)：退出故事后归还时钟编辑与对象点击能力，并重置时间范围；isStoryExit 也供仍在运行的故事相机脚本查询。
+- `_verifySlideInfo(routeParams)` [源码:63](../../eyes/src/ui/views/StoryView.js#L63)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateResources(routeParams)` [源码:72](../../eyes/src/ui/views/StoryView.js#L72)：故事定义深拷贝后由当前视图持有，幻灯片和故事级实体共同决定加载集合；切换故事前执行旧故事退出钩子。
+- `_updateTime(routeParams)` [源码:92](../../eyes/src/ui/views/StoryView.js#L92)：当前操作：写入 无直接字段写入；返回 void。
+- `_shouldHideControls()` [源码:100](../../eyes/src/ui/views/StoryView.js#L100)：当前操作：写入 无直接字段写入；返回 Eyes.AppUtils.isMobileMode()&&!this._app.getComponent("story").getState("isCollapsed")。
+- `_updateComponents(routeParams)` [源码:103](../../eyes/src/ui/views/StoryView.js#L103)：当前操作：写入 无直接字段写入；返回 void。
+- `_updateCamera(routeParams)` [源码:138](../../eyes/src/ui/views/StoryView.js#L138)：当前操作：写入 无直接字段写入；返回 void。
+- `resize()` [源码:153](../../eyes/src/ui/views/StoryView.js#L153)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `registerCallbacks()` [源码:157](../../eyes/src/ui/views/StoryView.js#L157)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `removeCallbacks()` [源码:162](../../eyes/src/ui/views/StoryView.js#L162)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setStorySlides(slides)` [源码:167](../../eyes/src/ui/views/StoryView.js#L167)：当前操作：写入 _story.slides；返回 无显式返回。
+- `isStoryExit()` [源码:170](../../eyes/src/ui/views/StoryView.js#L170)：当前操作：写入 无直接字段写入；返回 this._isStoryExit。
+
+## `eyes/src/ui/views/TelescopeView.js`
+
+将路由生命周期转交望远镜组件。[源码](../../eyes/src/ui/views/TelescopeView.js)。语义状态：`verified-semantic-refactor`。
+
+[总文档中的完整条目](README.md#file-eyes-src-ui-views-TelescopeView-js)
+
+### `TelescopeView`
+
+将路由生命周期转交望远镜组件；继承 ExtendedBaseView.default。父类 `ExtendedBaseView.default`。
+
+- `onEnter(routeParams, preservedComponents=[])` [源码:4](../../eyes/src/ui/views/TelescopeView.js#L4)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onRouteChange(routeParams)` [源码:9](../../eyes/src/ui/views/TelescopeView.js#L9)：望远镜组件先接收路由，再执行基类的资源与相机生命周期；查询参数和退出通知也转交同一组件，保持其状态所有权。
+- `_updateResources(routeParams)` [源码:13](../../eyes/src/ui/views/TelescopeView.js#L13)：当前操作：写入 _target；返回 无显式返回。
+- `processQuery(routeParams)` [源码:17](../../eyes/src/ui/views/TelescopeView.js#L17)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `_updateComponents(routeParams)` [源码:21](../../eyes/src/ui/views/TelescopeView.js#L21)：当前操作：写入 _entityInfo；返回 无显式返回。
+- `_updateCamera(routeParams)` [源码:30](../../eyes/src/ui/views/TelescopeView.js#L30)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `onLeave(routeParams)` [源码:34](../../eyes/src/ui/views/TelescopeView.js#L34)：当前操作：写入 无直接字段写入；返回 无显式返回。

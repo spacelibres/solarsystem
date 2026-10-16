@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索
- * 依据：// Recovered from vendors.js:1881696-1897604.；exports: default
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:1881696-1897604.
 function r(e) {
   return Array.isArray ? Array.isArray(e) : "[object Array]" === u(e);
@@ -32,17 +26,7 @@ function u(e) {
   return null == e ? void 0 === e ? "[object Undefined]" : "[object Null]" : Object.prototype.toString.call(e);
 }
 const d = Object.prototype.hasOwnProperty;
-/** @eyes-analysis
- * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class KeyStore {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_keyMap、_keyMap[n.id]、_keys。
-   * 调用线索：e.forEach、h、this._keys.forEach、this._keys.push。
-   */
   constructor(e) {
     this._keys = [], this._keyMap = {};
     let t = 0;
@@ -53,22 +37,12 @@ class KeyStore {
       e.weight /= t;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 get；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   get(e) {
     return this._keyMap[e];
   }
-  /** @eyes-analysis
-   * 源码方法 keys；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   keys() {
     return this._keys;
   }
-  /** @eyes-analysis
-   * 序列化资源和引用；共享资源通过元数据缓存去重
-   * 调用线索：JSON.stringify。
-   */
   toJSON() {
     return JSON.stringify(this._keys);
   }
@@ -140,17 +114,7 @@ var m = {
   }
 };
 const M = /[^ ]+/g;
-/** @eyes-analysis
- * 类职责：构建并维护字符串/对象的 Fuse 搜索索引
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class FuseIndex {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：getFn、isCreated、norm。
-   * 调用线索：Math.pow、Math.round、function(e=1,t=3){const map=new Map(),r=Math.pow(10,t);return{get(t){const i=t.match(M).length;if(map.has(i))return map.get(i);const a=1/Math.pow(i,.5*e),s=parseFloat(Math.round(a*r)/r);return map.set(i,s),s;},clear(){map.clear();}};}、map.clear、map.get等。
-   */
   constructor({
     getFn = m.getFn,
     fieldNormWeight: t = m.fieldNormWeight
@@ -172,35 +136,17 @@ class FuseIndex {
       };
     }(t, 3), this.getFn = getFn, this.isCreated = !1, this.setIndexRecords();
   }
-  /** @eyes-analysis
-   * 源码方法 setSources；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：docs。
-   */
   setSources(docs = []) {
     this.docs = docs;
   }
-  /** @eyes-analysis
-   * 源码方法 setIndexRecords；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：records。
-   */
   setIndexRecords(records = []) {
     this.records = records;
   }
-  /** @eyes-analysis
-   * 源码方法 setKeys；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_keysMap、_keysMap[e.id]、keys。
-   * 调用线索：keys.forEach。
-   */
   setKeys(keys = []) {
     this.keys = keys, this._keysMap = {}, keys.forEach((e, t) => {
       this._keysMap[e.id] = t;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 create；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：isCreated。
-   * 调用线索：i、this._addObject、this._addString、this.docs.forEach、this.norm.clear。
-   */
   create() {
     !this.isCreated && this.docs.length && (this.isCreated = !0, i(this.docs[0]) ? this.docs.forEach((e, t) => {
       this._addString(e, t);
@@ -208,39 +154,20 @@ class FuseIndex {
       this._addObject(e, t);
     }), this.norm.clear());
   }
-  /** @eyes-analysis
-   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：i、this._addObject、this._addString、this.size。
-   */
   add(e) {
     const t = this.size();
     i(e) ? this._addString(e, t) : this._addObject(e, t);
   }
-  /** @eyes-analysis
-   * 源码方法 removeAt；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：records[t].i。
-   * 调用线索：this.records.splice、this.size。
-   */
   removeAt(e) {
     this.records.splice(e, 1);
     for (let t = e, n = this.size(); t < n; t += 1) this.records[t].i -= 1;
   }
-  /** @eyes-analysis
-   * 源码方法 getValueForItemAtKeyId；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   getValueForItemAtKeyId(e, t) {
     return e[this._keysMap[t]];
   }
-  /** @eyes-analysis
-   * 源码方法 size；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   size() {
     return this.records.length;
   }
-  /** @eyes-analysis
-   * 源码方法 _addString；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c、l、this.norm.get、this.records.push。
-   */
   _addString(e, t) {
     if (!c(e) || l(e)) return;
     let n = {
@@ -250,10 +177,6 @@ class FuseIndex {
     };
     this.records.push(n);
   }
-  /** @eyes-analysis
-   * 源码方法 _addObject；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c、e.push、i、l、r等。
-   */
   _addObject(e, t) {
     let n = {
       i: t,
@@ -296,9 +219,6 @@ class FuseIndex {
       }
     }), this.records.push(n);
   }
-  /** @eyes-analysis
-   * 序列化资源和引用；共享资源通过元数据缓存去重
-   */
   toJSON() {
     return {
       keys: this.keys,
@@ -432,17 +352,7 @@ function y(e) {
   }
   return t;
 }
-/** @eyes-analysis
- * 类职责：使用位运算的 Bitap 模糊匹配与阈值评分
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class BitapSearch {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：chunks、options、pattern。
-   * 调用线索：e.toLowerCase、l、this.chunks.push、this.pattern.substr、y。
-   */
   constructor(e, {
     location: t = m.location,
     threshold: n = m.threshold,
@@ -482,10 +392,6 @@ class BitapSearch {
       }
     } else l(this.pattern, 0);
   }
-  /** @eyes-analysis
-   * 源码方法 searchIn；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：b、e.toLowerCase、this.chunks.forEach。
-   */
   searchIn(e) {
     const {
       isCaseSensitive: isCaseSensitive,
@@ -536,53 +442,23 @@ class BitapSearch {
     return d && includeMatches && (h.indices = l), h;
   }
 }
-/** @eyes-analysis
- * 类职责：扩展搜索匹配器的模式存储基类
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class BaseMatch {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：pattern。
-   */
   constructor(pattern) {
     this.pattern = pattern;
   }
-  /** @eyes-analysis
-   * 源码方法 isMultiMatch；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：L。
-   */
   static isMultiMatch(e) {
     return L(e, this.multiRegex);
   }
-  /** @eyes-analysis
-   * 源码方法 isSingleMatch；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：L。
-   */
   static isSingleMatch(e) {
     return L(e, this.singleRegex);
   }
-  /** @eyes-analysis
-   * 源码方法 search；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   search() {}
 }
 function L(e, t) {
   const n = e.match(t);
   return n ? n[1] : null;
 }
-/** @eyes-analysis
- * 类职责：扩展搜索中的模糊模式匹配
- * 继承：BaseMatch；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class FuzzyMatch extends BaseMatch {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_bitapSearch。
-   * 调用线索：new BitapSearch、super。
-   */
   constructor(e, {
     location: t = m.location,
     threshold: n = m.threshold,
@@ -604,67 +480,32 @@ class FuzzyMatch extends BaseMatch {
       ignoreLocation: c
     });
   }
-  /** @eyes-analysis
-   * 只读返回 "fuzzy"；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get type() {
     return "fuzzy";
   }
-  /** @eyes-analysis
-   * 只读返回 /^"(.*)"$/；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get multiRegex() {
     return /^"(.*)"$/;
   }
-  /** @eyes-analysis
-   * 只读返回 /^(.*)$/；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get singleRegex() {
     return /^(.*)$/;
   }
-  /** @eyes-analysis
-   * 源码方法 search；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._bitapSearch.searchIn。
-   */
   search(e) {
     return this._bitapSearch.searchIn(e);
   }
 }
-/** @eyes-analysis
- * 类职责：扩展搜索中的包含模式匹配
- * 继承：BaseMatch；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class IncludeMatch extends BaseMatch {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：super。
-   */
   constructor(e) {
     super(e);
   }
-  /** @eyes-analysis
-   * 只读返回 "include"；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get type() {
     return "include";
   }
-  /** @eyes-analysis
-   * 只读返回 /^'"(.*)"$/；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get multiRegex() {
     return /^'"(.*)"$/;
   }
-  /** @eyes-analysis
-   * 只读返回 /^'(.*)$/；此 getter 不执行对应 setter 的写入或更新通知
-   */
   static get singleRegex() {
     return /^'(.*)$/;
   }
-  /** @eyes-analysis
-   * 源码方法 search；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.indexOf、r.push。
-   */
   search(e) {
     let t,
       n = 0;
@@ -679,44 +520,19 @@ class IncludeMatch extends BaseMatch {
     };
   }
 }
-const v = [/** @eyes-analysis
-            * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 ExactMatch 实现（角色需结合调用者确认）
-            * 继承：BaseMatch；导出：模块内部声明。
-            * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-            */
-           class ExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+const v = [class ExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："exact"。
-     */
     static get type() {
       return "exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^="(.*)"$/。
-     */
     static get multiRegex() {
       return /^="(.*)"$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^=(.*)$/。
-     */
     static get singleRegex() {
       return /^=(.*)$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：pattern、pattern.length；返回：{isMatch:t,score:t?0:1,indices:[0,this.pattern.length-1]}。
-     */
     search(e) {
       const t = e === this.pattern;
       return {
@@ -725,44 +541,19 @@ const v = [/** @eyes-analysis
         indices: [0, this.pattern.length - 1]
       };
     }
-  }, IncludeMatch, /** @eyes-analysis
-                    * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 PrefixExactMatch 实现（角色需结合调用者确认）
-                    * 继承：BaseMatch；导出：模块内部声明。
-                    * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-                    */
-                   class PrefixExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+  }, IncludeMatch, class PrefixExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："prefix-exact"。
-     */
     static get type() {
       return "prefix-exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^\^"(.*)"$/。
-     */
     static get multiRegex() {
       return /^\^"(.*)"$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^\^(.*)$/。
-     */
     static get singleRegex() {
       return /^\^(.*)$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：e.startsWith。
-     */
     search(e) {
       const t = e.startsWith(this.pattern);
       return {
@@ -771,44 +562,19 @@ const v = [/** @eyes-analysis
         indices: [0, this.pattern.length - 1]
       };
     }
-  }, /** @eyes-analysis
-      * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 InversePrefixExactMatch 实现（角色需结合调用者确认）
-      * 继承：BaseMatch；导出：模块内部声明。
-      * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-      */
-     class InversePrefixExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+  }, class InversePrefixExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："inverse-prefix-exact"。
-     */
     static get type() {
       return "inverse-prefix-exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!\^"(.*)"$/。
-     */
     static get multiRegex() {
       return /^!\^"(.*)"$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!\^(.*)$/。
-     */
     static get singleRegex() {
       return /^!\^(.*)$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：e.startsWith。
-     */
     search(e) {
       const t = !e.startsWith(this.pattern);
       return {
@@ -817,44 +583,19 @@ const v = [/** @eyes-analysis
         indices: [0, e.length - 1]
       };
     }
-  }, /** @eyes-analysis
-      * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 InverseSuffixExactMatch 实现（角色需结合调用者确认）
-      * 继承：BaseMatch；导出：模块内部声明。
-      * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-      */
-     class InverseSuffixExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+  }, class InverseSuffixExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："inverse-suffix-exact"。
-     */
     static get type() {
       return "inverse-suffix-exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!"(.*)"\$$/。
-     */
     static get multiRegex() {
       return /^!"(.*)"\$$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!(.*)\$$/。
-     */
     static get singleRegex() {
       return /^!(.*)\$$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：e.endsWith。
-     */
     search(e) {
       const t = !e.endsWith(this.pattern);
       return {
@@ -863,44 +604,19 @@ const v = [/** @eyes-analysis
         indices: [0, e.length - 1]
       };
     }
-  }, /** @eyes-analysis
-      * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 SuffixExactMatch 实现（角色需结合调用者确认）
-      * 继承：BaseMatch；导出：模块内部声明。
-      * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-      */
-     class SuffixExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+  }, class SuffixExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："suffix-exact"。
-     */
     static get type() {
       return "suffix-exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^"(.*)"\$$/。
-     */
     static get multiRegex() {
       return /^"(.*)"\$$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^(.*)\$$/。
-     */
     static get singleRegex() {
       return /^(.*)\$$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：e.endsWith。
-     */
     search(e) {
       const t = e.endsWith(this.pattern);
       return {
@@ -909,44 +625,19 @@ const v = [/** @eyes-analysis
         indices: [e.length - this.pattern.length, e.length - 1]
       };
     }
-  }, /** @eyes-analysis
-      * 类职责：规范化 Fuse 搜索字段的路径、权重和键标识；构建并维护字符串/对象的 Fuse 搜索索引；使用位运算的 Bitap 模糊匹配与阈值评分；扩展搜索匹配器的模式存储基类；扩展搜索中的模糊模式匹配；扩展搜索中的包含模式匹配；解析扩展搜索语法并组合多条件匹配；以索引和评分规则执行加权模糊搜索中的 InverseExactMatch 实现（角色需结合调用者确认）
-      * 继承：BaseMatch；导出：模块内部声明。
-      * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-      */
-     class InverseExactMatch extends BaseMatch {
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：super。
-     */
+  }, class InverseExactMatch extends BaseMatch {
     constructor(e) {
       super(e);
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回："inverse-exact"。
-     */
     static get type() {
       return "inverse-exact";
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!"(.*)"$/。
-     */
     static get multiRegex() {
       return /^!"(.*)"$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 读取：；返回：/^!(.*)$/。
-     */
     static get singleRegex() {
       return /^!(.*)$/;
     }
-    /** @eyes-analysis
-     * 方法语义尚未人工确认；以下是当前源码的句法证据。
-     * 调用线索：e.indexOf。
-     */
     search(e) {
       const t = -1 === e.indexOf(this.pattern);
       return {
@@ -959,17 +650,7 @@ const v = [/** @eyes-analysis
   T = v.length,
   S = / +(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/;
 const set = new Set([FuzzyMatch.type, IncludeMatch.type]);
-/** @eyes-analysis
- * 类职责：解析扩展搜索语法并组合多条件匹配
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class ExtendedSearch {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：options、pattern、query。
-   * 调用线索：e.isMultiMatch、e.isSingleMatch、e.split、e.split("|").map、e.toLowerCase等。
-   */
   constructor(e, {
     isCaseSensitive: t = m.isCaseSensitive,
     includeMatches: n = m.includeMatches,
@@ -1015,16 +696,9 @@ class ExtendedSearch {
       });
     }(this.pattern, this.options);
   }
-  /** @eyes-analysis
-   * 源码方法 condition；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   static condition(e, t) {
     return t.useExtendedSearch;
   }
-  /** @eyes-analysis
-   * 源码方法 searchIn；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：a.push、e.toLowerCase、r.search、set.has。
-   */
   searchIn(e) {
     const query = this.query;
     if (!query) return {
@@ -1138,28 +812,13 @@ function R(e, t) {
 function k(e, t) {
   t.score = e.score;
 }
-/** @eyes-analysis
- * 类职责：以索引和评分规则执行加权模糊搜索
- * 继承：无显式父类；导出：default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Fuse {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_keyStore、options。
-   * 调用线索：new KeyStore、this.setCollection。
-   */
   constructor(e, t = {}, n) {
     this.options = {
       ...m,
       ...t
     }, this.options.useExtendedSearch, this._keyStore = new KeyStore(this.options.keys), this.setCollection(e, n);
   }
-  /** @eyes-analysis
-   * 源码方法 setCollection；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_docs、_myIndex。
-   * 调用线索：_、new Error。
-   */
   setCollection(docs, t) {
     if (this._docs = docs, t && !(t instanceof FuseIndex)) throw new Error("Incorrect 'index' type");
     this._myIndex = t || _(this.options.keys, this._docs, {
@@ -1167,17 +826,9 @@ class Fuse {
       fieldNormWeight: this.options.fieldNormWeight
     });
   }
-  /** @eyes-analysis
-   * 源码方法 add；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c、this._docs.push、this._myIndex.add。
-   */
   add(e) {
     c(e) && (this._docs.push(e), this._myIndex.add(e));
   }
-  /** @eyes-analysis
-   * 源码方法 remove；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e、t.push、this.removeAt。
-   */
   remove(e = () => !1) {
     const t = [];
     for (let n = 0, r = this._docs.length; n < r; n += 1) {
@@ -1186,23 +837,12 @@ class Fuse {
     }
     return t;
   }
-  /** @eyes-analysis
-   * 源码方法 removeAt；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._docs.splice、this._myIndex.removeAt。
-   */
   removeAt(e) {
     this._docs.splice(e, 1), this._myIndex.removeAt(e);
   }
-  /** @eyes-analysis
-   * 源码方法 getIndex；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   getIndex() {
     return this._myIndex;
   }
-  /** @eyes-analysis
-   * 源码方法 search；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Math.pow、a、e.forEach、e.map、e.matches.forEach等。
-   */
   search(e, {
     limit: t = -1
   } = {}) {
@@ -1252,10 +892,6 @@ class Fuse {
       includeScore: includeScore
     });
   }
-  /** @eyes-analysis
-   * 源码方法 _searchStringList；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c、r.push、records.forEach、t.searchIn、x。
-   */
   _searchStringList(e) {
     const t = x(e, this.options),
       {
@@ -1285,10 +921,6 @@ class Fuse {
       });
     }), r;
   }
-  /** @eyes-analysis
-   * 源码方法 _searchLogical；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：I、a.push、c、i.push、i[r].matches.push等。
-   */
   _searchLogical(e) {
     const t = I(e, this.options),
       n = (e, t, r) => {
@@ -1337,10 +969,6 @@ class Fuse {
       }
     }), a;
   }
-  /** @eyes-analysis
-   * 源码方法 _searchObjectList；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：a.push、c、i.push、keys.forEach、records.forEach等。
-   */
   _searchObjectList(e) {
     const t = x(e, this.options),
       {
@@ -1367,10 +995,6 @@ class Fuse {
       });
     }), i;
   }
-  /** @eyes-analysis
-   * 源码方法 _findMatches；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c、i.push、r、searcher.searchIn、value.forEach。
-   */
   _findMatches({
     key: key,
     value: value,

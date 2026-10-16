@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：应用可配置设置项表，包含详情面板、NASA 标志、搜索、分享等开关。
- * 依据：顶层副作用 defaultExport=[{groupName:"User Interface",isAdvanced:false,items:[{name:"Show Detail Panel",description:"Displays the detail panel for an entity on the left side of the screen",query:"detailPanel",type:"checkbox",inputD；实际标题：Flood；Natural；Shadow
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 界面查询参数描述表：groupName/isAdvanced 分组，items 保存 query、默认值、反向复选框及关联禁用规则；这是声明数据，不在此应用 URL 参数。
 // Recovered from app.js:644547-647278.
 let defaultExport;
 defaultExport = [{

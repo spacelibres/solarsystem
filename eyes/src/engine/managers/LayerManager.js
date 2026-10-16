@@ -1,28 +1,13 @@
-/** @eyes-analysis
- * 文件职责：管理类别图层可见性、实体集合和界面复选框的同步。
- * 依据：import ../solar-system/public-api.js；import ../pioneer/index.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1244022-1252117.
+/* 图层可见性由本管理器拥有，切换先执行图层回调，再同步子图层和场景实体；目标依赖集用于离开旧上下文时重置图层。贴图切换等待资源完成后移除 loading，WMTS 与普通 LOD 地图各自保留启停规则。 */
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as Pioneer from "../pioneer/index.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：管理类别图层可见性、实体集合和界面复选框的同步。
- * 继承：EyesPublicApi.BaseManager；导出：LayerManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class LayerManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_contentManager`、`_contextualLayersList`、`_currentSurfaceLayer`、`_dependencies`、`_layers`、`_previousDependencies`、`_previousTarget`、`_sceneManager`；调用 `new Set`、`super`、`t.getManager`、`this._eventNames.push`、`this._initCallbacks`、`this.bindFunctions`。
-   * 状态写入：_contentManager、_contextualLayersList、_currentSurfaceLayer、_dependencies、_layers、_previousDependencies、_previousTarget、_sceneManager等；完整记录见索引。
-   * 调用线索：new Set、super、t.getManager、this._eventNames.push、this._initCallbacks等。
-   */
-  constructor(t) {
-    super(t);
-    this._sceneManager = t.getManager("scene");
-    this._contentManager = t.getManager("content");
+  constructor(app) {
+    super(app);
+    this._sceneManager = app.getManager("scene");
+    this._contentManager = app.getManager("content");
     this._layers = {};
     this._contextualLayersList = ["majorMoons", "minorMoons", "landers", "orbiters", "satelliteGroup", "heliosphere"];
     this._targetId = "";
@@ -34,322 +19,240 @@ class LayerManager extends EyesPublicApi.BaseManager {
     this._eventNames.push("toggleLayer");
     this._initCallbacks();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_layers[i]`、`_layers[i].parent`、`_layers[t]`、`_layers[t].categories`、`_layers[t].defaultVisibility`、`_layers[t].group`、`_layers[t].name`、`_layers[t].sublayers`；调用 `Array.isArray`。
-   * 状态写入：_layers[i]、_layers[i].parent、_layers[t]、_layers[t].categories、_layers[t].defaultVisibility、_layers[t].group、_layers[t].name、_layers[t].sublayers等；完整记录见索引。
-   * 调用线索：Array.isArray。
-   */
-  addLayer(t, {
-    name: e = "",
-    group: i = "",
-    categories: s = [],
-    defaultVisibility: n = true,
-    toggleCallback: o = [],
-    sublayers: r = []
+  addLayer(layerId, {
+    name: displayName = "",
+    group: groupName = "",
+    categories = [],
+    defaultVisibility = true,
+    toggleCallback: toggleCallbacks = [],
+    sublayers: sublayerIds = []
   }) {
-    void 0 === this._layers[t] && (this._layers[t] = {});
-    this._layers[t].name = e;
-    this._layers[t].group = i;
-    this._layers[t].defaultVisibility = n;
-    this._layers[t].visible = n;
-    Array.isArray(s) || (s = [s]);
-    this._layers[t].categories = s;
-    Array.isArray(r) || (r = [r]);
-    this._layers[t].sublayers = r;
-    for (let e = 0; e < r.length; e++) {
-      const i = r[e];
-      void 0 === this._layers[i] && (this._layers[i] = {});
-      this._layers[i].parent = t;
+    void 0 === this._layers[layerId] && (this._layers[layerId] = {});
+    this._layers[layerId].name = displayName;
+    this._layers[layerId].group = groupName;
+    this._layers[layerId].defaultVisibility = defaultVisibility;
+    this._layers[layerId].visible = defaultVisibility;
+    Array.isArray(categories) || (categories = [categories]);
+    this._layers[layerId].categories = categories;
+    Array.isArray(sublayerIds) || (sublayerIds = [sublayerIds]);
+    this._layers[layerId].sublayers = sublayerIds;
+    for (let sublayerIndex = 0; sublayerIndex < sublayerIds.length; sublayerIndex++) {
+      const sublayerId = sublayerIds[sublayerIndex];
+      void 0 === this._layers[sublayerId] && (this._layers[sublayerId] = {});
+      this._layers[sublayerId].parent = layerId;
     }
-    Array.isArray(o) || (o = [o]);
-    this._layers[t].toggleCallback = o;
+    Array.isArray(toggleCallbacks) || (toggleCallbacks = [toggleCallbacks]);
+    this._layers[layerId].toggleCallback = toggleCallbacks;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.toggleCallback.push`、`this.getLayer`。
-   * 调用线索：i.toggleCallback.push、this.getLayer。
-   */
-  addCallback(t, e) {
-    const i = this.getLayer(t);
-    null !== i && i.toggleCallback.push(e);
+  addCallback(layerId, callback) {
+    const layer = this.getLayer(layerId);
+    null !== layer && layer.toggleCallback.push(callback);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `i.toggleCallback.indexOf`、`i.toggleCallback.splice`、`this.getLayer`。
-   * 调用线索：i.toggleCallback.indexOf、i.toggleCallback.splice、this.getLayer。
-   */
-  removeCallback(t, e) {
-    const i = this.getLayer(t);
-    if (null === i) return;
-    const s = i.toggleCallback.indexOf(e);
-    i.toggleCallback.splice(s, 1);
+  removeCallback(layerId, callback) {
+    const layer = this.getLayer(layerId);
+    if (null === layer) return;
+    const callbackIndex = layer.toggleCallback.indexOf(callback);
+    layer.toggleCallback.splice(callbackIndex, 1);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void 0===this._layers[t]?null:this._layers[t]`。
-   */
-  getLayer(t) {
-    return void 0 === this._layers[t] ? null : this._layers[t];
+  getLayer(layerId) {
+    return void 0 === this._layers[layerId] ? null : this._layers[layerId];
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._currentSurfaceLayer`。
-   */
   getCurrentSurfaceLayer() {
     return this._currentSurfaceLayer;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentSurfaceLayer`；返回 `void console.error("This function does not yet handle CMTS texture")`；调用 `Object.keys`、`Object.keys(e.textures).forEach`、`a.getLoadedPromise`、`a.setEnabled`、`a.setTexture`、`c.getName`。
-   * 状态写入：_currentSurfaceLayer。
-   * 调用线索：Object.keys、Object.keys(e.textures).forEach、a.getLoadedPromise、a.setEnabled、a.setTexture等。
-   */
-  async changeSpheroidMap(t, e, i = {}) {
-    if ("cmts" === e.type) return void console.error("This function does not yet handle CMTS texture");
+  async changeSpheroidMap(entityId, mapInfo, options = {}) {
+    if ("cmts" === mapInfo.type) return void console.error("This function does not yet handle CMTS texture");
     const sceneManager = this.app.getManager("scene");
     const wmtsManager = this.app.getManager("wmts");
-    const a = sceneManager.get("main").getEntity(t)?.getComponent(Pioneer.SpheroidLODComponent);
-    const l = sceneManager.get("main").getEntity(t)?.getComponent(Pioneer.AtmosphereComponent);
-    const c = sceneManager.get("main").getEntity(t)?.getComponent(SolarSystemSceneExports.WMTSComponent);
-    this._currentSurfaceLayer = e.id;
-    a && "texture" === e.type ? (false === wmtsManager.getWMTSComponentState(t) && sceneManager.isEntityHD(t) && (await sceneManager.toggleHDTextureForEntity(t, false)), a.setEnabled(true), sceneManager.addLoading(t, "spheroidLOD"), Object.keys(e.textures).forEach(t => {
-      const i = "$STATIC_ASSETS_URL/maps/" + e.textures[t].url;
-      a.setTexture(t, i, e.textures[t].sizes);
-    }), await a.getLoadedPromise(), null !== c && c.setEnabled(false), sceneManager.removeLoading(t, "spheroidLOD")) : "wmts" === e.type && (null === c || c.getName() !== e.id ? await sceneManager.addWMTSComponent(t, e) : false === c.isEnabled() && (await sceneManager.enableWMTSComponent(t, c)));
-    null != l && false !== i.atmosphere && l.setEnabled(e.features.includes("atmosphere"));
+    const lodComponent = sceneManager.get("main").getEntity(entityId)?.getComponent(Pioneer.SpheroidLODComponent);
+    const atmosphereComponent = sceneManager.get("main").getEntity(entityId)?.getComponent(Pioneer.AtmosphereComponent);
+    const wmtsComponent = sceneManager.get("main").getEntity(entityId)?.getComponent(SolarSystemSceneExports.WMTSComponent);
+    this._currentSurfaceLayer = mapInfo.id;
+    lodComponent && "texture" === mapInfo.type ? (false === wmtsManager.getWMTSComponentState(entityId) && sceneManager.isEntityHD(entityId) && (await sceneManager.toggleHDTextureForEntity(entityId, false)), lodComponent.setEnabled(true), sceneManager.addLoading(entityId, "spheroidLOD"), Object.keys(mapInfo.textures).forEach(textureRole => {
+      const textureUrl = "$STATIC_ASSETS_URL/maps/" + mapInfo.textures[textureRole].url;
+      lodComponent.setTexture(textureRole, textureUrl, mapInfo.textures[textureRole].sizes);
+    }), await lodComponent.getLoadedPromise(), null !== wmtsComponent && wmtsComponent.setEnabled(false), sceneManager.removeLoading(entityId, "spheroidLOD")) : "wmts" === mapInfo.type && (null === wmtsComponent || wmtsComponent.getName() !== mapInfo.id ? await sceneManager.addWMTSComponent(entityId, mapInfo) : false === wmtsComponent.isEnabled() && (await sceneManager.enableWMTSComponent(entityId, wmtsComponent)));
+    null != atmosphereComponent && false !== options.atmosphere && atmosphereComponent.setEnabled(mapInfo.features.includes("atmosphere"));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._app.getManager`、`this._app.getManager("content").getSpheroidDefaultTextureInformation`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`、`this.changeSpheroidMap`。
-   * 调用线索：e?.isEnabled、this._app.getManager、this._app.getManager("content").getSpheroidDefaultTextureInformation、this._app.pioneer.getScene、this._app.pioneer.getScene("main").getEntity等。
-   */
-  async resetSpheroidMap(t) {
-    const e = this._app.pioneer.getScene("main").getEntity(t)?.getComponent(Pioneer.AtmosphereComponent);
-    let i = ["shadowEntities"];
-    e?.isEnabled() && (i = ["shadowEntities", "atmosphere"]);
-    const s = this._app.getManager("content").getSpheroidDefaultTextureInformation(t, i);
-    "default" !== s?.id && (await this.changeSpheroidMap(t, s));
+  async resetSpheroidMap(entityId) {
+    const atmosphereComponent = this._app.pioneer.getScene("main").getEntity(entityId)?.getComponent(Pioneer.AtmosphereComponent);
+    let preservedFeatures = ["shadowEntities"];
+    atmosphereComponent?.isEnabled() && (preservedFeatures = ["shadowEntities", "atmosphere"]);
+    const defaultTexture = this._app.getManager("content").getSpheroidDefaultTextureInformation(entityId, preservedFeatures);
+    "default" !== defaultTexture?.id && (await this.changeSpheroidMap(entityId, defaultTexture));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_layers[t].visible`、`getLayer(this._layers[t].sublayers[i]).visible`；返回 `void`；调用 `0,this._layers[t].toggleCallback[i]`、`e.push`、`sceneManager.updateEntityLayerVisibility`、`sceneManager.updateEntityLayerVisibilityForChildren`、`t.toLowerCase`、`t.toLowerCase().includes`。
-   * 状态写入：_layers[t].visible、getLayer(this._layers[t].sublayers[i]).visible。
-   * 调用线索：0,this._layers[t].toggleCallback[i]、e.push、sceneManager.updateEntityLayerVisibility、sceneManager.updateEntityLayerVisibilityForChildren、t.toLowerCase等。
-   */
-  async toggleLayer(t, e = {}, i) {
+  async toggleLayer(layerId, options = {}, requestedVisibility) {
     const {
       spout: spout,
       spoutFontSize: spoutFontSize
     } = this.app.getManager("router").configs;
-    if (void 0 === this._layers[t]) return;
+    if (void 0 === this._layers[layerId]) return;
     const {
       configs: configs
     } = this._app.getManager("router");
-    if (e.layerId = t, void 0 !== i && this._layers[t].visible === i && true !== configs[t]) return;
-    this._layers[t].visible = !this._layers[t].visible;
-    for (let i = 0; i < this._layers[t].toggleCallback.length; i++) {
-      (0, this._layers[t].toggleCallback[i])(this._layers[t].visible, e);
+    if (options.layerId = layerId, void 0 !== requestedVisibility && this._layers[layerId].visible === requestedVisibility && true !== configs[layerId]) return;
+    this._layers[layerId].visible = !this._layers[layerId].visible;
+    for (let callbackIndex = 0; callbackIndex < this._layers[layerId].toggleCallback.length; callbackIndex++) {
+      (0, this._layers[layerId].toggleCallback[callbackIndex])(this._layers[layerId].visible, options);
     }
-    for (let i = 0; i < this._layers[t].sublayers.length; i++) {
-      this.getLayer(this._layers[t].sublayers[i]).visible = this._layers[t].visible;
-      this.triggerCallbacks("toggleLayer", [this._layers[t].sublayers[i], this._layers[t].visible, e]);
+    for (let sublayerIndex = 0; sublayerIndex < this._layers[layerId].sublayers.length; sublayerIndex++) {
+      this.getLayer(this._layers[layerId].sublayers[sublayerIndex]).visible = this._layers[layerId].visible;
+      this.triggerCallbacks("toggleLayer", [this._layers[layerId].sublayers[sublayerIndex], this._layers[layerId].visible, options]);
     }
-    this.triggerCallbacks("toggleLayer", [t, this._layers[t].visible, e]);
+    this.triggerCallbacks("toggleLayer", [layerId, this._layers[layerId].visible, options]);
     const sceneManager = this.app.getManager("scene");
-    if (null !== e.parentId && void 0 !== e.parentId ? sceneManager.updateEntityLayerVisibilityForChildren(e) : sceneManager.updateEntityLayerVisibility(e), true === spout && this._layers[t].visible) {
-      const e = [];
-      if (await this.pioneer.waitUntilNextFrame(), t.toLowerCase().includes("constellations")) {
-        this.app.pioneer.getScene("main").getEntity("sun").getComponent(SolarSystemSceneExports.ConstellationsComponent).getNames().forEach(t => {
-          e.push(this.app.pioneer.getScene("main").getEntity(`constellation_label_${t}`));
+    if (null !== options.parentId && void 0 !== options.parentId ? sceneManager.updateEntityLayerVisibilityForChildren(options) : sceneManager.updateEntityLayerVisibility(options), true === spout && this._layers[layerId].visible) {
+      const constellationLabels = [];
+      if (await this.pioneer.waitUntilNextFrame(), layerId.toLowerCase().includes("constellations")) {
+        this.app.pioneer.getScene("main").getEntity("sun").getComponent(SolarSystemSceneExports.ConstellationsComponent).getNames().forEach(constellationName => {
+          constellationLabels.push(this.app.pioneer.getScene("main").getEntity(`constellation_label_${constellationName}`));
         });
       }
-      await this.app.getManager("spout").setUpSpoutLabels(spoutFontSize, e?.[0]?.id);
+      await this.app.getManager("spout").setUpSpoutLabels(spoutFontSize, constellationLabels?.[0]?.id);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._app.getManager`、`this._app.getManager("layer").getLayer`、`this._contextualLayersList.forEach`、`this.app.getManager`、`this.toggleLayer`。
-   * 调用线索：this._app.getManager、this._app.getManager("layer").getLayer、this._contextualLayersList.forEach、this.app.getManager、this.toggleLayer。
-   */
   syncLayerVisibilityWithQueries() {
-    const t = this.app.getManager("router").configs;
-    this._contextualLayersList.forEach(e => {
-      const i = t[e] ?? this._app.getManager("layer").getLayer(e).defaultVisibility;
-      this.toggleLayer(e, {}, i);
+    const routeConfigs = this.app.getManager("router").configs;
+    this._contextualLayersList.forEach(layerId => {
+      const requestedVisibility = routeConfigs[layerId] ?? this._app.getManager("layer").getLayer(layerId).defaultVisibility;
+      this.toggleLayer(layerId, {}, requestedVisibility);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_dependencies`、`_previousDependencies`、`_targetId`；调用 `new Set`、`this._dependencies.clear`、`this._previousTarget.push`、`this._sceneManager.getDependencies`。
-   * 状态写入：_dependencies、_previousDependencies、_targetId。
-   * 调用线索：new Set、this._dependencies.clear、this._previousTarget.push、this._sceneManager.getDependencies。
-   */
   setTarget(targetId) {
     if (this._previousTarget.push(this._targetId), this._previousDependencies = new Set([...this._previousDependencies, ...this._dependencies]), this._targetId = targetId, this._dependencies.clear(), "" !== this._targetId) {
-      const t = this._sceneManager.getDependencies(this._targetId);
-      this._dependencies = new Set(t);
+      const dependencies = this._sceneManager.getDependencies(this._targetId);
+      this._dependencies = new Set(dependencies);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_previousTarget`；返回 `void`；调用 `i.getParent`、`i.getParent().getName`、`this._previousDependencies.clear`、`this.app.getManager`、`this.resetContextualVisibility`。
-   * 状态写入：_previousTarget。
-   * 调用线索：i.getParent、i.getParent().getName、this._previousDependencies.clear、this.app.getManager、this.resetContextualVisibility。
-   */
   resetTarget() {
-    for (let t = 0; t < this._previousTarget.length; t++) {
-      const e = this._previousTarget[t];
-      const i = this.app.getManager("camera").cameraEntity;
-      if (null === i || null === i.getParent()) return;
-      if (i.getParent().getName() === e) return;
+    for (let targetIndex = 0; targetIndex < this._previousTarget.length; targetIndex++) {
+      const previousTarget = this._previousTarget[targetIndex];
+      const cameraEntity = this.app.getManager("camera").cameraEntity;
+      if (null === cameraEntity || null === cameraEntity.getParent()) return;
+      if (cameraEntity.getParent().getName() === previousTarget) return;
     }
-    for (let t = 0; t < this._previousTarget.length; t++) {
-      const e = this._previousTarget[t];
-      this.resetContextualVisibility(e);
+    for (let targetIndex = 0; targetIndex < this._previousTarget.length; targetIndex++) {
+      const previousTarget = this._previousTarget[targetIndex];
+      this.resetContextualVisibility(previousTarget);
     }
     this._previousTarget = [];
     this._previousDependencies.clear();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_contextId`；调用 `SolarSystemSceneExports.Parenting.getParentOfEntity`、`this._sceneManager.main.getEngine`、`this._sceneManager.main.getEngine().getTime`、`this.getContextualLayers`、`this.getLayer`、`this.toggleLayer`。
-   * 状态写入：_contextId。
-   * 调用线索：SolarSystemSceneExports.Parenting.getParentOfEntity、this._sceneManager.main.getEngine、this._sceneManager.main.getEngine().getTime、this.getContextualLayers、this.getLayer等。
-   */
   resetContextualVisibility(contextId) {
-    const e = this._sceneManager.main.getEngine().getTime();
-    let i = this.getContextualLayers(contextId);
-    for (; "" !== contextId && 0 === i.length;) {
-      contextId = SolarSystemSceneExports.Parenting.getParentOfEntity(contextId, e);
-      i = this.getContextualLayers(contextId);
+    const currentTime = this._sceneManager.main.getEngine().getTime();
+    let contextualLayers = this.getContextualLayers(contextId);
+    for (; "" !== contextId && 0 === contextualLayers.length;) {
+      contextId = SolarSystemSceneExports.Parenting.getParentOfEntity(contextId, currentTime);
+      contextualLayers = this.getContextualLayers(contextId);
     }
     let targetId = this._targetId;
-    for (i = this.getContextualLayers(targetId); "" !== targetId && 0 === i.length;) {
-      targetId = SolarSystemSceneExports.Parenting.getParentOfEntity(targetId, e);
-      i = this.getContextualLayers(targetId);
+    for (contextualLayers = this.getContextualLayers(targetId); "" !== targetId && 0 === contextualLayers.length;) {
+      targetId = SolarSystemSceneExports.Parenting.getParentOfEntity(targetId, currentTime);
+      contextualLayers = this.getContextualLayers(targetId);
     }
     if (targetId !== contextId) {
       this._contextId = contextId;
-      for (let e = 0; e < i.length; e++) {
-        const s = i[e];
-        const n = this.getLayer(s);
-        if (void 0 !== n.parent) {
-          this.getLayer(n.parent).visible !== n.visible && this.toggleLayer(s, {
+      for (let layerIndex = 0; layerIndex < contextualLayers.length; layerIndex++) {
+        const layerId = contextualLayers[layerIndex];
+        const layer = this.getLayer(layerId);
+        if (void 0 !== layer.parent) {
+          this.getLayer(layer.parent).visible !== layer.visible && this.toggleLayer(layerId, {
             parentId: contextId,
-            group: n.group
+            group: layer.group
           });
-        } else n.visible !== n.defaultVisibility && this.toggleLayer(s, {
+        } else layer.visible !== layer.defaultVisibility && this.toggleLayer(layerId, {
           parentId: contextId,
-          group: n.group
+          group: layer.group
         });
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._targetId`。
-   */
   getTarget() {
     return this._targetId;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `this.getLayerFromCategory(s)||this.getLayerFromCategory(i)`；调用 `this._contentManager.getEntityInfo`、`this.getLayerFromCategory`。
-   * 调用线索：this._contentManager.getEntityInfo、this.getLayerFromCategory。
-   */
-  getEntityLayer(t) {
-    const e = this._contentManager.getEntityInfo(t);
-    if (null === e) return null;
-    const i = e.category;
-    const s = e.subcategory;
-    return this.getLayerFromCategory(s) || this.getLayerFromCategory(i);
+  getEntityLayer(entityId) {
+    const entityInfo = this._contentManager.getEntityInfo(entityId);
+    if (null === entityInfo) return null;
+    const category = entityInfo.category;
+    const subcategory = entityInfo.subcategory;
+    return this.getLayerFromCategory(subcategory) || this.getLayerFromCategory(category);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `this._layers[e]`；调用 `Object.entries`、`i.categories.includes`。
-   * 调用线索：Object.entries、i.categories.includes。
-   */
-  getLayerFromCategory(t) {
-    if (!t) return null;
-    for (const [e, i] of Object.entries(this._layers)) if (i.categories.includes(t)) return this._layers[e];
+  getLayerFromCategory(category) {
+    if (!category) return null;
+    for (const [layerId, layer] of Object.entries(this._layers)) if (layer.categories.includes(category)) return this._layers[layerId];
     return null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `this._layers[e]`；调用 `Object.entries`、`i.categories.includes`。
-   * 调用线索：Object.entries、i.categories.includes。
-   */
-  getLayerFromSatelliteGroup(t) {
-    if (!t) return null;
-    for (const [e, i] of Object.entries(this._layers)) if (i.categories.includes(t)) return this._layers[e];
+  getLayerFromSatelliteGroup(satelliteGroup) {
+    if (!satelliteGroup) return null;
+    for (const [layerId, layer] of Object.entries(this._layers)) if (layer.categories.includes(satelliteGroup)) return this._layers[layerId];
     return null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._contextualLayersList`。
-   */
   getAllContextualLayerOptions() {
     return this._contextualLayersList;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `Object.keys`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup`、`SolarSystemSceneExports.Parenting.getParentOfEntity`、`contentManager.getEntityInfo`、`e.includes`、`e.push`。
-   * 调用线索：Object.keys、SolarSystemSceneExports.Entity.getEntityNamesInGroup、SolarSystemSceneExports.Parenting.getParentOfEntity、contentManager.getEntityInfo、e.includes等。
-   */
-  getContextualLayers(t) {
-    const e = [];
-    if ("" === t) return e;
+  getContextualLayers(entityId) {
+    const contextualLayers = [];
+    if ("" === entityId) return contextualLayers;
     const contentManager = this.app.getManager("content");
-    const n = contentManager.getEntityInfo(t);
-    const o = n?.hasMoons ? SolarSystemSceneExports.Entity.getEntityNamesInGroup(t + ", moons") : new Set();
-    const r = SolarSystemSceneExports.Entity.getEntityNamesInGroup(t + ", spacecraft");
-    "sun" === t && false === e.includes("heliosphere") && e.push("heliosphere");
-    o.forEach(t => {
-      const s = contentManager.getEntityInfo(t);
-      if (null !== s) {
-        switch (s.subcategory || s.category) {
+    const entityInfo = contentManager.getEntityInfo(entityId);
+    const moonIds = entityInfo?.hasMoons ? SolarSystemSceneExports.Entity.getEntityNamesInGroup(entityId + ", moons") : new Set();
+    const spacecraftIds = SolarSystemSceneExports.Entity.getEntityNamesInGroup(entityId + ", spacecraft");
+    "sun" === entityId && false === contextualLayers.includes("heliosphere") && contextualLayers.push("heliosphere");
+    moonIds.forEach(moonId => {
+      const moonInfo = contentManager.getEntityInfo(moonId);
+      if (null !== moonInfo) {
+        switch (moonInfo.subcategory || moonInfo.category) {
           case "Major Moon":
-            false === e.includes("majorMoons") && e.push("majorMoons");
+            false === contextualLayers.includes("majorMoons") && contextualLayers.push("majorMoons");
             break;
           case "Minor Moon":
-            false === e.includes("minorMoons") && e.push("minorMoons");
+            false === contextualLayers.includes("minorMoons") && contextualLayers.push("minorMoons");
         }
       }
     });
-    const a = this._app.pioneer.getTime();
-    r.forEach(n => {
-      const o = contentManager.getEntityInfo(n);
-      if (null !== o) {
-        switch (o.subcategory || o.category) {
+    const currentTime = this._app.pioneer.getTime();
+    spacecraftIds.forEach(spacecraftId => {
+      const spacecraftInfo = contentManager.getEntityInfo(spacecraftId);
+      if (null !== spacecraftInfo) {
+        switch (spacecraftInfo.subcategory || spacecraftInfo.category) {
           case "Orbiter":
-            false === e.includes("orbiters") && SolarSystemSceneExports.Parenting.getParentOfEntity(n, a) === t && e.push("orbiters");
+            false === contextualLayers.includes("orbiters") && SolarSystemSceneExports.Parenting.getParentOfEntity(spacecraftId, currentTime) === entityId && contextualLayers.push("orbiters");
             break;
           case "Landing Site":
           case "Lander":
           case "Rover":
-            false === e.includes("landers") && SolarSystemSceneExports.Parenting.getParentOfEntity(n, a) === t && e.push("landers");
+            false === contextualLayers.includes("landers") && SolarSystemSceneExports.Parenting.getParentOfEntity(spacecraftId, currentTime) === entityId && contextualLayers.push("landers");
         }
       }
     });
-    n?.constellation && e.push("satelliteGroup");
-    e.sort((t, e) => {
-      const i = Object.keys(this._layers);
-      return i.indexOf(t) - i.indexOf(e);
+    entityInfo?.constellation && contextualLayers.push("satelliteGroup");
+    contextualLayers.sort((leftLayerId, rightLayerId) => {
+      const layerOrder = Object.keys(this._layers);
+      return layerOrder.indexOf(leftLayerId) - layerOrder.indexOf(rightLayerId);
     });
-    return e;
+    return contextualLayers;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.includes`、`this._contextualLayersList.forEach`、`this.getContextualLayers`、`this.getLayer`、`this.toggleLayer`。
-   * 调用线索：i.includes、this._contextualLayersList.forEach、this.getContextualLayers、this.getLayer、this.toggleLayer。
-   */
-  resetContextualLayers(t, e) {
-    const i = this.getContextualLayers(t);
-    this._contextualLayersList.forEach(t => {
-      false === i.includes(t) && ("heliosphere" === t ? this.toggleLayer(t, {
+  resetContextualLayers(newParentId, oldParentId) {
+    const availableLayers = this.getContextualLayers(newParentId);
+    this._contextualLayersList.forEach(layerId => {
+      false === availableLayers.includes(layerId) && ("heliosphere" === layerId ? this.toggleLayer(layerId, {
         parentId: void 0
-      }, this.getLayer(t).defaultVisibility || false) : this.toggleLayer(t, {
-        parentId: e
-      }, this.getLayer(t).defaultVisibility || false));
+      }, this.getLayer(layerId).defaultVisibility || false) : this.toggleLayer(layerId, {
+        parentId: oldParentId
+      }, this.getLayer(layerId).defaultVisibility || false));
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null!==o&&n.constellation===satelliteGroup?o.visible:null!==e?!(e.parent&&!this.getLayer(e.parent)?.visible&&!allowSublayer)&&e.visible:null!==t?t.vis` 或 `true`；调用 `this._contentManager.getEntityInfo`、`this.getLayer`、`this.getLayerFromCategory`、`this.getLayerFromSatelliteGroup`。
-   * 调用线索：this._contentManager.getEntityInfo、this.getLayer、this.getLayerFromCategory、this.getLayerFromSatelliteGroup。
-   */
-  isEntityVisibleWithCurrentLayers(t, e = {}) {
+  isEntityVisibleWithCurrentLayers(entityId, options = {}) {
     const {
       satelliteGroup: satelliteGroup,
       allowSublayer: allowSublayer
-    } = e ?? {};
-    const n = this._contentManager.getEntityInfo(t);
-    if (null !== n) {
-      const t = this.getLayerFromCategory(n.category);
-      const e = this.getLayerFromCategory(n.subcategory);
-      const o = this.getLayerFromSatelliteGroup(n.constellation);
-      return null !== o && n.constellation === satelliteGroup ? o.visible : null !== e ? !(e.parent && !this.getLayer(e.parent)?.visible && !allowSublayer) && e.visible : null !== t ? t.visible : null === t && null === e;
+    } = options ?? {};
+    const entityInfo = this._contentManager.getEntityInfo(entityId);
+    if (null !== entityInfo) {
+      const categoryLayer = this.getLayerFromCategory(entityInfo.category);
+      const subcategoryLayer = this.getLayerFromCategory(entityInfo.subcategory);
+      const satelliteLayer = this.getLayerFromSatelliteGroup(entityInfo.constellation);
+      return null !== satelliteLayer && entityInfo.constellation === satelliteGroup ? satelliteLayer.visible : null !== subcategoryLayer ? !(subcategoryLayer.parent && !this.getLayer(subcategoryLayer.parent)?.visible && !allowSublayer) && subcategoryLayer.visible : null !== categoryLayer ? categoryLayer.visible : null === categoryLayer && null === subcategoryLayer;
     }
     return true;
   }

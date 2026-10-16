@@ -3,6 +3,27 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.32 - 2026-10-16
+
+Replace compressed local names in the application and engine with scoped,
+evidence-based names, and separate actual source review from structural coverage.
+
+- Correct the preload star layers: eight primary and 24 secondary shadows now
+  reach their respective elements instead of overwriting the primary layer.
+- Explain lifecycle, resource ownership, units, frame conventions and numerical
+  boundaries in source; rename five story modules while retaining provenance.
+- Present nine custom shaders as readable multiline GLSL with unchanged runtime
+  shader bytes and material settings.
+- Add lexical equivalence and runtime regression checks for application routes,
+  managers, dynamics, terrain, math, resources, stories and shaders.
+- Restore 1,793 Three core binding names using cross-matched official references;
+  verify the complete candidate and all 444 public exports. Record 631 unmatched
+  methods explicitly instead of claiming full vendor recovery.
+- Remove bulk generated source annotations. Generate current signatures and
+  source comments in the reference, pin reviewed files to source hashes, and
+  identify unfinished vendor analysis explicitly. The preceding structural
+  inventory is not evidence of full semantic recovery.
+
 ## 0.2.31 - 2026-10-16
 
 Document and annotate the editable Eyes source without changing its executable AST.

@@ -1,48 +1,33 @@
-/** @eyes-analysis
- * 文件职责：图层分组与可见性开关面板
- * 依据：imports: ../../framework/eyes/public-api.js, ../templates/LayerPanelTemplate.html, ../../styles/extracted/LayerPanelStyles.js；manager dependencies: layer
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:655131-662755.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import LayerPanelTemplate from "../templates/LayerPanelTemplate.html";
 import "../../styles/extracted/LayerPanelStyles.js";
 var getLayerPanelTemplate = () => LayerPanelTemplate;
-/** @eyes-analysis
- * 类职责：图层分组与可见性开关面板；继承 EyesPublicApi.BaseComponent
- * 继承：EyesPublicApi.BaseComponent；导出：LayerPanel。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 两种复选框实现共享 layer 管理器事件：NASA eyes 原生 input 与组件 Checkbox。事件回流只同步 UI 状态，程序化 toggle 传 skipCallback 避免再次发出图层切换。 */
 class LayerPanel extends EyesPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Object.assign, this.bindFunctions, EyesPublicApi.AppUtils.isMobileMode, this._initCallbacks；写入 _eyesCheck, _categories, _categoriesDisplay, _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom, _lastMode。
-   * 状态写入：_categories、_categoriesDisplay、_eyesCheck、_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight、_lastMode。
-   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、Object.assign、super、t.getManager、t.getManager("layer").getLayer等。
-   */
-  constructor(t, e = {}) {
-    e.config = {
-      layers: e.layers || [],
-      checkboxType: e.checkboxType || "default",
-      ...e.config
+  constructor(app, options = {}) {
+    options.config = {
+      layers: options.layers || [],
+      checkboxType: options.checkboxType || "default",
+      ...options.config
     };
-    super(t, null, {
+    super(app, null, {
       isVisible: false,
-      ui: t.getManager("layer").getLayer("ui").defaultVisibility,
-      planets: t.getManager("layer").getLayer("planets").defaultVisibility,
-      asteroids: t.getManager("layer").getLayer("asteroids").defaultVisibility,
-      comets: t.getManager("layer").getLayer("comets").defaultVisibility,
-      dwarfPlanets: t.getManager("layer").getLayer("dwarfPlanets").defaultVisibility,
-      spacecraft: t.getManager("layer").getLayer("spacecraft").defaultVisibility,
-      trails: t.getManager("layer").getLayer("trails").defaultVisibility,
-      orbits: t.getManager("layer").getLayer("orbits").defaultVisibility,
-      labels: t.getManager("layer").getLayer("labels").defaultVisibility,
-      icons: t.getManager("layer").getLayer("icons").defaultVisibility,
-      starfield: t.getManager("layer").getLayer("starfield").defaultVisibility,
-      constellations: t.getManager("layer").getLayer("constellations").defaultVisibility,
-      ...e
+      ui: app.getManager("layer").getLayer("ui").defaultVisibility,
+      planets: app.getManager("layer").getLayer("planets").defaultVisibility,
+      asteroids: app.getManager("layer").getLayer("asteroids").defaultVisibility,
+      comets: app.getManager("layer").getLayer("comets").defaultVisibility,
+      dwarfPlanets: app.getManager("layer").getLayer("dwarfPlanets").defaultVisibility,
+      spacecraft: app.getManager("layer").getLayer("spacecraft").defaultVisibility,
+      trails: app.getManager("layer").getLayer("trails").defaultVisibility,
+      orbits: app.getManager("layer").getLayer("orbits").defaultVisibility,
+      labels: app.getManager("layer").getLayer("labels").defaultVisibility,
+      icons: app.getManager("layer").getLayer("icons").defaultVisibility,
+      starfield: app.getManager("layer").getLayer("starfield").defaultVisibility,
+      constellations: app.getManager("layer").getLayer("constellations").defaultVisibility,
+      ...options
     });
-    this._eyesCheck = "eyes" === e.checkboxType;
+    this._eyesCheck = "eyes" === options.checkboxType;
     Object.assign(this._class, {
       checkbox: {
         true: this._eyesCheck ? "active" : "active icon-checkmark",
@@ -118,24 +103,13 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
     this._lastMode = EyesPublicApi.AppUtils.isMobileMode();
     this._initCallbacks();
   }
-  /** @eyes-analysis
-   * 执行 getCategoriesDisplay 对应的组件业务步骤。
-   */
   getCategoriesDisplay() {
     return this._categoriesDisplay;
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 super.resize, this._updatePosition。
-   * 调用线索：super.resize、this._updatePosition。
-   */
   resize() {
     super.resize();
     this._updatePosition();
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager, this._config.layers.forEach, List.add, EyesPublicApi.Checkbox, this._components.push, this._setVariables。
-   * 调用线索：checkbox.init、document.createElement、e.addEventListener、e.append、e.setAttribute等。
-   */
   init() {
     super.init();
     this._callbackRegistry.push({
@@ -143,60 +117,55 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       event: "toggleLayer",
       callback: this.handleLayerToggle
     });
-    const t = this._children.layerPanelBody;
-    if (t) {
-      t.textContent = "";
-      const e = document.createElement("div");
-      e.className = "container";
-      this._config.layers.forEach(t => {
-        const i = document.createElement("div");
-        i.classList.add("block");
-        const n = document.createElement("ul");
-        n.classList.add("layers");
-        t.forEach(t => {
+    const panelBody = this._children.layerPanelBody;
+    if (panelBody) {
+      panelBody.textContent = "";
+      const panelContainer = document.createElement("div");
+      panelContainer.className = "container";
+      this._config.layers.forEach(layerGroup => {
+        const groupBlock = document.createElement("div");
+        groupBlock.classList.add("block");
+        const layerList = document.createElement("ul");
+        layerList.classList.add("layers");
+        layerGroup.forEach(layerName => {
           if (this._eyesCheck) {
-            const e = document.createElement("li");
-            e.setAttribute("key", t);
-            e.className = `layer-panel-layer item clickable {{${t}Class}}`;
-            const i = document.createElement("div");
-            i.classList.add("eyes-checkbox");
-            i.innerHTML = `<input type="checkbox" id="layer-panel-checkbox-${t}" ${this._state[t] ? "checked" : ""}><label for="layer-panel-checkbox-${t}"></label>`;
-            e.append(i);
-            const s = document.createElement("span");
-            s.classList.add("small");
-            s.textContent = this._categoriesDisplay[t];
-            e.append(s);
-            e.addEventListener("click", this.toggleLayer);
-            n.append(e);
+            const listItem = document.createElement("li");
+            listItem.setAttribute("key", layerName);
+            listItem.className = `layer-panel-layer item clickable {{${layerName}Class}}`;
+            const checkboxContainer = document.createElement("div");
+            checkboxContainer.classList.add("eyes-checkbox");
+            checkboxContainer.innerHTML = `<input type="checkbox" id="layer-panel-checkbox-${layerName}" ${this._state[layerName] ? "checked" : ""}><label for="layer-panel-checkbox-${layerName}"></label>`;
+            listItem.append(checkboxContainer);
+            const labelElement = document.createElement("span");
+            labelElement.classList.add("small");
+            labelElement.textContent = this._categoriesDisplay[layerName];
+            listItem.append(labelElement);
+            listItem.addEventListener("click", this.toggleLayer);
+            layerList.append(listItem);
           } else {
             const checkbox = new EyesPublicApi.Checkbox(this._app, {
               config: {
-                key: t,
+                key: layerName,
                 colorClass: this._class.boxColor.true,
                 function: this.toggleLayer
               },
-              isChecked: this._app.getManager("layer").getLayer(t).defaultVisibility,
-              text: this._categoriesDisplay[t],
+              isChecked: this._app.getManager("layer").getLayer(layerName).defaultVisibility,
+              text: this._categoriesDisplay[layerName],
               checkboxClass: "layer-panel-layer item",
               textClass: "small"
             });
             checkbox.init();
             this._components.push(checkbox);
-            n.appendChild(checkbox.element);
+            layerList.appendChild(checkbox.element);
           }
         });
-        i.append(n);
-        e.append(i);
+        groupBlock.append(layerList);
+        panelContainer.append(groupBlock);
       });
-      t.append(e);
-      this._setVariables(t);
+      panelBody.append(panelContainer);
+      this._setVariables(panelBody);
     }
   }
-  /** @eyes-analysis
-   * 执行 _createAnimations 对应的组件业务步骤；调用 EyesPublicApi.AnimationUtils.directionalFade；写入 _fadeOutRight, _fadeInRight, _fadeOutBottom, _fadeInBottom。
-   * 状态写入：_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight。
-   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade。
-   */
   _createAnimations() {
     this._fadeOutRight = EyesPublicApi.AnimationUtils.directionalFade(this._element, {
       direction: "right",
@@ -219,11 +188,6 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     });
   }
-  /** @eyes-analysis
-   * 执行 _resetAnimations 对应的组件业务步骤；调用 this._fadeInRight.pause, this._fadeOutRight.pause, this._fadeInBottom.pause, this._fadeOutBottom.pause。
-   * 状态写入：_fadeInBottom.currentTime、_fadeInRight.currentTime、_fadeOutBottom.currentTime、_fadeOutRight.currentTime。
-   * 调用线索：this._fadeInBottom.pause、this._fadeInRight.pause、this._fadeOutBottom.pause、this._fadeOutRight.pause。
-   */
   _resetAnimations() {
     this._fadeInRight.currentTime = 0;
     this._fadeOutRight.currentTime = 0;
@@ -234,57 +198,36 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
     this._fadeInBottom.pause();
     this._fadeOutBottom.pause();
   }
-  /** @eyes-analysis
-   * 执行 toggleLayer 对应的组件业务步骤；调用 this._app.getManager。
-   * 调用线索：t.target?.getAttribute、this._app.getManager、this._app.getManager("layer").toggleLayer。
-   */
-  toggleLayer(t) {
-    const e = t.target?.getAttribute("key") ?? t;
-    this._app.getManager("layer").toggleLayer(e, {
-      category: this._categories[e]
+  toggleLayer(eventOrLayerName) {
+    const layerName = eventOrLayerName.target?.getAttribute("key") ?? eventOrLayerName;
+    this._app.getManager("layer").toggleLayer(layerName, {
+      category: this._categories[layerName]
     });
   }
-  /** @eyes-analysis
-   * 执行 handleLayerToggle 对应的组件业务步骤；调用 this.getState, this.setState, this._components.find, this._app.getManager。
-   * 调用线索：document.getElementById、e.getConfig、o.getState、o.toggle、t.getConfig等。
-   */
-  handleLayerToggle(t, e, i) {
-    const s = t + "Class";
-    const n = t + "ColorClass";
-    if (null !== this.getState(t) && (this.setState({
-      [t]: e,
-      [s]: this._class.checkbox[e],
-      [n]: this._class.boxColor[e]
+  handleLayerToggle(layerName, isVisible, layerOptions) {
+    const checkedClassKey = layerName + "Class";
+    const colorClassKey = layerName + "ColorClass";
+    if (null !== this.getState(layerName) && (this.setState({
+      [layerName]: isVisible,
+      [checkedClassKey]: this._class.checkbox[isVisible],
+      [colorClassKey]: this._class.boxColor[isVisible]
     }), this._eyesCheck)) {
-      const i = document.getElementById(`layer-panel-checkbox-${t}`);
-      i && (i.checked = e);
+      const checkboxInput = document.getElementById(`layer-panel-checkbox-${layerName}`);
+      checkboxInput && (checkboxInput.checked = isVisible);
     }
-    let o = this._components.find(e => e.getConfig().key === t);
-    if (!o) {
-      const e = this._app.getManager("layer").getLayer(t);
-      e.parent && (o = this._components.find(t => t.getConfig().key === e.parent));
+    let checkbox = this._components.find(candidateCheckbox => candidateCheckbox.getConfig().key === layerName);
+    if (!checkbox) {
+      const layerInfo = this._app.getManager("layer").getLayer(layerName);
+      layerInfo.parent && (checkbox = this._components.find(candidateCheckbox => candidateCheckbox.getConfig().key === layerInfo.parent));
     }
-    o && o.getState("isChecked") !== e && o.toggle(true, true);
+    checkbox && checkbox.getState("isChecked") !== isVisible && checkbox.toggle(true, true);
   }
-  /** @eyes-analysis
-   * 执行 isCategoryEnabled 对应的组件业务步骤；调用 List.contains。
-   * 调用线索：this._children[t]?.classList.contains。
-   */
-  isCategoryEnabled(t) {
-    return !this._children[t]?.classList.contains("disabled");
+  isCategoryEnabled(categoryName) {
+    return !this._children[categoryName]?.classList.contains("disabled");
   }
-  /** @eyes-analysis
-   * 执行 setCategoryEnabled 对应的组件业务步骤；调用 List.toggle。
-   * 调用线索：this._children[t]?.classList.toggle。
-   */
-  setCategoryEnabled(t, e = true) {
-    this._children[t]?.classList.toggle("disabled", !e);
+  setCategoryEnabled(categoryName, isEnabled = true) {
+    this._children[categoryName]?.classList.toggle("disabled", !isEnabled);
   }
-  /** @eyes-analysis
-   * 执行 hide 对应的组件业务步骤；调用 this.getState, super.hide, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeOutBottom.play, this._fadeOutRight.play；写入 _fadeOutBottom, _fadeOutRight。
-   * 状态写入：_fadeOutBottom、_fadeOutRight。
-   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade、EyesPublicApi.AppUtils.isMobileMode、document.body.style.setProperty、super.hide、this._fadeOutBottom.play等。
-   */
   hide() {
     this.getState("isVisible") && (super.hide(), document.body.style.setProperty("--settings-z-index", "40"), EyesPublicApi.AppUtils.isMobileMode() ? (this._fadeOutBottom = EyesPublicApi.AnimationUtils.directionalFade(this._element, {
       direction: "down",
@@ -296,11 +239,6 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     }), this._fadeOutRight.play()));
   }
-  /** @eyes-analysis
-   * 执行 show 对应的组件业务步骤；调用 super.show, EyesPublicApi.AppUtils.isMobileMode, EyesPublicApi.AnimationUtils.directionalFade, this._fadeInBottom.play, this._fadeInRight.play；写入 _fadeInBottom, _fadeInRight。
-   * 状态写入：_fadeInBottom、_fadeInRight。
-   * 调用线索：EyesPublicApi.AnimationUtils.directionalFade、EyesPublicApi.AppUtils.isMobileMode、document.body.style.setProperty、super.show、this._fadeInBottom.play等。
-   */
   show() {
     super.show();
     document.body.style.setProperty("--settings-z-index", "50");
@@ -314,28 +252,14 @@ class LayerPanel extends EyesPublicApi.BaseComponent {
       yOffset: 0
     }), this._fadeInRight.play());
   }
-  /** @eyes-analysis
-   * 执行 _updatePosition 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isMobileMode, this.show；写入 _lastMode。
-   * 状态写入：_lastMode。
-   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、this.show。
-   */
   _updatePosition() {
     const lastMode = EyesPublicApi.AppUtils.isMobileMode();
     lastMode !== this._lastMode && (this._lastMode = lastMode, this._state.isVisible && this.show());
   }
-  /** @eyes-analysis
-   * 挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createAnimations。
-   * 调用线索：super.__enable、this._createAnimations。
-   */
   __enable() {
     super.__enable();
     this._createAnimations();
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 super.__disable；写入 _fadeInRight, _fadeOutRight, _fadeInBottom, _fadeOutBottom。
-   * 状态写入：_fadeInBottom、_fadeInRight、_fadeOutBottom、_fadeOutRight。
-   * 调用线索：super.__disable。
-   */
   __disable() {
     super.__disable();
     this._fadeInRight = null;

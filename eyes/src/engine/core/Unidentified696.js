@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 127 个实体/参考系（如 "1_ceres"、"101955_bennu"、"11351_leucus"、"12923_zephyr"、"134340_pluto"、"134340_pluto_barycenter"），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 小行星/矮行星目录及少量创建回调：可强制标签可见、设置表面基色和修正自转参考时刻；注册数据不触发资产复制，模型与 dynamo URL 继续交给运行时加载。
 // Recovered from app.js:805628-854969.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -160,10 +155,12 @@ Entity.Entity.register({
       type: "fixed",
       orientation: Pioneer.Quaternion.Identity
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.DivComponent);
-      e && e.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
-      t.setCanOcclude(false);
+    postCreateFunction: entity => {
+      const label = entity.getComponent(Pioneer.DivComponent);
+      if (label) {
+        label.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);
+      }
+      entity.setCanOcclude(false);
     }
   },
   "136108_haumea": {
@@ -1731,14 +1728,16 @@ Entity.Entity.register({
       periodInHours: 22.4,
       relativeToTime: 0
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.SpheroidLODComponent);
-      e && e.setResourcesLoadedCallback(() => {
-        e.getThreeJsMaterials().forEach(t => {
-          t.defines.baseColor = true;
-          t.uniforms.color.value.set(.463, .404, .306, 1);
+    postCreateFunction: entity => {
+      const surface = entity.getComponent(Pioneer.SpheroidLODComponent);
+      if (surface) {
+        surface.setResourcesLoadedCallback(() => {
+          surface.getThreeJsMaterials().forEach(material => {
+            material.defines.baseColor = true;
+            material.uniforms.color.value.set(.463, .404, .306, 1);
+          });
         });
-      });
+      }
     }
   },
   "225088_gonggong_i_xiangliu": {
@@ -2232,9 +2231,12 @@ Entity.Entity.register({
       axis: new Pioneer.Vector3(-6.121453676996425e-10, .9396926211599973, .34202014229786787),
       periodInHours: 13
     }],
-    postCreateFunction: t => {
-      const e = t.getController(Pioneer.SpinController);
-      null !== e && (e.setReferenceAngle(0), e.setReferenceTime(599590968));
+    postCreateFunction: entity => {
+      const spinController = entity.getController(Pioneer.SpinController);
+      if (null !== spinController) {
+        spinController.setReferenceAngle(0);
+        spinController.setReferenceTime(599590968);
+      }
     }
   },
   "5011_ptah": {
@@ -2349,8 +2351,8 @@ Entity.Entity.register({
       type: "fixed",
       orientation: Pioneer.Quaternion.Identity
     }],
-    postCreateFunction: t => {
-      t.setCanOcclude(false);
+    postCreateFunction: entity => {
+      entity.setCanOcclude(false);
     }
   },
   "6239_minos": {

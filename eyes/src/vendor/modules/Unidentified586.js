@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：创建正反向坐标转换器并处理输入数组或点对象
- * 依据：// Recovered from vendors.js:1723512-1724633.；exports: default
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:1723512-1724633.
 import * as Unidentified587 from "./Unidentified587.js";
 import * as transformInternal from "./transformInternal.js";

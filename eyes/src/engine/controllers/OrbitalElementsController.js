@@ -1,140 +1,78 @@
-/** @eyes-analysis
- * 文件职责：保存轨道元素关键帧，在指定时间传播位置/速度并在相邻元素之间混合。
- * 依据：import ../pioneer/public-api.js；OrbitalElementsController extends PioneerPublicApi.BaseController @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:508829-511101.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：保存轨道元素关键帧，在指定时间传播位置/速度并在相邻元素之间混合。
- * 继承：PioneerPublicApi.BaseController；导出：OrbitalElementsController。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 将两端轨道分别传播到查询时间，再对位置和速度做向量 slerp；不是先插值轨道元素。所有临时向量归还池。 */
+
 class OrbitalElementsController extends PioneerPublicApi.BaseController {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_orbitalElementsKeyframes`；调用 `super`、`this.addModifiedState`。
-   * 状态写入：_orbitalElementsKeyframes。
-   * 调用线索：super、this.addModifiedState。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(controllerName, entity) {
+    super(controllerName, entity);
     this._orbitalElementsKeyframes = [];
     this.addModifiedState("position");
     this.addModifiedState("velocity");
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._orbitalElementsKeyframes.length`。
-   */
   getNumOrbitalElements() {
     return this._orbitalElementsKeyframes.length;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._orbitalElementsKeyframes[t]`。
-   */
-  getOrbitalElements(t) {
-    return this._orbitalElementsKeyframes[t];
+  getOrbitalElements(index) {
+    return this._orbitalElementsKeyframes[index];
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`new PioneerPublicApi.OrbitalElements`。
-   * 调用线索：PioneerPublicApi.Sort.addObject、new PioneerPublicApi.OrbitalElements。
-   */
-  addOrbitalElements(t, e) {
-    const orbitalElements = new PioneerPublicApi.OrbitalElements(e);
+  addOrbitalElements(time, elements) {
+    const orbitalElements = new PioneerPublicApi.OrbitalElements(elements);
     PioneerPublicApi.Sort.addObject({
-      time: t,
+      time: time,
       oe: orbitalElements
     }, this._orbitalElementsKeyframes, OrbitalElementsController._isLessAdd, OrbitalElementsController._isEqualAdd);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`this._orbitalElementsKeyframes.splice`；含显式错误分支。
-   * 调用线索：new Error、this._orbitalElementsKeyframes.splice。
-   */
-  removeOrbitalElements(t) {
-    if (t < 0 || this._orbitalElementsKeyframes.length <= t) throw new Error(`Invalid index for ${this}.removeOrbitalElements`);
-    this._orbitalElementsKeyframes.splice(t, 1);
+  removeOrbitalElements(index) {
+    if (index < 0 || this._orbitalElementsKeyframes.length <= index) throw new Error(`Invalid index for ${this}.removeOrbitalElements`);
+    this._orbitalElementsKeyframes.splice(index, 1);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._getPositionAndVelocityAtTime`。
-   * 调用线索：this._getPositionAndVelocityAtTime。
-   */
-  __updatePositionAtTime(t, e) {
-    this._getPositionAndVelocityAtTime(t, void 0, e);
+  __updatePositionAtTime(positionOut, time) {
+    this._getPositionAndVelocityAtTime(positionOut, void 0, time);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._getPositionAndVelocityAtTime`。
-   * 调用线索：this._getPositionAndVelocityAtTime。
-   */
-  __updateVelocityAtTime(t, e) {
-    this._getPositionAndVelocityAtTime(void 0, t, e);
+  __updateVelocityAtTime(velocityOut, time) {
+    this._getPositionAndVelocityAtTime(void 0, velocityOut, time);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`new Error`、`this._getPositionAndVelocityAtTime`、`this.getEntity`、`this.getEntity().getScene`；含显式错误分支。
-   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、new Error、this._getPositionAndVelocityAtTime、this.getEntity等。
-   */
   __update() {
-    const t = this.getEntity().getScene().getEngine().getTime();
+    const time = this.getEntity().getScene().getEngine().getTime();
     if (0 === this._orbitalElementsKeyframes.length) throw new Error(`In ${this}, there are no keyframes`);
-    const e = PioneerPublicApi.Vector3.pool.get();
-    const i = PioneerPublicApi.Vector3.pool.get();
-    this._getPositionAndVelocityAtTime(e, i, t);
-    this.getEntity().setPosition(e);
-    this.getEntity().setVelocity(i);
-    PioneerPublicApi.Vector3.pool.release(e);
-    PioneerPublicApi.Vector3.pool.release(i);
+    const position = PioneerPublicApi.Vector3.pool.get();
+    const velocity = PioneerPublicApi.Vector3.pool.get();
+    this._getPositionAndVelocityAtTime(position, velocity, time);
+    this.getEntity().setPosition(position);
+    this.getEntity().setVelocity(velocity);
+    PioneerPublicApi.Vector3.pool.release(position);
+    PioneerPublicApi.Vector3.pool.release(velocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.max`、`Math.min`、`PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.Sort.getIndexObject`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`。
-   * 调用线索：Math.max、Math.min、PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.Sort.getIndexObject、PioneerPublicApi.Vector3.pool.get等。
-   */
-  _getPositionAndVelocityAtTime(t, e, i) {
-    const n = PioneerPublicApi.Sort.getIndexObject(i, this._orbitalElementsKeyframes, OrbitalElementsController._isLess);
-    const o = this._orbitalElementsKeyframes[Math.max(n - 1, 0)];
-    const r = this._orbitalElementsKeyframes[Math.min(n, this._orbitalElementsKeyframes.length - 1)];
-    const a = PioneerPublicApi.Vector3.pool.get();
-    const l = PioneerPublicApi.Vector3.pool.get();
-    const c = PioneerPublicApi.Vector3.pool.get();
-    const h = PioneerPublicApi.Vector3.pool.get();
-    o.oe.project(a, c, i);
-    r.oe.project(l, h, i);
-    const d = PioneerPublicApi.MathUtils.clamp01(r.time !== o.time ? (i - o.time) / (r.time - o.time) : 0);
-    t && t.slerp(a, l, d);
-    e && e.slerp(c, h, d);
-    PioneerPublicApi.Vector3.pool.release(a);
-    PioneerPublicApi.Vector3.pool.release(l);
-    PioneerPublicApi.Vector3.pool.release(c);
-    PioneerPublicApi.Vector3.pool.release(h);
+  _getPositionAndVelocityAtTime(positionOut, velocityOut, time) {
+    const insertionIndex = PioneerPublicApi.Sort.getIndexObject(time, this._orbitalElementsKeyframes, OrbitalElementsController._isLess);
+    const startKeyframe = this._orbitalElementsKeyframes[Math.max(insertionIndex - 1, 0)];
+    const endKeyframe = this._orbitalElementsKeyframes[Math.min(insertionIndex, this._orbitalElementsKeyframes.length - 1)];
+    const startPosition = PioneerPublicApi.Vector3.pool.get();
+    const endPosition = PioneerPublicApi.Vector3.pool.get();
+    const startVelocity = PioneerPublicApi.Vector3.pool.get();
+    const endVelocity = PioneerPublicApi.Vector3.pool.get();
+    startKeyframe.oe.project(startPosition, startVelocity, time);
+    endKeyframe.oe.project(endPosition, endVelocity, time);
+    const fraction = PioneerPublicApi.MathUtils.clamp01(endKeyframe.time !== startKeyframe.time ? (time - startKeyframe.time) / (endKeyframe.time - startKeyframe.time) : 0);
+    if (positionOut) {
+      positionOut.slerp(startPosition, endPosition, fraction);
+    }
+    if (velocityOut) {
+      velocityOut.slerp(startVelocity, endVelocity, fraction);
+    }
+    PioneerPublicApi.Vector3.pool.release(startPosition);
+    PioneerPublicApi.Vector3.pool.release(endPosition);
+    PioneerPublicApi.Vector3.pool.release(startVelocity);
+    PioneerPublicApi.Vector3.pool.release(endVelocity);
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static _isLessAdd = (t, e) => t.time < e.time;
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static _isLess = (t, e) => t.time < e;
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static _isEqualAdd = (t, e) => t.time === e.time;
+  static _isLessAdd = (leftKeyframe, rightKeyframe) => leftKeyframe.time < rightKeyframe.time;
+  static _isLess = (leftKeyframe, time) => leftKeyframe.time < time;
+  static _isEqualAdd = (leftKeyframe, rightKeyframe) => leftKeyframe.time === rightKeyframe.time;
   _orbitalElementsKeyframes;
 }
-/** @eyes-analysis
- * 类职责：按时间索引的一组轨道元素。
- * 继承：无显式父类；导出：OrbitalElementsKeyframe。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class OrbitalElementsKeyframe {
   time;
   oe;
-  /** @eyes-analysis
-   * 【结构证据】写入 `oe`、`time`；调用 `new PioneerPublicApi.OrbitalElements`。
-   * 状态写入：oe、time。
-   * 调用线索：new PioneerPublicApi.OrbitalElements。
-   */
   constructor() {
     this.time = 0;
     this.oe = new PioneerPublicApi.OrbitalElements();

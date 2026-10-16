@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：太阳系公共出口：转发实体配置工厂、场景工具、观察相机和应用使用的引擎类型。
- * 依据：import ../core/Cameras.js；import ../core/DateTime.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:698145-699729.
 import "../core/Cameras.js";
 import "../core/DateTime.js";

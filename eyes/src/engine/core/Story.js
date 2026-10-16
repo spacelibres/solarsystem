@@ -1,75 +1,43 @@
-/** @eyes-analysis
- * 文件职责：管理故事进入/退出、幻灯片、摄像机步骤、时间限制及内容块。
- * 依据：import ../../framework/eyes/public-api.js；import ../../styles/extracted/StoryStyles.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:674726-678723.
+/* 故事组件把幻灯片 id 写入路由，以轮播索引管理 DOM 和进入/离开回调。每个内容块初始化后将生命周期函数登记到所属页，按内容类型缓存最近创建的实例。 */
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import "../../styles/extracted/StoryStyles.js";
-/** @eyes-analysis
- * 类职责：管理故事进入/退出、幻灯片、摄像机步骤、时间限制及内容块。
- * 继承：EyesPublicApi.Carousel；导出：Story。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Story extends EyesPublicApi.Carousel {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_blocks`、`_config.navigationButtons.next.text`、`_id`、`_info`、`_onSlideChange`；调用 `EyesPublicApi.AppUtils.isPrimaryTouch`、`routerManager.navigate`、`super`、`this._app.getManager`、`this._app.getManager("time").getTimeUrl`。
-   * 状态写入：_blocks、_config.navigationButtons.next.text、_id、_info、_onSlideChange。
-   * 调用线索：EyesPublicApi.AppUtils.isPrimaryTouch、routerManager.navigate、super、this._app.getManager、this._app.getManager("time").getTimeUrl。
-   */
-  constructor(t, e) {
-    super(t, null, {
+  constructor(app, options) {
+    super(app, null, {
       isCloseButtonVisible: true,
       closeButtonText: "Close",
-      ...e
+      ...options
     });
     this._id = "";
     this._info = [];
     this._blocks = {};
     this._config.navigationButtons.next.text = EyesPublicApi.AppUtils.isPrimaryTouch() ? "Swipe to continue" : "Scroll to continue";
-    this._onSlideChange = async (t, e = false) => {
-      const i = {
-        slide: this._children.slides[t].dataset.id
+    this._onSlideChange = async (slideIndex, keepTime = false) => {
+      const slideQuery = {
+        slide: this._children.slides[slideIndex].dataset.id
       };
-      e ? i.time = this._app.getManager("time").getTimeUrl() : i.__remove = ["time"];
+      keepTime ? slideQuery.time = this._app.getManager("time").getTimeUrl() : slideQuery.__remove = ["time"];
       const routerManager = this._app.getManager("router");
-      const n = routerManager.currentRoute;
-      await routerManager.navigate(i, n.url);
+      const currentRoute = routerManager.currentRoute;
+      await routerManager.navigate(slideQuery, currentRoute.url);
     };
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.init`、`this._element.querySelector`、`this._setVariables`。
-   * 调用线索：super.init、t?.setAttribute、this._element.querySelector、this._setVariables。
-   */
   init() {
     super.init();
-    const t = this._element.querySelector(".close-button");
-    t?.setAttribute("aria-label", "Close story");
+    const closeButton = this._element.querySelector(".close-button");
+    closeButton?.setAttribute("aria-label", "Close story");
     this._setVariables(this._children.carousel, false);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.forEach`、`t.setAttribute`、`this._element.querySelectorAll`。
-   * 调用线索：t.forEach、t.setAttribute、this._element.querySelectorAll。
-   */
   _setExpandToggleAriaLabel() {
-    const t = this._element.querySelectorAll(".mobile-collapse");
-    const e = this._state.isCollapsed ? "Collapse story panel" : "Expand story panel";
-    t.forEach(t => t.setAttribute("aria-label", e));
+    const collapseButtons = this._element.querySelectorAll(".mobile-collapse");
+    const actionLabel = this._state.isCollapsed ? "Collapse story panel" : "Expand story panel";
+    collapseButtons.forEach(collapseButton => collapseButton.setAttribute("aria-label", actionLabel));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super._toggleCollapse`、`this._setExpandToggleAriaLabel`。
-   * 调用线索：super._toggleCollapse、this._setExpandToggleAriaLabel。
-   */
   _toggleCollapse() {
     this._setExpandToggleAriaLabel();
     super._toggleCollapse();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_id`、`_info`；返回 `void`；调用 `this._app.getManager`、`this._app.getManager("time").setTimeRate`、`this._children.slides.findIndex`、`this._setExpandToggleAriaLabel`、`this.clear`、`this.goToSlide`。
-   * 状态写入：_id、_info。
-   * 调用线索：this._app.getManager、this._app.getManager("time").setTimeRate、this._children.slides.findIndex、this._setExpandToggleAriaLabel、this.clear等。
-   */
   async onRouteChange(info, {
     cancelToken: cancelToken,
     slide: slide,
@@ -77,199 +45,165 @@ class Story extends EyesPublicApi.Carousel {
   } = {}) {
     if (cancelToken && cancelToken.isCanceled) return;
     if (this.clear(), this._info = info, this._id = id, this._app.getManager("router").configs.locked) {
-      const t = false;
+      const showCloseButton = false;
       this.setState({
-        isCloseButtonVisible: t,
-        isCloseButtonVisibleClass: this._class.isVisible[t]
+        isCloseButtonVisible: showCloseButton,
+        isCloseButtonVisibleClass: this._class.isVisible[showCloseButton]
       });
     }
     await this.setUp();
     this._setExpandToggleAriaLabel();
-    const n = slide && this._children.slides.findIndex(t => t.dataset.id === slide) || 0;
-    void 0 !== info[n]?.rate && this._app.getManager("time").setTimeRate(info[n].rate);
-    await this.goToSlide(n);
+    const slideIndex = slide && this._children.slides.findIndex(slideElement => slideElement.dataset.id === slide) || 0;
+    void 0 !== info[slideIndex]?.rate && this._app.getManager("time").setTimeRate(info[slideIndex].rate);
+    await this.goToSlide(slideIndex);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `this._app.getManager`、`this._app.getManager("time").setTimeRate`、`this._children.slides.findIndex`、`this.goToSlide`。
-   * 调用线索：this._app.getManager、this._app.getManager("time").setTimeRate、this._children.slides.findIndex、this.goToSlide。
-   */
   async onQueryChange({
     cancelToken: cancelToken,
     slide: slide
   } = {}) {
     if (cancelToken && cancelToken.isCanceled) return;
-    const i = slide && this._children.slides.findIndex(t => t.dataset.id === slide) || 0;
-    void 0 !== this._info[i]?.rate && this._app.getManager("time").setTimeRate(this._info[i].rate);
-    await this.goToSlide(i);
+    const slideIndex = slide && this._children.slides.findIndex(slideElement => slideElement.dataset.id === slide) || 0;
+    void 0 !== this._info[slideIndex]?.rate && this._app.getManager("time").setTimeRate(this._info[slideIndex].rate);
+    await this.goToSlide(slideIndex);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_blocks[t.type]`；返回 `n.element`；调用 `n.init`、`new EyesPublicApi.ButtonsBlock`、`new EyesPublicApi.CheckboxBlock`、`new EyesPublicApi.DescriptionBlock`、`new EyesPublicApi.HintBlock`、`new EyesPublicApi.ImageBlock`。
-   * 状态写入：_blocks[t.type]。
-   * 调用线索：n.init、new EyesPublicApi.ButtonsBlock、new EyesPublicApi.CheckboxBlock、new EyesPublicApi.DescriptionBlock、new EyesPublicApi.HintBlock等。
-   */
-  async createBlockContent(t, e) {
+  async createBlockContent(blockInfo, slideIndex) {
     const {
       hideExternalLinks: hideExternalLinks
     } = this.app.getManager("router").configs;
-    let n;
-    switch (t.type) {
+    let blockComponent;
+    switch (blockInfo.type) {
       case "title":
         {
-          const e = {
-            ...t
+          const titleInfo = {
+            ...blockInfo
           };
-          e.title = true === hideExternalLinks ? this.app.getManager("content").hideExternalLinksInText(e.title) : e.title;
-          n = new EyesPublicApi.TitleBlock(this._app, {
+          titleInfo.title = true === hideExternalLinks ? this.app.getManager("content").hideExternalLinksInText(titleInfo.title) : titleInfo.title;
+          blockComponent = new EyesPublicApi.TitleBlock(this._app, {
             config: {
-              info: e
+              info: titleInfo
             }
           });
           break;
         }
       case "description":
         {
-          const e = {
-            ...t
+          const descriptionInfo = {
+            ...blockInfo
           };
-          e.description = true === hideExternalLinks ? this.app.getManager("content").hideExternalLinksInText(e.description) : e.description;
-          n = new EyesPublicApi.DescriptionBlock(this._app, {
+          descriptionInfo.description = true === hideExternalLinks ? this.app.getManager("content").hideExternalLinksInText(descriptionInfo.description) : descriptionInfo.description;
+          blockComponent = new EyesPublicApi.DescriptionBlock(this._app, {
             config: {
-              info: e
+              info: descriptionInfo
             }
           });
           break;
         }
       case "image":
       case "diagram":
-        n = new EyesPublicApi.ImageBlock(this._app, {
+        blockComponent = new EyesPublicApi.ImageBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
         break;
       case "toggle":
-        n = new EyesPublicApi.ToggleBlock(this._app, {
+        blockComponent = new EyesPublicApi.ToggleBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
         break;
       case "hint":
-        n = new EyesPublicApi.HintBlock(this._app, {
+        blockComponent = new EyesPublicApi.HintBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
         break;
       case "replay":
-        n = new EyesPublicApi.ReplayButtonBlock(this._app, {
+        blockComponent = new EyesPublicApi.ReplayButtonBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
         break;
       case "buttons":
-        n = new EyesPublicApi.ButtonsBlock(this._app, {
+        blockComponent = new EyesPublicApi.ButtonsBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
         break;
       case "checkboxes":
-        n = new EyesPublicApi.CheckboxBlock(this._app, {
+        blockComponent = new EyesPublicApi.CheckboxBlock(this._app, {
           config: {
-            info: t
+            info: blockInfo
           }
         });
     }
-    await n.init();
-    this._onEnter[e].push(n.onEnter);
-    this._onLeave[e].push(n.onLeave);
-    this._blocks[t.type] = n;
-    return n.element;
+    await blockComponent.init();
+    this._onEnter[slideIndex].push(blockComponent.onEnter);
+    this._onLeave[slideIndex].push(blockComponent.onLeave);
+    this._blocks[blockInfo.type] = blockComponent;
+    return blockComponent.element;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._blocks[t]||console.warn(`Block ${t} is not available`)`；调用 `console.warn`。
-   * 调用线索：console.warn。
-   */
-  getStoryBlock(t) {
-    return this._blocks[t] || console.warn(`Block ${t} is not available`);
+  getStoryBlock(blockType) {
+    return this._blocks[blockType] || console.warn(`Block ${blockType} is not available`);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `i`；调用 `document.createDocumentFragment`、`i.appendChild`、`this.createBlockContent`。
-   * 调用线索：document.createDocumentFragment、i.appendChild、this.createBlockContent。
-   */
-  async createSlideContent(t, e) {
-    if (!t.htmlFile) {
-      const i = document.createDocumentFragment();
-      for (let s = 0; s < t.content.length; s++) {
-        const n = t.content[s];
-        const o = await this.createBlockContent(n, e);
-        o && i.appendChild(o);
+  async createSlideContent(slideInfo, slideIndex) {
+    if (!slideInfo.htmlFile) {
+      const contentFragment = document.createDocumentFragment();
+      for (let blockIndex = 0; blockIndex < slideInfo.content.length; blockIndex++) {
+        const blockInfo = slideInfo.content[blockIndex];
+        const blockElement = await this.createBlockContent(blockInfo, slideIndex);
+        blockElement && contentFragment.appendChild(blockElement);
       }
-      return i;
+      return contentFragment;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_onEnter[t]`、`_onLeave[t]`；调用 `onEnter`、`onLeave`、`s.push`、`this._onEnter[t].push`、`this._onLeave[t].push`、`this.addSlide`。
-   * 状态写入：_onEnter[t]、_onLeave[t]。
-   * 调用线索：onEnter、onLeave、s.push、this._onEnter[t].push、this._onLeave[t].push等。
-   */
   async setUp() {
-    for (let t = 0; t < this._info.length; t++) {
+    for (let slideIndex = 0; slideIndex < this._info.length; slideIndex++) {
       const {
         id: id,
         type: type,
-        classList: s = [],
+        classList: slideClasses = [],
         onEnter: onEnter,
         onLeave: onLeave
-      } = this._info[t];
-      this._onEnter[t] = [];
-      this._onLeave[t] = [];
-      onEnter && this._onEnter[t].push(() => onEnter(this._app, this));
-      const r = await this.createSlideContent(this._info[t], t);
-      s.push("grid-layout", "simple-grid");
-      onLeave && this._onLeave[t].push(() => onLeave(this._app, this));
+      } = this._info[slideIndex];
+      this._onEnter[slideIndex] = [];
+      this._onLeave[slideIndex] = [];
+      onEnter && this._onEnter[slideIndex].push(() => onEnter(this._app, this));
+      const slideContent = await this.createSlideContent(this._info[slideIndex], slideIndex);
+      slideClasses.push("grid-layout", "simple-grid");
+      onLeave && this._onLeave[slideIndex].push(() => onLeave(this._app, this));
       this.addSlide({
         id: id,
         type: type,
-        classList: s,
-        content: r
+        classList: slideClasses,
+        content: slideContent
       }, {
-        isFirst: 0 === t,
-        isLast: t === this._info.length - 1
+        isFirst: 0 === slideIndex,
+        isLast: slideIndex === this._info.length - 1
       });
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `routerManager.navigate`、`this._app.getManager`。
-   * 调用线索：routerManager.navigate、this._app.getManager。
-   */
   close() {
     const routerManager = this._app.getManager("router");
     routerManager.navigate(routerManager.homeRoute);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.onLeave`、`this._app.getManager`、`this._app.getManager("router").removeQuery`。
-   * 调用线索：super.onLeave、this._app.getManager、this._app.getManager("router").removeQuery。
-   */
-  async onLeave(t) {
-    if (await super.onLeave(t), "number" != typeof t) {
+  async onLeave(slideIndex) {
+    if (await super.onLeave(slideIndex), "number" != typeof slideIndex) {
       this._app.getManager("router").removeQuery(["slide"]);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.getPropertyValue`、`getComputedStyle`、`parseFloat`、`this._progressTooltip.setProps`。
-   * 调用线索：e.getPropertyValue、getComputedStyle、parseFloat、this._progressTooltip.setProps。
-   */
   _updateTooltipsProps() {
     const {
       slideType: slideType
     } = this._state;
-    const e = getComputedStyle(document.body);
-    const i = -(parseFloat(e.getPropertyValue("--gridHeaderHeight")) + 20);
+    const bodyStyle = getComputedStyle(document.body);
+    const overlayOffset = -(parseFloat(bodyStyle.getPropertyValue("--gridHeaderHeight")) + 20);
     null !== this._progressTooltip && this._progressTooltip.setProps({
-      offset: "overlay" === slideType ? [0, i] : [0, 10]
+      offset: "overlay" === slideType ? [0, overlayOffset] : [0, 10]
     });
   }
 }

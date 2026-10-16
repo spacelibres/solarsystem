@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：解析 KTX2 层级、DFD、键值和二进制纹理元数据
- * 依据：// Recovered from vendors.js:812563-836508.；exports: KHR_DF_CHANNEL_RGBSDA_ALPHA, KHR_DF_CHANNEL_RGBSDA_BLUE, KHR_DF_CHANNEL_RGBSDA_DEPTH, KHR_DF_CHANNEL_RGBSDA_GREEN, KHR_DF_CHANNEL_RGBSDA_RED, KHR_DF_CHANNEL_RGBSDA_STENCIL, KHR_DF_FLAG_ALPHA_PREMULTIPLIED, KHR_DF_FLAG_ALPHA_STRAIGHT, KHR_DF_KHR_DESCRIPTORTYPE_BASICFORMAT, KHR_DF_MODEL_ASTC, KHR_DF_MODEL_ETC1, KHR_DF_MODEL_ETC1S, KHR_DF_MODEL_ETC2, KHR_DF_MODEL_RGBSDA, KHR_DF_MODEL_UASTC, KHR_DF_MODEL_UNSPECIFIED, KHR_DF_PRIMARIES_ACES, KHR_DF_PRIMARIES_ACESCC, KHR_DF_PRIMARIES_ADOBERGB, KHR_DF_PRIMARIES_BT2020, KHR_DF_PRIMARIES_BT601_EBU, KHR_DF_PRIMARIES_BT601_SMPTE, KHR_DF_PRIMARIES_BT709, KHR_DF_PRIMARIES_CIEXYZ, KHR_DF_PRIMARIES_DIS…
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:812563-836508.
 const KHR_SUPERCOMPRESSION_NONE = 0,
   KHR_SUPERCOMPRESSION_BASISLZ = 1,
@@ -278,86 +272,37 @@ function createDefaultContainer() {
     globalData: null
   };
 }
-/** @eyes-analysis
- * 类职责：解析 KTX2 层级、DFD、键值和二进制纹理元数据
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Ci {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_dataView、_littleEndian、_offset。
-   * 调用线索：new DataView。
-   */
   constructor(e, t, n, littleEndian) {
     this._dataView = void 0, this._littleEndian = void 0, this._offset = void 0, this._dataView = new DataView(e.buffer, e.byteOffset + t, n), this._littleEndian = littleEndian, this._offset = 0;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextUint8；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：this._dataView.getUint8。
-   */
   _nextUint8() {
     const e = this._dataView.getUint8(this._offset);
     return this._offset += 1, e;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextUint16；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：this._dataView.getUint16。
-   */
   _nextUint16() {
     const e = this._dataView.getUint16(this._offset, this._littleEndian);
     return this._offset += 2, e;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextUint32；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：this._dataView.getUint32。
-   */
   _nextUint32() {
     const e = this._dataView.getUint32(this._offset, this._littleEndian);
     return this._offset += 4, e;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextUint64；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：this._dataView.getUint32。
-   */
   _nextUint64() {
     const e = this._dataView.getUint32(this._offset, this._littleEndian) + 2 ** 32 * this._dataView.getUint32(this._offset + 4, this._littleEndian);
     return this._offset += 8, e;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextInt32；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：this._dataView.getInt32。
-   */
   _nextInt32() {
     const e = this._dataView.getInt32(this._offset, this._littleEndian);
     return this._offset += 4, e;
   }
-  /** @eyes-analysis
-   * 源码方法 _nextUint8Array；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：new Uint8Array。
-   */
   _nextUint8Array(offset) {
     const uint8Array = new Uint8Array(this._dataView.buffer, this._dataView.byteOffset + this._offset, offset);
     return this._offset += offset, uint8Array;
   }
-  /** @eyes-analysis
-   * 源码方法 _skip；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   */
   _skip(offset) {
     return this._offset += offset, this;
   }
-  /** @eyes-analysis
-   * 源码方法 _scan；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_offset。
-   * 调用线索：new Uint8Array、this._dataView.getUint8。
-   */
   _scan(e, t = 0) {
     const offset = this._offset;
     let r = 0;

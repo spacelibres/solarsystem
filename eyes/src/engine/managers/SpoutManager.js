@@ -1,121 +1,90 @@
-/** @eyes-analysis
- * 文件职责：建立额外投影视口、地球/目标相机和标签以支持球幕/外部显示。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1303647-1307038.
+/* Spout 使用独立隐藏 viewport 与可选地球仪相机；标签从 DOM DivComponent 转成 LabelComponent 并排除常规相机。构造时默认目标仍按原实现保存异步返回值，本轮不改变初始化时序。 */
 import * as Pioneer from "../pioneer/index.js";
 import "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：建立额外投影视口、地球/目标相机和标签以支持球幕/外部显示。
- * 继承：EyesPublicApi.BaseManager；导出：SpoutManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SpoutManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_defaultTarget`、`_defaultTargetRadius`、`_scene`；调用 `super`、`this._scene.getEntity`、`this._scene.getEntity("earth").getExtentsRadius`、`this.app.getManager`、`this.app.pioneer.getScene`、`this.getSpoutCameraTargetEntity`。
-   * 状态写入：_defaultTarget、_defaultTargetRadius、_scene。
-   * 调用线索：super、this._scene.getEntity、this._scene.getEntity("earth").getExtentsRadius、this._scene.getEntity(this._defaultTarget)?.getExtentsRadius、this.app.getManager等。
-   */
-  constructor(t) {
-    super(t);
+  constructor(app) {
+    super(app);
     this._scene = this.app.pioneer.getScene("main");
     this._defaultTarget = this.getSpoutCameraTargetEntity(this.app.getManager("router").currentRoute.params);
     this._defaultTargetRadius = this._defaultTarget ? this._scene.getEntity(this._defaultTarget)?.getExtentsRadius() : this._scene.getEntity("earth").getExtentsRadius();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `c.getComponent`、`c.getExtentsRadius`、`d.setForGlobe`、`d.setNearDistance`、`d.setRenderWidth`、`h.addComponent`。
-   * 调用线索：c.getComponent、c.getComponent(Pioneer.AtmosphereComponent)?.setExcludedFromCamera、c.getExtentsRadius、d.setForGlobe、d.setNearDistance等。
-   */
-  async enableSpout(t = false, e = 2048, i = 2 * this._defaultTargetRadius, n = this._defaultTarget, o = 25, r = 0, a = false) {
-    const l = this.app.pioneer.getViewport("spoutViewport") || this.app.pioneer.addViewport("spoutViewport");
-    l.getDiv().style.display = "none";
-    l.getDiv().style.width = "100%";
-    l.getDiv().style.height = "100%";
-    const c = this._scene.getEntity(n) || this._scene.getEntity("earth");
-    const h = this.setUpSpoutCamera(t, c, a, r);
-    const d = h.getComponent(Pioneer.SpoutComponent) ?? h.addComponent(Pioneer.SpoutComponent);
-    l.setCamera(d);
-    d.setRenderWidth(e);
+  async enableSpout(forGlobe = false, renderWidth = 2048, globeDistance = 2 * this._defaultTargetRadius, targetEntityId = this._defaultTarget, fontSize = 25, longitudeOffsetDegrees = 0, alignToNorthPole = false) {
+    const spoutViewport = this.app.pioneer.getViewport("spoutViewport") || this.app.pioneer.addViewport("spoutViewport");
+    spoutViewport.getDiv().style.display = "none";
+    spoutViewport.getDiv().style.width = "100%";
+    spoutViewport.getDiv().style.height = "100%";
+    const targetEntity = this._scene.getEntity(targetEntityId) || this._scene.getEntity("earth");
+    const cameraEntity = this.setUpSpoutCamera(forGlobe, targetEntity, alignToNorthPole, longitudeOffsetDegrees);
+    const spoutComponent = cameraEntity.getComponent(Pioneer.SpoutComponent) ?? cameraEntity.addComponent(Pioneer.SpoutComponent);
+    spoutViewport.setCamera(spoutComponent);
+    spoutComponent.setRenderWidth(renderWidth);
     this._scene.setAmbientLightColor(new Pioneer.Color(1, 1, 1));
-    true === t && (d.setForGlobe(true, i || 2 * c.getExtentsRadius()), d.setNearDistance(.5 * c.getExtentsRadius()), c.getComponent(Pioneer.AtmosphereComponent)?.setExcludedFromCamera(d, true));
-    await this.setUpSpoutLabels(o, c);
+    true === forGlobe && (spoutComponent.setForGlobe(true, globeDistance || 2 * targetEntity.getExtentsRadius()), spoutComponent.setNearDistance(.5 * targetEntity.getExtentsRadius()), targetEntity.getComponent(Pioneer.AtmosphereComponent)?.setExcludedFromCamera(spoutComponent, true));
+    await this.setUpSpoutLabels(fontSize, targetEntity);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `o`；调用 `Pioneer.Geometry.getXYZFromLLAOnSphere`、`Pioneer.MathUtils.degToRad`、`e.getName`、`new Pioneer.LatLonAlt`、`new Pioneer.Vector3`、`o.addController`。
-   * 调用线索：Pioneer.Geometry.getXYZFromLLAOnSphere、Pioneer.MathUtils.degToRad、e.getName、new Pioneer.LatLonAlt、new Pioneer.Vector3等。
-   */
-  setUpSpoutCamera(t, e = this._defaultTarget, i = false, n = 0) {
-    let o;
-    if (true === t) {
-      o = this._scene.getEntity("spoutCamera") || this._scene.addEntity("spoutCamera");
-      o.clearControllers();
-      o.setParent(e);
-      o.setPosition(Pioneer.Vector3.Zero);
-      o.setOrientation(Pioneer.Quaternion.Identity);
-      const t = o.addController(Pioneer.AlignController);
-      t.setPrimaryAlignType("align");
-      t.setPrimaryAxis(Pioneer.Vector3.ZAxis);
-      t.setPrimaryTargetAxis(Pioneer.Vector3.ZAxis);
-      i ? t.setPrimaryTargetEntity(e.getName()) : t.setPrimaryTargetEntity("camera");
+  setUpSpoutCamera(forGlobe, targetEntity = this._defaultTarget, alignToNorthPole = false, longitudeOffsetDegrees = 0) {
+    let cameraEntity;
+    if (true === forGlobe) {
+      cameraEntity = this._scene.getEntity("spoutCamera") || this._scene.addEntity("spoutCamera");
+      cameraEntity.clearControllers();
+      cameraEntity.setParent(targetEntity);
+      cameraEntity.setPosition(Pioneer.Vector3.Zero);
+      cameraEntity.setOrientation(Pioneer.Quaternion.Identity);
+      const alignController = cameraEntity.addController(Pioneer.AlignController);
+      alignController.setPrimaryAlignType("align");
+      alignController.setPrimaryAxis(Pioneer.Vector3.ZAxis);
+      alignController.setPrimaryTargetAxis(Pioneer.Vector3.ZAxis);
+      alignToNorthPole ? alignController.setPrimaryTargetEntity(targetEntity.getName()) : alignController.setPrimaryTargetEntity("camera");
       const vector3 = new Pioneer.Vector3();
-      Pioneer.Geometry.getXYZFromLLAOnSphere(vector3, new Pioneer.LatLonAlt(0, Pioneer.MathUtils.degToRad(180 + n), 1), 1);
-      t.setSecondaryAlignType("align");
-      t.setSecondaryAxis(Pioneer.Vector3.XAxis);
-      t.setSecondaryTargetEntity("camera");
-      t.setSecondaryTargetAxis(vector3);
-    } else o = this._scene.getEntity("camera");
-    return o;
+      Pioneer.Geometry.getXYZFromLLAOnSphere(vector3, new Pioneer.LatLonAlt(0, Pioneer.MathUtils.degToRad(180 + longitudeOffsetDegrees), 1), 1);
+      alignController.setSecondaryAlignType("align");
+      alignController.setSecondaryAxis(Pioneer.Vector3.XAxis);
+      alignController.setSecondaryTargetEntity("camera");
+      alignController.setSecondaryTargetAxis(vector3);
+    } else cameraEntity = this._scene.getEntity("camera");
+    return cameraEntity;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.setAlignment`、`e.setColor`、`e.setExcludedFromCamera`、`e.setFontSize`、`e.setPixelOffset`、`e.setText`。
-   * 调用线索：e.setAlignment、e.setColor、e.setExcludedFromCamera、e.setFontSize、e.setPixelOffset等。
-   */
-  async setUpSpoutLabels(t = 25, e = null) {
-    let i = e;
-    e || (i = (await this.getSpoutCameraTargetEntity(this.app.getManager("router").currentRoute.params)) || "sun");
-    for (let e = 0; e < this._scene.getNumEntities(); e++) {
-      const i = this._scene.getEntityAt(e);
-      const n = i.getComponent(Pioneer.DivComponent);
-      if (n instanceof Pioneer.DivComponent) {
-        const e = i.getComponent(Pioneer.LabelComponent) ?? i.addComponent(Pioneer.LabelComponent);
-        e.setText(n.getDiv().querySelector(".text")?.innerHTML || n.getDiv()?.textContent || "");
-        e.setColor(new Pioneer.Color(1, 1, 1, 1));
-        e.setFontSize(t);
-        e.setAlignment(new Pioneer.Vector2(0, .5));
-        e.setPixelOffset(new Pioneer.Vector2(-t / 4, -1));
-        e.setExcludedFromCamera(this._scene.getEntity("camera").getComponent(Pioneer.CameraComponent), true);
+  async setUpSpoutLabels(fontSize = 25, suppliedTarget = null) {
+    let targetEntityId = suppliedTarget;
+    suppliedTarget || (targetEntityId = (await this.getSpoutCameraTargetEntity(this.app.getManager("router").currentRoute.params)) || "sun");
+    for (let entityIndex = 0; entityIndex < this._scene.getNumEntities(); entityIndex++) {
+      const entity = this._scene.getEntityAt(entityIndex);
+      const divComponent = entity.getComponent(Pioneer.DivComponent);
+      if (divComponent instanceof Pioneer.DivComponent) {
+        const labelComponent = entity.getComponent(Pioneer.LabelComponent) ?? entity.addComponent(Pioneer.LabelComponent);
+        labelComponent.setText(divComponent.getDiv().querySelector(".text")?.innerHTML || divComponent.getDiv()?.textContent || "");
+        labelComponent.setColor(new Pioneer.Color(1, 1, 1, 1));
+        labelComponent.setFontSize(fontSize);
+        labelComponent.setAlignment(new Pioneer.Vector2(0, .5));
+        labelComponent.setPixelOffset(new Pioneer.Vector2(-fontSize / 4, -1));
+        labelComponent.setExcludedFromCamera(this._scene.getEntity("camera").getComponent(Pioneer.CameraComponent), true);
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `EyesPublicApi.AppUtils.isFutureMission`、`contentManager.getEntityDesc`、`contentManager.getEntityInfo`、`o.getParent`、`o.getParent().getName`、`o.getParent().getName().includes`。
-   * 调用线索：EyesPublicApi.AppUtils.isFutureMission、contentManager.getEntityDesc、contentManager.getEntityInfo、o.getParent、o.getParent().getName等。
-   */
-  async getSpoutCameraTargetEntity(t) {
-    let e = null;
+  async getSpoutCameraTargetEntity(routeParams) {
+    let targetEntityId = null;
     const contentManager = this.app.getManager("content");
-    if (t) {
-      const s = "feature" in t && "moons" === t.feature ? t.child : t.spaceObject;
-      const o = this.pioneer.getScene("main").getEntity(s) ?? this.pioneer.getScene("main").getEntity("earth");
-      const r = contentManager.getEntityInfo(s) || {};
-      const a = await contentManager.getEntityDesc(s);
-      const l = s && this.pioneer.getScene("main").getEntity(s)?.getParent()?.getName();
-      switch (r.category) {
+    if (routeParams) {
+      const routeEntityId = "feature" in routeParams && "moons" === routeParams.feature ? routeParams.child : routeParams.spaceObject;
+      const routeEntity = this.pioneer.getScene("main").getEntity(routeEntityId) ?? this.pioneer.getScene("main").getEntity("earth");
+      const entityInfo = contentManager.getEntityInfo(routeEntityId) || {};
+      const entityDescription = await contentManager.getEntityDesc(routeEntityId);
+      const parentEntityId = routeEntityId && this.pioneer.getScene("main").getEntity(routeEntityId)?.getParent()?.getName();
+      switch (entityInfo.category) {
         case "Spacecraft":
-          e = EyesPublicApi.AppUtils.isFutureMission(a?.dates?.start) ? "earth" : o?.getParent()?.getName();
-          r.keywords.includes("lander") && o.getParent().getName().includes("landing_site") && (e = this.pioneer.getScene("main").getEntity(s)?.getParent()?.getParent()?.getName());
+          targetEntityId = EyesPublicApi.AppUtils.isFutureMission(entityDescription?.dates?.start) ? "earth" : routeEntity?.getParent()?.getName();
+          entityInfo.keywords.includes("lander") && routeEntity.getParent().getName().includes("landing_site") && (targetEntityId = this.pioneer.getScene("main").getEntity(routeEntityId)?.getParent()?.getParent()?.getName());
           break;
         case "Landing site":
-          e = l;
+          targetEntityId = parentEntityId;
           break;
         default:
-          e = s;
+          targetEntityId = routeEntityId;
       }
     }
-    return e;
+    return targetEntityId;
   }
 }
 export { SpoutManager };

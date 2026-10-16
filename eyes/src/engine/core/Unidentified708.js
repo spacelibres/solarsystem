@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 152 个实体/参考系（如 sc_3d_winds、sc_ace、sc_acrimsat、sc_acs3、sc_aim、sc_aqua），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 地球轨道任务目录：GRACE 微波/激光链按伙伴距离启停并滚动纹理，ISS 仪器按时间覆盖显隐及自转，JWST 在覆盖进入/退出时切换收拢/展开模型。
 // Recovered from app.js:1040640-1108290.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -1003,12 +998,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.ZAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("GPM_antenna");
-      e.setRate(Pioneer.MathUtils.degToRad(192));
-      e.setAxis(Pioneer.Vector3.YAxisNeg, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("GPM_antenna");
+      spinController.setRate(Pioneer.MathUtils.degToRad(192));
+      spinController.setAxis(Pioneer.Vector3.YAxisNeg, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_grace_1: {
@@ -1042,28 +1037,30 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY],
-      update: t => {
-        const e = t.getComponent(Pioneer.ConnectedSpriteComponent, "microwave");
-        if (!e) return;
-        const i = t.getScene().getEngine();
-        const n = Pioneer.MathUtils.wrap(e.getTextureYOffset() - Pioneer.MathUtils.clamp(i.getTimeRate(), -1, 1) * i.getDeltaTime(), 0, 1);
-        e.setTextureYOffset(n);
-        const o = t.getScene().getEntity("sc_grace_2");
-        const r = null !== o && o.getPosition().distance(t.getPosition()) <= 3929;
-        r !== e.isEnabled() && e.setEnabled(r);
+      update: entity => {
+        const microwave = entity.getComponent(Pioneer.ConnectedSpriteComponent, "microwave");
+        if (!microwave) return;
+        const engine = entity.getScene().getEngine();
+        const textureOffset = Pioneer.MathUtils.wrap(microwave.getTextureYOffset() - Pioneer.MathUtils.clamp(engine.getTimeRate(), -1, 1) * engine.getDeltaTime(), 0, 1);
+        microwave.setTextureYOffset(textureOffset);
+        const partnerEntity = entity.getScene().getEntity("sc_grace_2");
+        const linkEnabled = null !== partnerEntity && partnerEntity.getPosition().distance(entity.getPosition()) <= 3929;
+        if (linkEnabled !== microwave.isEnabled()) {
+          microwave.setEnabled(linkEnabled);
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.ConnectedSpriteComponent, "microwave");
-      e.setTextureUrl("$STATIC_ASSETS_URL/sprites/sine_wave.png");
-      e.setEntity1("sc_grace_1");
-      e.setEntity1Offset(new Pioneer.Vector3(0, -.00165, 0));
-      e.setEntity2("sc_grace_2");
-      e.setEntity2Offset(new Pioneer.Vector3(0, -.00165, 0));
-      e.setWidths(5e-4, 5e-4);
-      e.setColorMultiplier(new Pioneer.Color(.5, 1, 1));
-      e.setTextureRepeat(true);
-      e.setTextureStretch(4);
+    postCreateFunction: entity => {
+      const microwave = entity.addComponent(Pioneer.ConnectedSpriteComponent, "microwave");
+      microwave.setTextureUrl("$STATIC_ASSETS_URL/sprites/sine_wave.png");
+      microwave.setEntity1("sc_grace_1");
+      microwave.setEntity1Offset(new Pioneer.Vector3(0, -.00165, 0));
+      microwave.setEntity2("sc_grace_2");
+      microwave.setEntity2Offset(new Pioneer.Vector3(0, -.00165, 0));
+      microwave.setWidths(5e-4, 5e-4);
+      microwave.setColorMultiplier(new Pioneer.Color(.5, 1, 1));
+      microwave.setTextureRepeat(true);
+      microwave.setTextureStretch(4);
     }
   },
   sc_grace_2: {
@@ -1127,52 +1124,56 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY],
-      update: t => {
-        const e = t.getComponent(Pioneer.ConnectedSpriteComponent, "microwave");
-        if (!e) return;
-        const i = t.getScene().getEngine();
-        const n = Pioneer.MathUtils.wrap(e.getTextureYOffset() - Pioneer.MathUtils.clamp(i.getTimeRate(), -1, 1) * i.getDeltaTime(), 0, 1);
-        e.setTextureYOffset(n);
-        const o = t.getScene().getEntity("sc_grace_fo2");
-        const r = null !== o && o.getPosition().distance(t.getPosition()) <= 3929;
-        if (r !== e.isEnabled()) {
-          e.setEnabled(r);
-          const i = t.getComponent(Pioneer.ConnectedSpriteComponent, "laser1");
-          const n = t.getComponent(Pioneer.ConnectedSpriteComponent, "laser2");
-          i && i.setEnabled(r);
-          n && n.setEnabled(r);
+      update: entity => {
+        const microwave = entity.getComponent(Pioneer.ConnectedSpriteComponent, "microwave");
+        if (!microwave) return;
+        const engine = entity.getScene().getEngine();
+        const textureOffset = Pioneer.MathUtils.wrap(microwave.getTextureYOffset() - Pioneer.MathUtils.clamp(engine.getTimeRate(), -1, 1) * engine.getDeltaTime(), 0, 1);
+        microwave.setTextureYOffset(textureOffset);
+        const partnerEntity = entity.getScene().getEntity("sc_grace_fo2");
+        const linkEnabled = null !== partnerEntity && partnerEntity.getPosition().distance(entity.getPosition()) <= 3929;
+        if (linkEnabled !== microwave.isEnabled()) {
+          microwave.setEnabled(linkEnabled);
+          const firstLaser = entity.getComponent(Pioneer.ConnectedSpriteComponent, "laser1");
+          const secondLaser = entity.getComponent(Pioneer.ConnectedSpriteComponent, "laser2");
+          if (firstLaser) {
+            firstLaser.setEnabled(linkEnabled);
+          }
+          if (secondLaser) {
+            secondLaser.setEnabled(linkEnabled);
+          }
         }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.ConnectedSpriteComponent, "microwave");
-      e.setTextureUrl("$STATIC_ASSETS_URL/sprites/sine_wave.png");
-      e.setEntity1("sc_grace_fo1");
-      e.setEntity1Offset(new Pioneer.Vector3(0, 0, -.00165));
-      e.setEntity2("sc_grace_fo2");
-      e.setEntity2Offset(new Pioneer.Vector3(0, 0, -.00165));
-      e.setWidths(5e-4, 5e-4);
-      e.setColorMultiplier(new Pioneer.Color(.5, 1, 1));
-      e.setTextureRepeat(true);
-      e.setTextureStretch(4);
-      const i = t.addComponent(Pioneer.ConnectedSpriteComponent, "laser1");
-      i.setTextureUrl("$STATIC_ASSETS_URL/sprites/line.png");
-      i.setEntity1("sc_grace_fo1");
-      i.setEntity1Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));
-      i.setEntity2("sc_grace_fo2");
-      i.setEntity2Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));
-      i.setWidths(2e-5, 2e-5);
-      i.setColorMultiplier(new Pioneer.Color(1, .24, .64));
-      i.setTextureRepeat(false);
-      const n = t.addComponent(Pioneer.ConnectedSpriteComponent, "laser2");
-      n.setTextureUrl("$STATIC_ASSETS_URL/sprites/line.png");
-      n.setEntity1("sc_grace_fo1");
-      n.setEntity1Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));
-      n.setEntity2("sc_grace_fo2");
-      n.setEntity2Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));
-      n.setWidths(2e-5, 2e-5);
-      n.setColorMultiplier(new Pioneer.Color(1, .24, .64));
-      n.setTextureRepeat(false);
+    postCreateFunction: entity => {
+      const microwave = entity.addComponent(Pioneer.ConnectedSpriteComponent, "microwave");
+      microwave.setTextureUrl("$STATIC_ASSETS_URL/sprites/sine_wave.png");
+      microwave.setEntity1("sc_grace_fo1");
+      microwave.setEntity1Offset(new Pioneer.Vector3(0, 0, -.00165));
+      microwave.setEntity2("sc_grace_fo2");
+      microwave.setEntity2Offset(new Pioneer.Vector3(0, 0, -.00165));
+      microwave.setWidths(5e-4, 5e-4);
+      microwave.setColorMultiplier(new Pioneer.Color(.5, 1, 1));
+      microwave.setTextureRepeat(true);
+      microwave.setTextureStretch(4);
+      const firstLaser = entity.addComponent(Pioneer.ConnectedSpriteComponent, "laser1");
+      firstLaser.setTextureUrl("$STATIC_ASSETS_URL/sprites/line.png");
+      firstLaser.setEntity1("sc_grace_fo1");
+      firstLaser.setEntity1Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));
+      firstLaser.setEntity2("sc_grace_fo2");
+      firstLaser.setEntity2Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));
+      firstLaser.setWidths(2e-5, 2e-5);
+      firstLaser.setColorMultiplier(new Pioneer.Color(1, .24, .64));
+      firstLaser.setTextureRepeat(false);
+      const secondLaser = entity.addComponent(Pioneer.ConnectedSpriteComponent, "laser2");
+      secondLaser.setTextureUrl("$STATIC_ASSETS_URL/sprites/line.png");
+      secondLaser.setEntity1("sc_grace_fo1");
+      secondLaser.setEntity1Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));
+      secondLaser.setEntity2("sc_grace_fo2");
+      secondLaser.setEntity2Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));
+      secondLaser.setWidths(2e-5, 2e-5);
+      secondLaser.setColorMultiplier(new Pioneer.Color(1, .24, .64));
+      secondLaser.setTextureRepeat(false);
     }
   },
   sc_grace_fo2: {
@@ -1608,23 +1609,23 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.ZAxisNeg
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("RapidScat_dish");
-      e.setRate(Pioneer.MathUtils.degToRad(108));
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
-      e.setCoverage(new Pioneer.Interval(Number.NEGATIVE_INFINITY, 524890952));
-      const i = t.addController(Pioneer.SpinController);
-      i.setJoint("COWVR_top_spin");
-      i.setRate(Pioneer.MathUtils.degToRad(180));
-      i.setAxis(Pioneer.Vector3.YAxis, true);
-      i.setClampedToRealTime(true);
-      EntityUtils.EntityUtils.showSubObjectDuringInterval(t, "Ecostress", 584127348, Number.POSITIVE_INFINITY);
-      EntityUtils.EntityUtils.showSubObjectDuringInterval(t, "EMIT", 711345507, Number.POSITIVE_INFINITY);
-      EntityUtils.EntityUtils.showSubObjectDuringInterval(t, "OCO3", 610718469, Number.POSITIVE_INFINITY);
-      EntityUtils.EntityUtils.showSubObjectDuringInterval(t, "45_RapidScat", 465418867, 575406069);
-      EntityUtils.EntityUtils.showSubObjectDuringInterval(t, "COWVR_TEMPEST", 693360069, Number.POSITIVE_INFINITY);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("RapidScat_dish");
+      spinController.setRate(Pioneer.MathUtils.degToRad(108));
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
+      spinController.setCoverage(new Pioneer.Interval(Number.NEGATIVE_INFINITY, 524890952));
+      const cowvrSpinController = entity.addController(Pioneer.SpinController);
+      cowvrSpinController.setJoint("COWVR_top_spin");
+      cowvrSpinController.setRate(Pioneer.MathUtils.degToRad(180));
+      cowvrSpinController.setAxis(Pioneer.Vector3.YAxis, true);
+      cowvrSpinController.setClampedToRealTime(true);
+      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, "Ecostress", 584127348, Number.POSITIVE_INFINITY);
+      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, "EMIT", 711345507, Number.POSITIVE_INFINITY);
+      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, "OCO3", 610718469, Number.POSITIVE_INFINITY);
+      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, "45_RapidScat", 465418867, 575406069);
+      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, "COWVR_TEMPEST", 693360069, Number.POSITIVE_INFINITY);
     }
   },
   sc_iss_cowvr_tempest: {
@@ -1639,8 +1640,8 @@ Entity.Entity.register({
       position: new Pioneer.Vector3(.01455, -.00235, .01402),
       coverage: [693360069, Number.POSITIVE_INFINITY]
     }],
-    postCreateFunction: t => {
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(693360069, Number.POSITIVE_INFINITY));
+    postCreateFunction: entity => {
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(693360069, Number.POSITIVE_INFINITY));
     }
   },
   sc_iss_ecostress: {
@@ -1655,8 +1656,8 @@ Entity.Entity.register({
       position: new Pioneer.Vector3(.0200195, -.00202631, .0161099),
       coverage: [584127348, Number.POSITIVE_INFINITY]
     }],
-    postCreateFunction: t => {
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(584127348, Number.POSITIVE_INFINITY));
+    postCreateFunction: entity => {
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(584127348, Number.POSITIVE_INFINITY));
     }
   },
   sc_iss_emit: {
@@ -1671,8 +1672,8 @@ Entity.Entity.register({
       position: new Pioneer.Vector3(.024, -.00225, .00325),
       coverage: [711345507, Number.POSITIVE_INFINITY]
     }],
-    postCreateFunction: t => {
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(711345507, Number.POSITIVE_INFINITY));
+    postCreateFunction: entity => {
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(711345507, Number.POSITIVE_INFINITY));
     }
   },
   sc_iss_oco_3: {
@@ -1687,8 +1688,8 @@ Entity.Entity.register({
       position: new Pioneer.Vector3(.0156458, -.00195982, .0200232),
       coverage: [610718469, Number.POSITIVE_INFINITY]
     }],
-    postCreateFunction: t => {
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(610718469, Number.POSITIVE_INFINITY));
+    postCreateFunction: entity => {
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(610718469, Number.POSITIVE_INFINITY));
     }
   },
   sc_iss_rapidscat: {
@@ -1703,8 +1704,8 @@ Entity.Entity.register({
       position: new Pioneer.Vector3(-.0100725, -.00133401, .0162145),
       coverage: [465418867.184, 575406069.184]
     }],
-    postCreateFunction: t => {
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(465418867.184, 575406069.184));
+    postCreateFunction: entity => {
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(465418867.184, 575406069.184));
     }
   },
   sc_ixpe: {
@@ -1849,13 +1850,17 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, 694937889.184],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_jwst/webb_stowed.gltf");
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_jwst/webb_stowed.gltf");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_jwst/webb_deployed.gltf");
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_jwst/webb_deployed.gltf");
+        }
       }
     }]
   },
@@ -2971,12 +2976,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("arm_etc");
-      e.setRate(Pioneer.MathUtils.degToRad(87.6));
-      e.setAxis(Pioneer.Vector3.YAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("arm_etc");
+      spinController.setRate(Pioneer.MathUtils.degToRad(87.6));
+      spinController.setAxis(Pioneer.Vector3.YAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_soho: {
@@ -4040,12 +4045,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("microwave_radiometer");
-      e.setRate(Math.PI);
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("microwave_radiometer");
+      spinController.setRate(Math.PI);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_tropics_03: {
@@ -4089,12 +4094,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("microwave_radiometer");
-      e.setRate(Math.PI);
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("microwave_radiometer");
+      spinController.setRate(Math.PI);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_tropics_05: {
@@ -4138,12 +4143,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("microwave_radiometer");
-      e.setRate(Math.PI);
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("microwave_radiometer");
+      spinController.setRate(Math.PI);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_tropics_06: {
@@ -4187,12 +4192,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("microwave_radiometer");
-      e.setRate(Math.PI);
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("microwave_radiometer");
+      spinController.setRate(Math.PI);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_tropics_07: {
@@ -4236,12 +4241,12 @@ Entity.Entity.register({
         axis: Pioneer.Vector3.XAxis
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController);
-      e.setJoint("microwave_radiometer");
-      e.setRate(Math.PI);
-      e.setAxis(Pioneer.Vector3.ZAxis, true);
-      e.setClampedToRealTime(true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setJoint("microwave_radiometer");
+      spinController.setRate(Math.PI);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setClampedToRealTime(true);
     }
   },
   sc_uars: {

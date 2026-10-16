@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：Moment Timezone 0.5.33：时区数据库加载、偏移计算、时间转换与猜测
- * 依据：// Recovered from vendors.js:1110780-1117848.；literal: function
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:1110780-1117848.
 var r, i, a;
 !function (s, o) {

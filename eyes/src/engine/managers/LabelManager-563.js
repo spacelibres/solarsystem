@@ -1,26 +1,11 @@
-/** @eyes-analysis
- * 文件职责：管理实体文字标签/图标的显示、样式和参考相机排除。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:690604-698144.
+/* 该场景层管理器拥有标签 DOM、四叉树权重与可点击例外集；轻量包装层仍独立保留。重建标签内容保留 DivComponent 外壳，事件监听仅按属性标记安装一次；默认点击/触摸读取当前可点击状态，触摸还检查拖动与多指状态。自定义处理函数接收原事件和实体 ID，关闭交互不会删除监听。 */
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：管理实体文字标签/图标的显示、样式和参考相机排除。
- * 继承：EyesPublicApi.BaseManager；导出：LabelManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class LabelManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_exceptions`、`_focusIntersectionRects`、`_focusRect`、`_focusSize`、`_iconMap`、`_isClickable`、`_labelQuadtree`、`_labels`；调用 `new Pioneer.FastMap`、`new Pioneer.Rect`、`new Set`、`new SolarSystemSceneExports.LabelQuadtree`、`super`、`this._eventNames.push`。
-   * 状态写入：_exceptions、_focusIntersectionRects、_focusRect、_focusSize、_iconMap、_isClickable、_labelQuadtree、_labels等；完整记录见索引。
-   * 调用线索：new Pioneer.FastMap、new Pioneer.Rect、new Set、new SolarSystemSceneExports.LabelQuadtree、super等。
-   */
-  constructor(t, scene, viewport) {
-    super(t);
+  constructor(app, scene, viewport) {
+    super(app);
     this._scene = scene;
     this._eventNames.push("hoverchange", "labelclicked");
     this._initCallbacks();
@@ -63,247 +48,149 @@ class LabelManager extends EyesPublicApi.BaseManager {
     this._exceptions = new Set();
     this.bindFunctions(["update", "addLabel", "removeLabel", "toggleLabels", "toggleLabelForEntity", "toggleIcons", "toggleIconForEntity", "_clickCallback", "setUpLabel", "setUpIcon"]);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.max`、`this._focusRect.set`、`this._labelQuadtree.setBounds`、`this._labelQuadtree.update`、`this._viewport.getBounds`。
-   * 调用线索：Math.max、this._focusRect.set、this._labelQuadtree.setBounds、this._labelQuadtree.update、this._viewport.getBounds。
-   */
   update() {
-    const t = this._viewport.getBounds().size;
-    const e = Math.max(t.x, t.y) * this._focusSize;
-    this._focusRect.set((t.x - e) / 2, (t.y - e) / 2, e, e);
+    const viewportSize = this._viewport.getBounds().size;
+    const focusDiameter = Math.max(viewportSize.x, viewportSize.y) * this._focusSize;
+    this._focusRect.set((viewportSize.x - focusDiameter) / 2, (viewportSize.y - focusDiameter) / 2, focusDiameter, focusDiameter);
     this._labelQuadtree.setBounds("__focus", this._focusRect);
     this._labelQuadtree.update();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_weights`、`_weights[s]`、`_weights[s].weight`；调用 `Object.keys`、`labelManager.setWeight`、`this._app.getManager`。
-   * 状态写入：_weights、_weights[s]、_weights[s].weight。
-   * 调用线索：Object.keys、labelManager.setWeight、this._app.getManager。
-   */
-  initLabelWeights(t, e = true) {
-    e && (this._weights = {});
+  initLabelWeights(weightDefinitions, resetExisting = true) {
+    resetExisting && (this._weights = {});
     const labelManager = this._app.getManager("label");
-    for (const s of Object.keys(t)) {
-      const n = t[s].category;
-      this._weights[s] = {};
-      void 0 !== this._weightMap[n] ? this._weights[s].weight = this._weightMap[n] : this._weights[s].weight = 1;
-      e && labelManager._labels[s] && labelManager.setWeight(s, this._weights[s].weight);
+    for (const weightId of Object.keys(weightDefinitions)) {
+      const category = weightDefinitions[weightId].category;
+      this._weights[weightId] = {};
+      void 0 !== this._weightMap[category] ? this._weights[weightId].weight = this._weightMap[category] : this._weights[weightId].weight = 1;
+      resetExisting && labelManager._labels[weightId] && labelManager.setWeight(weightId, this._weights[weightId].weight);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `true` 或 `false`；调用 `this._labelQuadtree.setWeight`。
-   * 调用线索：this._labelQuadtree.setWeight。
-   */
-  setWeight(t, e) {
+  setWeight(entityId, weight) {
     try {
-      this._labelQuadtree.setWeight(t, e);
+      this._labelQuadtree.setWeight(entityId, weight);
       return true;
-    } catch (t) {
+    } catch (missingLabelError) {
       return false;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._app.getManager`、`this._labelQuadtree.setWeight`、`this.getDefaultWeight`。
-   * 调用线索：contentManager?.getEntityInfo、this._app.getManager、this._labelQuadtree.setWeight、this.getDefaultWeight。
-   */
-  resetWeight(t) {
+  resetWeight(entityId) {
     const contentManager = this._app.getManager("content");
-    const i = contentManager?.getEntityInfo(t)?.category;
-    const s = this.getDefaultWeight(t, i);
-    this._labelQuadtree.setWeight(t, s);
+    const category = contentManager?.getEntityInfo(entityId)?.category;
+    const defaultWeight = this.getDefaultWeight(entityId, category);
+    this._labelQuadtree.setWeight(entityId, defaultWeight);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.startsWith("constellation_")?this._weightMap.Constellation:Object.keys(this._weights).length>0&&void 0!==this._weights[t]?this._weights[t].weight:vo`；调用 `Object.keys`、`t.startsWith`。
-   * 调用线索：Object.keys、t.startsWith。
-   */
-  getDefaultWeight(t, e = void 0) {
-    return t.startsWith("constellation_") ? this._weightMap.Constellation : Object.keys(this._weights).length > 0 && void 0 !== this._weights[t] ? this._weights[t].weight : void 0 !== this._weightMap[e] ? this._weightMap[e] : 0;
+  getDefaultWeight(entityId, category = void 0) {
+    return entityId.startsWith("constellation_") ? this._weightMap.Constellation : Object.keys(this._weights).length > 0 && void 0 !== this._weights[entityId] ? this._weights[entityId].weight : void 0 !== this._weightMap[category] ? this._weightMap[category] : 0;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._weightMap`。
-   */
   getWeightMap() {
     return this._weightMap;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_weightMap`。
-   * 状态写入：_weightMap。
-   */
   setWeightMap(weightMap) {
     this._weightMap = weightMap;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `contentManager.getClassName`、`contentManager.getEntityInfo`、`layerManager.getLayer`、`t.getName`、`this._app.getManager`、`this.addLabel`。
-   * 调用线索：contentManager.getClassName、contentManager.getEntityInfo、layerManager.getLayer、t.getName、this._app.getManager等。
-   */
-  setUpLabel(t) {
+  setUpLabel(entity) {
     const contentManager = this._app.getManager("content");
     const layerManager = this._app.getManager("layer");
-    const s = contentManager.getEntityInfo(t.getName())?.category;
-    const n = this.getDefaultWeight(t.getName(), s);
-    this.addLabel(t, n);
+    const category = contentManager.getEntityInfo(entity.getName())?.category;
+    const defaultWeight = this.getDefaultWeight(entity.getName(), category);
+    this.addLabel(entity, defaultWeight);
     this.setLabelProps({
-      getLabelClass: t => `no-select ${contentManager.getClassName(t) ?? ""}`
-    }, [t.getName()]);
-    const o = t.getName();
-    const r = layerManager.getLayer("labels");
-    null === r || r.visible || this.toggleLabelForEntity(false, o);
+      getLabelClass: labelEntityId => `no-select ${contentManager.getClassName(labelEntityId) ?? ""}`
+    }, [entity.getName()]);
+    const entityId = entity.getName();
+    const labelsLayer = layerManager.getLayer("labels");
+    null === labelsLayer || labelsLayer.visible || this.toggleLabelForEntity(false, entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_labels[t.getName()]`；调用 `t.getComponent`、`t.getComponent(Pioneer.DivComponent).getDiv`、`t.getName`、`this._labelQuadtree.addEntity`。
-   * 状态写入：_labels[t.getName()]。
-   * 调用线索：t.getComponent、t.getComponent(Pioneer.DivComponent).getDiv、t.getName、this._labelQuadtree.addEntity。
-   */
-  addLabel(t, e) {
-    t.getComponent(Pioneer.DivComponent) && (this._labels[t.getName()] = {
-      name: t.getName(),
-      el: t.getComponent(Pioneer.DivComponent).getDiv(),
+  addLabel(entity, weight) {
+    entity.getComponent(Pioneer.DivComponent) && (this._labels[entity.getName()] = {
+      name: entity.getName(),
+      el: entity.getComponent(Pioneer.DivComponent).getDiv(),
       isClickable: true
-    }, this._labelQuadtree.addEntity(t, e));
+    }, this._labelQuadtree.addEntity(entity, weight));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.getComponent`、`t.getName`、`this._labelQuadtree.removeEntity`。
-   * 调用线索：t.getComponent、t.getName、this._labelQuadtree.removeEntity。
-   */
-  removeLabel(t) {
-    t.getComponent(Pioneer.DivComponent) && (delete this._labels[t.getName()], this._labelQuadtree.removeEntity(t.getName()));
+  removeLabel(entityId) {
+    entityId.getComponent(Pioneer.DivComponent) && (delete this._labels[entityId.getName()], this._labelQuadtree.removeEntity(entityId.getName()));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `layerManager.getLayer`、`t.getName`、`this._app.getManager`、`this.toggleIconForEntity`。
-   * 调用线索：layerManager.getLayer、t.getName、this._app.getManager、this.toggleIconForEntity。
-   */
-  setUpIcon(t) {
+  setUpIcon(entity) {
     const layerManager = this._app.getManager("layer");
-    const i = t.getName();
-    const s = layerManager.getLayer("icons");
-    null === s || s.visible || this.toggleIconForEntity(false, i);
+    const entityId = entity.getName();
+    const iconsLayer = layerManager.getLayer("icons");
+    null === iconsLayer || iconsLayer.visible || this.toggleIconForEntity(false, entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_labels[t].isClickable`；调用 `this._labels[t].el.classList.toggle`。
-   * 状态写入：_labels[t].isClickable。
-   * 调用线索：this._labels[t].el.classList.toggle。
-   */
-  setLabelClickable(t, e) {
-    this._labels[t] && (this._labels[t].isClickable = e, this._labels[t].el.classList.toggle("clickable", e));
+  setLabelClickable(entityId, isClickable) {
+    this._labels[entityId] && (this._labels[entityId].isClickable = isClickable, this._labels[entityId].el.classList.toggle("clickable", isClickable));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isClickable`；调用 `e.classList.add`、`e.classList.remove`、`i.getDiv`、`this._scene.getEntityAt`、`this._scene.getEntityAt(e).getComponent`、`this._scene.getNumEntities`。
-   * 状态写入：_isClickable。
-   * 调用线索：e.classList.add、e.classList.remove、i.getDiv、this._scene.getEntityAt、this._scene.getEntityAt(e).getComponent等。
-   */
   setClickable(isClickable) {
     this._isClickable = isClickable;
-    for (let e = 0, i = this._scene.getNumEntities(); e < i; e++) {
-      const i = this._scene.getEntityAt(e).getComponent(Pioneer.DivComponent);
-      if (null !== i) {
-        const e = i.getDiv();
-        isClickable ? e.classList.remove("unclickable") : e.classList.add("unclickable");
+    for (let entityIndex = 0, entityCount = this._scene.getNumEntities(); entityIndex < entityCount; entityIndex++) {
+      const divComponent = this._scene.getEntityAt(entityIndex).getComponent(Pioneer.DivComponent);
+      if (null !== divComponent) {
+        const labelElement = divComponent.getDiv();
+        isClickable ? labelElement.classList.remove("unclickable") : labelElement.classList.add("unclickable");
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._exceptions.add`。
-   * 调用线索：this._exceptions.add。
-   */
-  addException(t) {
-    this._exceptions.add(t);
+  addException(entityId) {
+    this._exceptions.add(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._exceptions.delete`。
-   * 调用线索：this._exceptions.delete。
-   */
-  removeException(t) {
-    this._exceptions.delete(t);
+  removeException(entityId) {
+    this._exceptions.delete(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.forEach`、`this._exceptions.add`。
-   * 调用线索：t.forEach、this._exceptions.add。
-   */
-  addExceptions(t) {
-    t.forEach(t => this._exceptions.add(t));
+  addExceptions(entityIds) {
+    entityIds.forEach(entityId => this._exceptions.add(entityId));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.forEach`、`this._exceptions.delete`。
-   * 调用线索：t.forEach、this._exceptions.delete。
-   */
-  removeExceptions(t) {
-    t.forEach(t => this._exceptions.delete(t));
+  removeExceptions(entityIds) {
+    entityIds.forEach(entityId => this._exceptions.delete(entityId));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `scene.getEntityAt`、`scene.getEntityAt(i).getName`、`scene.getNumEntities`、`this.toggleLabelForEntity`。
-   * 调用线索：scene.getEntityAt、scene.getEntityAt(i).getName、scene.getNumEntities、this.toggleLabelForEntity。
-   */
-  toggleLabels(t, {
+  toggleLabels(visible, {
     scene: scene
   } = {}) {
     void 0 === scene && (scene = this._scene);
-    for (let i = 0; i < scene.getNumEntities(); i++) this.toggleLabelForEntity(t, scene.getEntityAt(i).getName(), {
+    for (let entityIndex = 0; entityIndex < scene.getNumEntities(); entityIndex++) this.toggleLabelForEntity(visible, scene.getEntityAt(entityIndex).getName(), {
       scene: scene
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `n.getEntity`、`o.getComponent`、`o.getName`、`r.getDiv`、`this._exceptions.has`。
-   * 调用线索：n.getEntity、o.getComponent、o.getName、r.getDiv、r.getDiv().lastElementChild?.classList.add等。
-   */
-  toggleLabelForEntity(t, e, {
+  toggleLabelForEntity(visible, entityId, {
     scene: scene
   } = {}) {
-    let n = scene;
-    void 0 === n && (n = this._scene);
-    const o = n.getEntity(e);
-    const r = o.getComponent(Pioneer.DivComponent);
-    this._exceptions.has(o.getName()) || null !== r && (t ? r.getDiv().lastElementChild?.classList.remove("hidden") : r.getDiv().lastElementChild?.classList.add("hidden"));
+    let targetScene = scene;
+    void 0 === targetScene && (targetScene = this._scene);
+    const entity = targetScene.getEntity(entityId);
+    const divComponent = entity.getComponent(Pioneer.DivComponent);
+    this._exceptions.has(entity.getName()) || null !== divComponent && (visible ? divComponent.getDiv().lastElementChild?.classList.remove("hidden") : divComponent.getDiv().lastElementChild?.classList.add("hidden"));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `scene.getEntityAt`、`scene.getEntityAt(i).getName`、`scene.getNumEntities`、`this.toggleIconForEntity`。
-   * 调用线索：scene.getEntityAt、scene.getEntityAt(i).getName、scene.getNumEntities、this.toggleIconForEntity。
-   */
-  toggleIcons(t, {
+  toggleIcons(visible, {
     scene: scene
   } = {}) {
     void 0 === scene && (scene = this._scene);
-    for (let i = 0; i < scene.getNumEntities(); i++) this.toggleIconForEntity(t, scene.getEntityAt(i).getName(), {
+    for (let entityIndex = 0; entityIndex < scene.getNumEntities(); entityIndex++) this.toggleIconForEntity(visible, scene.getEntityAt(entityIndex).getName(), {
       scene: scene
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `n.getEntity`、`o.getComponent`、`o.getName`、`r.getDiv`、`this._exceptions.has`。
-   * 调用线索：n.getEntity、o.getComponent、o.getName、r.getDiv、r.getDiv().firstElementChild?.classList.add等。
-   */
-  toggleIconForEntity(t, e, {
+  toggleIconForEntity(visible, entityId, {
     scene: scene
   } = {}) {
-    let n = scene;
-    void 0 === n && (n = this._scene);
-    const o = n.getEntity(e);
-    const r = o.getComponent(Pioneer.DivComponent);
-    this._exceptions.has(o.getName()) || null !== r && (t ? r.getDiv().firstElementChild?.classList.remove("hidden") : r.getDiv().firstElementChild?.classList.add("hidden"));
+    let targetScene = scene;
+    void 0 === targetScene && (targetScene = this._scene);
+    const entity = targetScene.getEntity(entityId);
+    const divComponent = entity.getComponent(Pioneer.DivComponent);
+    this._exceptions.has(entity.getName()) || null !== divComponent && (visible ? divComponent.getDiv().firstElementChild?.classList.remove("hidden") : divComponent.getDiv().firstElementChild?.classList.add("hidden"));
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 ``/${t}``。
-   */
-  _getLink(t) {
-    return `/${t}`;
+  _getLink(entityId) {
+    return `/${entityId}`;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `routerManager.navigate`、`t.getName`、`this._app.getManager`、`this._getLink`。
-   * 调用线索：routerManager.navigate、t.getName、this._app.getManager、this._getLink。
-   */
-  _clickCallback(t) {
+  _clickCallback(entity) {
     const routerManager = this._app.getManager("router");
-    const i = this._getLink(t.getName());
-    const s = "string" == typeof i ? i : i.path ?? "";
+    const link = this._getLink(entity.getName());
+    const routePath = "string" == typeof link ? link : link.path ?? "";
     const {
-      options: n = {
+      options: navigationOptions = {
         keepTime: true
       },
-      query: o = {}
-    } = "object" == typeof i && i;
-    routerManager.navigate(o, s, n);
+      query: queryParams = {}
+    } = "object" == typeof link && link;
+    routerManager.navigate(queryParams, routePath, navigationOptions);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Object.keys`、`_.addEventListener`、`_.appendChild`、`_.getAttribute`、`_.setAttribute`、`d.getEntity`。
-   * 调用线索：Object.keys、_.addEventListener、_.appendChild、_.getAttribute、_.setAttribute等。
-   */
   setLabelProps({
     getLabelClass: getLabelClass,
     getIconClass: getIconClass,
@@ -312,81 +199,73 @@ class LabelManager extends EyesPublicApi.BaseManager {
     handleTouch: handleTouch,
     handleMouseEnter: handleMouseEnter,
     handleMouseLeave: handleMouseLeave
-  } = {}, l = Object.keys(this._labels), c, h) {
-    let d = c;
-    d || (d = this._scene);
-    let u = h;
-    u || (u = d.getEntity("camera"));
-    const p = u.getComponent(Pioneer.CameraComponent);
-    for (const c of l) {
-      const l = d.getEntity(c);
-      const h = this._app.getManager("content").getEntityInfo(c);
-      const u = l.getComponent(Pioneer.DivComponent);
-      if (null === u) continue;
-      u.setActiveCamera(p);
-      const _ = u.getDiv();
-      const m = "function" == typeof getLabelClass ? getLabelClass(c) : "";
-      _.className += ` ${m} clickable`;
-      const g = document.createElement("span");
-      const y = document.createElement("span");
-      const f = this._iconMap[h?.category] ?? this._iconMap.Default;
-      const T = "Planet" === h?.category ? c : "";
-      const b = "function" == typeof getIconClass ? getIconClass(c) : "";
-      g.className = `icon ${f}${T} ${b}`;
-      y.className = `text ${"function" == typeof getTextClass ? getTextClass(c) : ""}`;
-      y.innerHTML = h?.displayName || h?.iauName || _.innerHTML;
-      _.innerHTML = "";
-      _.appendChild(g);
-      _.appendChild(y);
-      const E = async t => {
-        const e = this._labels[c];
-        this._isClickable && e?.isClickable && null !== this._clickCallback && (this._clickCallback(l), t.preventDefault(), this.triggerCallbacks("labelclicked", [true]));
+  } = {}, entityIds = Object.keys(this._labels), sceneOverride, cameraOverride) {
+    let targetScene = sceneOverride;
+    targetScene || (targetScene = this._scene);
+    let cameraEntity = cameraOverride;
+    cameraEntity || (cameraEntity = targetScene.getEntity("camera"));
+    const cameraComponent = cameraEntity.getComponent(Pioneer.CameraComponent);
+    for (const entityId of entityIds) {
+      const entity = targetScene.getEntity(entityId);
+      const entityInfo = this._app.getManager("content").getEntityInfo(entityId);
+      const divComponent = entity.getComponent(Pioneer.DivComponent);
+      if (null === divComponent) continue;
+      divComponent.setActiveCamera(cameraComponent);
+      const labelElement = divComponent.getDiv();
+      const labelClass = "function" == typeof getLabelClass ? getLabelClass(entityId) : "";
+      labelElement.className += ` ${labelClass} clickable`;
+      const iconElement = document.createElement("span");
+      const textElement = document.createElement("span");
+      const categoryIconClass = this._iconMap[entityInfo?.category] ?? this._iconMap.Default;
+      const planetIconSuffix = "Planet" === entityInfo?.category ? entityId : "";
+      const customIconClass = "function" == typeof getIconClass ? getIconClass(entityId) : "";
+      iconElement.className = `icon ${categoryIconClass}${planetIconSuffix} ${customIconClass}`;
+      textElement.className = `text ${"function" == typeof getTextClass ? getTextClass(entityId) : ""}`;
+      textElement.innerHTML = entityInfo?.displayName || entityInfo?.iauName || labelElement.innerHTML;
+      labelElement.innerHTML = "";
+      labelElement.appendChild(iconElement);
+      labelElement.appendChild(textElement);
+      const defaultClickHandler = async event => {
+        const labelRecord = this._labels[entityId];
+        this._isClickable && labelRecord?.isClickable && null !== this._clickCallback && (this._clickCallback(entity), event.preventDefault(), this.triggerCallbacks("labelclicked", [true]));
       };
-      const S = async t => {
-        const e = this._labels[c];
-        this._isClickable && e?.isClickable && (this.app.isDragging() || this.app.isTouchMax() || null === this._clickCallback || (this._clickCallback(l), t.preventDefault(), this.triggerCallbacks("labelclicked", [true])));
+      const defaultTouchHandler = async event => {
+        const labelRecord = this._labels[entityId];
+        this._isClickable && labelRecord?.isClickable && (this.app.isDragging() || this.app.isTouchMax() || null === this._clickCallback || (this._clickCallback(entity), event.preventDefault(), this.triggerCallbacks("labelclicked", [true])));
       };
-      _.addEventListener("mousedown", t => {
-        t.preventDefault();
+      labelElement.addEventListener("mousedown", event => {
+        event.preventDefault();
         this.triggerCallbacks("labelclicked", [false]);
       });
-      _.addEventListener("touchstart", t => {
-        t.preventDefault();
+      labelElement.addEventListener("touchstart", event => {
+        event.preventDefault();
         this.triggerCallbacks("labelclicked", [false]);
       });
-      const v = "function" == typeof handleClick ? t => handleClick(t, c) : E;
-      const C = "function" == typeof handleTouch ? t => handleTouch(t, c) : S;
-      const x = "function" == typeof handleMouseEnter ? t => handleMouseEnter(t, c) : () => this.triggerCallbacks("hoverchange", [c, true]);
-      const I = "function" == typeof handleMouseLeave ? t => handleMouseLeave(t, c) : () => this.triggerCallbacks("hoverchange", [c, false]);
-      null !== handleClick && "true" !== _.getAttribute("hasClickListener") && (_.setAttribute("hasClickListener", "true"), _.addEventListener("click", v));
-      null !== handleTouch && "true" !== _.getAttribute("hasTouchEndListener") && (_.setAttribute("hasTouchEndListener", "true"), _.addEventListener("touchend", C));
-      null !== handleMouseEnter && "true" !== _.getAttribute("hasMouseEnterListener") && (_.setAttribute("hasMouseEnterListener", "true"), _.addEventListener("mouseenter", x));
-      null !== handleMouseLeave && "true" !== _.getAttribute("hasMouseLeaveListener") && (_.setAttribute("hasMouseLeaveListener", "true"), _.addEventListener("mouseleave", I));
-      "true" !== _.getAttribute("hasMouseMoveListener") && (_.setAttribute("hasMouseMoveListener", "true"), _.addEventListener("mousemove", t => {
-        t.preventDefault();
+      const clickHandler = "function" == typeof handleClick ? event => handleClick(event, entityId) : defaultClickHandler;
+      const touchHandler = "function" == typeof handleTouch ? event => handleTouch(event, entityId) : defaultTouchHandler;
+      const mouseEnterHandler = "function" == typeof handleMouseEnter ? event => handleMouseEnter(event, entityId) : () => this.triggerCallbacks("hoverchange", [entityId, true]);
+      const mouseLeaveHandler = "function" == typeof handleMouseLeave ? event => handleMouseLeave(event, entityId) : () => this.triggerCallbacks("hoverchange", [entityId, false]);
+      null !== handleClick && "true" !== labelElement.getAttribute("hasClickListener") && (labelElement.setAttribute("hasClickListener", "true"), labelElement.addEventListener("click", clickHandler));
+      null !== handleTouch && "true" !== labelElement.getAttribute("hasTouchEndListener") && (labelElement.setAttribute("hasTouchEndListener", "true"), labelElement.addEventListener("touchend", touchHandler));
+      null !== handleMouseEnter && "true" !== labelElement.getAttribute("hasMouseEnterListener") && (labelElement.setAttribute("hasMouseEnterListener", "true"), labelElement.addEventListener("mouseenter", mouseEnterHandler));
+      null !== handleMouseLeave && "true" !== labelElement.getAttribute("hasMouseLeaveListener") && (labelElement.setAttribute("hasMouseLeaveListener", "true"), labelElement.addEventListener("mouseleave", mouseLeaveHandler));
+      "true" !== labelElement.getAttribute("hasMouseMoveListener") && (labelElement.setAttribute("hasMouseMoveListener", "true"), labelElement.addEventListener("mousemove", event => {
+        event.preventDefault();
       }, true));
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._scene.getEntity`。
-   * 调用线索：e?.getComponent、e?.getComponent(Pioneer.DivComponent)?.getDiv、n?.classList.add、this._scene.getEntity。
-   */
-  addClassToLabels(t, e) {
-    for (const i of e) {
-      const e = this._scene.getEntity(i);
-      const n = e?.getComponent(Pioneer.DivComponent)?.getDiv();
-      n?.classList.add(t);
+  addClassToLabels(className, entityIds) {
+    for (const entityId of entityIds) {
+      const entity = this._scene.getEntity(entityId);
+      const labelElement = entity?.getComponent(Pioneer.DivComponent)?.getDiv();
+      labelElement?.classList.add(className);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._scene.getEntity`。
-   * 调用线索：e?.getComponent、e?.getComponent(Pioneer.DivComponent)?.getDiv、n?.classList.remove、this._scene.getEntity。
-   */
-  removeClassFromLabels(t, e) {
-    for (const i of e) {
-      const e = this._scene.getEntity(i);
-      const n = e?.getComponent(Pioneer.DivComponent)?.getDiv();
-      n?.classList.remove(t);
+  removeClassFromLabels(className, entityIds) {
+    for (const entityId of entityIds) {
+      const entity = this._scene.getEntity(entityId);
+      const labelElement = entity?.getComponent(Pioneer.DivComponent)?.getDiv();
+      labelElement?.classList.remove(className);
     }
   }
 }

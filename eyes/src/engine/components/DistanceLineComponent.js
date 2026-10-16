@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：在引用实体之间更新带端点/颜色的距离线段。
- * 依据：import ../pioneer/index.js；DistanceLineComponent extends Pioneer.BaseComponent @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 测距线在中心与表面端点之间做四次缓动；接近目标时切换局部原点以减小数值误差，同时交换端点半径与表面标志，临时向量在 LineMesh 取得端点后归还。
 // Recovered from app.js:535372-539211.
 import * as Pioneer from "../pioneer/index.js";
-/** @eyes-analysis
- * 类职责：在引用实体之间更新带端点/颜色的距离线段。
- * 继承：Pioneer.BaseComponent；导出：DistanceLineComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class DistanceLineComponent extends Pioneer.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_animation`、`_color`、`_depthTest`、`_distance`、`_lineMesh`、`_sourceMpIsSurface`、`_sourceRelRadius`、`_switchStartPos`；调用 `new Pioneer.Color`、`super`、`this.__setRadius`。
-   * 状态写入：_animation、_color、_depthTest、_distance、_lineMesh、_sourceMpIsSurface、_sourceRelRadius、_switchStartPos等；完整记录见索引。
-   * 调用线索：new Pioneer.Color、super、this.__setRadius。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._targetEntity = null;
     this._color = new Pioneer.Color(.48, .56, .66);
     this._distance = null;
@@ -38,50 +23,31 @@ class DistanceLineComponent extends Pioneer.BaseComponent {
     this._lineMesh = null;
     this.__setRadius(Number.POSITIVE_INFINITY);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_targetEntity`。
-   * 状态写入：_targetEntity。
-   */
   setTargetEntity(targetEntity) {
     this._targetEntity = targetEntity;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_animation.isAnimating`、`_animation.sourceStartTime`、`_sourceMpIsSurface`；调用 `Date.now`。
-   * 状态写入：_animation.isAnimating、_animation.sourceStartTime、_sourceMpIsSurface。
-   * 调用线索：Date.now。
-   */
-  setSourceMeasurePoint(t) {
-    const sourceMpIsSurface = "surface" === t;
-    this._sourceMpIsSurface !== sourceMpIsSurface && (this._sourceMpIsSurface = sourceMpIsSurface, this._animation.isAnimating = true, this._animation.sourceStartTime = Date.now());
+  setSourceMeasurePoint(measurePoint) {
+    const sourceMpIsSurface = "surface" === measurePoint;
+    if (this._sourceMpIsSurface !== sourceMpIsSurface) {
+      this._sourceMpIsSurface = sourceMpIsSurface;
+      this._animation.isAnimating = true;
+      this._animation.sourceStartTime = Date.now();
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_animation.isAnimating`、`_animation.targetStartTime`、`_targetMpIsSurface`；调用 `Date.now`。
-   * 状态写入：_animation.isAnimating、_animation.targetStartTime、_targetMpIsSurface。
-   * 调用线索：Date.now。
-   */
-  setTargetMeasurePoint(t) {
-    const targetMpIsSurface = "surface" === t;
-    this._targetMpIsSurface !== targetMpIsSurface && (this._targetMpIsSurface = targetMpIsSurface, this._animation.isAnimating = true, this._animation.targetStartTime = Date.now());
+  setTargetMeasurePoint(measurePoint) {
+    const targetMpIsSurface = "surface" === measurePoint;
+    if (this._targetMpIsSurface !== targetMpIsSurface) {
+      this._targetMpIsSurface = targetMpIsSurface;
+      this._animation.isAnimating = true;
+      this._animation.targetStartTime = Date.now();
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_color`。
-   * 状态写入：_color。
-   */
   setColor(color) {
     this._color = color;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_width`。
-   * 状态写入：_width。
-   */
   setWidth(width) {
     this._width = width;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_distance`、`_sourceRelRadius`、`_targetRelRadius`；调用 `Math.max`、`Math.min`。
-   * 状态写入：_distance、_sourceRelRadius、_targetRelRadius。
-   * 调用线索：Math.max、Math.min。
-   */
   setDistanceProps({
     distance: distance,
     sourceRadius: sourceRadius,
@@ -91,20 +57,11 @@ class DistanceLineComponent extends Pioneer.BaseComponent {
     this._sourceRelRadius = Math.max(Math.min(sourceRadius / this._distance, 1), 0);
     this._targetRelRadius = Math.max(Math.min(targetRadius / this._distance, 1), 0);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `(e<=1?Math.pow(e,4):2-Math.pow(2-e,4))/2`；调用 `Math.pow`。
-   * 调用线索：Math.pow。
-   */
-  _applyEasing(t) {
-    const e = 2 * t;
-    return (e <= 1 ? Math.pow(e, 4) : 2 - Math.pow(2 - e, 4)) / 2;
+  _applyEasing(progress) {
+    const doubledProgress = 2 * progress;
+    return (doubledProgress <= 1 ? Math.pow(doubledProgress, 4) : 2 - Math.pow(2 - doubledProgress, 4)) / 2;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_animation.isAnimating`、`_animation.sourceStartTime`、`_animation.targetStartTime`；返回 `void`；调用 `Date.now`、`e.lerp`、`t.lerp`、`this._applyEasing`。
-   * 状态写入：_animation.isAnimating、_animation.sourceStartTime、_animation.targetStartTime。
-   * 调用线索：Date.now、e.lerp、t.lerp、this._applyEasing。
-   */
-  _updateAnimation(t, e, i, s, n, o) {
+  _updateAnimation(startPosition, endPosition, startCenter, startSurface, endCenter, endSurface) {
     if (!this._animation.isAnimating) return;
     const {
       sourceStartTime: sourceStartTime,
@@ -112,33 +69,52 @@ class DistanceLineComponent extends Pioneer.BaseComponent {
       duration: duration
     } = this._animation;
     if (sourceStartTime) {
-      const a = Date.now() - sourceStartTime;
-      const c = a > duration ? 1 : a / duration;
-      if (1 !== c) {
-        const r = this._applyEasing(c);
-        this._sourceMpIsSurface ? this._switchStartPos ? e.lerp(n, o, r) : t.lerp(i, s, r) : this._switchStartPos ? e.lerp(o, n, r) : t.lerp(s, i, r);
+      const elapsed = Date.now() - sourceStartTime;
+      const progress = elapsed > duration ? 1 : elapsed / duration;
+      if (1 !== progress) {
+        const easedProgress = this._applyEasing(progress);
+        if (this._sourceMpIsSurface) {
+          if (this._switchStartPos) {
+            endPosition.lerp(endCenter, endSurface, easedProgress);
+          } else {
+            startPosition.lerp(startCenter, startSurface, easedProgress);
+          }
+        } else {
+          if (this._switchStartPos) {
+            endPosition.lerp(endSurface, endCenter, easedProgress);
+          } else {
+            startPosition.lerp(startSurface, startCenter, easedProgress);
+          }
+        }
       } else {
         this._animation.isAnimating = false;
         this._animation.sourceStartTime = null;
       }
     }
     if (targetStartTime) {
-      const r = Date.now() - targetStartTime;
-      const c = r > duration ? 1 : r / duration;
-      if (1 !== c) {
-        const r = this._applyEasing(c);
-        this._targetMpIsSurface ? this._switchStartPos ? t.lerp(i, s, r) : e.lerp(n, o, r) : this._switchStartPos ? t.lerp(s, i, r) : e.lerp(o, n, r);
+      const elapsed = Date.now() - targetStartTime;
+      const progress = elapsed > duration ? 1 : elapsed / duration;
+      if (1 !== progress) {
+        const easedProgress = this._applyEasing(progress);
+        if (this._targetMpIsSurface) {
+          if (this._switchStartPos) {
+            startPosition.lerp(startCenter, startSurface, easedProgress);
+          } else {
+            endPosition.lerp(endCenter, endSurface, easedProgress);
+          }
+        } else {
+          if (this._switchStartPos) {
+            startPosition.lerp(startSurface, startCenter, easedProgress);
+          } else {
+            endPosition.lerp(endSurface, endCenter, easedProgress);
+          }
+        }
       } else {
         this._animation.isAnimating = false;
         this._animation.targetStartTime = null;
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_lineMesh`；返回 `Promise.resolve()`；调用 `Promise.resolve`、`new Pioneer.LineMesh`、`this._lineMesh.setColors`、`this._lineMesh.setWidths`、`this.setOpacity`。
-   * 状态写入：_lineMesh。
-   * 调用线索：Promise.resolve、new Pioneer.LineMesh、this._lineMesh.setColors、this._lineMesh.setWidths、this.setOpacity。
-   */
   __loadResources() {
     this._lineMesh = new Pioneer.LineMesh(this);
     this._lineMesh.setColors([this._color, this._color]);
@@ -146,83 +122,62 @@ class DistanceLineComponent extends Pioneer.BaseComponent {
     this.setOpacity(1);
     return Promise.resolve();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_color.a`；调用 `this._lineMesh.setColors`。
-   * 状态写入：_color.a。
-   * 调用线索：this._lineMesh.setColors。
-   */
-  setOpacity(t) {
-    this._color.a = t;
+  setOpacity(opacity) {
+    this._color.a = opacity;
     this._lineMesh.setColors([this._color, this._color]);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_depthTest`。
-   * 状态写入：_depthTest。
-   */
   setDepthTest(depthTest) {
     this._depthTest = depthTest;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_lineMesh`；调用 `Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials`。
-   * 状态写入：_lineMesh。
-   * 调用线索：Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials。
-   */
   __unloadResources() {
     Pioneer.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
     this._lineMesh = null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void(e&&(e.visible=false))`；调用 `Pioneer.ThreeJsHelper.setPositionToEntity`、`this._calcStartPos`、`this._lineMesh.prepareForRender`、`this._updatePoints`、`this.getEntity`、`this.getThreeJsObjects`。
-   * 调用线索：Pioneer.ThreeJsHelper.setPositionToEntity、this._calcStartPos、this._lineMesh.prepareForRender、this._updatePoints、this.getEntity等。
-   */
-  __prepareForRender(t) {
-    const [e] = this.getThreeJsObjects();
-    if (null === this._targetEntity) return void (e && (e.visible = false));
-    e?.material && (e.material.depthTest = this._depthTest);
-    this._calcStartPos(t);
-    this._updatePoints(t);
-    const i = this._switchStartPos ? this._targetEntity : this.getEntity();
-    Pioneer.ThreeJsHelper.setPositionToEntity(e, i, t);
-    this._lineMesh.prepareForRender(t);
+  __prepareForRender(camera) {
+    const [object] = this.getThreeJsObjects();
+    if (null === this._targetEntity) return void (object && (object.visible = false));
+    if (object?.material) {
+      object.material.depthTest = this._depthTest;
+    }
+    this._calcStartPos(camera);
+    this._updatePoints(camera);
+    const originEntity = this._switchStartPos ? this._targetEntity : this.getEntity();
+    Pioneer.ThreeJsHelper.setPositionToEntity(object, originEntity, camera);
+    this._lineMesh.prepareForRender(camera);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_switchStartPos`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.magnitude`、`t.getEntity`、`t.getEntity().getPositionRelativeToEntity`。
-   * 状态写入：_switchStartPos。
-   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.magnitude、t.getEntity、t.getEntity().getPositionRelativeToEntity。
-   */
-  _calcStartPos(t) {
-    const e = Pioneer.Vector3.pool.get();
-    t.getEntity().getPositionRelativeToEntity(e, Pioneer.Vector3.Zero, this._targetEntity);
-    const switchStartPos = e.magnitude() / this._distance < .001;
-    this._switchStartPos !== switchStartPos && (this._switchStartPos = switchStartPos);
-    Pioneer.Vector3.pool.release(e);
+  _calcStartPos(camera) {
+    const cameraOffset = Pioneer.Vector3.pool.get();
+    camera.getEntity().getPositionRelativeToEntity(cameraOffset, Pioneer.Vector3.Zero, this._targetEntity);
+    const switchStartPos = cameraOffset.magnitude() / this._distance < .001;
+    if (this._switchStartPos !== switchStartPos) {
+      this._switchStartPos = switchStartPos;
+    }
+    Pioneer.Vector3.pool.release(cameraOffset);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.copy`、`i.lerp`、`n.lerp`、`o.neg`。
-   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.copy、i.lerp、n.lerp等。
-   */
-  _updatePoints(t) {
+  _updatePoints(camera) {
     if (null === this._targetEntity) return;
-    const e = Pioneer.Vector3.pool.get();
-    const i = Pioneer.Vector3.pool.get();
-    const n = Pioneer.Vector3.pool.get();
-    const o = Pioneer.Vector3.pool.get();
-    e.copy(Pioneer.Vector3.Zero);
-    o.sub(this._targetEntity.getCameraSpacePosition(t), this.getEntity().getCameraSpacePosition(t));
-    this._switchStartPos && o.neg(o);
-    const r = this._switchStartPos ? this._targetRelRadius : this._sourceRelRadius;
-    const a = 1 - (this._switchStartPos ? this._sourceRelRadius : this._targetRelRadius);
-    i.lerp(e, o, r);
-    n.lerp(e, o, a);
-    const l = (this._switchStartPos ? this._targetMpIsSurface : this._sourceMpIsSurface) ? i : e;
-    const c = (this._switchStartPos ? this._sourceMpIsSurface : this._targetMpIsSurface) ? n : o;
-    this._updateAnimation(l, c, e, i, o, n);
-    const h = [l, c];
-    this._lineMesh.setPositions(h);
-    Pioneer.Vector3.pool.release(e);
-    Pioneer.Vector3.pool.release(i);
-    Pioneer.Vector3.pool.release(n);
-    Pioneer.Vector3.pool.release(o);
+    const startCenter = Pioneer.Vector3.pool.get();
+    const startSurface = Pioneer.Vector3.pool.get();
+    const endSurface = Pioneer.Vector3.pool.get();
+    const endCenter = Pioneer.Vector3.pool.get();
+    startCenter.copy(Pioneer.Vector3.Zero);
+    endCenter.sub(this._targetEntity.getCameraSpacePosition(camera), this.getEntity().getCameraSpacePosition(camera));
+    if (this._switchStartPos) {
+      endCenter.neg(endCenter);
+    }
+    const startFraction = this._switchStartPos ? this._targetRelRadius : this._sourceRelRadius;
+    const endFraction = 1 - (this._switchStartPos ? this._sourceRelRadius : this._targetRelRadius);
+    startSurface.lerp(startCenter, endCenter, startFraction);
+    endSurface.lerp(startCenter, endCenter, endFraction);
+    const startPosition = (this._switchStartPos ? this._targetMpIsSurface : this._sourceMpIsSurface) ? startSurface : startCenter;
+    const endPosition = (this._switchStartPos ? this._sourceMpIsSurface : this._targetMpIsSurface) ? endSurface : endCenter;
+    this._updateAnimation(startPosition, endPosition, startCenter, startSurface, endCenter, endSurface);
+    const positions = [startPosition, endPosition];
+    this._lineMesh.setPositions(positions);
+    Pioneer.Vector3.pool.release(startCenter);
+    Pioneer.Vector3.pool.release(startSurface);
+    Pioneer.Vector3.pool.release(endSurface);
+    Pioneer.Vector3.pool.release(endCenter);
   }
 }
 export { DistanceLineComponent };

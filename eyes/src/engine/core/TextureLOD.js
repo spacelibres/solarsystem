@@ -1,22 +1,7 @@
-/** @eyes-analysis
- * 文件职责：按实体屏幕半径或强制尺寸选择 $SIZE 纹理，以引用计数替换 shader uniform。
- * 依据：import ../pioneer/public-api.js；TextureLOD @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 每帧按屏幕半径选取纹理尺寸。新请求成功之前保留旧 uniform，交接时才释放旧资源；失去 uniform 或禁用后到达的结果立即释放。
 // Recovered from app.js:147998-151411.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：按实体屏幕半径或强制尺寸选择 $SIZE 纹理，以引用计数替换 shader uniform。
- * 继承：无显式父类；导出：TextureLOD。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class TextureLOD {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_component`、`_currentSize`、`_enabled`、`_engine`、`_forcedSize`、`_loadState`、`_sizes`、`_uniform`；调用 `component.getEntity`、`component.getEntity().getScene`、`component.getEntity().getScene().getEngine`。
-   * 状态写入：_component、_currentSize、_enabled、_engine、_forcedSize、_loadState、_sizes、_uniform等；完整记录见索引。
-   * 调用线索：component.getEntity、component.getEntity().getScene、component.getEntity().getScene().getEngine。
-   */
   constructor(component) {
     this._engine = component.getEntity().getScene().getEngine();
     this._component = component;
@@ -30,138 +15,126 @@ class TextureLOD {
     };
     this._enabled = true;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_enabled`、`_uniform.value`；调用 `this._component.getEngine`、`this._component.getEngine().getResourceManager`、`this._component.getEngine().getResourceManager().release`。
-   * 状态写入：_enabled、_uniform.value。
-   * 调用线索：this._component.getEngine、this._component.getEngine().getResourceManager、this._component.getEngine().getResourceManager().release。
-   */
   setEnabled(enabled) {
-    this._enabled && !enabled && this._uniform?.value && (this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture"), this._uniform.value = null);
+    if (this._enabled && !enabled && this._uniform?.value) {
+      this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture");
+      this._uniform.value = null;
+    }
     this._enabled = enabled;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._url`。
-   */
   getUrl() {
     return this._url;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentSize`、`_loadState`、`_url`。
-   * 状态写入：_currentSize、_loadState、_url。
-   */
   setUrl(url) {
-    this._url !== url && (this._url = url, this._loadState = {
-      state: "unloaded"
-    }, this._currentSize = NaN);
+    if (this._url !== url) {
+      this._url = url;
+      this._loadState = {
+        state: "unloaded"
+      };
+      this._currentSize = NaN;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._uniform`。
-   */
   getUniform() {
     return this._uniform;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentSize`、`_loadState`、`_uniform`、`_uniform.value`；调用 `this._component.getEngine`、`this._component.getEngine().getResourceManager`、`this._component.getEngine().getResourceManager().release`。
-   * 状态写入：_currentSize、_loadState、_uniform、_uniform.value。
-   * 调用线索：this._component.getEngine、this._component.getEngine().getResourceManager、this._component.getEngine().getResourceManager().release。
-   */
   setUniform(uniform) {
-    this._uniform !== uniform && (this._uniform?.value && (this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture"), this._uniform.value = null), this._uniform = uniform, this._loadState = {
-      state: "unloaded"
-    }, this._currentSize = NaN);
+    if (this._uniform !== uniform) {
+      if (this._uniform?.value) {
+        this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture");
+        this._uniform.value = null;
+      }
+      this._uniform = uniform;
+      this._loadState = {
+        state: "unloaded"
+      };
+      this._currentSize = NaN;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._sizes.slice()`；调用 `this._sizes.slice`。
-   * 调用线索：this._sizes.slice。
-   */
   getSizes() {
     return this._sizes.slice();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentSize`、`_loadState`、`_sizes`；调用 `this._sizes.map`。
-   * 状态写入：_currentSize、_loadState、_sizes。
-   * 调用线索：this._sizes.map、this._sizes.map((e,i)=>e!==t[i]).reduce。
-   */
-  setSizes(t) {
-    (this._sizes.length !== t.length || this._sizes.map((e, i) => e !== t[i]).reduce((t, e) => t || e, false)) && (this._sizes = [...t], this._loadState = {
-      state: "unloaded"
-    }, this._currentSize = NaN);
+  setSizes(sizes) {
+    if (this._sizes.length !== sizes.length || this._sizes.map((size, sizeIndex) => size !== sizes[sizeIndex]).reduce((hasDifference, isDifferent) => hasDifference || isDifferent, false)) {
+      this._sizes = [...sizes];
+      this._loadState = {
+        state: "unloaded"
+      };
+      this._currentSize = NaN;
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._currentSize`。
-   */
   getCurrentSize() {
     return this._currentSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._forcedSize`。
-   */
   getForcedSize() {
     return this._forcedSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_forcedSize`。
-   * 状态写入：_forcedSize。
-   */
   setForcedSize(forcedSize) {
     this._forcedSize = forcedSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `0,PioneerPublicApi.waitUntil`、`new Error`；含显式错误分支。
-   * 调用线索：0,PioneerPublicApi.waitUntil、new Error。
-   */
-  async getLoadedPromise(t = Number.POSITIVE_INFINITY) {
+  async getLoadedPromise(timeout = Number.POSITIVE_INFINITY) {
     await (0, PioneerPublicApi.waitUntil)(() => {
       if ("loaded" === this._loadState.state) return true;
       if ("failed" === this._loadState.state) throw new Error(this._loadState.error);
       return false;
-    }, .25, t);
+    }, .25, timeout);
   }
-  /** @eyes-analysis
-   * 从 sizes 选择首个不小于实体最大屏幕半径的尺寸，受 maxTextureSize 影响；forcedSize 跳过默认装载条件及尺寸上限。currentSize 变化才触发加载。
-   * 状态写入：_currentSize、_uniform.value。
-   * 调用线索：this._component.getEngine、this._component.getEngine().getResourceManager、this._component.getEngine().getResourceManager().release、this._component.getEntity、this._component.getEntity().getGreatestPixelSpaceExtentsRadius等。
-   */
   update() {
     if (!this._enabled || null === this._uniform) return;
-    if ("" === this._url || 0 === this._sizes.length || "unloaded" === this._component.getLoadState().state && void 0 === this._forcedSize) return void (this._uniform.value && (this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture"), this._uniform.value = null, this._currentSize = NaN));
-    let t;
-    t = void 0 !== this._forcedSize ? this._forcedSize : this._component.getEntity().getGreatestPixelSpaceExtentsRadius();
-    let e = 0;
-    for (let i = 0, s = this._sizes.length; i < s; i++) {
-      const n = this._sizes[i];
-      i === s - 1 && (e = i);
-      const o = this._engine.getConfig().getValue("maxTextureSize");
-      if (n >= t || "number" == typeof o && n >= o && void 0 === this._forcedSize) {
-        e = i;
+    if ("" === this._url || 0 === this._sizes.length || "unloaded" === this._component.getLoadState().state && void 0 === this._forcedSize) {
+      if (this._uniform.value) {
+        this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture");
+        this._uniform.value = null;
+        this._currentSize = NaN;
+      }
+      return;
+    }
+    let targetSize;
+    targetSize = void 0 !== this._forcedSize ? this._forcedSize : this._component.getEntity().getGreatestPixelSpaceExtentsRadius();
+    let selectedIndex = 0;
+    for (let sizeIndex = 0, sizeCount = this._sizes.length; sizeIndex < sizeCount; sizeIndex++) {
+      const size = this._sizes[sizeIndex];
+      if (sizeIndex === sizeCount - 1) {
+        selectedIndex = sizeIndex;
+      }
+      const maxTextureSize = this._engine.getConfig().getValue("maxTextureSize");
+      if (size >= targetSize || "number" == typeof maxTextureSize && size >= maxTextureSize && void 0 === this._forcedSize) {
+        selectedIndex = sizeIndex;
         break;
       }
     }
-    this._currentSize !== this._sizes[e] && (this._loadTexture(this._sizes[e], this._currentSize), this._currentSize = this._sizes[e]);
-  }
-  /** @eyes-analysis
-   * 替换 $SIZE 并按负相机深度提交 acquire；旧纹理保留到新纹理成功，然后 release 旧 uniform；若期间禁用/无 uniform 则释放新资源。
-   * 状态写入：_loadState.error、_loadState.state、_uniform.value。
-   * 调用线索：console.warn、e.toString、t.toString、this._component.getEngine、this._component.getEngine().getResourceManager等。
-   */
-  _loadTexture(t, e) {
-    if ("loading" === this._loadState.state && this._uniform) {
-      const t = this._url.replace("$SIZE", e.toString());
-      this._component.getEngine().getResourceManager().releaseByUrl(this._component, t, "texture");
+    if (this._currentSize !== this._sizes[selectedIndex]) {
+      this._loadTexture(this._sizes[selectedIndex], this._currentSize);
+      this._currentSize = this._sizes[selectedIndex];
     }
-    const i = this._url.replace("$SIZE", t.toString());
+  }
+  // 正在加载时先归还旧 URL 的请求引用；成功回调再完成纹理所有权交接。
+  _loadTexture(size, previousSize) {
+    if ("loading" === this._loadState.state && this._uniform) {
+      const previousUrl = this._url.replace("$SIZE", previousSize.toString());
+      this._component.getEngine().getResourceManager().releaseByUrl(this._component, previousUrl, "texture");
+    }
+    const url = this._url.replace("$SIZE", size.toString());
     this._loadState.state = "loading";
-    const n = -this._component.getEntity().getLeastCameraDepth();
-    this._component.getEngine().getResourceManager().acquire(this._component, i, "texture", n).then(t => {
+    const priority = -this._component.getEntity().getLeastCameraDepth();
+    this._component.getEngine().getResourceManager().acquire(this._component, url, "texture", priority).then(texture => {
       if (!this._enabled || !this._uniform) {
-        this._component.getEngine().getResourceManager().release(this._component, t, "texture");
-        return void (this._loadState.state = "unloaded");
+        this._component.getEngine().getResourceManager().release(this._component, texture, "texture");
+        this._loadState.state = "unloaded";
+        return;
       }
-      this._uniform.value && this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture");
-      this._uniform.value = t;
+      if (this._uniform.value) {
+        this._component.getEngine().getResourceManager().release(this._component, this._uniform.value, "texture");
+      }
+      this._uniform.value = texture;
       this._loadState.state = "loaded";
-    }).catch(t => {
-      t instanceof PioneerPublicApi.CanceledError || t instanceof Error && (console.warn(`While updating ${this._component} texture LOD:`, t.message), this._loadState.state = "failed", this._loadState.error = t.message);
+    }).catch(error => {
+      if (!(error instanceof PioneerPublicApi.CanceledError)) {
+        if (error instanceof Error) {
+          console.warn(`While updating ${this._component} texture LOD:`, error.message);
+          this._loadState.state = "failed";
+          this._loadState.error = error.message;
+        }
+      }
     });
   }
   _engine;

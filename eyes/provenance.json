@@ -17760,13 +17760,14 @@
       "start": 1698304,
       "end": 1705345,
       "label": "Unidentified1081",
-      "file": "engine/core/Unidentified1081.js",
+      "file": "engine/core/AnnularSolarEclipseStory.js",
       "esm": true,
       "exports": [],
       "dependencies": [
         10,
         564
-      ]
+      ],
+      "initialRecoveredFile": "engine/core/Unidentified1081.js"
     },
     {
       "id": 1082,
@@ -17774,13 +17775,14 @@
       "start": 1705346,
       "end": 1714327,
       "label": "Unidentified1082",
-      "file": "engine/core/Unidentified1082.js",
+      "file": "engine/core/TotalSolarEclipseStory.js",
       "esm": true,
       "exports": [],
       "dependencies": [
         10,
         564
-      ]
+      ],
+      "initialRecoveredFile": "engine/core/Unidentified1082.js"
     },
     {
       "id": 1083,
@@ -17788,12 +17790,13 @@
       "start": 1714328,
       "end": 1723207,
       "label": "Unidentified1083",
-      "file": "engine/core/Unidentified1083.js",
+      "file": "engine/core/EnceladusDiscoveryStory.js",
       "esm": true,
       "exports": [],
       "dependencies": [
         10
-      ]
+      ],
+      "initialRecoveredFile": "engine/core/Unidentified1083.js"
     },
     {
       "id": 1084,
@@ -17801,13 +17804,14 @@
       "start": 1723208,
       "end": 1734752,
       "label": "Unidentified1084",
-      "file": "engine/core/Unidentified1084.js",
+      "file": "engine/core/VoyagerGrandTourStory.js",
       "esm": true,
       "exports": [],
       "dependencies": [
         10,
         564
-      ]
+      ],
+      "initialRecoveredFile": "engine/core/Unidentified1084.js"
     },
     {
       "id": 1085,
@@ -17815,10 +17819,11 @@
       "start": 1734753,
       "end": 1739455,
       "label": "Unidentified1085",
-      "file": "engine/core/Unidentified1085.js",
+      "file": "engine/core/ParkerSolarProbePerihelionStory.js",
       "esm": true,
       "exports": [],
-      "dependencies": []
+      "dependencies": [],
+      "initialRecoveredFile": "engine/core/Unidentified1085.js"
     },
     {
       "id": 1086,

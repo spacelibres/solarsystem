@@ -1,22 +1,7 @@
-/** @eyes-analysis
- * 文件职责：替换资源 URL 变量，按优先级调度最多 20 个网络请求并提供取消/进度与内容类型解码。
- * 依据：import ../pioneer/public-api.js；Downloader @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:160398-165086.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：替换资源 URL 变量，按优先级调度最多 20 个网络请求并提供取消/进度与内容类型解码。
- * 继承：无显式父类；导出：Downloader。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+// 下载器按优先级排队，以替换后的 actualUrl 跟踪活动请求；记录拥有独立 Promise，完成、失败或取消后让出并发槽位。
 class Downloader {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentDownloads`、`_downloadQueue`、`_maxCurrentDownloads`、`_replacementTypes`、`_replacements`；调用 `new Map`。
-   * 状态写入：_currentDownloads、_downloadQueue、_maxCurrentDownloads、_replacementTypes、_replacements。
-   * 调用线索：new Map。
-   */
   constructor() {
     this._replacements = new Map();
     this._replacementTypes = new Map();
@@ -24,222 +9,174 @@ class Downloader {
     this._downloadQueue = [];
     this._maxCurrentDownloads = 20;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._replacements.get(t)`；调用 `this._replacements.get`。
-   * 调用线索：this._replacements.get。
-   */
-  getReplacement(t) {
-    return this._replacements.get(t);
+  getReplacement(replacementName) {
+    return this._replacements.get(replacementName);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._replacements.set`。
-   * 调用线索：this._replacements.set。
-   */
-  setReplacement(t, e) {
-    this._replacements.set(t, e);
+  setReplacement(replacementName, replacement) {
+    this._replacements.set(replacementName, replacement);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._replacementTypes.get(t)`；调用 `this._replacementTypes.get`。
-   * 调用线索：this._replacementTypes.get。
-   */
-  getReplacementType(t) {
-    return this._replacementTypes.get(t);
+  getReplacementType(url) {
+    return this._replacementTypes.get(url);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._replacementTypes.delete`、`this._replacementTypes.set`。
-   * 调用线索：this._replacementTypes.delete、this._replacementTypes.set。
-   */
-  setReplacementType(t, e) {
-    void 0 !== e ? this._replacementTypes.set(t, e) : this._replacementTypes.delete(t);
+  setReplacementType(url, type) {
+    void 0 !== type ? this._replacementTypes.set(url, type) : this._replacementTypes.delete(url);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.reject`、`i.request.abort`、`new Error`、`new PioneerPublicApi.CanceledError`、`this._checkDownloadQueue`、`this._currentDownloads.delete`；含显式错误分支。
-   * 调用线索：i.reject、i.request.abort、new Error、new PioneerPublicApi.CanceledError、this._checkDownloadQueue等。
-   */
-  cancel(t) {
-    const e = this.processUrl(t);
-    let i = this._currentDownloads.get(e);
-    if (i?.request) {
-      this._currentDownloads.delete(i.actualUrl);
-      i.request.abort();
+  // XHR 活动请求可 abort；排队请求直接移除。图片和视频分支的取消能力保持原行为，未补造统一取消接口。
+  cancel(url) {
+    const actualUrl = this.processUrl(url);
+    let download = this._currentDownloads.get(actualUrl);
+    if (download?.request) {
+      this._currentDownloads.delete(download.actualUrl);
+      download.request.abort();
     } else {
-      const s = this._downloadQueue.findIndex(t => t.actualUrl === e);
-      if (-1 === s) throw new Error(`Couldn't cancel ${t}, not actively downloading or in queue.`);
-      i = this._downloadQueue[s];
-      this._downloadQueue.splice(s, 1);
+      const queueIndex = this._downloadQueue.findIndex(queuedDownload => queuedDownload.actualUrl === actualUrl);
+      if (-1 === queueIndex) throw new Error(`Couldn't cancel ${url}, not actively downloading or in queue.`);
+      download = this._downloadQueue[queueIndex];
+      this._downloadQueue.splice(queueIndex, 1);
     }
-    i.isCanceled = true;
-    i.reject(new PioneerPublicApi.CanceledError());
+    download.isCanceled = true;
+    download.reject(new PioneerPublicApi.CanceledError());
     this._checkDownloadQueue();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `e.replace`。
-   * 调用线索：e.replace。
-   */
-  processUrl(t) {
-    let e = t;
-    for (const [t, i] of this._replacements) e = e.replace(`$${t}`, i);
-    return e;
+  processUrl(url) {
+    let actualUrl = url;
+    for (const [replacementName, replacement] of this._replacements) actualUrl = actualUrl.replace(`$${replacementName}`, replacement);
+    return actualUrl;
   }
-  /** @eyes-analysis
-   * 创建独立 Promise 和下载记录，按 priority 降序插入队列并尝试启动；URL 替换后是 actualUrl。此层本身不合并重复 URL 请求。
-   * 调用线索：PioneerPublicApi.Sort.addObject、new Promise、this._checkDownloadQueue、this.processUrl。
-   */
-  async download(t, e, i, n) {
-    const o = this.processUrl(t);
-    let r;
-    let a;
-    const promise = new Promise((t, e) => {
-      r = t;
-      a = e;
+  async download(url, type, priority, onProgress) {
+    const actualUrl = this.processUrl(url);
+    let resolveDownload;
+    let rejectDownload;
+    const promise = new Promise((resolve, reject) => {
+      resolveDownload = resolve;
+      rejectDownload = reject;
     });
-    const c = {
-      url: t,
-      actualUrl: o,
-      priority: i,
-      type: e,
+    const download = {
+      url: url,
+      actualUrl: actualUrl,
+      priority: priority,
+      type: type,
       isCanceled: false,
-      resolve: r,
-      reject: a,
-      progressCallbacks: n ? [n] : [],
+      resolve: resolveDownload,
+      reject: rejectDownload,
+      progressCallbacks: onProgress ? [onProgress] : [],
       request: null,
       promise: promise
     };
-    PioneerPublicApi.Sort.addObject(c, this._downloadQueue, (t, e) => t.priority > e.priority, (t, e) => t.priority === e.priority);
+    PioneerPublicApi.Sort.addObject(download, this._downloadQueue, (leftDownload, rightDownload) => leftDownload.priority > rightDownload.priority, (leftDownload, rightDownload) => leftDownload.priority === rightDownload.priority);
     this._checkDownloadQueue();
-    return c.promise;
+    return download.promise;
   }
-  /** @eyes-analysis
-   * 仅调整仍在队列的请求，Math.max 保证优先级只提高；活动下载不重排。
-   * 调用线索：Math.max、PioneerPublicApi.Sort.addObject、this._downloadQueue.findIndex、this._downloadQueue.splice。
-   */
-  updatePriority(t, e) {
-    const i = this._downloadQueue.findIndex(e => e.url === t);
-    if (-1 !== i) {
-      const t = this._downloadQueue[i];
-      t.priority = Math.max(t.priority, e);
-      this._downloadQueue.splice(i, 1);
-      PioneerPublicApi.Sort.addObject(t, this._downloadQueue, (t, e) => t.priority > e.priority, (t, e) => t.priority === e.priority);
+  // 仅提升尚在队列的优先级，活动请求不重排；Math.max 保留已经取得的较高优先级。
+  updatePriority(url, priority) {
+    const queueIndex = this._downloadQueue.findIndex(queuedDownload => queuedDownload.url === url);
+    if (-1 !== queueIndex) {
+      const download = this._downloadQueue[queueIndex];
+      download.priority = Math.max(download.priority, priority);
+      this._downloadQueue.splice(queueIndex, 1);
+      PioneerPublicApi.Sort.addObject(download, this._downloadQueue, (leftDownload, rightDownload) => leftDownload.priority > rightDownload.priority, (leftDownload, rightDownload) => leftDownload.priority === rightDownload.priority);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `createImageBitmap`、`createImageBitmap(xMLHttpRequest.response,{premultiplyAlpha:"none",colorSpaceConversion:"none"}).then`、`document.createElement`、`e.load`、`new XMLHttpRequest`、`t.actualUrl.match`。
-   * 调用线索：createImageBitmap、createImageBitmap(xMLHttpRequest.response,{premultiplyAlpha:"none",colorSpaceConversion:"none"}).then、createImageBitmap(xMLHttpRequest.response,{premultiplyAlpha:"none",colorSpaceConversion:"none"}).then(e=>{t.isCanceled||this._completeDownload(t,e,i);}).catch、document.createElement、e.load等。
-   */
-  _doRequest(t) {
-    const e = this._replacementTypes.get(t.url) ?? t.type;
-    if ("binary" === e || "text" === e) {
+  // 文本/二进制使用 XHR，图片/视频使用 DOM 元素，位图先下载 Blob 再异步解码；位图解码完成前仍占活动槽位。
+  _doRequest(download) {
+    const type = this._replacementTypes.get(download.url) ?? download.type;
+    if ("binary" === type || "text" === type) {
       const xMLHttpRequest = new XMLHttpRequest();
       xMLHttpRequest.onload = () => {
-        200 <= xMLHttpRequest.status && xMLHttpRequest.status <= 299 ? this._completeDownload(t, xMLHttpRequest.response, xMLHttpRequest.getResponseHeader("Content-Type") ?? "application/octet-stream") : this._failDownload(t, `Failed to download "${t.actualUrl}" (${xMLHttpRequest.status} ${xMLHttpRequest.statusText}).`);
+        200 <= xMLHttpRequest.status && xMLHttpRequest.status <= 299 ? this._completeDownload(download, xMLHttpRequest.response, xMLHttpRequest.getResponseHeader("Content-Type") ?? "application/octet-stream") : this._failDownload(download, `Failed to download "${download.actualUrl}" (${xMLHttpRequest.status} ${xMLHttpRequest.statusText}).`);
       };
-      xMLHttpRequest.onprogress = e => {
-        this._inProgressDownload(t, e);
+      xMLHttpRequest.onprogress = event => {
+        this._inProgressDownload(download, event);
       };
       xMLHttpRequest.onerror = () => {
-        this._failDownload(t, `Failed to download "${t.actualUrl}".`);
+        this._failDownload(download, `Failed to download "${download.actualUrl}".`);
       };
-      xMLHttpRequest.responseType = "binary" === e ? "arraybuffer" : "text";
-      t.request = xMLHttpRequest;
-      xMLHttpRequest.open("GET", t.actualUrl);
+      xMLHttpRequest.responseType = "binary" === type ? "arraybuffer" : "text";
+      download.request = xMLHttpRequest;
+      xMLHttpRequest.open("GET", download.actualUrl);
       xMLHttpRequest.send();
-    } else if ("image" === e) {
-      const e = document.createElement("img");
-      e.onload = () => {
-        const i = t.actualUrl.match(/\.([^.]+)$/u)?.[1] ?? "";
-        this._completeDownload(t, e, Downloader._mimeTypes[i] ?? "application/octet-stream");
+    } else if ("image" === type) {
+      const image = document.createElement("img");
+      image.onload = () => {
+        const extension = download.actualUrl.match(/\.([^.]+)$/u)?.[1] ?? "";
+        this._completeDownload(download, image, Downloader._mimeTypes[extension] ?? "application/octet-stream");
       };
-      e.onerror = () => {
-        this._failDownload(t, `Failed to download "${t.actualUrl}".`);
+      image.onerror = () => {
+        this._failDownload(download, `Failed to download "${download.actualUrl}".`);
       };
-      e.crossOrigin = "anonymous";
-      e.src = t.actualUrl;
-    } else if ("video" === e) {
-      const e = document.createElement("video");
-      const i = () => {
-        const i = t.actualUrl.match(/\.([^.]+)$/u)?.[1] ?? "";
-        this._completeDownload(t, e, Downloader._mimeTypes[i] ?? "application/octet-stream");
+      image.crossOrigin = "anonymous";
+      image.src = download.actualUrl;
+    } else if ("video" === type) {
+      const video = document.createElement("video");
+      const onReady = () => {
+        const extension = download.actualUrl.match(/\.([^.]+)$/u)?.[1] ?? "";
+        this._completeDownload(download, video, Downloader._mimeTypes[extension] ?? "application/octet-stream");
       };
-      e.onload = i;
-      e.oncanplaythrough = i;
-      e.onprogress = e => {
-        this._inProgressDownload(t, e);
+      video.onload = onReady;
+      video.oncanplaythrough = onReady;
+      video.onprogress = event => {
+        this._inProgressDownload(download, event);
       };
-      e.onerror = () => {
-        this._failDownload(t, `Failed to download "${t.actualUrl}".`);
+      video.onerror = () => {
+        this._failDownload(download, `Failed to download "${download.actualUrl}".`);
       };
-      e.muted = true;
-      e.playsInline = true;
-      e.loop = false;
-      e.crossOrigin = "anonymous";
-      e.src = t.actualUrl;
-      e.load();
+      video.muted = true;
+      video.playsInline = true;
+      video.loop = false;
+      video.crossOrigin = "anonymous";
+      video.src = download.actualUrl;
+      video.load();
     } else {
       const xMLHttpRequest = new XMLHttpRequest();
       xMLHttpRequest.onload = () => {
         if (200 <= xMLHttpRequest.status && xMLHttpRequest.status <= 299) {
-          const i = xMLHttpRequest.getResponseHeader("Content-Type") ?? "application/octet-stream";
+          const mimeType = xMLHttpRequest.getResponseHeader("Content-Type") ?? "application/octet-stream";
           createImageBitmap(xMLHttpRequest.response, {
             premultiplyAlpha: "none",
             colorSpaceConversion: "none"
-          }).then(e => {
-            t.isCanceled || this._completeDownload(t, e, i);
-          }).catch(e => {
-            this._failDownload(t, `Failed to download "${t.actualUrl}" (${e instanceof Error ? e.message : "Unknown error"}).`);
+          }).then(bitmap => {
+            download.isCanceled || this._completeDownload(download, bitmap, mimeType);
+          }).catch(error => {
+            this._failDownload(download, `Failed to download "${download.actualUrl}" (${error instanceof Error ? error.message : "Unknown error"}).`);
           });
-        } else this._failDownload(t, `Failed to download "${t.actualUrl}" (${xMLHttpRequest.status} ${xMLHttpRequest.statusText}).`);
+        } else this._failDownload(download, `Failed to download "${download.actualUrl}" (${xMLHttpRequest.status} ${xMLHttpRequest.statusText}).`);
       };
-      xMLHttpRequest.onprogress = e => {
-        this._inProgressDownload(t, e);
+      xMLHttpRequest.onprogress = event => {
+        this._inProgressDownload(download, event);
       };
       xMLHttpRequest.onerror = () => {
-        this._failDownload(t, `Failed to download "${t.actualUrl}".`);
+        this._failDownload(download, `Failed to download "${download.actualUrl}".`);
       };
-      t.request = xMLHttpRequest;
+      download.request = xMLHttpRequest;
       xMLHttpRequest.responseType = "blob";
-      xMLHttpRequest.open("GET", t.actualUrl);
+      xMLHttpRequest.open("GET", download.actualUrl);
       xMLHttpRequest.send();
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e`。
-   * 调用线索：e。
-   */
-  _inProgressDownload(t, e) {
-    const i = e.lengthComputable ? e.loaded / e.total : 0;
-    const s = e.lengthComputable ? e.total : 0;
-    for (const e of t.progressCallbacks) e(i, s);
+  _inProgressDownload(download, event) {
+    const progress = event.lengthComputable ? event.loaded / event.total : 0;
+    const totalBytes = event.lengthComputable ? event.total : 0;
+    for (const onProgress of download.progressCallbacks) onProgress(progress, totalBytes);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.resolve`、`this._checkDownloadQueue`、`this._currentDownloads.delete`。
-   * 调用线索：t.resolve、this._checkDownloadQueue、this._currentDownloads.delete。
-   */
-  _completeDownload(t, e, i) {
-    this._currentDownloads.delete(t.actualUrl);
-    t.resolve({
-      actualUrl: t.actualUrl,
-      content: e,
-      mimeType: i
+  // 先移除活动记录并兑现调用者，再尝试启动一个排队请求；资源共享与引用计数属于上层 ResourceManager。
+  _completeDownload(download, content, mimeType) {
+    this._currentDownloads.delete(download.actualUrl);
+    download.resolve({
+      actualUrl: download.actualUrl,
+      content: content,
+      mimeType: mimeType
     });
     this._checkDownloadQueue();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`t.reject`、`this._checkDownloadQueue`、`this._currentDownloads.delete`。
-   * 调用线索：new Error、t.reject、this._checkDownloadQueue、this._currentDownloads.delete。
-   */
-  _failDownload(t, e) {
-    this._currentDownloads.delete(t.actualUrl);
-    t.reject(new Error(e));
+  _failDownload(download, message) {
+    this._currentDownloads.delete(download.actualUrl);
+    download.reject(new Error(message));
     this._checkDownloadQueue();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._currentDownloads.set`、`this._doRequest`、`this._downloadQueue.shift`。
-   * 调用线索：this._currentDownloads.set、this._doRequest、this._downloadQueue.shift。
-   */
   _checkDownloadQueue() {
     if (this._currentDownloads.size < this._maxCurrentDownloads) {
-      const t = this._downloadQueue.shift();
-      t && (this._currentDownloads.set(t.actualUrl, t), this._doRequest(t));
+      const download = this._downloadQueue.shift();
+      download && (this._currentDownloads.set(download.actualUrl, download), this._doRequest(download));
     }
   }
   _replacements;

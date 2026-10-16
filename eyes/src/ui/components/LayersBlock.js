@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：对象相关图层选项内容块
- * 依据：imports: ../../engine/pioneer/index.js, ../../engine/solar-system/public-api.js, ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/LayersBlockTemplate.html；manager dependencies: content, layer, router
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1483581-1489081.
 import "../../engine/pioneer/index.js";
 import * as SolarSystemSceneExports from "../../engine/solar-system/public-api.js";
@@ -11,19 +5,10 @@ import "../../framework/eyes/index.js";
 import * as SolarSystemPublicApi from "../../app/public-api.js";
 import LayersBlockTemplate from "../templates/LayersBlockTemplate.html";
 var getLayersBlockTemplate = () => LayersBlockTemplate;
-/** @eyes-analysis
- * 类职责：对象相关图层选项内容块；继承 SolarSystemPublicApi.OptionsBlock
- * 继承：SolarSystemPublicApi.OptionsBlock；导出：LayersBlock。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 上下文图层工厂闭包保存父实体与卫星组；majorMoons 文本计算也更新 minorMoons 数量。主 spacecraft 图层事件同步 orbiters/landers 等子项，重置时沿用查询与默认可见性优先级。 */
 class LayersBlock extends SolarSystemPublicApi.OptionsBlock {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Object.assign, this._app.getManager, SolarSystemSceneExports.Entity.getEntityNamesInGroup, Manager.getEntityInfo, this._defaultLayers.includes, this.bindFunctions；写入 _layers, _previousEntity, _previousChildEntity, _defaultLayers。
-   * 状态写入：_defaultLayers、_layers、_previousChildEntity、_previousEntity、_state.numMinorMoons。
-   * 调用线索：Object.assign、SolarSystemSceneExports.Entity.getEntityNamesInGroup、contentManager.getEntityInfo、o.forEach、super等。
-   */
-  constructor(t) {
-    super(t, null, {
+  constructor(app) {
+    super(app, null, {
       entityName: "",
       numMinorMoons: 0,
       childEntityId: null
@@ -42,79 +27,79 @@ class LayersBlock extends SolarSystemPublicApi.OptionsBlock {
       showContextualLayers: this._class.showContextualLayers.false
     });
     this._layers = {
-      majorMoons: t => ({
+      majorMoons: parentEntityId => ({
         id: "majorMoons",
         text: () => {
-          let e = "Major Moon";
-          let i = 0;
+          let majorMoonLabel = "Major Moon";
+          let majorMoonCount = 0;
           const contentManager = this._app.getManager("content");
-          const o = SolarSystemSceneExports.Entity.getEntityNamesInGroup(t + ", moons");
-          o.forEach(t => {
-            const e = contentManager.getEntityInfo(t);
-            e && "Major Moon" === (e.subcategory || e.category) && i++;
+          const moonIds = SolarSystemSceneExports.Entity.getEntityNamesInGroup(parentEntityId + ", moons");
+          moonIds.forEach(moonId => {
+            const moonInfo = contentManager.getEntityInfo(moonId);
+            moonInfo && "Major Moon" === (moonInfo.subcategory || moonInfo.category) && majorMoonCount++;
           });
-          this._state.numMinorMoons = o.size - i;
-          i > 1 && (e = `Major Moons (${i})`);
-          return e;
+          this._state.numMinorMoons = moonIds.size - majorMoonCount;
+          majorMoonCount > 1 && (majorMoonLabel = `Major Moons (${majorMoonCount})`);
+          return majorMoonLabel;
         },
         function: () => {
           this._app.getManager("layer").toggleLayer("majorMoons", {
-            parentId: t
+            parentId: parentEntityId
           });
         }
       }),
-      minorMoons: t => ({
+      minorMoons: parentEntityId => ({
         id: "minorMoons",
         text: () => `Minor Moons (${this._state.numMinorMoons})`,
         function: () => {
           this._app.getManager("layer").toggleLayer("minorMoons", {
-            parentId: t
+            parentId: parentEntityId
           });
         }
       }),
-      orbiters: (t, e) => ({
+      orbiters: (parentEntityId, satelliteGroup) => ({
         id: "orbiters",
         text: () => {
           const {
             iauName: iauName,
             displayName: displayName
-          } = this._app.getManager("content").getEntityInfo(t);
-          const s = displayName ?? iauName;
-          return s ? `${s} Orbiters` : "Orbiters";
+          } = this._app.getManager("content").getEntityInfo(parentEntityId);
+          const parentTitle = displayName ?? iauName;
+          return parentTitle ? `${parentTitle} Orbiters` : "Orbiters";
         },
         function: () => {
-          const i = this._defaultLayers.includes("orbiters");
+          const allowSublayer = this._defaultLayers.includes("orbiters");
           this._app.getManager("layer").toggleLayer("orbiters", {
-            parentId: t,
-            satelliteGroup: e,
-            allowSublayer: i
+            parentId: parentEntityId,
+            satelliteGroup: satelliteGroup,
+            allowSublayer: allowSublayer
           });
         }
       }),
-      landers: t => ({
+      landers: parentEntityId => ({
         id: "landers",
         text: () => "Landers",
         function: () => {
           this._app.getManager("layer").toggleLayer("landers", {
-            parentId: t
+            parentId: parentEntityId
           });
         }
       }),
-      satelliteGroup: (t, e) => ({
+      satelliteGroup: (parentEntityId, satelliteGroup) => ({
         id: "satelliteGroup",
         text: () => "Satellite Group",
         function: () => {
           this._app.getManager("layer").toggleLayer("satelliteGroup", {
-            satelliteGroup: e
+            satelliteGroup: satelliteGroup
           });
         }
       }),
-      heliosphere: t => ({
+      heliosphere: parentEntityId => ({
         id: "heliosphere",
         text: () => "Heliosphere",
         function: () => {
           this._app.getManager("layer").toggleLayer("heliosphere", {
-            parentId: t
+            parentId: parentEntityId
           });
         }
       })
@@ -124,10 +109,6 @@ class LayersBlock extends SolarSystemPublicApi.OptionsBlock {
     this._defaultLayers = [];
     this.bindFunctions(["syncSpacecraftLayer"]);
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._callbackRegistry.push, this._app.getManager。
-   * 调用线索：super.init、this._app.getManager、this._callbackRegistry.push。
-   */
   init() {
     super.init();
     this._callbackRegistry.push({
@@ -136,145 +117,107 @@ class LayersBlock extends SolarSystemPublicApi.OptionsBlock {
       callback: this.syncSpacecraftLayer
     });
   }
-  /** @eyes-analysis
-   * 执行 _addLayerOptions 对应的组件业务步骤；调用 this._app.getManager, this._createCheckbox, this._components.push, this._children.layersList.appendChild。
-   * 状态写入：_children.layersList.innerHTML。
-   * 调用线索：n.setEnabled、this._app.getManager、this._app.getManager("layer").getLayer、this._children.layersList.appendChild、this._components.push等。
-   */
-  _addLayerOptions(t) {
-    if (this._components.length !== t.length) {
+  _addLayerOptions(layerOptions) {
+    if (this._components.length !== layerOptions.length) {
       this._children.layersList.innerHTML = "";
-      for (let e = 0; e < t.length; e++) {
-        const i = t[e];
-        const s = this._app.getManager("layer").getLayer(i.id).visible;
-        const n = this._createCheckbox(i, s);
-        n.setEnabled(true);
-        this._components.push(n);
-        this._children.layersList.appendChild(n.element);
+      for (let optionIndex = 0; optionIndex < layerOptions.length; optionIndex++) {
+        const layerOption = layerOptions[optionIndex];
+        const isVisible = this._app.getManager("layer").getLayer(layerOption.id).visible;
+        const checkbox = this._createCheckbox(layerOption, isVisible);
+        checkbox.setEnabled(true);
+        this._components.push(checkbox);
+        this._children.layersList.appendChild(checkbox.element);
       }
     }
   }
-  /** @eyes-analysis
-   * 执行 _addDefaultOptions 对应的组件业务步骤；调用 this._app.getManager, this.setState, this._defaultLayers.push, this._defaultLayers.includes, this._addLayerOptions, this._setVariables。
-   * 状态写入：_children.layersList.innerHTML。
-   * 调用线索：e.includes、n.forEach、o.forEach、t.push、this._addLayerOptions等。
-   */
-  _addDefaultOptions(t, e = null, i = {}) {
-    const s = t.id;
-    const n = this._app.getManager("layer").getContextualLayers(s);
-    const o = i?.id ? this._app.getManager("layer").getContextualLayers(i?.id) : [];
-    if (0 === n.length) {
+  _addDefaultOptions(entityInfo, allowedLayers = null, childEntityInfo = {}) {
+    const entityId = entityInfo.id;
+    const contextualLayers = this._app.getManager("layer").getContextualLayers(entityId);
+    const childContextualLayers = childEntityInfo?.id ? this._app.getManager("layer").getContextualLayers(childEntityInfo?.id) : [];
+    if (0 === contextualLayers.length) {
       this._children.layersList.innerHTML = "";
       this.setState({
         showContextualLayers: this._class.showContextualLayers.false
       });
     } else {
-      const t = [];
-      o.forEach(n => {
-        if (null === e || e.includes(n)) {
-          const e = this._layers[n](s, i?.constellation);
-          t.push(e);
-          this._defaultLayers.push(e.id);
+      const layerOptions = [];
+      childContextualLayers.forEach(layerName => {
+        if (null === allowedLayers || allowedLayers.includes(layerName)) {
+          const layerOption = this._layers[layerName](entityId, childEntityInfo?.constellation);
+          layerOptions.push(layerOption);
+          this._defaultLayers.push(layerOption.id);
         }
       });
-      n.forEach(n => {
-        if (null === e || e.includes(n)) {
-          const e = this._layers[n](s, i?.constellation);
-          t.push(e);
-          this._defaultLayers.includes(e.id) || this._defaultLayers.push(e.id);
+      contextualLayers.forEach(layerName => {
+        if (null === allowedLayers || allowedLayers.includes(layerName)) {
+          const layerOption = this._layers[layerName](entityId, childEntityInfo?.constellation);
+          layerOptions.push(layerOption);
+          this._defaultLayers.includes(layerOption.id) || this._defaultLayers.push(layerOption.id);
         }
       });
-      this._addLayerOptions(t);
+      this._addLayerOptions(layerOptions);
       this.setState({
         showContextualLayers: this._class.showContextualLayers.true
       });
     }
     this._setVariables(this._children.layersBlock);
   }
-  /** @eyes-analysis
-   * 响应路径参数变化并刷新本模块；调用 this._app.scene.getEntity, this.reset, this.setState, this._addDefaultOptions, this._app.getManager, Manager.getLayer, this._defaultLayers.includes, this._components.find；写入 _previousEntity, _previousChildEntity。
-   * 状态写入：_previousChildEntity、_previousEntity。
-   * 调用线索：["orbiters","landers","satelliteGroup"].includes、layerManager.getLayer、s.getState、s?.getState、s?.toggle等。
-   */
-  onRouteChange(t, e, i = null, s = {}) {
+  onRouteChange(entityInfo, entityName, allowedLayers = null, childEntityInfo = {}) {
     const {
       id: id
-    } = t;
-    const o = this._previousEntity && this._app.scene.getEntity(this._previousEntity) && this._previousEntity !== id;
-    (this._previousChildEntity !== s?.id || o) && this.reset();
+    } = entityInfo;
+    const didEntityChange = this._previousEntity && this._app.scene.getEntity(this._previousEntity) && this._previousEntity !== id;
+    (this._previousChildEntity !== childEntityInfo?.id || didEntityChange) && this.reset();
     this.setState({
-      entityName: e,
-      childEntityId: s?.id
+      entityName: entityName,
+      childEntityId: childEntityInfo?.id
     });
-    this._addDefaultOptions(t, i, s);
+    this._addDefaultOptions(entityInfo, allowedLayers, childEntityInfo);
     const layerManager = this._app.getManager("layer");
-    for (let t = 0; t < this._defaultLayers.length; t++) {
-      const e = this._defaultLayers[t];
-      let i = layerManager.getLayer(e).defaultVisibility;
-      ["orbiters", "landers", "satelliteGroup"].includes(e) && (i = layerManager.getLayer("spacecraft").visible, "orbiters" === e && this._defaultLayers.includes("satelliteGroup") && (i = false));
-      const s = this._components.find(t => t.getConfig().key === e);
-      const n = this._app.getManager("router").configs[e] !== s?.getState("isChecked");
-      s && s.getState("isChecked") !== i && n && s?.toggle();
+    for (let layerIndex = 0; layerIndex < this._defaultLayers.length; layerIndex++) {
+      const layerName = this._defaultLayers[layerIndex];
+      let defaultVisibility = layerManager.getLayer(layerName).defaultVisibility;
+      ["orbiters", "landers", "satelliteGroup"].includes(layerName) && (defaultVisibility = layerManager.getLayer("spacecraft").visible, "orbiters" === layerName && this._defaultLayers.includes("satelliteGroup") && (defaultVisibility = false));
+      const checkbox = this._components.find(candidateCheckbox => candidateCheckbox.getConfig().key === layerName);
+      const queryDiffersFromCheckbox = this._app.getManager("router").configs[layerName] !== checkbox?.getState("isChecked");
+      checkbox && checkbox.getState("isChecked") !== defaultVisibility && queryDiffersFromCheckbox && checkbox?.toggle();
     }
-    this._previousEntity = t.id;
-    this._previousChildEntity = s?.id;
+    this._previousEntity = entityInfo.id;
+    this._previousChildEntity = childEntityInfo?.id;
   }
-  /** @eyes-analysis
-   * 执行 syncSpacecraftLayer 对应的组件业务步骤；调用 this._components.find, this.syncCheckbox。
-   * 调用线索：i?.isEnabled、s?.isEnabled、t.getConfig、t?.isEnabled、this._components.find等。
-   */
-  syncSpacecraftLayer(t, e, i) {
-    if ("spacecraft" === t) {
-      const t = this._components.find(t => "landers" === t.getConfig().key);
-      const i = this._components.find(t => "orbiters" === t.getConfig().key);
-      const s = this._components.find(t => "satelliteGroup" === t.getConfig().key);
-      i?.isEnabled() && this.syncCheckbox(i, "orbiters", e);
-      t?.isEnabled() && this.syncCheckbox(t, "landers", e);
-      s?.isEnabled() && (this.syncCheckbox(s, "satelliteGroup", e), this.syncCheckbox(i, "orbiters", e));
+  syncSpacecraftLayer(layerName, isVisible, layerOptions) {
+    if ("spacecraft" === layerName) {
+      const landersCheckbox = this._components.find(candidateCheckbox => "landers" === candidateCheckbox.getConfig().key);
+      const orbitersCheckbox = this._components.find(candidateCheckbox => "orbiters" === candidateCheckbox.getConfig().key);
+      const satelliteGroupCheckbox = this._components.find(candidateCheckbox => "satelliteGroup" === candidateCheckbox.getConfig().key);
+      orbitersCheckbox?.isEnabled() && this.syncCheckbox(orbitersCheckbox, "orbiters", isVisible);
+      landersCheckbox?.isEnabled() && this.syncCheckbox(landersCheckbox, "landers", isVisible);
+      satelliteGroupCheckbox?.isEnabled() && (this.syncCheckbox(satelliteGroupCheckbox, "satelliteGroup", isVisible), this.syncCheckbox(orbitersCheckbox, "orbiters", isVisible));
     }
   }
-  /** @eyes-analysis
-   * 执行 syncAllLayerCheckboxes 对应的组件业务步骤；调用 this._components.find, this.syncCheckbox, this._app.getManager。
-   * 调用线索：e.getConfig、this._app.getManager、this._app.getManager("layer").getLayer、this._components.find、this._defaultLayers?.forEach等。
-   */
   syncAllLayerCheckboxes() {
-    this._defaultLayers?.forEach(t => {
-      const e = this._components.find(e => e.getConfig().key === t);
-      e && this.syncCheckbox(e, t, this._app.getManager("layer").getLayer(t).visible);
+    this._defaultLayers?.forEach(layerName => {
+      const checkbox = this._components.find(candidateCheckbox => candidateCheckbox.getConfig().key === layerName);
+      checkbox && this.syncCheckbox(checkbox, layerName, this._app.getManager("layer").getLayer(layerName).visible);
     });
   }
-  /** @eyes-analysis
-   * 执行 syncCheckbox 对应的组件业务步骤；调用 this._app.getManager。
-   * 状态写入：_app.getManager("layer").getLayer(e).visible。
-   * 调用线索：t.getState、t.setState、t.toggle、this._app.getManager、this._app.getManager("layer").getLayer。
-   */
-  syncCheckbox(t, e, i) {
-    t.getState("isChecked") !== i && (t.toggle(true, true), this._app.getManager("layer").getLayer(e).visible = i, t.setState({
-      isChecked: i
+  syncCheckbox(checkbox, layerName, isVisible) {
+    checkbox.getState("isChecked") !== isVisible && (checkbox.toggle(true, true), this._app.getManager("layer").getLayer(layerName).visible = isVisible, checkbox.setState({
+      isChecked: isVisible
     }));
   }
-  /** @eyes-analysis
-   * 执行 reset 对应的组件业务步骤；调用 this._app.getManager, this._components.find, this.syncCheckbox；写入 _defaultLayers, _components。
-   * 状态写入：_components、_defaultLayers。
-   * 调用线索：["orbiters","landers","satelliteGroup"].includes、s.getState、s?.getState、s?.toggle、t.getConfig等。
-   */
   reset() {
-    for (let t = 0; t < this._defaultLayers.length; t++) {
-      const e = this._defaultLayers[t];
-      let i = this._app.getManager("layer").getLayer(e).defaultVisibility;
-      ["orbiters", "landers", "satelliteGroup"].includes(e) && (i = this._app.getManager("layer").getLayer("spacecraft").visible);
-      const s = this._components.find(t => t.getConfig().key === e);
-      const n = this._app.getManager("router").configs[e] !== s?.getState("isChecked");
-      s && s.getState("isChecked") !== i && n && (this._app.getManager("layer").getLayer(e).visible !== i ? s?.toggle() : this.syncCheckbox(s, "heliosphere", i));
+    for (let layerIndex = 0; layerIndex < this._defaultLayers.length; layerIndex++) {
+      const layerName = this._defaultLayers[layerIndex];
+      let defaultVisibility = this._app.getManager("layer").getLayer(layerName).defaultVisibility;
+      ["orbiters", "landers", "satelliteGroup"].includes(layerName) && (defaultVisibility = this._app.getManager("layer").getLayer("spacecraft").visible);
+      const checkbox = this._components.find(candidateCheckbox => candidateCheckbox.getConfig().key === layerName);
+      const queryDiffersFromCheckbox = this._app.getManager("router").configs[layerName] !== checkbox?.getState("isChecked");
+      checkbox && checkbox.getState("isChecked") !== defaultVisibility && queryDiffersFromCheckbox && (this._app.getManager("layer").getLayer(layerName).visible !== defaultVisibility ? checkbox?.toggle() : this.syncCheckbox(checkbox, "heliosphere", defaultVisibility));
     }
     this._defaultLayers = [];
     this._components = [];
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity, _previousChildEntity。
-   * 状态写入：_previousChildEntity、_previousEntity。
-   * 调用线索：super.__disable、this.setState。
-   */
   __disable() {
     this._previousEntity = null;
     this._previousChildEntity = null;

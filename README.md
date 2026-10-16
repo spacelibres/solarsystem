@@ -21,8 +21,21 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - `npm run eyes:build`: compile and publish the editable source to the local host.
 - `npm run eyes:check`: audit source syntax and import resolution.
 - `cd eyes && npm ci && npm run dev`: independent source project on port 3002.
-- [Complete Chinese source reference](docs/eyes-analysis/README.md): every tracked
-  Eyes file, class and method, dependencies, naming evidence and unresolved names.
+- [Chinese source reference](docs/eyes-analysis/README.md): current file/class/method
+  inventory and dependencies. Inventory coverage does not mean semantic recovery.
+- [Actual semantic progress](docs/eyes-analysis/semantic-progress.json) separates
+  source changes backed by checks from files still awaiting semantic review.
+- [Review and maintenance guide](docs/eyes-analysis/semantic-review-guide.md)
+  explains the scope and limits of each check.
+- [Loading-screen correction](docs/eyes-analysis/preload-semantic-changes.md),
+  [application](docs/eyes-analysis/application-semantic-changes.md),
+  [resources](docs/eyes-analysis/resource-semantic-changes.md),
+  [dynamics and terrain](docs/eyes-analysis/dynamo-semantic-changes.md),
+  [stories](docs/eyes-analysis/stories-semantic-changes.md), and
+  [shaders](docs/eyes-analysis/shader-semantic-changes.md) explain concrete edits,
+  naming evidence, preserved contracts and remaining questions.
+- [Three matching report](docs/eyes-analysis/three-semantic-changes.md) records
+  the actual upstream matches, whole-file checks and unmatched methods.
 - `npm run eyes:analyze`: refresh the reference; `npm run eyes:analyze:check`:
   reject stale source coverage and evidence links.
 

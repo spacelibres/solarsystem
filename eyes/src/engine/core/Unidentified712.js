@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 12 个实体/参考系（如 sc_juno、sc_cassini、sc_europa_clipper、sc_galileo、sc_galileo_probe、sc_huygens），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 外行星任务目录包含 Juno 发动机盖/点火区间、Cassini 点火表与 Huygens 显隐、Voyager 旋转机构、Galileo 分离姿态；时间表与关键帧标识按其实际使用角色命名。
 // Recovered from app.js:1150175-1172018.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -64,74 +59,82 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [393471366, 529749008],
-      update: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) return;
-        const i = e.getThreeJsObjectByName("engine_cover");
-        if (!i) return;
-        const n = t.getScene().getEngine().getTime();
-        const o = Pioneer.Sort.getIndexObject(n, l, (t, e) => t[1] < e);
-        const r = l[o][0];
-        const a = l[o][1];
-        const c = Pioneer.MathUtils.clamp01(((a - r) / 2 - Math.abs(n - (a + r) / 2)) / 600);
-        i.rotation.x = Pioneer.MathUtils.lerp(Math.PI, Math.PI / 8, c);
+      update: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) return;
+        const engineCover = model.getThreeJsObjectByName("engine_cover");
+        if (!engineCover) return;
+        const time = entity.getScene().getEngine().getTime();
+        const intervalIndex = Pioneer.Sort.getIndexObject(time, junoCoverIntervals, (interval, sampleTime) => interval[1] < sampleTime);
+        const startTime = junoCoverIntervals[intervalIndex][0];
+        const endTime = junoCoverIntervals[intervalIndex][1];
+        const openingFraction = Pioneer.MathUtils.clamp01(((endTime - startTime) / 2 - Math.abs(time - (endTime + startTime) / 2)) / 600);
+        engineCover.rotation.x = Pioneer.MathUtils.lerp(Math.PI, Math.PI / 8, openingFraction);
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        if (!e) return;
-        const i = e.getThreeJsObjectByName("engine_cover");
-        i && (i.rotation.x = Math.PI);
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (!model) return;
+        const engineCover = model.getThreeJsObjectByName("engine_cover");
+        if (engineCover) {
+          engineCover.rotation.x = Math.PI;
+        }
       }
     }, {
       type: "coverage",
       coverage: [399637867.183, 520959604.184],
-      update: t => {
-        const e = t.getComponent(Pioneer.ParticleSprayComponent);
-        if (!e) return;
-        const i = t.getScene().getEngine().getTime();
-        const n = Pioneer.Sort.getIndexObject(i, c, (t, e) => t[1] < e);
-        const o = c[n][0];
-        const r = c[n][1];
-        const a = o <= i && i < r;
-        e.setEnabled(a);
+      update: entity => {
+        const spray = entity.getComponent(Pioneer.ParticleSprayComponent);
+        if (!spray) return;
+        const time = entity.getScene().getEngine().getTime();
+        const intervalIndex = Pioneer.Sort.getIndexObject(time, junoBurnIntervals, (interval, sampleTime) => interval[1] < sampleTime);
+        const startTime = junoBurnIntervals[intervalIndex][0];
+        const endTime = junoBurnIntervals[intervalIndex][1];
+        const burnActive = startTime <= time && time < endTime;
+        spray.setEnabled(burnActive);
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ParticleSprayComponent);
-        e && e.setEnabled(false);
+      exit: entity => {
+        const spray = entity.getComponent(Pioneer.ParticleSprayComponent);
+        if (spray) {
+          spray.setEnabled(false);
+        }
       }
     }, {
       type: "coverage",
       coverage: [519652868.184, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setRelativeToEntity("jupiter");
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setRelativeToEntity("jupiter");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        e && e.setRelativeToEntity("");
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (trail) {
+          trail.setRelativeToEntity("");
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(KeyframePointingController.KeyframePointingController);
-      e.setKeyframes(h);
-      e.setDirection(Pioneer.Vector3.ZAxis);
-      e.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));
-      const i = t.addController(KeyframeSpinController.KeyframeSpinController);
-      i.setKeyframes(d);
-      i.setAxis(Pioneer.Vector3.ZAxis);
-      i.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));
-      i.setStartingAngle(-.96);
-      const n = t.addComponent(Pioneer.ParticleSprayComponent);
-      n.setNumberOfParticles(100);
-      n.setSizeOfParticles(3e-4);
-      n.setSpeedOfParticles(.01);
-      n.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));
-      n.setSpread(-3);
-      n.setParticleSpacingRandom(false);
-      n.setLength(.003);
-      n.setOriginOffset(new Pioneer.Vector3(0, 0, -.0017));
-      n.setDirection(Pioneer.Vector3.ZAxisNeg);
-      n.setEnabled(false);
+    postCreateFunction: entity => {
+      const pointingController = entity.addController(KeyframePointingController.KeyframePointingController);
+      pointingController.setKeyframes(junoPointingKeyframes);
+      pointingController.setDirection(Pioneer.Vector3.ZAxis);
+      pointingController.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));
+      const keyframeSpinController = entity.addController(KeyframeSpinController.KeyframeSpinController);
+      keyframeSpinController.setKeyframes(junoSpinKeyframes);
+      keyframeSpinController.setAxis(Pioneer.Vector3.ZAxis);
+      keyframeSpinController.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));
+      keyframeSpinController.setStartingAngle(-.96);
+      const spray = entity.addComponent(Pioneer.ParticleSprayComponent);
+      spray.setNumberOfParticles(100);
+      spray.setSizeOfParticles(3e-4);
+      spray.setSpeedOfParticles(.01);
+      spray.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));
+      spray.setSpread(-3);
+      spray.setParticleSpacingRandom(false);
+      spray.setLength(.003);
+      spray.setOriginOffset(new Pioneer.Vector3(0, 0, -.0017));
+      spray.setDirection(Pioneer.Vector3.ZAxisNeg);
+      spray.setEnabled(false);
     }
   },
   sc_cassini: {
@@ -186,44 +189,50 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [-13098535.817, 534124760.143],
-      update: t => {
-        const e = t.getComponent(Pioneer.ParticleSprayComponent);
-        if (!e) return;
-        const i = t.getScene().getEngine().getTime();
-        const n = Pioneer.Sort.getIndexObject(i, a, (t, e) => t[1] < e);
-        const o = a[n][0];
-        const r = a[n][1];
-        const l = o <= i && i < r;
-        e.setEnabled(l);
+      update: entity => {
+        const spray = entity.getComponent(Pioneer.ParticleSprayComponent);
+        if (!spray) return;
+        const time = entity.getScene().getEngine().getTime();
+        const intervalIndex = Pioneer.Sort.getIndexObject(time, cassiniBurnIntervals, (interval, sampleTime) => interval[1] < sampleTime);
+        const startTime = cassiniBurnIntervals[intervalIndex][0];
+        const endTime = cassiniBurnIntervals[intervalIndex][1];
+        const burnActive = startTime <= time && time < endTime;
+        spray.setEnabled(burnActive);
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ParticleSprayComponent);
-        e && e.setEnabled(false);
+      exit: entity => {
+        const spray = entity.getComponent(Pioneer.ParticleSprayComponent);
+        if (spray) {
+          spray.setEnabled(false);
+        }
       }
     }, {
       type: "coverage",
       coverage: [157212064.184, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setHiddenObject("huygens_probe", true);
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("huygens_probe", true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        null !== e && e.setHiddenObject("huygens_probe", false);
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (null !== model) {
+          model.setHiddenObject("huygens_probe", false);
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addComponent(Pioneer.ParticleSprayComponent);
-      e.setNumberOfParticles(50);
-      e.setSizeOfParticles(3e-4);
-      e.setSpeedOfParticles(.01);
-      e.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));
-      e.setSpread(-3);
-      e.setParticleSpacingRandom(false);
-      e.setLength(.002);
-      e.setOriginOffset(new Pioneer.Vector3(0, 29e-5, .0033));
-      e.setDirection(Pioneer.Vector3.ZAxis);
-      e.setEnabled(false);
+    postCreateFunction: entity => {
+      const spray = entity.addComponent(Pioneer.ParticleSprayComponent);
+      spray.setNumberOfParticles(50);
+      spray.setSizeOfParticles(3e-4);
+      spray.setSpeedOfParticles(.01);
+      spray.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));
+      spray.setSpread(-3);
+      spray.setParticleSpacingRandom(false);
+      spray.setLength(.002);
+      spray.setOriginOffset(new Pioneer.Vector3(0, 29e-5, .0033));
+      spray.setDirection(Pioneer.Vector3.ZAxis);
+      spray.setEnabled(false);
     }
   },
   sc_europa_clipper: {
@@ -334,20 +343,24 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [-141114597.48322043, -141114477.48322043],
-      enter: t => {
-        const e = t.getController(Pioneer.SpinController, "rotorSpin");
-        e && e.setRate(-14.8 * Math.PI / 60);
+      enter: entity => {
+        const spinController = entity.getController(Pioneer.SpinController, "rotorSpin");
+        if (spinController) {
+          spinController.setRate(-14.8 * Math.PI / 60);
+        }
       },
-      exit: t => {
-        const e = t.getController(Pioneer.SpinController, "rotorSpin");
-        e && e.setRate(6 * Math.PI / 60);
+      exit: entity => {
+        const spinController = entity.getController(Pioneer.SpinController, "rotorSpin");
+        if (spinController) {
+          spinController.setRate(6 * Math.PI / 60);
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.addController(Pioneer.SpinController, "rotorSpin");
-      e.setJoint("spinning_section");
-      e.setRate(6 * Math.PI / 60);
-      e.setAxis(Pioneer.Vector3.YAxisNeg, true);
+    postCreateFunction: entity => {
+      const spinController = entity.addController(Pioneer.SpinController, "rotorSpin");
+      spinController.setJoint("spinning_section");
+      spinController.setRate(6 * Math.PI / 60);
+      spinController.setAxis(Pioneer.Vector3.YAxisNeg, true);
     }
   },
   sc_galileo_probe: {
@@ -378,41 +391,53 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, -141114537.48322043],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        null !== e && e.setEnabled(false);
-        const i = t.getComponent(Pioneer.TrailComponent);
-        null !== i && i.setEnabled(false);
-        const n = t.getController(Pioneer.TranslateController);
-        n && n.setTranslation(new Pioneer.Vector3(0, 0, .001));
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (null !== label) {
+          label.setEnabled(false);
+        }
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setEnabled(false);
+        }
+        const translationController = entity.getController(Pioneer.TranslateController);
+        if (translationController) {
+          translationController.setTranslation(new Pioneer.Vector3(0, 0, .001));
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        null !== e && e.setEnabled(true);
-        const i = t.getComponent(Pioneer.TrailComponent);
-        null !== i && i.setEnabled(true);
-        const n = t.getController(Pioneer.TranslateController);
-        n && n.setTranslation(new Pioneer.Vector3(-16e-6, 24e-6, 7e-4));
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (null !== label) {
+          label.setEnabled(true);
+        }
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setEnabled(true);
+        }
+        const translationController = entity.getController(Pioneer.TranslateController);
+        if (translationController) {
+          translationController.setTranslation(new Pioneer.Vector3(-16e-6, 24e-6, 7e-4));
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.ModelComponent);
-      if (!e) return;
-      e.setTranslation(new Pioneer.Vector3(0, 0, -.001));
-      const i = t.addController(Pioneer.TranslateController);
-      i.setTranslation(new Pioneer.Vector3(-16e-6, 24e-6, 7e-4));
-      i.setRelativeToOrientation(true);
-      i.setCoverage(new Pioneer.Interval(-321964226.73959994, -128353980));
-      t.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(-321964226.73959994, -141114537.48322043));
-      const n = t.addController(Pioneer.FixedController);
-      n.setOrientation(new Pioneer.Quaternion(.40004226980201746, .3894033591393042, -.7928008139628516, .24453645053961984));
-      n.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));
-      const o = t.addController(Pioneer.SpinController);
-      o.setReferenceAngle(0);
-      o.setReferenceTime(-141114537.48322043);
-      o.setAxis(Pioneer.Vector3.ZAxis, true);
-      o.setRate(20.8 * Math.PI / 60);
-      o.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));
+    postCreateFunction: entity => {
+      const model = entity.getComponent(Pioneer.ModelComponent);
+      if (!model) return;
+      model.setTranslation(new Pioneer.Vector3(0, 0, -.001));
+      const translationController = entity.addController(Pioneer.TranslateController);
+      translationController.setTranslation(new Pioneer.Vector3(-16e-6, 24e-6, 7e-4));
+      translationController.setRelativeToOrientation(true);
+      translationController.setCoverage(new Pioneer.Interval(-321964226.73959994, -128353980));
+      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(-321964226.73959994, -141114537.48322043));
+      const fixedController = entity.addController(Pioneer.FixedController);
+      fixedController.setOrientation(new Pioneer.Quaternion(.40004226980201746, .3894033591393042, -.7928008139628516, .24453645053961984));
+      fixedController.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));
+      const spinController = entity.addController(Pioneer.SpinController);
+      spinController.setReferenceAngle(0);
+      spinController.setReferenceTime(-141114537.48322043);
+      spinController.setAxis(Pioneer.Vector3.ZAxis, true);
+      spinController.setRate(20.8 * Math.PI / 60);
+      spinController.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));
     }
   },
   sc_huygens: {
@@ -444,54 +469,60 @@ Entity.Entity.register({
       orientation: new Pioneer.Quaternion(.8295521744501194, .09912464029342342, -.04158756948048668, -.5479853735424731)
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(158965616.707, new Pioneer.Vector3(-74.84608000701567, -3832.0774028380238, -305.9513410781612));
-        e.addPositionKeyframe(158965667.7750001, new Pioneer.Vector3(-168.19015737501377, -3541.733393771429, -291.12326824195395));
-        e.addPositionKeyframe(158965894.184, new Pioneer.Vector3(-376.8992769951708, -2686.9622048526126, -273.33138256355716));
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(158965616.707, new Pioneer.Vector3(-74.84608000701567, -3832.0774028380238, -305.9513410781612));
+        keyframeController.addPositionKeyframe(158965667.7750001, new Pioneer.Vector3(-168.19015737501377, -3541.733393771429, -291.12326824195395));
+        keyframeController.addPositionKeyframe(158965894.184, new Pioneer.Vector3(-376.8992769951708, -2686.9622048526126, -273.33138256355716));
+        return keyframeController;
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.KeyframeController);
-        e.addPositionKeyframe(158965894.184, new Pioneer.Vector3(-376.8992769951708, -2686.9622048526126, -273.33138256355716));
-        e.addPositionKeyframe(158974766.184, new Pioneer.Vector3(-251.2479743710496, -2548.813556954952, -266.5500089234507));
-        return e;
+      func: entity => {
+        const keyframeController = entity.addController(Pioneer.KeyframeController);
+        keyframeController.addPositionKeyframe(158965894.184, new Pioneer.Vector3(-376.8992769951708, -2686.9622048526126, -273.33138256355716));
+        keyframeController.addPositionKeyframe(158974766.184, new Pioneer.Vector3(-251.2479743710496, -2548.813556954952, -266.5500089234507));
+        return keyframeController;
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(Pioneer.TranslateController);
-        e.setTranslation(new Pioneer.Vector3(-.0013, 0, .0011));
-        e.setRelativeToOrientation(true);
-        e.setCoverage(new Pioneer.Interval(157212064.184, 158974766.184));
-        return e;
+      func: entity => {
+        const translationController = entity.addController(Pioneer.TranslateController);
+        translationController.setTranslation(new Pioneer.Vector3(-.0013, 0, .0011));
+        translationController.setRelativeToOrientation(true);
+        translationController.setCoverage(new Pioneer.Interval(157212064.184, 158974766.184));
+        return translationController;
       }
     }, {
       type: "custom",
-      func: t => {
-        const e = t.addController(KeyframeSpinController.KeyframeSpinController);
-        e.setKeyframes(u);
-        e.setAxis(Pioneer.Vector3.XAxisNeg);
-        e.setCoverage(new Pioneer.Interval(157212064.184, Number.POSITIVE_INFINITY));
-        return e;
+      func: entity => {
+        const keyframeSpinController = entity.addController(KeyframeSpinController.KeyframeSpinController);
+        keyframeSpinController.setKeyframes(galileoSpinKeyframes);
+        keyframeSpinController.setAxis(Pioneer.Vector3.XAxisNeg);
+        keyframeSpinController.setCoverage(new Pioneer.Interval(157212064.184, Number.POSITIVE_INFINITY));
+        return keyframeSpinController;
       }
     }, {
       type: "coverage",
       coverage: [158965616.707, Number.POSITIVE_INFINITY],
-      enter: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(true);
+      enter: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(true);
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.TrailComponent);
-        null !== e && e.setRelativeToEntityOrientation(false);
+      exit: entity => {
+        const trail = entity.getComponent(Pioneer.TrailComponent);
+        if (null !== trail) {
+          trail.setRelativeToEntityOrientation(false);
+        }
       }
     }],
-    postCreateFunction: t => {
-      const e = t.getComponent(Pioneer.ModelComponent);
-      e && e.setTranslation(new Pioneer.Vector3(.0013, 0, -.0011));
+    postCreateFunction: entity => {
+      const model = entity.getComponent(Pioneer.ModelComponent);
+      if (model) {
+        model.setTranslation(new Pioneer.Vector3(.0013, 0, -.0011));
+      }
     }
   },
   sc_huygens_landing_site: {
@@ -760,9 +791,9 @@ Entity.Entity.register({
     }]
   }
 });
-const a = [[-13098535.817, -13098146.797], [-12342535.817, -12342421.197], [-10612735.817, -10612663.357], [14274064.185, 14274070.255], [36653454.185, 36653459.605], [71128864.186, 71128875.066], [105091264.185, 105091282.755], [118339264.182, 118339287.092], [138968824.185, 138969181.735], [140692084.184, 140692123.174], [141916392.184, 141922237.024], [146548444.183, 146551498.073], [147846664.183, 147846668.693], [152302564.182, 152302569.842], [154285264.183, 154285267.193], [156518584.184, 156518669.274], [157466284.184, 157466438.074], [159139264.184, 159139404.074], [160168144.185, 160168264.795], [161978464.185, 161978469.745], [163011064.185, 163011104.295], [163869664.186, 163869667.996], [164528404.186, 164528414.466], [165853384.186, 165853391.046], [166370464.186, 166370502.696], [168008344.186, 168008476.766], [174127084.184, 174127086.454], [176341864.183, 176341881.793], [176952124.183, 176952139.533], [178261744.183, 178261753.433], [178699444.183, 178699535.673], [180420064.182, 180420240.372], [182368684.182, 182368777.962], [184039204.183, 184039282.793], [185162584.183, 185162597.343], [196273205.186, 196273208.936], [197566385.186, 197566387.476], [199978145.185, 199978148.205], [202994705.185, 202994717.245], [207734765.183, 207734800.073], [211183265.182, 211183306.302], [211500485.182, 211500537.082], [212965745.182, 212965786.692], [214371665.182, 214371670.582], [216354545.183, 216354568.983], [219456245.183, 219456251.063], [219887345.184, 219887389.034], [220835165.184, 220835169.094], [221266265.184, 221266275.434], [222644225.185, 222644240.975], [224109485.185, 224109487.885], [226090325.185, 226090329.355], [227038025.186, 227038032.946], [227469065.186, 227469075.266], [228387005.186, 228387008.496], [228846905.186, 228846923.006], [230225585.186, 230225608.176], [231577265.185, 231577300.725], [232982885.185, 232982919.625], [233930525.185, 233930529.665], [234334565.185, 234334641.855], [235309205.185, 235309210.915], [235740245.184, 235740294.424], [239704565.183, 239704568.933], [242004965.183, 242004968.253], [242979665.182, 242979748.272], [244876985.182, 244876993.442], [247203665.183, 247203671.283], [248986685.183, 248986692.503], [249417845.183, 249417942.863], [250365665.183, 250365669.503], [250801865.183, 250801924.453], [252201785.184, 252201798.884], [253728965.184, 253728983.974], [255535625.185, 255535853.415], [256682225.185, 256682228.065], [257684225.185, 257684269.165], [258146525.185, 258146533.105], [258722525.186, 258722543.076], [261147905.186, 261147925.516], [262453685.186, 262453688.326], [264259265.185, 264259272.395], [267474305.184, 267474379.954], [271073765.183, 271073780.663], [272731805.183, 272731887.753], [275208605.182, 275208611.692], [276214805.182, 276214829.892], [277127525.182, 277127545.362], [277506665.182, 277506708.062], [279455045.183, 279455100.823], [279799805.183, 279799837.073], [280747565.183, 280747571.013], [282126485.183, 282126503.483], [282471245.183, 282471256.053], [286040946.185, 286040974.915], [287532306.185, 287532308.475], [289858866.186, 289858897.046], [291603966.186, 291603971.806], [292809906.186, 292809948.366], [294188586.186, 294188602.066], [295567266.185, 295567279.505], [296945946.185, 296945956.015], [297893586.185, 297893599.995], [299272206.184, 299272220.614], [300687786.184, 300687808.034], [302066526.183, 302066563.313], [303703506.183, 303703583.793], [304824006.183, 304824009.283], [305390946.183, 305390972.583], [308925306.182, 308925311.352], [309355506.182, 309355530.682], [310684866.183, 310684869.093], [312200586.183, 312200601.223], [534124756.143, 534124760.143]];
-const l = [[393471366, 393501486], [399019747, 399883447], [400569547, 400988887], [420541747, 420794647], [454490527, 454650187], [487136707, 487309687], [519804068, 521041748], [528958868, 529749008]];
-const c = [[399637867.183, 399639659.183], [400933867.182, 400935660.182], [420714067.185, 420714072.185], [454572067.185, 454572072.185], [487231267.185, 487231272.185], [520957868.184, 520959604.184]];
-const h = [[365835906, "velocity"], [365836206, "sun"], [371908866, "sun"], [371909466, "earth"], [399631646, "earth"], [399632628, "sun"], [399635271, "sun"], [399636306, "-velocity"], [399640481, "-velocity"], [399641686, "sun"], [399700717, "sun"], [399641887, "earth"], [400927646, "earth"], [400928454, "sun"], [400931272, "sun"], [400932282, "-velocity"], [400936477, "-velocity"], [400937632, "sun"], [401003197, "sun"], [401009197, "earth"], [423014467, "earth"], [423014767, "sun"], [436924867, "sun"], [436925167, "earth"], [520954868, "earth"], [520955888, "-velocity"], [520960808, "-velocity"], [520962008, "sun"], [521018048, "sun"], [521025625, "earth"]];
-const d = [[394545667, 1 * Math.PI / 30], [394545967, 2 * Math.PI / 30], [399636967, 2 * Math.PI / 30], [399637264, 5 * Math.PI / 30], [399637866, 5 * Math.PI / 30], [399639659, 5.5 * Math.PI / 30], [399639788, 5.5 * Math.PI / 30], [399640072, 2 * Math.PI / 30], [400932921, 2 * Math.PI / 30], [400933214, 5 * Math.PI / 30], [400933866, 5 * Math.PI / 30], [400935660, 5.5 * Math.PI / 30], [400935790, 5.5 * Math.PI / 30], [400936068, 2 * Math.PI / 30], [520956548, 2 * Math.PI / 30], [520956848, 5 * Math.PI / 30], [520960088, 5 * Math.PI / 30], [520960388, 2 * Math.PI / 30], [521025625, 2 * Math.PI / 30]];
-const u = [[157212064.184, 7.5 * Math.PI / 30], [158965863.184, 7.5 * Math.PI / 30], [158966163.184, 2.6 * Math.PI / 30], [158966434.184, 0], [158966883.184, -5.6 * Math.PI / 30], [158967123.184, -9.7 * Math.PI / 30], [158967363.184, -7.3 * Math.PI / 30], [158968263.184, -2.8 * Math.PI / 30], [158973723.184, -1 * Math.PI / 30]];
+const cassiniBurnIntervals = [[-13098535.817, -13098146.797], [-12342535.817, -12342421.197], [-10612735.817, -10612663.357], [14274064.185, 14274070.255], [36653454.185, 36653459.605], [71128864.186, 71128875.066], [105091264.185, 105091282.755], [118339264.182, 118339287.092], [138968824.185, 138969181.735], [140692084.184, 140692123.174], [141916392.184, 141922237.024], [146548444.183, 146551498.073], [147846664.183, 147846668.693], [152302564.182, 152302569.842], [154285264.183, 154285267.193], [156518584.184, 156518669.274], [157466284.184, 157466438.074], [159139264.184, 159139404.074], [160168144.185, 160168264.795], [161978464.185, 161978469.745], [163011064.185, 163011104.295], [163869664.186, 163869667.996], [164528404.186, 164528414.466], [165853384.186, 165853391.046], [166370464.186, 166370502.696], [168008344.186, 168008476.766], [174127084.184, 174127086.454], [176341864.183, 176341881.793], [176952124.183, 176952139.533], [178261744.183, 178261753.433], [178699444.183, 178699535.673], [180420064.182, 180420240.372], [182368684.182, 182368777.962], [184039204.183, 184039282.793], [185162584.183, 185162597.343], [196273205.186, 196273208.936], [197566385.186, 197566387.476], [199978145.185, 199978148.205], [202994705.185, 202994717.245], [207734765.183, 207734800.073], [211183265.182, 211183306.302], [211500485.182, 211500537.082], [212965745.182, 212965786.692], [214371665.182, 214371670.582], [216354545.183, 216354568.983], [219456245.183, 219456251.063], [219887345.184, 219887389.034], [220835165.184, 220835169.094], [221266265.184, 221266275.434], [222644225.185, 222644240.975], [224109485.185, 224109487.885], [226090325.185, 226090329.355], [227038025.186, 227038032.946], [227469065.186, 227469075.266], [228387005.186, 228387008.496], [228846905.186, 228846923.006], [230225585.186, 230225608.176], [231577265.185, 231577300.725], [232982885.185, 232982919.625], [233930525.185, 233930529.665], [234334565.185, 234334641.855], [235309205.185, 235309210.915], [235740245.184, 235740294.424], [239704565.183, 239704568.933], [242004965.183, 242004968.253], [242979665.182, 242979748.272], [244876985.182, 244876993.442], [247203665.183, 247203671.283], [248986685.183, 248986692.503], [249417845.183, 249417942.863], [250365665.183, 250365669.503], [250801865.183, 250801924.453], [252201785.184, 252201798.884], [253728965.184, 253728983.974], [255535625.185, 255535853.415], [256682225.185, 256682228.065], [257684225.185, 257684269.165], [258146525.185, 258146533.105], [258722525.186, 258722543.076], [261147905.186, 261147925.516], [262453685.186, 262453688.326], [264259265.185, 264259272.395], [267474305.184, 267474379.954], [271073765.183, 271073780.663], [272731805.183, 272731887.753], [275208605.182, 275208611.692], [276214805.182, 276214829.892], [277127525.182, 277127545.362], [277506665.182, 277506708.062], [279455045.183, 279455100.823], [279799805.183, 279799837.073], [280747565.183, 280747571.013], [282126485.183, 282126503.483], [282471245.183, 282471256.053], [286040946.185, 286040974.915], [287532306.185, 287532308.475], [289858866.186, 289858897.046], [291603966.186, 291603971.806], [292809906.186, 292809948.366], [294188586.186, 294188602.066], [295567266.185, 295567279.505], [296945946.185, 296945956.015], [297893586.185, 297893599.995], [299272206.184, 299272220.614], [300687786.184, 300687808.034], [302066526.183, 302066563.313], [303703506.183, 303703583.793], [304824006.183, 304824009.283], [305390946.183, 305390972.583], [308925306.182, 308925311.352], [309355506.182, 309355530.682], [310684866.183, 310684869.093], [312200586.183, 312200601.223], [534124756.143, 534124760.143]];
+const junoCoverIntervals = [[393471366, 393501486], [399019747, 399883447], [400569547, 400988887], [420541747, 420794647], [454490527, 454650187], [487136707, 487309687], [519804068, 521041748], [528958868, 529749008]];
+const junoBurnIntervals = [[399637867.183, 399639659.183], [400933867.182, 400935660.182], [420714067.185, 420714072.185], [454572067.185, 454572072.185], [487231267.185, 487231272.185], [520957868.184, 520959604.184]];
+const junoPointingKeyframes = [[365835906, "velocity"], [365836206, "sun"], [371908866, "sun"], [371909466, "earth"], [399631646, "earth"], [399632628, "sun"], [399635271, "sun"], [399636306, "-velocity"], [399640481, "-velocity"], [399641686, "sun"], [399700717, "sun"], [399641887, "earth"], [400927646, "earth"], [400928454, "sun"], [400931272, "sun"], [400932282, "-velocity"], [400936477, "-velocity"], [400937632, "sun"], [401003197, "sun"], [401009197, "earth"], [423014467, "earth"], [423014767, "sun"], [436924867, "sun"], [436925167, "earth"], [520954868, "earth"], [520955888, "-velocity"], [520960808, "-velocity"], [520962008, "sun"], [521018048, "sun"], [521025625, "earth"]];
+const junoSpinKeyframes = [[394545667, 1 * Math.PI / 30], [394545967, 2 * Math.PI / 30], [399636967, 2 * Math.PI / 30], [399637264, 5 * Math.PI / 30], [399637866, 5 * Math.PI / 30], [399639659, 5.5 * Math.PI / 30], [399639788, 5.5 * Math.PI / 30], [399640072, 2 * Math.PI / 30], [400932921, 2 * Math.PI / 30], [400933214, 5 * Math.PI / 30], [400933866, 5 * Math.PI / 30], [400935660, 5.5 * Math.PI / 30], [400935790, 5.5 * Math.PI / 30], [400936068, 2 * Math.PI / 30], [520956548, 2 * Math.PI / 30], [520956848, 5 * Math.PI / 30], [520960088, 5 * Math.PI / 30], [520960388, 2 * Math.PI / 30], [521025625, 2 * Math.PI / 30]];
+const galileoSpinKeyframes = [[157212064.184, 7.5 * Math.PI / 30], [158965863.184, 7.5 * Math.PI / 30], [158966163.184, 2.6 * Math.PI / 30], [158966434.184, 0], [158966883.184, -5.6 * Math.PI / 30], [158967123.184, -9.7 * Math.PI / 30], [158967363.184, -7.3 * Math.PI / 30], [158968263.184, -2.8 * Math.PI / 30], [158973723.184, -1 * Math.PI / 30]];

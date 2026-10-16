@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：分享 URL、嵌入设置和复制界面
- * 依据：imports: ../../framework/eyes/public-api.js, ../../vendor/modules/Unidentified160.cjs, ../templates/ShareModalTemplate.html, ../../vendor/modules/animateFill-168.js, ../../engine/core/Unidentified511.js；manager dependencies: title, router
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:628339-641482.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import "../../vendor/modules/Unidentified160.cjs";
@@ -12,19 +6,10 @@ import * as animateFill from "../../vendor/modules/animateFill-168.js";
 import * as Unidentified511 from "../../engine/core/Unidentified511.js";
 let defaultExport;
 var getShareModalTemplate = () => ShareModalTemplate;
-/** @eyes-analysis
- * 类职责：分享 URL、嵌入设置和复制界面；继承 EyesPublicApi.BaseComponent
- * 继承：EyesPublicApi.BaseComponent；导出：default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 分享源 URL 先过滤非保留查询，嵌入选项再按默认值与依赖条件生成最终参数。预览强制 tracking=false，iframe hash 变化只更新代码而不重建预览；更换预览 iframe 前解除旧 load 监听。表单 DOM 与帮助提示归此组件持有。 */
 class ShareModal extends EyesPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 EyesPublicApi.AppUtils.isiPhone, this.bindFunctions；写入 _activeTab, _srcURL, _embedOptionsScrollbar, _tippySingleton, _tippyItems, _tippyTimeout, _embedQueries, _inputElements。
-   * 状态写入：_activeTab、_embedOptionsScrollbar、_embedQueries、_inputElements、_srcURL、_tippyItems、_tippySingleton、_tippyTimeout。
-   * 调用线索：EyesPublicApi.AppUtils.isiPhone、super、this.bindFunctions。
-   */
-  constructor(t, e) {
-    super(t, null, {
+  constructor(app, options) {
+    super(app, null, {
       isVisible: false,
       iframeElements: true,
       linkTitle: "",
@@ -32,7 +17,7 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       previewResolution: "",
       previewVisibleClass: EyesPublicApi.AppUtils.isiPhone() ? "hidden" : "",
       isWide: null,
-      ...e,
+      ...options,
       config: {
         title: "Share",
         shareBtnParent: {
@@ -42,7 +27,7 @@ class ShareModal extends EyesPublicApi.BaseComponent {
         },
         linkAltText: "Eyes",
         linkImageSrc: "",
-        paramsToKeep: ["time", "rate", "slide", "followId", "trajectory", "hideExternalLinks", "locked", "search", "menu", "timeControls", "hideFullScreenToggle", ...(e?.paramsToKeep ?? [])],
+        paramsToKeep: ["time", "rate", "slide", "followId", "trajectory", "hideExternalLinks", "locked", "search", "menu", "timeControls", "hideFullScreenToggle", ...(options?.paramsToKeep ?? [])],
         resetOnClose: true,
         deviceResolutions: {
           desktop: {
@@ -58,7 +43,7 @@ class ShareModal extends EyesPublicApi.BaseComponent {
             height: 667
           }
         },
-        ...e?.config
+        ...options?.config
       }
     });
     this._activeTab = null;
@@ -71,47 +56,37 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     this._inputElements = {};
     this.bindFunctions(["_iframeLoadEventListener"]);
   }
-  /** @eyes-analysis
-   * 执行 mergeEmbedControls 对应的组件业务步骤；调用 Unidentified511.default.map。
-   * 状态写入：_config.embedOptions。
-   * 调用线索：Unidentified511.default.map、controls.filter、controls.find、e.some、items.filter等。
-   */
   mergeEmbedControls() {
     const {
       controls: controls
     } = this._config;
-    const e = Unidentified511.default.map(e => {
+    const mergedGroups = Unidentified511.default.map(defaultGroup => {
       const {
         groupName: groupName,
         items: items
-      } = e;
-      const n = controls.find(t => t.groupName === groupName);
-      if (n) {
+      } = defaultGroup;
+      const customGroup = controls.find(controlGroup => controlGroup.groupName === groupName);
+      if (customGroup) {
         const {
-          items: t
-        } = n;
-        const i = items.filter(({
+          items: customItems
+        } = customGroup;
+        const remainingDefaultItems = items.filter(({
           name: name
-        }) => !t.some(({
-          name: t
-        }) => t === name));
+        }) => !customItems.some(({
+          name: customName
+        }) => customName === name));
         return {
-          ...e,
-          items: [...t, ...i]
+          ...defaultGroup,
+          items: [...customItems, ...remainingDefaultItems]
         };
       }
-      return e;
+      return defaultGroup;
     });
-    const i = controls.filter(t => !e.some(({
+    const customGroups = controls.filter(controlGroup => !mergedGroups.some(({
       groupName: groupName
-    }) => groupName === t.groupName));
-    this._config.embedOptions = [...e, ...i];
+    }) => groupName === controlGroup.groupName));
+    this._config.embedOptions = [...mergedGroups, ...customGroups];
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this.mergeEmbedControls, this.setEmbedParams, this.generateEmbedContent, this.setIsWide, this.createScrollbars, this.createShareButton, this.addShareButtonToParent, Fill.default.setDefaultProps；写入 _tippyTimeout。
-   * 状态写入：_tippyTimeout。
-   * 调用线索：animateFill.default.setDefaultProps、clearTimeout、e?.hide、reference.blur、setTimeout等。
-   */
   init() {
     super.init();
     const {
@@ -131,55 +106,41 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       delay: [300, null],
       placement: "top",
       trigger: "mouseenter click",
-      onTrigger: e => {
+      onTrigger: tooltip => {
         clearTimeout(this._tippyTimeout);
         canHover || (this._tippyTimeout = setTimeout(() => {
-          e?.hide();
+          tooltip?.hide();
         }, 3e3));
       },
-      onClickOutside: t => {
-        t.hide();
+      onClickOutside: tooltip => {
+        tooltip.hide();
       },
-      onHidden: t => {
+      onHidden: tooltip => {
         this._tippyItems?.forEach(({
           reference: reference
         }) => reference.blur());
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 createScrollbars 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.onAttachElement, EyesPublicApi.AppUtils.addScrollbar；写入 _embedOptionsScrollbar。
-   * 状态写入：_embedOptionsScrollbar。
-   * 调用线索：EyesPublicApi.AppUtils.addScrollbar、EyesPublicApi.AppUtils.onAttachElement。
-   */
   createScrollbars() {
     const {
       embedOptsContent: embedOptsContent
     } = this._children;
-    const e = embedOptsContent.parentElement;
-    EyesPublicApi.AppUtils.onAttachElement(e, () => {
-      this._embedOptionsScrollbar = EyesPublicApi.AppUtils.addScrollbar(e);
+    const scrollElement = embedOptsContent.parentElement;
+    EyesPublicApi.AppUtils.onAttachElement(scrollElement, () => {
+      this._embedOptionsScrollbar = EyesPublicApi.AppUtils.addScrollbar(scrollElement);
     });
   }
-  /** @eyes-analysis
-   * 执行 getCurrentDevice 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.isTablet, EyesPublicApi.AppUtils.isMobile。
-   * 调用线索：EyesPublicApi.AppUtils.isMobile、EyesPublicApi.AppUtils.isTablet。
-   */
   getCurrentDevice() {
     return EyesPublicApi.AppUtils.isTablet() ? "tablet" : EyesPublicApi.AppUtils.isMobile() ? "phone" : "desktop";
   }
-  /** @eyes-analysis
-   * 执行 createShareButton 对应的组件业务步骤；调用 this.shareButton.prepend, this.shareButton.addEventListener, this.setSrcURL, this.setPreviewDevice, this.getCurrentDevice, this.setActiveTab, Image.setAttribute, this._app.getManager, this.setState, this.show；写入 shareButton。
-   * 状态写入：shareButton、shareButton.className、shareButton.innerText。
-   * 调用线索：document.createElement、document.querySelector、document.querySelector('meta[property="og:image"]')?.getAttribute、linkImage.setAttribute、this._app.getManager等。
-   */
   createShareButton() {
     this.shareButton = document.createElement("button");
     this.shareButton.className = "share-button clickable";
     this.shareButton.innerText = "Share";
-    const t = document.createElement("span");
-    t.className = "icon icon-share";
-    this.shareButton.prepend(t);
+    const shareIcon = document.createElement("span");
+    shareIcon.className = "icon icon-share";
+    this.shareButton.prepend(shareIcon);
     this.shareButton.addEventListener("click", () => {
       this.setSrcURL();
       this.setPreviewDevice({
@@ -195,26 +156,22 @@ class ShareModal extends EyesPublicApi.BaseComponent {
         linkAltText: linkAltText,
         linkImageSrc: linkImageSrc
       } = this._config;
-      const s = document.querySelector("title")?.innerText;
-      const n = document.querySelector('meta[property="og:image"]')?.getAttribute("content");
-      const o = s || linkAltText;
-      const r = "$OG_IMAGE" !== n && n || linkImageSrc;
-      linkImage.setAttribute("alt", o);
-      linkImage.setAttribute("src", r);
+      const pageTitle = document.querySelector("title")?.innerText;
+      const ogImageUrl = document.querySelector('meta[property="og:image"]')?.getAttribute("content");
+      const imageAltText = pageTitle || linkAltText;
+      const imageUrl = "$OG_IMAGE" !== ogImageUrl && ogImageUrl || linkImageSrc;
+      linkImage.setAttribute("alt", imageAltText);
+      linkImage.setAttribute("src", imageUrl);
       const {
         fullTitle: fullTitle
       } = this._app.getManager("title");
-      const l = fullTitle ?? o;
+      const linkTitle = fullTitle ?? imageAltText;
       this.setState({
-        linkTitle: l
+        linkTitle: linkTitle
       });
       this.show();
     });
   }
-  /** @eyes-analysis
-   * 执行 setIsWide 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
   setIsWide() {
     const {
       isWide: isWide
@@ -225,15 +182,11 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     const {
       threshold: threshold
     } = shareBtnParent;
-    const s = window.innerWidth >= threshold;
-    return isWide !== s && (this.setState({
-      isWide: s
+    const shouldBeWide = window.innerWidth >= threshold;
+    return isWide !== shouldBeWide && (this.setState({
+      isWide: shouldBeWide
     }), true);
   }
-  /** @eyes-analysis
-   * 执行 addShareButtonToParent 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.elementReady。
-   * 调用线索：EyesPublicApi.AppUtils.elementReady、EyesPublicApi.AppUtils.elementReady(o,3e3).then、EyesPublicApi.AppUtils.elementReady(o,3e3).then(t=>(t.appendChild(this.shareButton),true)).catch、t.appendChild、this.shareButton.parentNode?.removeChild。
-   */
   addShareButtonToParent() {
     const {
       shareBtnParent: shareBtnParent
@@ -246,15 +199,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       wideSelector: wideSelector
     } = shareBtnParent;
     this.shareButton.parentNode?.removeChild(this.shareButton);
-    const o = isWide ? wideSelector : selector;
-    EyesPublicApi.AppUtils.elementReady(o, 3e3).then(t => (t.appendChild(this.shareButton), true)).catch(t => t);
+    const parentSelector = isWide ? wideSelector : selector;
+    EyesPublicApi.AppUtils.elementReady(parentSelector, 3e3).then(parentElement => (parentElement.appendChild(this.shareButton), true)).catch(attachError => attachError);
   }
-  /** @eyes-analysis
-   * 执行 setSrcURL 对应的组件业务步骤；调用 Options.flatMap, this._app.getManager, Array.from, ToKeep.includes；写入 _srcURL。
-   * 状态写入：_srcURL。
-   * 调用线索：Array.from、embedOptions.flatMap、l.delete、l.keys、l.toString等。
-   */
-  setSrcURL(t = window.location.href, e = true) {
+  setSrcURL(sourceUrl = window.location.href, updateLinkText = true) {
     const {
       linkCode: linkCode
     } = this._children;
@@ -262,29 +210,24 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       embedOptions: embedOptions,
       paramsToKeep: paramsToKeep
     } = this._config;
-    const o = embedOptions.flatMap(({
+    const embedItems = embedOptions.flatMap(({
       items: items
     }) => items);
     const {
       configs: configs
     } = this._app.getManager("router");
-    const a = t.split("?");
-    const l = a[1] ? new URLSearchParams(a[1]) : new URLSearchParams();
-    const c = Array.from(l.keys());
-    for (const t of c) {
-      const e = o.find(e => e.query === t);
-      let i = !paramsToKeep.includes(t);
-      void 0 !== e?.appQueryDefault && (i ||= configs[t] === e.appQueryDefault);
-      i && l.delete(t);
+    const urlParts = sourceUrl.split("?");
+    const sourceParams = urlParts[1] ? new URLSearchParams(urlParts[1]) : new URLSearchParams();
+    const queryNames = Array.from(sourceParams.keys());
+    for (const queryName of queryNames) {
+      const matchingOption = embedItems.find(embedOption => embedOption.query === queryName);
+      let removeQuery = !paramsToKeep.includes(queryName);
+      void 0 !== matchingOption?.appQueryDefault && (removeQuery ||= configs[queryName] === matchingOption.appQueryDefault);
+      removeQuery && sourceParams.delete(queryName);
     }
-    this._srcURL = `${a[0]}${l.size ? "?" : ""}${l.toString()}`;
-    e && (linkCode.textContent = t);
+    this._srcURL = `${urlParts[0]}${sourceParams.size ? "?" : ""}${sourceParams.toString()}`;
+    updateLinkText && (linkCode.textContent = sourceUrl);
   }
-  /** @eyes-analysis
-   * 执行 setEmbedParams 对应的组件业务步骤；调用 Options.forEach。
-   * 状态写入：_embedQueries[e]、_embedQueries[query]。
-   * 调用线索：embedOptions.forEach、items?.forEach、t.items.forEach。
-   */
   setEmbedParams() {
     const {
       embedOptions: embedOptions
@@ -292,44 +235,35 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     embedOptions.forEach(({
       items: items
     }) => {
-      items?.forEach(t => {
+      items?.forEach(embedOption => {
         const {
           query: query,
           inputDefault: inputDefault,
           invert: invert
-        } = t;
+        } = embedOption;
         if (query) {
-          const t = invert ? !inputDefault : inputDefault;
-          this._embedQueries[query] = t;
-        } else t.nestedGroup && t.items && t.items.forEach(t => {
+          const queryDefault = invert ? !inputDefault : inputDefault;
+          this._embedQueries[query] = queryDefault;
+        } else embedOption.nestedGroup && embedOption.items && embedOption.items.forEach(nestedOption => {
           const {
-            query: e,
-            inputDefault: i,
-            invert: s
-          } = t;
-          const n = s ? !i : i;
-          this._embedQueries[e] = n;
+            query: nestedQueryName,
+            inputDefault: nestedInputDefault,
+            invert: nestedInvert
+          } = nestedOption;
+          const nestedQueryDefault = nestedInvert ? !nestedInputDefault : nestedInputDefault;
+          this._embedQueries[nestedQueryName] = nestedQueryDefault;
         });
       });
     });
   }
-  /** @eyes-analysis
-   * 执行 updateEmbedParams 对应的组件业务步骤；调用 this.updateEmbedCode。
-   * 状态写入：_embedQueries[t]。
-   * 调用线索：this.updateEmbedCode。
-   */
-  updateEmbedParams(t, e) {
-    this._embedQueries[t] !== e && void 0 !== this._embedQueries[t] && (this._embedQueries[t] = e, this.updateEmbedCode());
+  updateEmbedParams(queryName, queryValue) {
+    this._embedQueries[queryName] !== queryValue && void 0 !== this._embedQueries[queryName] && (this._embedQueries[queryName] = queryValue, this.updateEmbedCode());
   }
-  /** @eyes-analysis
-   * 执行 updateEmbedCode 对应的组件业务步骤；调用 this.getEmbedCodeFromParams, EyesPublicApi.AppUtils.isiPhone, HTML.replace, PreviewParent.querySelector, Options.flatMap, ToKeep.includes, this._app.getManager, Object.keys, List.add, this.resize。
-   * 调用线索：EyesPublicApi.AppUtils.isiPhone、Object.keys、Object.keys(configs).includes、document.getElementById、e.parentElement?.classList.add等。
-   */
-  updateEmbedCode(t) {
+  updateEmbedCode(updateOptions) {
     const {
-      force: e = false,
-      updatePreview: i = true
-    } = t || {};
+      force: forceUpdate = false,
+      updatePreview = true
+    } = updateOptions || {};
     const {
       embedCode: embedCode,
       embedPreviewParent: embedPreviewParent
@@ -342,10 +276,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       iframeString: iframeString,
       noTrackingIframeString: noTrackingIframeString
     } = this.getEmbedCodeFromParams();
-    const h = iframeElements ? iframeString : srcURL;
-    if ((h !== embedCode.textContent || e) && (embedCode.textContent = h), i && !EyesPublicApi.AppUtils.isiPhone() && (embedPreviewParent?.innerHTML.replace(/&amp;/g, "&") !== noTrackingIframeString || e)) {
-      const t = embedPreviewParent.querySelector("iframe");
-      t?.removeEventListener("load", this._iframeLoadEventListener);
+    const embedText = iframeElements ? iframeString : srcURL;
+    if ((embedText !== embedCode.textContent || forceUpdate) && (embedCode.textContent = embedText), updatePreview && !EyesPublicApi.AppUtils.isiPhone() && (embedPreviewParent?.innerHTML.replace(/&amp;/g, "&") !== noTrackingIframeString || forceUpdate)) {
+      const previousIframe = embedPreviewParent.querySelector("iframe");
+      previousIframe?.removeEventListener("load", this._iframeLoadEventListener);
       embedPreviewParent.innerHTML = noTrackingIframeString;
       embedPreviewParent.querySelector("iframe").addEventListener("load", this._iframeLoadEventListener);
     }
@@ -353,31 +287,27 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       embedOptions: embedOptions,
       paramsToKeep: paramsToKeep
     } = this._config;
-    let p = embedOptions.flatMap(({
+    let retainedOptions = embedOptions.flatMap(({
       items: items
     }) => items);
-    p = p.flatMap(t => t.nestedGroup ? t.items : t);
-    p = p.filter(t => paramsToKeep.includes(t.query));
+    retainedOptions = retainedOptions.flatMap(embedOption => embedOption.nestedGroup ? embedOption.items : embedOption);
+    retainedOptions = retainedOptions.filter(embedOption => paramsToKeep.includes(embedOption.query));
     const {
       configs: configs
     } = this._app.getManager("router");
-    p.forEach(t => {
-      if (t.query && Object.keys(configs).includes(t.query) && void 0 !== configs[t.query] && configs[t.query] !== this._embedQueries[t.query] && configs[t.query] !== t.appQueryDefault) {
-        const e = document.getElementById(`input-${t.query}`);
-        const i = configs[t.query] === t.invert;
-        if (e && (e.checked = i ? !configs[t.query] : configs[t.query], e.parentElement?.classList.add("greyed-out-disabled"), t.relatedCheckboxesToDisable)) for (let e = 0; e < t.relatedCheckboxesToDisable.length; e++) {
-          const i = document.getElementById(`input-${t.relatedCheckboxesToDisable[e]}`);
-          const s = i?.parentElement;
-          s?.classList.add("greyed-out-disabled");
+    retainedOptions.forEach(embedOption => {
+      if (embedOption.query && Object.keys(configs).includes(embedOption.query) && void 0 !== configs[embedOption.query] && configs[embedOption.query] !== this._embedQueries[embedOption.query] && configs[embedOption.query] !== embedOption.appQueryDefault) {
+        const optionInput = document.getElementById(`input-${embedOption.query}`);
+        const invertCheckedState = configs[embedOption.query] === embedOption.invert;
+        if (optionInput && (optionInput.checked = invertCheckedState ? !configs[embedOption.query] : configs[embedOption.query], optionInput.parentElement?.classList.add("greyed-out-disabled"), embedOption.relatedCheckboxesToDisable)) for (let relatedIndex = 0; relatedIndex < embedOption.relatedCheckboxesToDisable.length; relatedIndex++) {
+          const relatedInput = document.getElementById(`input-${embedOption.relatedCheckboxesToDisable[relatedIndex]}`);
+          const relatedContainer = relatedInput?.parentElement;
+          relatedContainer?.classList.add("greyed-out-disabled");
         }
       }
     });
     this.resize();
   }
-  /** @eyes-analysis
-   * 执行 calcTemplateWidth 对应的组件业务步骤。
-   * 调用线索：console.log。
-   */
   calcTemplateWidth() {
     const {
       deviceResolutions: deviceResolutions
@@ -398,10 +328,6 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     console.log("width:", width);
     console.log("height:", height);
   }
-  /** @eyes-analysis
-   * 执行 calcIframeTransform 对应的组件业务步骤；调用 this.resize。
-   * 调用线索：console.log、this.resize。
-   */
   calcIframeTransform() {
     console.log("calcIframeTransform: ");
     const {
@@ -413,14 +339,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     } = previewResolution;
     this.resize();
   }
-  /** @eyes-analysis
-   * 执行 _iframeLoadEventListener 对应的组件业务步骤；调用 this.setSrcURL, this.updateEmbedCode。
-   * 调用线索：this.setSrcURL、this.updateEmbedCode。
-   */
-  _iframeLoadEventListener(t) {
+  _iframeLoadEventListener(loadEvent) {
     const {
       contentWindow: contentWindow
-    } = t.target;
+    } = loadEvent.target;
     contentWindow && (contentWindow.onhashchange = () => {
       this.setSrcURL(contentWindow.location.href, false);
       this.updateEmbedCode({
@@ -428,10 +350,6 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       });
     });
   }
-  /** @eyes-analysis
-   * 执行 calcIframeTransforms 对应的组件业务步骤；调用 this._element.style.setProperty, Math.min。
-   * 调用线索：Math.min、getComputedStyle、parseFloat、this._element.style.setProperty。
-   */
   calcIframeTransforms() {
     const {
       embedPreviewParent: embedPreviewParent
@@ -453,25 +371,21 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       clientWidth: clientWidth,
       clientHeight: clientHeight
     } = embedPreviewParent;
-    const h = clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
-    const d = clientHeight - parseFloat(paddingTop) - parseFloat(paddingBottom);
+    const availableWidth = clientWidth - parseFloat(paddingLeft) - parseFloat(paddingRight);
+    const availableHeight = clientHeight - parseFloat(paddingTop) - parseFloat(paddingBottom);
     this._element.style.setProperty("--iframe-width", `${width}px`);
     this._element.style.setProperty("--iframe-height", `${height}px`);
-    const u = h / width;
-    const p = d / height;
-    const _ = Math.min(u, p);
-    this._element.style.setProperty("--iframe-scale", _);
-    const m = (h - width * _) / 2 / _;
-    this._element.style.setProperty("--iframe-offset-x", `${m}px`);
+    const horizontalScale = availableWidth / width;
+    const verticalScale = availableHeight / height;
+    const previewScale = Math.min(horizontalScale, verticalScale);
+    this._element.style.setProperty("--iframe-scale", previewScale);
+    const horizontalOffset = (availableWidth - width * previewScale) / 2 / previewScale;
+    this._element.style.setProperty("--iframe-offset-x", `${horizontalOffset}px`);
   }
-  /** @eyes-analysis
-   * 执行 setPreviewDevice 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
-   * 调用线索：this.setState、this.updateEmbedCode。
-   */
-  setPreviewDevice(t) {
+  setPreviewDevice(changeEvent) {
     const {
       value: value
-    } = t.target;
+    } = changeEvent.target;
     const {
       previewDevice: previewDevice
     } = this._state;
@@ -481,14 +395,10 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       force: true
     }));
   }
-  /** @eyes-analysis
-   * 执行 toggleIframeElements 对应的组件业务步骤；调用 this.setState, this.updateEmbedCode。
-   * 调用线索：this.setState、this.updateEmbedCode。
-   */
-  toggleIframeElements(t) {
+  toggleIframeElements(changeEvent) {
     const {
       checked: checked
-    } = t.target;
+    } = changeEvent.target;
     this.setState({
       iframeElements: checked
     });
@@ -496,50 +406,42 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       updatePreview: false
     });
   }
-  /** @eyes-analysis
-   * 执行 getEmbedCodeFromParams 对应的组件业务步骤；调用 Options.flatMap, this._srcURL.split, Object.entries, Object.fromEntries, Object.keys, RLSearchParams.set, RLSearchParams.toString。
-   * 调用线索：Object.entries、Object.entries(this._embedQueries).filter、Object.fromEntries、Object.keys、Object.keys(a).forEach等。
-   */
   getEmbedCodeFromParams() {
     const {
       embedOptions: embedOptions
     } = this._config;
-    let e = embedOptions.flatMap(({
+    let embedItems = embedOptions.flatMap(({
       items: items
     }) => items);
-    e = e.flatMap(t => t.nestedGroup ? t.items : t);
-    const i = this._srcURL.split("?");
-    const uRLSearchParams = new URLSearchParams(i[1]);
-    const n = new URLSearchParams(i[1]);
-    const o = Object.entries(this._embedQueries).filter(([t, i]) => {
-      if (!e || "undefined" === t) return false;
+    embedItems = embedItems.flatMap(embedOption => embedOption.nestedGroup ? embedOption.items : embedOption);
+    const urlParts = this._srcURL.split("?");
+    const uRLSearchParams = new URLSearchParams(urlParts[1]);
+    const previewParams = new URLSearchParams(urlParts[1]);
+    const changedEntries = Object.entries(this._embedQueries).filter(([queryName, queryValue]) => {
+      if (!embedItems || "undefined" === queryName) return false;
       const {
         appQueryDefault: appQueryDefault,
         dependencies: dependencies
-      } = e.find(({
+      } = embedItems.find(({
         query: query
-      }) => query === t) ?? {};
-      const o = !dependencies || dependencies?.length && dependencies.every(([t, e]) => e(this._embedQueries[t]));
-      return i !== appQueryDefault && o;
+      }) => query === queryName) ?? {};
+      const dependenciesSatisfied = !dependencies || dependencies?.length && dependencies.every(([dependencyQuery, dependencyPredicate]) => dependencyPredicate(this._embedQueries[dependencyQuery]));
+      return queryValue !== appQueryDefault && dependenciesSatisfied;
     });
-    const r = Object.fromEntries(o);
-    const a = {
-      ...r,
+    const changedParams = Object.fromEntries(changedEntries);
+    const previewOverrides = {
+      ...changedParams,
       tracking: "false"
     };
-    Object.keys(r).forEach(t => uRLSearchParams.set(t, r[t]));
-    Object.keys(a).forEach(t => n.set(t, a[t]));
-    const l = `${i[0]}${uRLSearchParams.size ? "?" : ""}${uRLSearchParams.toString()}`;
+    Object.keys(changedParams).forEach(queryName => uRLSearchParams.set(queryName, changedParams[queryName]));
+    Object.keys(previewOverrides).forEach(queryName => previewParams.set(queryName, previewOverrides[queryName]));
+    const embedUrl = `${urlParts[0]}${uRLSearchParams.size ? "?" : ""}${uRLSearchParams.toString()}`;
     return {
-      srcURL: l,
-      iframeString: `<iframe src="${l}" allowfullscreen ></iframe>`,
-      noTrackingIframeString: `<iframe src="${`${i[0]}${n.size ? "?" : ""}${n.toString()}`}" allowfullscreen ></iframe>`
+      srcURL: embedUrl,
+      iframeString: `<iframe src="${embedUrl}" allowfullscreen ></iframe>`,
+      noTrackingIframeString: `<iframe src="${`${urlParts[0]}${previewParams.size ? "?" : ""}${previewParams.toString()}`}" allowfullscreen ></iframe>`
     };
   }
-  /** @eyes-analysis
-   * 执行 generateEmbedContent 对应的组件业务步骤；调用 Options.forEach, this.createGroupLegend, this.createGroupInputs。
-   * 调用线索：(isAdvanced?embedAdvOptsContent:embedOptsContent).appendChild、document.createElement、embedOptions.forEach、this.createGroupInputs、this.createGroupLegend。
-   */
   generateEmbedContent() {
     const {
       embedOptions: embedOptions
@@ -553,30 +455,22 @@ class ShareModal extends EyesPublicApi.BaseComponent {
       groupName: groupName,
       items: items
     }) => {
-      const o = groupName ? "fieldset" : "div";
-      const r = document.createElement(o);
-      r.className = "embed-group";
-      groupName && this.createGroupLegend(groupName, r);
-      this.createGroupInputs(items, r);
-      (isAdvanced ? embedAdvOptsContent : embedOptsContent).appendChild(r);
+      const groupTagName = groupName ? "fieldset" : "div";
+      const groupElement = document.createElement(groupTagName);
+      groupElement.className = "embed-group";
+      groupName && this.createGroupLegend(groupName, groupElement);
+      this.createGroupInputs(items, groupElement);
+      (isAdvanced ? embedAdvOptsContent : embedOptsContent).appendChild(groupElement);
     });
   }
-  /** @eyes-analysis
-   * 执行 createGroupLegend 对应的组件业务步骤。
-   * 调用线索：document.createElement、e.appendChild。
-   */
-  createGroupLegend(t, e) {
-    const i = document.createElement("legend");
-    i.innerText = t;
-    e.appendChild(i);
-    return i;
+  createGroupLegend(groupName, groupElement) {
+    const legendElement = document.createElement("legend");
+    legendElement.innerText = groupName;
+    groupElement.appendChild(legendElement);
+    return legendElement;
   }
-  /** @eyes-analysis
-   * 执行 createGroupInputs 对应的组件业务步骤；调用 this.createGroupLegend, this.createGroupInputs, this.updateEmbedParams, List.toggle。
-   * 调用线索：_.setAttribute、c.setAttribute、d.setAttribute、document.createElement、document.getElementById等。
-   */
-  createGroupInputs(t, e) {
-    t && t.forEach(t => {
+  createGroupInputs(inputOptions, groupElement) {
+    inputOptions && inputOptions.forEach(inputOption => {
       const {
         name: name,
         description: description,
@@ -591,113 +485,110 @@ class ShareModal extends EyesPublicApi.BaseComponent {
         relatedCheckboxesToDisable: relatedCheckboxesToDisable,
         groupName: groupName,
         items: items
-      } = t;
+      } = inputOption;
       if (groupName && items) {
-        const t = document.createElement("fieldset");
-        this.createGroupLegend(groupName, t);
-        e.appendChild(t);
-        return void this.createGroupInputs(items, t);
+        const nestedFieldset = document.createElement("fieldset");
+        this.createGroupLegend(groupName, nestedFieldset);
+        groupElement.appendChild(nestedFieldset);
+        return void this.createGroupInputs(items, nestedFieldset);
       }
-      const m = "radio" === type;
-      const g = inputDefault === greyValue;
+      const isRadio = "radio" === type;
+      const isDefaultGreyed = inputDefault === greyValue;
       if ("checkbox" === type || "number" === type) {
-        const t = document.createElement("div");
-        t.className = `input-container ${type}-container ${g ? "greyed-out" : ""}`;
-        const p = `input-${query}`;
-        const _ = document.createElement("label");
-        _.className = "clickable";
-        _.innerText = name;
-        _.setAttribute("for", p);
-        const m = document.createElement("input");
-        if (m.className = "clickable", m.setAttribute("id", p), m.setAttribute("type", type), m.setAttribute("name", query), "checkbox" === type && true === inputDefault) m.setAttribute("checked", "");else if ("number" === type) {
-          const [t, e, i] = values;
-          m.setAttribute("min", t);
-          m.setAttribute("max", e);
-          m.setAttribute("step", i ?? 1);
-          m.setAttribute("value", inputDefault);
-          m.setAttribute("inputmode", "decimal");
-          m.setAttribute("required", "");
-        } else m.setAttribute("value", inputDefault);
-        m.addEventListener("click", t => t.stopPropagation());
-        m.addEventListener("change", e => {
+        const inputContainer = document.createElement("div");
+        inputContainer.className = `input-container ${type}-container ${isDefaultGreyed ? "greyed-out" : ""}`;
+        const inputId = `input-${query}`;
+        const labelElement = document.createElement("label");
+        labelElement.className = "clickable";
+        labelElement.innerText = name;
+        labelElement.setAttribute("for", inputId);
+        const inputElement = document.createElement("input");
+        if (inputElement.className = "clickable", inputElement.setAttribute("id", inputId), inputElement.setAttribute("type", type), inputElement.setAttribute("name", query), "checkbox" === type && true === inputDefault) inputElement.setAttribute("checked", "");else if ("number" === type) {
+          const [minimumValue, maximumValue, stepValue] = values;
+          inputElement.setAttribute("min", minimumValue);
+          inputElement.setAttribute("max", maximumValue);
+          inputElement.setAttribute("step", stepValue ?? 1);
+          inputElement.setAttribute("value", inputDefault);
+          inputElement.setAttribute("inputmode", "decimal");
+          inputElement.setAttribute("required", "");
+        } else inputElement.setAttribute("value", inputDefault);
+        inputElement.addEventListener("click", clickEvent => clickEvent.stopPropagation());
+        inputElement.addEventListener("change", changeEvent => {
           const {
             checked: checked,
             value: value,
             validity: validity
-          } = e.target;
+          } = changeEvent.target;
           if ("checkbox" === type) {
-            const t = invert ? !checked : checked;
-            if (this.updateEmbedParams(query, t), "function" == typeof onChange && onChange(checked), relatedCheckboxesToDisable) for (let t = 0; t < relatedCheckboxesToDisable.length; t++) {
-              const e = document.getElementById(`input-${relatedCheckboxesToDisable[t]}`);
-              const s = e?.parentElement;
-              s?.classList.toggle("greyed-out-disabled", checked);
+            const queryValue = invert ? !checked : checked;
+            if (this.updateEmbedParams(query, queryValue), "function" == typeof onChange && onChange(checked), relatedCheckboxesToDisable) for (let relatedIndex = 0; relatedIndex < relatedCheckboxesToDisable.length; relatedIndex++) {
+              const relatedInput = document.getElementById(`input-${relatedCheckboxesToDisable[relatedIndex]}`);
+              const relatedContainer = relatedInput?.parentElement;
+              relatedContainer?.classList.toggle("greyed-out-disabled", checked);
             }
           } else if ("number" === type) {
-            const e = parseFloat(value);
-            const i = validity.valid ? e : appQueryDefault;
-            this.updateEmbedParams(query, i);
-            const o = !validity.valid || e === greyValue;
-            t.classList.toggle("greyed-out", o);
+            const numericValue = parseFloat(value);
+            const queryValue = validity.valid ? numericValue : appQueryDefault;
+            this.updateEmbedParams(query, queryValue);
+            const isGreyed = !validity.valid || numericValue === greyValue;
+            inputContainer.classList.toggle("greyed-out", isGreyed);
             "function" == typeof onChange && onChange(value);
           }
         });
-        const y = document.createElement("span");
-        y.className = "clickable icon icon-help";
-        y.setAttribute("data-tippy-content", description);
-        y.setAttribute("aria-label", `Help: ${description}`);
-        y.setAttribute("tabindex", "0");
-        t.appendChild(m);
-        t.appendChild(_);
-        t.appendChild(y);
-        e.appendChild(t);
-      } else if (m) {
-        const t = document.createElement("fieldset");
-        t.className = `radio-fieldset ${type}-option`;
-        const s = document.createElement("legend");
-        s.innerText = name;
-        t.appendChild(s);
+        const helpIcon = document.createElement("span");
+        helpIcon.className = "clickable icon icon-help";
+        helpIcon.setAttribute("data-tippy-content", description);
+        helpIcon.setAttribute("aria-label", `Help: ${description}`);
+        helpIcon.setAttribute("tabindex", "0");
+        inputContainer.appendChild(inputElement);
+        inputContainer.appendChild(labelElement);
+        inputContainer.appendChild(helpIcon);
+        groupElement.appendChild(inputContainer);
+      } else if (isRadio) {
+        const radioFieldset = document.createElement("fieldset");
+        radioFieldset.className = `radio-fieldset ${type}-option`;
+        const legendElement = document.createElement("legend");
+        legendElement.innerText = name;
+        radioFieldset.appendChild(legendElement);
         values.forEach(({
           title: title,
           value: value,
-          description: s
+          description: optionDescription
         }) => {
-          const r = document.createElement("div");
-          r.className = `input-container ${type}-container`;
-          const l = `input-${query}-${value}`;
-          const c = document.createElement("label");
-          c.className = "clickable";
-          c.innerText = title;
-          c.setAttribute("for", l);
-          const h = document.createElement("input");
-          h.className = "clickable";
-          h.setAttribute("id", l);
-          h.setAttribute("type", type);
-          h.setAttribute("name", query);
-          h.setAttribute("value", value);
-          value === inputDefault && h.setAttribute("checked", "");
-          h.addEventListener("change", t => {
+          const radioContainer = document.createElement("div");
+          radioContainer.className = `input-container ${type}-container`;
+          const radioInputId = `input-${query}-${value}`;
+          const radioLabel = document.createElement("label");
+          radioLabel.className = "clickable";
+          radioLabel.innerText = title;
+          radioLabel.setAttribute("for", radioInputId);
+          const radioInput = document.createElement("input");
+          radioInput.className = "clickable";
+          radioInput.setAttribute("id", radioInputId);
+          radioInput.setAttribute("type", type);
+          radioInput.setAttribute("name", query);
+          radioInput.setAttribute("value", value);
+          value === inputDefault && radioInput.setAttribute("checked", "");
+          radioInput.addEventListener("change", changeEvent => {
             const {
-              value: e
-            } = t.target;
-            this.updateEmbedParams(query, e);
+              value: selectedValue
+            } = changeEvent.target;
+            this.updateEmbedParams(query, selectedValue);
           });
-          const d = document.createElement("span");
-          d.className = "clickable icon icon-help";
-          d.setAttribute("data-tippy-content", s);
-          d.setAttribute("aria-label", `Help: ${s}`);
-          d.setAttribute("tabindex", "0");
-          r.appendChild(h);
-          r.appendChild(c);
-          r.appendChild(d);
-          t.appendChild(r);
+          const helpIcon = document.createElement("span");
+          helpIcon.className = "clickable icon icon-help";
+          helpIcon.setAttribute("data-tippy-content", optionDescription);
+          helpIcon.setAttribute("aria-label", `Help: ${optionDescription}`);
+          helpIcon.setAttribute("tabindex", "0");
+          radioContainer.appendChild(radioInput);
+          radioContainer.appendChild(radioLabel);
+          radioContainer.appendChild(helpIcon);
+          radioFieldset.appendChild(radioContainer);
         });
-        e.appendChild(t);
+        groupElement.appendChild(radioFieldset);
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 destroyEmbedContent 对应的组件业务步骤。
-   */
   destroyEmbedContent() {
     const {
       embedOptsContent: embedOptsContent,
@@ -706,112 +597,69 @@ class ShareModal extends EyesPublicApi.BaseComponent {
     embedOptsContent.innerHTML = "";
     embedAdvOptsContent.innerHTML = "";
   }
-  /** @eyes-analysis
-   * 执行 setActiveTab 对应的组件业务步骤；调用 Headers.childNodes.forEach, List.contains, List.toggle, Content.childNodes.forEach, this.updateEmbedCode；写入 _tippyItems, _tippySingleton, _activeTab。
-   * 状态写入：_activeTab、_tippyItems、_tippySingleton。
-   * 调用线索：0,animateFill.createSingleton、0,animateFill.default、e.classList.contains、e.classList.toggle、tabContent.childNodes.forEach等。
-   */
   setActiveTab(activeTab) {
     const {
       tabHeaders: tabHeaders,
       tabContent: tabContent
     } = this._children;
-    tabHeaders.childNodes.forEach(e => {
-      const i = e.classList.contains(activeTab);
-      e.classList.toggle("active", i);
+    tabHeaders.childNodes.forEach(tabHeader => {
+      const isActive = tabHeader.classList.contains(activeTab);
+      tabHeader.classList.toggle("active", isActive);
     });
-    tabContent.childNodes.forEach(e => {
-      const i = e.classList.contains(activeTab);
-      e.classList.toggle("active", i);
+    tabContent.childNodes.forEach(tabPanel => {
+      const isActive = tabPanel.classList.contains(activeTab);
+      tabPanel.classList.toggle("active", isActive);
     });
     "embed" === activeTab && (this.updateEmbedCode(), null === this._tippySingleton && (this._tippyItems = (0, animateFill.default)(".icon-help"), this._tippySingleton = (0, animateFill.createSingleton)(this._tippyItems, {
       moveTransition: "transform 0.2s ease-out"
     })));
     this._activeTab = activeTab;
   }
-  /** @eyes-analysis
-   * 执行 copyToClipboard 对应的组件业务步骤；调用 Overlay.classList.remove, Overlay.classList.add。
-   * 调用线索：console.error、copiedOverlay.classList.add、copiedOverlay.classList.remove、navigator.clipboard.writeText、navigator.clipboard.writeText(o).then等。
-   */
-  copyToClipboard(t) {
+  copyToClipboard(clickEvent) {
     const {
       linkCode: linkCode,
       linkContainer: linkContainer,
       embedCode: embedCode,
       copiedOverlay: copiedOverlay
     } = this._children;
-    const o = t.currentTarget.parentElement === linkContainer ? linkCode.textContent : embedCode?.textContent;
-    o && navigator.clipboard.writeText(o).then(() => (copiedOverlay.classList.remove("flash"), copiedOverlay.offsetWidth, copiedOverlay.classList.add("flash"), true)).catch(t => {
-      console.error("Could not copy text: ", t);
+    const clipboardText = clickEvent.currentTarget.parentElement === linkContainer ? linkCode.textContent : embedCode?.textContent;
+    clipboardText && navigator.clipboard.writeText(clipboardText).then(() => (copiedOverlay.classList.remove("flash"), copiedOverlay.offsetWidth, copiedOverlay.classList.add("flash"), true)).catch(clipboardError => {
+      console.error("Could not copy text: ", clipboardError);
     });
   }
-  /** @eyes-analysis
-   * 执行 handleClick 对应的组件业务步骤；调用 this.hide, this.resetScrollbar, this.resetEmbedOptions, this.destroyTooltips。
-   * 调用线索：this.destroyTooltips、this.hide、this.resetEmbedOptions、this.resetScrollbar、window.getSelection等。
-   */
-  handleClick(t) {
+  handleClick(clickEvent) {
     const {
       resetOnClose: resetOnClose
     } = this._config;
-    (t.target === this._element || t.target === this._children.closeButton) && (this.hide(), this.resetScrollbar(), resetOnClose && this.resetEmbedOptions(), this.destroyTooltips());
-    "CODE" !== t.target?.nodeName && window.getSelection().removeAllRanges();
+    (clickEvent.target === this._element || clickEvent.target === this._children.closeButton) && (this.hide(), this.resetScrollbar(), resetOnClose && this.resetEmbedOptions(), this.destroyTooltips());
+    "CODE" !== clickEvent.target?.nodeName && window.getSelection().removeAllRanges();
   }
-  /** @eyes-analysis
-   * 执行 handleTabClick 对应的组件业务步骤；调用 this.setActiveTab。
-   * 调用线索：t.target?.innerText?.toLowerCase、this.setActiveTab。
-   */
-  handleTabClick(t) {
-    const e = t.target?.innerText?.toLowerCase();
-    ("link" === e || "embed" === e) && this.setActiveTab(e);
+  handleTabClick(clickEvent) {
+    const tabName = clickEvent.target?.innerText?.toLowerCase();
+    ("link" === tabName || "embed" === tabName) && this.setActiveTab(tabName);
   }
-  /** @eyes-analysis
-   * 执行 destroyTooltips 对应的组件业务步骤；写入 _tippyItems, _tippySingleton。
-   * 状态写入：_tippyItems、_tippySingleton。
-   * 调用线索：this._tippySingleton?.destroy。
-   */
   destroyTooltips() {
     this._tippyItems = null;
     this._tippySingleton?.destroy();
     this._tippySingleton = null;
   }
-  /** @eyes-analysis
-   * 执行 resetEmbedOptions 对应的组件业务步骤；调用 this.setEmbedParams, this.destroyEmbedContent, this.generateEmbedContent。
-   * 调用线索：this.destroyEmbedContent、this.generateEmbedContent、this.setEmbedParams。
-   */
   resetEmbedOptions() {
     this.setEmbedParams();
     this.destroyEmbedContent();
     this.generateEmbedContent();
   }
-  /** @eyes-analysis
-   * 执行 resetScrollbar 对应的组件业务步骤；调用 this._embedOptionsScrollbar.scroll。
-   * 调用线索：this._embedOptionsScrollbar.scroll。
-   */
   resetScrollbar() {
     this._embedOptionsScrollbar.scroll(0);
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 this.calcIframeTransforms, this.setIsWide, this.addShareButtonToParent, this.resetScrollbar。
-   * 调用线索：this.addShareButtonToParent、this.calcIframeTransforms、this.resetScrollbar、this.setIsWide。
-   */
   resize() {
     this.calcIframeTransforms();
     this.setIsWide() && (this.addShareButtonToParent(), this.resetScrollbar());
   }
-  /** @eyes-analysis
-   * 切换当前组件及其子组件的启用状态；调用 super.setEnabled, this.shareButton.classList.toggle, this.addShareButtonToParent。
-   * 调用线索：super.setEnabled、this.addShareButtonToParent、this.shareButton.classList.toggle。
-   */
-  setEnabled(t) {
-    super.setEnabled(t);
-    this.shareButton.classList.toggle("hidden", !t);
-    t && !this.shareButton.parentNode && this.addShareButtonToParent();
+  setEnabled(isEnabled) {
+    super.setEnabled(isEnabled);
+    this.shareButton.classList.toggle("hidden", !isEnabled);
+    isEnabled && !this.shareButton.parentNode && this.addShareButtonToParent();
   }
-  /** @eyes-analysis
-   * 执行停用并释放根节点和父节点引用；调用 super.__disable；写入 shareButton。
-   * 状态写入：shareButton。
-   * 调用线索：super.__disable、this.shareButton.parentNode?.removeChild。
-   */
   __destroy() {
     super.__disable();
     this.shareButton.parentNode?.removeChild(this.shareButton);

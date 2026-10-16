@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：结束拖动，处理点击/双击、惯性以及滑片吸附
- * 依据：// Recovered from vendors.js:1634510-1636505.；exports: default
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:1634510-1636505.
 import * as animateCSSModeScroll from "./animateCSSModeScroll.js";
 function i(e) {

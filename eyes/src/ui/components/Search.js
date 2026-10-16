@@ -1,29 +1,14 @@
-/** @eyes-analysis
- * 文件职责：搜索输入、建议结果和选择导航
- * 依据：imports: ../../framework/eyes/public-api.js, ../templates/SearchTemplate.html；manager dependencies: search, content, router
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:575629-587527.
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 import SearchTemplate from "../templates/SearchTemplate.html";
 let defaultExport;
 var getSearchTemplate = () => SearchTemplate;
-/** @eyes-analysis
- * 类职责：搜索输入、建议结果和选择导航；继承 EyesPublicApi.BaseComponent
- * 继承：EyesPublicApi.BaseComponent；导出：default。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 输入防抖后由 search 管理器返回匹配，低分结果和建议分开渲染；结果数组同时保存链接与 DOM，供键盘与悬停共享选择索引。单结果详情失败为 404 时回退列表，相关故事/事件等块继续加入同一导航序列。 */
 class Search extends EyesPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_class.isItemVisible、_excludeResults、_featuredScrollbar、_resultsScrollbar、_suggestionsThreshold、index、onResize、results。
-   * 调用线索：Object.assign、super、this._eventNames.push、this._initCallbacks、this.bindFunctions等。
-   */
-  constructor(t, e = {
+  constructor(app, options = {
     config: {}
   }) {
-    e.config = {
+    options.config = {
       initialOpen: false,
       allowFeatured: false,
       allowDetail: true,
@@ -39,17 +24,17 @@ class Search extends EyesPublicApi.BaseComponent {
       placeholderText: "Search...",
       nameSearch: ["iauName", "displayName"],
       nameDisplay: ["displayName", "iauName"],
-      ...e.config
+      ...options.config
     };
-    super(t, null, {
+    super(app, null, {
       text: "",
-      searchInfo: e.config?.infoText?.default || "",
+      searchInfo: options.config?.infoText?.default || "",
       alwaysOpen: false,
       magClass: "mag-open",
       searchClass: "search-close",
       focusedClass: "",
       isFeaturedVisible: false,
-      ...e
+      ...options
     });
     this._class.isItemVisible = {
       true: "",
@@ -72,21 +57,16 @@ class Search extends EyesPublicApi.BaseComponent {
     this.bindFunctions(["_find", "renderResults", "open", "close", "eraseInput", "onIconClick", "reset", "keydown", "onInputFocus", "_getDetails", "_handleClick"]);
     window.addEventListener("setupSearch", this.resize);
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._children.input.getAttribute, this.setState, this.resize, this.registerManager, this._app.getManager。
-   * 状态写入：_children.input.onkeyup、_children.input.style.minWidth。
-   * 调用线索：super.init、this._app.getManager、this._children.input.getAttribute、this._featuredScrollbar?.scroll、this.registerManager等。
-   */
   init() {
     super.init();
-    const t = .9 * this._children.input.getAttribute("placeholder").length;
-    this._children.input.style.minWidth = `${t}ch`;
-    this._children.input.onkeyup = t => {
-      const e = 0 === this._children.input.value.length;
-      this._config.allowFeatured && e !== this._state.isFeaturedVisible && (this._featuredScrollbar?.scroll(0), this.setState({
-        isFeaturedVisible: e,
-        isFeaturedVisibleClass: this._class.isItemVisible[e],
-        ...(e && {
+    const placeholderWidth = .9 * this._children.input.getAttribute("placeholder").length;
+    this._children.input.style.minWidth = `${placeholderWidth}ch`;
+    this._children.input.onkeyup = keyEvent => {
+      const isInputEmpty = 0 === this._children.input.value.length;
+      this._config.allowFeatured && isInputEmpty !== this._state.isFeaturedVisible && (this._featuredScrollbar?.scroll(0), this.setState({
+        isFeaturedVisible: isInputEmpty,
+        isFeaturedVisibleClass: this._class.isItemVisible[isInputEmpty],
+        ...(isInputEmpty && {
           searchInfo: this._config.infoText.default
         })
       }));
@@ -94,419 +74,328 @@ class Search extends EyesPublicApi.BaseComponent {
     this.resize();
     this.registerManager(this._app.getManager("search"));
   }
-  /** @eyes-analysis
-   * 执行 onIconClick 对应的组件业务步骤；调用 this.open, this._children.input.focus, this.reset, this._children.results.querySelector, Child.click。
-   * 调用线索：this._children.input.focus、this._children.results.querySelector、this._children.results.querySelector(".active")?.firstChild.click、this._scrollbar?.scroll、this.open等。
-   */
   onIconClick() {
     "search-close" === this._state.searchClass ? (this._scrollbar?.scroll(0), this.open(), this._children.input.focus()) : "" === this._children.input.value ? this.reset() : this._children.results.querySelector(".active")?.firstChild.click();
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 super.resize, this.onResize。
-   * 调用线索：super.resize、this.onResize。
-   */
   resize() {
     super.resize();
     "function" == typeof this.onResize && this.onResize();
   }
-  /** @eyes-analysis
-   * 执行 reset 对应的组件业务步骤；调用 this.eraseInput, this.close。
-   * 调用线索：this.close、this.eraseInput。
-   */
   reset() {
     this.eraseInput();
     this._config.initialOpen || this.close();
   }
-  /** @eyes-analysis
-   * 执行 keydown 对应的组件业务步骤；调用 this.eraseInput, this.close, this._handleClick, this.setSelected；写入 index。
-   * 状态写入：index。
-   * 调用线索：t.preventDefault、this._handleClick、this.close、this.eraseInput、this.setSelected。
-   */
-  keydown(t) {
-    const e = t.key;
-    "Escape" === e && (this.eraseInput(), this.close());
-    const i = this.results.length;
-    i && ("ArrowDown" === e ? (this.index = (this.index + 1) % i, t.preventDefault()) : "ArrowUp" === e ? (this.index -= 1, this.index < 0 && (this.index = i - 1), t.preventDefault()) : "Enter" === e && (this._handleClick(this.results[this.index]?.link || this.results[0]?.link, this._searchString), t.preventDefault()), this.setSelected(this.index));
+  keydown(keyEvent) {
+    const keyName = keyEvent.key;
+    "Escape" === keyName && (this.eraseInput(), this.close());
+    const resultCount = this.results.length;
+    resultCount && ("ArrowDown" === keyName ? (this.index = (this.index + 1) % resultCount, keyEvent.preventDefault()) : "ArrowUp" === keyName ? (this.index -= 1, this.index < 0 && (this.index = resultCount - 1), keyEvent.preventDefault()) : "Enter" === keyName && (this._handleClick(this.results[this.index]?.link || this.results[0]?.link, this._searchString), keyEvent.preventDefault()), this.setSelected(this.index));
   }
-  /** @eyes-analysis
-   * 执行 setSelected 对应的组件业务步骤；调用 List.add, List.remove；写入 index。
-   * 状态写入：index。
-   * 调用线索：e.classList.add、e.classList.remove。
-   */
   setSelected(index) {
     this.index = index;
-    for (let t = 0; t < this.results.length; t++) {
-      const e = this.results[t].element;
-      e && (t === this.index ? e.classList.add("active") : e.classList.remove("active"));
+    for (let resultIndex = 0; resultIndex < this.results.length; resultIndex++) {
+      const resultElement = this.results[resultIndex].element;
+      resultElement && (resultIndex === this.index ? resultElement.classList.add("active") : resultElement.classList.remove("active"));
     }
   }
-  /** @eyes-analysis
-   * 执行 onInputFocus 对应的组件业务步骤；调用 this.setState。
-   * 调用线索：this.setState。
-   */
   onInputFocus() {
     this.setState({
       focusedClass: "input-focused"
     });
   }
-  /** @eyes-analysis
-   * 执行 eraseInput 对应的组件业务步骤；写入 _resultsScrollbar。
-   * 状态写入：_children.input.value、_children.results.innerHTML、_resultsScrollbar。
-   * 调用线索：this._resultsScrollbar?.destroy。
-   */
   eraseInput() {
     this._resultsScrollbar?.destroy();
     this._resultsScrollbar = null;
     this._children.input.value = "";
     this._children.results.innerHTML = "";
   }
-  /** @eyes-analysis
-   * 执行 registerManager 对应的组件业务步骤；写入 _searchManager。
-   * 状态写入：_searchManager。
-   */
   registerManager(searchManager) {
     this._searchManager = searchManager;
   }
-  /** @eyes-analysis
-   * 执行 _find 对应的组件业务步骤；调用 this._searchManager.find, this._excludeResults.includes, this.renderResults；写入 _searchTimeout。
-   * 状态写入：_searchTimeout。
-   * 调用线索：clearTimeout、setTimeout、t.filter、this._excludeResults.includes、this._searchManager.find等。
-   */
-  _find(t, e) {
+  _find(inputEvent, searchText) {
     this._searchTimeout && clearTimeout(this._searchTimeout);
-    t && t.target && t.target.value && (e = t.target.value);
+    inputEvent && inputEvent.target && inputEvent.target.value && (searchText = inputEvent.target.value);
     const {
       maxEntries: maxEntries
     } = this._config;
     this._searchTimeout = setTimeout(async () => {
       if (this._searchManager) {
-        const t = this._searchManager.find(e, maxEntries);
-        const s = t?.length && this._excludeResults?.length ? t.filter(({
+        const matches = this._searchManager.find(searchText, maxEntries);
+        const includedMatches = matches?.length && this._excludeResults?.length ? matches.filter(({
           item: item
-        }) => !this._excludeResults.includes(item.id)) : t;
-        await this.renderResults(s, e);
+        }) => !this._excludeResults.includes(item.id)) : matches;
+        await this.renderResults(includedMatches, searchText);
       }
     }, 100);
   }
-  /** @eyes-analysis
-   * 执行 renderResults 对应的组件业务步骤；调用 this._children.results.classList.remove, Array.isArray, Search.find, String.toLowerCase, this._renderResultCard, this._renderResultList, this._renderSuggestions, this._createScrollbar, Math.min, this.setState, this.setSelected；写入 index, results, _searchString, _resultsScrollbar。
-   * 状态写入：_children.results.innerHTML、_resultsScrollbar、_searchString、index、results。
-   * 调用线索：Array.isArray、Math.min、a.toLowerCase、i.push、nameSearch.find等。
-   */
-  async renderResults(t, searchString) {
-    if (this.index = -1, this.results = [], this._searchString = searchString, this._resultsScrollbar?.destroy(), this._resultsScrollbar = null, this._children.results.innerHTML = "", this._children.results.classList.remove("no-results"), !t || !Array.isArray(t)) return;
-    const i = [];
-    const s = [];
-    for (let n = 0; n < t.length; n++) {
-      const o = t[n];
+  async renderResults(matches, searchString) {
+    if (this.index = -1, this.results = [], this._searchString = searchString, this._resultsScrollbar?.destroy(), this._resultsScrollbar = null, this._children.results.innerHTML = "", this._children.results.classList.remove("no-results"), !matches || !Array.isArray(matches)) return;
+    const suggestions = [];
+    const exactResults = [];
+    for (let matchIndex = 0; matchIndex < matches.length; matchIndex++) {
+      const match = matches[matchIndex];
       const {
         nameSearch: nameSearch
       } = this._config;
-      const a = o.item[nameSearch.find(t => void 0 !== o.item[t])];
-      if (this._config.stopOnExactMatch && searchString.toLowerCase() === a.toLowerCase()) {
-        s.length = 0;
-        i.length = 0;
-        s.push(o);
+      const searchableName = match.item[nameSearch.find(fieldName => void 0 !== match.item[fieldName])];
+      if (this._config.stopOnExactMatch && searchString.toLowerCase() === searchableName.toLowerCase()) {
+        exactResults.length = 0;
+        suggestions.length = 0;
+        exactResults.push(match);
         break;
       }
-      o.score < this._suggestionsThreshold ? s.push(o) : i.push(o);
+      match.score < this._suggestionsThreshold ? exactResults.push(match) : suggestions.push(match);
     }
-    1 === s.length ? this._config.allowDetail ? await this._renderResultCard(s[0], searchString) : this._renderResultList(s, searchString) : 0 === s.length ? this._renderSuggestions(i, searchString) : this._renderResultList(s, searchString);
-    s.length > 3 && (this._resultsScrollbar ??= this._createScrollbar(this._children.results));
+    1 === exactResults.length ? this._config.allowDetail ? await this._renderResultCard(exactResults[0], searchString) : this._renderResultList(exactResults, searchString) : 0 === exactResults.length ? this._renderSuggestions(suggestions, searchString) : this._renderResultList(exactResults, searchString);
+    exactResults.length > 3 && (this._resultsScrollbar ??= this._createScrollbar(this._children.results));
     const {
       allowInfo: allowInfo,
       infoText: infoText,
       maxSuggestions: maxSuggestions
     } = this._config;
     if (allowInfo) {
-      let t = infoText.nomatches;
-      s.length ? t = `${s.length} ${infoText.results}${s.length > 1 ? "s" : ""}` : i.length && (t = `${Math.min(i.length, maxSuggestions)} ${infoText.suggestions}${i.length > 1 ? "s" : ""}`);
+      let infoMessage = infoText.nomatches;
+      exactResults.length ? infoMessage = `${exactResults.length} ${infoText.results}${exactResults.length > 1 ? "s" : ""}` : suggestions.length && (infoMessage = `${Math.min(suggestions.length, maxSuggestions)} ${infoText.suggestions}${suggestions.length > 1 ? "s" : ""}`);
       this.setState({
-        searchInfo: t
+        searchInfo: infoMessage
       });
     }
     this.setSelected(0);
   }
-  /** @eyes-analysis
-   * 执行 _renderResultCard 对应的组件业务步骤；调用 this._getDetails, Display.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild, this._createStoryBlock, this._createEventsBlock, this._createExplorationBlock, this._createMoonsBlock, this._renderResultList。
-   * 状态写入：_children.results.innerHTML。
-   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、console.error、document.createElement、e.toUpperCase、i?.stopPropagation等。
-   */
-  async _renderResultCard(t, e) {
+  async _renderResultCard(match, searchText) {
     try {
-      let i = await this._getDetails(t);
-      if (!i && t && t.item) {
+      let entityDetails = await this._getDetails(match);
+      if (!entityDetails && match && match.item) {
         const {
           nameDisplay: nameDisplay
         } = this._config;
-        i = {
-          title: t.item[nameDisplay.find(e => void 0 !== t.item[e])]
+        entityDetails = {
+          title: match.item[nameDisplay.find(fieldName => void 0 !== match.item[fieldName])]
         };
       }
-      const n = document.createElement("div");
-      n.className = "card-title result-div";
-      const o = document.createElement("h4");
-      o.className = "semi clickable";
-      let r = i.title;
-      if ("string" == typeof r) {
-        const t = r.toUpperCase().indexOf(e.toUpperCase());
-        if (t > -1) {
-          const i = r.substring(t, t + e.length);
-          const s = r.split(i);
-          s && 2 === s.length && (r = "", s[0].length > 0 && (r += `<span class='unmatch'>${s[0]}</span>`), r += i, s[1].length > 0 && (r += `<span class='unmatch'>${s[1]}</span>`));
+      const cardElement = document.createElement("div");
+      cardElement.className = "card-title result-div";
+      const titleElement = document.createElement("h4");
+      titleElement.className = "semi clickable";
+      let highlightedTitle = entityDetails.title;
+      if ("string" == typeof highlightedTitle) {
+        const matchStart = highlightedTitle.toUpperCase().indexOf(searchText.toUpperCase());
+        if (matchStart > -1) {
+          const matchedText = highlightedTitle.substring(matchStart, matchStart + searchText.length);
+          const unmatchedParts = highlightedTitle.split(matchedText);
+          unmatchedParts && 2 === unmatchedParts.length && (highlightedTitle = "", unmatchedParts[0].length > 0 && (highlightedTitle += `<span class='unmatch'>${unmatchedParts[0]}</span>`), highlightedTitle += matchedText, unmatchedParts[1].length > 0 && (highlightedTitle += `<span class='unmatch'>${unmatchedParts[1]}</span>`));
         }
-      } else r = "";
-      o.innerHTML = r;
-      const a = EyesPublicApi.AppUtils.addStartToPath(t.item.id);
-      o.addEventListener("mouseover", () => {
+      } else highlightedTitle = "";
+      titleElement.innerHTML = highlightedTitle;
+      const resultLink = EyesPublicApi.AppUtils.addStartToPath(match.item.id);
+      titleElement.addEventListener("mouseover", () => {
         this.setSelected(0);
       }, false);
-      o.addEventListener("click", i => {
-        t.item && this._handleClick(t.item.id, e);
-        i?.stopPropagation?.();
+      titleElement.addEventListener("click", clickEvent => {
+        match.item && this._handleClick(match.item.id, searchText);
+        clickEvent?.stopPropagation?.();
       }, false);
-      n.appendChild(o);
+      cardElement.appendChild(titleElement);
       this.results.push({
-        link: a,
-        element: n
+        link: resultLink,
+        element: cardElement
       });
       this._children.results.innerHTML = "";
-      this._children.results.appendChild(n);
-      i.cards && this._createStoryBlock(i.cards);
-      i.featuredEvents && i.featuredEvents.initial && this._createEventsBlock(i.featuredEvents.initial, t.item.id);
-      i.exploration && i.exploration.initial && this._createExplorationBlock(i.exploration.initial);
-      i.featuredMoons && this._createMoonsBlock(i.featuredMoons, t.item.id);
-    } catch (i) {
-      void 0 !== i.status && 404 === i.status ? this._renderResultList([t], e) : i && console.error(i);
+      this._children.results.appendChild(cardElement);
+      entityDetails.cards && this._createStoryBlock(entityDetails.cards);
+      entityDetails.featuredEvents && entityDetails.featuredEvents.initial && this._createEventsBlock(entityDetails.featuredEvents.initial, match.item.id);
+      entityDetails.exploration && entityDetails.exploration.initial && this._createExplorationBlock(entityDetails.exploration.initial);
+      entityDetails.featuredMoons && this._createMoonsBlock(entityDetails.featuredMoons, match.item.id);
+    } catch (detailsError) {
+      void 0 !== detailsError.status && 404 === detailsError.status ? this._renderResultList([match], searchText) : detailsError && console.error(detailsError);
     }
   }
-  /** @eyes-analysis
-   * 执行 _createEventsBlock 对应的组件业务步骤；调用 Array.isArray, this._app.getManager, this._createBlockContainer, List.add, this._createHeaderBlock, EyesPublicApi.AppUtils.addStartToPath, this._createSingleResult, this.results.push。
-   * 调用线索：Array.isArray、EyesPublicApi.AppUtils.addStartToPath、n.classList.add、this._app.getManager、this._app.getManager("content").getEntityInfo等。
-   */
-  _createEventsBlock(t, e) {
-    if (!Array.isArray(t) || 0 === t.length) return;
-    const i = this._app.getManager("content").getEntityInfo(e);
-    if (null === i || !i.hasEvents) return;
-    const n = this._createBlockContainer();
-    n.classList.add("events");
-    this._createHeaderBlock("Featured Events", n);
-    for (let i = 0; i < t.length; i++) {
-      const o = t[i];
-      const r = o.title;
-      const a = EyesPublicApi.AppUtils.addStartToPath(e + "/events/" + o.eventId);
-      const l = this._createSingleResult(r, a, n);
+  _createEventsBlock(featuredEvents, entityId) {
+    if (!Array.isArray(featuredEvents) || 0 === featuredEvents.length) return;
+    const entityInfo = this._app.getManager("content").getEntityInfo(entityId);
+    if (null === entityInfo || !entityInfo.hasEvents) return;
+    const blockElement = this._createBlockContainer();
+    blockElement.classList.add("events");
+    this._createHeaderBlock("Featured Events", blockElement);
+    for (let eventIndex = 0; eventIndex < featuredEvents.length; eventIndex++) {
+      const eventInfo = featuredEvents[eventIndex];
+      const eventTitle = eventInfo.title;
+      const eventLink = EyesPublicApi.AppUtils.addStartToPath(entityId + "/events/" + eventInfo.eventId);
+      const resultElement = this._createSingleResult(eventTitle, eventLink, blockElement);
       this.results.push({
-        link: a,
-        element: l
+        link: eventLink,
+        element: resultElement
       });
     }
   }
-  /** @eyes-analysis
-   * 执行 _createMoonsBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
-   * 调用线索：Array.isArray、e.classList.add、this._createBlockContainer、this._createHeaderBlock、this._createSingleResult等。
-   */
-  _createMoonsBlock(t) {
-    if (!Array.isArray(t) || 0 === t.length) return;
-    const e = this._createBlockContainer();
-    e.classList.add("moons");
-    this._createHeaderBlock("Featured Moons", e);
-    for (let i = 0; i < t.length; i++) {
-      const s = t[i];
-      const n = t[i];
-      const o = this._createSingleResult(s, n, e);
+  _createMoonsBlock(moonEntries) {
+    if (!Array.isArray(moonEntries) || 0 === moonEntries.length) return;
+    const blockElement = this._createBlockContainer();
+    blockElement.classList.add("moons");
+    this._createHeaderBlock("Featured Moons", blockElement);
+    for (let moonIndex = 0; moonIndex < moonEntries.length; moonIndex++) {
+      const moonTitle = moonEntries[moonIndex];
+      const moonLink = moonEntries[moonIndex];
+      const resultElement = this._createSingleResult(moonTitle, moonLink, blockElement);
       this.results.push({
-        link: n,
-        element: o
+        link: moonLink,
+        element: resultElement
       });
     }
   }
-  /** @eyes-analysis
-   * 执行 _createExplorationBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._createHeaderBlock, this._createSingleResult, this.results.push。
-   * 调用线索：Array.isArray、e.classList.add、this._createBlockContainer、this._createHeaderBlock、this._createSingleResult等。
-   */
-  _createExplorationBlock(t) {
-    if (!Array.isArray(t) || 0 === t.length) return;
-    const e = this._createBlockContainer();
-    e.classList.add("exploration");
-    this._createHeaderBlock("Exploration", e);
-    for (let i = 0; i < t.length; i++) {
-      const s = t[i];
-      let n = s.title;
-      null !== s.info && void 0 !== s.info && (n += " (" + s.info + ")");
-      const o = s.url;
-      const r = this._createSingleResult(n, o, e);
+  _createExplorationBlock(explorationLinks) {
+    if (!Array.isArray(explorationLinks) || 0 === explorationLinks.length) return;
+    const blockElement = this._createBlockContainer();
+    blockElement.classList.add("exploration");
+    this._createHeaderBlock("Exploration", blockElement);
+    for (let entryIndex = 0; entryIndex < explorationLinks.length; entryIndex++) {
+      const explorationInfo = explorationLinks[entryIndex];
+      let entryTitle = explorationInfo.title;
+      null !== explorationInfo.info && void 0 !== explorationInfo.info && (entryTitle += " (" + explorationInfo.info + ")");
+      const entryLink = explorationInfo.url;
+      const resultElement = this._createSingleResult(entryTitle, entryLink, blockElement);
       this.results.push({
-        link: o,
-        element: r
+        link: entryLink,
+        element: resultElement
       });
     }
   }
-  /** @eyes-analysis
-   * 执行 _createStoryBlock 对应的组件业务步骤；调用 Array.isArray, this._createBlockContainer, List.add, this._app.getManager, this._createHeaderBlock, this._createSingleResult, this.results.push。
-   * 调用线索：Array.isArray、e.classList.add、this._app.getManager、this._app.getManager("content").getStoryList、this._createBlockContainer等。
-   */
-  _createStoryBlock(t) {
-    if (!Array.isArray(t) || 0 === t.length) return;
-    const e = this._createBlockContainer();
-    e.classList.add("stories");
-    let i = false;
-    for (let s = 0; s < t.length; s++) {
-      const n = t[s];
-      if (void 0 !== n.storyId) {
-        const t = this._app.getManager("content").getStoryList().stories[n.storyId];
-        if (void 0 !== t) {
-          i || (this._createHeaderBlock("Stories", e), i = true);
-          const s = t.title;
-          const o = "/story/" + n.storyId;
-          const r = this._createSingleResult(s, o, e);
+  _createStoryBlock(storyCards) {
+    if (!Array.isArray(storyCards) || 0 === storyCards.length) return;
+    const blockElement = this._createBlockContainer();
+    blockElement.classList.add("stories");
+    let headerCreated = false;
+    for (let cardIndex = 0; cardIndex < storyCards.length; cardIndex++) {
+      const storyCard = storyCards[cardIndex];
+      if (void 0 !== storyCard.storyId) {
+        const storyInfo = this._app.getManager("content").getStoryList().stories[storyCard.storyId];
+        if (void 0 !== storyInfo) {
+          headerCreated || (this._createHeaderBlock("Stories", blockElement), headerCreated = true);
+          const storyTitle = storyInfo.title;
+          const storyLink = "/story/" + storyCard.storyId;
+          const resultElement = this._createSingleResult(storyTitle, storyLink, blockElement);
           this.results.push({
-            link: o,
-            element: r
+            link: storyLink,
+            element: resultElement
           });
         }
       }
     }
   }
-  /** @eyes-analysis
-   * 执行 _createBlockContainer 对应的组件业务步骤；调用 this._children.results.appendChild。
-   * 调用线索：document.createElement、this._children.results.appendChild。
-   */
   _createBlockContainer() {
-    const t = document.createElement("div");
-    t.className = "block-container";
-    this._children.results.appendChild(t);
-    return t;
+    const blockElement = document.createElement("div");
+    blockElement.className = "block-container";
+    this._children.results.appendChild(blockElement);
+    return blockElement;
   }
-  /** @eyes-analysis
-   * 执行 _createHeaderBlock 对应的组件业务步骤。
-   * 调用线索：document.createElement、e.appendChild、i.appendChild。
-   */
-  _createHeaderBlock(t, e) {
-    const i = document.createElement("div");
-    i.className = "header";
-    const s = document.createElement("span");
-    s.className = "title small semi";
-    s.innerHTML = t;
-    i.appendChild(s);
-    e.appendChild(i);
+  _createHeaderBlock(headerText, blockElement) {
+    const headerElement = document.createElement("div");
+    headerElement.className = "header";
+    const titleElement = document.createElement("span");
+    titleElement.className = "title small semi";
+    titleElement.innerHTML = headerText;
+    headerElement.appendChild(titleElement);
+    blockElement.appendChild(headerElement);
   }
-  /** @eyes-analysis
-   * 执行 _createSingleResult 对应的组件业务步骤；调用 this._handleClick, this.setSelected。
-   * 调用线索：document.createElement、i.appendChild、s.addEventListener、s.appendChild、t?.stopPropagation等。
-   */
-  _createSingleResult(t, e, i) {
-    const s = document.createElement("div");
-    s.className = "result-div";
-    const n = document.createElement("button");
-    n.className = "small clickable capitalize";
-    n.innerHTML = t;
-    const o = this.results.length - 1 + 1;
-    s.addEventListener("click", t => {
-      this._handleClick(e, this._searchString);
-      t?.stopPropagation?.();
+  _createSingleResult(resultTitle, resultLink, parentElement) {
+    const resultElement = document.createElement("div");
+    resultElement.className = "result-div";
+    const resultButton = document.createElement("button");
+    resultButton.className = "small clickable capitalize";
+    resultButton.innerHTML = resultTitle;
+    const resultIndex = this.results.length - 1 + 1;
+    resultElement.addEventListener("click", clickEvent => {
+      this._handleClick(resultLink, this._searchString);
+      clickEvent?.stopPropagation?.();
     }, false);
-    s.addEventListener("mouseover", () => {
-      this.setSelected(o);
+    resultElement.addEventListener("mouseover", () => {
+      this.setSelected(resultIndex);
     }, false);
-    s.appendChild(n);
-    i.appendChild(s);
-    return s;
+    resultElement.appendChild(resultButton);
+    parentElement.appendChild(resultElement);
+    return resultElement;
   }
-  /** @eyes-analysis
-   * 执行 _renderResultList 对应的组件业务步骤；调用 Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.appendChild。
-   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、c.replace、c.substring、document.createElement、e.toUpperCase等。
-   */
-  _renderResultList(t, e) {
-    for (let i = 0; i < t.length; i++) {
-      const n = t[i].item;
+  _renderResultList(matches, searchText) {
+    for (let resultIndex = 0; resultIndex < matches.length; resultIndex++) {
+      const entityInfo = matches[resultIndex].item;
       const {
         nameSearch: nameSearch
       } = this._config;
-      const r = n[nameSearch.find(t => void 0 !== n[t])];
-      if (!r) continue;
-      const a = document.createElement("button");
-      a.className = "entries clickable thin small";
-      const l = n.url || n.id;
-      let c = r;
-      const h = r.toUpperCase().indexOf(e.toUpperCase());
-      if (h > -1) {
-        const t = c.substring(h, h + e.length);
-        c = c.replace(t, `<span class='semi'>${t}</span>`);
+      const searchableName = entityInfo[nameSearch.find(fieldName => void 0 !== entityInfo[fieldName])];
+      if (!searchableName) continue;
+      const resultButton = document.createElement("button");
+      resultButton.className = "entries clickable thin small";
+      const rawLink = entityInfo.url || entityInfo.id;
+      let highlightedName = searchableName;
+      const matchStart = searchableName.toUpperCase().indexOf(searchText.toUpperCase());
+      if (matchStart > -1) {
+        const matchedText = highlightedName.substring(matchStart, matchStart + searchText.length);
+        highlightedName = highlightedName.replace(matchedText, `<span class='semi'>${matchedText}</span>`);
       }
-      a.innerHTML = c;
-      const d = EyesPublicApi.AppUtils.addStartToPath(l);
-      const u = document.createElement("div");
-      u.className = "result-div";
-      u.appendChild(a);
-      u.addEventListener("mouseover", () => {
-        this.setSelected(i);
+      resultButton.innerHTML = highlightedName;
+      const resultLink = EyesPublicApi.AppUtils.addStartToPath(rawLink);
+      const resultElement = document.createElement("div");
+      resultElement.className = "result-div";
+      resultElement.appendChild(resultButton);
+      resultElement.addEventListener("mouseover", () => {
+        this.setSelected(resultIndex);
       }, false);
-      u.addEventListener("click", t => {
-        this._handleClick(l, e);
-        t?.stopPropagation?.();
+      resultElement.addEventListener("click", clickEvent => {
+        this._handleClick(rawLink, searchText);
+        clickEvent?.stopPropagation?.();
       }, false);
       this.results.push({
-        link: d,
-        element: u
+        link: resultLink,
+        element: resultElement
       });
-      this._children.results.appendChild(u);
+      this._children.results.appendChild(resultElement);
     }
   }
-  /** @eyes-analysis
-   * 执行 _renderSuggestions 对应的组件业务步骤；调用 Math.min, Search.find, EyesPublicApi.AppUtils.addStartToPath, this.setSelected, this._handleClick, this.results.push, this._children.results.classList.add, this._children.results.appendChild。
-   * 调用线索：EyesPublicApi.AppUtils.addStartToPath、Math.min、c.appendChild、document.createElement、i.appendChild等。
-   */
-  _renderSuggestions(t, e) {
-    const i = document.createElement("div");
-    if (i.className = "suggestion", t.length > 0) {
-      const n = document.createElement("label");
-      n.className = "title small semi";
-      n.innerHTML = "Did you mean...?";
-      i.appendChild(n);
-      for (let n = 0; n < Math.min(this._config.maxSuggestions, t.length); n++) {
-        const o = document.createElement("button");
-        o.className = "entries clickable";
-        const r = t[n].item;
+  _renderSuggestions(suggestions, searchText) {
+    const suggestionsElement = document.createElement("div");
+    if (suggestionsElement.className = "suggestion", suggestions.length > 0) {
+      const headingElement = document.createElement("label");
+      headingElement.className = "title small semi";
+      headingElement.innerHTML = "Did you mean...?";
+      suggestionsElement.appendChild(headingElement);
+      for (let suggestionIndex = 0; suggestionIndex < Math.min(this._config.maxSuggestions, suggestions.length); suggestionIndex++) {
+        const resultButton = document.createElement("button");
+        resultButton.className = "entries clickable";
+        const entityInfo = suggestions[suggestionIndex].item;
         const {
           nameSearch: nameSearch
         } = this._config;
-        const l = r[nameSearch.find(t => void 0 !== r[t])];
-        if (l) {
-          const t = r.url || r.id;
-          o.innerHTML = l;
-          const a = EyesPublicApi.AppUtils.addStartToPath(t);
-          o.addEventListener("mouseover", () => {
-            this.setSelected(n);
+        const searchableName = entityInfo[nameSearch.find(fieldName => void 0 !== entityInfo[fieldName])];
+        if (searchableName) {
+          const rawLink = entityInfo.url || entityInfo.id;
+          resultButton.innerHTML = searchableName;
+          const resultLink = EyesPublicApi.AppUtils.addStartToPath(rawLink);
+          resultButton.addEventListener("mouseover", () => {
+            this.setSelected(suggestionIndex);
           }, false);
-          o.addEventListener("click", i => {
-            this._handleClick(t, e);
-            i?.stopPropagation?.();
+          resultButton.addEventListener("click", clickEvent => {
+            this._handleClick(rawLink, searchText);
+            clickEvent?.stopPropagation?.();
           }, false);
-          const c = document.createElement("div");
-          c.className = "result-div small";
-          c.appendChild(o);
-          i.appendChild(c);
+          const resultElement = document.createElement("div");
+          resultElement.className = "result-div small";
+          resultElement.appendChild(resultButton);
+          suggestionsElement.appendChild(resultElement);
           this.results.push({
-            link: a,
-            element: c
+            link: resultLink,
+            element: resultElement
           });
         }
       }
     } else if (!this._config.allowInfo) {
-      const t = document.createElement("label");
-      t.className = "title no-match small";
-      t.innerHTML = "No matches.";
-      i.appendChild(t);
+      const noMatchesLabel = document.createElement("label");
+      noMatchesLabel.className = "title no-match small";
+      noMatchesLabel.innerHTML = "No matches.";
+      suggestionsElement.appendChild(noMatchesLabel);
       this._children.results.classList.add("no-results");
     }
-    this._children.results.appendChild(i);
+    this._children.results.appendChild(suggestionsElement);
   }
-  /** @eyes-analysis
-   * 执行 open 对应的组件业务步骤；调用 this.setState。
-   * 状态写入：app.isSearching。
-   * 调用线索：this.setState。
-   */
   open() {
     this.setState({
       magClass: "mag-close",
@@ -519,11 +408,6 @@ class Search extends EyesPublicApi.BaseComponent {
     });
     this.app.isSearching = true;
   }
-  /** @eyes-analysis
-   * 执行 close 对应的组件业务步骤；调用 this.getState, this.setState。
-   * 状态写入：app.isSearching。
-   * 调用线索：this._children.input?.blur、this.getState、this.setState。
-   */
   close() {
     this.getState("alwaysOpen") ? this.setState({
       magClass: "mag-close",
@@ -541,98 +425,65 @@ class Search extends EyesPublicApi.BaseComponent {
     this._children.input?.blur();
     this.app.isSearching = false;
   }
-  /** @eyes-analysis
-   * 执行 setupFeaturedSuggestion 对应的组件业务步骤；调用 this._handleClick, this._children.featured.appendChild。
-   * 状态写入：_children.featured.innerHTML。
-   * 调用线索：document.createElement、n.addEventListener、t?.stopPropagation、this._children.featured.appendChild、this._handleClick。
-   */
-  setupFeaturedSuggestion(t = []) {
+  setupFeaturedSuggestion(suggestions = []) {
     this._children.featured.innerHTML = "";
-    for (let e = 0; e < t.length; e++) {
+    for (let suggestionIndex = 0; suggestionIndex < suggestions.length; suggestionIndex++) {
       const {
         text: text,
         url: url
-      } = t[e];
-      const n = document.createElement("li");
-      n.innerHTML = text;
-      n.className = "clickable thin";
-      n.addEventListener("click", t => {
+      } = suggestions[suggestionIndex];
+      const listItem = document.createElement("li");
+      listItem.innerHTML = text;
+      listItem.className = "clickable thin";
+      listItem.addEventListener("click", clickEvent => {
         this._handleClick(url, this._searchString);
-        t?.stopPropagation?.();
+        clickEvent?.stopPropagation?.();
       });
-      this._children.featured.appendChild(n);
+      this._children.featured.appendChild(listItem);
     }
   }
-  /** @eyes-analysis
-   * 执行 _createScrollbar 对应的组件业务步骤；调用 EyesPublicApi.AppUtils.addScrollbar。
-   * 调用线索：EyesPublicApi.AppUtils.addScrollbar。
-   */
-  _createScrollbar(t) {
-    return EyesPublicApi.AppUtils.addScrollbar(t, {
+  _createScrollbar(scrollElement) {
+    return EyesPublicApi.AppUtils.addScrollbar(scrollElement, {
       sizeAutoCapable: true
     });
   }
-  /** @eyes-analysis
-   * 执行 _getLink 对应的组件业务步骤。
-   */
-  _getLink(t) {
-    return t;
+  _getLink(link) {
+    return link;
   }
-  /** @eyes-analysis
-   * 执行 _handleClick 对应的组件业务步骤；调用 this.reset, this.triggerCallbacks, this._app.getManager, this._getLink, Manager.navigate。
-   * 调用线索：n.includes、routerManager.navigate、this._app.getManager、this._getLink、this.reset等。
-   */
-  _handleClick(t, e) {
-    if (!t) return;
+  _handleClick(selectedLink, searchText) {
+    if (!selectedLink) return;
     this.reset();
     this.triggerCallbacks("resultselected");
     const routerManager = this._app.getManager("router");
-    const s = this._getLink(t);
-    const n = "string" == typeof s ? s : s.path ?? "";
-    if (n.includes("events")) routerManager.navigate({}, n, {
+    const resolvedLink = this._getLink(selectedLink);
+    const routePath = "string" == typeof resolvedLink ? resolvedLink : resolvedLink.path ?? "";
+    if (routePath.includes("events")) routerManager.navigate({}, routePath, {
       __remove: "all"
     });else {
       const {
-        options: t = {
+        options: navigationOptions = {
           keepTime: true
         },
-        query: e = {}
-      } = "object" == typeof s && s;
-      routerManager.navigate(e, n, t);
+        query: queryParams = {}
+      } = "object" == typeof resolvedLink && resolvedLink;
+      routerManager.navigate(queryParams, routePath, navigationOptions);
     }
   }
-  /** @eyes-analysis
-   * 执行 simulate 对应的组件业务步骤；调用 this.onIconClick, this._find。
-   * 调用线索：input.onkeyup、this._find、this.onIconClick。
-   */
-  simulate(t) {
+  simulate(searchText) {
     const {
       input: input
     } = this._children;
     this.onIconClick();
-    input.value = t;
-    this._find({}, t);
+    input.value = searchText;
+    this._find({}, searchText);
     input.onkeyup();
   }
-  /** @eyes-analysis
-   * 执行 _getDetails 对应的组件业务步骤；调用 this._app.getManager。
-   * 调用线索：this._app.getManager、this._app.getManager("content").getEntityDesc。
-   */
-  async _getDetails(t) {
-    return this._app.getManager("content").getEntityDesc(t.item.id);
+  async _getDetails(match) {
+    return this._app.getManager("content").getEntityDesc(match.item.id);
   }
-  /** @eyes-analysis
-   * 执行 setExcludeResults 对应的组件业务步骤；写入 _excludeResults。
-   * 状态写入：_excludeResults。
-   */
   setExcludeResults(excludeResults) {
     this._excludeResults = excludeResults;
   }
-  /** @eyes-analysis
-   * 挂载 DOM 并登记窗口和业务订阅；调用 super.__enable, this._createScrollbar。
-   * 状态写入：_featuredScrollbar。
-   * 调用线索：document.body.contains、super.__enable、this._createScrollbar。
-   */
   __enable() {
     super.__enable();
     const {

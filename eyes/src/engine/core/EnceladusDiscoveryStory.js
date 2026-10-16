@@ -1,40 +1,41 @@
-/** @eyes-analysis
- * 文件职责：土卫二发现故事定义：围绕 Enceladus 的幻灯片、介绍内容和相机/图层操作。
- * 依据：import ../pioneer/index.js；顶层副作用 defaultExport={type:"nonsequential",entities:["sc_cassini","enceladus"],onEnter:async t=>{const layerManager=t.getManager("layer");const layerPanelComponent=t.getComponent("layerPanel");["asteroids","comets","dwarfPlanet
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1714328-1723207.
+/** 土卫二发现故事：保存图层与纹理上限，并在指定 slide 暂时改变卡西尼轨迹参考系。 */
 import * as Pioneer from "../pioneer/index.js";
-let defaultExport;
-const n = {
+let enceladusDiscoveryStory;
+const savedStoryState = {
   layers: []
 };
-defaultExport = {
+enceladusDiscoveryStory = {
   type: "nonsequential",
   entities: ["sc_cassini", "enceladus"],
-  onEnter: async t => {
-    const layerManager = t.getManager("layer");
-    const layerPanelComponent = t.getComponent("layerPanel");
-    ["asteroids", "comets", "dwarfPlanets", "minorMoons", "spacecraft"].forEach(t => {
-      layerManager.getLayer(t).visible && (n.layers.push(t), layerPanelComponent.toggleLayer(t));
+  onEnter: async app => {
+    const layerManager = app.getManager("layer");
+    const layerPanelComponent = app.getComponent("layerPanel");
+    ["asteroids", "comets", "dwarfPlanets", "minorMoons", "spacecraft"].forEach(layerId => {
+      if (layerManager.getLayer(layerId).visible) {
+        savedStoryState.layers.push(layerId);
+        layerPanelComponent.toggleLayer(layerId);
+      }
     });
-    ["planets", "majorMoons"].forEach(t => {
-      layerManager.getLayer(t).visible || (n.layers.push(t), layerPanelComponent.toggleLayer(t));
+    ["planets", "majorMoons"].forEach(layerId => {
+      if (!layerManager.getLayer(layerId).visible) {
+        savedStoryState.layers.push(layerId);
+        layerPanelComponent.toggleLayer(layerId);
+      }
     });
-    n.maxTextureSize = t.pioneer.getConfig().getValue("maxTextureSize");
-    t.pioneer.getConfig().setValue("maxTextureSize", 2048);
+    savedStoryState.maxTextureSize = app.pioneer.getConfig().getValue("maxTextureSize");
+    app.pioneer.getConfig().setValue("maxTextureSize", 2048);
   },
-  onLeave: t => {
+  onLeave: app => {
     const {
       layers: layers
-    } = n;
-    const layerPanelComponent = t.getComponent("layerPanel");
-    for (let t = 0; t < layers.length; t++) layerPanelComponent.toggleLayer(layers[t]);
-    t.pioneer.getConfig().setValue("maxTextureSize", n.maxTextureSize);
-    n.layers = [];
-    delete n.trail;
-    delete n.maxTextureSize;
+    } = savedStoryState;
+    const layerPanelComponent = app.getComponent("layerPanel");
+    for (let layerIndex = 0; layerIndex < layers.length; layerIndex++) layerPanelComponent.toggleLayer(layers[layerIndex]);
+    app.pioneer.getConfig().setValue("maxTextureSize", savedStoryState.maxTextureSize);
+    savedStoryState.layers = [];
+    delete savedStoryState.trail;
+    delete savedStoryState.maxTextureSize;
   },
   slides: [{
     id: "slide_1",
@@ -54,15 +55,15 @@ defaultExport = {
       description: "The Cassini mission spent 13 years orbiting Saturn and its moons, arriving at Saturn in 2004. But no one was expecting what was found on the moon named Enceladus."
     }],
     time: "2005-02-14T05:22:35Z",
-    camera: [async t => {
-      const e = "enceladus";
-      const sceneManager = t.getManager("scene");
-      await sceneManager.isReady(e);
-      const n = t.pioneer.getScene("main").getEntity(e).getComponent(Pioneer.SpheroidLODComponent);
-      sceneManager.addLoading(e, "spheroidLOD");
-      await n.getTexturesLoadedPromise();
-      sceneManager.removeLoading(e, "spheroidLOD");
-      await t.cameraScripts.goToCelestialObject(e, {
+    camera: [async app => {
+      const targetEntityId = "enceladus";
+      const sceneManager = app.getManager("scene");
+      await sceneManager.isReady(targetEntityId);
+      const enceladusTextureLOD = app.pioneer.getScene("main").getEntity(targetEntityId).getComponent(Pioneer.SpheroidLODComponent);
+      sceneManager.addLoading(targetEntityId, "spheroidLOD");
+      await enceladusTextureLOD.getTexturesLoadedPromise();
+      sceneManager.removeLoading(targetEntityId, "spheroidLOD");
+      await app.cameraScripts.goToCelestialObject(targetEntityId, {
         duration: 3
       });
     }]
@@ -77,16 +78,16 @@ defaultExport = {
     }],
     time: "2005-02-17T03:15:30Z",
     rate: 12,
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_cassini", "enceladus", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_cassini", "enceladus", {
         transitionDuration: 3,
         alignDuration: 3,
         distance: .04,
         horizontalOffset: 10
       });
     }],
-    onEnter: t => {},
-    onLeave: t => {}
+    onEnter: app => {},
+    onLeave: app => {}
   }, {
     id: "slide_4",
     type: "panel",
@@ -110,8 +111,8 @@ defaultExport = {
     }],
     time: "2005-07-14T19:51:20Z",
     rate: 5,
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_cassini", "enceladus", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_cassini", "enceladus", {
         transitionDuration: 1,
         alignDuration: 2,
         distance: .04,
@@ -134,9 +135,9 @@ defaultExport = {
       clickable: true
     }],
     time: "2022-01-25T22:15:00Z",
-    camera: [async t => {
-      await t.getManager("scene").isReady("enceladus");
-      await t.cameraScripts.goToCelestialObject("enceladus");
+    camera: [async app => {
+      await app.getManager("scene").isReady("enceladus");
+      await app.cameraScripts.goToCelestialObject("enceladus");
     }]
   }, {
     id: "slide_6",
@@ -149,16 +150,16 @@ defaultExport = {
       type: "replay"
     }],
     time: "2008-03-12T19:06:15Z",
-    onEnter: t => {
-      t.getComponent("settings").toggleLightOptions("flood");
-      t.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent).setEnabled(false);
+    onEnter: app => {
+      app.getComponent("settings").toggleLightOptions("flood");
+      app.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent).setEnabled(false);
     },
-    onLeave: t => {
-      t.getComponent("settings").toggleLightOptions("shadow");
-      t.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent).setEnabled(true);
+    onLeave: app => {
+      app.getComponent("settings").toggleLightOptions("shadow");
+      app.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent).setEnabled(true);
     },
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_cassini", "enceladus", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_cassini", "enceladus", {
         duration: 4,
         distance: .4,
         horizontalOffset: 10
@@ -191,9 +192,9 @@ defaultExport = {
       clickable: true
     }],
     time: "2008-10-09T19:06:46Z",
-    camera: [async t => {
-      await t.getManager("scene").isReady("sc_cassini");
-      await t.cameraScripts.goToSpacecraft("sc_cassini");
+    camera: [async app => {
+      await app.getManager("scene").isReady("sc_cassini");
+      await app.cameraScripts.goToSpacecraft("sc_cassini");
     }]
   }, {
     id: "slide_8",
@@ -204,30 +205,31 @@ defaultExport = {
       description: "On October 28th, 2015, the Cassini mission managers decided to boldly send the spacecraft directly through the plumes. This entailed a very small amount of risk of damage to Cassini, but since it was nearing the end of the mission, it was a chance they were willing to take. This flyby, informally called the “Cassini car wash” was a complete success.\nThanks to the hard work of scientists and engineers, we discovered something that was completely unknown to us about this incredible moon of Saturn. This knowledge was not possible without actually visiting the site; no Earth-based telescopes could discover the geysers of water ice that emanate from the south pole. Over a decade of visiting, we learned that this moon harbors a sub-surface ocean of water, complete with organic material and an energy source which remains to be determined with certainty. This means something deeply significant; there could be life in that ocean, under the frozen crust, similar to what we have on Earth at the bottom of the Atlantic ocean, where there are hydrothermal vents."
     }],
     time: "2015-10-28T15:22:30Z",
-    camera: [async t => {
-      await t.cameraScripts.viewFromSide("sc_cassini", {
+    camera: [async app => {
+      await app.cameraScripts.viewFromSide("sc_cassini", {
         duration: 2,
         distance: 1e3,
         planeId: "enceladus",
         upVector: "-z-axis"
       });
     }],
-    onEnter: t => {
-      t.getComponent("settings").toggleLightOptions("flood");
-      const e = t.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent);
-      n.trail = {
-        sc_cassini: e.getStartTime()
+    // 记录绝对起始时刻后改为土卫二相对轨迹，onLeave 恢复原起始时刻与空参考。
+    onEnter: app => {
+      app.getComponent("settings").toggleLightOptions("flood");
+      const cassiniTrail = app.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent);
+      savedStoryState.trail = {
+        sc_cassini: cassiniTrail.getStartTime()
       };
-      e.setRelativeToEntity("enceladus");
-      e.setStartTime(1e3);
+      cassiniTrail.setRelativeToEntity("enceladus");
+      cassiniTrail.setStartTime(1e3);
     },
-    onLeave: t => {
-      t.getComponent("settings").toggleLightOptions("shadow");
-      const e = t.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent);
-      e.setRelativeToEntity("");
-      e.setStartTime(n.trail.sc_cassini);
-      n.trail = {};
+    onLeave: app => {
+      app.getComponent("settings").toggleLightOptions("shadow");
+      const cassiniTrail = app.scene.getEntity("sc_cassini").getComponent(Pioneer.TrailComponent);
+      cassiniTrail.setRelativeToEntity("");
+      cassiniTrail.setStartTime(savedStoryState.trail.sc_cassini);
+      savedStoryState.trail = {};
     }
   }]
 };
-export { defaultExport as default };
+export { enceladusDiscoveryStory as default };

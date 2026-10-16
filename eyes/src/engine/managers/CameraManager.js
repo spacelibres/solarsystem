@@ -1,26 +1,11 @@
-/** @eyes-analysis
- * 文件职责：拥有主相机目标/控制器配置，执行观察模式、相机定位、变焦和控制切换。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1257303-1267846.
+/* 相机实体由管理器持有，视口与 CameraComponent 只创建一次。过渡先替换控制器，完成后恢复选择/缩放控制器；goToEntity 在 finally 释放过渡标记，取消异常沿用静默处理。距离沿用场景坐标单位，角半径为弧度；向量池仅用于同步缩放并在写回后归还。 */
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：拥有主相机目标/控制器配置，执行观察模式、相机定位、变焦和控制切换。
- * 继承：EyesPublicApi.BaseManager；导出：CameraManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class CameraManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_cameraEntity`、`_context`、`_defaultMaxDistance`、`_defaultScene`、`_dynEnvMap`、`_fullLightColor`、`_id`、`_isFreeFly`；调用 `new Pioneer.Color`、`super`、`this.bindFunctions`、`this.toggleFreeFly`、`window.addEventListener`。
-   * 状态写入：_cameraEntity、_context、_defaultMaxDistance、_defaultScene、_dynEnvMap、_fullLightColor、_id、_isFreeFly等；完整记录见索引。
-   * 调用线索：new Pioneer.Color、super、this.bindFunctions、this.toggleFreeFly、window.addEventListener。
-   */
-  constructor(t, defaultScene) {
-    super(t);
+  constructor(app, defaultScene) {
+    super(app);
     this._viewport = null;
     this._defaultScene = defaultScene;
     this._cameraEntity = null;
@@ -41,62 +26,38 @@ class CameraManager extends EyesPublicApi.BaseManager {
     this._fullLightColor = new Pioneer.Color(1, 1, 1, 1);
     this._shadowLightColor = new Pioneer.Color(.15, .15, .15, 1);
     this.bindFunctions(["zoomIn", "zoomOut", "addDynamicEnvMap", "getShadowLightColor", "getFullLightColor"]);
-    window.addEventListener("keydown", t => {
-      "k" === t.key && this.toggleFreeFly();
+    window.addEventListener("keydown", keyboardEvent => {
+      "k" === keyboardEvent.key && this.toggleFreeFly();
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_cameraEntity`、`_cameraLight`、`_defaultScene`、`_dynEnvMap`、`_viewport`、`_viewport.getDiv().style.height`、`_viewport.getDiv().style.left`、`_viewport.getDiv().style.top`；调用 `this._cameraEntity.addComponent`、`this._cameraEntity.getComponent`、`this._cameraEntity.setOrientation`、`this._cameraLight.setEnabled`、`this._defaultScene.addEntity`、`this._defaultScene.getEntity`。
-   * 状态写入：_cameraEntity、_cameraLight、_defaultScene、_dynEnvMap、_viewport、_viewport.getDiv().style.height、_viewport.getDiv().style.left、_viewport.getDiv().style.top等；完整记录见索引。
-   * 调用线索：this._cameraEntity.addComponent、this._cameraEntity.getComponent、this._cameraEntity.setOrientation、this._cameraLight.setEnabled、this._defaultScene.addEntity等。
-   */
   createViewportAndCamera(defaultScene) {
     defaultScene && (this._defaultScene = defaultScene);
     null === this.pioneer.getViewport("main-viewport") && (this._viewport = this.pioneer.addViewport("main-viewport"), this._viewport.getDiv().style.width = "100%", this._viewport.getDiv().style.height = "100%", this._viewport.getDiv().style.left = "0", this._viewport.getDiv().style.top = "0");
     null === this._defaultScene.getEntity("camera") && (this._cameraEntity = this._defaultScene.addEntity("camera"));
     this._cameraEntity.setOrientation(Pioneer.Quaternion.Identity);
-    let e = this._cameraEntity.getComponent(Pioneer.CameraComponent);
-    null === e && (e = this._cameraEntity.addComponent(Pioneer.CameraComponent));
-    this._viewport.setCamera(e);
+    let cameraComponent = this._cameraEntity.getComponent(Pioneer.CameraComponent);
+    null === cameraComponent && (cameraComponent = this._cameraEntity.addComponent(Pioneer.CameraComponent));
+    this._viewport.setCamera(cameraComponent);
     this._cameraLight = this._cameraEntity.getComponent(Pioneer.LightSourceComponent);
     null === this._cameraLight && (this._cameraLight = this._cameraEntity.addComponent(Pioneer.LightSourceComponent), this._cameraLight.setEnabled(false), this.toggleCameraLight(true, this._shadowLightColor));
     null === this._dynEnvMap && (this._dynEnvMap = this._cameraEntity.addComponent(Pioneer.DynamicEnvironmentMapComponent));
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._context`。
-   */
   getContext() {
     return this._context;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._isTransitioning`。
-   */
   getIsTransitioning() {
     return this._isTransitioning;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isTransitioning`。
-   * 状态写入：_isTransitioning。
-   */
   setIsTransitioning(isTransitioning) {
     this._isTransitioning = isTransitioning;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `new Promise(t=>{let e=setInterval(()=>{this._isTransitioning||(clearInterval(e),e=null,t(true));},1e3);})`；调用 `clearInterval`、`new Promise`、`setInterval`、`t`。
-   * 调用线索：clearInterval、new Promise、setInterval、t。
-   */
   waitForTransitionComplete() {
-    return new Promise(t => {
-      let e = setInterval(() => {
-        this._isTransitioning || (clearInterval(e), e = null, t(true));
+    return new Promise(resolveTransition => {
+      let transitionPoll = setInterval(() => {
+        this._isTransitioning || (clearInterval(transitionPoll), transitionPoll = null, resolveTransition(true));
       }, 1e3);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_context`、`_id`、`_previousId`；调用 `new CustomEvent`、`window.dispatchEvent`。
-   * 状态写入：_context、_id、_previousId。
-   * 调用线索：new CustomEvent、window.dispatchEvent。
-   */
   setContext(context) {
     this._context = context;
     this._previousId = this._id;
@@ -109,85 +70,42 @@ class CameraManager extends EyesPublicApi.BaseManager {
     });
     window.dispatchEvent(customEvent);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._id`。
-   */
   getCurrentId() {
     return this._id;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._shadowLightColor`。
-   */
   getShadowLightColor() {
     return this._shadowLightColor;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._fullLightColor`。
-   */
   getFullLightColor() {
     return this._fullLightColor;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._defaultScene`。
-   */
   get defaultScene() {
     return this._defaultScene;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._cameraEntity`。
-   */
   get cameraEntity() {
     return this._cameraEntity;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._cameraLight`。
-   */
   get cameraLight() {
     return this._cameraLight;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._dynEnvMap`。
-   */
   get dynamicEnvMap() {
     return this._dynEnvMap;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._cameraLight.setColor`、`this._cameraLight.setEnabled`。
-   * 调用线索：this._cameraLight.setColor、this._cameraLight.setEnabled。
-   */
-  toggleCameraLight(t, e) {
-    null !== this._cameraLight && (this._cameraLight.setEnabled(t), void 0 !== e && this._cameraLight.setColor(e));
+  toggleCameraLight(enabled, lightColor) {
+    null !== this._cameraLight && (this._cameraLight.setEnabled(enabled), void 0 !== lightColor && this._cameraLight.setColor(lightColor));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this.toggleCameraLight`。
-   * 调用线索：this.toggleCameraLight。
-   */
-  updateLighting(t) {
-    "flood" === t ? this.toggleCameraLight(true, this._fullLightColor) : "natural" === t ? this.toggleCameraLight(false) : "shadow" === t && this.toggleCameraLight(true, this._shadowLightColor);
+  updateLighting(lightingMode) {
+    "flood" === lightingMode ? this.toggleCameraLight(true, this._fullLightColor) : "natural" === lightingMode ? this.toggleCameraLight(false) : "shadow" === lightingMode && this.toggleCameraLight(true, this._shadowLightColor);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._selectionCallback`。
-   */
   getSelectionCallback() {
     return this._selectionCallback;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_selectionCallback`。
-   * 状态写入：_selectionCallback。
-   */
   setSelectionCallback(selectionCallback) {
     "function" == typeof selectionCallback && (this._selectionCallback = selectionCallback);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._isFreeFly`。
-   */
   getIsFreeFly() {
     return this._isFreeFly;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._cameraEntity.addController`、`this._cameraEntity.clearControllers`。
-   * 调用线索：this._cameraEntity.addController、this._cameraEntity.clearControllers。
-   */
   setUpFreeFlyCamera() {
     this._cameraEntity.clearControllers();
     this._cameraEntity.addController(Pioneer.FreeFlyController);
@@ -195,10 +113,6 @@ class CameraManager extends EyesPublicApi.BaseManager {
     this._cameraEntity.addController(Pioneer.RollController);
     this._cameraEntity.addController(Pioneer.FixedToParentController);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `console.error`、`this.app.cameraScripts.alignSpacecraftPlanet`、`this.app.cameraScripts.goToCelestialObject`、`this.app.cameraScripts.goToInstrument`、`this.app.cameraScripts.goToSpacecraft`、`this.app.cameraScripts.goToSystem`。
-   * 调用线索：console.error、this.app.cameraScripts.alignSpacecraftPlanet、this.app.cameraScripts.goToCelestialObject、this.app.cameraScripts.goToInstrument、this.app.cameraScripts.goToSpacecraft等。
-   */
   async resetFreeFlyCamera() {
     switch (this._context.context) {
       case EyesPublicApi.CameraScripts.CONTEXT.CELESTIAL_OBJECT:
@@ -229,11 +143,6 @@ class CameraManager extends EyesPublicApi.BaseManager {
         console.error(`resetFreeFlyCamera: Unsupported camera context - ${this._context.context}`);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isFreeFly`；调用 `this.app.getComponent`、`this.setUpFreeFlyCamera`。
-   * 状态写入：_isFreeFly。
-   * 调用线索：this.app.getComponent、this.setUpFreeFlyCamera、toastComponent?.setContent、toastComponent?.show。
-   */
   enableFreeFly() {
     this._isFreeFly = true;
     this.setUpFreeFlyCamera();
@@ -241,20 +150,11 @@ class CameraManager extends EyesPublicApi.BaseManager {
     toastComponent?.setContent("Now in free fly camera mode. Press K again to exit this mode.");
     toastComponent?.show();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isFreeFly`；调用 `this.app.getComponent`、`this.resetFreeFlyCamera`。
-   * 状态写入：_isFreeFly。
-   * 调用线索：this.app.getComponent、this.app.getComponent("toast")?.hide、this.resetFreeFlyCamera。
-   */
   disableFreeFly() {
     this._isFreeFly = false;
     this.resetFreeFlyCamera();
     this.app.getComponent("toast")?.hide();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void this.enableFreeFly()`；调用 `this._app.getManager`、`this._app.getManager("cameraFollow").setEnabled`、`this.disableFreeFly`、`this.enableFreeFly`、`this.waitForTransitionComplete`。
-   * 调用线索：this._app.getManager、this._app.getManager("cameraFollow").setEnabled、this.disableFreeFly、this.enableFreeFly、this.waitForTransitionComplete。
-   */
   async toggleFreeFly() {
     if (this._app.getManager("cameraFollow").isEnabled) {
       this._app.getManager("cameraFollow").setEnabled(false, {
@@ -266,166 +166,153 @@ class CameraManager extends EyesPublicApi.BaseManager {
     }
     this._isFreeFly ? this.disableFreeFly() : this.enableFreeFly();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_id`、`_isTransitioning`；返回 `void(this._isTransitioning=false)`；调用 `Math.max`、`Pioneer.MathUtils.clamp01`、`SolarSystemSceneExports.Cameras.goToEntity`、`T.getEntity`、`T.waitTillEntitiesInPlace`、`console.error`。
-   * 状态写入：_id、_isTransitioning。
-   * 调用线索：Math.max、Pioneer.MathUtils.clamp01、SolarSystemSceneExports.Cameras.goToEntity、T.getEntity、T.waitTillEntitiesInPlace等。
-   */
   async goToEntity(id, {
     camera: camera,
     scene: scene,
     destination: destination,
     distance: distance,
-    cinematic: a = false,
-    minRadius: l = .001,
-    maxRadius: c = this._defaultMaxDistance,
-    duration: h = .75,
+    cinematic = false,
+    minRadius: minimumRadius = .001,
+    maxRadius: maximumRadius = this._defaultMaxDistance,
+    duration: transitionDuration = .75,
     destinationUp: destinationUp,
-    zoom: u = true,
-    select: p = true,
-    useSpheroidRadiusForDistance: _ = false,
-    roll: m = false,
+    zoom: enableZoom = true,
+    select: enableSelection = true,
+    useSpheroidRadiusForDistance = false,
+    roll: enableRoll = false,
     keyframes: keyframes,
     transitionFunction: transitionFunction
   } = {}) {
-    const f = camera || this._cameraEntity;
-    const T = scene || this._defaultScene;
-    if (this._id = id, await T.waitTillEntitiesInPlace([id]), this._isFreeFly && (await this.toggleFreeFly()), this._isTransitioning = true, void 0 !== destination) {
+    const cameraEntity = camera || this._cameraEntity;
+    const targetScene = scene || this._defaultScene;
+    if (this._id = id, await targetScene.waitTillEntitiesInPlace([id]), this._isFreeFly && (await this.toggleFreeFly()), this._isTransitioning = true, void 0 !== destination) {
       const vector3 = new Pioneer.Vector3();
-      vector3.sub(f.getPosition(), destination);
-      const i = f.getParent();
-      if (null !== i) {
-        const n = i.getName();
+      vector3.sub(cameraEntity.getPosition(), destination);
+      const cameraParent = cameraEntity.getParent();
+      if (null !== cameraParent) {
+        const cameraParentName = cameraParent.getName();
         if (!isNaN(vector3.magnitude())) {
-          const t = Pioneer.MathUtils.clamp01(vector3.magnitude() / f.getPosition().magnitude());
-          h = Math.max(h / 5, h * t);
+          const relativeTravelDistance = Pioneer.MathUtils.clamp01(vector3.magnitude() / cameraEntity.getPosition().magnitude());
+          transitionDuration = Math.max(transitionDuration / 5, transitionDuration * relativeTravelDistance);
         }
-        if (!isNaN(vector3.magnitude()) && vector3.magnitude() <= .001 && id === n) return void (this._isTransitioning = false);
+        if (!isNaN(vector3.magnitude()) && vector3.magnitude() <= .001 && id === cameraParentName) return void (this._isTransitioning = false);
       }
     }
     try {
       if (void 0 !== keyframes) {
-        f.clearControllers();
-        const t = f.addController(Pioneer.OrbitKeyframeController);
-        if (keyframes.position) for (let e = 0; e < keyframes.position.length; e++) {
-          const i = keyframes.position[e];
-          t.setPositionKeyframe(i.frame, i.position, i.relativeTo);
+        cameraEntity.clearControllers();
+        const keyframeController = cameraEntity.addController(Pioneer.OrbitKeyframeController);
+        if (keyframes.position) for (let keyframeIndex = 0; keyframeIndex < keyframes.position.length; keyframeIndex++) {
+          const positionKeyframe = keyframes.position[keyframeIndex];
+          keyframeController.setPositionKeyframe(positionKeyframe.frame, positionKeyframe.position, positionKeyframe.relativeTo);
         }
-        if (keyframes.up) for (let e = 0; e < keyframes.up.length; e++) {
-          const i = keyframes.up[e];
-          t.setUpKeyframe(i.frame, i.up);
+        if (keyframes.up) for (let keyframeIndex = 0; keyframeIndex < keyframes.up.length; keyframeIndex++) {
+          const upKeyframe = keyframes.up[keyframeIndex];
+          keyframeController.setUpKeyframe(upKeyframe.frame, upKeyframe.up);
         }
-        if (keyframes.focus) for (let e = 0; e < keyframes.focus.length; e++) {
-          const i = keyframes.focus[e];
-          t.setFocusKeyframe(i.frame, i.name);
+        if (keyframes.focus) for (let keyframeIndex = 0; keyframeIndex < keyframes.focus.length; keyframeIndex++) {
+          const focusKeyframe = keyframes.focus[keyframeIndex];
+          keyframeController.setFocusKeyframe(focusKeyframe.frame, focusKeyframe.name);
         }
-        await t.getEndPromise();
-        f.clearControllers();
+        await keyframeController.getEndPromise();
+        cameraEntity.clearControllers();
       }
-      if (await SolarSystemSceneExports.Cameras.goToEntity(f, T.getEntity(id), {
+      if (await SolarSystemSceneExports.Cameras.goToEntity(cameraEntity, targetScene.getEntity(id), {
         destination: destination,
         distance: distance,
         up: false,
-        duration: h,
+        duration: transitionDuration,
         destinationUp: destinationUp,
-        zoom: u,
+        zoom: enableZoom,
         transitionFunction: transitionFunction
-      }), p) {
-        const t = f.addController(Pioneer.SelectController);
-        null !== this._selectionCallback && t.setCallback(this._selectionCallback);
+      }), enableSelection) {
+        const selectionController = cameraEntity.addController(Pioneer.SelectController);
+        null !== this._selectionCallback && selectionController.setCallback(this._selectionCallback);
       }
-      const e = f.getController(Pioneer.ZoomController);
-      if (e && e instanceof Pioneer.ZoomController && e.setDistanceClamp(new Pioneer.Interval(l, c)), m) {
-        f.getController(Pioneer.RollController) instanceof Pioneer.RollController || f.addController(Pioneer.RollController);
+      const zoomController = cameraEntity.getController(Pioneer.ZoomController);
+      if (zoomController && zoomController instanceof Pioneer.ZoomController && zoomController.setDistanceClamp(new Pioneer.Interval(minimumRadius, maximumRadius)), enableRoll) {
+        cameraEntity.getController(Pioneer.RollController) instanceof Pioneer.RollController || cameraEntity.addController(Pioneer.RollController);
       }
-      if (a) {
-        const t = f.getController(Pioneer.AlignController);
-        const e = f.addController(Pioneer.SpinController, "", t);
-        e instanceof Pioneer.SpinController && (e.setAxis(Pioneer.Vector3.ZAxis, true), e.setRate(.01), e.setUsingRealTime(true), e.setRotatingPosition(true));
-        const i = f.addController(Pioneer.TapController);
-        i instanceof Pioneer.TapController && i.setTapCallback(() => {
-          f.removeController(e);
-          f.removeController(i);
+      if (cinematic) {
+        const alignController = cameraEntity.getController(Pioneer.AlignController);
+        const spinController = cameraEntity.addController(Pioneer.SpinController, "", alignController);
+        spinController instanceof Pioneer.SpinController && (spinController.setAxis(Pioneer.Vector3.ZAxis, true), spinController.setRate(.01), spinController.setUsingRealTime(true), spinController.setRotatingPosition(true));
+        const tapController = cameraEntity.addController(Pioneer.TapController);
+        tapController instanceof Pioneer.TapController && tapController.setTapCallback(() => {
+          cameraEntity.removeController(spinController);
+          cameraEntity.removeController(tapController);
         });
       }
-    } catch (t) {
-      t instanceof Pioneer.CanceledError || console.error(t);
+    } catch (transitionError) {
+      transitionError instanceof Pioneer.CanceledError || console.error(transitionError);
     } finally {
       this._isTransitioning = false;
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `E.getEndPromise`、`E.setParent`、`E.setTransitionFunction`、`E.setTransitionTime`、`Math.atan`、`Math.max`。
-   * 调用线索：E.getEndPromise、E.setParent、E.setTransitionFunction、E.setTransitionTime、Math.atan等。
-   */
-  async followTheEntity(t, e, i, o) {
-    const r = this._defaultScene.getEntity(t);
-    const a = this._defaultScene.getEntity(e);
+  async followTheEntity(targetId, focusId, transitionParentId, transitionDuration) {
+    const targetEntity = this._defaultScene.getEntity(targetId);
+    const focusEntity = this._defaultScene.getEntity(focusId);
     this.cameraEntity.clearControllers();
     const vector3 = new Pioneer.Vector3();
-    r.getPositionRelativeToEntity(vector3, Pioneer.Vector3.Zero, a);
-    const c = 1.25 * r.getExtentsRadius();
-    const h = vector3.magnitude();
-    const d = Math.atan(c / h);
-    const u = 5 * r.getExtentsRadius();
-    const p = h + u;
-    const _ = Math.tan(d) * p;
+    targetEntity.getPositionRelativeToEntity(vector3, Pioneer.Vector3.Zero, focusEntity);
+    const paddedTargetRadius = 1.25 * targetEntity.getExtentsRadius();
+    const targetFocusDistance = vector3.magnitude();
+    const targetAngularRadius = Math.atan(paddedTargetRadius / targetFocusDistance);
+    const cameraOffset = 5 * targetEntity.getExtentsRadius();
+    const cameraFocusDistance = targetFocusDistance + cameraOffset;
+    const cameraTargetOffset = Math.tan(targetAngularRadius) * cameraFocusDistance;
     vector3.normalize(vector3);
-    const m = new Pioneer.Vector3(0, 0, 1);
-    const g = r.getParent();
-    if (g) if (g.getOrientation().getAxis(m, 2), g.getName() === e) {
+    const upDirection = new Pioneer.Vector3(0, 0, 1);
+    const targetParent = targetEntity.getParent();
+    if (targetParent) if (targetParent.getOrientation().getAxis(upDirection, 2), targetParent.getName() === focusId) {
       const quaternion = new Pioneer.Quaternion();
-      const i = this.pioneer.getScene("main").getEntity(e).getController(Pioneer.DynamoController);
-      i && (i.getOrbitOrientation(quaternion, this.pioneer.getTime()), quaternion.getAxis(m, 2));
-      m.isNaN() && m.copy(new Pioneer.Vector3(0, 0, 1));
-    } else g.getOrientation().getAxis(m, 2);
-    m.normalize(m);
-    vector3.magnitude() < 1e-4 && (r.getOrientation().getAxis(vector3, 0), vector3.normalize(vector3));
-    m.mult(m, _);
-    vector3.mult(vector3, u);
-    vector3.add(vector3, m);
-    m.normalize(m);
-    const y = this.cameraEntity.addController(Pioneer.FixedController);
-    y.setPosition(vector3);
-    const f = new Pioneer.Vector3();
-    const T = new Pioneer.Vector3();
-    f.neg(vector3);
-    f.normalize(f);
-    T.setNormalTo(f, m);
+      const dynamoController = this.pioneer.getScene("main").getEntity(focusId).getController(Pioneer.DynamoController);
+      dynamoController && (dynamoController.getOrbitOrientation(quaternion, this.pioneer.getTime()), quaternion.getAxis(upDirection, 2));
+      upDirection.isNaN() && upDirection.copy(new Pioneer.Vector3(0, 0, 1));
+    } else targetParent.getOrientation().getAxis(upDirection, 2);
+    upDirection.normalize(upDirection);
+    vector3.magnitude() < 1e-4 && (targetEntity.getOrientation().getAxis(vector3, 0), vector3.normalize(vector3));
+    upDirection.mult(upDirection, cameraTargetOffset);
+    vector3.mult(vector3, cameraOffset);
+    vector3.add(vector3, upDirection);
+    upDirection.normalize(upDirection);
+    const fixedController = this.cameraEntity.addController(Pioneer.FixedController);
+    fixedController.setPosition(vector3);
+    const forwardDirection = new Pioneer.Vector3();
+    const orthogonalUp = new Pioneer.Vector3();
+    forwardDirection.neg(vector3);
+    forwardDirection.normalize(forwardDirection);
+    orthogonalUp.setNormalTo(forwardDirection, upDirection);
     const quaternion = new Pioneer.Quaternion();
-    quaternion.setFromAxes(void 0, f, T);
-    y.setOrientation(quaternion);
-    SolarSystemSceneExports.Cameras.focusOnEntity(this.cameraEntity, a, {
+    quaternion.setFromAxes(void 0, forwardDirection, orthogonalUp);
+    fixedController.setOrientation(quaternion);
+    SolarSystemSceneExports.Cameras.focusOnEntity(this.cameraEntity, focusEntity, {
       up: false
     });
-    const E = this.cameraEntity.addController(Pioneer.TransitionController);
-    E.setTransitionTime(o);
-    E.setParent(i);
+    const transitionController = this.cameraEntity.addController(Pioneer.TransitionController);
+    transitionController.setTransitionTime(transitionDuration);
+    transitionController.setParent(transitionParentId);
     const {
       _easeOutExpoTransition: _easeOutExpoTransition
     } = this.app.cameraScripts;
-    _easeOutExpoTransition && E.setTransitionFunction(_easeOutExpoTransition);
-    await E.getEndPromise();
+    _easeOutExpoTransition && transitionController.setTransitionFunction(_easeOutExpoTransition);
+    await transitionController.getEndPromise();
     this.cameraEntity.clearControllers();
     this.cameraEntity.addController(Pioneer.OrbitController).setDragSensitivity(5e-4);
     this.cameraEntity.addController(Pioneer.FixedToParentController);
     this.cameraEntity.addController(Pioneer.RollController);
-    const v = 1e3;
-    const C = r.getExtentsRadius();
-    const x = Math.max(r.getExtentsRadius() * v, a.getExtentsRadius() * v, C * v);
-    const interval = new Pioneer.Interval(C, x);
+    const maximumRadiusMultiplier = 1e3;
+    const targetRadius = targetEntity.getExtentsRadius();
+    const maximumZoomDistance = Math.max(targetEntity.getExtentsRadius() * maximumRadiusMultiplier, focusEntity.getExtentsRadius() * maximumRadiusMultiplier, targetRadius * maximumRadiusMultiplier);
+    const interval = new Pioneer.Interval(targetRadius, maximumZoomDistance);
     this.cameraEntity.addController(Pioneer.ZoomController).setDistanceClamp(interval);
-    const w = this.cameraEntity.addController(Pioneer.SelectController);
-    null !== this._selectionCallback && w.setCallback(this._selectionCallback);
-    SolarSystemSceneExports.Cameras.focusOnEntity(this.cameraEntity, a, {
+    const selectionController = this.cameraEntity.addController(Pioneer.SelectController);
+    null !== this._selectionCallback && selectionController.setCallback(this._selectionCallback);
+    SolarSystemSceneExports.Cameras.focusOnEntity(this.cameraEntity, focusEntity, {
       up: false
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `SolarSystemSceneExports.Cameras.focusOnEntity`、`_.setCallback`、`c.setOrientation`、`c.setPosition`、`cameraEntity.addController`、`cameraEntity.clearControllers`。
-   * 调用线索：SolarSystemSceneExports.Cameras.focusOnEntity、_.setCallback、c.setOrientation、c.setPosition、cameraEntity.addController等。
-   */
-  async goToBetweenPos(t, {
+  async goToBetweenPos(focusEntity, {
     duration: duration,
     destination: destination,
     destinationUp: destinationUp,
@@ -434,92 +321,69 @@ class CameraManager extends EyesPublicApi.BaseManager {
   }) {
     const cameraEntity = this._cameraEntity;
     cameraEntity.clearControllers();
-    const c = cameraEntity.addController(Pioneer.FixedController);
-    c.setPosition(destination);
+    const fixedController = cameraEntity.addController(Pioneer.FixedController);
+    fixedController.setPosition(destination);
     const vector3 = new Pioneer.Vector3();
-    const d = new Pioneer.Vector3();
+    const orthogonalUp = new Pioneer.Vector3();
     vector3.neg(destination);
     vector3.normalize(vector3);
-    d.setNormalTo(vector3, destinationUp);
+    orthogonalUp.setNormalTo(vector3, destinationUp);
     const quaternion = new Pioneer.Quaternion();
-    quaternion.setFromAxes(void 0, vector3, d);
-    c.setOrientation(quaternion);
-    SolarSystemSceneExports.Cameras.focusOnEntity(cameraEntity, t, {
+    quaternion.setFromAxes(void 0, vector3, orthogonalUp);
+    fixedController.setOrientation(quaternion);
+    SolarSystemSceneExports.Cameras.focusOnEntity(cameraEntity, focusEntity, {
       up: false,
       orbiter: false
     });
-    const p = cameraEntity.addController(Pioneer.TransitionController);
-    p.setTransitionTime(duration);
-    p.setParent(t.getName());
-    transitionFunction && p.setTransitionFunction(transitionFunction);
-    await p.getEndPromise();
+    const transitionController = cameraEntity.addController(Pioneer.TransitionController);
+    transitionController.setTransitionTime(duration);
+    transitionController.setParent(focusEntity.getName());
+    transitionFunction && transitionController.setTransitionFunction(transitionFunction);
+    await transitionController.getEndPromise();
     cameraEntity.clearControllers();
-    const _ = cameraEntity.addController(Pioneer.SelectController);
-    null !== this._selectionCallback && _.setCallback(this._selectionCallback);
+    const selectionController = cameraEntity.addController(Pioneer.SelectController);
+    null !== this._selectionCallback && selectionController.setCallback(this._selectionCallback);
     cameraEntity.addController(Pioneer.OrbitController);
     cameraEntity.addController(Pioneer.RollController);
-    const m = cameraEntity.addController(Pioneer.ZoomController);
-    zoomInterval && m.setDistanceClamp(zoomInterval);
-    SolarSystemSceneExports.Cameras.focusOnEntity(cameraEntity, t, {
+    const zoomController = cameraEntity.addController(Pioneer.ZoomController);
+    zoomInterval && zoomController.setDistanceClamp(zoomInterval);
+    SolarSystemSceneExports.Cameras.focusOnEntity(cameraEntity, focusEntity, {
       up: false,
       orbiter: false
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Number.isNaN`、`Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`e.getPosition`、`e.getPosition().magnitude`、`e.setPosition`。
-   * 调用线索：Number.isNaN、Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、e.getPosition、e.getPosition().magnitude等。
-   */
-  zoom(t, e = this._cameraEntity) {
-    let i = e.getPosition().magnitude();
-    Number.isNaN(i) && (i = 1);
-    i *= t;
-    const n = Pioneer.Vector3.pool.get();
-    n.normalize(e.getPosition());
-    n.mult(n, i);
-    e.setPosition(n);
-    Pioneer.Vector3.pool.release(n);
+  zoom(zoomMultiplier, cameraEntity = this._cameraEntity) {
+    let currentDistance = cameraEntity.getPosition().magnitude();
+    Number.isNaN(currentDistance) && (currentDistance = 1);
+    currentDistance *= zoomMultiplier;
+    const cameraPosition = Pioneer.Vector3.pool.get();
+    cameraPosition.normalize(cameraEntity.getPosition());
+    cameraPosition.mult(cameraPosition, currentDistance);
+    cameraEntity.setPosition(cameraPosition);
+    Pioneer.Vector3.pool.release(cameraPosition);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.pow`、`this.zoom`。
-   * 调用线索：Math.pow、this.zoom。
-   */
-  zoomIn(t = false) {
-    let e = 1;
-    const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
-    e /= Math.pow(2, i);
-    this.zoom(e);
+  zoomIn(isHeld = false) {
+    let zoomMultiplier = 1;
+    const zoomSensitivity = isHeld ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
+    zoomMultiplier /= Math.pow(2, zoomSensitivity);
+    this.zoom(zoomMultiplier);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.pow`、`this.zoom`。
-   * 调用线索：Math.pow、this.zoom。
-   */
-  zoomOut(t = false) {
-    let e = 1;
-    const i = t ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
-    e *= Math.pow(2, i);
-    this.zoom(e);
+  zoomOut(isHeld = false) {
+    let zoomMultiplier = 1;
+    const zoomSensitivity = isHeld ? this._zoomSensitivity.hold : this._zoomSensitivity.click;
+    zoomMultiplier *= Math.pow(2, zoomSensitivity);
+    this.zoom(zoomMultiplier);
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._defaultMaxDistance`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get defaultMaxDistance() {
     return this._defaultMaxDistance;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (defaultMaxDistance)；实际写入 `_defaultMaxDistance`。
-   * 状态写入：_defaultMaxDistance。
-   */
   set defaultMaxDistance(defaultMaxDistance) {
     this._defaultMaxDistance = defaultMaxDistance;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `e.setDynamicEnvironmentMapComponent`、`t.getComponent`。
-   * 调用线索：e.setDynamicEnvironmentMapComponent、t.getComponent。
-   */
-  addDynamicEnvMap(t) {
+  addDynamicEnvMap(entity) {
     if (!this.dynamicEnvMap) return;
-    const e = t.getComponent(Pioneer.ModelComponent);
-    null !== e && e.setDynamicEnvironmentMapComponent(this.dynamicEnvMap);
+    const modelComponent = entity.getComponent(Pioneer.ModelComponent);
+    null !== modelComponent && modelComponent.setDynamicEnvironmentMapComponent(this.dynamicEnvMap);
   }
 }
 export { CameraManager };

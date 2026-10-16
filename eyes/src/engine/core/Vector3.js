@@ -1,16 +1,6 @@
-/** @eyes-analysis
- * 文件职责：三维向量代数、旋转、插值和池化。
- * 依据：import ../pioneer/public-api.js；Vector3 @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:67608-71528.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：三维向量代数、旋转、插值和池化。
- * 继承：无显式父类；导出：Vector3。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 旋转与叉积先缓存全部分量再写输出，支持 this 与输入别名；零向量 normalize 复制输入，球面混合同时线性混合长度。 */
 class Vector3 {
   static Zero = new Vector3(0, 0, 0);
   static One = new Vector3(1, 1, 1);
@@ -23,365 +13,217 @@ class Vector3 {
   static NaN = new Vector3(NaN, NaN, NaN);
   static pool = new PioneerPublicApi.Pool(Vector3);
   static threeJsPool = new PioneerPublicApi.Pool(PioneerPublicApi.THREE.Vector3);
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  constructor(t = 0, e = 0, i = 0) {
-    this._x = t;
-    this._y = e;
-    this._z = i;
+  constructor(coordinateX = 0, coordinateY = 0, coordinateZ = 0) {
+    this._x = coordinateX;
+    this._y = coordinateY;
+    this._z = coordinateZ;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._x`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get x() {
     return this._x;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_x`。
-   * 状态写入：_x。
-   */
-  set x(t) {
-    this._x = t;
+  set x(coordinateX) {
+    this._x = coordinateX;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._y`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get y() {
     return this._y;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_y`。
-   * 状态写入：_y。
-   */
-  set y(t) {
-    this._y = t;
+  set y(coordinateY) {
+    this._y = coordinateY;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._z`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get z() {
     return this._z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_z`。
-   * 状态写入：_z。
-   */
-  set z(t) {
-    this._z = t;
+  set z(coordinateZ) {
+    this._z = coordinateZ;
   }
-  /** @eyes-analysis
-   * 【结构证据】本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   toString() {
     return `[${this._x}, ${this._y}, ${this._z}]`;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._x===t.x&&this._y===t.y&&this._z===t.z`。
-   */
-  equals(t) {
-    return this._x === t.x && this._y === t.y && this._z === t.z;
+  equals(source) {
+    return this._x === source.x && this._y === source.y && this._z === source.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `0===this._x&&0===this._y&&0===this._z`。
-   */
   isZero() {
     return 0 === this._x && 0 === this._y && 0 === this._z;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._x!=this._x||this._y!=this._y||this._z!=this._z`。
-   */
   isNaN() {
     return this._x != this._x || this._y != this._y || this._z != this._z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  copy(t) {
-    this._x = t.x;
-    this._y = t.y;
-    this._z = t.z;
+  copy(source) {
+    this._x = source.x;
+    this._y = source.y;
+    this._z = source.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  copyFromThreeJs(t) {
-    this._x = t.x;
-    this._y = t.y;
-    this._z = t.z;
+  copyFromThreeJs(source) {
+    this._x = source.x;
+    this._y = source.y;
+    this._z = source.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  set(t, e, i) {
-    this._x = t;
-    this._y = e;
-    this._z = i;
+  set(coordinateX, coordinateY, coordinateZ) {
+    this._x = coordinateX;
+    this._y = coordinateY;
+    this._z = coordinateZ;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `Math.cos`、`Math.sin`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：Math.cos、Math.sin。
-   */
-  setFromAER(t) {
-    const e = Math.cos(t.elevation);
-    this._x = t.range * e * Math.cos(t.azimuth);
-    this._y = t.range * e * Math.sin(t.azimuth);
-    this._z = t.range * Math.sin(t.elevation);
+  setFromAER(aer) {
+    const cosElevation = Math.cos(aer.elevation);
+    this._x = aer.range * cosElevation * Math.cos(aer.azimuth);
+    this._y = aer.range * cosElevation * Math.sin(aer.azimuth);
+    this._z = aer.range * Math.sin(aer.elevation);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  neg(t) {
-    this._x = -t.x;
-    this._y = -t.y;
-    this._z = -t.z;
+  neg(source) {
+    this._x = -source.x;
+    this._y = -source.y;
+    this._z = -source.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  add(t, e) {
-    this._x = t.x + e.x;
-    this._y = t.y + e.y;
-    this._z = t.z + e.z;
+  add(left, right) {
+    this._x = left.x + right.x;
+    this._y = left.y + right.y;
+    this._z = left.z + right.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  sub(t, e) {
-    this._x = t.x - e.x;
-    this._y = t.y - e.y;
-    this._z = t.z - e.z;
+  sub(left, right) {
+    this._x = left.x - right.x;
+    this._y = left.y - right.y;
+    this._z = left.z - right.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  mult(t, e) {
-    this._x = t.x * e;
-    this._y = t.y * e;
-    this._z = t.z * e;
+  mult(source, scalar) {
+    this._x = source.x * scalar;
+    this._y = source.y * scalar;
+    this._z = source.z * scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  addMult(t, e, i) {
-    this._x = t.x + e.x * i;
-    this._y = t.y + e.y * i;
-    this._z = t.z + e.z * i;
+  addMult(base, direction, scalar) {
+    this._x = base.x + direction.x * scalar;
+    this._y = base.y + direction.y * scalar;
+    this._z = base.z + direction.z * scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  div(t, e) {
-    this._x = t.x / e;
-    this._y = t.y / e;
-    this._z = t.z / e;
+  div(source, scalar) {
+    this._x = source.x / scalar;
+    this._y = source.y / scalar;
+    this._z = source.z / scalar;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  scale(t, e) {
-    this._x = t.x * e.x;
-    this._y = t.y * e.y;
-    this._z = t.z * e.z;
+  scale(left, right) {
+    this._x = left.x * right.x;
+    this._y = left.y * right.y;
+    this._z = left.z * right.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  scaleInv(t, e) {
-    this._x = t.x / e.x;
-    this._y = t.y / e.y;
-    this._z = t.z / e.z;
+  scaleInv(left, right) {
+    this._x = left.x / right.x;
+    this._y = left.y / right.y;
+    this._z = left.z / right.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._x*t.x+this._y*t.y+this._z*t.z`。
-   */
-  dot(t) {
-    return this._x * t.x + this._y * t.y + this._z * t.z;
+  dot(source) {
+    return this._x * source.x + this._y * source.y + this._z * source.z;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  cross(t, e) {
-    const i = t.y * e.z - t.z * e.y;
-    const s = t.z * e.x - t.x * e.z;
-    const n = t.x * e.y - t.y * e.x;
-    this._x = i;
-    this._y = s;
-    this._z = n;
+  cross(left, right) {
+    const crossX = left.y * right.z - left.z * right.y;
+    const crossY = left.z * right.x - left.x * right.z;
+    const crossZ = left.x * right.y - left.y * right.x;
+    this._x = crossX;
+    this._y = crossY;
+    this._z = crossZ;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._x*this._x+this._y*this._y+this._z*this._z`。
-   */
   magnitudeSqr() {
     return this._x * this._x + this._y * this._y + this._z * this._z;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Math.sqrt(this.magnitudeSqr())`；调用 `Math.sqrt`、`this.magnitudeSqr`。
-   * 调用线索：Math.sqrt、this.magnitudeSqr。
-   */
   magnitude() {
     return Math.sqrt(this.magnitudeSqr());
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Math.sqrt(this._x*this._x+this._y*this._y)`；调用 `Math.sqrt`。
-   * 调用线索：Math.sqrt。
-   */
   magnitudeXY() {
     return Math.sqrt(this._x * this._x + this._y * this._y);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `t.magnitude`、`this.copy`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：t.magnitude、this.copy。
-   */
-  normalize(t) {
-    const e = t.magnitude();
-    e > 0 ? (this._x = t.x / e, this._y = t.y / e, this._z = t.z / e) : this.copy(t);
+  normalize(source) {
+    const magnitude = source.magnitude();
+    if (magnitude > 0) {
+      this._x = source.x / magnitude;
+      this._y = source.y / magnitude;
+      this._z = source.z / magnitude;
+    } else {
+      this.copy(source);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `this.normalize`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：this.normalize。
-   */
-  setMagnitude(t, e) {
-    this.normalize(t);
-    this._x *= e;
-    this._y *= e;
-    this._z *= e;
+  setMagnitude(source, magnitude) {
+    this.normalize(source);
+    this._x *= magnitude;
+    this._y *= magnitude;
+    this._z *= magnitude;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Math.sqrt(e*e+i*i+s*s)`；调用 `Math.sqrt`。
-   * 调用线索：Math.sqrt。
-   */
-  distance(t) {
-    const e = this._x - t.x;
-    const i = this._y - t.y;
-    const s = this._z - t.z;
-    return Math.sqrt(e * e + i * i + s * s);
+  distance(other) {
+    const deltaX = this._x - other.x;
+    const deltaY = this._y - other.y;
+    const deltaZ = this._z - other.z;
+    return Math.sqrt(deltaX * deltaX + deltaY * deltaY + deltaZ * deltaZ);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e>0?Math.acos(PioneerPublicApi.MathUtils.clamp(this.dot(t)/e,-1,1)):Number.NaN`；调用 `Math.acos`、`PioneerPublicApi.MathUtils.clamp`、`t.magnitude`、`this.dot`、`this.magnitude`。
-   * 调用线索：Math.acos、PioneerPublicApi.MathUtils.clamp、t.magnitude、this.dot、this.magnitude。
-   */
-  angle(t) {
-    const e = this.magnitude() * t.magnitude();
-    return e > 0 ? Math.acos(PioneerPublicApi.MathUtils.clamp(this.dot(t) / e, -1, 1)) : Number.NaN;
+  angle(source) {
+    const magnitudeProduct = this.magnitude() * source.magnitude();
+    return magnitudeProduct > 0 ? Math.acos(PioneerPublicApi.MathUtils.clamp(this.dot(source) / magnitudeProduct, -1, 1)) : Number.NaN;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `n`；调用 `Vector3.pool.get`、`Vector3.pool.release`、`i.addMult`、`i.angle`、`i.cross`、`i.dot`。
-   * 调用线索：Vector3.pool.get、Vector3.pool.release、i.addMult、i.angle、i.cross等。
-   */
-  angleAroundAxis(t, e) {
-    const i = Vector3.pool.get();
-    const s = Vector3.pool.get();
-    i.addMult(this, e, -this.dot(e));
-    s.addMult(t, e, -t.dot(e));
-    let n = i.angle(s);
-    i.cross(i, s);
-    i.dot(e) < 0 && (n *= -1);
-    Vector3.pool.release(i);
-    Vector3.pool.release(s);
-    return n;
+  /** 减去沿 axis 的投影后求有符号夹角；axis 假定单位向量，池向量在返回前归还。 */
+  angleAroundAxis(targetVector, axis) {
+    const projectedSource = Vector3.pool.get();
+    const projectedTarget = Vector3.pool.get();
+    projectedSource.addMult(this, axis, -this.dot(axis));
+    projectedTarget.addMult(targetVector, axis, -targetVector.dot(axis));
+    let signedAngle = projectedSource.angle(projectedTarget);
+    projectedSource.cross(projectedSource, projectedTarget);
+    if (projectedSource.dot(axis) < 0) {
+      signedAngle *= -1;
+    }
+    Vector3.pool.release(projectedSource);
+    Vector3.pool.release(projectedTarget);
+    return signedAngle;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `PioneerPublicApi.MathUtils.clamp`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp。
-   */
-  clamp(t, e, i) {
-    this._x = PioneerPublicApi.MathUtils.clamp(t.x, e.x, i.x);
-    this._y = PioneerPublicApi.MathUtils.clamp(t.y, e.y, i.y);
-    this._z = PioneerPublicApi.MathUtils.clamp(t.z, e.z, i.z);
+  clamp(source, minimum, maximum) {
+    this._x = PioneerPublicApi.MathUtils.clamp(source.x, minimum.x, maximum.x);
+    this._y = PioneerPublicApi.MathUtils.clamp(source.y, minimum.y, maximum.y);
+    this._z = PioneerPublicApi.MathUtils.clamp(source.z, minimum.z, maximum.z);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `PioneerPublicApi.MathUtils.lerp`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：PioneerPublicApi.MathUtils.lerp。
-   */
-  lerp(t, e, i) {
-    this._x = PioneerPublicApi.MathUtils.lerp(t.x, e.x, i);
-    this._y = PioneerPublicApi.MathUtils.lerp(t.y, e.y, i);
-    this._z = PioneerPublicApi.MathUtils.lerp(t.z, e.z, i);
+  lerp(start, end, fraction) {
+    this._x = PioneerPublicApi.MathUtils.lerp(start.x, end.x, fraction);
+    this._y = PioneerPublicApi.MathUtils.lerp(start.y, end.y, fraction);
+    this._z = PioneerPublicApi.MathUtils.lerp(start.z, end.z, fraction);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.abs`、`Math.acos`、`Math.sin`、`PioneerPublicApi.MathUtils.clamp`、`e.magnitude`、`t.dot`。
-   * 调用线索：Math.abs、Math.acos、Math.sin、PioneerPublicApi.MathUtils.clamp、e.magnitude等。
-   */
-  slerp(t, e, i) {
-    const n = t.magnitude();
-    const o = e.magnitude();
-    if (n > 0 && o > 0) {
-      const r = Math.acos(PioneerPublicApi.MathUtils.clamp(t.dot(e) / (n * o), -1, 1));
-      if (Math.abs(r) > .01745327777) {
-        const s = 1 / Math.sin(r);
-        const a = Math.sin((1 - i) * r) * s;
-        const l = Math.sin(i * r) * s;
-        this.set(t.x * a / n + e.x * l / o, t.y * a / n + e.y * l / o, t.z * a / n + e.z * l / o);
-        this.mult(this, (1 - i) * n + i * o);
-      } else this.lerp(t, e, i);
-    } else this.lerp(t, e, i);
+  slerp(startVector, endVector, fraction) {
+    const startMagnitude = startVector.magnitude();
+    const endMagnitude = endVector.magnitude();
+    if (startMagnitude > 0 && endMagnitude > 0) {
+      const angle = Math.acos(PioneerPublicApi.MathUtils.clamp(startVector.dot(endVector) / (startMagnitude * endMagnitude), -1, 1));
+      if (Math.abs(angle) > .01745327777) {
+        const inverseSinAngle = 1 / Math.sin(angle);
+        const startWeight = Math.sin((1 - fraction) * angle) * inverseSinAngle;
+        const endWeight = Math.sin(fraction * angle) * inverseSinAngle;
+        this.set(startVector.x * startWeight / startMagnitude + endVector.x * endWeight / endMagnitude, startVector.y * startWeight / startMagnitude + endVector.y * endWeight / endMagnitude, startVector.z * startWeight / startMagnitude + endVector.z * endWeight / endMagnitude);
+        this.mult(this, (1 - fraction) * startMagnitude + fraction * endMagnitude);
+      } else this.lerp(startVector, endVector, fraction);
+    } else this.lerp(startVector, endVector, fraction);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  rotate(t, e) {
-    const i = t.w * e.x + t.y * e.z - t.z * e.y;
-    const s = t.w * e.y + t.z * e.x - t.x * e.z;
-    const n = t.w * e.z + t.x * e.y - t.y * e.x;
-    const o = -t.x * e.x - t.y * e.y - t.z * e.z;
-    this._x = i * t.w - o * t.x - s * t.z + n * t.y;
-    this._y = s * t.w - o * t.y - n * t.x + i * t.z;
-    this._z = n * t.w - o * t.z - i * t.y + s * t.x;
+  rotate(rotation, vector) {
+    const productX = rotation.w * vector.x + rotation.y * vector.z - rotation.z * vector.y;
+    const productY = rotation.w * vector.y + rotation.z * vector.x - rotation.x * vector.z;
+    const productZ = rotation.w * vector.z + rotation.x * vector.y - rotation.y * vector.x;
+    const productW = -rotation.x * vector.x - rotation.y * vector.y - rotation.z * vector.z;
+    this._x = productX * rotation.w - productW * rotation.x - productY * rotation.z + productZ * rotation.y;
+    this._y = productY * rotation.w - productW * rotation.y - productZ * rotation.x + productX * rotation.z;
+    this._z = productZ * rotation.w - productW * rotation.z - productX * rotation.y + productY * rotation.x;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`。
-   * 状态写入：_x、_y、_z。
-   */
-  rotateInverse(t, e) {
-    const i = t.w * e.x - t.y * e.z + t.z * e.y;
-    const s = t.w * e.y - t.z * e.x + t.x * e.z;
-    const n = t.w * e.z - t.x * e.y + t.y * e.x;
-    const o = t.x * e.x + t.y * e.y + t.z * e.z;
-    this._x = i * t.w + o * t.x + s * t.z - n * t.y;
-    this._y = s * t.w + o * t.y + n * t.x - i * t.z;
-    this._z = n * t.w + o * t.z + i * t.y - s * t.x;
+  rotateInverse(rotation, vector) {
+    const productX = rotation.w * vector.x - rotation.y * vector.z + rotation.z * vector.y;
+    const productY = rotation.w * vector.y - rotation.z * vector.x + rotation.x * vector.z;
+    const productZ = rotation.w * vector.z - rotation.x * vector.y + rotation.y * vector.x;
+    const productW = rotation.x * vector.x + rotation.y * vector.y + rotation.z * vector.z;
+    this._x = productX * rotation.w + productW * rotation.x + productY * rotation.z - productZ * rotation.y;
+    this._y = productY * rotation.w + productW * rotation.y + productZ * rotation.x - productX * rotation.z;
+    this._z = productZ * rotation.w + productW * rotation.z + productX * rotation.y - productY * rotation.x;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_x`、`_y`、`_z`；调用 `this.normalize`。
-   * 状态写入：_x、_y、_z。
-   * 调用线索：this.normalize。
-   */
-  setNormalTo(t, e) {
-    const i = e.x * (t.y * t.y + t.z * t.z) - t.x * (t.y * e.y + t.z * e.z);
-    const s = e.y * (t.z * t.z + t.x * t.x) - t.y * (t.z * e.z + t.x * e.x);
-    const n = e.z * (t.x * t.x + t.y * t.y) - t.z * (t.x * e.x + t.y * e.y);
-    this._x = i;
-    this._y = s;
-    this._z = n;
+  setNormalTo(normal, preferredDirection) {
+    const projectedX = preferredDirection.x * (normal.y * normal.y + normal.z * normal.z) - normal.x * (normal.y * preferredDirection.y + normal.z * preferredDirection.z);
+    const projectedY = preferredDirection.y * (normal.z * normal.z + normal.x * normal.x) - normal.y * (normal.z * preferredDirection.z + normal.x * preferredDirection.x);
+    const projectedZ = preferredDirection.z * (normal.x * normal.x + normal.y * normal.y) - normal.z * (normal.x * preferredDirection.x + normal.y * preferredDirection.y);
+    this._x = projectedX;
+    this._y = projectedY;
+    this._z = projectedZ;
     this.normalize(this);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `vector3`；调用 `new Vector3`、`vector3.setFromAER`。
-   * 调用线索：new Vector3、vector3.setFromAER。
-   */
-  static fromAER(t) {
+  static fromAER(aer) {
     const vector3 = new Vector3();
-    vector3.setFromAER(t);
+    vector3.setFromAER(aer);
     return vector3;
   }
   _x;

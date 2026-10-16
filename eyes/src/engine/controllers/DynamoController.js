@@ -1,453 +1,276 @@
-/** @eyes-analysis
- * 文件职责：读取 Dynamo v1/v2 定义与分层时间块，按五类样本插值驱动实体运动和姿态。
- * 依据：import ../pioneer/public-api.js；Point @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:452962-470709.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：Dynamo 时间样本协议基类：读取 time，定义计算、应用与无效化钩子，由具体点类型实现状态计算。
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 样本时间来自文件的 Float64；calculate 的输出对象由控制器复用，不改写端点样本。 */
 class Point {
   time;
-  /** @eyes-analysis
-   * 【结构证据】写入 `time`。
-   * 状态写入：time。
-   */
   constructor() {
     this.time = NaN;
   }
-  /** @eyes-analysis
-   * 从 Reader 读取样本时间 Float64；该基类本身不产生实体状态。
-   * 状态写入：time。
-   * 调用线索：t.readFloat64。
-   */
-  load(t) {
-    this.time = t.readFloat64();
+  load(reader) {
+    this.time = reader.readFloat64();
   }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  calculate(t, e, i, s) {}
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  apply(t) {}
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
-  setNaN(t) {}
-  /** @eyes-analysis
-   * 【结构证据】返回 `{}`。
-   */
-  static readHeader(t) {
+  calculate(samples, time, header, incremental) {}
+  apply(entity) {}
+  setNaN(entity) {}
+  static readHeader(reader) {
     return {};
   }
 }
-/** @eyes-analysis
- * 类职责：带位置和速度的 Hermite 动力学样本。
- * 继承：Point；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 三次 Hermite 插值同时使用两端位置和速度；速度为同一多项式对时间的导数，比例不截断，因此允许外推。 */
 class PosPoint extends Point {
   position;
   velocity;
-  /** @eyes-analysis
-   * 【结构证据】写入 `position`、`velocity`；调用 `new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：position、velocity。
-   * 调用线索：new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.position = new PioneerPublicApi.Vector3();
     this.velocity = new PioneerPublicApi.Vector3();
   }
-  /** @eyes-analysis
-   * 依次读取 time、position.xyz、velocity.xyz，全部为 Float64；可从字段读取数证明每点 56 字节。
-   * 状态写入：position、velocity。
-   * 调用线索：new PioneerPublicApi.Vector3、super.load、t.readFloat64。
-   */
-  load(t) {
-    super.load(t);
-    this.position = new PioneerPublicApi.Vector3(t.readFloat64(), t.readFloat64(), t.readFloat64());
-    this.velocity = new PioneerPublicApi.Vector3(t.readFloat64(), t.readFloat64(), t.readFloat64());
+  /** 记录为 time、position.xyz、velocity.xyz，共七个 Float64（56 字节）；各分量沿文件顺序读取。 */
+  load(reader) {
+    super.load(reader);
+    this.position = new PioneerPublicApi.Vector3(reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
+    this.velocity = new PioneerPublicApi.Vector3(reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
   }
-  /** @eyes-analysis
-   * 以两端位置和速度做三次 Hermite 插值：归一化时间 u=(time-t0)/duration，速度项乘 duration；输出速度是同一多项式对时间的导数。
-   * 状态写入：time。
-   * 调用线索：this.position.addMult、this.position.mult、this.velocity.addMult、this.velocity.mult。
-   */
-  calculate(t, time, i, s) {
+  calculate(samples, time, header, incremental) {
     this.time = time;
-    const n = t[1].time - t[0].time;
-    const o = (time - t[0].time) / n;
-    const r = 1 - o;
-    const a = r * r;
-    const l = o * o;
-    const c = (1 + 2 * o) * a;
-    const h = o * a;
-    const d = l * (3 - 2 * o);
-    const u = l * -r;
-    this.position.mult(t[0].position, c);
-    this.position.addMult(this.position, t[0].velocity, n * h);
-    this.position.addMult(this.position, t[1].position, d);
-    this.position.addMult(this.position, t[1].velocity, n * u);
-    const p = 6 * (l - o);
-    const _ = p;
-    const m = 3 * l - 4 * o + 1;
-    const g = -p;
-    const y = 3 * l - 2 * o;
-    this.velocity.mult(t[0].position, _ / n);
-    this.velocity.addMult(this.velocity, t[0].velocity, m);
-    this.velocity.addMult(this.velocity, t[1].position, g / n);
-    this.velocity.addMult(this.velocity, t[1].velocity, y);
+    const sampleDuration = samples[1].time - samples[0].time;
+    const fraction = (time - samples[0].time) / sampleDuration;
+    const remainingFraction = 1 - fraction;
+    const remainingSquared = remainingFraction * remainingFraction;
+    const fractionSquared = fraction * fraction;
+    const startPositionWeight = (1 + 2 * fraction) * remainingSquared;
+    const startVelocityWeight = fraction * remainingSquared;
+    const endPositionWeight = fractionSquared * (3 - 2 * fraction);
+    const endVelocityWeight = fractionSquared * -remainingFraction;
+    this.position.mult(samples[0].position, startPositionWeight);
+    this.position.addMult(this.position, samples[0].velocity, sampleDuration * startVelocityWeight);
+    this.position.addMult(this.position, samples[1].position, endPositionWeight);
+    this.position.addMult(this.position, samples[1].velocity, sampleDuration * endVelocityWeight);
+    const positionDerivativeWeight = 6 * (fractionSquared - fraction);
+    const startPositionDerivativeWeight = positionDerivativeWeight;
+    const startVelocityDerivativeWeight = 3 * fractionSquared - 4 * fraction + 1;
+    const endPositionDerivativeWeight = -positionDerivativeWeight;
+    const endVelocityDerivativeWeight = 3 * fractionSquared - 2 * fraction;
+    this.velocity.mult(samples[0].position, startPositionDerivativeWeight / sampleDuration);
+    this.velocity.addMult(this.velocity, samples[0].velocity, startVelocityDerivativeWeight);
+    this.velocity.addMult(this.velocity, samples[1].position, endPositionDerivativeWeight / sampleDuration);
+    this.velocity.addMult(this.velocity, samples[1].velocity, endVelocityDerivativeWeight);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  apply(t) {
-    t.setPosition(this.position);
-    t.setVelocity(this.velocity);
+  apply(entity) {
+    entity.setPosition(this.position);
+    entity.setVelocity(this.velocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  setNaN(t) {
-    t.setPosition(PioneerPublicApi.Vector3.NaN);
-    t.setVelocity(PioneerPublicApi.Vector3.NaN);
+  setNaN(entity) {
+    entity.setPosition(PioneerPublicApi.Vector3.NaN);
+    entity.setVelocity(PioneerPublicApi.Vector3.NaN);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `{}`。
-   */
-  static readHeader(t) {
+  static readHeader(reader) {
     return {};
   }
 }
-/** @eyes-analysis
- * 类职责：只带位置的线性样本。
- * 继承：Point；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 位置按截断比例线性混合，速度为整段割线；时间不递增时使用末端位置和零速度。 */
 class LinPoint extends Point {
   position;
   velocity;
-  /** @eyes-analysis
-   * 【结构证据】写入 `position`、`velocity`；调用 `new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：position、velocity。
-   * 调用线索：new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.position = new PioneerPublicApi.Vector3();
     this.velocity = new PioneerPublicApi.Vector3();
   }
-  /** @eyes-analysis
-   * 读取 time 和 position.xyz（32 字节），速度初始化为零。
-   * 调用线索：super.load、t.readFloat64、this.position.set、this.velocity.copy。
-   */
-  load(t) {
-    super.load(t);
-    this.position.set(t.readFloat64(), t.readFloat64(), t.readFloat64());
+  /** 记录为 time、position.xyz，共四个 Float64（32 字节）；文件不携带速度。 */
+  load(reader) {
+    super.load(reader);
+    this.position.set(reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
     this.velocity.copy(PioneerPublicApi.Vector3.Zero);
   }
-  /** @eyes-analysis
-   * 夹紧归一化时间后线性混合位置，速度为端点差/时间差；非递增时间退回右端位置与零速度。
-   * 状态写入：time。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、this.position.copy、this.position.lerp、this.velocity.copy、this.velocity.div等。
-   */
-  calculate(t, time, i, n) {
-    if (this.time = time, t[1].time > t[0].time) {
-      const i = PioneerPublicApi.MathUtils.clamp01((time - t[0].time) / (t[1].time - t[0].time));
-      this.position.lerp(t[0].position, t[1].position, i);
-      this.velocity.sub(t[1].position, t[0].position);
-      this.velocity.div(this.velocity, t[1].time - t[0].time);
+  calculate(samples, time, header, incremental) {
+    this.time = time;
+    if (samples[1].time > samples[0].time) {
+      const fraction = PioneerPublicApi.MathUtils.clamp01((time - samples[0].time) / (samples[1].time - samples[0].time));
+      this.position.lerp(samples[0].position, samples[1].position, fraction);
+      this.velocity.sub(samples[1].position, samples[0].position);
+      this.velocity.div(this.velocity, samples[1].time - samples[0].time);
     } else {
-      this.position.copy(t[1].position);
+      this.position.copy(samples[1].position);
       this.velocity.copy(PioneerPublicApi.Vector3.Zero);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  apply(t) {
-    t.setPosition(this.position);
-    t.setVelocity(this.velocity);
+  apply(entity) {
+    entity.setPosition(this.position);
+    entity.setVelocity(this.velocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  setNaN(t) {
-    t.setPosition(PioneerPublicApi.Vector3.NaN);
-    t.setVelocity(PioneerPublicApi.Vector3.NaN);
+  setNaN(entity) {
+    entity.setPosition(PioneerPublicApi.Vector3.NaN);
+    entity.setVelocity(PioneerPublicApi.Vector3.NaN);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `{}`。
-   */
-  static readHeader(t) {
+  static readHeader(reader) {
     return {};
   }
 }
-/** @eyes-analysis
- * 类职责：带角速度的姿态样本。
- * 继承：Point；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 先按各端点角速度传播到查询时间，再球面混合姿态；临时四元数和向量均归还对象池。 */
 class OriPoint extends Point {
   orientation;
   angularVelocity;
-  /** @eyes-analysis
-   * 【结构证据】写入 `angularVelocity`、`orientation`；调用 `new PioneerPublicApi.Quaternion`、`new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：angularVelocity、orientation。
-   * 调用线索：new PioneerPublicApi.Quaternion、new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.orientation = new PioneerPublicApi.Quaternion();
     this.angularVelocity = new PioneerPublicApi.Vector3();
   }
-  /** @eyes-analysis
-   * 读取 time、四元数四个分量、角速度.xyz（64 字节），分量顺序以 Quaternion 构造调用为依据。
-   * 状态写入：angularVelocity、orientation。
-   * 调用线索：new PioneerPublicApi.Quaternion、new PioneerPublicApi.Vector3、super.load、t.readFloat64。
-   */
-  load(t) {
-    super.load(t);
-    this.orientation = new PioneerPublicApi.Quaternion(t.readFloat64(), t.readFloat64(), t.readFloat64(), t.readFloat64());
-    this.angularVelocity = new PioneerPublicApi.Vector3(t.readFloat64(), t.readFloat64(), t.readFloat64());
+  /** 记录为 time、四元数四分量、angularVelocity.xyz，共八个 Float64（64 字节）；四元数顺序沿构造器约定。 */
+  load(reader) {
+    super.load(reader);
+    this.orientation = new PioneerPublicApi.Quaternion(reader.readFloat64(), reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
+    this.angularVelocity = new PioneerPublicApi.Vector3(reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
   }
-  /** @eyes-analysis
-   * 分别用两端角速度外推到目标时间，再对投影四元数 slerp；角速度 slerp 后取负并转到插值姿态空间。临时向量/四元数须归还池。
-   * 状态写入：time。
-   * 调用线索：PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、t[0]._project、t[1]._project、this.angularVelocity.neg等。
-   */
-  calculate(t, time, i, n) {
+  calculate(samples, time, header, incremental) {
     this.time = time;
-    const o = PioneerPublicApi.Quaternion.pool.get();
-    const r = PioneerPublicApi.Quaternion.pool.get();
-    const a = (time - t[0].time) / (t[1].time - t[0].time);
-    t[0]._project(o, time, n);
-    t[1]._project(r, time, n);
-    this.orientation.slerp(o, r, a);
-    PioneerPublicApi.Quaternion.pool.release(o);
-    PioneerPublicApi.Quaternion.pool.release(r);
-    this.angularVelocity.slerp(t[0].angularVelocity, t[1].angularVelocity, a);
+    const startOrientation = PioneerPublicApi.Quaternion.pool.get();
+    const endOrientation = PioneerPublicApi.Quaternion.pool.get();
+    const fraction = (time - samples[0].time) / (samples[1].time - samples[0].time);
+    samples[0]._project(startOrientation, time, incremental);
+    samples[1]._project(endOrientation, time, incremental);
+    this.orientation.slerp(startOrientation, endOrientation, fraction);
+    PioneerPublicApi.Quaternion.pool.release(startOrientation);
+    PioneerPublicApi.Quaternion.pool.release(endOrientation);
+    this.angularVelocity.slerp(samples[0].angularVelocity, samples[1].angularVelocity, fraction);
     this.angularVelocity.neg(this.angularVelocity);
     this.angularVelocity.rotate(this.orientation, this.angularVelocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setAngularVelocity`、`t.setOrientation`。
-   * 调用线索：t.setAngularVelocity、t.setOrientation。
-   */
-  apply(t) {
-    t.setOrientation(this.orientation);
-    t.setAngularVelocity(this.angularVelocity);
+  apply(entity) {
+    entity.setOrientation(this.orientation);
+    entity.setAngularVelocity(this.angularVelocity);
   }
-  /** @eyes-analysis
-   * 由 angularVelocity 的方向/模长和时间差建立轴角旋转；incremental 决定与传入累计姿态相乘还是直接写投影姿态。
-   * 调用线索：PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、n.normalize等。
-   */
-  _project(t, e, i) {
-    const n = PioneerPublicApi.Vector3.pool.get();
-    const o = PioneerPublicApi.Quaternion.pool.get();
-    n.normalize(this.angularVelocity);
-    o.setFromAxisAngle(n, this.angularVelocity.magnitude() * (e - this.time));
-    PioneerPublicApi.Vector3.pool.release(n);
-    i ? (o.multInverseR(this.orientation, o), t.mult(t, o)) : t.multInverseR(this.orientation, o);
-    PioneerPublicApi.Quaternion.pool.release(o);
+  /** 角速度模长乘时间差得到轴角（弧度）；增量模式依赖调用者给定的输出初态，临时旋转从对象池借还。 */
+  _project(orientationOut, time, incremental) {
+    const rotationAxis = PioneerPublicApi.Vector3.pool.get();
+    const elapsedRotation = PioneerPublicApi.Quaternion.pool.get();
+    rotationAxis.normalize(this.angularVelocity);
+    elapsedRotation.setFromAxisAngle(rotationAxis, this.angularVelocity.magnitude() * (time - this.time));
+    PioneerPublicApi.Vector3.pool.release(rotationAxis);
+    if (incremental) {
+      elapsedRotation.multInverseR(this.orientation, elapsedRotation);
+      orientationOut.mult(orientationOut, elapsedRotation);
+    } else {
+      orientationOut.multInverseR(this.orientation, elapsedRotation);
+    }
+    PioneerPublicApi.Quaternion.pool.release(elapsedRotation);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setAngularVelocity`、`t.setOrientation`。
-   * 调用线索：t.setAngularVelocity、t.setOrientation。
-   */
-  setNaN(t) {
-    t.setOrientation(PioneerPublicApi.Quaternion.NaN);
-    t.setAngularVelocity(PioneerPublicApi.Vector3.NaN);
+  setNaN(entity) {
+    entity.setOrientation(PioneerPublicApi.Quaternion.NaN);
+    entity.setAngularVelocity(PioneerPublicApi.Vector3.NaN);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `{}`。
-   */
-  static readHeader(t) {
+  static readHeader(reader) {
     return {};
   }
 }
-/** @eyes-analysis
- * 类职责：仅四元数姿态样本。
- * 继承：Point；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 仅对姿态样本做截断球面混合；应用到实体时角速度固定为零。 */
 class QuatPoint extends Point {
   orientation;
   angularVelocity;
-  /** @eyes-analysis
-   * 【结构证据】写入 `angularVelocity`、`orientation`；调用 `new PioneerPublicApi.Quaternion`、`new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：angularVelocity、orientation。
-   * 调用线索：new PioneerPublicApi.Quaternion、new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.orientation = new PioneerPublicApi.Quaternion();
     this.angularVelocity = new PioneerPublicApi.Vector3();
   }
-  /** @eyes-analysis
-   * 只读取 time 和四元数四分量（40 字节）。
-   * 状态写入：orientation。
-   * 调用线索：new PioneerPublicApi.Quaternion、super.load、t.readFloat64。
-   */
-  load(t) {
-    super.load(t);
-    this.orientation = new PioneerPublicApi.Quaternion(t.readFloat64(), t.readFloat64(), t.readFloat64(), t.readFloat64());
+  /** 记录为 time 和四元数四分量，共五个 Float64（40 字节）。 */
+  load(reader) {
+    super.load(reader);
+    this.orientation = new PioneerPublicApi.Quaternion(reader.readFloat64(), reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
   }
-  /** @eyes-analysis
-   * 夹紧目标时间比例后在端点四元数间 slerp；apply 总把角速度写零。
-   * 状态写入：time。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、this.orientation.slerp。
-   */
-  calculate(t, time, i, n) {
+  calculate(samples, time, header, incremental) {
     this.time = time;
-    const o = PioneerPublicApi.MathUtils.clamp01((time - t[0].time) / (t[1].time - t[0].time));
-    this.orientation.slerp(t[0].orientation, t[1].orientation, o);
+    const fraction = PioneerPublicApi.MathUtils.clamp01((time - samples[0].time) / (samples[1].time - samples[0].time));
+    this.orientation.slerp(samples[0].orientation, samples[1].orientation, fraction);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setAngularVelocity`、`t.setOrientation`。
-   * 调用线索：t.setAngularVelocity、t.setOrientation。
-   */
-  apply(t) {
-    t.setOrientation(this.orientation);
-    t.setAngularVelocity(PioneerPublicApi.Vector3.Zero);
+  apply(entity) {
+    entity.setOrientation(this.orientation);
+    entity.setAngularVelocity(PioneerPublicApi.Vector3.Zero);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setAngularVelocity`、`t.setOrientation`。
-   * 调用线索：t.setAngularVelocity、t.setOrientation。
-   */
-  setNaN(t) {
-    t.setOrientation(PioneerPublicApi.Quaternion.NaN);
-    t.setAngularVelocity(PioneerPublicApi.Vector3.NaN);
+  setNaN(entity) {
+    entity.setOrientation(PioneerPublicApi.Quaternion.NaN);
+    entity.setAngularVelocity(PioneerPublicApi.Vector3.NaN);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `{}`。
-   */
-  static readHeader(t) {
+  static readHeader(reader) {
     return {};
   }
 }
-/** @eyes-analysis
- * 类职责：带轨道元素的传播样本。
- * 继承：Point；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 两个轨道样本各自传播到同一时刻，再混合位置和速度；body 选择按引力参数比例缩放到质心参考系。 */
 class OrbPoint extends Point {
   oe;
   position;
   velocity;
-  /** @eyes-analysis
-   * 【结构证据】写入 `oe`、`position`、`velocity`；调用 `new PioneerPublicApi.OrbitalElements`、`new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：oe、position、velocity。
-   * 调用线索：new PioneerPublicApi.OrbitalElements、new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.oe = new PioneerPublicApi.OrbitalElements();
     this.position = new PioneerPublicApi.Vector3();
     this.velocity = new PioneerPublicApi.Vector3();
   }
-  /** @eyes-analysis
-   * 以样本时间为 epoch，读取半长轴、偏心率、平均角运动、历元平近点角与轨道姿态四元数（72 字节）。
-   * 状态写入：oe.eccentricity、oe.epoch、oe.meanAngularMotion、oe.meanAnomalyAtEpoch、oe.semiMajorAxis。
-   * 调用线索：super.load、t.readFloat64、this.oe.orientation.set。
-   */
-  load(t) {
-    super.load(t);
+  /** 记录为 time、a、e、n、M0、轨道四元数，共九个 Float64（72 字节）；样本时间同时作为轨道历元。 */
+  load(reader) {
+    super.load(reader);
     this.oe.epoch = this.time;
-    this.oe.semiMajorAxis = t.readFloat64();
-    this.oe.eccentricity = t.readFloat64();
-    this.oe.meanAngularMotion = t.readFloat64();
-    this.oe.meanAnomalyAtEpoch = t.readFloat64();
-    this.oe.orientation.set(t.readFloat64(), t.readFloat64(), t.readFloat64(), t.readFloat64());
+    this.oe.semiMajorAxis = reader.readFloat64();
+    this.oe.eccentricity = reader.readFloat64();
+    this.oe.meanAngularMotion = reader.readFloat64();
+    this.oe.meanAnomalyAtEpoch = reader.readFloat64();
+    this.oe.orientation.set(reader.readFloat64(), reader.readFloat64(), reader.readFloat64(), reader.readFloat64());
   }
-  /** @eyes-analysis
-   * 分别传播左右两组轨道元素至同一目标时刻，再按时间比例线性混合位置和速度；不是简单直接插值轨道元素后传播。
-   * 状态写入：oe.epoch、time。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、t[0]._project、t[1]._project等。
-   */
-  calculate(t, time, i, n) {
+  calculate(samples, time, header, incremental) {
     this.time = time;
     this.oe.epoch = time;
-    const o = PioneerPublicApi.Vector3.pool.get();
-    const r = PioneerPublicApi.Vector3.pool.get();
-    const a = PioneerPublicApi.Vector3.pool.get();
-    const l = PioneerPublicApi.Vector3.pool.get();
-    const c = PioneerPublicApi.MathUtils.clamp01((time - t[0].time) / (t[1].time - t[0].time));
-    t[0]._project(o, a, time, i, n);
-    t[1]._project(r, l, time, i, n);
-    this.position.lerp(o, r, c);
-    this.velocity.lerp(a, l, c);
-    PioneerPublicApi.Vector3.pool.release(o);
-    PioneerPublicApi.Vector3.pool.release(r);
-    PioneerPublicApi.Vector3.pool.release(a);
-    PioneerPublicApi.Vector3.pool.release(l);
+    const startPosition = PioneerPublicApi.Vector3.pool.get();
+    const endPosition = PioneerPublicApi.Vector3.pool.get();
+    const startVelocity = PioneerPublicApi.Vector3.pool.get();
+    const endVelocity = PioneerPublicApi.Vector3.pool.get();
+    const fraction = PioneerPublicApi.MathUtils.clamp01((time - samples[0].time) / (samples[1].time - samples[0].time));
+    samples[0]._project(startPosition, startVelocity, time, header, incremental);
+    samples[1]._project(endPosition, endVelocity, time, header, incremental);
+    this.position.lerp(startPosition, endPosition, fraction);
+    this.velocity.lerp(startVelocity, endVelocity, fraction);
+    PioneerPublicApi.Vector3.pool.release(startPosition);
+    PioneerPublicApi.Vector3.pool.release(endPosition);
+    PioneerPublicApi.Vector3.pool.release(startVelocity);
+    PioneerPublicApi.Vector3.pool.release(endVelocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  apply(t) {
-    t.setPosition(this.position);
-    t.setVelocity(this.velocity);
+  apply(entity) {
+    entity.setPosition(this.position);
+    entity.setVelocity(this.velocity);
   }
-  /** @eyes-analysis
-   * OrbitalElements.project 得相对轨道状态，body=1/2 时按两引力参数比例拆分成质心两侧状态；incremental 时将传播位置加到输出已有值。
-   * 调用线索：PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、a.mult、e.copy、r.mult等。
-   */
-  _project(t, e, i, n, o) {
-    const r = PioneerPublicApi.Vector3.pool.get();
-    const a = PioneerPublicApi.Vector3.pool.get();
-    this.oe.project(r, a, i);
-    let l = 1;
-    1 === n.body ? l = (n.gravitationalParameter2 ?? 1) / ((n.gravitationalParameter1 ?? 0) + (n.gravitationalParameter2 ?? 1)) : 2 === n.body && (l = -(n.gravitationalParameter1 ?? 1) / ((n.gravitationalParameter1 ?? 1) + (n.gravitationalParameter2 ?? 0)));
-    r.mult(r, l);
-    a.mult(a, l);
-    o ? t.add(r, t) : t.copy(r);
-    e.copy(a);
-    PioneerPublicApi.Vector3.pool.release(r);
-    PioneerPublicApi.Vector3.pool.release(a);
+  /** body=1/2 分别给相对轨道乘 μ2/(μ1+μ2) 或 −μ1/(μ1+μ2)；增量模式只累加位置，速度仍覆盖写入。 */
+  _project(positionOut, velocityOut, time, header, incremental) {
+    const relativePosition = PioneerPublicApi.Vector3.pool.get();
+    const relativeVelocity = PioneerPublicApi.Vector3.pool.get();
+    this.oe.project(relativePosition, relativeVelocity, time);
+    let barycentricScale = 1;
+    if (1 === header.body) {
+      barycentricScale = (header.gravitationalParameter2 ?? 1) / ((header.gravitationalParameter1 ?? 0) + (header.gravitationalParameter2 ?? 1));
+    } else if (2 === header.body) {
+      barycentricScale = -(header.gravitationalParameter1 ?? 1) / ((header.gravitationalParameter1 ?? 1) + (header.gravitationalParameter2 ?? 0));
+    }
+    relativePosition.mult(relativePosition, barycentricScale);
+    relativeVelocity.mult(relativeVelocity, barycentricScale);
+    if (incremental) {
+      positionOut.add(relativePosition, positionOut);
+    } else {
+      positionOut.copy(relativePosition);
+    }
+    velocityOut.copy(relativeVelocity);
+    PioneerPublicApi.Vector3.pool.release(relativePosition);
+    PioneerPublicApi.Vector3.pool.release(relativeVelocity);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setPosition`、`t.setVelocity`。
-   * 调用线索：t.setPosition、t.setVelocity。
-   */
-  setNaN(t) {
-    t.setPosition(PioneerPublicApi.Vector3.NaN);
-    t.setVelocity(PioneerPublicApi.Vector3.NaN);
+  setNaN(entity) {
+    entity.setPosition(PioneerPublicApi.Vector3.NaN);
+    entity.setVelocity(PioneerPublicApi.Vector3.NaN);
   }
-  /** @eyes-analysis
-   * 轨道点类型头额外读取 gravitationalParameter1 与 gravitationalParameter2 两个 Float64。
-   * 调用线索：t.readFloat64。
-   */
-  static readHeader(t) {
+  static readHeader(reader) {
     return {
-      gravitationalParameter1: t.readFloat64(),
-      gravitationalParameter2: t.readFloat64()
+      gravitationalParameter1: reader.readFloat64(),
+      gravitationalParameter2: reader.readFloat64()
     };
   }
 }
-/** @eyes-analysis
- * 类职责：分层 Dynamo 时间块；索引块定位叶块，叶块保存相邻可插值样本。
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 块可包含样本或下级块。v1 索引存每段起止时间，v2 存连续边界并丢弃末尾哨兵；缓存索引先尝试相邻段再二分。 */
 class PointSet {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_PointClass`、`_accessedTime`、`_hintIndex`、`_interval`、`_loadedState`、`_name`、`_numberOfDigits`、`_pointSets`；调用 `new PioneerPublicApi.Interval`。
-   * 状态写入：_PointClass、_accessedTime、_hintIndex、_interval、_loadedState、_name、_numberOfDigits、_pointSets等；完整记录见索引。
-   * 调用线索：new PioneerPublicApi.Interval。
-   */
   constructor(PointClass, version, numberOfDigits, name) {
     this._PointClass = PointClass;
     this._version = version;
@@ -460,160 +283,162 @@ class PointSet {
     this._loadedState = PointSet.State.NOT_LOADED;
     this._accessedTime = Number.POSITIVE_INFINITY;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._name`。
-   */
   getName() {
     return this._name;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._interval`。
-   */
   getInterval() {
     return this._interval;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._loadedState`。
-   */
   getLoadedState() {
     return this._loadedState;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._accessedTime`。
-   */
   getLoadedTime() {
     return this._accessedTime;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `0!==this._pointSets.length`。
-   */
   hasPointSets() {
     return 0 !== this._pointSets.length;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `0!==this._points.length`。
-   */
   hasPoints() {
     return 0 !== this._points.length;
   }
-  /** @eyes-analysis
-   * v1 def/v2 先读取叶标记。叶节点读取点数和样本；索引节点读取子块起点/范围。v2 最后一个起点只作右边界哨兵，删去对应空子块。
-   * 状态写入：_accessedTime、_interval.max、_interval.min、_loadedState、_numberOfDigits、_pointSets[i-1]._interval.max。
-   * 调用线索：Date.now、Math.ceil、Math.log10、_PointClass.load、`${i}`.padStart等。
-   */
-  load(t) {
-    let e = true;
-    if ((2 === this._version || 1 === this._version && "def" === this._name) && (e = 1 === t.readByte()), e) {
-      const e = t.readInt32();
-      for (let i = 0; i < e; i++) {
-        const _PointClass = new this._PointClass();
-        _PointClass.load(t);
-        this._points.push(_PointClass);
+  /** 版本标记决定后续是样本还是下级索引；叶节点供插值时要求至少两点且时间有序。v2 最后一个边界只封闭前段，不对应文件。 */
+  load(reader) {
+    let storesSamples = true;
+    if (2 === this._version || 1 === this._version && "def" === this._name) {
+      storesSamples = 1 === reader.readByte();
+    }
+    if (storesSamples) {
+      const entryCount = reader.readInt32();
+      for (let entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+        const sample = new this._PointClass();
+        sample.load(reader);
+        this._points.push(sample);
       }
-      this._points.length > 0 && (this._interval.min = this._points[0].time, this._interval.max = this._points[this._points.length - 1].time);
+      if (this._points.length > 0) {
+        this._interval.min = this._points[0].time;
+        this._interval.max = this._points[this._points.length - 1].time;
+      }
     } else {
-      const e = t.readInt32();
-      1 === this._version && (this._numberOfDigits = Math.ceil(Math.log10(e)));
-      for (let i = 0; i < e; i++) {
-        let e;
-        e = "def" === this._name ? `${i}`.padStart(this._numberOfDigits, "0") : `${this._name}_${`${i}`.padStart(this._numberOfDigits, "0")}`;
-        const pointSet = new PointSet(this._PointClass, this._version, this._numberOfDigits, e);
-        pointSet._interval.min = t.readFloat64();
-        1 === this._version ? pointSet._interval.max = t.readFloat64() : i > 0 && (this._pointSets[i - 1]._interval.max = pointSet._interval.min);
+      const entryCount = reader.readInt32();
+      if (1 === this._version) {
+        this._numberOfDigits = Math.ceil(Math.log10(entryCount));
+      }
+      for (let entryIndex = 0; entryIndex < entryCount; entryIndex++) {
+        let childName;
+        childName = "def" === this._name ? `${entryIndex}`.padStart(this._numberOfDigits, "0") : `${this._name}_${`${entryIndex}`.padStart(this._numberOfDigits, "0")}`;
+        const pointSet = new PointSet(this._PointClass, this._version, this._numberOfDigits, childName);
+        pointSet._interval.min = reader.readFloat64();
+        if (1 === this._version) {
+          pointSet._interval.max = reader.readFloat64();
+        } else if (entryIndex > 0) {
+          this._pointSets[entryIndex - 1]._interval.max = pointSet._interval.min;
+        }
         this._pointSets.push(pointSet);
       }
-      2 === this._version && this._pointSets.splice(this._pointSets.length - 1, 1);
-      this._pointSets.length > 0 && (this._interval.min = this._pointSets[0]._interval.min, this._interval.max = this._pointSets[this._pointSets.length - 1]._interval.max);
+      if (2 === this._version) {
+        this._pointSets.splice(this._pointSets.length - 1, 1);
+      }
+      if (this._pointSets.length > 0) {
+        this._interval.min = this._pointSets[0]._interval.min;
+        this._interval.max = this._pointSets[this._pointSets.length - 1]._interval.max;
+      }
     }
     this._loadedState = PointSet.State.LOADED;
     this._accessedTime = Date.now();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_loadedState`；调用 `n.add`、`n.delete`、`new PioneerPublicApi.Reader`、`t.download`、`t.download(o,"binary",i).finally`、`this.load`；含显式错误分支。
-   * 状态写入：_loadedState。
-   * 调用线索：n.add、n.delete、new PioneerPublicApi.Reader、t.download、t.download(o,"binary",i).finally等。
-   */
-  loadFromUrl(t, e, i, n) {
+  /** 下载集合用于控制器取消请求；finally 先移除 URL，再处理内容。取消不会被改成 FAILED，保持原生命周期。 */
+  loadFromUrl(downloader, baseUrl, priority, currentDownloads) {
     this._loadedState = PointSet.State.LOADING;
-    const o = `${e}/${this._name}.dyn`;
-    n.add(o);
-    t.download(o, "binary", i).finally(() => {
-      n.delete(o);
-    }).then(async t => {
-      const reader = new PioneerPublicApi.Reader(t.content);
+    const pointSetUrl = `${baseUrl}/${this._name}.dyn`;
+    currentDownloads.add(pointSetUrl);
+    downloader.download(pointSetUrl, "binary", priority).finally(() => {
+      currentDownloads.delete(pointSetUrl);
+    }).then(async downloadResult => {
+      const reader = new PioneerPublicApi.Reader(downloadResult.content);
       this.load(reader);
-    }).catch(async t => {
-      if (!(t instanceof PioneerPublicApi.CanceledError)) throw this._loadedState = PointSet.State.FAILED, t;
+    }).catch(async error => {
+      if (!(error instanceof PioneerPublicApi.CanceledError)) {
+        this._loadedState = PointSet.State.FAILED;
+        throw error;
+      }
     });
   }
-  /** @eyes-analysis
-   * 深度遍历已载入子块，一次最多卸载一个超过 15000ms 未访问的子树；根定义保持。
-   * 调用线索：Date.now、e.unload、e.unloadOldPointSet。
-   */
+  /** 每次最多卸载一个超过 15 秒未访问的已载入子树，避免单帧集中清理。 */
   unloadOldPointSet() {
-    for (let t = 0, e = this._pointSets.length; t < e; t++) {
-      const e = this._pointSets[t];
-      if (e._loadedState === PointSet.State.LOADED) {
-        if (Date.now() - e._accessedTime > 15e3) {
-          e.unload();
+    for (let childIndex = 0, childCount = this._pointSets.length; childIndex < childCount; childIndex++) {
+      const childPointSet = this._pointSets[childIndex];
+      if (childPointSet._loadedState === PointSet.State.LOADED) {
+        if (Date.now() - childPointSet._accessedTime > 15e3) {
+          childPointSet.unload();
           return true;
         }
-        if (e.unloadOldPointSet()) return true;
+        if (childPointSet.unloadOldPointSet()) {
+          return true;
+        }
       }
     }
     return false;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_accessedTime`、`_loadedState`、`_pointSets`、`_points`。
-   * 状态写入：_accessedTime、_loadedState、_pointSets、_points。
-   */
   unload() {
     this._loadedState = PointSet.State.NOT_LOADED;
     this._accessedTime = Number.POSITIVE_INFINITY;
     this._pointSets = [];
     this._points = [];
   }
-  /** @eyes-analysis
-   * 优先命中 hintIndex 及邻块，否则二分定位 interval.min；访问即更新 _accessedTime。
-   * 状态写入：_accessedTime、_hintIndex。
-   * 调用线索：Date.now、Math.ceil、this._pointSets[this._hintIndex+1]._interval.contains、this._pointSets[this._hintIndex-1]._interval.contains、this._pointSets[this._hintIndex]._interval.contains。
-   */
-  getPointSet(t) {
-    if (this._accessedTime = Date.now(), 0 === this._pointSets.length) return null;
-    if (this._pointSets[this._hintIndex]._interval.contains(t)) ;else if (this._hintIndex - 1 >= 0 && this._pointSets[this._hintIndex - 1]._interval.contains(t)) this._hintIndex -= 1;else if (this._hintIndex + 1 < this._pointSets.length && this._pointSets[this._hintIndex + 1]._interval.contains(t)) this._hintIndex += 1;else {
-      let e;
-      let hintIndex = 0;
-      let s = this._pointSets.length - 1;
-      for (; hintIndex !== s;) {
-        e = Math.ceil((hintIndex + s) / 2);
-        t < this._pointSets[e]._interval.min ? s = e - 1 : hintIndex = e;
+  /** hint 命中后不移动；相邻命中只移动一格，否则以起始时间二分，保留原有越界查询行为。 */
+  getPointSet(time) {
+    this._accessedTime = Date.now();
+    if (0 === this._pointSets.length) {
+      return null;
+    }
+    if (this._pointSets[this._hintIndex]._interval.contains(time)) {} else if (this._hintIndex - 1 >= 0 && this._pointSets[this._hintIndex - 1]._interval.contains(time)) {
+      this._hintIndex -= 1;
+    } else if (this._hintIndex + 1 < this._pointSets.length && this._pointSets[this._hintIndex + 1]._interval.contains(time)) {
+      this._hintIndex += 1;
+    } else {
+      let middleIndex;
+      let lowerIndex = 0;
+      let upperIndex = this._pointSets.length - 1;
+      for (; lowerIndex !== upperIndex;) {
+        middleIndex = Math.ceil((lowerIndex + upperIndex) / 2);
+        if (time < this._pointSets[middleIndex]._interval.min) {
+          upperIndex = middleIndex - 1;
+        } else {
+          lowerIndex = middleIndex;
+        }
       }
-      this._hintIndex = hintIndex;
+      this._hintIndex = lowerIndex;
     }
     return this._pointSets[this._hintIndex];
   }
-  /** @eyes-analysis
-   * 返回夹住查询时间的相邻两个样本，先尝试缓存 hintIndex 及邻居，失败才二分；依赖叶节点至少有两点且时间有序。
-   * 状态写入：_accessedTime、_hintIndex。
-   * 调用线索：Date.now、Math.ceil。
-   */
-  getPoints(t, e) {
-    if (this._accessedTime = Date.now(), 0 === this._points.length) {
-      t[0] = null;
-      return void (t[1] = null);
+  /** 输出数组由调用者持有；空块清空两个槽。有序叶节点用左闭右开区间匹配，末端或外部时间由二分选择端段。 */
+  getPoints(samplesOut, time) {
+    this._accessedTime = Date.now();
+    if (0 === this._points.length) {
+      samplesOut[0] = null;
+      samplesOut[1] = null;
+      return;
     }
-    if (this._hintIndex + 1 < this._points.length && this._points[this._hintIndex].time <= e && e < this._points[this._hintIndex + 1].time) ;else if (this._hintIndex - 1 >= 0 && this._points[this._hintIndex - 1].time <= e && e < this._points[this._hintIndex].time) this._hintIndex -= 1;else if (this._hintIndex + 2 < this._points.length && this._points[this._hintIndex + 1].time <= e && e < this._points[this._hintIndex + 2].time) this._hintIndex += 1;else {
-      let t;
-      let hintIndex = 0;
-      let s = this._points.length - 2;
-      for (; hintIndex !== s;) {
-        t = Math.ceil((hintIndex + s) / 2);
-        e < this._points[t].time ? s = t - 1 : hintIndex = t;
+    if (this._hintIndex + 1 < this._points.length && this._points[this._hintIndex].time <= time && time < this._points[this._hintIndex + 1].time) {} else if (this._hintIndex - 1 >= 0 && this._points[this._hintIndex - 1].time <= time && time < this._points[this._hintIndex].time) {
+      this._hintIndex -= 1;
+    } else if (this._hintIndex + 2 < this._points.length && this._points[this._hintIndex + 1].time <= time && time < this._points[this._hintIndex + 2].time) {
+      this._hintIndex += 1;
+    } else {
+      let middleIndex;
+      let lowerIndex = 0;
+      let upperIndex = this._points.length - 2;
+      for (; lowerIndex !== upperIndex;) {
+        middleIndex = Math.ceil((lowerIndex + upperIndex) / 2);
+        if (time < this._points[middleIndex].time) {
+          upperIndex = middleIndex - 1;
+        } else {
+          lowerIndex = middleIndex;
+        }
       }
-      this._hintIndex = hintIndex;
+      this._hintIndex = lowerIndex;
     }
-    t[0] = this._points[this._hintIndex];
-    t[1] = this._points[this._hintIndex + 1];
+    samplesOut[0] = this._points[this._hintIndex];
+    samplesOut[1] = this._points[this._hintIndex + 1];
   }
   _PointClass;
   _name;
@@ -632,19 +457,10 @@ class PointSet {
     FAILED: 3
   };
 }
-/** @eyes-analysis
- * 类职责：读取 Dynamo v1/v2 定义与分层时间块，按五类样本插值驱动实体运动和姿态。
- * 继承：PioneerPublicApi.BaseController；导出：DynamoController。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 场景查询时间减去 timeOffset 后才进入文件时间域；已公布覆盖区间反向加偏移。异步缺块时保留上次端点供每帧继续传播。 */
 class DynamoController extends PioneerPublicApi.BaseController {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_PointClass`、`_baseUrl`、`_currentDownloads`、`_downloader`、`_header`、`_incremental`、`_lastPoints`、`_numberOfDigits`；调用 `e.getScene`、`e.getScene().getEngine`、`e.getScene().getEngine().getDownloader`、`new PioneerPublicApi.Interval`、`new PosPoint`、`new Set`。
-   * 状态写入：_PointClass、_baseUrl、_currentDownloads、_downloader、_header、_incremental、_lastPoints、_numberOfDigits等；完整记录见索引。
-   * 调用线索：e.getScene、e.getScene().getEngine、e.getScene().getEngine().getDownloader、new PioneerPublicApi.Interval、new PosPoint等。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(name, entity) {
+    super(name, entity);
     this._baseUrl = "";
     this._timeOffset = 0;
     this._version = 0;
@@ -656,7 +472,7 @@ class DynamoController extends PioneerPublicApi.BaseController {
     };
     this._incremental = false;
     this._pointSet = null;
-    this._downloader = e.getScene().getEngine().getDownloader();
+    this._downloader = entity.getScene().getEngine().getDownloader();
     this._currentDownloads = new Set();
     this._points = [null, null];
     this._lastPoints = [null, null];
@@ -664,255 +480,298 @@ class DynamoController extends PioneerPublicApi.BaseController {
     this._userCoverage = new PioneerPublicApi.Interval(Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY);
     super.setCoverage(new PioneerPublicApi.Interval(NaN, NaN));
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._pointType`。
-   */
   getPointType() {
     return this._pointType;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._header[t]`。
-   */
-  getHeaderValue(t) {
-    return this._header[t];
+  getHeaderValue(headerKey) {
+    return this._header[headerKey];
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_header[t]`。
-   * 状态写入：_header[t]。
-   */
-  setHeaderValue(t, e) {
-    this._header[t] = e;
+  setHeaderValue(headerKey, value) {
+    this._header[headerKey] = value;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._incremental`。
-   */
   isIncremental() {
     return this._incremental;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_incremental`。
-   * 状态写入：_incremental。
-   */
   setIncremental(incremental) {
     this._incremental = incremental;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._baseUrl`。
-   */
   getBaseUrl() {
     return this._baseUrl;
   }
-  /** @eyes-analysis
-   * 取消所有进行中块请求，清理旧类型/覆盖/modifiedStates，规范末尾斜线并重新 _loadDef；异步旧回调没有显式 generation token。
-   * 状态写入：_PointClass、_baseUrl、_pointSet。
-   * 调用线索：new PioneerPublicApi.Interval、super.setCoverage、this._baseUrl.endsWith、this._baseUrl.slice、this._downloader.cancel等。
-   */
+  /** 取消集合中的现有请求并清除旧类型状态后载入定义；保留原有异步流程，不新增世代令牌。 */
   setBaseUrl(baseUrl) {
-    for (const t of this._currentDownloads) this._downloader.cancel(t);
-    "" !== this._baseUrl && (this._pointSet = null, this._PointClass = void 0, super.setCoverage(new PioneerPublicApi.Interval(NaN, NaN)), this.removeModifiedState("position"), this.removeModifiedState("velocity"), this.removeModifiedState("orientation"), this.removeModifiedState("angularVelocity"));
+    for (const downloadUrl of this._currentDownloads) this._downloader.cancel(downloadUrl);
+    if ("" !== this._baseUrl) {
+      this._pointSet = null;
+      this._PointClass = void 0;
+      super.setCoverage(new PioneerPublicApi.Interval(NaN, NaN));
+      this.removeModifiedState("position");
+      this.removeModifiedState("velocity");
+      this.removeModifiedState("orientation");
+      this.removeModifiedState("angularVelocity");
+    }
     this._baseUrl = baseUrl;
-    this._baseUrl.endsWith("/") && (this._baseUrl = this._baseUrl.slice(0, -1));
+    if (this._baseUrl.endsWith("/")) {
+      this._baseUrl = this._baseUrl.slice(0, -1);
+    }
     this._loadDef();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._timeOffset`。
-   */
   getTimeOffset() {
     return this._timeOffset;
   }
-  /** @eyes-analysis
-   * 按偏移差平移已发布 coverage；真实查询时间再减 offset，不修改二进制样本时间。
-   * 状态写入：_timeOffset。
-   * 调用线索：interval.copy、new PioneerPublicApi.Interval、super.setCoverage、this.getCoverage。
-   */
-  setTimeOffset(t) {
-    const timeOffset = this._timeOffset;
-    this._timeOffset = t;
+  /** 只按偏移差平移已发布 coverage；文件样本及其时间不变，查询路径会减去当前偏移。 */
+  setTimeOffset(timeOffset) {
+    const previousTimeOffset = this._timeOffset;
+    this._timeOffset = timeOffset;
     const interval = new PioneerPublicApi.Interval();
     interval.copy(this.getCoverage());
-    interval.min += this._timeOffset - timeOffset;
-    interval.max += this._timeOffset - timeOffset;
+    interval.min += this._timeOffset - previousTimeOffset;
+    interval.max += this._timeOffset - previousTimeOffset;
     super.setCoverage(interval);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Interval.pool.get`、`PioneerPublicApi.Interval.pool.release`、`e.copy`、`e.intersection`、`new PioneerPublicApi.Interval`、`super.setCoverage`。
-   * 调用线索：PioneerPublicApi.Interval.pool.get、PioneerPublicApi.Interval.pool.release、e.copy、e.intersection、new PioneerPublicApi.Interval等。
-   */
-  setCoverage(t) {
-    this._userCoverage.copy(t);
-    const e = PioneerPublicApi.Interval.pool.get();
-    null !== this._pointSet ? e.intersection(this._userCoverage, this._pointSet.getInterval()) : e.copy(new PioneerPublicApi.Interval(NaN, NaN));
-    e.min += this._timeOffset;
-    e.max += this._timeOffset;
-    super.setCoverage(e);
-    PioneerPublicApi.Interval.pool.release(e);
+  /** 用户覆盖与文件覆盖先取交，再加 timeOffset 发布到场景时间域；临时区间归还池。 */
+  setCoverage(coverage) {
+    this._userCoverage.copy(coverage);
+    const effectiveCoverage = PioneerPublicApi.Interval.pool.get();
+    if (null !== this._pointSet) {
+      effectiveCoverage.intersection(this._userCoverage, this._pointSet.getInterval());
+    } else {
+      effectiveCoverage.copy(new PioneerPublicApi.Interval(NaN, NaN));
+    }
+    effectiveCoverage.min += this._timeOffset;
+    effectiveCoverage.max += this._timeOffset;
+    super.setCoverage(effectiveCoverage);
+    PioneerPublicApi.Interval.pool.release(effectiveCoverage);
   }
-  /** @eyes-analysis
-   * 对相邻 OrbPoint 的标量元素线性混合，平近点角按角度混合、轨道姿态 slerp；与 OrbPoint.calculate 的位置传播路径不同。
-   * 状态写入：_lastPoints[0]、_lastPoints[1]。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.MathUtils.lerp、PioneerPublicApi.MathUtils.lerpAngle、t.orientation.slerp、this._getPointsAtTime。
-   */
-  getOrbitalElements(t, e) {
-    if (this._PointClass === OrbPoint && null !== this._pointSet && (this._getPointsAtTime(this._points, e), null !== this._points[0] && (this._lastPoints[0] = this._points[0], this._lastPoints[1] = this._points[1]), null !== this._lastPoints[0] && null !== this._lastPoints[1])) {
-      const i = this._lastPoints[0].oe;
-      const n = this._lastPoints[1].oe;
-      const o = PioneerPublicApi.MathUtils.clamp01((e - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
-      t.eccentricity = PioneerPublicApi.MathUtils.lerp(i.eccentricity, n.eccentricity, o);
-      t.semiMajorAxis = PioneerPublicApi.MathUtils.lerp(i.semiMajorAxis, n.semiMajorAxis, o);
-      t.epoch = PioneerPublicApi.MathUtils.lerp(i.epoch, n.epoch, o);
-      t.meanAngularMotion = PioneerPublicApi.MathUtils.lerp(i.meanAngularMotion, n.meanAngularMotion, o);
-      t.meanAnomalyAtEpoch = PioneerPublicApi.MathUtils.lerpAngle(i.meanAnomalyAtEpoch, n.meanAnomalyAtEpoch, o);
-      t.orientation.slerp(i.orientation, n.orientation, o);
+  /** 标量元素线性混合，平近点角跨周期混合，轨道姿态球面混合；这与传播后混合位置的 OrbPoint 路径不同。 */
+  getOrbitalElements(elementsOut, time) {
+    if (this._PointClass === OrbPoint) {
+      if (null !== this._pointSet) {
+        this._getPointsAtTime(this._points, time);
+        if (null !== this._points[0]) {
+          this._lastPoints[0] = this._points[0];
+          this._lastPoints[1] = this._points[1];
+        }
+        if (null !== this._lastPoints[0]) {
+          if (null !== this._lastPoints[1]) {
+            const startElements = this._lastPoints[0].oe;
+            const endElements = this._lastPoints[1].oe;
+            const fraction = PioneerPublicApi.MathUtils.clamp01((time - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
+            elementsOut.eccentricity = PioneerPublicApi.MathUtils.lerp(startElements.eccentricity, endElements.eccentricity, fraction);
+            elementsOut.semiMajorAxis = PioneerPublicApi.MathUtils.lerp(startElements.semiMajorAxis, endElements.semiMajorAxis, fraction);
+            elementsOut.epoch = PioneerPublicApi.MathUtils.lerp(startElements.epoch, endElements.epoch, fraction);
+            elementsOut.meanAngularMotion = PioneerPublicApi.MathUtils.lerp(startElements.meanAngularMotion, endElements.meanAngularMotion, fraction);
+            elementsOut.meanAnomalyAtEpoch = PioneerPublicApi.MathUtils.lerpAngle(startElements.meanAnomalyAtEpoch, endElements.meanAnomalyAtEpoch, fraction);
+            elementsOut.orientation.slerp(startElements.orientation, endElements.orientation, fraction);
+          }
+        }
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_lastPoints[0]`、`_lastPoints[1]`；返回 `PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.eccentricity,this._lastPoints[1].oe.eccentricity,e)` 或 `Number.NaN`；调用 `PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.MathUtils.lerp`、`this._getPointsAtTime`。
-   * 状态写入：_lastPoints[0]、_lastPoints[1]。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.MathUtils.lerp、this._getPointsAtTime。
-   */
-  getEccentricity(t) {
-    if (this._PointClass === OrbPoint && null !== this._pointSet && (this._getPointsAtTime(this._points, t), null !== this._points[0] && (this._lastPoints[0] = this._points[0], this._lastPoints[1] = this._points[1]), null !== this._lastPoints[0] && null !== this._lastPoints[1])) {
-      const e = PioneerPublicApi.MathUtils.clamp01((t - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
-      return PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.eccentricity, this._lastPoints[1].oe.eccentricity, e);
+  getEccentricity(time) {
+    if (this._PointClass === OrbPoint) {
+      if (null !== this._pointSet) {
+        this._getPointsAtTime(this._points, time);
+        if (null !== this._points[0]) {
+          this._lastPoints[0] = this._points[0];
+          this._lastPoints[1] = this._points[1];
+        }
+        if (null !== this._lastPoints[0]) {
+          if (null !== this._lastPoints[1]) {
+            const fraction = PioneerPublicApi.MathUtils.clamp01((time - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
+            return PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.eccentricity, this._lastPoints[1].oe.eccentricity, fraction);
+          }
+        }
+      }
     }
     return Number.NaN;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_lastPoints[0]`、`_lastPoints[1]`；返回 `PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.semiMajorAxis,this._lastPoints[1].oe.semiMajorAxis,e)` 或 `Number.NaN`；调用 `PioneerPublicApi.MathUtils.clamp01`、`PioneerPublicApi.MathUtils.lerp`、`this._getPointsAtTime`。
-   * 状态写入：_lastPoints[0]、_lastPoints[1]。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、PioneerPublicApi.MathUtils.lerp、this._getPointsAtTime。
-   */
-  getSemiMajorAxis(t) {
-    if (this._PointClass === OrbPoint && null !== this._pointSet && (this._getPointsAtTime(this._points, t), null !== this._points[0] && (this._lastPoints[0] = this._points[0], this._lastPoints[1] = this._points[1]), null !== this._lastPoints[0] && null !== this._lastPoints[1])) {
-      const e = PioneerPublicApi.MathUtils.clamp01((t - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
-      return PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.semiMajorAxis, this._lastPoints[1].oe.semiMajorAxis, e);
+  getSemiMajorAxis(time) {
+    if (this._PointClass === OrbPoint) {
+      if (null !== this._pointSet) {
+        this._getPointsAtTime(this._points, time);
+        if (null !== this._points[0]) {
+          this._lastPoints[0] = this._points[0];
+          this._lastPoints[1] = this._points[1];
+        }
+        if (null !== this._lastPoints[0]) {
+          if (null !== this._lastPoints[1]) {
+            const fraction = PioneerPublicApi.MathUtils.clamp01((time - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
+            return PioneerPublicApi.MathUtils.lerp(this._lastPoints[0].oe.semiMajorAxis, this._lastPoints[1].oe.semiMajorAxis, fraction);
+          }
+        }
+      }
     }
     return Number.NaN;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_lastPoints[0]`、`_lastPoints[1]`；调用 `PioneerPublicApi.MathUtils.clamp01`、`t.slerp`、`this._getPointsAtTime`。
-   * 状态写入：_lastPoints[0]、_lastPoints[1]。
-   * 调用线索：PioneerPublicApi.MathUtils.clamp01、t.slerp、this._getPointsAtTime。
-   */
-  getOrbitOrientation(t, e) {
-    if (this._PointClass === OrbPoint && null !== this._pointSet && (this._getPointsAtTime(this._points, e), null !== this._points[0] && (this._lastPoints[0] = this._points[0], this._lastPoints[1] = this._points[1]), null !== this._lastPoints[0] && null !== this._lastPoints[1])) {
-      const i = PioneerPublicApi.MathUtils.clamp01((e - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
-      t.slerp(this._lastPoints[0].oe.orientation, this._lastPoints[1].oe.orientation, i);
+  getOrbitOrientation(orientationOut, time) {
+    if (this._PointClass === OrbPoint) {
+      if (null !== this._pointSet) {
+        this._getPointsAtTime(this._points, time);
+        if (null !== this._points[0]) {
+          this._lastPoints[0] = this._points[0];
+          this._lastPoints[1] = this._points[1];
+        }
+        if (null !== this._lastPoints[0]) {
+          if (null !== this._lastPoints[1]) {
+            const fraction = PioneerPublicApi.MathUtils.clamp01((time - this._lastPoints[0].time) / (this._lastPoints[1].time - this._lastPoints[0].time));
+            orientationOut.slerp(this._lastPoints[0].oe.orientation, this._lastPoints[1].oe.orientation, fraction);
+          }
+        }
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.__destroy`、`this._downloader.cancel`。
-   * 调用线索：super.__destroy、this._downloader.cancel。
-   */
   __destroy() {
-    for (const t of this._currentDownloads) this._downloader.cancel(t);
+    for (const downloadUrl of this._currentDownloads) this._downloader.cancel(downloadUrl);
     super.__destroy();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void t.copy(PioneerPublicApi.Vector3.NaN)`；调用 `t.copy`、`this._getPointsAtTime`、`this._pCalc.calculate`、`this.getCoverage`、`this.getCoverage().contains`。
-   * 调用线索：t.copy、this._getPointsAtTime、this._pCalc.calculate、this.getCoverage、this.getCoverage().contains。
-   */
-  __updatePositionAtTime(t, e) {
+  __updatePositionAtTime(positionOut, time) {
     if (null !== this._pointSet) {
-      if ("position" in this._pCalc && this.getCoverage().contains(e)) {
-        if (this._pCalc.time !== e) {
-          if (this._getPointsAtTime(this._points, e), null === this._points[0]) return void t.copy(PioneerPublicApi.Vector3.NaN);
-          this._pCalc.calculate(this._points, e - this._timeOffset, this._header, this._incremental);
+      if ("position" in this._pCalc && this.getCoverage().contains(time)) {
+        if (this._pCalc.time !== time) {
+          this._getPointsAtTime(this._points, time);
+          if (null === this._points[0]) {
+            positionOut.copy(PioneerPublicApi.Vector3.NaN);
+            return;
+          }
+          this._pCalc.calculate(this._points, time - this._timeOffset, this._header, this._incremental);
         }
-        t.copy(this._pCalc.position);
+        positionOut.copy(this._pCalc.position);
       }
-    } else t.copy(PioneerPublicApi.Vector3.NaN);
+    } else {
+      positionOut.copy(PioneerPublicApi.Vector3.NaN);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void t.copy(PioneerPublicApi.Vector3.NaN)`；调用 `t.copy`、`this._getPointsAtTime`、`this._pCalc.calculate`、`this.getCoverage`、`this.getCoverage().contains`。
-   * 调用线索：t.copy、this._getPointsAtTime、this._pCalc.calculate、this.getCoverage、this.getCoverage().contains。
-   */
-  __updateVelocityAtTime(t, e) {
+  __updateVelocityAtTime(velocityOut, time) {
     if (null !== this._pointSet) {
-      if ("velocity" in this._pCalc && this.getCoverage().contains(e)) {
-        if (this._pCalc.time !== e) {
-          if (this._getPointsAtTime(this._points, e), null === this._points[0]) return void t.copy(PioneerPublicApi.Vector3.NaN);
-          this._pCalc.calculate(this._points, e - this._timeOffset, this._header, this._incremental);
+      if ("velocity" in this._pCalc && this.getCoverage().contains(time)) {
+        if (this._pCalc.time !== time) {
+          this._getPointsAtTime(this._points, time);
+          if (null === this._points[0]) {
+            velocityOut.copy(PioneerPublicApi.Vector3.NaN);
+            return;
+          }
+          this._pCalc.calculate(this._points, time - this._timeOffset, this._header, this._incremental);
         }
-        t.copy(this._pCalc.velocity);
+        velocityOut.copy(this._pCalc.velocity);
       }
-    } else t.copy(PioneerPublicApi.Vector3.NaN);
+    } else {
+      velocityOut.copy(PioneerPublicApi.Vector3.NaN);
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void t.copy(PioneerPublicApi.Quaternion.NaN)`；调用 `t.copy`、`this._getPointsAtTime`、`this._pCalc.calculate`、`this.getCoverage`、`this.getCoverage().contains`。
-   * 调用线索：t.copy、this._getPointsAtTime、this._pCalc.calculate、this.getCoverage、this.getCoverage().contains。
-   */
-  __updateOrientationAtTime(t, e) {
+  __updateOrientationAtTime(orientationOut, time) {
     if (null !== this._pointSet) {
-      if ("orientation" in this._pCalc && this.getCoverage().contains(e)) {
-        if (this._pCalc.time !== e) {
-          if (this._getPointsAtTime(this._points, e), null === this._points[0]) return void t.copy(PioneerPublicApi.Quaternion.NaN);
-          this._pCalc.calculate(this._points, e - this._timeOffset, this._header, this._incremental);
+      if ("orientation" in this._pCalc && this.getCoverage().contains(time)) {
+        if (this._pCalc.time !== time) {
+          this._getPointsAtTime(this._points, time);
+          if (null === this._points[0]) {
+            orientationOut.copy(PioneerPublicApi.Quaternion.NaN);
+            return;
+          }
+          this._pCalc.calculate(this._points, time - this._timeOffset, this._header, this._incremental);
         }
-        t.copy(this._pCalc.orientation);
+        orientationOut.copy(this._pCalc.orientation);
       }
-    } else t.copy(PioneerPublicApi.Quaternion.NaN);
+    } else {
+      orientationOut.copy(PioneerPublicApi.Quaternion.NaN);
+    }
   }
-  /** @eyes-analysis
-   * 每帧尝试获得新样本并插值；暂未载入时用 _lastPoints 继续推算，根未载入时将四类状态设 NaN；因此后备路径可外推越过旧时间段。
-   * 状态写入：_lastPoints[0]、_lastPoints[1]。
-   * 调用线索：t.getScene、t.getScene().getEngine、t.getScene().getEngine().getTime、this._getPointsAtTime、this._pCalc.apply等。
-   */
+  /** 新块尚未可用时继续使用上次样本；根定义缺失时把实体状态设为 NaN。旧样本后备路径允许外推。 */
   __update() {
-    const t = this.getEntity();
-    const e = t.getScene().getEngine().getTime();
-    null !== this._pointSet ? (this._pointSet.unloadOldPointSet(), this._getPointsAtTime(this._points, e), null !== this._points[0] ? (this._pCalc.calculate(this._points, e - this._timeOffset, this._header, this._incremental), this._pCalc.apply(t), this._lastPoints[0] = this._points[0], this._lastPoints[1] = this._points[1]) : null !== this._lastPoints[0] && null !== this._lastPoints[1] && (this._pCalc.calculate(this._lastPoints, e - this._timeOffset, this._header, this._incremental), this._pCalc.apply(t))) : (this.getEntity().setPosition(PioneerPublicApi.Vector3.NaN), this.getEntity().setVelocity(PioneerPublicApi.Vector3.NaN), this.getEntity().setOrientation(PioneerPublicApi.Quaternion.NaN), this.getEntity().setAngularVelocity(PioneerPublicApi.Vector3.NaN));
+    const entity = this.getEntity();
+    const time = entity.getScene().getEngine().getTime();
+    if (null !== this._pointSet) {
+      this._pointSet.unloadOldPointSet();
+      this._getPointsAtTime(this._points, time);
+      if (null !== this._points[0]) {
+        this._pCalc.calculate(this._points, time - this._timeOffset, this._header, this._incremental);
+        this._pCalc.apply(entity);
+        this._lastPoints[0] = this._points[0];
+        this._lastPoints[1] = this._points[1];
+      } else if (null !== this._lastPoints[0] && null !== this._lastPoints[1]) {
+        this._pCalc.calculate(this._lastPoints, time - this._timeOffset, this._header, this._incremental);
+        this._pCalc.apply(entity);
+      }
+    } else {
+      this.getEntity().setPosition(PioneerPublicApi.Vector3.NaN);
+      this.getEntity().setVelocity(PioneerPublicApi.Vector3.NaN);
+      this.getEntity().setOrientation(PioneerPublicApi.Quaternion.NaN);
+      this.getEntity().setAngularVelocity(PioneerPublicApi.Vector3.NaN);
+    }
   }
-  /** @eyes-analysis
-   * 下载 baseUrl/def.dyn，校验版本只允许 1/2，按 pos/lin/ori/quat/orb 选 PointClass；设置 modifiedStates、类型头和根 PointSet，coverage 与用户覆盖取交再加 timeOffset。
-   * 状态写入：_PointClass、_header、_numberOfDigits、_pCalc、_pointSet、_pointType、_version。
-   * 调用线索：Object.assign、PioneerPublicApi.Interval.pool.get、PioneerPublicApi.Interval.pool.release、new Error、new PioneerPublicApi.Reader等。
-   */
+  /** 定义头只接受版本 1/2 与五种已知样本类型；v2 另含文件名补零位数，orb 类型另含两个引力参数。 */
   async _loadDef() {
-    const t = `${this._baseUrl}/def.dyn`;
-    let e;
-    this._currentDownloads.add(t);
+    const definitionUrl = `${this._baseUrl}/def.dyn`;
+    let downloadResult;
+    this._currentDownloads.add(definitionUrl);
     try {
-      e = await this._downloader.download(t, "binary", -this.getEntity().getLeastCameraDepth());
-    } catch (t) {
-      if (t instanceof PioneerPublicApi.CanceledError) return;
-      throw t;
+      downloadResult = await this._downloader.download(definitionUrl, "binary", -this.getEntity().getLeastCameraDepth());
+    } catch (definitionUrl) {
+      if (definitionUrl instanceof PioneerPublicApi.CanceledError) {
+        return;
+      }
+      throw definitionUrl;
     } finally {
-      this._currentDownloads.delete(t);
+      this._currentDownloads.delete(definitionUrl);
     }
     try {
-      const reader = new PioneerPublicApi.Reader(e.content);
-      if (this._version = reader.readInt16(), 1 !== this._version && 2 !== this._version) throw new Error(`${t} is not Dynamo version 1 or 2`);
+      const reader = new PioneerPublicApi.Reader(downloadResult.content);
+      this._version = reader.readInt16();
+      if (1 !== this._version && 2 !== this._version) {
+        throw new Error(`${definitionUrl} is not Dynamo version 1 or 2`);
+      }
       const pointType = reader.readString();
-      if ("pos" === pointType) this._PointClass = PosPoint;else if ("lin" === pointType) this._PointClass = LinPoint;else if ("ori" === pointType) this._PointClass = OriPoint;else if ("quat" === pointType) this._PointClass = QuatPoint;else {
-        if ("orb" !== pointType) throw new Error(`${t} does not have valid Dynamo type`);
+      if ("pos" === pointType) {
+        this._PointClass = PosPoint;
+      } else if ("lin" === pointType) {
+        this._PointClass = LinPoint;
+      } else if ("ori" === pointType) {
+        this._PointClass = OriPoint;
+      } else if ("quat" === pointType) {
+        this._PointClass = QuatPoint;
+      } else {
+        if ("orb" !== pointType) {
+          throw new Error(`${definitionUrl} does not have valid Dynamo type`);
+        }
         this._PointClass = OrbPoint;
       }
       this._pointType = pointType;
       this._pCalc = new this._PointClass();
-      this._PointClass === PosPoint || this._PointClass === LinPoint || this._PointClass === OrbPoint ? (this.addModifiedState("position"), this.addModifiedState("velocity"), this.removeModifiedState("orientation"), this.removeModifiedState("angularVelocity")) : this._PointClass !== OriPoint && this._PointClass !== QuatPoint || (this.addModifiedState("orientation"), this.addModifiedState("angularVelocity"), this.removeModifiedState("position"), this.removeModifiedState("velocity"));
-      2 === this._version && (this._numberOfDigits = reader.readByte());
+      if (this._PointClass === PosPoint || this._PointClass === LinPoint || this._PointClass === OrbPoint) {
+        this.addModifiedState("position");
+        this.addModifiedState("velocity");
+        this.removeModifiedState("orientation");
+        this.removeModifiedState("angularVelocity");
+      } else if (!(this._PointClass !== OriPoint && this._PointClass !== QuatPoint)) {
+        this.addModifiedState("orientation");
+        this.addModifiedState("angularVelocity");
+        this.removeModifiedState("position");
+        this.removeModifiedState("velocity");
+      }
+      if (2 === this._version) {
+        this._numberOfDigits = reader.readByte();
+      }
       this._header = Object.assign(this._header, this._PointClass.readHeader(reader));
       this._pointSet = new PointSet(this._PointClass, this._version, this._numberOfDigits, "def");
       this._pointSet.load(reader);
-      const o = PioneerPublicApi.Interval.pool.get();
-      o.intersection(this._userCoverage, this._pointSet.getInterval());
-      o.min += this._timeOffset;
-      o.max += this._timeOffset;
-      super.setCoverage(o);
-      PioneerPublicApi.Interval.pool.release(o);
-    } catch (e) {
-      throw new Error(`While reading ${t}: ${e instanceof Error ? e.message : "unknown error"}`);
+      const effectiveCoverage = PioneerPublicApi.Interval.pool.get();
+      effectiveCoverage.intersection(this._userCoverage, this._pointSet.getInterval());
+      effectiveCoverage.min += this._timeOffset;
+      effectiveCoverage.max += this._timeOffset;
+      super.setCoverage(effectiveCoverage);
+      PioneerPublicApi.Interval.pool.release(effectiveCoverage);
+    } catch (downloadResult) {
+      throw new Error(`While reading ${definitionUrl}: ${downloadResult instanceof Error ? downloadResult.message : "unknown error"}`);
     }
   }
-  /** @eyes-analysis
-   * 查询时统一减 timeOffset，逐层进入 PointSet；未加载块异步启动下载并返回 null；FAILED 重新 setBaseUrl 载入根定义。
-   * 调用线索：pointSet.getLoadedState、pointSet.getPointSet、pointSet.getPoints、pointSet.hasPoints、pointSet.loadFromUrl等。
-   */
-  _getPointsAtTime(t, e) {
+  /** 逐层进入查询时间对应的块；缺块仅启动下载并清空输出，失败块触发根定义重载。 */
+  _getPointsAtTime(samplesOut, time) {
     let pointSet = this._pointSet;
     for (; null !== pointSet;) {
-      if (pointSet.hasPoints()) return void pointSet.getPoints(t, e - this._timeOffset);
+      if (pointSet.hasPoints()) {
+        pointSet.getPoints(samplesOut, time - this._timeOffset);
+        return;
+      }
       if (pointSet.getLoadedState() !== PointSet.State.LOADED) {
         if (pointSet.getLoadedState() === PointSet.State.NOT_LOADED) {
           pointSet.loadFromUrl(this._downloader, this._baseUrl, -this.getEntity().getLeastCameraDepth(), this._currentDownloads);
@@ -924,10 +783,10 @@ class DynamoController extends PioneerPublicApi.BaseController {
         }
         break;
       }
-      pointSet = pointSet.getPointSet(e - this._timeOffset);
+      pointSet = pointSet.getPointSet(time - this._timeOffset);
     }
-    t[0] = null;
-    t[1] = null;
+    samplesOut[0] = null;
+    samplesOut[1] = null;
   }
   _baseUrl;
   _timeOffset;

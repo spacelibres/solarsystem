@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：装配太阳系应用的路由、管理器、组件配置和启动实例
- * 依据：imports: ../framework/eyes/index.js, ../styles/index.js, ./config/components.js, ../data/TimeInfo.json, ../data/SceneInfo.json, ../data/ViewInfo.json, ./config/views.js, ../engine/core/STORIES.js, ../ui/templates/SolarSystemAppTemplate.html, ./public-api.js, ../engine/solar-system/public-api.js, ./PreloadManager.js；manager dependencies: router, content, search, layer
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:82-3723.
 import * as Eyes from "../framework/eyes/index.js";
 import "../styles/index.js";
@@ -18,17 +12,7 @@ import * as SolarSystemPublicApi from "./public-api.js";
 import * as SolarSystemSceneExports from "../engine/solar-system/public-api.js";
 import * as PreloadManager from "./PreloadManager.js";
 var getSolarSystemAppTemplate = () => SolarSystemAppTemplate;
-/** @eyes-analysis
- * 类职责：装配太阳系应用的路由、管理器、组件配置和启动实例；继承 Eyes.BaseApp
- * 继承：Eyes.BaseApp；导出：SolarSystemApp。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SolarSystemApp extends Eyes.BaseApp {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；写入 _timeInfo, _sceneInfo, _viewClasses, _viewInfo, _componentInfo。
-   * 状态写入：_componentInfo、_sceneInfo、_timeInfo、_viewClasses、_viewInfo。
-   * 调用线索：super。
-   */
   constructor() {
     super(SolarSystemPublicApi.Types);
     this._timeInfo = TimeInfo;
@@ -39,10 +23,6 @@ class SolarSystemApp extends Eyes.BaseApp {
     this._viewInfo = ViewInfo;
     this._componentInfo = ComponentInfo.default;
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, SolarSystemSceneExports.Entity._entities.get, PreloadManager.default.hideLoadingScreen, PreloadManager.default.updateEmbedLoadPercent, this.getComponent。
-   * 调用线索：PreloadManager.default.hideLoadingScreen、PreloadManager.default.updateEmbedLoadPercent、SolarSystemSceneExports.Entity._entities.get、super.init、this.getComponent等。
-   */
   async init() {
     await super.init();
     SolarSystemSceneExports.Entity._entities.get("101955_bennu").radius = .2207;
@@ -50,10 +30,6 @@ class SolarSystemApp extends Eyes.BaseApp {
     PreloadManager.default.updateEmbedLoadPercent(50);
     this.getComponent("menu")?.updateMenuContent();
   }
-  /** @eyes-analysis
-   * 执行 setUpRoutes 对应的组件业务步骤；调用 this.getManager。
-   * 调用线索：this.getManager、this.getManager("router").addRoutes。
-   */
   setUpRoutes() {
     this.getManager("router").addRoutes([{
       route: this.getManager("router").homeRoute,
@@ -84,18 +60,11 @@ class SolarSystemApp extends Eyes.BaseApp {
       view: "object"
     }]);
   }
-  /** @eyes-analysis
-   * 执行 setUpScene 对应的组件业务步骤；调用 super.setUpScene, this.scene.getLoadedPromise。
-   * 调用线索：super.setUpScene、this.scene.getLoadedPromise。
-   */
   async setUpScene() {
     await super.setUpScene();
     await this.scene.getLoadedPromise();
   }
-  /** @eyes-analysis
-   * 执行 setUpManagers 对应的组件业务步骤；调用 super.setUpManagers, this.addManager, this.getManager, Manager.setStoryList, Manager.setStories, Manager.getEntityList, this.getView, SolarSystemPublicApi.Types.get。
-   * 调用线索：SolarSystemPublicApi.Types.get、_.slide.replace、c.getEntityInfo、c.getStoryList、contentManager.getEntityList等。
-   */
+  // 标题解析器读取路由参数而不修改路由；故事、子对象、事件及比较对象各有独立的标题优先级。Autoplay 管理器必须等待初始化后才能交给应用使用。
   async setUpManagers() {
     await super.setUpManagers();
     this.addManager("link", SolarSystemPublicApi.LinkManager);
@@ -104,9 +73,9 @@ class SolarSystemApp extends Eyes.BaseApp {
     const contentManager = this.getManager("content");
     contentManager.setStoryList(STORIES.STORY_LIST);
     contentManager.setStories(STORIES.STORIES);
-    const e = contentManager.getEntityList();
-    this.getManager("search").setDatabase(e);
-    const i = {
+    const entityDatabase = contentManager.getEntityList();
+    this.getManager("search").setDatabase(entityDatabase);
+    const titleOptions = {
       prefix: "Eyes on the Solar System",
       suffix: "NASA/JPL",
       parseFn: ({
@@ -121,99 +90,89 @@ class SolarSystemApp extends Eyes.BaseApp {
           star: star,
           moon: moon
         } = params;
-        const l = spaceObject || spacecraft || planet || star || moon;
-        const c = this.getManager("content");
+        const entityId = spaceObject || spacecraft || planet || star || moon;
+        const titleContentManager = this.getManager("content");
         const {
           altName: altName,
           displayName: displayName,
           iauName: iauName
-        } = c.getEntityInfo(l) || {};
-        const p = altName || displayName || iauName;
-        const _ = query ? this.getManager("router").parseQuery(query) : {};
-        const m = url.includes("/story");
-        if (m) {
-          const t = m ? params.id : null;
+        } = titleContentManager.getEntityInfo(entityId) || {};
+        const entityTitle = altName || displayName || iauName;
+        const parsedQuery = query ? this.getManager("router").parseQuery(query) : {};
+        const isStoryRoute = url.includes("/story");
+        if (isStoryRoute) {
+          const storyId = isStoryRoute ? params.id : null;
           const {
             stories: stories
-          } = c.getStoryList();
-          const s = stories[t];
-          const n = _.slide ? _.slide.replace("slide_", "") : 1;
-          return s?.title && n ? `${s.title} - Slide ${n}` : "Story";
+          } = titleContentManager.getStoryList();
+          const story = stories[storyId];
+          const slideNumber = parsedQuery.slide ? parsedQuery.slide.replace("slide_", "") : 1;
+          return story?.title && slideNumber ? `${story.title} - Slide ${slideNumber}` : "Story";
         }
-        if (!p) return "Home";
+        if (!entityTitle) return "Home";
         if ("feature" in params) {
           if ("child" in params) {
             const {
-              iauName: t,
-              displayName: i
-            } = c.getEntityInfo(params.child) || {};
-            const s = t || i;
-            if (s) return s;
+              iauName: childIauName,
+              displayName: childDisplayName
+            } = titleContentManager.getEntityInfo(params.child) || {};
+            const childTitle = childIauName || childDisplayName;
+            if (childTitle) return childTitle;
           }
-          const t = params.feature.charAt(0).toUpperCase() + params.feature.slice(1);
-          return `${p}'${p.endsWith("s") ? "" : "s"} ${t}`;
+          const featureTitle = params.feature.charAt(0).toUpperCase() + params.feature.slice(1);
+          return `${entityTitle}'${entityTitle.endsWith("s") ? "" : "s"} ${featureTitle}`;
         }
-        if (url.includes("/telescope")) return `${p} Telescope Mode`;
+        if (url.includes("/telescope")) return `${entityTitle} Telescope Mode`;
         if (url.includes("/events")) {
-          const t = "child" in params;
-          const i = t ? this.getView("event")._eventInfo?.title : null;
-          return t && i ? `${p} - ${i}` : `${p}'${p.endsWith("s") ? "" : "s"} Events`;
+          const hasEventChild = "child" in params;
+          const eventTitle = hasEventChild ? this.getView("event")._eventInfo?.title : null;
+          return hasEventChild && eventTitle ? `${entityTitle} - ${eventTitle}` : `${entityTitle}'${entityTitle.endsWith("s") ? "" : "s"} Events`;
         }
-        if (url?.includes("/compare") && "id" in _) {
+        if (url?.includes("/compare") && "id" in parsedQuery) {
           const {
-            iauName: t,
-            displayName: e
-          } = c.getEntityInfo(_.id) || {};
-          const i = t || e;
-          if (i) return `${p} compared to ${i}`;
+            iauName: compareIauName,
+            displayName: compareDisplayName
+          } = titleContentManager.getEntityInfo(parsedQuery.id) || {};
+          const compareTitle = compareIauName || compareDisplayName;
+          if (compareTitle) return `${entityTitle} compared to ${compareTitle}`;
         }
-        return p;
+        return entityTitle;
       }
     };
-    const n = SolarSystemPublicApi.Types.get("TitleManager");
-    this.addManager("title", n, i);
-    const o = this.addManager("autoplay", SolarSystemPublicApi.Types.get("AutoplayManager"), "https://eyes.nasa.gov/apps/solar-system/autoplay.json");
-    await o.init();
+    const TitleManagerClass = SolarSystemPublicApi.Types.get("TitleManager");
+    this.addManager("title", TitleManagerClass, titleOptions);
+    const autoplayManager = this.addManager("autoplay", SolarSystemPublicApi.Types.get("AutoplayManager"), "https://eyes.nasa.gov/apps/solar-system/autoplay.json");
+    await autoplayManager.init();
   }
-  /** @eyes-analysis
-   * 执行 setUpComponents 对应的组件业务步骤；调用 super.setUpComponents, this.getManager, Manager.getLayer, this.getComponent, PanelComponent.toggleLayer。
-   * 调用线索：layerManager.getLayer、layerManager.getLayer("starfield").toggleCallback[0]、layerPanelComponent.toggleLayer、super.setUpComponents、this.getComponent等。
-   */
+  // 图层面板负责执行开关操作，保持管理器状态与 NASA 原界面的按钮状态同步；这里只确定启动时的显隐集合。
   async setUpComponents() {
     await super.setUpComponents();
     const layerManager = this.getManager("layer");
     layerManager.getLayer("starfield").toggleCallback[0](true);
     const layerPanelComponent = this.getComponent("layerPanel");
-    const i = ["ui", "planets", "spacecraft", "trails", "labels", "icons"];
-    const s = ["asteroids", "comets", "dwarfPlanets", "constellations"];
-    for (let s = 0; s < i.length; s++) {
-      const n = i[s];
-      layerManager.getLayer(n).visible || layerPanelComponent.toggleLayer(n);
+    const visibleLayerNames = ["ui", "planets", "spacecraft", "trails", "labels", "icons"];
+    const hiddenLayerNames = ["asteroids", "comets", "dwarfPlanets", "constellations"];
+    for (let visibleLayerIndex = 0; visibleLayerIndex < visibleLayerNames.length; visibleLayerIndex++) {
+      const layerName = visibleLayerNames[visibleLayerIndex];
+      layerManager.getLayer(layerName).visible || layerPanelComponent.toggleLayer(layerName);
     }
-    for (let i = 0; i < s.length; i++) {
-      const n = s[i];
-      layerManager.getLayer(n).visible && layerPanelComponent.toggleLayer(n);
+    for (let hiddenLayerIndex = 0; hiddenLayerIndex < hiddenLayerNames.length; hiddenLayerIndex++) {
+      const layerName = hiddenLayerNames[hiddenLayerIndex];
+      layerManager.getLayer(layerName).visible && layerPanelComponent.toggleLayer(layerName);
     }
-    this.getComponent("breadcrumb")?.setCrumbClickHandler(t => {
-      const e = {
+    this.getComponent("breadcrumb")?.setCrumbClickHandler(crumbRoute => {
+      const navigationOptions = {
         keepTime: true,
         __remove: "all"
       };
-      this.getManager("router").navigate({}, t, e);
+      this.getManager("router").navigate({}, crumbRoute, navigationOptions);
     });
-    const n = this.pioneer?.getViewport("main-viewport")?.getDiv();
-    n && (n.style.top = "", n.style.left = "");
+    const viewportElement = this.pioneer?.getViewport("main-viewport")?.getDiv();
+    viewportElement && (viewportElement.style.top = "", viewportElement.style.left = "");
   }
-  /** @eyes-analysis
-   * 执行 getVersion 对应的组件业务步骤。
-   */
   getVersion() {
     return SolarSystemPublicApi.AppVersion;
   }
-  /** @eyes-analysis
-   * 执行 getVersions 对应的组件业务步骤；调用 this.getPioneerVersion, this.getEyesVersion, this.getVersion。
-   * 调用线索：this.getEyesVersion、this.getPioneerVersion、this.getVersion。
-   */
   getVersions() {
     return {
       pioneer: this.getPioneerVersion(),

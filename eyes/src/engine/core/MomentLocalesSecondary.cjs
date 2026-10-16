@@ -1,11 +1,6 @@
-/** @eyes-analysis
- * 文件职责：Moment 补充语言区域的第三方本地化定义和注册副作用。
- * 依据：import ../../vendor/moment/secondary/locale/af.cjs；import ../../vendor/moment/secondary/locale/ar.cjs
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// Moment CommonJS locale context 按请求路径解析固定模块编号，再由静态 require 分派；keys/resolve/id 和 MODULE_NOT_FOUND 契约不变，两套运行时的模块表互相独立。
 // Recovered from app.js:1381950-1385870.
-var s = {
+var localeModuleIds = {
   "./af": 781,
   "./af.js": 781,
   "./ar": 782,
@@ -277,8 +272,8 @@ var s = {
   "./zh-tw": 915,
   "./zh-tw.js": 915
 };
-function n(t) {
-  var e = o(t);
+function loadLocale(request) {
+  var moduleId = resolveLocale(request);
   return (resolvedId => {
     switch (resolvedId) {
       case 781:
@@ -553,18 +548,18 @@ function n(t) {
         return require("../../vendor/moment/secondary/locale/zh-tw.cjs");
     }
     throw new Error("Unknown locale module");
-  })(e);
+  })(moduleId);
 }
-function o(t) {
-  if (!Object.prototype.hasOwnProperty.call(s, t)) {
-    var error = new Error("Cannot find module '" + t + "'");
+function resolveLocale(request) {
+  if (!Object.prototype.hasOwnProperty.call(localeModuleIds, request)) {
+    var error = new Error("Cannot find module '" + request + "'");
     throw error.code = "MODULE_NOT_FOUND", error;
   }
-  return s[t];
+  return localeModuleIds[request];
 }
-n.keys = function () {
-  return Object.keys(s);
+loadLocale.keys = function () {
+  return Object.keys(localeModuleIds);
 };
-n.resolve = o;
-module.exports = n;
-n.id = 780;
+loadLocale.resolve = resolveLocale;
+module.exports = loadLocale;
+loadLocale.id = 780;

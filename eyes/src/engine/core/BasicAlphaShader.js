@@ -1,10 +1,7 @@
-/** @eyes-analysis
- * 文件职责：声明 BasicAlphaShader 的 uniforms/properties 与顶点、片元 GLSL 源码，供材质系统创建实际 GPU 程序。
- * 依据：import ./ShaderChunkLogDepth.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:202550-203461.
+/** 透明纯色面：position 经模型视图/投影矩阵变换，fragment 原样输出 color；双面、普通混合且不写深度，仍写入统一深度片段。
+ * GLSL 现在以实际多行展示；uniform/attribute 名称、插值表达式和运行时 shader 字节均保持。
+ */
 import * as ShaderChunkLogDepth from "./ShaderChunkLogDepth.js";
 const BasicAlphaShader = {
   uniforms: {
@@ -20,10 +17,37 @@ const BasicAlphaShader = {
     blending: "normal"
   },
   vertex: {
-    code: `\n\t\t\tin vec3 position;\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}\n\n\t\t\tvoid main() {\n\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}\n\t\t\t}\n\t\t\t`
+    code: `
+			in vec3 position;
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}
+
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}
+			}
+			`
   },
   fragment: {
-    code: `\n\t\t\tprecision highp float;\n\n\t\t\tuniform vec4 color;\n\n\t\t\t// The output color.\n\t\t\tout vec4 outColor;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}\n\t\n\t\t\tvoid main() {\n\t\t\t\toutColor = color;\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}\n\t\t\t}\n\t\t\t`
+    code: `
+			precision highp float;
+
+			uniform vec4 color;
+
+			// The output color.
+			out vec4 outColor;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}
+\t
+			void main() {
+				outColor = color;
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}
+			}
+			`
   }
 };
 export { BasicAlphaShader };

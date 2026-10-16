@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：把位置、焦点和上方向关键帧组合成轨道相机的连续运动。
- * 依据：import ../pioneer/public-api.js；OrbitKeyframeController extends PioneerPublicApi.BaseController @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:501754-508828.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：把位置、焦点和上方向关键帧组合成轨道相机的连续运动。
- * 继承：PioneerPublicApi.BaseController；导出：OrbitKeyframeController。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 墙钟秒驱动位置、focus、up 三条关键帧轨道；位置段中点切换父参考系，距离曲线与方向混合保留原缓动及完成 Promise。 */
 class OrbitKeyframeController extends PioneerPublicApi.BaseController {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_directionOfFirstUpdate`、`_endPromise`、`_focusKeyframes`、`_positionKeyframes`、`_rejectPromise`、`_resolvePromise`、`_timeOfFirstUpdate`、`_upKeyframes`；调用 `new PioneerPublicApi.Vector3`、`new Promise`、`super`、`this.addModifiedState`。
-   * 状态写入：_directionOfFirstUpdate、_endPromise、_focusKeyframes、_positionKeyframes、_rejectPromise、_resolvePromise、_timeOfFirstUpdate、_upKeyframes。
-   * 调用线索：new PioneerPublicApi.Vector3、new Promise、super、this.addModifiedState。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(controllerName, entity) {
+    super(controllerName, entity);
     this._positionKeyframes = [];
     this._focusKeyframes = [];
     this._upKeyframes = [];
@@ -35,208 +20,229 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
     this.addModifiedState("orientation");
     this.addModifiedState("angularVelocity");
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`new PositionKeyframe`、`positionKeyframe.position.copy`、`positionKeyframe.relativeTo.setName`、`this._positionKeyframes.splice`。
-   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、new PositionKeyframe、positionKeyframe.position.copy、positionKeyframe.relativeTo.setName等。
-   */
-  setPositionKeyframe(t, e, i) {
-    if (void 0 !== e) {
+  setPositionKeyframe(time, position, referenceEntityName) {
+    if (void 0 !== position) {
       const positionKeyframe = new PositionKeyframe(this.getEntity().getScene());
-      positionKeyframe.time = t;
-      positionKeyframe.position.copy(e);
-      positionKeyframe.relativeTo.setName(i);
+      positionKeyframe.time = time;
+      positionKeyframe.position.copy(position);
+      positionKeyframe.relativeTo.setName(referenceEntityName);
       PioneerPublicApi.Sort.addObject(positionKeyframe, this._positionKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
     } else {
-      const e = PioneerPublicApi.Sort.getIndexObject(t, this._positionKeyframes, OrbitKeyframeController.isLessThanTime);
-      e < this._positionKeyframes.length && t === this._positionKeyframes[e].time && this._positionKeyframes.splice(e, 1);
+      const keyframeIndex = PioneerPublicApi.Sort.getIndexObject(time, this._positionKeyframes, OrbitKeyframeController.isLessThanTime);
+      if (keyframeIndex < this._positionKeyframes.length && time === this._positionKeyframes[keyframeIndex].time) {
+        this._positionKeyframes.splice(keyframeIndex, 1);
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`focusKeyframe.focus.setName`、`new FocusKeyframe`、`this._focusKeyframes.splice`、`this.getEntity`。
-   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、focusKeyframe.focus.setName、new FocusKeyframe、this._focusKeyframes.splice等。
-   */
-  setFocusKeyframe(t, e) {
-    if (void 0 !== e) {
+  setFocusKeyframe(time, focusEntityName) {
+    if (void 0 !== focusEntityName) {
       const focusKeyframe = new FocusKeyframe(this.getEntity().getScene());
-      focusKeyframe.time = t;
-      focusKeyframe.focus.setName(e);
+      focusKeyframe.time = time;
+      focusKeyframe.focus.setName(focusEntityName);
       PioneerPublicApi.Sort.addObject(focusKeyframe, this._focusKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
     } else {
-      const e = PioneerPublicApi.Sort.getIndexObject(t, this._focusKeyframes, OrbitKeyframeController.isLessThanTime);
-      e < this._focusKeyframes.length && t === this._focusKeyframes[e].time && this._focusKeyframes.splice(e, 1);
+      const keyframeIndex = PioneerPublicApi.Sort.getIndexObject(time, this._focusKeyframes, OrbitKeyframeController.isLessThanTime);
+      if (keyframeIndex < this._focusKeyframes.length && time === this._focusKeyframes[keyframeIndex].time) {
+        this._focusKeyframes.splice(keyframeIndex, 1);
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Sort.addObject`、`PioneerPublicApi.Sort.getIndexObject`、`new UpKeyframe`、`this._upKeyframes.splice`、`upKeyframe.up.copy`。
-   * 调用线索：PioneerPublicApi.Sort.addObject、PioneerPublicApi.Sort.getIndexObject、new UpKeyframe、this._upKeyframes.splice、upKeyframe.up.copy。
-   */
-  setUpKeyframe(t, e) {
-    if (void 0 !== e) {
+  setUpKeyframe(time, upVector) {
+    if (void 0 !== upVector) {
       const upKeyframe = new UpKeyframe();
-      upKeyframe.time = t;
-      upKeyframe.up.copy(e);
+      upKeyframe.time = time;
+      upKeyframe.up.copy(upVector);
       PioneerPublicApi.Sort.addObject(upKeyframe, this._upKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
     } else {
-      const e = PioneerPublicApi.Sort.getIndexObject(t, this._upKeyframes, OrbitKeyframeController.isLessThanTime);
-      e < this._upKeyframes.length && t === this._upKeyframes[e].time && this._upKeyframes.splice(e, 1);
+      const keyframeIndex = PioneerPublicApi.Sort.getIndexObject(time, this._upKeyframes, OrbitKeyframeController.isLessThanTime);
+      if (keyframeIndex < this._upKeyframes.length && time === this._upKeyframes[keyframeIndex].time) {
+        this._upKeyframes.splice(keyframeIndex, 1);
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】空方法/无可观测字段副作用的协议钩子；须结合继承者或调用者解释。
-   */
   async getEndPromise() {
     await this._endPromise;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`super.__destroy`、`this._rejectPromise`。
-   * 调用线索：new Error、super.__destroy、this._rejectPromise。
-   */
   __destroy() {
     super.__destroy();
-    null !== this._rejectPromise && this._rejectPromise(new Error(`Could not complete keyframes because ${this} was destroyed.`));
+    if (null !== this._rejectPromise) {
+      this._rejectPromise(new Error(`Could not complete keyframes because ${this} was destroyed.`));
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_rejectPromise`、`_timeOfFirstUpdate`；返回 `void`；调用 `Date.now`、`Math.max`、`PioneerPublicApi.MathUtils.lerp`、`PioneerPublicApi.Quaternion.pool.get`、`PioneerPublicApi.Quaternion.pool.release`、`PioneerPublicApi.Sort.addObject`。
-   * 状态写入：_rejectPromise、_timeOfFirstUpdate。
-   * 调用线索：Date.now、Math.max、PioneerPublicApi.MathUtils.lerp、PioneerPublicApi.Quaternion.pool.get、PioneerPublicApi.Quaternion.pool.release等。
-   */
   __update() {
-    const t = this.getEntity();
-    let e = 0;
+    const entity = this.getEntity();
+    let elapsedTime = 0;
     if (isNaN(this._timeOfFirstUpdate)) {
-      const e = t.getParent();
-      if (null === e) return;
+      const parentEntity = entity.getParent();
+      if (null === parentEntity) return;
       this._timeOfFirstUpdate = Date.now() / 1e3;
-      t.getOrientation().getAxis(this._directionOfFirstUpdate, 1);
-      const positionKeyframe = new PositionKeyframe(t.getScene());
+      entity.getOrientation().getAxis(this._directionOfFirstUpdate, 1);
+      const positionKeyframe = new PositionKeyframe(entity.getScene());
       positionKeyframe.time = 0;
-      positionKeyframe.position.copy(t.getPosition());
-      positionKeyframe.relativeTo.setName(e.getName());
+      positionKeyframe.position.copy(entity.getPosition());
+      positionKeyframe.relativeTo.setName(parentEntity.getName());
       PioneerPublicApi.Sort.addObject(positionKeyframe, this._positionKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
-      const focusKeyframe = new FocusKeyframe(t.getScene());
+      const focusKeyframe = new FocusKeyframe(entity.getScene());
       focusKeyframe.time = 0;
       focusKeyframe.focus.setName("");
       PioneerPublicApi.Sort.addObject(focusKeyframe, this._focusKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
       const upKeyframe = new UpKeyframe();
       upKeyframe.time = 0;
-      t.getOrientation().getAxis(upKeyframe.up, 2);
+      entity.getOrientation().getAxis(upKeyframe.up, 2);
       PioneerPublicApi.Sort.addObject(upKeyframe, this._upKeyframes, OrbitKeyframeController.isLess, OrbitKeyframeController.isEqual);
-    } else e = Date.now() / 1e3 - this._timeOfFirstUpdate;
-    let i = false;
-    const n = PioneerPublicApi.Sort.getIndexObject(e, this._positionKeyframes, OrbitKeyframeController.isLessThanTime);
-    if (n > 0 && n < this._positionKeyframes.length) {
-      const i = this._positionKeyframes[n - 1];
-      const o = this._positionKeyframes[n];
-      const r = i.relativeTo.get();
-      const a = o.relativeTo.get();
-      if (null !== r && null !== a) {
-        let n = (e - i.time) / (o.time - i.time);
-        let l = r;
-        n >= .5 && (l = a);
-        t.getParent() !== l && t.setParent(l);
-        const c = PioneerPublicApi.Vector3.pool.get();
-        const h = PioneerPublicApi.Vector3.pool.get();
-        r.getPositionRelativeToEntity(c, i.position, a);
-        a.getPositionRelativeToEntity(h, o.position, r);
-        let d = Math.max(0, i.position.magnitude() - r.getOcclusionRadius());
-        let u = Math.max(0, h.magnitude() - r.getOcclusionRadius());
-        let p = Math.max(0, c.magnitude() - a.getOcclusionRadius());
-        let _ = Math.max(0, o.position.magnitude() - a.getOcclusionRadius());
-        if (d = Math.max(d, u / 1e4), u = Math.max(u, d / 1e4), p = Math.max(p, _ / 1e4), _ = Math.max(_, u / 1e4), d !== u && p !== _) {
-          const t = (u ** n * d ** (1 - n) - d) / (u - d);
-          const e = (_ ** n * p ** (1 - n) - p) / (_ - p);
-          n = PioneerPublicApi.MathUtils.lerp(t, e, n);
+    } else elapsedTime = Date.now() / 1e3 - this._timeOfFirstUpdate;
+    let positionComplete = false;
+    const positionIndex = PioneerPublicApi.Sort.getIndexObject(elapsedTime, this._positionKeyframes, OrbitKeyframeController.isLessThanTime);
+    if (positionIndex > 0 && positionIndex < this._positionKeyframes.length) {
+      const startKeyframe = this._positionKeyframes[positionIndex - 1];
+      const endKeyframe = this._positionKeyframes[positionIndex];
+      const startReference = startKeyframe.relativeTo.get();
+      const endReference = endKeyframe.relativeTo.get();
+      if (null !== startReference && null !== endReference) {
+        let fraction = (elapsedTime - startKeyframe.time) / (endKeyframe.time - startKeyframe.time);
+        let activeParent = startReference;
+        if (fraction >= .5) {
+          activeParent = endReference;
         }
-        const m = n * n;
-        n = m / (2 * (m - n) + 1);
-        r.getPositionRelativeToEntity(c, i.position, l);
-        a.getPositionRelativeToEntity(h, o.position, l);
-        const g = PioneerPublicApi.Vector3.pool.get();
-        r === a ? g.slerp(c, h, n) : g.lerp(c, h, n);
-        t.setPosition(g);
-        PioneerPublicApi.Vector3.pool.release(g);
-        PioneerPublicApi.Vector3.pool.release(c);
-        PioneerPublicApi.Vector3.pool.release(h);
+        if (entity.getParent() !== activeParent) {
+          entity.setParent(activeParent);
+        }
+        const startPositionInReference = PioneerPublicApi.Vector3.pool.get();
+        const endPositionInReference = PioneerPublicApi.Vector3.pool.get();
+        startReference.getPositionRelativeToEntity(startPositionInReference, startKeyframe.position, endReference);
+        endReference.getPositionRelativeToEntity(endPositionInReference, endKeyframe.position, startReference);
+        let startAltitudeAtStart = Math.max(0, startKeyframe.position.magnitude() - startReference.getOcclusionRadius());
+        let endAltitudeAtStart = Math.max(0, endPositionInReference.magnitude() - startReference.getOcclusionRadius());
+        let startAltitudeAtEnd = Math.max(0, startPositionInReference.magnitude() - endReference.getOcclusionRadius());
+        let endAltitudeAtEnd = Math.max(0, endKeyframe.position.magnitude() - endReference.getOcclusionRadius());
+        startAltitudeAtStart = Math.max(startAltitudeAtStart, endAltitudeAtStart / 1e4);
+        endAltitudeAtStart = Math.max(endAltitudeAtStart, startAltitudeAtStart / 1e4);
+        startAltitudeAtEnd = Math.max(startAltitudeAtEnd, endAltitudeAtEnd / 1e4);
+        endAltitudeAtEnd = Math.max(endAltitudeAtEnd, endAltitudeAtStart / 1e4);
+        if (startAltitudeAtStart !== endAltitudeAtStart && startAltitudeAtEnd !== endAltitudeAtEnd) {
+          const startDistanceFraction = (endAltitudeAtStart ** fraction * startAltitudeAtStart ** (1 - fraction) - startAltitudeAtStart) / (endAltitudeAtStart - startAltitudeAtStart);
+          const endDistanceFraction = (endAltitudeAtEnd ** fraction * startAltitudeAtEnd ** (1 - fraction) - startAltitudeAtEnd) / (endAltitudeAtEnd - startAltitudeAtEnd);
+          fraction = PioneerPublicApi.MathUtils.lerp(startDistanceFraction, endDistanceFraction, fraction);
+        }
+        const fractionSquared = fraction * fraction;
+        fraction = fractionSquared / (2 * (fractionSquared - fraction) + 1);
+        startReference.getPositionRelativeToEntity(startPositionInReference, startKeyframe.position, activeParent);
+        endReference.getPositionRelativeToEntity(endPositionInReference, endKeyframe.position, activeParent);
+        const position = PioneerPublicApi.Vector3.pool.get();
+        if (startReference === endReference) {
+          position.slerp(startPositionInReference, endPositionInReference, fraction);
+        } else {
+          position.lerp(startPositionInReference, endPositionInReference, fraction);
+        }
+        entity.setPosition(position);
+        PioneerPublicApi.Vector3.pool.release(position);
+        PioneerPublicApi.Vector3.pool.release(startPositionInReference);
+        PioneerPublicApi.Vector3.pool.release(endPositionInReference);
       }
-    } else if (n === this._positionKeyframes.length) {
-      const e = this._positionKeyframes[this._positionKeyframes.length - 1];
-      const s = e.relativeTo.get();
-      t.getParent() !== s && t.setParent(s);
-      t.setPosition(e.position);
-      i = true;
+    } else if (positionIndex === this._positionKeyframes.length) {
+      const finalPositionKeyframe = this._positionKeyframes[this._positionKeyframes.length - 1];
+      const finalParent = finalPositionKeyframe.relativeTo.get();
+      if (entity.getParent() !== finalParent) {
+        entity.setParent(finalParent);
+      }
+      entity.setPosition(finalPositionKeyframe.position);
+      positionComplete = true;
     }
-    const o = PioneerPublicApi.Vector3.pool.get();
-    o.setMagnitude(t.getPosition(), -1);
-    const r = PioneerPublicApi.Vector3.pool.get();
-    t.getOrientation().getAxis(r, 2);
-    let a = false;
-    const l = PioneerPublicApi.Sort.getIndexObject(e, this._focusKeyframes, OrbitKeyframeController.isLessThanTime);
-    if (l > 0 && l < this._focusKeyframes.length) {
-      const i = this._focusKeyframes[l - 1];
-      const n = this._focusKeyframes[l];
-      const r = i.focus.get();
-      const a = n.focus.get();
-      const c = t.getParent();
-      if (!("" !== i.focus.getName() && null === r || "" !== n.focus.getName() && null === a || null === c)) {
-        let l = (e - i.time) / (n.time - i.time);
-        const h = l * l;
-        l = h / (2 * (h - l) + 1);
-        const d = PioneerPublicApi.Vector3.pool.get();
-        const u = PioneerPublicApi.Vector3.pool.get();
-        r ? (c.getPositionRelativeToEntity(d, t.getPosition(), r), d.setMagnitude(d, -1), d.isZero() && this.getEntity().getOrientation().getAxis(d, 1)) : d.copy(this._directionOfFirstUpdate);
-        a ? (c.getPositionRelativeToEntity(u, t.getPosition(), a), u.setMagnitude(u, -1), u.isZero() && this.getEntity().getOrientation().getAxis(u, 1)) : u.copy(this._directionOfFirstUpdate);
-        o.slerp(d, u, l);
-        PioneerPublicApi.Vector3.pool.release(d);
-        PioneerPublicApi.Vector3.pool.release(u);
+    const focusDirection = PioneerPublicApi.Vector3.pool.get();
+    focusDirection.setMagnitude(entity.getPosition(), -1);
+    const upDirection = PioneerPublicApi.Vector3.pool.get();
+    entity.getOrientation().getAxis(upDirection, 2);
+    let focusComplete = false;
+    const focusIndex = PioneerPublicApi.Sort.getIndexObject(elapsedTime, this._focusKeyframes, OrbitKeyframeController.isLessThanTime);
+    if (focusIndex > 0 && focusIndex < this._focusKeyframes.length) {
+      const startFocusKeyframe = this._focusKeyframes[focusIndex - 1];
+      const endFocusKeyframe = this._focusKeyframes[focusIndex];
+      const startFocusEntity = startFocusKeyframe.focus.get();
+      const endFocusEntity = endFocusKeyframe.focus.get();
+      const parentEntity = entity.getParent();
+      if (!("" !== startFocusKeyframe.focus.getName() && null === startFocusEntity || "" !== endFocusKeyframe.focus.getName() && null === endFocusEntity || null === parentEntity)) {
+        let fraction = (elapsedTime - startFocusKeyframe.time) / (endFocusKeyframe.time - startFocusKeyframe.time);
+        const fractionSquared = fraction * fraction;
+        fraction = fractionSquared / (2 * (fractionSquared - fraction) + 1);
+        const startFocusDirection = PioneerPublicApi.Vector3.pool.get();
+        const endFocusDirection = PioneerPublicApi.Vector3.pool.get();
+        if (startFocusEntity) {
+          parentEntity.getPositionRelativeToEntity(startFocusDirection, entity.getPosition(), startFocusEntity);
+          startFocusDirection.setMagnitude(startFocusDirection, -1);
+          if (startFocusDirection.isZero()) {
+            this.getEntity().getOrientation().getAxis(startFocusDirection, 1);
+          }
+        } else {
+          startFocusDirection.copy(this._directionOfFirstUpdate);
+        }
+        if (endFocusEntity) {
+          parentEntity.getPositionRelativeToEntity(endFocusDirection, entity.getPosition(), endFocusEntity);
+          endFocusDirection.setMagnitude(endFocusDirection, -1);
+          if (endFocusDirection.isZero()) {
+            this.getEntity().getOrientation().getAxis(endFocusDirection, 1);
+          }
+        } else {
+          endFocusDirection.copy(this._directionOfFirstUpdate);
+        }
+        focusDirection.slerp(startFocusDirection, endFocusDirection, fraction);
+        PioneerPublicApi.Vector3.pool.release(startFocusDirection);
+        PioneerPublicApi.Vector3.pool.release(endFocusDirection);
       }
-    } else if (l === this._focusKeyframes.length) {
-      const e = this._focusKeyframes[this._focusKeyframes.length - 1].focus.get();
-      const i = t.getParent();
-      null !== e && null !== i && (i.getPositionRelativeToEntity(o, t.getPosition(), e), o.setMagnitude(o, -1), o.isZero() && this.getEntity().getOrientation().getAxis(o, 1));
-      a = true;
+    } else if (focusIndex === this._focusKeyframes.length) {
+      const finalFocusEntity = this._focusKeyframes[this._focusKeyframes.length - 1].focus.get();
+      const parentEntity = entity.getParent();
+      if (null !== finalFocusEntity && null !== parentEntity) {
+        parentEntity.getPositionRelativeToEntity(focusDirection, entity.getPosition(), finalFocusEntity);
+        focusDirection.setMagnitude(focusDirection, -1);
+        if (focusDirection.isZero()) {
+          this.getEntity().getOrientation().getAxis(focusDirection, 1);
+        }
+      }
+      focusComplete = true;
     } else {
-      const e = this._focusKeyframes[0];
-      const i = e.focus.get();
-      const s = t.getParent();
-      "" !== e.focus.getName() && null === i || null === s || (i ? (s.getPositionRelativeToEntity(o, t.getPosition(), i), o.setMagnitude(o, -1), o.isZero() && this.getEntity().getOrientation().getAxis(o, 1)) : o.copy(this._directionOfFirstUpdate));
+      const firstFocusKeyframe = this._focusKeyframes[0];
+      const firstFocusEntity = firstFocusKeyframe.focus.get();
+      const parentEntity = entity.getParent();
+      if (!("" !== firstFocusKeyframe.focus.getName() && null === firstFocusEntity || null === parentEntity)) {
+        if (firstFocusEntity) {
+          parentEntity.getPositionRelativeToEntity(focusDirection, entity.getPosition(), firstFocusEntity);
+          focusDirection.setMagnitude(focusDirection, -1);
+          if (focusDirection.isZero()) {
+            this.getEntity().getOrientation().getAxis(focusDirection, 1);
+          }
+        } else {
+          focusDirection.copy(this._directionOfFirstUpdate);
+        }
+      }
     }
-    let c = false;
-    const h = PioneerPublicApi.Sort.getIndexObject(e, this._upKeyframes, OrbitKeyframeController.isLessThanTime);
-    if (h > 0 && h < this._upKeyframes.length) {
-      const t = this._upKeyframes[h - 1];
-      const i = this._upKeyframes[h];
-      let s = (e - t.time) / (i.time - t.time);
-      const n = s * s;
-      s = n / (2 * (n - s) + 1);
-      r.slerp(t.up, i.up, s);
-    } else if (h === this._upKeyframes.length) {
-      const t = this._upKeyframes[this._upKeyframes.length - 1];
-      r.copy(t.up);
-      c = true;
+    let upComplete = false;
+    const upIndex = PioneerPublicApi.Sort.getIndexObject(elapsedTime, this._upKeyframes, OrbitKeyframeController.isLessThanTime);
+    if (upIndex > 0 && upIndex < this._upKeyframes.length) {
+      const startUpKeyframe = this._upKeyframes[upIndex - 1];
+      const endUpKeyframe = this._upKeyframes[upIndex];
+      let fraction = (elapsedTime - startUpKeyframe.time) / (endUpKeyframe.time - startUpKeyframe.time);
+      const fractionSquared = fraction * fraction;
+      fraction = fractionSquared / (2 * (fractionSquared - fraction) + 1);
+      upDirection.slerp(startUpKeyframe.up, endUpKeyframe.up, fraction);
+    } else if (upIndex === this._upKeyframes.length) {
+      const finalUpKeyframe = this._upKeyframes[this._upKeyframes.length - 1];
+      upDirection.copy(finalUpKeyframe.up);
+      upComplete = true;
     }
-    const d = PioneerPublicApi.Quaternion.pool.get();
-    r.setNormalTo(o, r);
-    d.setFromAxes(void 0, o, r);
-    t.setOrientation(d);
-    PioneerPublicApi.Quaternion.pool.release(d);
-    PioneerPublicApi.Vector3.pool.release(o);
-    i && a && c && (this._rejectPromise = null, this._resolvePromise());
+    const orientation = PioneerPublicApi.Quaternion.pool.get();
+    upDirection.setNormalTo(focusDirection, upDirection);
+    orientation.setFromAxes(void 0, focusDirection, upDirection);
+    entity.setOrientation(orientation);
+    PioneerPublicApi.Quaternion.pool.release(orientation);
+    PioneerPublicApi.Vector3.pool.release(focusDirection);
+    if (positionComplete && focusComplete && upComplete) {
+      this._rejectPromise = null;
+      this._resolvePromise();
+    }
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static isLess = (t, e) => t.time < e.time;
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static isLessThanTime = (t, e) => t.time < e;
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 读取：；返回：。
-   */
-  static isEqual = (t, e) => t.time === e.time;
+  static isLess = (leftKeyframe, rightKeyframe) => leftKeyframe.time < rightKeyframe.time;
+  static isLessThanTime = (leftKeyframe, time) => leftKeyframe.time < time;
+  static isEqual = (leftKeyframe, rightKeyframe) => leftKeyframe.time === rightKeyframe.time;
   _positionKeyframes;
   _focusKeyframes;
   _upKeyframes;
@@ -246,69 +252,30 @@ class OrbitKeyframeController extends PioneerPublicApi.BaseController {
   _rejectPromise;
   _endPromise;
 }
-/** @eyes-analysis
- * 类职责：轨道相机关键帧基类。
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Keyframe {
   time;
-  /** @eyes-analysis
-   * 【结构证据】写入 `time`。
-   * 状态写入：time。
-   */
   constructor() {
     this.time = NaN;
   }
 }
-/** @eyes-analysis
- * 类职责：轨道相机位置关键帧。
- * 继承：Keyframe；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class PositionKeyframe extends Keyframe {
   position;
   relativeTo;
-  /** @eyes-analysis
-   * 【结构证据】写入 `position`、`relativeTo`；调用 `new PioneerPublicApi.EntityRef`、`new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：position、relativeTo。
-   * 调用线索：new PioneerPublicApi.EntityRef、new PioneerPublicApi.Vector3、super。
-   */
-  constructor(t) {
+  constructor(scene) {
     super();
     this.position = new PioneerPublicApi.Vector3();
-    this.relativeTo = new PioneerPublicApi.EntityRef(t);
+    this.relativeTo = new PioneerPublicApi.EntityRef(scene);
   }
 }
-/** @eyes-analysis
- * 类职责：轨道相机焦点关键帧。
- * 继承：Keyframe；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class FocusKeyframe extends Keyframe {
   focus;
-  /** @eyes-analysis
-   * 【结构证据】写入 `focus`；调用 `new PioneerPublicApi.EntityRef`、`super`。
-   * 状态写入：focus。
-   * 调用线索：new PioneerPublicApi.EntityRef、super。
-   */
-  constructor(t) {
+  constructor(scene) {
     super();
-    this.focus = new PioneerPublicApi.EntityRef(t);
+    this.focus = new PioneerPublicApi.EntityRef(scene);
   }
 }
-/** @eyes-analysis
- * 类职责：轨道相机上方向关键帧。
- * 继承：Keyframe；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class UpKeyframe extends Keyframe {
   up;
-  /** @eyes-analysis
-   * 【结构证据】写入 `up`；调用 `new PioneerPublicApi.Vector3`、`super`。
-   * 状态写入：up。
-   * 调用线索：new PioneerPublicApi.Vector3、super。
-   */
   constructor() {
     super();
     this.up = new PioneerPublicApi.Vector3();

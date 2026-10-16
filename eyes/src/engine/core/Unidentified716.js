@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 2 个实体/参考系（如 sc_magellan、sc_venus_express），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 金星探测器 Magellan 与 Venus Express 目录；导入仅注册实体选项，轨道朝向采样和模型资源由既有控制器/组件生命周期处理。
 // Recovered from app.js:1203457-1205553.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";

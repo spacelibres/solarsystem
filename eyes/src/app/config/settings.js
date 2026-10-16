@@ -1,12 +1,7 @@
-/** @eyes-analysis
- * 文件职责：设置及分享/嵌入 UI 使用的选项定义
- * 依据：当前源码声明、导入关系及工程调用链
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1354282-1357388.
-let defaultExport;
-const s = [{
+/** 分享/嵌入查询项定义；强制重启必须有正会话时长，将时长设为零会关闭强制重启并触发 change。 */
+let settingsDefinitions;
+const settingsGroups = [{
   groupName: "User Interface",
   isAdvanced: false,
   items: [{
@@ -89,12 +84,15 @@ const s = [{
     description: "At the end of a session, a forced restart means there is no option to continue the session. Requires a session time greater than zero",
     query: "forceRestart",
     type: "checkbox",
-    onChange: t => {
-      if (t) {
-        const t = document.getElementById("input-maxSessionTime");
-        "0" === t.value && (t.value = "1", t.dispatchEvent(new Event("change", {
-          bubbles: true
-        })));
+    onChange: forceRestartEnabled => {
+      if (forceRestartEnabled) {
+        const maxSessionTimeInput = document.getElementById("input-maxSessionTime");
+        if ("0" === maxSessionTimeInput.value) {
+          maxSessionTimeInput.value = "1";
+          maxSessionTimeInput.dispatchEvent(new Event("change", {
+            bubbles: true
+          }));
+        }
       }
     },
     inputDefault: false,
@@ -104,11 +102,11 @@ const s = [{
     description: "Specifies the maximum duration of an individual session, represented by a countdown clock. A value of zero disables the session time limit",
     query: "maxSessionTime",
     type: "number",
-    onChange: t => {
-      if ("0" === t) {
-        const t = document.getElementById("input-forceRestart");
-        t.checked = false;
-        t.dispatchEvent(new Event("change", {
+    onChange: sessionMinutes => {
+      if ("0" === sessionMinutes) {
+        const forceRestartInput = document.getElementById("input-forceRestart");
+        forceRestartInput.checked = false;
+        forceRestartInput.dispatchEvent(new Event("change", {
           bubbles: true
         }));
       }
@@ -139,5 +137,5 @@ const s = [{
     appQueryDefault: false
   }]
 }];
-defaultExport = s;
-export { defaultExport as default };
+settingsDefinitions = settingsGroups;
+export { settingsDefinitions as default };

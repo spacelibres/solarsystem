@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：Moment secondary 独立实例的 km 语言区域注册：月份/星期名称、日期格式、相对时间和本地化规则
- * 依据：// Recovered from vendors.js:2067199-2068634.；literal: មករា_កុម្ភៈ_មីនា_មេសា_ឧសភា_មិថុនា_កក្កដា_សីហា_កញ្ញា_តុលា_វិច្ឆិកា_ធ្នូ
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:2067199-2068634.
 !function (e) {
   "use strict";

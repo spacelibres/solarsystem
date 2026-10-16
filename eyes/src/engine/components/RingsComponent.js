@@ -1,24 +1,9 @@
-/** @eyes-analysis
- * 文件职责：加载行星环颜色/透明度纹理并构造环平面网格，结合光源与阴影实体着色。
- * 依据：import ../pioneer/public-api.js；RingsComponent extends PioneerPublicApi.BaseComponent @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 行星环由平面网格承载，shader 以局部径向距离裁切内外半径并采样上下表面；两张纹理由组件引用计数持有。椭球引用变化时解绑旧监听、绑定新监听，再更新遮影半径。
 // Recovered from app.js:374449-387236.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：加载行星环颜色/透明度纹理并构造环平面网格，结合光源与阴影实体着色。
- * 继承：PioneerPublicApi.BaseComponent；导出：RingsComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class RingsComponent extends PioneerPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_bottomTextureUrl`、`_innerRadius`、`_outerRadius`、`_shadowEntities`、`_spheroidChangedCallback`、`_spheroidComponentRef`、`_topTextureUrl`；调用 `new PioneerPublicApi.ComponentRef`、`super`、`this.__setUsesEntityOrientation`、`this._spheroidChangedCallback.bind`、`this._spheroidComponentRef.setRefChangedCallback`、`this._spheroidRefChangedCallback.bind`。
-   * 状态写入：_bottomTextureUrl、_innerRadius、_outerRadius、_shadowEntities、_spheroidChangedCallback、_spheroidComponentRef、_topTextureUrl。
-   * 调用线索：new PioneerPublicApi.ComponentRef、super、this.__setUsesEntityOrientation、this._spheroidChangedCallback.bind、this._spheroidComponentRef.setRefChangedCallback等。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._topTextureUrl = "";
     this._bottomTextureUrl = "";
     this._innerRadius = 0;
@@ -29,138 +14,87 @@ class RingsComponent extends PioneerPublicApi.BaseComponent {
     this._spheroidChangedCallback = this._spheroidChangedCallback.bind(this);
     this.__setUsesEntityOrientation(true);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._topTextureUrl`。
-   */
   getTopTextureUrl() {
     return this._topTextureUrl;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_topTextureUrl`；调用 `this.getEngine`、`this.getEngine().getResourceManager`、`this.getEngine().getResourceManager().acquire`、`this.getEngine().getResourceManager().acquire(this,this._topTextureUrl,"texture",-this.getEntity().getLeastCameraDepth()).then`、`this.getEngine().getResourceManager().release`、`this.getEntity`。
-   * 状态写入：_topTextureUrl。
-   * 调用线索：this.getEngine、this.getEngine().getResourceManager、this.getEngine().getResourceManager().acquire、this.getEngine().getResourceManager().acquire(this,this._topTextureUrl,"texture",-this.getEntity().getLeastCameraDepth()).then、this.getEngine().getResourceManager().release等。
-   */
   setTopTextureUrl(topTextureUrl) {
     this._topTextureUrl = topTextureUrl;
-    "loaded" === this.getLoadState().state && this.getEngine().getResourceManager().acquire(this, this._topTextureUrl, "texture", -this.getEntity().getLeastCameraDepth()).then(t => {
-      const e = this.getThreeJsMaterials()[0].uniforms.topTexture;
-      e.value && this.getEngine().getResourceManager().release(this, e.value, "texture");
-      e.value = t;
-    });
+    if ("loaded" === this.getLoadState().state) {
+      this.getEngine().getResourceManager().acquire(this, this._topTextureUrl, "texture", -this.getEntity().getLeastCameraDepth()).then(texture => {
+        const uniform = this.getThreeJsMaterials()[0].uniforms.topTexture;
+        if (uniform.value) {
+          this.getEngine().getResourceManager().release(this, uniform.value, "texture");
+        }
+        uniform.value = texture;
+      });
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._bottomTextureUrl`。
-   */
   getBottomTextureUrl() {
     return this._bottomTextureUrl;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_bottomTextureUrl`；调用 `this.getEngine`、`this.getEngine().getResourceManager`、`this.getEngine().getResourceManager().acquire`、`this.getEngine().getResourceManager().acquire(this,this._bottomTextureUrl,"texture",-this.getEntity().getLeastCameraDepth()).then`、`this.getEngine().getResourceManager().release`、`this.getEntity`。
-   * 状态写入：_bottomTextureUrl。
-   * 调用线索：this.getEngine、this.getEngine().getResourceManager、this.getEngine().getResourceManager().acquire、this.getEngine().getResourceManager().acquire(this,this._bottomTextureUrl,"texture",-this.getEntity().getLeastCameraDepth()).then、this.getEngine().getResourceManager().release等。
-   */
   setBottomTextureUrl(bottomTextureUrl) {
     this._bottomTextureUrl = bottomTextureUrl;
-    "loaded" === this.getLoadState().state && this.getEngine().getResourceManager().acquire(this, this._bottomTextureUrl, "texture", -this.getEntity().getLeastCameraDepth()).then(t => {
-      const e = this.getThreeJsMaterials()[0].uniforms.bottomTexture;
-      e.value && this.getEngine().getResourceManager().release(this, e.value, "texture");
-      e.value = t;
-    });
+    if ("loaded" === this.getLoadState().state) {
+      this.getEngine().getResourceManager().acquire(this, this._bottomTextureUrl, "texture", -this.getEntity().getLeastCameraDepth()).then(texture => {
+        const uniform = this.getThreeJsMaterials()[0].uniforms.bottomTexture;
+        if (uniform.value) {
+          this.getEngine().getResourceManager().release(this, uniform.value, "texture");
+        }
+        uniform.value = texture;
+      });
+    }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._innerRadius`。
-   */
   getInnerRadius() {
     return this._innerRadius;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_innerRadius`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.getThreeJsMaterials`。
-   * 状态写入：_innerRadius。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.getThreeJsMaterials。
-   */
   setInnerRadius(innerRadius) {
     this._innerRadius = innerRadius;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "innerRadius", this._innerRadius);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._outerRadius`。
-   */
   getOuterRadius() {
     return this._outerRadius;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_outerRadius`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`this.__setRadius`、`this.getThreeJsMaterials`。
-   * 状态写入：_outerRadius。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、this.__setRadius、this.getThreeJsMaterials。
-   */
   setOuterRadius(outerRadius) {
     this._outerRadius = outerRadius;
     this.__setRadius(this._outerRadius);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "outerRadius", this._outerRadius);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.uniforms.topTexture.value` 或 `null`；调用 `this.getThreeJsMaterials`。
-   * 调用线索：this.getThreeJsMaterials。
-   */
   getTopTexture() {
-    const t = this.getThreeJsMaterials()[0];
-    if (void 0 !== t) {
-      return t.uniforms.topTexture.value;
+    const material = this.getThreeJsMaterials()[0];
+    if (void 0 !== material) {
+      return material.uniforms.topTexture.value;
     }
     return null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._shadowEntities[t]?.getName()`。
-   * 调用线索：this._shadowEntities[t]?.getName。
-   */
-  getShadowEntity(t) {
-    return this._shadowEntities[t]?.getName();
+  getShadowEntity(shadowIndex) {
+    return this._shadowEntities[shadowIndex]?.getName();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_shadowEntities`；调用 `PioneerPublicApi.ThreeJsHelper.setDefine`、`new PioneerPublicApi.EntityRef`、`this._shadowEntities.push`、`this.getEntity`、`this.getEntity().getScene`、`this.getThreeJsMaterials`。
-   * 状态写入：_shadowEntities。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setDefine、new PioneerPublicApi.EntityRef、this._shadowEntities.push、this.getEntity、this.getEntity().getScene等。
-   */
-  setShadowEntities(t) {
+  setShadowEntities(entityNames) {
     this._shadowEntities = [];
-    for (const e of t) this._shadowEntities.push(new PioneerPublicApi.EntityRef(this.getEntity().getScene(), e));
-    const e = t.length > 0;
-    for (let t = 0, i = this.getThreeJsMaterials().length; t < i; t++) PioneerPublicApi.ThreeJsHelper.setDefine(this.getThreeJsMaterials()[t], "shadowEntities", e);
+    for (const entityName of entityNames) this._shadowEntities.push(new PioneerPublicApi.EntityRef(this.getEntity().getScene(), entityName));
+    const hasShadows = entityNames.length > 0;
+    for (let materialIndex = 0, materialCount = this.getThreeJsMaterials().length; materialIndex < materialCount; materialIndex++) PioneerPublicApi.ThreeJsHelper.setDefine(this.getThreeJsMaterials()[materialIndex], "shadowEntities", hasShadows);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `super.__destroy`、`t.removeChangedCallback`、`this._spheroidComponentRef.get`。
-   * 调用线索：super.__destroy、t.removeChangedCallback、this._spheroidComponentRef.get。
-   */
   __destroy() {
-    const t = this._spheroidComponentRef.get();
-    null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
+    const spheroid = this._spheroidComponentRef.get();
+    if (null !== spheroid) {
+      spheroid.removeChangedCallback(this._spheroidChangedCallback);
+    }
     super.__destroy();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._spheroidComponentRef.update`。
-   * 调用线索：this._spheroidComponentRef.update。
-   */
   __update() {
     this._spheroidComponentRef.update();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.MaterialUtils.setLightSourceUniforms`、`PioneerPublicApi.MaterialUtils.setUniforms`、`PioneerPublicApi.ThreeJsHelper.setOrientationToEntity`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`this.getEntity`、`this.getThreeJsMaterials`。
-   * 调用线索：PioneerPublicApi.MaterialUtils.setLightSourceUniforms、PioneerPublicApi.MaterialUtils.setUniforms、PioneerPublicApi.ThreeJsHelper.setOrientationToEntity、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、this.getEntity等。
-   */
-  __prepareForRender(t) {
-    const e = this.getVisibleInterval().getFadeMultiplier(this.getEntity(), t);
-    this.setAlphaFadeMultiplier(e);
-    PioneerPublicApi.MaterialUtils.setLightSourceUniforms(this.getThreeJsMaterials(), this.getEntity(), t);
-    PioneerPublicApi.MaterialUtils.setUniforms(this.getThreeJsMaterials(), t, this.getEntity(), this._shadowEntities, null, false);
+  __prepareForRender(camera) {
+    const fadeMultiplier = this.getVisibleInterval().getFadeMultiplier(this.getEntity(), camera);
+    this.setAlphaFadeMultiplier(fadeMultiplier);
+    PioneerPublicApi.MaterialUtils.setLightSourceUniforms(this.getThreeJsMaterials(), this.getEntity(), camera);
+    PioneerPublicApi.MaterialUtils.setUniforms(this.getThreeJsMaterials(), camera, this.getEntity(), this._shadowEntities, null, false);
     PioneerPublicApi.ThreeJsHelper.setOrientationToEntity(this.getThreeJsObjects()[0], this.getEntity());
-    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
+    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), camera);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void this.getEngine().getResourceManager().releaseAllForEntityItem(this)`；调用 `PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.setDefine`、`PioneerPublicApi.ThreeJsHelper.setIndices`、`PioneerPublicApi.ThreeJsHelper.setVertices`、`new Float32Array`、`new PioneerPublicApi.THREE.Color`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.createMeshObject、PioneerPublicApi.ThreeJsHelper.setDefine、PioneerPublicApi.ThreeJsHelper.setIndices、PioneerPublicApi.ThreeJsHelper.setVertices、new Float32Array等。
-   */
   async __loadResources() {
-    const t = await this.getEngine().getResourceManager().acquireMultiple(this, {
+    const textures = await this.getEngine().getResourceManager().acquireMultiple(this, {
       top: {
         url: this._topTextureUrl,
         type: "texture"
@@ -181,8 +115,8 @@ class RingsComponent extends PioneerPublicApi.BaseComponent {
         entityPos: new PioneerPublicApi.THREE.Uniform(new PioneerPublicApi.THREE.Vector3()),
         innerRadius: new PioneerPublicApi.THREE.Uniform(this._innerRadius),
         outerRadius: new PioneerPublicApi.THREE.Uniform(this._outerRadius),
-        topTexture: new PioneerPublicApi.THREE.Uniform(t.top),
-        bottomTexture: new PioneerPublicApi.THREE.Uniform(t.bottom),
+        topTexture: new PioneerPublicApi.THREE.Uniform(textures.top),
+        bottomTexture: new PioneerPublicApi.THREE.Uniform(textures.bottom),
         alphaMultiplier: new PioneerPublicApi.THREE.Uniform(1),
         spheroidEquatorialRadius: new PioneerPublicApi.THREE.Uniform(0),
         spheroidPolarRadius: new PioneerPublicApi.THREE.Uniform(0),
@@ -202,60 +136,65 @@ class RingsComponent extends PioneerPublicApi.BaseComponent {
     });
     PioneerPublicApi.ThreeJsHelper.setDefine(shaderMaterial, "shadowEntities", this._shadowEntities.length > 0);
     this.getThreeJsMaterials().push(shaderMaterial);
-    const i = PioneerPublicApi.ThreeJsHelper.createMeshObject(this, shaderMaterial, [{
+    const mesh = PioneerPublicApi.ThreeJsHelper.createMeshObject(this, shaderMaterial, [{
       name: "position",
       dimensions: 3
     }, {
       name: "normal",
       dimensions: 3
     }], false);
-    const n = 10;
-    const float32Array = new Float32Array(300);
-    const r = new Float32Array(300);
-    const uint16Array = new Uint16Array(486);
-    for (let t = 0; t < n; t++) for (let e = 0; e < n; e++) {
-      const i = e + t * n;
-      float32Array[3 * i + 0] = e / 9 * 2 - 1;
-      float32Array[3 * i + 1] = t / 9 * 2 - 1;
-      float32Array[3 * i + 2] = 0;
-      r[3 * i + 0] = 0;
-      r[3 * i + 1] = 0;
-      r[3 * i + 2] = 1;
-      e + 1 < n && t + 1 < n && (uint16Array[6 * (e + 9 * t) + 0] = e + 0 + (t + 0) * n, uint16Array[6 * (e + 9 * t) + 1] = e + 0 + (t + 1) * n, uint16Array[6 * (e + 9 * t) + 2] = e + 1 + (t + 0) * n, uint16Array[6 * (e + 9 * t) + 3] = e + 1 + (t + 0) * n, uint16Array[6 * (e + 9 * t) + 4] = e + 0 + (t + 1) * n, uint16Array[6 * (e + 9 * t) + 5] = e + 1 + (t + 1) * n);
+    const gridSize = 10;
+    const positions = new Float32Array(300);
+    const normals = new Float32Array(300);
+    const indices = new Uint16Array(486);
+    for (let rowIndex = 0; rowIndex < gridSize; rowIndex++) for (let columnIndex = 0; columnIndex < gridSize; columnIndex++) {
+      const vertexIndex = columnIndex + rowIndex * gridSize;
+      positions[3 * vertexIndex + 0] = columnIndex / 9 * 2 - 1;
+      positions[3 * vertexIndex + 1] = rowIndex / 9 * 2 - 1;
+      positions[3 * vertexIndex + 2] = 0;
+      normals[3 * vertexIndex + 0] = 0;
+      normals[3 * vertexIndex + 1] = 0;
+      normals[3 * vertexIndex + 2] = 1;
+      if (columnIndex + 1 < gridSize && rowIndex + 1 < gridSize) {
+        indices[6 * (columnIndex + 9 * rowIndex) + 0] = columnIndex + 0 + (rowIndex + 0) * gridSize;
+        indices[6 * (columnIndex + 9 * rowIndex) + 1] = columnIndex + 0 + (rowIndex + 1) * gridSize;
+        indices[6 * (columnIndex + 9 * rowIndex) + 2] = columnIndex + 1 + (rowIndex + 0) * gridSize;
+        indices[6 * (columnIndex + 9 * rowIndex) + 3] = columnIndex + 1 + (rowIndex + 0) * gridSize;
+        indices[6 * (columnIndex + 9 * rowIndex) + 4] = columnIndex + 0 + (rowIndex + 1) * gridSize;
+        indices[6 * (columnIndex + 9 * rowIndex) + 5] = columnIndex + 1 + (rowIndex + 1) * gridSize;
+      }
     }
-    PioneerPublicApi.ThreeJsHelper.setVertices(i.geometry, "position", float32Array);
-    PioneerPublicApi.ThreeJsHelper.setVertices(i.geometry, "normal", r);
-    PioneerPublicApi.ThreeJsHelper.setIndices(i.geometry, uint16Array);
-    i.material = shaderMaterial;
-    this.getThreeJsObjects().push(i);
+    PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "position", positions);
+    PioneerPublicApi.ThreeJsHelper.setVertices(mesh.geometry, "normal", normals);
+    PioneerPublicApi.ThreeJsHelper.setIndices(mesh.geometry, indices);
+    mesh.material = shaderMaterial;
+    this.getThreeJsObjects().push(mesh);
     this._spheroidChangedCallback();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`、`this.getEngine`、`this.getEngine().getResourceManager`、`this.getEngine().getResourceManager().releaseAllForEntityItem`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials、this.getEngine、this.getEngine().getResourceManager、this.getEngine().getResourceManager().releaseAllForEntityItem。
-   */
   __unloadResources() {
     this.getEngine().getResourceManager().releaseAllForEntityItem(this);
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this, false);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.addChangedCallback`、`t.removeChangedCallback`、`this._spheroidChangedCallback`。
-   * 调用线索：e.addChangedCallback、t.removeChangedCallback、this._spheroidChangedCallback。
-   */
-  _spheroidRefChangedCallback(t, e) {
-    null !== t && t.removeChangedCallback(this._spheroidChangedCallback);
-    null !== e && e.addChangedCallback(this._spheroidChangedCallback);
+  _spheroidRefChangedCallback(previousSpheroid, nextSpheroid) {
+    if (null !== previousSpheroid) {
+      previousSpheroid.removeChangedCallback(this._spheroidChangedCallback);
+    }
+    if (null !== nextSpheroid) {
+      nextSpheroid.addChangedCallback(this._spheroidChangedCallback);
+    }
     this._spheroidChangedCallback();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`e.getEquatorialRadius`、`e.getPolarRadius`、`this._spheroidComponentRef.get`、`this.getThreeJsMaterials`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、e.getEquatorialRadius、e.getPolarRadius、this._spheroidComponentRef.get、this.getThreeJsMaterials。
-   */
   _spheroidChangedCallback() {
-    const t = this.getThreeJsMaterials()[0];
-    if (t) {
-      const e = this._spheroidComponentRef.get();
-      null !== e ? (PioneerPublicApi.ThreeJsHelper.setUniformNumber(t, "spheroidEquatorialRadius", e.getEquatorialRadius()), PioneerPublicApi.ThreeJsHelper.setUniformNumber(t, "spheroidPolarRadius", e.getPolarRadius())) : (PioneerPublicApi.ThreeJsHelper.setUniformNumber(t, "spheroidEquatorialRadius", 0), PioneerPublicApi.ThreeJsHelper.setUniformNumber(t, "spheroidPolarRadius", 0));
+    const material = this.getThreeJsMaterials()[0];
+    if (material) {
+      const spheroid = this._spheroidComponentRef.get();
+      if (null !== spheroid) {
+        PioneerPublicApi.ThreeJsHelper.setUniformNumber(material, "spheroidEquatorialRadius", spheroid.getEquatorialRadius());
+        PioneerPublicApi.ThreeJsHelper.setUniformNumber(material, "spheroidPolarRadius", spheroid.getPolarRadius());
+      } else {
+        PioneerPublicApi.ThreeJsHelper.setUniformNumber(material, "spheroidEquatorialRadius", 0);
+        PioneerPublicApi.ThreeJsHelper.setUniformNumber(material, "spheroidPolarRadius", 0);
+      }
     }
   }
   _topTextureUrl;

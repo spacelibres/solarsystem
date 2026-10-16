@@ -1,10 +1,7 @@
-/** @eyes-analysis
- * 文件职责：声明 SpriteShader 的 uniforms/properties 与顶点、片元 GLSL 源码，供材质系统创建实际 GPU 程序。
- * 依据：import ./ShaderChunkLogDepth.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:215096-216322.
+/** 贴图精灵：color 与 colorTexture 相乘；pixelBased 非零时将整个 gl_Position 除以 abs(w)，随后才记录统一深度，保留此既有顺序。
+ * GLSL 现在以实际多行展示；uniform/attribute 名称、插值表达式和运行时 shader 字节均保持。
+ */
 import * as ShaderChunkLogDepth from "./ShaderChunkLogDepth.js";
 const SpriteShader = {
   uniforms: {
@@ -22,10 +19,49 @@ const SpriteShader = {
     blending: "normal"
   },
   vertex: {
-    code: `\n\t\t\tin vec3 position;\n\t\t\tin vec2 uv;\n\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\t\t\tuniform float pixelBased;\n\n\t\t\tout vec2 vUV;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}\n\n\t\t\tvoid main() {\n\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\t\t\t\tif (pixelBased != 0.0) {\n\t\t\t\t\tgl_Position /= abs(gl_Position.w);\n\t\t\t\t}\n\t\t\t\tvUV = uv;\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}\n\t\t\t}\n\t\t\t`
+    code: `
+			in vec3 position;
+			in vec2 uv;
+
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
+			uniform float pixelBased;
+
+			out vec2 vUV;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}
+
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+				if (pixelBased != 0.0) {
+					gl_Position /= abs(gl_Position.w);
+				}
+				vUV = uv;
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}
+			}
+			`
   },
   fragment: {
-    code: `\n\t\t\tprecision highp float;\n\n\t\t\tuniform vec4 color;\n\t\t\tuniform sampler2D colorTexture;\n\n\t\t\tin vec2 vUV;\n\n\t\t\t// The output color.\n\t\t\tout vec4 outColor;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}\n\n\t\t\tvoid main() {\n\t\t\t\toutColor = texture(colorTexture, vUV) * color;\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}\n\t\t\t}\n\t\t\t`
+    code: `
+			precision highp float;
+
+			uniform vec4 color;
+			uniform sampler2D colorTexture;
+
+			in vec2 vUV;
+
+			// The output color.
+			out vec4 outColor;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}
+
+			void main() {
+				outColor = texture(colorTexture, vUV) * color;
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}
+			}
+			`
   }
 };
 export { SpriteShader };

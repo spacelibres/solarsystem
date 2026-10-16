@@ -1,26 +1,11 @@
-/** @eyes-analysis
- * 文件职责：按图层与实体类别创建、显示、隐藏轨迹和轨道线，处理悬停宽度/颜色。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1252118-1257302.
+/* 轨迹和解析轨道线按实体类型分开管理；悬停临时改变线宽与透明度，图层开关还核对目录分类与 forceVisible。show/hide 保存隐藏 id 集合，轨道线替换原 TrailComponent 后仍沿用原图层状态。 */
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：按图层与实体类别创建、显示、隐藏轨迹和轨道线，处理悬停宽度/颜色。
- * 继承：EyesPublicApi.BaseManager；导出：TrailManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class TrailManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_colors`、`_hiddenIds`、`_ids`、`_opacity`、`_orbitLineEntityNames`、`_orbitLinesOpts`、`_scene`、`_width`；调用 `SolarSystemSceneExports.Entity.getEntityNamesInGroup`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup("planets").add`、`new Pioneer.Color`、`super`、`this.bindFunctions`。
-   * 状态写入：_colors、_hiddenIds、_ids、_opacity、_orbitLineEntityNames、_orbitLinesOpts、_scene、_width。
-   * 调用线索：SolarSystemSceneExports.Entity.getEntityNamesInGroup、SolarSystemSceneExports.Entity.getEntityNamesInGroup("planets").add、new Pioneer.Color、super、this.bindFunctions。
-   */
-  constructor(t, scene) {
-    super(t);
+  constructor(app, scene) {
+    super(app);
     this._scene = scene;
     this._ids = [];
     this._hiddenIds = [];
@@ -58,248 +43,176 @@ class TrailManager extends EyesPublicApi.BaseManager {
     };
     this.bindFunctions(["onHoverChange", "setUpTrail", "toggleTrails", "toggleOrbits"]);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_scene`。
-   * 状态写入：_scene。
-   */
   setScene(scene) {
     this._scene = scene;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void console.warn("Trail already exists for",t)` 或 `e`；调用 `console.warn`、`this._ids.push`、`this._scene.getEntity`、`this._scene.getEntity(t).addComponent`、`this._scene.getEntity(t).getComponent`。
-   * 调用线索：console.warn、this._ids.push、this._scene.getEntity、this._scene.getEntity(t).addComponent、this._scene.getEntity(t).getComponent。
-   */
-  create(t) {
-    if (this._scene.getEntity(t).getComponent(Pioneer.TrailComponent)) return void console.warn("Trail already exists for", t);
-    const e = this._scene.getEntity(t).addComponent(Pioneer.TrailComponent);
-    this._ids.push(t);
-    return e;
+  create(entityId) {
+    if (this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent)) return void console.warn("Trail already exists for", entityId);
+    const trailComponent = this._scene.getEntity(entityId).addComponent(Pioneer.TrailComponent);
+    this._ids.push(entityId);
+    return trailComponent;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`n.setStartTime`、`this._scene.getEntity`、`this._scene.getEntity(t[i]).getComponent`。
-   * 调用线索：Array.isArray、n.setStartTime、this._scene.getEntity、this._scene.getEntity(t[i]).getComponent。
-   */
-  setStartTime(t, e) {
-    Array.isArray(t) || (t = [t]);
-    for (let i = 0; i < t.length; i++) {
-      const n = this._scene.getEntity(t[i]).getComponent(Pioneer.TrailComponent);
-      n && n.setStartTime(e);
+  setStartTime(entityIds, startTime) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const trailComponent = this._scene.getEntity(entityIds[entityIndex]).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setStartTime(startTime);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`n.setEndTime`、`this._scene.getEntity`、`this._scene.getEntity(t[i]).getComponent`。
-   * 调用线索：Array.isArray、n.setEndTime、this._scene.getEntity、this._scene.getEntity(t[i]).getComponent。
-   */
-  setEndTime(t, e) {
-    Array.isArray(t) || (t = [t]);
-    for (let i = 0; i < t.length; i++) {
-      const n = this._scene.getEntity(t[i]).getComponent(Pioneer.TrailComponent);
-      n && n.setEndTime(e);
+  setEndTime(entityIds, endTime) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const trailComponent = this._scene.getEntity(entityIds[entityIndex]).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setEndTime(endTime);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `a.setGlowWidth`、`a.setLineWidth`、`c.getColor`、`c.setColor`、`color.copy`、`new Pioneer.Color`。
-   * 调用线索：a.setGlowWidth、a.setLineWidth、c.getColor、c.setColor、color.copy等。
-   */
-  onHoverChange(t, e, i = false) {
-    const o = this._scene.getEntity(t);
-    const r = this._scene.getEntity(t).getComponent(Pioneer.TrailComponent);
-    const a = o?.getComponent(SolarSystemSceneExports.OrbitLineComponent);
-    if (!o || !r && !a) return;
+  onHoverChange(entityId, isHovered, updateFade = false) {
+    const entity = this._scene.getEntity(entityId);
+    const trailComponent = this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent);
+    const orbitLineComponent = entity?.getComponent(SolarSystemSceneExports.OrbitLineComponent);
+    if (!entity || !trailComponent && !orbitLineComponent) return;
     const color = new Pioneer.Color();
-    const c = r ?? a;
-    const h = e ? "hover" : "default";
-    if (a) {
+    const lineComponent = trailComponent ?? orbitLineComponent;
+    const hoverState = isHovered ? "hover" : "default";
+    if (orbitLineComponent) {
       const {
         lineWidth: lineWidth,
         glowWidth: glowWidth
       } = this._orbitLinesOpts;
-      a.setLineWidth(lineWidth[h]);
-      a.setGlowWidth(glowWidth[h]);
-    } else if (r) {
-      const t = o.trailHover?.width?.[h] ?? this._width[h];
-      r.setWidths(...t);
+      orbitLineComponent.setLineWidth(lineWidth[hoverState]);
+      orbitLineComponent.setGlowWidth(glowWidth[hoverState]);
+    } else if (trailComponent) {
+      const widths = entity.trailHover?.width?.[hoverState] ?? this._width[hoverState];
+      trailComponent.setWidths(...widths);
     }
     const {
       primary: primary,
       secondary: secondary,
       hover: hover
     } = this._opacity;
-    const _ = e ? hover : this._colors[t] ? primary : secondary;
-    color.copy(c.getColor());
-    color.a = _;
-    c.setColor(color);
-    i && r.setAlphaFade(color.a);
+    const opacity = isHovered ? hover : this._colors[entityId] ? primary : secondary;
+    color.copy(lineComponent.getColor());
+    color.a = opacity;
+    lineComponent.setColor(color);
+    updateFade && trailComponent.setAlphaFade(color.a);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`n.setAlphaFade`、`this._scene.getEntity`、`this._scene.getEntity(t[i]).getComponent`。
-   * 调用线索：Array.isArray、n.setAlphaFade、this._scene.getEntity、this._scene.getEntity(t[i]).getComponent。
-   */
-  setFade(t, e) {
-    Array.isArray(t) || (t = [t]);
-    for (let i = 0; i < t.length; i++) {
-      const n = this._scene.getEntity(t[i]).getComponent(Pioneer.TrailComponent);
-      n && n.setAlphaFade(e);
+  setFade(entityIds, alphaFade) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const trailComponent = this._scene.getEntity(entityIds[entityIndex]).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setAlphaFade(alphaFade);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`o.setWidths`、`this._scene.getEntity`、`this._scene.getEntity(t[n]).getComponent`。
-   * 调用线索：Array.isArray、o.setWidths、this._scene.getEntity、this._scene.getEntity(t[n]).getComponent。
-   */
-  setWidths(t, e, i) {
-    Array.isArray(t) || (t = [t]);
-    for (let n = 0; n < t.length; n++) {
-      const o = this._scene.getEntity(t[n]).getComponent(Pioneer.TrailComponent);
-      o && o.setWidths(e, i);
+  setWidths(entityIds, startWidth, endWidth) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const trailComponent = this._scene.getEntity(entityIds[entityIndex]).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setWidths(startWidth, endWidth);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setWidths`、`this._scene.getEntity`、`this._scene.getEntity(n).getComponent`。
-   * 调用线索：t.setWidths、this._scene.getEntity、this._scene.getEntity(n).getComponent。
-   */
-  setMultipleWidths(t, e, i) {
-    for (const n of t) {
-      const t = this._scene.getEntity(n).getComponent(Pioneer.TrailComponent);
-      t && t.setWidths(e, i);
+  setMultipleWidths(entityIds, startWidth, endWidth) {
+    for (const entityId of entityIds) {
+      const trailComponent = this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setWidths(startWidth, endWidth);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e?e.getColor():null`；调用 `e.getColor`、`this._scene.getEntity`、`this._scene.getEntity(t).getComponent`。
-   * 调用线索：e.getColor、this._scene.getEntity、this._scene.getEntity(t).getComponent。
-   */
-  getColor(t) {
-    const e = this._scene.getEntity(t).getComponent(Pioneer.TrailComponent);
-    return e ? e.getColor() : null;
+  getColor(entityId) {
+    const trailComponent = this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent);
+    return trailComponent ? trailComponent.getColor() : null;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`o.setColor`、`this._scene.getEntity`、`this._scene.getEntity(n).getComponent`。
-   * 调用线索：Array.isArray、o.setColor、this._scene.getEntity、this._scene.getEntity(n).getComponent。
-   */
-  setColor(t, e = null) {
-    Array.isArray(t) || (t = [t]);
-    for (let i = 0; i < t.length; i++) {
-      const n = t[i];
-      const o = this._scene.getEntity(n).getComponent(Pioneer.TrailComponent);
-      if (o) {
-        const t = e instanceof Pioneer.Color ? e : this._colors[n] || this._colors.default;
-        o.setColor(t);
+  setColor(entityIds, suppliedColor = null) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const entityId = entityIds[entityIndex];
+      const trailComponent = this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent);
+      if (trailComponent) {
+        const trailColor = suppliedColor instanceof Pioneer.Color ? suppliedColor : this._colors[entityId] || this._colors.default;
+        trailComponent.setColor(trailColor);
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `layerManager.getLayer`、`sceneManager.setVisibility`、`t.getName`、`this._app.getManager`、`this._orbitLineEntityNames.has`、`this.createOrbitLine`。
-   * 调用线索：layerManager.getLayer、sceneManager.setVisibility、t.getName、this._app.getManager、this._orbitLineEntityNames.has等。
-   */
-  setUpTrail(t) {
+  setUpTrail(entity) {
     const layerManager = this._app.getManager("layer");
     const sceneManager = this._app.getManager("scene");
-    const s = t.getName();
-    const n = layerManager.getLayer("trails");
-    const o = this._orbitLineEntityNames.has(s);
-    o && this.createOrbitLine(t);
-    (null !== n && !n.visible || o) && sceneManager.setVisibility(false, s);
+    const entityId = entity.getName();
+    const trailsLayer = layerManager.getLayer("trails");
+    const useOrbitLine = this._orbitLineEntityNames.has(entityId);
+    useOrbitLine && this.createOrbitLine(entity);
+    (null !== trailsLayer && !trailsLayer.visible || useOrbitLine) && sceneManager.setVisibility(false, entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Array.isArray`、`console.warn`、`n.setEnabled`、`this._hiddenIds.indexOf`、`this._hiddenIds.splice`、`this._scene.getEntity`。
-   * 调用线索：Array.isArray、console.warn、n.setEnabled、this._hiddenIds.indexOf、this._hiddenIds.splice等。
-   */
-  show(t = null) {
-    null === t ? t = this._hiddenIds.length > 0 ? this._hiddenIds : this._ids : Array.isArray(t) || (t = [t]);
-    for (let e = 0; e < t.length; e++) {
-      const i = t[e];
-      const n = this._scene.getEntity(i).getComponent(Pioneer.TrailComponent);
-      if (n) {
-        const t = this._hiddenIds.indexOf(i);
-        -1 !== t && this._hiddenIds.splice(t, 1);
-        n.setEnabled(true);
-      } else console.warn("TrailManager.show: Trail does not exist - ", i);
+  show(entityIds = null) {
+    null === entityIds ? entityIds = this._hiddenIds.length > 0 ? this._hiddenIds : this._ids : Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const entityId = entityIds[entityIndex];
+      const trailComponent = this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent);
+      if (trailComponent) {
+        const hiddenIndex = this._hiddenIds.indexOf(entityId);
+        -1 !== hiddenIndex && this._hiddenIds.splice(hiddenIndex, 1);
+        trailComponent.setEnabled(true);
+      } else console.warn("TrailManager.show: Trail does not exist - ", entityId);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_hiddenIds`；调用 `Array.isArray`、`i.setEnabled`、`this._scene.getEntity`、`this._scene.getEntity(hiddenIds[e]).getComponent`。
-   * 状态写入：_hiddenIds。
-   * 调用线索：Array.isArray、i.setEnabled、this._scene.getEntity、this._scene.getEntity(hiddenIds[e]).getComponent。
-   */
   hide(hiddenIds = null) {
     null === hiddenIds ? hiddenIds = this._ids : Array.isArray(hiddenIds) || (hiddenIds = [hiddenIds]);
     this._hiddenIds = hiddenIds;
-    for (let e = 0; e < hiddenIds.length; e++) {
-      const i = this._scene.getEntity(hiddenIds[e]).getComponent(Pioneer.TrailComponent);
-      i && i.setEnabled(false);
+    for (let entityIndex = 0; entityIndex < hiddenIds.length; entityIndex++) {
+      const trailComponent = this._scene.getEntity(hiddenIds[entityIndex]).getComponent(Pioneer.TrailComponent);
+      trailComponent && trailComponent.setEnabled(false);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `n.getComponent`、`n.getName`、`o.setEnabled`、`scene.getEntityAt`、`scene.getNumEntities`、`this._app.getManager`。
-   * 调用线索：n.getComponent、n.getName、o.setEnabled、scene.getEntityAt、scene.getNumEntities等。
-   */
-  toggleTrails(t, {
+  toggleTrails(isVisible, {
     scene: scene
   } = {}) {
     void 0 === scene && (scene = this._scene);
-    for (let i = 0; i < scene.getNumEntities(); i++) {
-      const n = scene.getEntityAt(i);
-      const o = n.getComponent(Pioneer.TrailComponent);
-      if (null !== o) {
-        const e = this._app.getManager("content").getEntityInfo(n.getName());
-        if (e) {
-          const i = e.category;
-          const s = e.subcategory;
-          const r = this._app.getManager("layer").getLayerFromCategory(s) || this._app.getManager("layer").getLayerFromCategory(i);
+    for (let entityIndex = 0; entityIndex < scene.getNumEntities(); entityIndex++) {
+      const entity = scene.getEntityAt(entityIndex);
+      const trailComponent = entity.getComponent(Pioneer.TrailComponent);
+      if (null !== trailComponent) {
+        const entityInfo = this._app.getManager("content").getEntityInfo(entity.getName());
+        if (entityInfo) {
+          const category = entityInfo.category;
+          const subcategory = entityInfo.subcategory;
+          const categoryLayer = this._app.getManager("layer").getLayerFromCategory(subcategory) || this._app.getManager("layer").getLayerFromCategory(category);
           const {
-            forceVisible: a = false
-          } = this.app.getManager("scene").getEntityStatus(n.getName()) || {};
-          null === r || r.visible || a ? o.setEnabled(t) : o.setEnabled(false);
-        } else o.setEnabled(t);
+            forceVisible = false
+          } = this.app.getManager("scene").getEntityStatus(entity.getName()) || {};
+          null === categoryLayer || categoryLayer.visible || forceVisible ? trailComponent.setEnabled(isVisible) : trailComponent.setEnabled(false);
+        } else trailComponent.setEnabled(isVisible);
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.setColor`、`i.setEnabled`、`i.setGlowWidth`、`i.setLineWidth`、`i.setVisibleInterval`、`t.addComponent`。
-   * 调用线索：i.setColor、i.setEnabled、i.setGlowWidth、i.setLineWidth、i.setVisibleInterval等。
-   */
-  createOrbitLine(t) {
-    const e = t.getComponent(Pioneer.TrailComponent);
-    e && t.removeComponent(e);
-    const i = t.addComponent(SolarSystemSceneExports.OrbitLineComponent);
+  createOrbitLine(entity) {
+    const trailComponent = entity.getComponent(Pioneer.TrailComponent);
+    trailComponent && entity.removeComponent(trailComponent);
+    const orbitLineComponent = entity.addComponent(SolarSystemSceneExports.OrbitLineComponent);
     const {
       lineWidth: lineWidth,
       glowWidth: glowWidth,
       visibleInterval: visibleInterval
     } = this._orbitLinesOpts;
-    const l = this._colors[t.getName()] ?? this._colors.default;
-    i.setColor(l);
-    i.setVisibleInterval(visibleInterval);
-    i.setLineWidth(lineWidth.default);
-    i.setGlowWidth(glowWidth.default);
-    const c = this._app.getManager("layer").getLayer("orbits").visible;
-    i.setEnabled(c);
+    const lineColor = this._colors[entity.getName()] ?? this._colors.default;
+    orbitLineComponent.setColor(lineColor);
+    orbitLineComponent.setVisibleInterval(visibleInterval);
+    orbitLineComponent.setLineWidth(lineWidth.default);
+    orbitLineComponent.setGlowWidth(glowWidth.default);
+    const isVisible = this._app.getManager("layer").getLayer("orbits").visible;
+    orbitLineComponent.setEnabled(isVisible);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._orbitLineEntityNames.forEach`、`this._scene.getEntity`。
-   * 调用线索：i?.setEnabled、this._orbitLineEntityNames.forEach、this._scene.getEntity、this._scene.getEntity(e)?.getComponent。
-   */
-  toggleOrbits(t) {
-    this._orbitLineEntityNames.forEach(e => {
-      const i = this._scene.getEntity(e)?.getComponent(SolarSystemSceneExports.OrbitLineComponent);
-      i?.setEnabled(t);
+  toggleOrbits(isVisible) {
+    this._orbitLineEntityNames.forEach(entityId => {
+      const orbitLineComponent = this._scene.getEntity(entityId)?.getComponent(SolarSystemSceneExports.OrbitLineComponent);
+      orbitLineComponent?.setEnabled(isVisible);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._ids`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get ids() {
     return this._ids;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；本访问器没有 AST 可见的 this 字段直接赋值；调用 `Array.isArray`、`this._ids.includes`、`this._ids.push`、`this._scene.getEntity`、`this._scene.getEntity(i).getComponent`。
-   * 调用线索：Array.isArray、this._ids.includes、this._ids.push、this._scene.getEntity、this._scene.getEntity(i).getComponent。
-   */
-  set ids(t) {
-    Array.isArray(t) || (t = [t]);
-    for (let e = 0; e < t.length; e++) {
-      const i = t[e];
-      if (this._ids.includes(i)) continue;
-      this._scene.getEntity(i).getComponent(Pioneer.TrailComponent) && this._ids.push(i);
+  set ids(entityIds) {
+    Array.isArray(entityIds) || (entityIds = [entityIds]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) {
+      const entityId = entityIds[entityIndex];
+      if (this._ids.includes(entityId)) continue;
+      this._scene.getEntity(entityId).getComponent(Pioneer.TrailComponent) && this._ids.push(entityId);
     }
   }
 }

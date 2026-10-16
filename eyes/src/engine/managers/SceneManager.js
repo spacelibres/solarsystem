@@ -1,28 +1,13 @@
-/** @eyes-analysis
- * 文件职责：从实体配置建立主场景，协调可见性、高清纹理/WMTS、临时实体和强制加载状态。
- * 依据：import ../../vendor/modules/FollowName.cjs；import ../pioneer/index.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1220244-1241305.
+/* 场景状态表持有动态加载、图层可见性与依赖引用，创建/卸载前后通知独立回调；强制可见的实体也会保持所依赖实体可见。纹理切换由 loading 键记录所有权，WMTS 就绪后才关闭基础 LOD；轮询遇到禁用时沿用各方法原有完成/拒绝规则。ET 以秒传给引擎，覆盖范围转 UTC 毫秒后按边界方向舍入；距离和速度使用场景单位，池向量的读取/归还顺序保留原行为。 */
 import FollowName from "../../vendor/modules/FollowName.cjs";
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 var getFollowName = () => FollowName;
-/** @eyes-analysis
- * 类职责：从实体配置建立主场景，协调可见性、高清纹理/WMTS、临时实体和强制加载状态。
- * 继承：EyesPublicApi.BaseManager；导出：SceneManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SceneManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_componentTypesNotVisible`、`_entityExtraOptions`、`_entityLoadedCallbacks`、`_entityStatuses`、`_entityWillBeUnloadedCallbacks`、`_hdBreakpointSize`、`_hdToggleEntity`、`_hdWMTSMap`；调用 `new Map`、`new Pioneer.FastMap`、`new Set`、`super`、`this._eventNames.push`、`this._initCallbacks`。
-   * 状态写入：_componentTypesNotVisible、_entityExtraOptions、_entityLoadedCallbacks、_entityStatuses、_entityWillBeUnloadedCallbacks、_hdBreakpointSize、_hdToggleEntity、_hdWMTSMap等；完整记录见索引。
-   * 调用线索：new Map、new Pioneer.FastMap、new Set、super、this._eventNames.push等。
-   */
-  constructor(t) {
-    super(t);
+  constructor(app) {
+    super(app);
     this._scenes = {};
     this._scene = this.add("main");
     this._isHD = false;
@@ -46,910 +31,648 @@ class SceneManager extends EyesPublicApi.BaseManager {
     this.bindFunctions(["addLoading", "removeLoading", "update", "toggleStarfield", "toggleHeliosphere", "toggleConstellations", "addWMTSComponent", "tileIsReady", "enableWMTSComponent", "forceTextureSizeForEntity", "toggleHDTextureForEntity", "isEntityHD"]);
     this._tempEntities = [];
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._hdToggleEntity`。
-   */
   getHDToggleEntity() {
     return this._hdToggleEntity;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_scenes[t]`；返回 `"main"===t&&this._scene?this._scene:(this._scenes[t]=this.pioneer.addScene(t),this._scenes[t].setAmbientLightColor(new Pioneer.Color(.005,.005,.005)),`；调用 `new Pioneer.Color`、`this._scenes[t].setAmbientLightColor`、`this.pioneer.addScene`。
-   * 状态写入：_scenes[t]。
-   * 调用线索：new Pioneer.Color、this._scenes[t].setAmbientLightColor、this.pioneer.addScene。
-   */
-  add(t) {
-    return "main" === t && this._scene ? this._scene : (this._scenes[t] = this.pioneer.addScene(t), this._scenes[t].setAmbientLightColor(new Pioneer.Color(.005, .005, .005)), this._scenes[t]);
+  add(sceneName) {
+    return "main" === sceneName && this._scene ? this._scene : (this._scenes[sceneName] = this.pioneer.addScene(sceneName), this._scenes[sceneName].setAmbientLightColor(new Pioneer.Color(.005, .005, .005)), this._scenes[sceneName]);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`new Set`、`this._entityStatuses.has`、`this._entityStatuses.set`、`this.app.getManager`、`this.app.getManager("layer").isEntityVisibleWithCurrentLayers`；含显式错误分支。
-   * 调用线索：new Error、new Set、this._entityStatuses.has、this._entityStatuses.set、this.app.getManager等。
-   */
-  addEntity(t, e) {
-    if (this._entityStatuses.has(t)) throw new Error(`Error adding entity: The entity ${t} has already been added.`);
-    this._entityStatuses.set(t, {
+  addEntity(entityId, dynamic) {
+    if (this._entityStatuses.has(entityId)) throw new Error(`Error adding entity: The entity ${entityId} has already been added.`);
+    this._entityStatuses.set(entityId, {
       forceVisible: false,
-      layerVisibility: this.app.getManager("layer").isEntityVisibleWithCurrentLayers(t),
-      dynamic: e,
+      layerVisibility: this.app.getManager("layer").isEntityVisibleWithCurrentLayers(entityId),
+      dynamic: dynamic,
       dependentEntities: [],
       entitiesForcingThisVisible: new Set(),
       visible: true,
       componentTypesNotVisible: new Set()
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`this._entityStatuses.delete`、`this._entityWillBeUnloadedCallbacks[t]`、`this._scene.getEntity`、`this._scene.removeEntity`；含显式错误分支。
-   * 调用线索：new Error、this._entityStatuses.delete、this._entityWillBeUnloadedCallbacks[t]、this._scene.getEntity、this._scene.removeEntity。
-   */
-  removeEntity(t) {
-    if (!this._entityStatuses.delete(t)) throw new Error(`Error removing entity: The entity ${t} was not in the scene manager.`);
-    const e = this._scene.getEntity(t);
-    if (null !== e) {
-      for (let t = 0, i = this._entityWillBeUnloadedCallbacks.length; t < i; t++) this._entityWillBeUnloadedCallbacks[t](e);
-      this._scene.removeEntity(t);
+  removeEntity(entityId) {
+    if (!this._entityStatuses.delete(entityId)) throw new Error(`Error removing entity: The entity ${entityId} was not in the scene manager.`);
+    const entity = this._scene.getEntity(entityId);
+    if (null !== entity) {
+      for (let callbackIndex = 0, callbackCount = this._entityWillBeUnloadedCallbacks.length; callbackIndex < callbackCount; callbackIndex++) this._entityWillBeUnloadedCallbacks[callbackIndex](entity);
+      this._scene.removeEntity(entityId);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._entityStatuses.get(t)`；调用 `this._entityStatuses.get`。
-   * 调用线索：this._entityStatuses.get。
-   */
-  getEntityStatus(t) {
-    return this._entityStatuses.get(t);
+  getEntityStatus(entityId) {
+    return this._entityStatuses.get(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `SolarSystemSceneExports.Entity.getEntityNamesInGroup`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach`、`SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach`、`contentManager.getEntityInfo`、`map.delete`、`map.forEach`。
-   * 调用线索：SolarSystemSceneExports.Entity.getEntityNamesInGroup、SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach、SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach、contentManager.getEntityInfo、map.delete等。
-   */
-  addEntitiesFromSceneInfo(t) {
+  addEntitiesFromSceneInfo(sceneInfo) {
     const map = new Map();
-    void 0 !== t.staticEntities && (1 === t.staticEntities.length && "all" === t.staticEntities[0] ? SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach(t => map.set(t, false)) : t.staticEntities.forEach(t => map.set(t, false)));
-    void 0 !== t.staticEntityGroups && t.staticEntityGroups.forEach(t => {
-      SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach(t => map.set(t, false));
+    void 0 !== sceneInfo.staticEntities && (1 === sceneInfo.staticEntities.length && "all" === sceneInfo.staticEntities[0] ? SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach(staticEntityId => map.set(staticEntityId, false)) : sceneInfo.staticEntities.forEach(staticEntityId => map.set(staticEntityId, false)));
+    void 0 !== sceneInfo.staticEntityGroups && sceneInfo.staticEntityGroups.forEach(staticGroup => {
+      SolarSystemSceneExports.Entity.getEntityNamesInGroup(staticGroup).forEach(staticEntityId => map.set(staticEntityId, false));
     });
-    void 0 !== t.dynamicEntities && (1 === t.dynamicEntities.length && "all" === t.dynamicEntities[0] ? SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach(t => {
-      map.has(t) || map.set(t, true);
-    }) : t.dynamicEntities.forEach(t => {
-      map.has(t) || map.set(t, true);
+    void 0 !== sceneInfo.dynamicEntities && (1 === sceneInfo.dynamicEntities.length && "all" === sceneInfo.dynamicEntities[0] ? SolarSystemSceneExports.Entity.getEntityNamesInGroup("").forEach(dynamicEntityId => {
+      map.has(dynamicEntityId) || map.set(dynamicEntityId, true);
+    }) : sceneInfo.dynamicEntities.forEach(dynamicEntityId => {
+      map.has(dynamicEntityId) || map.set(dynamicEntityId, true);
     }));
-    void 0 !== t.dynamicEntityGroups && t.dynamicEntityGroups.forEach(t => {
-      SolarSystemSceneExports.Entity.getEntityNamesInGroup(t).forEach(t => {
-        map.has(t) || map.set(t, true);
+    void 0 !== sceneInfo.dynamicEntityGroups && sceneInfo.dynamicEntityGroups.forEach(dynamicGroup => {
+      SolarSystemSceneExports.Entity.getEntityNamesInGroup(dynamicGroup).forEach(dynamicEntityId => {
+        map.has(dynamicEntityId) || map.set(dynamicEntityId, true);
       });
     });
     const contentManager = this.app.getManager("content");
-    for (const t of map.keys()) null === contentManager.getEntityInfo(t) && map.delete(t);
-    map.forEach((t, e) => this.addEntity(e, t));
-    this.setExtraEntityOptions(t.entityOptions);
+    for (const entityId of map.keys()) null === contentManager.getEntityInfo(entityId) && map.delete(entityId);
+    map.forEach((dynamic, entityId) => this.addEntity(entityId, dynamic));
+    this.setExtraEntityOptions(sceneInfo.entityOptions);
     this.updateEntityLayerVisibility();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._entityLoadedCallbacks.push`。
-   * 调用线索：this._entityLoadedCallbacks.push。
-   */
-  addEntityLoadedCallback(t) {
-    this._entityLoadedCallbacks.push(t);
+  addEntityLoadedCallback(callback) {
+    this._entityLoadedCallbacks.push(callback);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void this._entityLoadedCallbacks.splice(e,1)`；调用 `this._entityLoadedCallbacks.splice`。
-   * 调用线索：this._entityLoadedCallbacks.splice。
-   */
-  removeEntityLoadedCallback(t) {
-    for (let e = 0, i = this._entityLoadedCallbacks.length; e < i; e++) if (this._entityLoadedCallbacks[e] === t) return void this._entityLoadedCallbacks.splice(e, 1);
+  removeEntityLoadedCallback(callback) {
+    for (let callbackIndex = 0, callbackCount = this._entityLoadedCallbacks.length; callbackIndex < callbackCount; callbackIndex++) if (this._entityLoadedCallbacks[callbackIndex] === callback) return void this._entityLoadedCallbacks.splice(callbackIndex, 1);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._entityWillBeUnloadedCallbacks.push`。
-   * 调用线索：this._entityWillBeUnloadedCallbacks.push。
-   */
-  addEntityWillBeUnloadedCallback(t) {
-    this._entityWillBeUnloadedCallbacks.push(t);
+  addEntityWillBeUnloadedCallback(callback) {
+    this._entityWillBeUnloadedCallbacks.push(callback);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void this._entityWillBeUnloadedCallbacks.splice(e,1)`；调用 `this._entityWillBeUnloadedCallbacks.splice`。
-   * 调用线索：this._entityWillBeUnloadedCallbacks.splice。
-   */
-  removeEntityWillBeUnloadedCallback(t) {
-    for (let e = 0, i = this._entityWillBeUnloadedCallbacks.length; e < i; e++) if (this._entityWillBeUnloadedCallbacks[e] === t) return void this._entityWillBeUnloadedCallbacks.splice(e, 1);
+  removeEntityWillBeUnloadedCallback(callback) {
+    for (let callbackIndex = 0, callbackCount = this._entityWillBeUnloadedCallbacks.length; callbackIndex < callbackCount; callbackIndex++) if (this._entityWillBeUnloadedCallbacks[callbackIndex] === callback) return void this._entityWillBeUnloadedCallbacks.splice(callbackIndex, 1);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_entityStatuses.getAt(t).value.forceVisible`；调用 `new Error`、`this._entityStatuses.get`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this.update`；含显式错误分支。
-   * 状态写入：_entityStatuses.getAt(t).value.forceVisible。
-   * 调用线索：new Error、this._entityStatuses.get、this._entityStatuses.getAt、this._entityStatuses.getSize、this.update。
-   */
-  setEntitiesForceVisible(t, e, i = true) {
-    if (e) for (let t = 0, e = this._entityStatuses.getSize(); t < e; t++) {
-      this._entityStatuses.getAt(t).value.forceVisible = false;
+  setEntitiesForceVisible(entityIds, resetExisting, forceVisible = true) {
+    if (resetExisting) for (let statusIndex = 0, statusCount = this._entityStatuses.getSize(); statusIndex < statusCount; statusIndex++) {
+      this._entityStatuses.getAt(statusIndex).value.forceVisible = false;
     }
-    for (let e = 0, s = t.length; e < s; e++) {
-      const s = t[e];
-      const n = this._entityStatuses.get(s);
-      if (void 0 === n) throw new Error(`Entity ${s} was set to force load, but isn't in the scene manager. Use addEntity().`);
-      n.forceVisible = i;
+    for (let entityIndex = 0, entityCount = entityIds.length; entityIndex < entityCount; entityIndex++) {
+      const entityId = entityIds[entityIndex];
+      const entityStatus = this._entityStatuses.get(entityId);
+      if (void 0 === entityStatus) throw new Error(`Entity ${entityId} was set to force load, but isn't in the scene manager. Use addEntity().`);
+      entityStatus.forceVisible = forceVisible;
     }
     this.update();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_entityExtraOptions`。
-   * 状态写入：_entityExtraOptions。
-   */
-  setExtraEntityOptions(t) {
+  setExtraEntityOptions(options) {
     this._entityExtraOptions = {
-      ...t
+      ...options
     };
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity`、`SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key,i).has`、`layerManager.isEntityVisibleWithCurrentLayers`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this._scene.getEngine`。
-   * 调用线索：SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity、SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key,i).has、layerManager.isEntityVisibleWithCurrentLayers、this._entityStatuses.getAt、this._entityStatuses.getSize等。
-   */
-  updateEntityLayerVisibilityForChildren(t) {
+  updateEntityLayerVisibilityForChildren(layerOptions) {
     const layerManager = this.app.getManager("layer");
-    const i = this._scene.getEngine().getTime();
-    for (let s = 0, n = this._entityStatuses.getSize(); s < n; s++) {
-      const n = this._entityStatuses.getAt(s);
-      SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(n.key, i).has(t.parentId) && (n.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(n.key, t));
+    const ephemerisTime = this._scene.getEngine().getTime();
+    for (let statusIndex = 0, statusCount = this._entityStatuses.getSize(); statusIndex < statusCount; statusIndex++) {
+      const statusEntry = this._entityStatuses.getAt(statusIndex);
+      SolarSystemSceneExports.Parenting.getAllAncestorsOfEntity(statusEntry.key, ephemerisTime).has(layerOptions.parentId) && (statusEntry.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(statusEntry.key, layerOptions));
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `layerManager.isEntityVisibleWithCurrentLayers`、`this._entityStatuses.getAt`、`this._entityStatuses.getSize`、`this.app.getManager`。
-   * 调用线索：layerManager.isEntityVisibleWithCurrentLayers、this._entityStatuses.getAt、this._entityStatuses.getSize、this.app.getManager。
-   */
-  updateEntityLayerVisibility(t) {
+  updateEntityLayerVisibility(layerOptions) {
     const layerManager = this.app.getManager("layer");
-    for (let i = 0, s = this._entityStatuses.getSize(); i < s; i++) {
-      const s = this._entityStatuses.getAt(i);
-      s.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(s.key, t);
+    for (let statusIndex = 0, statusCount = this._entityStatuses.getSize(); statusIndex < statusCount; statusIndex++) {
+      const statusEntry = this._entityStatuses.getAt(statusIndex);
+      statusEntry.value.layerVisibility = layerManager.isEntityVisibleWithCurrentLayers(statusEntry.key, layerOptions);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`contentManager.getEntityInfo`、`t.getParent`、`this._createEntity`、`this._entityStatuses.get`、`this._entityStatuses.getAt`。
-   * 调用线索：SolarSystemSceneExports.SceneHelpers.getDependentEntities、contentManager.getEntityInfo、l?.getParent、l?.getParent()?.getName、s?.includes等。
-   */
   update() {
-    const t = this.app.getManager("camera").cameraEntity;
+    const cameraEntity = this.app.getManager("camera").cameraEntity;
     const contentManager = this.app.getManager("content");
-    for (let i = 0, s = this._entityStatuses.getSize(); i < s; i++) {
-      const s = this._entityStatuses.getAt(i);
-      const n = s.key;
-      const o = s.value;
-      const a = o.forceVisible || !o.dynamic && o.layerVisibility || o.dynamic && o.layerVisibility && this._isEntityVisibleWithinParent(n) || t?.getParent()?.getName() === n;
-      let l = this._scene.getEntity(n);
-      if (a && null === l) {
-        this._createEntity(n);
-        const t = SolarSystemSceneExports.SceneHelpers.getDependentEntities(n);
-        for (const e of t) null === this._scene.getEntity(e) && this._createEntity(e);
-      } else if (!a && null !== l) {
-        const i = t.getParent()?.getName();
-        const s = contentManager.getEntityInfo(n)?.ignoreDependentWhenUnloading;
-        let r = false;
-        for (let t = 0, e = o.dependentEntities.length; t < e; t++) {
-          const e = this._scene.getEntity(o.dependentEntities[t])?.getName();
-          if (e) {
-            if (e === i && s?.includes(i)) {
-              r = false;
+    for (let statusIndex = 0, statusCount = this._entityStatuses.getSize(); statusIndex < statusCount; statusIndex++) {
+      const statusEntry = this._entityStatuses.getAt(statusIndex);
+      const entityId = statusEntry.key;
+      const entityStatus = statusEntry.value;
+      const shouldLoad = entityStatus.forceVisible || !entityStatus.dynamic && entityStatus.layerVisibility || entityStatus.dynamic && entityStatus.layerVisibility && this._isEntityVisibleWithinParent(entityId) || cameraEntity?.getParent()?.getName() === entityId;
+      let entity = this._scene.getEntity(entityId);
+      if (shouldLoad && null === entity) {
+        this._createEntity(entityId);
+        const dependencies = SolarSystemSceneExports.SceneHelpers.getDependentEntities(entityId);
+        for (const dependencyId of dependencies) null === this._scene.getEntity(dependencyId) && this._createEntity(dependencyId);
+      } else if (!shouldLoad && null !== entity) {
+        const cameraParentId = cameraEntity.getParent()?.getName();
+        const ignoredDependencies = contentManager.getEntityInfo(entityId)?.ignoreDependentWhenUnloading;
+        let hasLoadedDependent = false;
+        for (let dependencyIndex = 0, dependencyCount = entityStatus.dependentEntities.length; dependencyIndex < dependencyCount; dependencyIndex++) {
+          const loadedDependencyId = this._scene.getEntity(entityStatus.dependentEntities[dependencyIndex])?.getName();
+          if (loadedDependencyId) {
+            if (loadedDependencyId === cameraParentId && ignoredDependencies?.includes(cameraParentId)) {
+              hasLoadedDependent = false;
               break;
             }
-            r = true;
+            hasLoadedDependent = true;
           }
         }
-        if (!r) {
-          for (let t = 0, e = this._entityWillBeUnloadedCallbacks.length; t < e; t++) {
-            this._entityWillBeUnloadedCallbacks[t](l);
-            l = null;
+        if (!hasLoadedDependent) {
+          for (let callbackIndex = 0, callbackCount = this._entityWillBeUnloadedCallbacks.length; callbackIndex < callbackCount; callbackIndex++) {
+            this._entityWillBeUnloadedCallbacks[callbackIndex](entity);
+            entity = null;
           }
-          o.dependentEntities = [];
-          this._scene.removeEntity(n);
+          entityStatus.dependentEntities = [];
+          this._scene.removeEntity(entityId);
         }
       }
-      const c = this._entityStatuses.get(l?.getParent()?.getName());
-      const h = o.forceVisible || o.layerVisibility && c?.visible || this._isAncestorOfCamera(t, n) || o.entitiesForcingThisVisible.size > 0;
-      null !== l && o.visible !== h && this.setVisibility(h, n);
+      const parentStatus = this._entityStatuses.get(entity?.getParent()?.getName());
+      const shouldBeVisible = entityStatus.forceVisible || entityStatus.layerVisibility && parentStatus?.visible || this._isAncestorOfCamera(cameraEntity, entityId) || entityStatus.entitiesForcingThisVisible.size > 0;
+      null !== entity && entityStatus.visible !== shouldBeVisible && this.setVisibility(shouldBeVisible, entityId);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `SolarSystemSceneExports.Entity.create`、`SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`i.dependentEntities.push`、`this._entityLoadedCallbacks[t]`、`this._entityStatuses.get`、`this.addEntity`。
-   * 调用线索：SolarSystemSceneExports.Entity.create、SolarSystemSceneExports.SceneHelpers.getDependentEntities、i.dependentEntities.push、this._entityLoadedCallbacks[t]、this._entityStatuses.get等。
-   */
-  _createEntity(t) {
-    const e = SolarSystemSceneExports.Entity.create(t, this._scene, this._entityExtraOptions);
-    this._entityStatuses.get(t).visible || this.setVisibility(false, t);
-    const i = SolarSystemSceneExports.SceneHelpers.getDependentEntities(t);
-    for (const e of i) {
-      let i = this._entityStatuses.get(e);
-      void 0 === i && (this.addEntity(e, this._entityStatuses.get(t).dynamic), i = this._entityStatuses.get(e));
-      i.dependentEntities.push(t);
+  _createEntity(entityId) {
+    const entity = SolarSystemSceneExports.Entity.create(entityId, this._scene, this._entityExtraOptions);
+    this._entityStatuses.get(entityId).visible || this.setVisibility(false, entityId);
+    const dependencies = SolarSystemSceneExports.SceneHelpers.getDependentEntities(entityId);
+    for (const dependencyId of dependencies) {
+      let dependencyStatus = this._entityStatuses.get(dependencyId);
+      void 0 === dependencyStatus && (this.addEntity(dependencyId, this._entityStatuses.get(entityId).dynamic), dependencyStatus = this._entityStatuses.get(dependencyId));
+      dependencyStatus.dependentEntities.push(entityId);
     }
-    for (let t = 0, i = this._entityLoadedCallbacks.length; t < i; t++) this._entityLoadedCallbacks[t](e);
-    return e;
+    for (let callbackIndex = 0, callbackCount = this._entityLoadedCallbacks.length; callbackIndex < callbackCount; callbackIndex++) this._entityLoadedCallbacks[callbackIndex](entity);
+    return entity;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `true` 或 `false`；调用 `i.getName`、`i.getNumParentingTableEntries`、`i.getParent`、`i.getParentingTableEntry`。
-   * 调用线索：i.getName、i.getNumParentingTableEntries、i.getParent、i.getParentingTableEntry。
-   */
-  _isAncestorOfCamera(t, e) {
-    let i = t;
-    for (; null !== i;) {
-      if (i.getName() === e) return true;
-      for (let t = 0, s = i.getNumParentingTableEntries(); t < s; t++) if (i.getParentingTableEntry(t)[1] === e) return true;
-      i = i.getParent();
+  _isAncestorOfCamera(cameraEntity, ancestorId) {
+    let ancestor = cameraEntity;
+    for (; null !== ancestor;) {
+      if (ancestor.getName() === ancestorId) return true;
+      for (let parentEntryIndex = 0, parentEntryCount = ancestor.getNumParentingTableEntries(); parentEntryIndex < parentEntryCount; parentEntryIndex++) if (ancestor.getParentingTableEntry(parentEntryIndex)[1] === ancestorId) return true;
+      ancestor = ancestor.getParent();
     }
     return false;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.from`、`Array.from(i.componentTypesNotVisible).some`、`i.componentTypesNotVisible.has`、`layerManager.getLayer`、`n.setEnabled`、`new Error`；含显式错误分支。
-   * 调用线索：Array.from、Array.from(i.componentTypesNotVisible).some、i.componentTypesNotVisible.has、layerManager.getLayer、n.setEnabled等。
-   */
-  setVisibility(t, e) {
-    const i = this._entityStatuses.get(e);
-    void 0 !== i && (i.visible = t);
-    const s = this._scene.getEntity(e);
-    if (null === s) return;
+  setVisibility(visible, entityId) {
+    const entityStatus = this._entityStatuses.get(entityId);
+    void 0 !== entityStatus && (entityStatus.visible = visible);
+    const entity = this._scene.getEntity(entityId);
+    if (null === entity) return;
     const layerManager = this.app.getManager("layer");
-    const r = layerManager.getLayer("trails").visible;
-    const a = layerManager.getLayer("labels").visible;
-    for (let e = 0; e < s.getNumComponents(); e++) {
-      const n = s.getComponentAt(e);
-      "sun" !== s.getName() && (t && n instanceof Pioneer.TrailComponent ? n.setEnabled(t && r && !i.componentTypesNotVisible.has(Pioneer.TrailComponent)) : t && n instanceof Pioneer.DivComponent ? n.setEnabled(t && a && !i.componentTypesNotVisible.has(Pioneer.DivComponent)) : n.setEnabled(t && !Array.from(i.componentTypesNotVisible).some(t => n instanceof t)));
+    const trailsVisible = layerManager.getLayer("trails").visible;
+    const labelsVisible = layerManager.getLayer("labels").visible;
+    for (let componentIndex = 0; componentIndex < entity.getNumComponents(); componentIndex++) {
+      const component = entity.getComponentAt(componentIndex);
+      "sun" !== entity.getName() && (visible && component instanceof Pioneer.TrailComponent ? component.setEnabled(visible && trailsVisible && !entityStatus.componentTypesNotVisible.has(Pioneer.TrailComponent)) : visible && component instanceof Pioneer.DivComponent ? component.setEnabled(visible && labelsVisible && !entityStatus.componentTypesNotVisible.has(Pioneer.DivComponent)) : component.setEnabled(visible && !Array.from(entityStatus.componentTypesNotVisible).some(hiddenComponentType => component instanceof hiddenComponentType)));
     }
-    const l = this.app.getManager("content").getEntityInfo(e);
-    if (void 0 !== l?.forceVisibleEntities) for (let i = 0, s = l.forceVisibleEntities.length; i < s; i++) {
-      const s = this._entityStatuses.get(l.forceVisibleEntities[i]);
-      if (void 0 === s) throw new Error(`Entity ${e} was set to force load, but isn't in the scene manager. Use addEntity().`);
-      t ? s.entitiesForcingThisVisible.add(e) : s.entitiesForcingThisVisible.delete(e);
+    const entityInfo = this.app.getManager("content").getEntityInfo(entityId);
+    if (void 0 !== entityInfo?.forceVisibleEntities) for (let forcedEntityIndex = 0, forcedEntityCount = entityInfo.forceVisibleEntities.length; forcedEntityIndex < forcedEntityCount; forcedEntityIndex++) {
+      const forcedEntityStatus = this._entityStatuses.get(entityInfo.forceVisibleEntities[forcedEntityIndex]);
+      if (void 0 === forcedEntityStatus) throw new Error(`Entity ${entityId} was set to force load, but isn't in the scene manager. Use addEntity().`);
+      visible ? forcedEntityStatus.entitiesForcingThisVisible.add(entityId) : forcedEntityStatus.entitiesForcingThisVisible.delete(entityId);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `false` 或 `(s.systemRadius||25*s.radius||25*s.extentsRadius)/i.getExtentsRadius()*i.getGreatestPixelSpaceExtentsRadius()>=20`；调用 `SolarSystemSceneExports.Entity.getEntityOptions`、`SolarSystemSceneExports.Parenting.getParentOfEntity`、`i.getExtentsRadius`、`i.getGreatestPixelSpaceExtentsRadius`、`this._scene.getEngine`、`this._scene.getEngine().getTime`。
-   * 调用线索：SolarSystemSceneExports.Entity.getEntityOptions、SolarSystemSceneExports.Parenting.getParentOfEntity、i.getExtentsRadius、i.getGreatestPixelSpaceExtentsRadius、this._scene.getEngine等。
-   */
-  _isEntityVisibleWithinParent(t) {
-    const e = SolarSystemSceneExports.Parenting.getParentOfEntity(t, this._scene.getEngine().getTime());
-    const i = this._scene.getEntity(e);
-    if (null === i) return false;
-    const s = SolarSystemSceneExports.Entity.getEntityOptions(e);
-    return (s.systemRadius || 25 * s.radius || 25 * s.extentsRadius) / i.getExtentsRadius() * i.getGreatestPixelSpaceExtentsRadius() >= 20;
+  _isEntityVisibleWithinParent(entityId) {
+    const parentId = SolarSystemSceneExports.Parenting.getParentOfEntity(entityId, this._scene.getEngine().getTime());
+    const parentEntity = this._scene.getEntity(parentId);
+    if (null === parentEntity) return false;
+    const parentOptions = SolarSystemSceneExports.Entity.getEntityOptions(parentId);
+    return (parentOptions.systemRadius || 25 * parentOptions.radius || 25 * parentOptions.extentsRadius) / parentEntity.getExtentsRadius() * parentEntity.getGreatestPixelSpaceExtentsRadius() >= 20;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void 0!==this._scenes[t]?this._scenes[t]:null`。
-   */
-  get(t) {
-    return void 0 !== this._scenes[t] ? this._scenes[t] : null;
+  get(sceneName) {
+    return void 0 !== this._scenes[sceneName] ? this._scenes[sceneName] : null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t`；调用 `i.getName`、`t.push`、`this._scene.getEntityAt`、`this._scene.getNumEntities`。
-   * 调用线索：i.getName、t.push、this._scene.getEntityAt、this._scene.getNumEntities。
-   */
   getEntitiesNames() {
-    const t = [];
-    for (let e = 0; e < this._scene.getNumEntities(); e++) {
-      const i = this._scene.getEntityAt(e);
-      t.push(i.getName());
+    const entityNames = [];
+    for (let entityIndex = 0; entityIndex < this._scene.getNumEntities(); entityIndex++) {
+      const entity = this._scene.getEntityAt(entityIndex);
+      entityNames.push(entity.getName());
     }
-    return t;
+    return entityNames;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.getName()` 或 `null`；调用 `e.getParent`、`t.getName`、`this._scene.getEntity`。
-   * 调用线索：e.getParent、t.getName、this._scene.getEntity。
-   */
-  getParent(t) {
-    const e = this._scene.getEntity(t);
-    if (null !== e) {
-      const t = e.getParent();
-      if (null !== t) return t.getName();
+  getParent(entityId) {
+    const entity = this._scene.getEntity(entityId);
+    if (null !== entity) {
+      const parentEntity = entity.getParent();
+      if (null !== parentEntity) return parentEntity.getName();
     }
     return null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `i`；调用 `i.push`、`this.getParent`。
-   * 调用线索：i.push、this.getParent。
-   */
-  getParentList(t) {
-    let e = this.getParent(t);
-    const i = [];
-    for (; null !== e && "" !== e;) {
-      i.push(e);
-      e = this.getParent(e);
+  getParentList(entityId) {
+    let parentId = this.getParent(entityId);
+    const parentIds = [];
+    for (; null !== parentId && "" !== parentId;) {
+      parentIds.push(parentId);
+      parentId = this.getParent(parentId);
     }
-    return i;
+    return parentIds;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `Array.from(set)`；调用 `Array.from`、`Object.keys`、`SolarSystemSceneExports.Entity.getEntityOptions`、`e.getNumParentingTableEntries`、`e.getParentingTableEntry`、`new Set`。
-   * 调用线索：Array.from、Object.keys、SolarSystemSceneExports.Entity.getEntityOptions、e.getNumParentingTableEntries、e.getParentingTableEntry等。
-   */
-  getDependencies(t) {
-    const e = this._scene.getEntity(t);
+  getDependencies(entityId) {
+    const entity = this._scene.getEntity(entityId);
     const set = new Set();
-    if (null !== e) for (let t = 0; t < e.getNumParentingTableEntries(); t++) {
-      const s = e.getParentingTableEntry(t)[1];
-      "" !== s && set.add(s);
+    if (null !== entity) for (let parentEntryIndex = 0; parentEntryIndex < entity.getNumParentingTableEntries(); parentEntryIndex++) {
+      const parentId = entity.getParentingTableEntry(parentEntryIndex)[1];
+      "" !== parentId && set.add(parentId);
     }
-    const s = SolarSystemSceneExports.Entity.getEntityOptions(t);
-    if (void 0 !== s) for (const e of Object.keys(s)) {
-      const n = s[e];
-      if ("parents" === e) for (let t = 0; t < n.length; t++) {
-        const e = n[t][1];
-        "" !== e && set.add(e);
+    const entityOptions = SolarSystemSceneExports.Entity.getEntityOptions(entityId);
+    if (void 0 !== entityOptions) for (const optionName of Object.keys(entityOptions)) {
+      const optionValue = entityOptions[optionName];
+      if ("parents" === optionName) for (let parentEntryIndex = 0; parentEntryIndex < optionValue.length; parentEntryIndex++) {
+        const parentId = optionValue[parentEntryIndex][1];
+        "" !== parentId && set.add(parentId);
       }
-      "align" === e && (n.primary && n.primary.target && n.primary.target !== t && set.add(n.primary.target), n.secondary && n.secondary.target && n.secondary.target !== t && set.add(n.secondary.target));
+      "align" === optionName && (optionValue.primary && optionValue.primary.target && optionValue.primary.target !== entityId && set.add(optionValue.primary.target), optionValue.secondary && optionValue.secondary.target && optionValue.secondary.target !== entityId && set.add(optionValue.secondary.target));
     }
     return Array.from(set);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._scene.waitTillEntitiesInPlace`、`this.app.getManager`、`this.app.getManager("time").momentToET`、`this.pioneer.getTime`。
-   * 调用线索：this._scene.waitTillEntitiesInPlace、this.app.getManager、this.app.getManager("time").momentToET、this.pioneer.getTime。
-   */
-  async isReady(t, e) {
-    e = void 0 === e ? this.pioneer.getTime() : this.app.getManager("time").momentToET(e);
-    await this._scene.waitTillEntitiesInPlace([t], e);
+  async isReady(entityId, time) {
+    time = void 0 === time ? this.pioneer.getTime() : this.app.getManager("time").momentToET(time);
+    await this._scene.waitTillEntitiesInPlace([entityId], time);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Promise.all`、`i.push`、`this.isReady`。
-   * 调用线索：Promise.all、i.push、this.isReady。
-   */
-  async isListReady(t, e) {
-    const i = [];
-    void 0 === e && (e = [void 0]);
-    for (let s = 0; s < t.length; s++) for (let n = 0; n < e.length; n++) i.push(this.isReady(t[s], e[n]));
-    await Promise.all(i);
+  async isListReady(entityIds, times) {
+    const readinessPromises = [];
+    void 0 === times && (times = [void 0]);
+    for (let entityIndex = 0; entityIndex < entityIds.length; entityIndex++) for (let timeIndex = 0; timeIndex < times.length; timeIndex++) readinessPromises.push(this.isReady(entityIds[entityIndex], times[timeIndex]));
+    await Promise.all(readinessPromises);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `new Promise((i,s)=>{const n=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(n),s(new Error("disabled")));null===e&&null!==t.`；调用 `clearInterval`、`i`、`new Error`、`new Promise`、`s`、`setInterval`。
-   * 调用线索：clearInterval、i、new Error、new Promise、s等。
-   */
-  async tileIsReady(t) {
-    let e = null;
-    return new Promise((i, s) => {
-      const n = setInterval(() => {
-        t.isEnabled() && t.getEntity().isEnabled() || (clearInterval(n), s(new Error("disabled")));
-        null === e && null !== t.getTilesLoadedPromise() && (e = t.getTilesLoadedPromise().then(() => {
-          clearInterval(n);
-          i(true);
+  async tileIsReady(component) {
+    let tilesPromise = null;
+    return new Promise((resolveReady, rejectReady) => {
+      const readinessPoll = setInterval(() => {
+        component.isEnabled() && component.getEntity().isEnabled() || (clearInterval(readinessPoll), rejectReady(new Error("disabled")));
+        null === tilesPromise && null !== component.getTilesLoadedPromise() && (tilesPromise = component.getTilesLoadedPromise().then(() => {
+          clearInterval(readinessPoll);
+          resolveReady(true);
         }));
       }, 30);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `!!SolarSystemSceneExports.Mapping.getOptions()[t]&&"cmts"in SolarSystemSceneExports.Mapping.getOptions()[t]`；调用 `SolarSystemSceneExports.Mapping.getOptions`。
-   * 调用线索：SolarSystemSceneExports.Mapping.getOptions。
-   */
-  hasCMTS(t) {
-    return !!SolarSystemSceneExports.Mapping.getOptions()[t] && "cmts" in SolarSystemSceneExports.Mapping.getOptions()[t];
+  hasCMTS(entityId) {
+    return !!SolarSystemSceneExports.Mapping.getOptions()[entityId] && "cmts" in SolarSystemSceneExports.Mapping.getOptions()[entityId];
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `this._scene.getEntity(t)`；调用 `e.includes`、`this._scene.getEntity`、`this.hasCMTS`。
-   * 调用线索：e.includes、this._scene.getEntity、this._scene.getEntity(e)?.getParent、this._scene.getEntity(e)?.getParent()?.getName、this.hasCMTS。
-   */
-  getCMTSEntity(t) {
-    if (!t) return null;
-    if (this.hasCMTS(t)) return this._scene.getEntity(t);
-    let e = t;
-    for (; !this.hasCMTS(e) && (e = this._scene.getEntity(e)?.getParent()?.getName(), e && !e.includes("universe")););
-    return this.hasCMTS(e) ? this._scene.getEntity(e) : null;
+  getCMTSEntity(entityId) {
+    if (!entityId) return null;
+    if (this.hasCMTS(entityId)) return this._scene.getEntity(entityId);
+    let ancestorId = entityId;
+    for (; !this.hasCMTS(ancestorId) && (ancestorId = this._scene.getEntity(ancestorId)?.getParent()?.getName(), ancestorId && !ancestorId.includes("universe")););
+    return this.hasCMTS(ancestorId) ? this._scene.getEntity(ancestorId) : null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `new Promise(i=>{const s=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(s),i(true));null===e&&null!==t._loadedPromise&&(e=t.`；调用 `clearInterval`、`i`、`new Promise`、`setInterval`、`t.getEntity`、`t.getEntity().isEnabled`。
-   * 调用线索：clearInterval、i、new Promise、setInterval、t.getEntity等。
-   */
-  async terrainIsReady(t) {
-    let e = null;
-    return new Promise(i => {
-      const s = setInterval(() => {
-        t.isEnabled() && t.getEntity().isEnabled() || (clearInterval(s), i(true));
-        null === e && null !== t._loadedPromise && (e = t.getTilesLoadedPromise().then(() => {
-          clearInterval(s);
-          i(true);
+  async terrainIsReady(component) {
+    let tilesPromise = null;
+    return new Promise(resolveReady => {
+      const readinessPoll = setInterval(() => {
+        component.isEnabled() && component.getEntity().isEnabled() || (clearInterval(readinessPoll), resolveReady(true));
+        null === tilesPromise && null !== component._loadedPromise && (tilesPromise = component.getTilesLoadedPromise().then(() => {
+          clearInterval(readinessPoll);
+          resolveReady(true);
         }));
       }, 30);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void` 或 `new Promise(e=>{const i=setInterval(()=>{t.isEnabled()&&t.getEntity().isEnabled()||(clearInterval(i),e(true));"loaded"===t.getLoadState().state&&(clea`；调用 `clearInterval`、`e`、`new Promise`、`setInterval`、`t.getEntity`、`t.getEntity().isEnabled`。
-   * 调用线索：clearInterval、e、new Promise、setInterval、t.getEntity等。
-   */
-  async componentIsReady(t) {
-    if (t.isEnabled() && "loaded" === t.getLoadState().state) return;
-    return new Promise(e => {
-      const i = setInterval(() => {
-        t.isEnabled() && t.getEntity().isEnabled() || (clearInterval(i), e(true));
-        "loaded" === t.getLoadState().state && (clearInterval(i), e(true));
+  async componentIsReady(component) {
+    if (component.isEnabled() && "loaded" === component.getLoadState().state) return;
+    return new Promise(resolveReady => {
+      const readinessPoll = setInterval(() => {
+        component.isEnabled() && component.getEntity().isEnabled() || (clearInterval(readinessPoll), resolveReady(true));
+        "loaded" === component.getLoadState().state && (clearInterval(readinessPoll), resolveReady(true));
       }, 30);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._scene.getEntity`、`this._scene.getEntity("sun").getComponent`、`this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent,e).setEnabled`。
-   * 调用线索：this._scene.getEntity、this._scene.getEntity("sun").getComponent、this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent,e).setEnabled。
-   */
-  toggleStarfield(t) {
-    for (let e = 0; e < 7; e++) this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent, e).setEnabled(t);
+  toggleStarfield(enabled) {
+    for (let starfieldIndex = 0; starfieldIndex < 7; starfieldIndex++) this._scene.getEntity("sun").getComponent(Pioneer.StarfieldComponent, starfieldIndex).setEnabled(enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._scene.getEntity`、`this._scene.getEntity("sun").getComponent`、`this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled`。
-   * 调用线索：this._scene.getEntity、this._scene.getEntity("sun").getComponent、this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled。
-   */
-  toggleHeliosphere(t) {
-    this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled(t);
+  toggleHeliosphere(enabled) {
+    this._scene.getEntity("sun").getComponent(Pioneer.ModelComponent).setEnabled(enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `contentManager.getClassName`、`e.addComponent`、`e.getComponent`、`e.removeComponent`、`i.getLoadedPromise`、`i.getNames`。
-   * 调用线索：contentManager.getClassName、e.addComponent、e.getComponent、e.removeComponent、i.getLoadedPromise等。
-   */
-  async toggleConstellations(t) {
-    const e = this._scene.getEntity("sun");
-    if (null === e) return;
-    let i = e.getComponent(SolarSystemSceneExports.ConstellationsComponent);
-    if (t && null === i) {
-      i = e.addComponent(SolarSystemSceneExports.ConstellationsComponent);
-      i instanceof SolarSystemSceneExports.ConstellationsComponent && (i.setUrl("$STATIC_ASSETS_URL/stars/constellations.bin"), i.setColor(new Pioneer.Color(.35, .7, 1, .5)));
-      await i.getLoadedPromise();
+  async toggleConstellations(enabled) {
+    const sunEntity = this._scene.getEntity("sun");
+    if (null === sunEntity) return;
+    let constellationsComponent = sunEntity.getComponent(SolarSystemSceneExports.ConstellationsComponent);
+    if (enabled && null === constellationsComponent) {
+      constellationsComponent = sunEntity.addComponent(SolarSystemSceneExports.ConstellationsComponent);
+      constellationsComponent instanceof SolarSystemSceneExports.ConstellationsComponent && (constellationsComponent.setUrl("$STATIC_ASSETS_URL/stars/constellations.bin"), constellationsComponent.setColor(new Pioneer.Color(.35, .7, 1, .5)));
+      await constellationsComponent.getLoadedPromise();
       const labelManager = this.app.getManager("label");
       const contentManager = this.app.getManager("content");
       const color = new Pioneer.Color(.35, .7, 1, 1);
-      const a = this.get("main").getEntity("camera").getComponent(Pioneer.CameraComponent);
-      i.getNames().forEach(e => {
-        const r = `constellation_label_${e}`;
-        const l = this._scene.getEntity(r);
-        const c = labelManager.getDefaultWeight(r);
-        labelManager.addLabel(l, c);
+      const cameraComponent = this.get("main").getEntity("camera").getComponent(Pioneer.CameraComponent);
+      constellationsComponent.getNames().forEach(constellationName => {
+        const labelId = `constellation_label_${constellationName}`;
+        const labelEntity = this._scene.getEntity(labelId);
+        const labelWeight = labelManager.getDefaultWeight(labelId);
+        labelManager.addLabel(labelEntity, labelWeight);
         labelManager.setLabelProps({
-          getLabelClass: t => `no-select ${contentManager.getClassName(t, "constellation") ?? "constellation"}`,
+          getLabelClass: entityId => `no-select ${contentManager.getClassName(entityId, "constellation") ?? "constellation"}`,
           handleTouch: null,
-          handleMouseEnter: t => {
-            i.setHighlight(i.getNearestConstellationIndex(new Pioneer.Vector2(t.x, t.y), a), color, 2.5);
+          handleMouseEnter: event => {
+            constellationsComponent.setHighlight(constellationsComponent.getNearestConstellationIndex(new Pioneer.Vector2(event.x, event.y), cameraComponent), color, 2.5);
           },
           handleMouseLeave: () => {
-            i.setHighlight(void 0, color, 2.5);
+            constellationsComponent.setHighlight(void 0, color, 2.5);
           },
           handleClick: null
-        }, [r]);
+        }, [labelId]);
       });
-    } else if (!t && null !== i) {
+    } else if (!enabled && null !== constellationsComponent) {
       const labelManager = this.app.getManager("label");
-      i.getNames().forEach(e => {
-        const i = `constellation_label_${e}`;
-        const s = this._scene.getEntity(i);
-        labelManager.removeLabel(s);
+      constellationsComponent.getNames().forEach(constellationName => {
+        const labelId = `constellation_label_${constellationName}`;
+        const labelEntity = this._scene.getEntity(labelId);
+        labelManager.removeLabel(labelEntity);
       });
-      e.removeComponent(i);
+      sunEntity.removeComponent(constellationsComponent);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._isHD`。
-   */
   isHD() {
     return this._isHD;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `false` 或 `true`；调用 `Object.prototype.hasOwnProperty.call`、`e.getComponent`、`e.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes`、`e.getParent`、`e.getParent().getName`、`this._scene.getEntity`。
-   * 调用线索：Object.prototype.hasOwnProperty.call、e.getComponent、e.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes、e.getParent、e.getParent().getName等。
-   */
-  hasHD(t) {
-    const e = this._scene.getEntity(t);
-    if (null === e) return false;
-    if (Object.prototype.hasOwnProperty.call(this._hdWMTSMap, t)) return true;
-    if (null !== e.getParent() && Object.prototype.hasOwnProperty.call(this._hdWMTSMap, e.getParent().getName())) return true;
-    if (null !== e.getComponent(Pioneer.SpheroidLODComponent)) {
-      const t = e.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes("color");
-      for (let e = 0; e < t.length; e++) if (t[e] > this._hdBreakpointSize) return true;
+  hasHD(entityId) {
+    const entity = this._scene.getEntity(entityId);
+    if (null === entity) return false;
+    if (Object.prototype.hasOwnProperty.call(this._hdWMTSMap, entityId)) return true;
+    if (null !== entity.getParent() && Object.prototype.hasOwnProperty.call(this._hdWMTSMap, entity.getParent().getName())) return true;
+    if (null !== entity.getComponent(Pioneer.SpheroidLODComponent)) {
+      const textureSizes = entity.getComponent(Pioneer.SpheroidLODComponent).getTextureSizes("color");
+      for (let textureIndex = 0; textureIndex < textureSizes.length; textureIndex++) if (textureSizes[textureIndex] > this._hdBreakpointSize) return true;
     }
     return false;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_hdBreakpointSize`、`_maxTextureSize`。
-   * 状态写入：_hdBreakpointSize、_maxTextureSize。
-   */
   setHDBreakpoints(hdBreakpointSize, maxTextureSize) {
     this._hdBreakpointSize = hdBreakpointSize;
     this._maxTextureSize = maxTextureSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isHD`；调用 `EyesPublicApi.AppUtils.isMobileMode`、`i.getComponent`、`n.setEnabled`、`n.setMaxLevel`、`s.setEnabled`、`this._scene.getEntity`。
-   * 状态写入：_isHD。
-   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、i.getComponent、n.setEnabled、n.setMaxLevel、s.setEnabled等。
-   */
   async toggleHD() {
     this._isHD = !this._isHD;
     this._isHD || this.pioneer.getConfig().setValue("maxTextureSize", this._hdBreakpointSize);
-    for (const t in this._hdWMTSMap) {
-      const e = this._hdWMTSMap[t];
-      const i = this._scene.getEntity(t);
-      const s = i.getComponent(Pioneer.SpheroidLODComponent);
-      const n = i.getComponent(SolarSystemSceneExports.WMTSComponent, e);
-      if (EyesPublicApi.AppUtils.isMobileMode() && n.setMaxLevel(5), n.setEnabled(this._isHD), this._isHD) {
-        this.addLoading(t, "wmts");
+    for (const entityId in this._hdWMTSMap) {
+      const wmtsName = this._hdWMTSMap[entityId];
+      const entity = this._scene.getEntity(entityId);
+      const lodComponent = entity.getComponent(Pioneer.SpheroidLODComponent);
+      const wmtsComponent = entity.getComponent(SolarSystemSceneExports.WMTSComponent, wmtsName);
+      if (EyesPublicApi.AppUtils.isMobileMode() && wmtsComponent.setMaxLevel(5), wmtsComponent.setEnabled(this._isHD), this._isHD) {
+        this.addLoading(entityId, "wmts");
         await this.pioneer.waitUntilNextFrame();
-        true === (await this.tileIsReady(n).catch(() => {
-          this.removeLoading(t, "wmts");
-        })) && (s.setEnabled(false), this.removeLoading(t, "wmts"));
-      } else s.setEnabled(true);
+        true === (await this.tileIsReady(wmtsComponent).catch(() => {
+          this.removeLoading(entityId, "wmts");
+        })) && (lodComponent.setEnabled(false), this.removeLoading(entityId, "wmts"));
+      } else lodComponent.setEnabled(true);
       this._isHD && this.pioneer.getConfig().setValue("maxTextureSize", this._maxTextureSize);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_hdToggleEntity`；返回 `void(hdToggleEntity=this.app.getView("event")._eventInfo?.target)` 或 `void(hdToggleEntity=t)`；调用 `contentManager.getEntityInfo`、`this.app.getManager`、`this.app.getView`、`this.findClosestSpaceObjectTo`、`this.getParent`、`this.hasHD`。
-   * 状态写入：_hdToggleEntity。
-   * 调用线索：contentManager.getEntityInfo、this.app.getManager、this.app.getView、this.findClosestSpaceObjectTo、this.getParent等。
-   */
-  async updateHDTarget(t, e) {
+  async updateHDTarget(entityInfo, entityId) {
     const contentManager = this.app.getManager("content");
-    const s = this.app.getManager("router").currentView;
-    let hdToggleEntity = e;
-    if (this._hdToggleEntity = null, "Planet" === t.category || "Moon" === t.category || "Dwarf Planet" === t.category || "Star" === t.category) hdToggleEntity = e;else {
-      const t = this.getParent(e);
-      if ("event" === s) return void (hdToggleEntity = this.app.getView("event")._eventInfo?.target);
-      const o = await this.findClosestSpaceObjectTo(e);
-      if (null !== t) {
-        const e = contentManager.getEntityInfo(t);
-        if ("Planet" === e.category || "Moon" === e.category) return void (hdToggleEntity = t);
-        if ("Landing site" === e.category) {
-          return void (hdToggleEntity = this.getParent(t));
+    const currentView = this.app.getManager("router").currentView;
+    let hdToggleEntity = entityId;
+    if (this._hdToggleEntity = null, "Planet" === entityInfo.category || "Moon" === entityInfo.category || "Dwarf Planet" === entityInfo.category || "Star" === entityInfo.category) hdToggleEntity = entityId;else {
+      const parentId = this.getParent(entityId);
+      if ("event" === currentView) return void (hdToggleEntity = this.app.getView("event")._eventInfo?.target);
+      const closestSpaceObjectId = await this.findClosestSpaceObjectTo(entityId);
+      if (null !== parentId) {
+        const parentInfo = contentManager.getEntityInfo(parentId);
+        if ("Planet" === parentInfo.category || "Moon" === parentInfo.category) return void (hdToggleEntity = parentId);
+        if ("Landing site" === parentInfo.category) {
+          return void (hdToggleEntity = this.getParent(parentId));
         }
-        if (o) return t === o ? void (hdToggleEntity = t) : void (hdToggleEntity = o);
+        if (closestSpaceObjectId) return parentId === closestSpaceObjectId ? void (hdToggleEntity = parentId) : void (hdToggleEntity = closestSpaceObjectId);
       }
     }
     null !== hdToggleEntity && this.hasHD(hdToggleEntity) ? this._hdToggleEntity = hdToggleEntity : this._hdToggleEntity = null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e.waitTillEntitiesInPlace(s,this.app.pioneer.getTime(),3).then(async()=>{let i="";let s=e.getEntity(n[0])?.getDistanceTo(e.getEntity(t),false);n.forEa`；调用 `Array.from`、`SolarSystemSceneExports.SceneHelpers.getDependentEntities`、`console.warn`、`e.getEntity`、`e.getEntity(n).getDistanceTo`、`e.waitTillEntitiesInPlace`。
-   * 调用线索：Array.from、SolarSystemSceneExports.SceneHelpers.getDependentEntities、console.warn、e.getEntity、e.getEntity(n).getDistanceTo等。
-   */
-  async findClosestSpaceObjectTo(t) {
-    const e = this.get("main");
-    const i = SolarSystemSceneExports.SceneHelpers.getDependentEntities(t);
-    const s = Array.from(i);
-    const n = s.filter(t => this.hasHD(t));
-    return e.waitTillEntitiesInPlace(s, this.app.pioneer.getTime(), 3).then(async () => {
-      let i = "";
-      let s = e.getEntity(n[0])?.getDistanceTo(e.getEntity(t), false);
-      n.forEach(n => {
-        const o = e.getEntity(n).getDistanceTo(e.getEntity(t), false);
-        o < s && (s = o, i = n);
+  async findClosestSpaceObjectTo(entityId) {
+    const scene = this.get("main");
+    const dependencies = SolarSystemSceneExports.SceneHelpers.getDependentEntities(entityId);
+    const dependencyIds = Array.from(dependencies);
+    const hdDependencyIds = dependencyIds.filter(dependencyId => this.hasHD(dependencyId));
+    return scene.waitTillEntitiesInPlace(dependencyIds, this.app.pioneer.getTime(), 3).then(async () => {
+      let closestEntityId = "";
+      let closestDistance = scene.getEntity(hdDependencyIds[0])?.getDistanceTo(scene.getEntity(entityId), false);
+      hdDependencyIds.forEach(candidateId => {
+        const candidateDistance = scene.getEntity(candidateId).getDistanceTo(scene.getEntity(entityId), false);
+        candidateDistance < closestDistance && (closestDistance = candidateDistance, closestEntityId = candidateId);
       });
-      return i;
-    }).catch(t => {
-      console.warn(t);
+      return closestEntityId;
+    }).catch(readinessError => {
+      console.warn(readinessError);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `s.forceTextureSize`、`this.app.pioneer.getScene`、`this.app.pioneer.getScene("main").getEntity`、`this.app.pioneer.getScene("main").getEntity(t).getComponent`。
-   * 调用线索：s.forceTextureSize、this.app.pioneer.getScene、this.app.pioneer.getScene("main").getEntity、this.app.pioneer.getScene("main").getEntity(t).getComponent。
-   */
-  async forceTextureSizeForEntity(t, e, i = "color") {
-    const s = this.app.pioneer.getScene("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
-    null != s && s.forceTextureSize(i, e);
+  async forceTextureSizeForEntity(entityId, textureSize, textureRole = "color") {
+    const lodComponent = this.app.pioneer.getScene("main").getEntity(entityId).getComponent(Pioneer.SpheroidLODComponent);
+    null != lodComponent && lodComponent.forceTextureSize(textureRole, textureSize);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `!(null==e||!e.isEnabled())&&(await e.getTexturesLoadedPromise(3).catch(()=>false),e.getTextureCurrentSize("color",0)>this._hdBreakpointSize)`；调用 `e.getTextureCurrentSize`、`e.getTexturesLoadedPromise`、`e.getTexturesLoadedPromise(3).catch`、`e.isEnabled`、`this.app.pioneer.getScene`、`this.app.pioneer.getScene("main").getEntity`。
-   * 调用线索：e.getTextureCurrentSize、e.getTexturesLoadedPromise、e.getTexturesLoadedPromise(3).catch、e.isEnabled、this.app.pioneer.getScene等。
-   */
-  async isEntityHD(t) {
-    const e = this.app.pioneer.getScene("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
-    return !(null == e || !e.isEnabled()) && (await e.getTexturesLoadedPromise(3).catch(() => false), e.getTextureCurrentSize("color", 0) > this._hdBreakpointSize);
+  async isEntityHD(entityId) {
+    const lodComponent = this.app.pioneer.getScene("main").getEntity(entityId).getComponent(Pioneer.SpheroidLODComponent);
+    return !(null == lodComponent || !lodComponent.isEnabled()) && (await lodComponent.getTexturesLoadedPromise(3).catch(() => false), lodComponent.getTextureCurrentSize("color", 0) > this._hdBreakpointSize);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isHD`；返回 `e` 或 `isHD`；调用 `EyesPublicApi.AppUtils.isiPhone`、`s.getTextureNames`、`s.getTextureNames().forEach`、`this.addLoading`、`this.app.getManager`、`this.app.getManager("content").getSpheroidDefaultTextureInformation`。
-   * 状态写入：_isHD。
-   * 调用线索：EyesPublicApi.AppUtils.isiPhone、s.getTextureNames、s.getTextureNames().forEach、s?.getTexturesLoadedPromise、s?.getTexturesLoadedPromise(3).catch等。
-   */
-  async toggleHDTextureForEntity(t, e = null) {
-    const i = await this.isEntityHD(t);
-    if (null !== e && i === e) return e;
-    const s = this.app.pioneer.getScene("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
-    const isHD = null !== e ? e : !i;
-    const r = isHD ? EyesPublicApi.AppUtils.isiPhone() ? this._mobileTextureSize : this._maxTextureSize : this._hdBreakpointSize;
-    this.addLoading(t, "spheroidLOD");
-    s.getTextureNames().forEach(e => {
-      this.forceTextureSizeForEntity(t, r, e);
+  async toggleHDTextureForEntity(entityId, requestedHD = null) {
+    const currentlyHD = await this.isEntityHD(entityId);
+    if (null !== requestedHD && currentlyHD === requestedHD) return requestedHD;
+    const lodComponent = this.app.pioneer.getScene("main").getEntity(entityId).getComponent(Pioneer.SpheroidLODComponent);
+    const isHD = null !== requestedHD ? requestedHD : !currentlyHD;
+    const textureSize = isHD ? EyesPublicApi.AppUtils.isiPhone() ? this._mobileTextureSize : this._maxTextureSize : this._hdBreakpointSize;
+    this.addLoading(entityId, "spheroidLOD");
+    lodComponent.getTextureNames().forEach(textureRole => {
+      this.forceTextureSizeForEntity(entityId, textureSize, textureRole);
     });
-    await s?.getTexturesLoadedPromise(3).catch(async () => {
-      const e = this.app.getManager("content").getSpheroidDefaultTextureInformation(t);
-      this.app.getManager("layer").changeSpheroidMap(t, e);
+    await lodComponent?.getTexturesLoadedPromise(3).catch(async () => {
+      const defaultTextureInfo = this.app.getManager("content").getSpheroidDefaultTextureInformation(entityId);
+      this.app.getManager("layer").changeSpheroidMap(entityId, defaultTextureInfo);
       this._isHD = false;
       return false;
     });
-    this.removeLoading(t, "spheroidLOD");
+    this.removeLoading(entityId, "spheroidLOD");
     this._isHD = isHD;
     return isHD;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `_.setColor`、`_.setLineWidth`、`_.setNumCircles`、`_.setNumSpokes`、`_.setSize`、`g.getDiv`。
-   * 调用线索：_.setColor、_.setLineWidth、_.setNumCircles、_.setNumSpokes、_.setSize等。
-   */
-  createRing(t, e, i, {
+  createRing(ringId, radius, parentId, {
     orbitPlaneEntityName: orbitPlaneEntityName,
     color: color,
-    numCircles: a = 1,
-    numSpokes: l = 0,
-    labelPosition: c = new Pioneer.Vector3(-e, 0, 0),
-    labelText: h = "",
-    isEnable: d = true
+    numCircles: circleCount = 1,
+    numSpokes: spokeCount = 0,
+    labelPosition = new Pioneer.Vector3(-radius, 0, 0),
+    labelText = "",
+    isEnable: enabled = true
   } = {}) {
-    const u = this._scene.addEntity(t);
-    u.setPosition(Pioneer.Vector3.Zero);
-    const p = this._scene.getEntity(i);
-    u.setParent(p);
-    const _ = u.addComponent(SolarSystemSceneExports.DiscGridComponent);
-    _.setLineWidth(6);
-    _.setSize(e);
-    _.setNumCircles(a);
-    _.setNumSpokes(l);
-    orbitPlaneEntityName && this.setAlignPlane(u, orbitPlaneEntityName);
-    color instanceof Pioneer.Color && _.setColor(color);
-    const m = this._scene.addEntity(`${t}Label`);
-    m.setPosition(Pioneer.Vector3.Zero);
-    m.setParent(p);
-    m.addController(Pioneer.FixedController).setPosition(c);
-    const g = m.addComponent(Pioneer.DivComponent);
-    g.getDiv().classList.add("ring-label");
-    g.getDiv().innerHTML = h;
-    u.setEnabled(d);
-    m.setEnabled(d);
+    const ringEntity = this._scene.addEntity(ringId);
+    ringEntity.setPosition(Pioneer.Vector3.Zero);
+    const parentEntity = this._scene.getEntity(parentId);
+    ringEntity.setParent(parentEntity);
+    const discGridComponent = ringEntity.addComponent(SolarSystemSceneExports.DiscGridComponent);
+    discGridComponent.setLineWidth(6);
+    discGridComponent.setSize(radius);
+    discGridComponent.setNumCircles(circleCount);
+    discGridComponent.setNumSpokes(spokeCount);
+    orbitPlaneEntityName && this.setAlignPlane(ringEntity, orbitPlaneEntityName);
+    color instanceof Pioneer.Color && discGridComponent.setColor(color);
+    const labelEntity = this._scene.addEntity(`${ringId}Label`);
+    labelEntity.setPosition(Pioneer.Vector3.Zero);
+    labelEntity.setParent(parentEntity);
+    labelEntity.addController(Pioneer.FixedController).setPosition(labelPosition);
+    const divComponent = labelEntity.addComponent(Pioneer.DivComponent);
+    divComponent.getDiv().classList.add("ring-label");
+    divComponent.getDiv().innerHTML = labelText;
+    ringEntity.setEnabled(enabled);
+    labelEntity.setEnabled(enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `_.setColor`、`_.setInnerRadius`、`_.setOuterRadius`、`_.setVisibleInterval`、`g.getDiv`、`g.getDiv().classList.add`。
-   * 调用线索：_.setColor、_.setInnerRadius、_.setOuterRadius、_.setVisibleInterval、g.getDiv等。
-   */
-  createTorus(t, e, i, s, {
+  createTorus(torusId, innerRadius, outerRadius, parentId, {
     orbitPlaneEntityName: orbitPlaneEntityName,
     color: color,
-    visibleDistance: l = [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY],
-    labelPosition: c = new Pioneer.Vector3(-i, 0, 0),
-    labelText: h = "",
-    isEnable: d = true
+    visibleDistance = [Number.NEGATIVE_INFINITY, Number.POSITIVE_INFINITY],
+    labelPosition = new Pioneer.Vector3(-outerRadius, 0, 0),
+    labelText = "",
+    isEnable: enabled = true
   } = {}) {
-    const u = this._scene.addEntity(t);
-    u.setPosition(Pioneer.Vector3.Zero);
-    const p = this._scene.getEntity(s);
-    u.setParent(p);
-    const _ = u.addComponent(SolarSystemSceneExports.TorusComponent);
-    _.setInnerRadius(e);
-    _.setOuterRadius(i);
-    _.setVisibleInterval(new Pioneer.VisibleInterval(...l));
-    orbitPlaneEntityName && this.setAlignPlane(u, orbitPlaneEntityName);
-    color instanceof Pioneer.Color && _.setColor(color);
-    const m = this._scene.addEntity(`${t}Label`);
-    m.setPosition(Pioneer.Vector3.Zero);
-    m.setParent(p);
-    m.addController(Pioneer.FixedController).setPosition(c);
-    const g = m.addComponent(Pioneer.DivComponent);
-    g.getDiv().classList.add("ring-label");
-    g.getDiv().innerHTML = h;
-    u.setEnabled(d);
-    m.setEnabled(d);
+    const torusEntity = this._scene.addEntity(torusId);
+    torusEntity.setPosition(Pioneer.Vector3.Zero);
+    const parentEntity = this._scene.getEntity(parentId);
+    torusEntity.setParent(parentEntity);
+    const torusComponent = torusEntity.addComponent(SolarSystemSceneExports.TorusComponent);
+    torusComponent.setInnerRadius(innerRadius);
+    torusComponent.setOuterRadius(outerRadius);
+    torusComponent.setVisibleInterval(new Pioneer.VisibleInterval(...visibleDistance));
+    orbitPlaneEntityName && this.setAlignPlane(torusEntity, orbitPlaneEntityName);
+    color instanceof Pioneer.Color && torusComponent.setColor(color);
+    const labelEntity = this._scene.addEntity(`${torusId}Label`);
+    labelEntity.setPosition(Pioneer.Vector3.Zero);
+    labelEntity.setParent(parentEntity);
+    labelEntity.addController(Pioneer.FixedController).setPosition(labelPosition);
+    const divComponent = labelEntity.addComponent(Pioneer.DivComponent);
+    divComponent.getDiv().classList.add("ring-label");
+    divComponent.getDiv().innerHTML = labelText;
+    torusEntity.setEnabled(enabled);
+    labelEntity.setEnabled(enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_hdWMTSMap[t]`。
-   * 状态写入：_hdWMTSMap[t]。
-   */
-  setEntityHDWMTS(t, e) {
-    this._hdWMTSMap[t] = e;
+  setEntityHDWMTS(entityId, wmtsName) {
+    this._hdWMTSMap[entityId] = wmtsName;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `EyesPublicApi.AppUtils.isMobileMode`、`e.setEnabled`、`e.setMaxLevel`、`i.setEnabled`、`this.addLoading`、`this.get`。
-   * 调用线索：EyesPublicApi.AppUtils.isMobileMode、e.setEnabled、e.setMaxLevel、i.setEnabled、this.addLoading等。
-   */
-  async enableWMTSComponent(t, e) {
-    EyesPublicApi.AppUtils.isMobileMode() && e.setMaxLevel(5);
-    const i = this.get("main").getEntity(t).getComponent(Pioneer.SpheroidLODComponent);
-    this.addLoading(t, "wmts");
-    e.setEnabled(true);
+  async enableWMTSComponent(entityId, wmtsComponent) {
+    EyesPublicApi.AppUtils.isMobileMode() && wmtsComponent.setMaxLevel(5);
+    const lodComponent = this.get("main").getEntity(entityId).getComponent(Pioneer.SpheroidLODComponent);
+    this.addLoading(entityId, "wmts");
+    wmtsComponent.setEnabled(true);
     await this.pioneer.waitUntilNextFrame();
-    (await this.tileIsReady(e).catch(() => {
-      this.removeLoading(t, "wmts");
-    })) ? (i.setEnabled(false), this.removeLoading(t, "wmts")) : i.setEnabled(true);
+    (await this.tileIsReady(wmtsComponent).catch(() => {
+      this.removeLoading(entityId, "wmts");
+    })) ? (lodComponent.setEnabled(false), this.removeLoading(entityId, "wmts")) : lodComponent.setEnabled(true);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this.addLoading`、`this.app.getManager`、`this.enableWMTSComponent`、`this.removeLoading`、`this.showWMTSError`、`wmtsManager.initWMTS`。
-   * 调用线索：this.addLoading、this.app.getManager、this.enableWMTSComponent、this.removeLoading、this.showWMTSError等。
-   */
-  async addWMTSComponent(t, e) {
-    this.addLoading(t, "wmts");
+  async addWMTSComponent(entityId, options) {
+    this.addLoading(entityId, "wmts");
     const wmtsManager = this.app.getManager("wmts");
-    const s = await wmtsManager.initWMTS(t, e);
-    s ? (this.removeLoading(t, "wmts"), await this.enableWMTSComponent(t, s)) : await this.showWMTSError(t);
+    const wmtsComponent = await wmtsManager.initWMTS(entityId, options);
+    wmtsComponent ? (this.removeLoading(entityId, "wmts"), await this.enableWMTSComponent(entityId, wmtsComponent)) : await this.showWMTSError(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this.app.getComponent`、`this.hasHD`、`this.isHD`、`this.removeLoading`、`this.toggleHDTextureForEntity`、`toastComponent.setContent`。
-   * 调用线索：this.app.getComponent、this.hasHD、this.isHD、this.removeLoading、this.toggleHDTextureForEntity等。
-   */
-  async showWMTSError(t) {
-    this.removeLoading(t, "wmts");
+  async showWMTSError(entityId) {
+    this.removeLoading(entityId, "wmts");
     const toastComponent = this.app.getComponent("toast");
-    const i = "WMTS Data could not be loaded. Switching to " + (this.hasHD(t) ? "HD" : "standard") + " map.";
+    const errorMessage = "WMTS Data could not be loaded. Switching to " + (this.hasHD(entityId) ? "HD" : "standard") + " map.";
     toastComponent.setError(true);
-    toastComponent.setContent(i);
+    toastComponent.setContent(errorMessage);
     toastComponent.show();
-    this.hasHD(t) && !this.isHD() && (await this.toggleHDTextureForEntity(t));
+    this.hasHD(entityId) && !this.isHD() && (await this.toggleHDTextureForEntity(entityId));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_hdWMTSMap[e]`；调用 `String`、`String(date.getDate()).padStart`、`String(date.getMonth()+1).padStart`、`date.getDate`、`date.getFullYear`、`date.getMonth`。
-   * 状态写入：_hdWMTSMap[e]。
-   * 调用线索：String、String(date.getDate()).padStart、String(date.getMonth()+1).padStart、date.getDate、date.getFullYear等。
-   */
-  loadWMTSFromJSON(t) {
-    for (const e in t) {
-      let i = "";
-      for (const s in t[e]) if ("hd" === s || "" === i) {
-        i = t[e][s];
-        this._hdWMTSMap[e] = i;
+  loadWMTSFromJSON(wmtsDefinitions) {
+    for (const entityId in wmtsDefinitions) {
+      let hdDefinition = "";
+      for (const mapName in wmtsDefinitions[entityId]) if ("hd" === mapName || "" === hdDefinition) {
+        hdDefinition = wmtsDefinitions[entityId][mapName];
+        this._hdWMTSMap[entityId] = hdDefinition;
       } else {
-        const i = t[e][s];
-        const n = this._scene.getEntity(e).addComponent(SolarSystemSceneExports.WMTSComponent, s);
-        n.setEnabled(false);
-        n.setEndPoint(i.endPoint);
-        n.setLayer(i.layer);
-        i.tile && n.setTileMatrixSet(i.tile);
+        const mapDefinition = wmtsDefinitions[entityId][mapName];
+        const wmtsComponent = this._scene.getEntity(entityId).addComponent(SolarSystemSceneExports.WMTSComponent, mapName);
+        wmtsComponent.setEnabled(false);
+        wmtsComponent.setEndPoint(mapDefinition.endPoint);
+        wmtsComponent.setLayer(mapDefinition.layer);
+        mapDefinition.tile && wmtsComponent.setTileMatrixSet(mapDefinition.tile);
         const date = new Date();
-        "yesterday" === i.time ? (date.setDate(date.getDate() - 1), n.setDimensionValue("Time", date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0"))) : "now" === i.time && n.setDimensionValue("Time", date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0"));
-        i.level ? n.setMaxLevel(i.level) : n.setMaxLevel(1 / 0);
+        "yesterday" === mapDefinition.time ? (date.setDate(date.getDate() - 1), wmtsComponent.setDimensionValue("Time", date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0"))) : "now" === mapDefinition.time && wmtsComponent.setDimensionValue("Time", date.getFullYear() + "-" + String(date.getMonth() + 1).padStart(2, "0") + "-" + String(date.getDate()).padStart(2, "0"));
+        mapDefinition.level ? wmtsComponent.setMaxLevel(mapDefinition.level) : wmtsComponent.setMaxLevel(1 / 0);
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.getController`、`i.getController(Pioneer.DynamoController).getOrbitOrientation`、`new Pioneer.Quaternion`、`t.setOrientation`、`this._scene.getEntity`、`this.app.pioneer.getTime`。
-   * 调用线索：i.getController、i.getController(Pioneer.DynamoController).getOrbitOrientation、new Pioneer.Quaternion、t.setOrientation、this._scene.getEntity等。
-   */
-  setAlignPlane(t, e) {
-    const i = this._scene.getEntity(e);
+  setAlignPlane(entity, orbitPlaneEntityId) {
+    const orbitPlaneEntity = this._scene.getEntity(orbitPlaneEntityId);
     const quaternion = new Pioneer.Quaternion();
-    i.getController(Pioneer.DynamoController).getOrbitOrientation(quaternion, this.app.pioneer.getTime());
-    t.setOrientation(quaternion);
+    orbitPlaneEntity.getController(Pioneer.DynamoController).getOrbitOrientation(quaternion, this.app.pioneer.getTime());
+    entity.setOrientation(quaternion);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_tempEntities`；返回 `void`；调用 `t.getName`、`t.getParent`、`t.getParent().getName`、`this._scene.removeEntity`、`this._tempEntities.filter`、`this.app.getManager`。
-   * 状态写入：_tempEntities。
-   * 调用线索：t.getName、t.getParent、t.getParent().getName、t?.getName、this._scene.removeEntity等。
-   */
   clearTempEntities() {
-    const t = this.app.getManager("camera").cameraEntity;
-    if (null === t || null === t.getParent()) return;
-    const e = t.getParent().getName();
-    this._tempEntities = this._tempEntities.filter(t => {
-      if (e === t.getName()) return true;
-      this.app.getManager("label").removeLabel(t);
-      this._scene.removeEntity(t?.getName());
+    const cameraEntity = this.app.getManager("camera").cameraEntity;
+    if (null === cameraEntity || null === cameraEntity.getParent()) return;
+    const cameraParentId = cameraEntity.getParent().getName();
+    this._tempEntities = this._tempEntities.filter(temporaryEntity => {
+      if (cameraParentId === temporaryEntity.getName()) return true;
+      this.app.getManager("label").removeLabel(temporaryEntity);
+      this._scene.removeEntity(temporaryEntity?.getName());
       return false;
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._tempEntities.push`。
-   * 调用线索：this._tempEntities.push。
-   */
-  addTempEntity(t) {
-    this._tempEntities.push(t);
+  addTempEntity(entity) {
+    this._tempEntities.push(entity);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isLoading`；调用 `this._loadingItems.indexOf`、`this._loadingItems.push`、`this.triggerCallbacks`。
-   * 状态写入：_isLoading。
-   * 调用线索：this._loadingItems.indexOf、this._loadingItems.push、this.triggerCallbacks。
-   */
-  addLoading(t, e) {
-    const i = t + "_" + e;
-    this._loadingItems.indexOf(i) < 0 && this._loadingItems.push(i);
+  addLoading(entityId, loadingKind) {
+    const loadingKey = entityId + "_" + loadingKind;
+    this._loadingItems.indexOf(loadingKey) < 0 && this._loadingItems.push(loadingKey);
     this._loadingItems.length > 0 && (this._isLoading = true, this.triggerCallbacks("loading"));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isLoading`；调用 `this._loadingItems.indexOf`、`this._loadingItems.splice`、`this._loadingItems[t].includes`、`this.triggerCallbacks`。
-   * 状态写入：_isLoading。
-   * 调用线索：this._loadingItems.indexOf、this._loadingItems.splice、this._loadingItems[t].includes、this.triggerCallbacks。
-   */
-  removeLoading(t, e) {
-    if ("*" === t) for (let t = 0; t < this._loadingItems.length; t++) this._loadingItems[t].includes(e) && this._loadingItems.splice(t, 1);else {
-      const i = t + "_" + e;
-      const s = this._loadingItems.indexOf(i);
-      s >= 0 && this._loadingItems.splice(s, 1);
+  removeLoading(entityId, loadingKind) {
+    if ("*" === entityId) for (let loadingIndex = 0; loadingIndex < this._loadingItems.length; loadingIndex++) this._loadingItems[loadingIndex].includes(loadingKind) && this._loadingItems.splice(loadingIndex, 1);else {
+      const loadingKey = entityId + "_" + loadingKind;
+      const loadingIndex = this._loadingItems.indexOf(loadingKey);
+      loadingIndex >= 0 && this._loadingItems.splice(loadingIndex, 1);
     }
-    0 === this._loadingItems.length && (this._isLoading = false, this.triggerCallbacks("loaded", [t]));
+    0 === this._loadingItems.length && (this._isLoading = false, this.triggerCallbacks("loaded", [entityId]));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.setForceLoaded`、`this._loadedComponents.push`。
-   * 调用线索：t.setForceLoaded、this._loadedComponents.push。
-   */
-  forceLoad(t) {
-    t.setForceLoaded(true);
-    this._loadedComponents.push(t);
+  forceLoad(component) {
+    component.setForceLoaded(true);
+    this._loadedComponents.push(component);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_loadedComponents`；调用 `t.setForceLoaded`、`this._loadedComponents.filter`。
-   * 状态写入：_loadedComponents。
-   * 调用线索：t.setForceLoaded、this._loadedComponents.filter。
-   */
-  removeForceLoad(t) {
-    this._loadedComponents = this._loadedComponents.filter(e => e !== t || (t.setForceLoaded(false), false));
+  removeForceLoad(component) {
+    this._loadedComponents = this._loadedComponents.filter(loadedComponent => loadedComponent !== component || (component.setForceLoaded(false), false));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_loadedComponents`；调用 `this._loadedComponents[t].setForceLoaded`。
-   * 状态写入：_loadedComponents。
-   * 调用线索：this._loadedComponents[t].setForceLoaded。
-   */
   clearForceLoad() {
-    for (let t = 0; t < this._loadedComponents.length; t++) {
-      this._loadedComponents[t].setForceLoaded(false);
+    for (let componentIndex = 0; componentIndex < this._loadedComponents.length; componentIndex++) {
+      this._loadedComponents[componentIndex].setForceLoaded(false);
     }
     this._loadedComponents = [];
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `c`；调用 `Math.floor`、`Math.log10`、`Math.pow`、`Math.round`、`Pioneer.TimeUtils.unixToEt`、`Pioneer.Vector3.pool.get`。
-   * 调用线索：Math.floor、Math.log10、Math.pow、Math.round、Pioneer.TimeUtils.unixToEt等。
-   */
-  getDistance(t, e, {
+  getDistance(entityId, relativeEntityId, {
     time: time,
-    subtractRadius: s = false,
-    precision: n = 0
+    subtractRadius = false,
+    precision = 0
   } = {}) {
-    const r = Pioneer.Vector3.pool.get();
-    const a = this._scene.getEntity(t);
-    const l = this._scene.getEntity(e);
-    let c = 0;
+    const relativePosition = Pioneer.Vector3.pool.get();
+    const entity = this._scene.getEntity(entityId);
+    const relativeEntity = this._scene.getEntity(relativeEntityId);
+    let distance = 0;
     if (void 0 !== time) {
-      const t = Pioneer.TimeUtils.unixToEt(time.valueOf() / 1e3);
-      a.getPositionRelativeToEntity(r, Pioneer.Vector3.Zero, l, t);
-    } else a.getPositionRelativeToEntity(r, Pioneer.Vector3.Zero, l);
-    if (c = r.magnitude(), s) {
-      c -= a.getExtentsRadius() + l.getExtentsRadius();
+      const ephemerisTime = Pioneer.TimeUtils.unixToEt(time.valueOf() / 1e3);
+      entity.getPositionRelativeToEntity(relativePosition, Pioneer.Vector3.Zero, relativeEntity, ephemerisTime);
+    } else entity.getPositionRelativeToEntity(relativePosition, Pioneer.Vector3.Zero, relativeEntity);
+    if (distance = relativePosition.magnitude(), subtractRadius) {
+      distance -= entity.getExtentsRadius() + relativeEntity.getExtentsRadius();
     }
-    if (n > 0) {
-      const t = Math.pow(10, Math.floor(Math.log10(c)) - n);
-      c = Math.round(c / t) * t;
+    if (precision > 0) {
+      const roundingStep = Math.pow(10, Math.floor(Math.log10(distance)) - precision);
+      distance = Math.round(distance / roundingStep) * roundingStep;
     }
-    Pioneer.Vector3.pool.release(r);
-    return c;
+    Pioneer.Vector3.pool.release(relativePosition);
+    return distance;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `s.magnitude()`；调用 `Pioneer.Vector3.pool.get`、`Pioneer.Vector3.pool.release`、`n.getParent`、`n.getVelocityRelativeToEntity`、`s.magnitude`、`this._scene.getEntity`。
-   * 调用线索：Pioneer.Vector3.pool.get、Pioneer.Vector3.pool.release、n.getParent、n.getVelocityRelativeToEntity、s.magnitude等。
-   */
-  getSpeed(t, e, {
+  getSpeed(entityId, relativeEntityId, {
     time: time
   } = {}) {
-    const s = Pioneer.Vector3.pool.get();
-    const n = this._scene.getEntity(t);
-    let r = null;
-    if (r = void 0 === e ? n.getParent() : this._scene.getEntity(e), void 0 !== time) {
-      const t = this.app.getManager("time").momentToET(time);
-      n.getVelocityRelativeToEntity(s, Pioneer.Vector3.Zero, r, t);
-    } else n.getVelocityRelativeToEntity(s, Pioneer.Vector3.Zero, r);
-    Pioneer.Vector3.pool.release(s);
-    return s.magnitude();
+    const relativeVelocity = Pioneer.Vector3.pool.get();
+    const entity = this._scene.getEntity(entityId);
+    let relativeEntity = null;
+    if (relativeEntity = void 0 === relativeEntityId ? entity.getParent() : this._scene.getEntity(relativeEntityId), void 0 !== time) {
+      const ephemerisTime = this.app.getManager("time").momentToET(time);
+      entity.getVelocityRelativeToEntity(relativeVelocity, Pioneer.Vector3.Zero, relativeEntity, ephemerisTime);
+    } else entity.getVelocityRelativeToEntity(relativeVelocity, Pioneer.Vector3.Zero, relativeEntity);
+    Pioneer.Vector3.pool.release(relativeVelocity);
+    return relativeVelocity.magnitude();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `i`；调用 `Math.ceil`、`Math.floor`、`Math.max`、`Math.min`、`Pioneer.TimeUtils.etToUnix`、`getFollowName`。
-   * 调用线索：Math.ceil、Math.floor、Math.max、Math.min、Pioneer.TimeUtils.etToUnix等。
-   */
-  getCoverage(t, e = true) {
-    const i = {
+  getCoverage(entityId, includeOrientation = true) {
+    const coverage = {
       min: EyesPublicApi.AppUtils.constants.maxDate,
       max: EyesPublicApi.AppUtils.constants.minDate
     };
-    const s = this.pioneer.getScene("main").getEntity(t);
-    let r = s.getPositionCoverage().min;
-    let l = s.getPositionCoverage().max;
-    if (e && (r = Math.max(s.getPositionCoverage().min, s.getOrientationCoverage().min), l = Math.min(s.getPositionCoverage().max, s.getOrientationCoverage().max)), i.min = s ? Math.min(r, i.min) : i.min, i.max = s ? Math.max(l - .001, i.max) : i.max, i.min === -1 / 0 || i.min < EyesPublicApi.AppUtils.minDate) i.min = getFollowName()(EyesPublicApi.AppUtils.constants.minDate);else {
-      i.min = Math.ceil(1e3 * i.min) / 1e3;
-      let t = 1e3 * Pioneer.TimeUtils.etToUnix(i.min);
-      t = Math.ceil(1e3 * t) / 1e3;
-      i.min = getFollowName().tz(t, "ETC/Utc");
+    const entity = this.pioneer.getScene("main").getEntity(entityId);
+    let coverageStart = entity.getPositionCoverage().min;
+    let coverageEnd = entity.getPositionCoverage().max;
+    if (includeOrientation && (coverageStart = Math.max(entity.getPositionCoverage().min, entity.getOrientationCoverage().min), coverageEnd = Math.min(entity.getPositionCoverage().max, entity.getOrientationCoverage().max)), coverage.min = entity ? Math.min(coverageStart, coverage.min) : coverage.min, coverage.max = entity ? Math.max(coverageEnd - .001, coverage.max) : coverage.max, coverage.min === -1 / 0 || coverage.min < EyesPublicApi.AppUtils.minDate) coverage.min = getFollowName()(EyesPublicApi.AppUtils.constants.minDate);else {
+      coverage.min = Math.ceil(1e3 * coverage.min) / 1e3;
+      let startUnixMilliseconds = 1e3 * Pioneer.TimeUtils.etToUnix(coverage.min);
+      startUnixMilliseconds = Math.ceil(1e3 * startUnixMilliseconds) / 1e3;
+      coverage.min = getFollowName().tz(startUnixMilliseconds, "ETC/Utc");
     }
-    if (i.max === 1 / 0 || i.max > EyesPublicApi.AppUtils.maxDate) i.max = getFollowName()(EyesPublicApi.AppUtils.constants.maxDate);else {
-      i.max = Math.floor(1e3 * i.max) / 1e3;
-      let t = 1e3 * Pioneer.TimeUtils.etToUnix(i.max);
-      t = Math.floor(1e3 * t) / 1e3;
-      i.max = getFollowName().tz(t, "ETC/Utc");
+    if (coverage.max === 1 / 0 || coverage.max > EyesPublicApi.AppUtils.maxDate) coverage.max = getFollowName()(EyesPublicApi.AppUtils.constants.maxDate);else {
+      coverage.max = Math.floor(1e3 * coverage.max) / 1e3;
+      let endUnixMilliseconds = 1e3 * Pioneer.TimeUtils.etToUnix(coverage.max);
+      endUnixMilliseconds = Math.floor(1e3 * endUnixMilliseconds) / 1e3;
+      coverage.max = getFollowName().tz(endUnixMilliseconds, "ETC/Utc");
     }
-    return i;
+    return coverage;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `console.log`。
-   * 调用线索：console.log。
-   */
-  async toggleRing(t) {
-    console.log("toggleRing", t);
+  async toggleRing(enabled) {
+    console.log("toggleRing", enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._scene`。
-   */
   get main() {
     return this._scene;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._isLoading`。
-   */
   get isLoading() {
     return this._isLoading;
   }

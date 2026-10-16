@@ -1,74 +1,55 @@
-/** @eyes-analysis
- * 文件职责：对相机射线命中实体进行筛选并触发选择回调。
- * 依据：import ../pioneer/public-api.js；SelectController extends PioneerPublicApi.BaseController @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:521462-522775.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：对相机射线命中实体进行筛选并触发选择回调。
- * 继承：PioneerPublicApi.BaseController；导出：SelectController。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/** 先选命中标签矩形中距离相机最近的实体，再回退几何射线拾取；结果通过引擎回调队列交付。 */
 class SelectController extends PioneerPublicApi.BaseController {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_callback`；调用 `super`。
-   * 状态写入：_callback。
-   * 调用线索：super。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(controllerName, entity) {
+    super(controllerName, entity);
     this._callback = null;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._callback`。
-   */
   getCallback() {
     return this._callback;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_callback`。
-   * 状态写入：_callback。
-   */
   setCallback(callback) {
     this._callback = callback;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`a.set`、`e.getCamera`。
-   * 调用线索：PioneerPublicApi.Vector2.pool.get、PioneerPublicApi.Vector2.pool.release、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、a.set等。
-   */
   __update() {
-    const t = this.getEntity().getScene().getEngine().getInput();
-    if (t.isSelected() && null !== this._callback) {
-      const e = t.getActiveViewport();
-      if (null !== e) {
-        const i = e.getCamera();
-        if (null !== i && i.getEntity() === this.getEntity()) {
-          const n = PioneerPublicApi.Vector3.pool.get();
-          e.getNormalSpacePositionFromPixelSpacePosition(n, t.getSelectedPosition());
-          let o = null;
-          let r = 0;
-          const a = PioneerPublicApi.Vector2.pool.get();
-          a.set(n.x, n.y);
-          const l = this.getEntity().getScene().getNumEntities();
-          for (let t = 0; t < l; t++) {
-            const e = this.getEntity().getScene().getEntityAt(t);
-            if (e.isEnabled()) {
-              const t = e.getComponent(PioneerPublicApi.LabelComponent);
-              if (null !== t && "loaded" === t.getLoadState().state) {
-                const s = t.getNormalSpaceBounds(i);
-                if (void 0 !== s && s.contains(a)) {
-                  const t = e.getCameraSpacePosition(i).magnitude();
-                  (null === o || r > t) && (o = e, r = t);
+    const input = this.getEntity().getScene().getEngine().getInput();
+    if (input.isSelected() && null !== this._callback) {
+      const candidateEntity = input.getActiveViewport();
+      if (null !== candidateEntity) {
+        const activeCamera = candidateEntity.getCamera();
+        if (null !== activeCamera && activeCamera.getEntity() === this.getEntity()) {
+          const selectionDirection = PioneerPublicApi.Vector3.pool.get();
+          candidateEntity.getNormalSpacePositionFromPixelSpacePosition(selectionDirection, input.getSelectedPosition());
+          let selectedEntity = null;
+          let nearestLabelDistance = 0;
+          const selectionPoint = PioneerPublicApi.Vector2.pool.get();
+          selectionPoint.set(selectionDirection.x, selectionDirection.y);
+          const entityCount = this.getEntity().getScene().getNumEntities();
+          for (let entityIndex = 0; entityIndex < entityCount; entityIndex++) {
+            const candidateEntity = this.getEntity().getScene().getEntityAt(entityIndex);
+            if (candidateEntity.isEnabled()) {
+              const label = candidateEntity.getComponent(PioneerPublicApi.LabelComponent);
+              if (null !== label && "loaded" === label.getLoadState().state) {
+                const labelBounds = label.getNormalSpaceBounds(activeCamera);
+                if (void 0 !== labelBounds && labelBounds.contains(selectionPoint)) {
+                  const labelDistance = candidateEntity.getCameraSpacePosition(activeCamera).magnitude();
+                  if (null === selectedEntity || nearestLabelDistance > labelDistance) {
+                    selectedEntity = candidateEntity;
+                    nearestLabelDistance = labelDistance;
+                  }
                 }
               }
             }
           }
-          PioneerPublicApi.Vector2.pool.release(a);
-          null === o && (i.getCameraSpacePositionFromNormalSpacePosition(n, n), n.mult(n, 1 / n.magnitude()), o = i.getNearestIntersectingEntity(n));
-          PioneerPublicApi.Vector3.pool.release(n);
-          this.getEntity().getScene().getEngine().addCallback(this._callback.bind(void 0, o), false);
+          PioneerPublicApi.Vector2.pool.release(selectionPoint);
+          if (null === selectedEntity) {
+            activeCamera.getCameraSpacePositionFromNormalSpacePosition(selectionDirection, selectionDirection);
+            selectionDirection.mult(selectionDirection, 1 / selectionDirection.magnitude());
+            selectedEntity = activeCamera.getNearestIntersectingEntity(selectionDirection);
+          }
+          PioneerPublicApi.Vector3.pool.release(selectionDirection);
+          this.getEntity().getScene().getEngine().addCallback(this._callback.bind(void 0, selectedEntity), false);
         }
       }
     }

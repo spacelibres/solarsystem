@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：航天器事件时间轴、播放和当前事件选择
- * 依据：imports: ../../vendor/modules/MomentSecondary.cjs, ../../framework/eyes/index.js, ../../styles/extracted/EventsTimelineStyles.js, ../templates/EventsTimelineTemplate.html；manager dependencies: router, time, scene
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1582969-1621402.
 import MomentSecondary from "../../vendor/modules/MomentSecondary.cjs";
 import * as Eyes from "../../framework/eyes/index.js";
@@ -17,20 +11,11 @@ const {
   throttle: throttle,
   formatNumber: formatNumber
 } = Eyes.AppUtils;
-const u = "1px";
-/** @eyes-analysis
- * 类职责：航天器事件时间轴、播放和当前事件选择；继承 Eyes.BaseComponent
- * 继承：Eyes.BaseComponent；导出：EventsTimeline。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+const markerBaseWidth = "1px";
+/* 时间线分为总览标记与放大 focusPanel 两个坐标空间，各自保存 hover/touch/双击和时间指示线状态。事件按像素间隔与容量聚类，焦点区另做碰撞让位；时间与像素换算必须保留各自 padding 和范围。动画先退出旧簇、重建焦点节点再进入新簇，onfinish 解除 animating 门闩；鼠标和触摸的方向、阈值与延迟提示独立。_setEvents 只复制数组，仍会把传入事件对象的起止值改为 Moment，保留这项原有所有权行为。 */
 class EventsTimeline extends Eyes.BaseComponent {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 this._app.getComponent, this.setState, this.bindFunctions, this.setOptions, this._app.getManager；写入 _settings, defaultOptions, _localState, _events, _markers, _tooltips, _animations, _setViewingLineXThrottled, _onFpTouchMoveThrottled, _showToolTipDebounced, _resizeDebounced, _onMarkerMouseEnterDebounced。
-   * 状态写入：_animations、_events、_localState、_markers、_onFpMouseLeaveDebounced、_onFpTouchMoveThrottled、_onMarkerMouseEnterDebounced、_onMarkerMouseLeaveDebounced等；完整记录见索引。
-   * 调用线索：debounce、super、this._app.getComponent、this._app.getManager、this.bindFunctions等。
-   */
-  constructor(t, e, i = {}) {
-    super(t, e);
+  constructor(app, element, options = {}) {
+    super(app, element);
     this._settings = this._app.getComponent("settings");
     this.defaultOptions = {
       marginPercent: 2,
@@ -206,15 +191,10 @@ class EventsTimeline extends Eyes.BaseComponent {
     window.timeline = this;
     this._resizeTimeout = null;
     this.setOptions({
-      ...i
+      ...options
     }, true);
     this.routeManager = this._app.getManager("router");
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init, this._settings.addTooltips, this._callbackRegistry.push, this._app.getManager, this._app.getComponent, this._setResizeTimeout。
-   * 状态写入：_tooltips.timelinebar。
-   * 调用线索：super.init、this._app.getComponent、this._app.getManager、this._callbackRegistry.push、this._setResizeTimeout等。
-   */
   init() {
     super.init();
     const {
@@ -226,7 +206,7 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       timelinebar: timelinebar
     } = this._children;
-    const s = isTouch ? {
+    const timelineTooltipOptions = isTouch ? {
       props: {
         content: tooltips.tap,
         interactive: true,
@@ -244,7 +224,7 @@ class EventsTimeline extends Eyes.BaseComponent {
         touch: true
       }
     };
-    this._tooltips.timelinebar = this._settings.addTooltips([timelinebar], s);
+    this._tooltips.timelinebar = this._settings.addTooltips([timelinebar], timelineTooltipOptions);
     window.ontouchend = this._onOutsideTouch;
     this._callbackRegistry.push({
       emitter: this._app.getManager("time"),
@@ -256,11 +236,6 @@ class EventsTimeline extends Eyes.BaseComponent {
       callback: () => this._setResizeTimeout()
     });
   }
-  /** @eyes-analysis
-   * 执行 _addFpTooltips 对应的组件业务步骤；调用 this._settings.addTooltips。
-   * 状态写入：_tooltips.focusPanel。
-   * 调用线索：this._settings.addTooltips。
-   */
   _addFpTooltips() {
     if (this._tooltips.focusPanel) return;
     const {
@@ -273,12 +248,12 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       tooltips: tooltips
     } = this._options;
-    const n = isTouch ? focusPanel : fpTicksContainer;
-    const o = isTouch ? {
+    const tooltipAnchor = isTouch ? focusPanel : fpTicksContainer;
+    const focusTooltipOptions = isTouch ? {
       props: {
         content: tooltips.tap,
         interactive: true,
-        appendTo: n,
+        appendTo: tooltipAnchor,
         offset: [10, 0],
         trigger: "manual",
         touch: true
@@ -293,31 +268,19 @@ class EventsTimeline extends Eyes.BaseComponent {
         touch: true
       }
     };
-    this._tooltips.focusPanel = this._settings.addTooltips([n], o);
+    this._tooltips.focusPanel = this._settings.addTooltips([tooltipAnchor], focusTooltipOptions);
   }
-  /** @eyes-analysis
-   * 执行 _createAnimation 对应的组件业务步骤。
-   * 调用线索：new Animation、new KeyframeEffect。
-   */
-  _createAnimation(t, e, i) {
-    const keyframeEffect = new KeyframeEffect(t, e, i);
-    return new Animation(keyframeEffect, t.ownerDocument.timeline);
+  _createAnimation(element, keyframes, timingOptions) {
+    const keyframeEffect = new KeyframeEffect(element, keyframes, timingOptions);
+    return new Animation(keyframeEffect, element.ownerDocument.timeline);
   }
-  /** @eyes-analysis
-   * 执行 _depopulateFocusPanel 对应的组件业务步骤；调用 Content.removeChild。
-   * 调用线索：fpContent.removeChild。
-   */
   _depopulateFocusPanel() {
     const {
       fpContent: fpContent
     } = this._children;
     for (; fpContent.firstChild;) fpContent.removeChild(fpContent.firstChild);
   }
-  /** @eyes-analysis
-   * 执行 _populateFocusPanel 对应的组件业务步骤；调用 this._calcXfromTime, EventXs.push, this._onViewClick, Array.from, Content.appendChild, this._setVariables。
-   * 调用线索：Array.from、Array.from(fpContent.children).includes、document.createElement、fpContent.appendChild、l.style.setProperty等。
-   */
-  _populateFocusPanel(t) {
+  _populateFocusPanel(marker) {
     const {
       focusPanel: focusPanel,
       activeEventId: activeEventId,
@@ -327,7 +290,7 @@ class EventsTimeline extends Eyes.BaseComponent {
       timelinebar: timelinebar
     } = this._localState;
     const {
-      focusPanel: o,
+      focusPanel: focusOptions,
       classNames: classNames
     } = this._options;
     const {
@@ -335,55 +298,51 @@ class EventsTimeline extends Eyes.BaseComponent {
       fpMask: fpMask
     } = this._children;
     focusPanel.contentWidth || (focusPanel.contentWidth = timelinebar.width);
-    const c = .01 * o.padding * focusPanel.contentWidth;
-    const h = .01 * o.events.threshold * focusPanel.contentWidth;
-    const d = .5 * o.events.width;
-    const u = focusPanel.contentWidth - 2 * c;
-    t.fpEventXs = [];
-    const p = t.events.map((e, s) => [this._calcXfromTime(e.start, t.min, t.timeRange, u) + c, 0 !== s, e.id === activeEventId]);
-    for (let t = 0; t < p.length - 1; t++) {
-      const e = p[t];
-      const i = p[t + 1];
-      const [s, n] = e;
-      const [o] = i;
-      const r = o - d - (s + d);
-      if (r < h) {
-        const t = h - r;
-        if (n) {
-          const s = .5 * t;
-          e[0] -= s;
-          i[0] += s;
-        } else i[0] += t;
-        i[1] = false;
+    const paddingPixels = .01 * focusOptions.padding * focusPanel.contentWidth;
+    const minimumGap = .01 * focusOptions.events.threshold * focusPanel.contentWidth;
+    const eventHalfWidth = .5 * focusOptions.events.width;
+    const usableWidth = focusPanel.contentWidth - 2 * paddingPixels;
+    marker.fpEventXs = [];
+    const eventPositions = marker.events.map((eventInfo, eventIndex) => [this._calcXfromTime(eventInfo.start, marker.min, marker.timeRange, usableWidth) + paddingPixels, 0 !== eventIndex, eventInfo.id === activeEventId]);
+    for (let positionIndex = 0; positionIndex < eventPositions.length - 1; positionIndex++) {
+      const currentPosition = eventPositions[positionIndex];
+      const nextPosition = eventPositions[positionIndex + 1];
+      const [currentX, canShiftCurrent] = currentPosition;
+      const [nextX] = nextPosition;
+      const gapPixels = nextX - eventHalfWidth - (currentX + eventHalfWidth);
+      if (gapPixels < minimumGap) {
+        const missingGap = minimumGap - gapPixels;
+        if (canShiftCurrent) {
+          const halfGap = .5 * missingGap;
+          currentPosition[0] -= halfGap;
+          nextPosition[0] += halfGap;
+        } else nextPosition[0] += missingGap;
+        nextPosition[1] = false;
       }
     }
-    t.fpEventElements = p.map(e => {
-      const [i,, n] = e;
-      t.fpEventXs.push(i);
-      const l = document.createElement("div");
-      l.className = `${classNames.focusPanel.eventLine} ${n ? "active" : ""}`;
-      isTouch && (l.ontouchstart = t => t.preventDefault(), l.ontouchend = this._onFpEventTouch);
-      this._app.canHover && (l.onmouseenter = this._onFpEventMouseOver, l.onclick = t => {
-        t.preventDefault();
-        t.stopPropagation();
-        this._onViewClick(t);
+    marker.fpEventElements = eventPositions.map(eventPosition => {
+      const [eventX,, isActiveEvent] = eventPosition;
+      marker.fpEventXs.push(eventX);
+      const eventElement = document.createElement("div");
+      eventElement.className = `${classNames.focusPanel.eventLine} ${isActiveEvent ? "active" : ""}`;
+      isTouch && (eventElement.ontouchstart = touchEvent => touchEvent.preventDefault(), eventElement.ontouchend = this._onFpEventTouch);
+      this._app.canHover && (eventElement.onmouseenter = this._onFpEventMouseOver, eventElement.onclick = clickEvent => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        this._onViewClick(clickEvent);
       });
-      l.style.setProperty("width", `${o.events.width}px`);
-      l.style.setProperty("left", `${i}px`);
-      Array.from(fpContent.children).includes(l) || fpContent.appendChild(l);
-      return l;
+      eventElement.style.setProperty("width", `${focusOptions.events.width}px`);
+      eventElement.style.setProperty("left", `${eventX}px`);
+      Array.from(fpContent.children).includes(eventElement) || fpContent.appendChild(eventElement);
+      return eventElement;
     });
-    fpMask.onclick = t => {
-      t.preventDefault();
-      t.stopPropagation();
-      this._onViewClick(t);
+    fpMask.onclick = clickEvent => {
+      clickEvent.preventDefault();
+      clickEvent.stopPropagation();
+      this._onViewClick(clickEvent);
     };
     this._setVariables(fpContent);
   }
-  /** @eyes-analysis
-   * 执行 _createEventsAndMarkers 对应的组件业务步骤；调用 this._events.forEach, this._calcWidthBtwnTimes, this._addToCluster, this._markers.forEach, Array.from, List.contains, List.toggle。
-   * 调用线索：Array.from、Array.from(t.element.children).find、document.createTextNode、e.appendChild、t.classList.contains等。
-   */
   _createEventsAndMarkers() {
     const {
       timelinebar: timelinebar
@@ -391,86 +350,73 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       events: events
     } = this._options;
-    const i = .01 * events.clusterThresh * timelinebar.width;
-    this._events.forEach((t, e) => {
-      const s = this._events[e - 1];
-      let n = true;
-      if (s) {
-        this._calcWidthBtwnTimes(s.end, t.start) < i && (n = false);
+    const clusterThresholdPixels = .01 * events.clusterThresh * timelinebar.width;
+    this._events.forEach((eventInfo, eventIndex) => {
+      const previousEvent = this._events[eventIndex - 1];
+      let startNewCluster = true;
+      if (previousEvent) {
+        this._calcWidthBtwnTimes(previousEvent.end, eventInfo.start) < clusterThresholdPixels && (startNewCluster = false);
       }
-      this._addToCluster(t, n);
+      this._addToCluster(eventInfo, startNewCluster);
     });
-    this._markers.forEach(t => {
-      const e = Array.from(t.element.children).find(t => t.classList.contains("cluster-num-events"));
-      e && t.events.length > 1 && e.appendChild(document.createTextNode(t.events.length));
-      t.element.classList.toggle("single-event", t.events.length < 2);
+    this._markers.forEach(marker => {
+      const countElement = Array.from(marker.element.children).find(childElement => childElement.classList.contains("cluster-num-events"));
+      countElement && marker.events.length > 1 && countElement.appendChild(document.createTextNode(marker.events.length));
+      marker.element.classList.toggle("single-event", marker.events.length < 2);
     });
   }
-  /** @eyes-analysis
-   * 执行 _createEventElement 对应的组件业务步骤；调用 this._calcMidpointX, Container.appendChild。
-   * 调用线索：document.createElement、eventContainer.appendChild、s.style.setProperty、this._calcMidpointX。
-   */
-  _createEventElement(t) {
+  _createEventElement(eventInfo) {
     const {
       classNames: classNames
     } = this._options;
     const {
       eventContainer: eventContainer
     } = this._children;
-    const s = document.createElement("div");
-    s.className = classNames.eventStatic;
-    const n = this._calcMidpointX(t.start, t.end);
-    s.style.setProperty("left", `${t.cluster ? t.leftX : n}px`);
-    eventContainer.appendChild(s);
+    const eventElement = document.createElement("div");
+    eventElement.className = classNames.eventStatic;
+    const midpointX = this._calcMidpointX(eventInfo.start, eventInfo.end);
+    eventElement.style.setProperty("left", `${eventInfo.cluster ? eventInfo.leftX : midpointX}px`);
+    eventContainer.appendChild(eventElement);
   }
-  /** @eyes-analysis
-   * 执行 _addToCluster 对应的组件业务步骤；调用 this._getLastCluster, this._calcEventClusterMax, this._onViewClick, Container.appendChild, this._markers.push, this._markers.find, List.add, Array.from, List.contains。
-   * 调用线索：Array.from、Array.from(a.element.children).some、a.element.appendChild、a.element.classList.add、document.createElement等。
-   */
-  _addToCluster(t, e = true) {
+  _addToCluster(eventInfo, startNewCluster = true) {
     const {
       classNames: classNames
     } = this._options;
     const {
       markerContainer: markerContainer
     } = this._children;
-    const n = this._getLastCluster();
-    const o = this._calcEventClusterMax();
-    const r = n && n.events.length === o;
-    if (e || !n || r) {
-      const e = document.createElement("div");
-      e.className = classNames.clusterMarker;
-      e.ontouchstart = this._onMarkerTouch;
-      e.onmouseenter = this._onMarkerMouseEnterDebounced;
-      e.onmouseleave = this._onMarkerMouseLeaveDebounced;
-      e.onmousemove = this._onMarkerMouseMove;
-      e.onclick = t => {
-        t.preventDefault();
-        t.stopPropagation();
-        this._onViewClick(t);
+    const previousCluster = this._getLastCluster();
+    const clusterCapacity = this._calcEventClusterMax();
+    const isClusterFull = previousCluster && previousCluster.events.length === clusterCapacity;
+    if (startNewCluster || !previousCluster || isClusterFull) {
+      const markerElement = document.createElement("div");
+      markerElement.className = classNames.clusterMarker;
+      markerElement.ontouchstart = this._onMarkerTouch;
+      markerElement.onmouseenter = this._onMarkerMouseEnterDebounced;
+      markerElement.onmouseleave = this._onMarkerMouseLeaveDebounced;
+      markerElement.onmousemove = this._onMarkerMouseMove;
+      markerElement.onclick = clickEvent => {
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        this._onViewClick(clickEvent);
       };
-      markerContainer.appendChild(e);
+      markerContainer.appendChild(markerElement);
       this._markers.push({
         cluster: true,
-        element: e,
-        events: [t],
+        element: markerElement,
+        events: [eventInfo],
         fpEventElements: [],
         fpEventXs: []
       });
-    } else n.events.push(t);
-    const a = this._markers.find(e => e.events.includes(t));
-    if (a && a.events.length > 1) {
-      const t = document.createElement("div");
-      t.classList.add("cluster-num-events");
-      Array.from(a.element.children).some(t => t.classList.contains("cluster-num-events")) || a.element.appendChild(t);
-      a.element.classList.add("cluster-dashed-line");
+    } else previousCluster.events.push(eventInfo);
+    const containingMarker = this._markers.find(candidateMarker => candidateMarker.events.includes(eventInfo));
+    if (containingMarker && containingMarker.events.length > 1) {
+      const countElement = document.createElement("div");
+      countElement.classList.add("cluster-num-events");
+      Array.from(containingMarker.element.children).some(childElement => childElement.classList.contains("cluster-num-events")) || containingMarker.element.appendChild(countElement);
+      containingMarker.element.classList.add("cluster-dashed-line");
     }
   }
-  /** @eyes-analysis
-   * 执行 _createClusterEventLine 对应的组件业务步骤；调用 this._children.markerContainer.appendChild；写入 _clusterEventLine。
-   * 状态写入：_clusterEventLine、_clusterEventLine.className。
-   * 调用线索：document.createElement、this._children.markerContainer.appendChild。
-   */
   _createClusterEventLine() {
     if (this._clusterEventLine) return;
     const {
@@ -480,29 +426,20 @@ class EventsTimeline extends Eyes.BaseComponent {
     this._clusterEventLine.className = classNames.clusterEventLine;
     this._children.markerContainer.appendChild(this._clusterEventLine);
   }
-  /** @eyes-analysis
-   * 执行 _populate 对应的组件业务步骤；调用 this._destroy, this._createEventsAndMarkers, this._setMarkerPositions, this._markers.some, this.setLocalState, this._createClusterEventLine, this._setVariables。
-   * 调用线索：this._createClusterEventLine、this._createEventsAndMarkers、this._destroy、this._markers.some、this._setMarkerPositions等。
-   */
   _populate() {
     if (!this._events.length || "hidden" !== this._state.focusContentVisibleClass) return;
     this._destroy();
     this._createEventsAndMarkers();
     this._setMarkerPositions();
-    const t = this._markers.some(t => t.cluster);
+    const hasClusters = this._markers.some(marker => marker.cluster);
     this.setLocalState({
       focusPanel: {
-        enabled: t
+        enabled: hasClusters
       }
     });
-    t && this._createClusterEventLine();
+    hasClusters && this._createClusterEventLine();
     this._setVariables(this._children.markerContainer);
   }
-  /** @eyes-analysis
-   * 执行 _destroy 对应的组件业务步骤；调用 this._depopulateFocusPanel, Container.removeChild, EventElements.filter；写入 _markers。
-   * 状态写入：_markers。
-   * 调用线索：eventContainer.removeChild、markerContainer.removeChild、t.element.remove、t.fpEventElements.filter、t.remove等。
-   */
   _destroy() {
     this._depopulateFocusPanel();
     const {
@@ -511,38 +448,30 @@ class EventsTimeline extends Eyes.BaseComponent {
     } = this._children;
     for (; markerContainer.firstChild;) markerContainer.removeChild(markerContainer.firstChild);
     for (; eventContainer.firstChild;) eventContainer.removeChild(eventContainer.firstChild);
-    if (this._markers.length) for (const t of this._markers) {
-      t.element.remove();
-      t.fpEventElements && t.fpEventElements.filter(t => (t.remove(), false));
+    if (this._markers.length) for (const marker of this._markers) {
+      marker.element.remove();
+      marker.fpEventElements && marker.fpEventElements.filter(eventElement => (eventElement.remove(), false));
     }
     this._markers = [];
   }
-  /** @eyes-analysis
-   * 执行 _setClickedOnce 对应的组件业务步骤；调用 this.setLocalState。
-   * 调用线索：setTimeout、this.setLocalState。
-   */
-  _setClickedOnce(t, e = true) {
+  _setClickedOnce(stateSection, clickedOnce = true) {
     const {
       doubleTimeout: doubleTimeout
     } = this._options;
     this.setLocalState({
-      [t]: {
-        clickedOnce: e
+      [stateSection]: {
+        clickedOnce: clickedOnce
       }
     });
-    e && setTimeout(() => {
+    clickedOnce && setTimeout(() => {
       this.setLocalState({
-        [t]: {
+        [stateSection]: {
           clickedOnce: false
         }
       });
     }, doubleTimeout);
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineMouseLeave 对应的组件业务步骤；调用 this._hideTooltip, this.setState, this.setLocalState。
-   * 调用线索：this._hideTooltip、this.setLocalState、this.setState。
-   */
-  _onTimelineMouseLeave(t) {
+  _onTimelineMouseLeave(mouseEvent) {
     this._hideTooltip(false);
     const {
       focusPanel: focusPanel
@@ -558,11 +487,7 @@ class EventsTimeline extends Eyes.BaseComponent {
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineMouseMove 对应的组件业务步骤；调用 this._hideTooltip, this._onMarkerMouseEnterDebounced.cancel, this._calcTimefromTimelineX, this.setState, this.setLocalState, this._setDateAndPosition, this._showToolTipDebounced。
-   * 调用线索：o.isAfter、o.isBefore、this._calcTimefromTimelineX、this._hideTooltip、this._onMarkerMouseEnterDebounced.cancel等。
-   */
-  _onTimelineMouseMove(t) {
+  _onTimelineMouseMove(mouseEvent) {
     if (this._hideTooltip(), this._onMarkerMouseEnterDebounced.cancel(), this._resizeTimeout) return;
     const {
       timelinebar: timelinebar
@@ -571,12 +496,12 @@ class EventsTimeline extends Eyes.BaseComponent {
       start: start,
       end: end
     } = this._options;
-    const n = t.clientX - timelinebar.left;
-    const o = this._calcTimefromTimelineX(n);
-    const r = o.isBefore(start) || o.isAfter(end);
+    const timelineX = mouseEvent.clientX - timelinebar.left;
+    const hoverTime = this._calcTimefromTimelineX(timelineX);
+    const outsideTimeRange = hoverTime.isBefore(start) || hoverTime.isAfter(end);
     this.setState({
-      targetLineVisibleClass: r ? "hidden" : "",
-      targetDateVisibleClass: r ? "hidden" : "",
+      targetLineVisibleClass: outsideTimeRange ? "hidden" : "",
+      targetDateVisibleClass: outsideTimeRange ? "hidden" : "",
       targetDateColorClass: "yellow",
       rangeDatesVisibleClass: "hidden"
     });
@@ -588,29 +513,21 @@ class EventsTimeline extends Eyes.BaseComponent {
         active: false
       }
     });
-    r || (this._setDateAndPosition(o, n), t.target === this._children.timelinebar && this._showToolTipDebounced());
+    outsideTimeRange || (this._setDateAndPosition(hoverTime, timelineX), mouseEvent.target === this._children.timelinebar && this._showToolTipDebounced());
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineClick 对应的组件业务步骤；调用 this._calcTimefromTimelineX, this.goToTime, this.setLocalState。
-   * 调用线索：s.valueOf、this._calcTimefromTimelineX、this.goToTime、this.setLocalState。
-   */
-  _onTimelineClick(t) {
-    if (t.target !== this._children.timelinebar) return;
+  _onTimelineClick(clickEvent) {
+    if (clickEvent.target !== this._children.timelinebar) return;
     const {
       timelinebar: timelinebar
     } = this._localState;
-    const i = t.clientX - timelinebar.left;
-    const s = this._calcTimefromTimelineX(i);
-    this.goToTime(s);
+    const timelineX = clickEvent.clientX - timelinebar.left;
+    const selectedTime = this._calcTimefromTimelineX(timelineX);
+    this.goToTime(selectedTime);
     this.setLocalState({
-      time: s.valueOf()
+      time: selectedTime.valueOf()
     });
   }
-  /** @eyes-analysis
-   * 执行 _onMarkerMouseEnter 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this.setLocalState, this._hideTooltip, this.setState, this._app.getComponent, Eyes.AppUtils.isMobilePortrait, this._markers.forEach, this._setActive, this._setFocusPanelPos, this._setEventName, this._setDateAndPosition。
-   * 调用线索：Eyes.AppUtils.isMobilePortrait、a.element.style.setProperty、r?.element.style.setProperty、this._app.getComponent、this._app.getComponent("eventsBlock").setState等。
-   */
-  _onMarkerMouseEnter(t) {
+  _onMarkerMouseEnter(mouseEvent) {
     const {
       focusPanel: focusPanel,
       animMarkerIndex: animMarkerIndex,
@@ -619,13 +536,13 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       currentHoverMarkerIndex: currentHoverMarkerIndex
     } = this._localState;
-    const r = this._markers[currentHoverMarkerIndex];
-    const a = this._markers.find(e => e.element === t.target) || this._markers[activeMarkerIndex];
-    const l = this._markers.indexOf(a);
-    const c = this._markers[animMarkerIndex];
+    const previousHoverMarker = this._markers[currentHoverMarkerIndex];
+    const hoveredMarker = this._markers.find(candidateMarker => candidateMarker.element === mouseEvent.target) || this._markers[activeMarkerIndex];
+    const hoveredMarkerIndex = this._markers.indexOf(hoveredMarker);
+    const animatedMarker = this._markers[animMarkerIndex];
     if (this.setLocalState({
-      currentHoverMarkerIndex: l
-    }), r?.element.style.setProperty("width", u), focusPanel.active && !t.force) return;
+      currentHoverMarkerIndex: hoveredMarkerIndex
+    }), previousHoverMarker?.element.style.setProperty("width", markerBaseWidth), focusPanel.active && !mouseEvent.force) return;
     this._hideTooltip();
     this.setState({
       targetLineVisibleClass: "hidden",
@@ -639,40 +556,32 @@ class EventsTimeline extends Eyes.BaseComponent {
     if (this._app.getComponent("eventsBlock").setState({
       isIntroLabelVisible: "invisible"
     }), Eyes.AppUtils.isMobilePortrait() && this._settings?.hide(), this.setLocalState({
-      activeMarkerIndex: l,
-      animMarkerIndex: a?.cluster ? l : this._localState.animMarkerIndex,
-      ...(!a?.cluster && {
-        activeEventId: a ? a.events[0].id : this._localState.activeEventId
+      activeMarkerIndex: hoveredMarkerIndex,
+      animMarkerIndex: hoveredMarker?.cluster ? hoveredMarkerIndex : this._localState.animMarkerIndex,
+      ...(!hoveredMarker?.cluster && {
+        activeEventId: hoveredMarker ? hoveredMarker.events[0].id : this._localState.activeEventId
       })
-    }), this._markers.forEach(t => this._setActive(t.element, t === a)), a) if (a.cluster) {
-      if (c === a) return;
-      this._setFocusPanelPos(a);
+    }), this._markers.forEach(marker => this._setActive(marker.element, marker === hoveredMarker)), hoveredMarker) if (hoveredMarker.cluster) {
+      if (animatedMarker === hoveredMarker) return;
+      this._setFocusPanelPos(hoveredMarker);
     } else {
-      const t = a.events[0];
-      this._setEventName(t.title, t.start);
-      this._setDateAndPosition(t.start, a.leftX);
+      const eventInfo = hoveredMarker.events[0];
+      this._setEventName(eventInfo.title, eventInfo.start);
+      this._setDateAndPosition(eventInfo.start, hoveredMarker.leftX);
     }
-    r && r.events?.length > 1 && (r.element.children[0].innerHTML = r.events.length);
-    a && (a.element.style.setProperty("width", "3px"), a.events?.length > 1 && (a.element.children[0].innerHTML = "+"));
+    previousHoverMarker && previousHoverMarker.events?.length > 1 && (previousHoverMarker.element.children[0].innerHTML = previousHoverMarker.events.length);
+    hoveredMarker && (hoveredMarker.element.style.setProperty("width", "3px"), hoveredMarker.events?.length > 1 && (hoveredMarker.element.children[0].innerHTML = "+"));
   }
-  /** @eyes-analysis
-   * 执行 _onMarkerMouseLeave 对应的组件业务步骤；调用 this._resetStates。
-   * 调用线索：e.element.style.setProperty、this._resetStates。
-   */
   _onMarkerMouseLeave() {
     this._resetStates();
     const {
       currentHoverMarkerIndex: currentHoverMarkerIndex
     } = this._localState;
-    const e = this._markers[currentHoverMarkerIndex];
-    e && (e.element.style.setProperty("width", u), e.events?.length > 1 && (e.element.children[0].innerHTML = e.events.length));
+    const hoveredMarker = this._markers[currentHoverMarkerIndex];
+    hoveredMarker && (hoveredMarker.element.style.setProperty("width", markerBaseWidth), hoveredMarker.events?.length > 1 && (hoveredMarker.element.children[0].innerHTML = hoveredMarker.events.length));
   }
-  /** @eyes-analysis
-   * 执行 _onMarkerMouseMove 对应的组件业务步骤；调用 this._onFpMouseLeaveDebounced.cancel, this._onMarkerMouseLeaveDebounced.cancel, this._markers.find, List.contains, this._getNearestIndex, this._setDateAndPosition, this._setClusterEvent, this._setEventName, this.setLocalState。
-   * 调用线索：t.stopPropagation、t.target.classList.contains、this._getNearestIndex、this._markers.find、this._onFpMouseLeaveDebounced.cancel等。
-   */
-  _onMarkerMouseMove(t) {
-    t.stopPropagation();
+  _onMarkerMouseMove(mouseEvent) {
+    mouseEvent.stopPropagation();
     this._onFpMouseLeaveDebounced.cancel();
     this._onMarkerMouseLeaveDebounced.cancel();
     const {
@@ -681,19 +590,19 @@ class EventsTimeline extends Eyes.BaseComponent {
       activeMarkerIndex: activeMarkerIndex,
       animMarkerIndex: animMarkerIndex
     } = this._localState;
-    const o = this._markers.find(e => {
-      let i;
-      t.target.classList.contains("single-event") && (i = t.target.parentElement);
-      return (e.element ?? i) === t.target;
+    const hoveredMarker = this._markers.find(candidateMarker => {
+      let singleEventParent;
+      mouseEvent.target.classList.contains("single-event") && (singleEventParent = mouseEvent.target.parentElement);
+      return (candidateMarker.element ?? singleEventParent) === mouseEvent.target;
     });
-    const r = t.clientX - timelinebar.left;
-    if (o) {
-      const t = o.cluster ? this._getNearestIndex(r, o.eventXs) : 0;
-      const e = o.events[t];
-      const a = activeEventId === e.id;
-      const l = activeMarkerIndex !== animMarkerIndex;
-      if (l && this._setDateAndPosition(e.start, o.leftX), a || l) return;
-      o.cluster ? this._setClusterEvent(o, t) : (this._setEventName(e.title, e.start), this._setDateAndPosition(e.start, o.leftX));
+    const timelineX = mouseEvent.clientX - timelinebar.left;
+    if (hoveredMarker) {
+      const eventIndex = hoveredMarker.cluster ? this._getNearestIndex(timelineX, hoveredMarker.eventXs) : 0;
+      const eventInfo = hoveredMarker.events[eventIndex];
+      const isCurrentEvent = activeEventId === eventInfo.id;
+      const markerChanged = activeMarkerIndex !== animMarkerIndex;
+      if (markerChanged && this._setDateAndPosition(eventInfo.start, hoveredMarker.leftX), isCurrentEvent || markerChanged) return;
+      hoveredMarker.cluster ? this._setClusterEvent(hoveredMarker, eventIndex) : (this._setEventName(eventInfo.title, eventInfo.start), this._setDateAndPosition(eventInfo.start, hoveredMarker.leftX));
     }
     this.setLocalState({
       focusPanel: {
@@ -701,10 +610,6 @@ class EventsTimeline extends Eyes.BaseComponent {
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpMouseEnter 对应的组件业务步骤；调用 this._onMarkerMouseLeaveDebounced.cancel, this._onFpMouseLeaveDebounced.cancel, this.setLocalState。
-   * 调用线索：this._onFpMouseLeaveDebounced.cancel、this._onMarkerMouseLeaveDebounced.cancel、this.setLocalState。
-   */
   _onFpMouseEnter() {
     this._onMarkerMouseLeaveDebounced.cancel();
     this._onFpMouseLeaveDebounced.cancel();
@@ -714,27 +619,19 @@ class EventsTimeline extends Eyes.BaseComponent {
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpMouseLeave 对应的组件业务步骤；调用 this._resetStates。
-   * 调用线索：this._resetStates。
-   */
-  _onFpMouseLeave(t) {
+  _onFpMouseLeave(mouseEvent) {
     "hidden" !== this._state.fpVisibleClass && this._resetStates();
   }
-  /** @eyes-analysis
-   * 执行 _onFpEventMouseOver 对应的组件业务步骤；调用 this._hideTooltip, this._getMarkerAndIndexFromFocusEl, this._setClusterEvent, EventElements.find, List.contains, this._setFocusPanelPos, this.setState, this._app.getComponent。
-   * 调用线索：Number、e.fpEventElements.find、s.style.left.split、t.classList.contains、this._app.getComponent等。
-   */
-  _onFpEventMouseOver(t) {
+  _onFpEventMouseOver(mouseEvent) {
     this._hideTooltip();
-    const [e, i] = this._getMarkerAndIndexFromFocusEl(t.target);
-    this._setClusterEvent(e, i);
-    const s = e.fpEventElements.find(t => t.classList.contains("active"));
-    const n = {
-      element: s,
-      leftX: Number(s.style.left.split("px")[0])
+    const [marker, eventIndex] = this._getMarkerAndIndexFromFocusEl(mouseEvent.target);
+    this._setClusterEvent(marker, eventIndex);
+    const activeEventElement = marker.fpEventElements.find(eventElement => eventElement.classList.contains("active"));
+    const focusAnchor = {
+      element: activeEventElement,
+      leftX: Number(activeEventElement.style.left.split("px")[0])
     };
-    this._setFocusPanelPos(n);
+    this._setFocusPanelPos(focusAnchor);
     this.setState({
       targetLineVisibleClass: "hidden",
       targetDateVisibleClass: "hidden",
@@ -748,24 +645,16 @@ class EventsTimeline extends Eyes.BaseComponent {
       isIntroLabelVisible: "invisible"
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksMouseEnter 对应的组件业务步骤；调用 this._setFpElementActive, this._setEventName。
-   * 调用线索：this._setEventName、this._setFpElementActive。
-   */
   _onFpTicksMouseEnter() {
     const {
       activeMarkerIndex: activeMarkerIndex,
       title: title
     } = this._localState;
-    const i = this._markers[activeMarkerIndex];
-    i && this._setFpElementActive(i);
+    const activeMarker = this._markers[activeMarkerIndex];
+    activeMarker && this._setFpElementActive(activeMarker);
     this._setEventName(`Between ${title} events`);
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksMouseMove 对应的组件业务步骤；调用 this._hideTooltip, this.setState, this.setLocalState, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty, this._showToolTipDebounced。
-   * 调用线索：this._calcTimeFromFpX、this._calcXfromTime、this._children.focusPanel.style.setProperty、this._hideTooltip、this._setClusterLineTransform等。
-   */
-  _onFpTicksMouseMove(t) {
+  _onFpTicksMouseMove(mouseEvent) {
     this._hideTooltip();
     const {
       focusPanel: focusPanel,
@@ -780,27 +669,19 @@ class EventsTimeline extends Eyes.BaseComponent {
     });
     this.setLocalState({
       focusPanel: {
-        touchLineX: t.offsetX
+        touchLineX: mouseEvent.offsetX
       }
     });
-    const s = this._calcTimeFromFpX(t.offsetX);
-    const n = this._calcXfromTime(s);
-    this._setDateAndPosition(s, n);
-    this._setClusterLineTransform(n);
-    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${t.offsetX}px`);
+    const hoverTime = this._calcTimeFromFpX(mouseEvent.offsetX);
+    const timelineX = this._calcXfromTime(hoverTime);
+    this._setDateAndPosition(hoverTime, timelineX);
+    this._setClusterLineTransform(timelineX);
+    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${mouseEvent.offsetX}px`);
     this._localState.activeEventId || this._showToolTipDebounced("focusPanel");
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksMouseLeave 对应的组件业务步骤；调用 this._hideTooltip。
-   * 调用线索：this._hideTooltip。
-   */
   _onFpTicksMouseLeave() {
     this._hideTooltip();
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksClick 对应的组件业务步骤；调用 this._hideTooltip, this._calcTimeFromFpX, this.goToTime, this.setLocalState。
-   * 调用线索：i.valueOf、this._calcTimeFromFpX、this._hideTooltip、this.goToTime、this.setLocalState。
-   */
   _onFpTicksClick() {
     this._hideTooltip();
     const {
@@ -808,17 +689,13 @@ class EventsTimeline extends Eyes.BaseComponent {
       activeMarkerIndex: activeMarkerIndex
     } = this._localState;
     if (focusPanel.animating || -1 === activeMarkerIndex) return;
-    const i = this._calcTimeFromFpX(focusPanel.touchLineX);
-    this.goToTime(i);
+    const selectedTime = this._calcTimeFromFpX(focusPanel.touchLineX);
+    this.goToTime(selectedTime);
     this.setLocalState({
-      time: i.valueOf()
+      time: selectedTime.valueOf()
     });
   }
-  /** @eyes-analysis
-   * 执行 _onViewClick 对应的组件业务步骤；调用 this._hideTooltip, this._zoomIntoCluster, this.goToEvent, this._onDateTouchEnd, this.setLocalState。
-   * 调用线索：l.events.find、t.target.firstChild?.classList?.contains、t?.target?.parentElement?.classList?.contains、this._hideTooltip、this._onDateTouchEnd等。
-   */
-  _onViewClick(t) {
+  _onViewClick(clickOrEventId) {
     this._hideTooltip();
     const {
       activeEventId: activeEventId,
@@ -828,37 +705,33 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       fpTargetLineVisibleClass: fpTargetLineVisibleClass
     } = this._state;
-    let o = "string" == typeof t ? t : activeEventId;
-    const r = t?.target?.parentElement?.classList?.contains("fp-details");
-    const a = t?.target?.firstChild && !t.target.firstChild?.classList?.contains("single-event") && !r;
-    const l = this._markers[currentHoverMarkerIndex >= 0 ? currentHoverMarkerIndex : activeMarkerIndex];
-    o || a || (o = l.events.find(t => t.title === this._state.fpEventName)?.id);
-    a ? this._zoomIntoCluster(l) : null !== o ? this.goToEvent(o) : "" === fpTargetLineVisibleClass && this._onDateTouchEnd();
+    let eventId = "string" == typeof clickOrEventId ? clickOrEventId : activeEventId;
+    const clickedDetails = clickOrEventId?.target?.parentElement?.classList?.contains("fp-details");
+    const clickedCluster = clickOrEventId?.target?.firstChild && !clickOrEventId.target.firstChild?.classList?.contains("single-event") && !clickedDetails;
+    const selectedMarker = this._markers[currentHoverMarkerIndex >= 0 ? currentHoverMarkerIndex : activeMarkerIndex];
+    eventId || clickedCluster || (eventId = selectedMarker.events.find(eventInfo => eventInfo.title === this._state.fpEventName)?.id);
+    clickedCluster ? this._zoomIntoCluster(selectedMarker) : null !== eventId ? this.goToEvent(eventId) : "" === fpTargetLineVisibleClass && this._onDateTouchEnd();
     this.setLocalState({
       time: null
     });
   }
-  /** @eyes-analysis
-   * 执行 _zoomIntoCluster 对应的组件业务步骤；调用 Container.removeChild, this._buildRangeOptions, this._setStartEndDates, this._populateFocusPanel, this.setState。
-   * 调用线索：eventContainer.removeChild、markerContainer.removeChild、this._buildRangeOptions、this._populateFocusPanel、this._setStartEndDates等。
-   */
-  _zoomIntoCluster(t = null) {
-    const e = this._markers[this._localState.animMarkerIndex] || t;
+  _zoomIntoCluster(fallbackMarker = null) {
+    const selectedMarker = this._markers[this._localState.animMarkerIndex] || fallbackMarker;
     const {
       markerContainer: markerContainer,
       eventContainer: eventContainer
     } = this._children;
     for (; markerContainer.firstChild;) markerContainer.removeChild(markerContainer.firstChild);
     for (; eventContainer.firstChild;) eventContainer.removeChild(eventContainer.firstChild);
-    if (e?.events) {
-      const t = e.events[0];
-      const i = e.events[e.events.length - 1];
+    if (selectedMarker?.events) {
+      const firstEvent = selectedMarker.events[0];
+      const lastEvent = selectedMarker.events[selectedMarker.events.length - 1];
       this._buildRangeOptions({
-        start: t.start,
-        end: i.end
+        start: firstEvent.start,
+        end: lastEvent.end
       });
       this._setStartEndDates();
-      this._populateFocusPanel(e);
+      this._populateFocusPanel(selectedMarker);
     }
     this.setState({
       resetZoomVisibleClass: "",
@@ -866,21 +739,17 @@ class EventsTimeline extends Eyes.BaseComponent {
       fpVisibleClass: ""
     });
   }
-  /** @eyes-analysis
-   * 执行 _zoomOutOfCluster 对应的组件业务步骤；调用 this._app.getView, this._calcCoverage, this._buildRangeOptions, this._setStartEndDates, this.setState, this._populate。
-   * 调用线索：this._app.getView、this._app.getView("object")?.getCurrentTarget、this._buildRangeOptions、this._calcCoverage、this._populate等。
-   */
   _zoomOutOfCluster() {
     const {
       target: target,
       dates: dates
     } = this._localState;
-    let i = target;
-    target || (i = this._app.getView("object")?.getCurrentTarget());
+    let targetEntityId = target;
+    target || (targetEntityId = this._app.getView("object")?.getCurrentTarget());
     const {
       start: start,
       end: end
-    } = this._calcCoverage(i, dates);
+    } = this._calcCoverage(targetEntityId, dates);
     this._buildRangeOptions({
       start: start,
       end: end
@@ -893,62 +762,50 @@ class EventsTimeline extends Eyes.BaseComponent {
     });
     this._populate();
   }
-  /** @eyes-analysis
-   * 执行 _onFpWheel 对应的组件业务步骤；调用 this._hideTooltip, Math.abs, this._onMarkerMouseEnter, this.setLocalState, this._createAnimation。
-   * 调用线索：Math.abs、a.play、r.play、t.preventDefault、this._createAnimation等。
-   */
-  _onFpWheel(t) {
-    t.preventDefault();
+  _onFpWheel(wheelEvent) {
+    wheelEvent.preventDefault();
     const {
       focusPanel: focusPanel,
       animMarkerIndex: animMarkerIndex
     } = this._localState;
-    const s = .5 * focusPanel.contentWidth;
-    const n = focusPanel.wheelX - t.deltaX;
+    const switchThreshold = .5 * focusPanel.contentWidth;
+    const nextWheelX = focusPanel.wheelX - wheelEvent.deltaX;
     if (this._hideTooltip(), focusPanel.animating) return;
-    if (Math.abs(n) > s) {
-      const t = n > 0 ? this._markers[animMarkerIndex - 1] : this._markers[animMarkerIndex + 1];
+    if (Math.abs(nextWheelX) > switchThreshold) {
+      const adjacentMarker = nextWheelX > 0 ? this._markers[animMarkerIndex - 1] : this._markers[animMarkerIndex + 1];
       return void this._onMarkerMouseEnter({
-        target: t.element,
+        target: adjacentMarker.element,
         force: true
       });
     }
     this.setLocalState({
       focusPanel: {
-        wheelX: n
+        wheelX: nextWheelX
       }
     });
-    const o = {
+    const panTiming = {
       duration: 200,
       fill: "forwards",
       easing: "ease-out"
     };
-    const r = this._createAnimation(this._children.fpContent, {
-      transform: `translateX(${n}px) rotate(0.01deg)`
-    }, o);
-    const a = this._createAnimation(this._children.fpTicksContainer, {
-      transform: `translateX(${n}px)`
-    }, o);
-    r.play();
-    a.play();
+    const contentAnimation = this._createAnimation(this._children.fpContent, {
+      transform: `translateX(${nextWheelX}px) rotate(0.01deg)`
+    }, panTiming);
+    const ticksAnimation = this._createAnimation(this._children.fpTicksContainer, {
+      transform: `translateX(${nextWheelX}px)`
+    }, panTiming);
+    contentAnimation.play();
+    ticksAnimation.play();
   }
-  /** @eyes-analysis
-   * 执行 _onFpTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState。
-   * 调用线索：this._hideTooltip、this.setLocalState。
-   */
-  _onFpTouchStart(t) {
+  _onFpTouchStart(touchEvent) {
     this._hideTooltip();
-    const e = t.touches[0].clientX;
+    const touchX = touchEvent.touches[0].clientX;
     this.setLocalState({
       focusPanel: {
-        touchX: e
+        touchX: touchX
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpTouchEnd 对应的组件业务步骤；调用 this.setLocalState。
-   * 调用线索：this.setLocalState。
-   */
   _onFpTouchEnd() {
     this.setLocalState({
       focusPanel: {
@@ -956,58 +813,50 @@ class EventsTimeline extends Eyes.BaseComponent {
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpTouchMove 对应的组件业务步骤；调用 Math.abs, this.setLocalState, this._onMarkerTouch, this._createAnimation。
-   * 调用线索：Math.abs、d.play、h.play、this._createAnimation、this._onMarkerTouch等。
-   */
-  _onFpTouchMove(t) {
+  _onFpTouchMove(touchEvent) {
     const {
       timelinebar: timelinebar,
       focusPanel: focusPanel,
       animMarkerIndex: animMarkerIndex
     } = this._localState;
     if (focusPanel.animating) return;
-    const n = t.touches[0].clientX;
-    const o = n - focusPanel.touchX;
-    const r = focusPanel.touchDeltaX + o;
-    const a = {
-      touchX: n,
-      touchDeltaX: r
+    const touchX = touchEvent.touches[0].clientX;
+    const deltaX = touchX - focusPanel.touchX;
+    const accumulatedDeltaX = focusPanel.touchDeltaX + deltaX;
+    const focusUpdates = {
+      touchX: touchX,
+      touchDeltaX: accumulatedDeltaX
     };
-    focusPanel.clickEnabled && Math.abs(o) > 2 && (a.clickEnabled = false);
+    focusPanel.clickEnabled && Math.abs(deltaX) > 2 && (focusUpdates.clickEnabled = false);
     this.setLocalState({
-      focusPanel: a
+      focusPanel: focusUpdates
     });
-    const l = .7 * this._localState.focusPanel.contentWidth;
-    if (Math.abs(r) > l) {
-      const t = r > 0;
-      const i = t ? this._markers[animMarkerIndex - 1] : this._markers[animMarkerIndex + 1];
+    const switchThreshold = .7 * this._localState.focusPanel.contentWidth;
+    if (Math.abs(accumulatedDeltaX) > switchThreshold) {
+      const movingRight = accumulatedDeltaX > 0;
+      const adjacentMarker = movingRight ? this._markers[animMarkerIndex - 1] : this._markers[animMarkerIndex + 1];
       this._onMarkerTouch({
-        target: i.element,
+        target: adjacentMarker.element,
         touches: [{
-          clientX: t ? timelinebar.width : 0
+          clientX: movingRight ? timelinebar.width : 0
         }]
       });
     }
-    const c = {
+    const panTiming = {
       duration: 100,
       fill: "forwards",
       easing: "ease-out"
     };
-    const h = this._createAnimation(this._children.fpContent, {
-      transform: `translateX(${r}px) rotate(0.01deg)`
-    }, c);
-    const d = this._createAnimation(this._children.fpTicksContainer, {
-      transform: `translateX(${r}px)`
-    }, c);
-    h.play();
-    d.play();
+    const contentAnimation = this._createAnimation(this._children.fpContent, {
+      transform: `translateX(${accumulatedDeltaX}px) rotate(0.01deg)`
+    }, panTiming);
+    const ticksAnimation = this._createAnimation(this._children.fpTicksContainer, {
+      transform: `translateX(${accumulatedDeltaX}px)`
+    }, panTiming);
+    contentAnimation.play();
+    ticksAnimation.play();
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState, Math.abs, this._setClickedOnce, this.setState, this._setEventName, this._setFpElementActive, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty。
-   * 调用线索：Math.abs、t.preventDefault、t.stopPropagation、this._calcTimeFromFpX、this._calcXfromTime等。
-   */
-  _onFpTicksTouchStart(t) {
+  _onFpTicksTouchStart(touchEvent) {
     const {
       timelinebar: timelinebar,
       focusPanel: focusPanel,
@@ -1025,14 +874,14 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       doubleThreshold: doubleThreshold
     } = this._options;
-    const u = t.touches[0].clientX - left - arrowWidth - touchDeltaX - timelinebar.left;
-    if (t.preventDefault(), t.stopPropagation(), focusPanel.animating || -1 === activeMarkerIndex) return;
+    const focusX = touchEvent.touches[0].clientX - left - arrowWidth - touchDeltaX - timelinebar.left;
+    if (touchEvent.preventDefault(), touchEvent.stopPropagation(), focusPanel.animating || -1 === activeMarkerIndex) return;
     if (this._hideTooltip(), this.setLocalState({
       focusPanel: {
-        touchLineX: u
+        touchLineX: focusX
       }
     }), clickedOnce) {
-      if (Math.abs(touchLineX - u) < doubleThreshold) {
+      if (Math.abs(touchLineX - focusX) < doubleThreshold) {
         this._setClickedOnce("focusPanel", false);
         return void this.setLocalState({
           focusPanel: {
@@ -1049,20 +898,16 @@ class EventsTimeline extends Eyes.BaseComponent {
       clusterLineVisibleClass: ""
     });
     this._setEventName(`Between ${title} events`);
-    const p = this._markers[activeMarkerIndex];
-    this._setFpElementActive(p);
-    const _ = this._calcTimeFromFpX(u);
-    const m = left + .5 * totalWidth;
-    const g = this._calcXfromTime(_);
-    this._setDateAndPosition(_, m);
-    this._setClusterLineTransform(g);
-    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${u}px`);
+    const activeMarker = this._markers[activeMarkerIndex];
+    this._setFpElementActive(activeMarker);
+    const selectedTime = this._calcTimeFromFpX(focusX);
+    const panelMidpointX = left + .5 * totalWidth;
+    const timelineX = this._calcXfromTime(selectedTime);
+    this._setDateAndPosition(selectedTime, panelMidpointX);
+    this._setClusterLineTransform(timelineX);
+    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${focusX}px`);
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksTouchMove 对应的组件业务步骤；调用 this.setLocalState, this.setState, this._calcTimeFromFpX, this._calcXfromTime, this._setDateAndPosition, this._setClusterLineTransform, this._children.focusPanel.style.setProperty。
-   * 调用线索：t.stopPropagation、this._calcTimeFromFpX、this._calcXfromTime、this._children.focusPanel.style.setProperty、this._setClusterLineTransform等。
-   */
-  _onFpTicksTouchMove(t) {
+  _onFpTicksTouchMove(touchEvent) {
     const {
       timelinebar: timelinebar,
       focusPanel: focusPanel,
@@ -1074,11 +919,11 @@ class EventsTimeline extends Eyes.BaseComponent {
       touchDeltaX: touchDeltaX,
       totalWidth: totalWidth
     } = focusPanel;
-    const l = t.touches[0].clientX - left - arrowWidth - touchDeltaX - timelinebar.left;
-    if (t.stopPropagation(), focusPanel.animating || -1 === activeMarkerIndex) return;
+    const focusX = touchEvent.touches[0].clientX - left - arrowWidth - touchDeltaX - timelinebar.left;
+    if (touchEvent.stopPropagation(), focusPanel.animating || -1 === activeMarkerIndex) return;
     this.setLocalState({
       focusPanel: {
-        touchLineX: l
+        touchLineX: focusX
       }
     });
     this.setState({
@@ -1088,19 +933,15 @@ class EventsTimeline extends Eyes.BaseComponent {
       clusterLineColorClass: "yellow",
       clusterLineVisibleClass: ""
     });
-    const c = this._calcTimeFromFpX(l);
-    const h = left + .5 * totalWidth;
-    const d = this._calcXfromTime(c);
-    this._setDateAndPosition(c, h);
-    this._setClusterLineTransform(d);
-    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${l}px`);
+    const selectedTime = this._calcTimeFromFpX(focusX);
+    const panelMidpointX = left + .5 * totalWidth;
+    const timelineX = this._calcXfromTime(selectedTime);
+    this._setDateAndPosition(selectedTime, panelMidpointX);
+    this._setClusterLineTransform(timelineX);
+    this._children.focusPanel.style.setProperty("--fp-dateline-X", `${focusX}px`);
   }
-  /** @eyes-analysis
-   * 执行 _onFpTicksTouchEnd 对应的组件业务步骤；调用 this.setLocalState, this._onDateTouchEnd。
-   * 调用线索：t.stopPropagation、this._onDateTouchEnd、this.setLocalState。
-   */
-  _onFpTicksTouchEnd(t) {
-    t.stopPropagation();
+  _onFpTicksTouchEnd(touchEvent) {
+    touchEvent.stopPropagation();
     this.setLocalState({
       focusPanel: {
         animating: false
@@ -1115,23 +956,19 @@ class EventsTimeline extends Eyes.BaseComponent {
       }
     }));
   }
-  /** @eyes-analysis
-   * 执行 _onMarkerTouch 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this._hideTooltip, this._markers.forEach, this._setActive, this.setState, Eyes.AppUtils.isMobilePortrait, this.setLocalState, this._getNearestIndex, this._setFpViewingLineStart, this._zoomIntoCluster, this._setFocusPanelPos, this._setFpAnimation, this._setEventNameDebounced.cancel。
-   * 调用线索：Boolean、Eyes.AppUtils.isMobilePortrait、t.preventDefault、t.stopPropagation、this._getNearestIndex等。
-   */
-  _onMarkerTouch(t) {
-    t.preventDefault && t.preventDefault();
-    t.stopPropagation && t.stopPropagation();
+  _onMarkerTouch(touchEvent) {
+    touchEvent.preventDefault && touchEvent.preventDefault();
+    touchEvent.stopPropagation && touchEvent.stopPropagation();
     const {
       timelinebar: timelinebar,
       animMarkerIndex: animMarkerIndex,
       activeMarkerIndex: activeMarkerIndex
     } = this._localState;
-    const n = this._markers.find(e => e.element === t.target);
-    const r = this._markers.indexOf(n);
-    const a = this._markers[animMarkerIndex];
-    if (this._hideTooltip(), activeMarkerIndex !== r) {
-      if (this._markers.forEach(t => this._setActive(t.element, t === n)), this.setState({
+    const touchedMarker = this._markers.find(candidateMarker => candidateMarker.element === touchEvent.target);
+    const markerIndex = this._markers.indexOf(touchedMarker);
+    const animatedMarker = this._markers[animMarkerIndex];
+    if (this._hideTooltip(), activeMarkerIndex !== markerIndex) {
+      if (this._markers.forEach(marker => this._setActive(marker.element, marker === touchedMarker)), this.setState({
         targetLineVisibleClass: "hidden",
         targetDateVisibleClass: "hidden",
         targetDateColorClass: "white",
@@ -1139,76 +976,60 @@ class EventsTimeline extends Eyes.BaseComponent {
         fpVisibleClass: "",
         rangeDatesVisibleClass: "hidden",
         fpViewingLineVisibleClass: "hidden",
-        clusterLineVisibleClass: n?.cluster ? "" : "hidden"
+        clusterLineVisibleClass: touchedMarker?.cluster ? "" : "hidden"
       }), Eyes.AppUtils.isMobilePortrait() && this._settings?.hide(), this.setLocalState({
         focusPanel: {
-          active: Boolean(n.cluster)
+          active: Boolean(touchedMarker.cluster)
         },
-        activeMarkerIndex: r,
-        animMarkerIndex: n.cluster ? r : this._localState.animMarkerIndex
-      }), n.cluster) {
-        const i = t.touches[0].clientX;
-        const s = this._getNearestIndex(i, n.eventXs);
-        const o = timelinebar.viewingLineX < n.leftX;
-        this._setFpViewingLineStart(o);
-        n.events.length > 1 && this._zoomIntoCluster();
-        this._setFocusPanelPos(n);
-        this._setFpAnimation(a, n, s);
+        activeMarkerIndex: markerIndex,
+        animMarkerIndex: touchedMarker.cluster ? markerIndex : this._localState.animMarkerIndex
+      }), touchedMarker.cluster) {
+        const touchX = touchEvent.touches[0].clientX;
+        const eventIndex = this._getNearestIndex(touchX, touchedMarker.eventXs);
+        const viewingLineIsLeft = timelinebar.viewingLineX < touchedMarker.leftX;
+        this._setFpViewingLineStart(viewingLineIsLeft);
+        touchedMarker.events.length > 1 && this._zoomIntoCluster();
+        this._setFocusPanelPos(touchedMarker);
+        this._setFpAnimation(animatedMarker, touchedMarker, eventIndex);
       } else {
-        const t = n.events[0];
+        const eventInfo = touchedMarker.events[0];
         this._setEventNameDebounced.cancel();
-        this._setEventNameDebounced(t.title);
-        this._setDateAndPosition(t.start, n.leftX);
+        this._setEventNameDebounced(eventInfo.title);
+        this._setDateAndPosition(eventInfo.start, touchedMarker.leftX);
         this._showToolTipDebounced();
       }
-    } else n && !n.cluster && (this._onViewClick(n.events[0].id), this._resetStates());
+    } else touchedMarker && !touchedMarker.cluster && (this._onViewClick(touchedMarker.events[0].id), this._resetStates());
   }
-  /** @eyes-analysis
-   * 执行 _onDateTouchStart 对应的组件业务步骤。
-   * 调用线索：t.preventDefault。
-   */
-  _onDateTouchStart(t) {
-    t.preventDefault();
+  _onDateTouchStart(touchEvent) {
+    touchEvent.preventDefault();
   }
-  /** @eyes-analysis
-   * 执行 _onDateTouchEnd 对应的组件业务步骤；调用 this._calcTimeFromFpX, this._calcTimefromTimelineX, this.goToTime, this.setLocalState。
-   * 调用线索：i.valueOf、this._calcTimeFromFpX、this._calcTimefromTimelineX、this.goToTime、this.setLocalState。
-   */
   _onDateTouchEnd() {
     const {
       timelinebar: timelinebar,
       focusPanel: focusPanel
     } = this._localState;
     if (focusPanel.animating) return;
-    const i = focusPanel.active ? this._calcTimeFromFpX(focusPanel.touchLineX) : this._calcTimefromTimelineX(timelinebar.touchLineX);
-    this.goToTime(i);
+    const selectedTime = focusPanel.active ? this._calcTimeFromFpX(focusPanel.touchLineX) : this._calcTimefromTimelineX(timelinebar.touchLineX);
+    this.goToTime(selectedTime);
     this.setLocalState({
-      time: i.valueOf()
+      time: selectedTime.valueOf()
     });
   }
-  /** @eyes-analysis
-   * 执行 _onFpEventTouch 对应的组件业务步骤；调用 this._getMarkerAndIndexFromFocusEl, this._hideTooltip, this._setClusterEvent, this._onViewClick。
-   * 调用线索：t.preventDefault、this._getMarkerAndIndexFromFocusEl、this._hideTooltip、this._onViewClick、this._setClusterEvent。
-   */
-  _onFpEventTouch(t) {
-    t.preventDefault();
+  _onFpEventTouch(touchEvent) {
+    touchEvent.preventDefault();
     const {
       focusPanel: focusPanel,
       activeEventId: activeEventId
     } = this._localState;
     if (!focusPanel.clickEnabled) return;
-    const [s, n] = this._getMarkerAndIndexFromFocusEl(t.target);
-    const o = s.events[n];
+    const [marker, eventIndex] = this._getMarkerAndIndexFromFocusEl(touchEvent.target);
+    const eventInfo = marker.events[eventIndex];
     this._hideTooltip();
-    activeEventId !== o.id ? this._setClusterEvent(s, n) : this._onViewClick();
+    activeEventId !== eventInfo.id ? this._setClusterEvent(marker, eventIndex) : this._onViewClick();
   }
-  /** @eyes-analysis
-   * 执行 _onFpArrowClick 对应的组件业务步骤；调用 this._markers.find, this._markers.indexOf, this._calcTimeFromFpX, this._hideTooltip, this._getNextEventIndexByTime, this._zoomOutOfCluster, this._onMarkerTouch, this._resetStates, this._setClusterEvent。
-   * 调用线索：c.events.findIndex、t.events.find、t.preventDefault、t.target.getAttribute、this._calcTimeFromFpX等。
-   */
-  _onFpArrowClick(t) {
-    t.preventDefault();
-    const e = "left" === t.target.getAttribute("direction");
+  _onFpArrowClick(clickEvent) {
+    clickEvent.preventDefault();
+    const movingLeft = "left" === clickEvent.target.getAttribute("direction");
     const {
       timelinebar: timelinebar,
       activeMarkerIndex: activeMarkerIndex,
@@ -1218,32 +1039,28 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       fpTargetLineVisibleClass: fpTargetLineVisibleClass
     } = this._state;
-    const a = this._markers.find(t => t.events.find(t => t.id === activeEventId));
-    const l = this._markers.indexOf(a);
-    const c = this._markers[activeMarkerIndex] || this._markers[l];
-    if (void 0 === c) return;
-    const h = c.events.findIndex(t => t.id === activeEventId);
-    const d = "" === fpTargetLineVisibleClass ? this._calcTimeFromFpX(focusPanel.touchLineX) : this._localState.time;
+    const eventMarker = this._markers.find(marker => marker.events.find(eventInfo => eventInfo.id === activeEventId));
+    const eventMarkerIndex = this._markers.indexOf(eventMarker);
+    const activeMarker = this._markers[activeMarkerIndex] || this._markers[eventMarkerIndex];
+    if (void 0 === activeMarker) return;
+    const activeEventIndex = activeMarker.events.findIndex(eventInfo => eventInfo.id === activeEventId);
+    const selectedTime = "" === fpTargetLineVisibleClass ? this._calcTimeFromFpX(focusPanel.touchLineX) : this._localState.time;
     this._hideTooltip();
-    const u = h > -1 ? e ? h - 1 : h + 1 : this._getNextEventIndexByTime(d, c, e);
-    if (!c.events[u]) {
-      c.events.length > 1 && this._zoomOutOfCluster();
-      const t = e ? this._markers[activeMarkerIndex - 1] : this._markers[activeMarkerIndex + 1];
-      return void (t ? this._onMarkerTouch({
-        target: t.element,
+    const nextEventIndex = activeEventIndex > -1 ? movingLeft ? activeEventIndex - 1 : activeEventIndex + 1 : this._getNextEventIndexByTime(selectedTime, activeMarker, movingLeft);
+    if (!activeMarker.events[nextEventIndex]) {
+      activeMarker.events.length > 1 && this._zoomOutOfCluster();
+      const adjacentMarker = movingLeft ? this._markers[activeMarkerIndex - 1] : this._markers[activeMarkerIndex + 1];
+      return void (adjacentMarker ? this._onMarkerTouch({
+        target: adjacentMarker.element,
         touches: [{
-          clientX: e ? timelinebar.width : 0
+          clientX: movingLeft ? timelinebar.width : 0
         }]
       }) : this._resetStates());
     }
-    this._setClusterEvent(c, u);
+    this._setClusterEvent(activeMarker, nextEventIndex);
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineTouchStart 对应的组件业务步骤；调用 this._hideTooltip, this.setLocalState, Math.abs, this._setClickedOnce, this._resetStates, this.setState, this._setDateAndPosition。
-   * 调用线索：Math.abs、t.preventDefault、this._hideTooltip、this._resetStates、this._setClickedOnce等。
-   */
-  _onTimelineTouchStart(t) {
-    if (t.target !== this._children.timelinebar) return;
+  _onTimelineTouchStart(touchEvent) {
+    if (touchEvent.target !== this._children.timelinebar) return;
     const {
       timelinebar: timelinebar
     } = this._localState;
@@ -1254,13 +1071,13 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       doubleThreshold: doubleThreshold
     } = this._options;
-    const o = t.touches[0].clientX - timelinebar.left;
-    if (t.preventDefault(), this._hideTooltip(), this.setLocalState({
+    const timelineX = touchEvent.touches[0].clientX - timelinebar.left;
+    if (touchEvent.preventDefault(), this._hideTooltip(), this.setLocalState({
       timelinebar: {
-        touchLineX: o
+        touchLineX: timelineX
       }
     }), clickedOnce) {
-      if (Math.abs(touchLineX - o) < doubleThreshold) {
+      if (Math.abs(touchLineX - timelineX) < doubleThreshold) {
         this._setClickedOnce("timelinebar", false);
         return void this.setLocalState({
           timelinebar: {
@@ -1285,15 +1102,11 @@ class EventsTimeline extends Eyes.BaseComponent {
       targetDateColorClass: "yellow",
       rangeDatesVisibleClass: "hidden"
     });
-    const r = o / timelinebar.width;
-    const a = this._options.min + this._options.range * r;
-    this._setDateAndPosition(a, o);
+    const normalizedPosition = timelineX / timelinebar.width;
+    const selectedTime = this._options.min + this._options.range * normalizedPosition;
+    this._setDateAndPosition(selectedTime, timelineX);
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineTouchMove 对应的组件业务步骤；调用 this.setLocalState, this.setState, this._setDateAndPosition。
-   * 调用线索：end.valueOf、start.valueOf、this._setDateAndPosition、this.setLocalState、this.setState。
-   */
-  _onTimelineTouchMove(t) {
+  _onTimelineTouchMove(touchEvent) {
     const {
       start: start,
       end: end
@@ -1302,23 +1115,19 @@ class EventsTimeline extends Eyes.BaseComponent {
       timelinebar: timelinebar,
       activeMarkerIndex: activeMarkerIndex
     } = this._localState;
-    const o = t.touches[0].clientX - timelinebar.left;
-    const r = o / timelinebar.width;
-    const a = this._options.min + this._options.range * r;
-    const l = o < 0 || o > timelinebar.width || a < start.valueOf() || a > end.valueOf();
-    activeMarkerIndex > -1 || l || (this.setLocalState({
+    const timelineX = touchEvent.touches[0].clientX - timelinebar.left;
+    const normalizedPosition = timelineX / timelinebar.width;
+    const selectedTime = this._options.min + this._options.range * normalizedPosition;
+    const outsideTimeline = timelineX < 0 || timelineX > timelinebar.width || selectedTime < start.valueOf() || selectedTime > end.valueOf();
+    activeMarkerIndex > -1 || outsideTimeline || (this.setLocalState({
       timelinebar: {
-        touchLineX: o
+        touchLineX: timelineX
       }
     }), this.setState({
       targetLineVisibleClass: "",
       targetDateVisibleClass: ""
-    }), this._setDateAndPosition(a, o));
+    }), this._setDateAndPosition(selectedTime, timelineX));
   }
-  /** @eyes-analysis
-   * 执行 _onTimelineTouchEnd 对应的组件业务步骤；调用 this._onDateTouchEnd, this.setLocalState, this.setState。
-   * 调用线索：clearTimeout、setTimeout、this._onDateTouchEnd、this.setLocalState、this.setState。
-   */
   _onTimelineTouchEnd() {
     const {
       activeEventId: activeEventId,
@@ -1342,7 +1151,7 @@ class EventsTimeline extends Eyes.BaseComponent {
       rangeDatesVisibleClass: "fadein-slow"
     });
     clearTimeout(this._localState.timelinebar.fadeTimeout);
-    const s = setTimeout(() => {
+    const fadeTimeout = setTimeout(() => {
       if (this.setState && this.setLocalState) {
         const {
           targetLineVisibleClass: targetLineVisibleClass,
@@ -1365,31 +1174,17 @@ class EventsTimeline extends Eyes.BaseComponent {
     this.setLocalState({
       timelinebar: {
         active: false,
-        fadeTimeout: s
+        fadeTimeout: fadeTimeout
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _onOutsideTouch 对应的组件业务步骤；调用 this._element.contains, this._resetStates。
-   * 调用线索：this._element.contains、this._resetStates。
-   */
-  _onOutsideTouch(t) {
-    this._element.contains(t.target) || this._resetStates();
+  _onOutsideTouch(touchEvent) {
+    this._element.contains(touchEvent.target) || this._resetStates();
   }
-  /** @eyes-analysis
-   * 执行 _setResizeTimeout 对应的组件业务步骤；写入 _resizeTimeout。
-   * 状态写入：_resizeTimeout。
-   * 调用线索：clearTimeout、setTimeout。
-   */
-  _setResizeTimeout(t = 1e3) {
+  _setResizeTimeout(delayMillis = 1e3) {
     clearTimeout(this._resizeTimeout);
-    this._resizeTimeout = setTimeout(this._resizeDebounced, t);
+    this._resizeTimeout = setTimeout(this._resizeDebounced, delayMillis);
   }
-  /** @eyes-analysis
-   * 执行 _onResize 对应的组件业务步骤；调用 this._resetStates, this._children.timelinebar.getBoundingClientRect, Eyes.AppUtils.isMobile, Eyes.AppUtils.isTablet, this.setLocalState, this._children.timelinebar.style.setProperty, this._populate；写入 _resizeTimeout。
-   * 状态写入：_resizeTimeout。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、this._children.timelinebar.getBoundingClientRect、this._children.timelinebar.style.setProperty、this._populate等。
-   */
   _onResize() {
     this._resizeTimeout = null;
     this._resetStates();
@@ -1398,16 +1193,16 @@ class EventsTimeline extends Eyes.BaseComponent {
       height: height,
       left: left
     } = this._children.timelinebar.getBoundingClientRect();
-    const s = window.navigator.maxTouchPoints > 0;
-    let n = 304;
-    width || (Eyes.AppUtils.isMobile() ? n = 348 : Eyes.AppUtils.isTablet() && (n = 720));
+    const isTouch = window.navigator.maxTouchPoints > 0;
+    let fallbackWidth = 304;
+    width || (Eyes.AppUtils.isMobile() ? fallbackWidth = 348 : Eyes.AppUtils.isTablet() && (fallbackWidth = 720));
     this.setLocalState({
-      isTouch: s,
+      isTouch: isTouch,
       focusPanel: {
         calcWidths: true
       },
       timelinebar: {
-        width: width || n,
+        width: width || fallbackWidth,
         height: height || 40,
         left: left || 21
       }
@@ -1415,17 +1210,9 @@ class EventsTimeline extends Eyes.BaseComponent {
     this._children.timelinebar.style.setProperty("--timeline-height", `${this._localState.timelinebar.height}px`);
     this._populate();
   }
-  /** @eyes-analysis
-   * 重排响应式界面；调用 this._resizeDebounced。
-   * 调用线索：this._resizeDebounced。
-   */
   resize() {
     this._resizeDebounced();
   }
-  /** @eyes-analysis
-   * 执行 _calcEventClusterMax 对应的组件业务步骤；调用 Math.floor, Math.max, Math.min。
-   * 调用线索：Math.floor、Math.max、Math.min。
-   */
   _calcEventClusterMax() {
     const {
       events: events
@@ -1433,212 +1220,162 @@ class EventsTimeline extends Eyes.BaseComponent {
     const {
       timelinebar: timelinebar
     } = this._localState;
-    const i = Math.floor(events.clusterCoeff / timelinebar.width);
-    return Math.max(Math.min(i, events.clusterMax), events.clusterMin);
+    const estimatedCapacity = Math.floor(events.clusterCoeff / timelinebar.width);
+    return Math.max(Math.min(estimatedCapacity, events.clusterMax), events.clusterMin);
   }
-  /** @eyes-analysis
-   * 执行 _calcMidpointX 对应的组件业务步骤；调用 this._calcXfromTime。
-   * 调用线索：this._calcXfromTime。
-   */
-  _calcMidpointX(t, e, i = this._options.min, s = this._options.range, n = this._localState.timelinebar.width) {
-    const o = .5 * (t + e);
-    return this._calcXfromTime(o, i, s, n);
+  _calcMidpointX(startTime, endTime, rangeMinimum = this._options.min, timeRange = this._options.range, timelineWidth = this._localState.timelinebar.width) {
+    const midpointTime = .5 * (startTime + endTime);
+    return this._calcXfromTime(midpointTime, rangeMinimum, timeRange, timelineWidth);
   }
-  /** @eyes-analysis
-   * 执行 _calcWidthBtwnTimes 对应的组件业务步骤；调用 Math.max, Math.min, Math.round。
-   * 调用线索：Math.max、Math.min、Math.round、isNaN。
-   */
-  _calcWidthBtwnTimes(t, e, i = this._options.range, s = this._localState.timelinebar.width, n = 1, o = this._options.range, r = true) {
-    let a = n;
-    const l = (e - t) / i;
-    return l && !isNaN(l) ? (a = Math.max(l * s, a), a = Math.min(a, o), r ? Math.round(a) : a) : null;
+  _calcWidthBtwnTimes(startTime, endTime, timeRange = this._options.range, timelineWidth = this._localState.timelinebar.width, minimumWidth = 1, maximumWidth = this._options.range, roundPixels = true) {
+    let widthPixels = minimumWidth;
+    const normalizedDuration = (endTime - startTime) / timeRange;
+    return normalizedDuration && !isNaN(normalizedDuration) ? (widthPixels = Math.max(normalizedDuration * timelineWidth, widthPixels), widthPixels = Math.min(widthPixels, maximumWidth), roundPixels ? Math.round(widthPixels) : widthPixels) : null;
   }
-  /** @eyes-analysis
-   * 执行 _calcXfromTime 对应的组件业务步骤。
-   * 调用线索：formatNumber、isNaN、parseFloat、t.replace。
-   */
-  _calcXfromTime(t, e = this._options.min, i = this._options.range, s = this._localState.timelinebar.width, n = 2) {
-    let o = s * ((t - e) / i);
-    if (o > this._localState.timelinebar.width && (o = this._localState.timelinebar.width), !isNaN(o)) {
-      const t = formatNumber(o, n);
-      return "string" == typeof t ? parseFloat(t.replace(/,/g, "")) : null;
+  _calcXfromTime(timeValue, rangeMinimum = this._options.min, timeRange = this._options.range, timelineWidth = this._localState.timelinebar.width, fractionDigits = 2) {
+    let positionX = timelineWidth * ((timeValue - rangeMinimum) / timeRange);
+    if (positionX > this._localState.timelinebar.width && (positionX = this._localState.timelinebar.width), !isNaN(positionX)) {
+      const formattedPosition = formatNumber(positionX, fractionDigits);
+      return "string" == typeof formattedPosition ? parseFloat(formattedPosition.replace(/,/g, "")) : null;
     }
     return null;
   }
-  /** @eyes-analysis
-   * 执行 _calcTimefromTimelineX 对应的组件业务步骤。
-   * 调用线索：getMomentSecondary、getMomentSecondary()。
-   */
-  _calcTimefromTimelineX(t) {
+  _calcTimefromTimelineX(timelineX) {
     const {
       timelinebar: timelinebar
     } = this._localState;
-    const i = t / timelinebar.width;
-    const s = this._options.min + i * this._options.range;
-    return getMomentSecondary()(s);
+    const normalizedPosition = timelineX / timelinebar.width;
+    const selectedTime = this._options.min + normalizedPosition * this._options.range;
+    return getMomentSecondary()(selectedTime);
   }
-  /** @eyes-analysis
-   * 执行 _calcTimeFromFpX 对应的组件业务步骤。
-   * 调用线索：getMomentSecondary、getMomentSecondary()。
-   */
-  _calcTimeFromFpX(t) {
+  _calcTimeFromFpX(focusX) {
     const {
       focusPanel: focusPanel,
       activeMarkerIndex: activeMarkerIndex
     } = this._localState;
     const {
-      focusPanel: s
+      focusPanel: focusOptions
     } = this._options;
-    const o = .01 * s.padding * focusPanel.contentWidth;
-    const r = (t - o) / (focusPanel.contentWidth - 2 * o);
-    const a = this._markers[activeMarkerIndex];
-    const l = a.min + r * a.timeRange;
-    return getMomentSecondary()(l);
+    const paddingPixels = .01 * focusOptions.padding * focusPanel.contentWidth;
+    const normalizedPosition = (focusX - paddingPixels) / (focusPanel.contentWidth - 2 * paddingPixels);
+    const activeMarker = this._markers[activeMarkerIndex];
+    const selectedTime = activeMarker.min + normalizedPosition * activeMarker.timeRange;
+    return getMomentSecondary()(selectedTime);
   }
-  /** @eyes-analysis
-   * 执行 _calcRelativeProgress 对应的组件业务步骤。
-   */
-  _calcRelativeProgress(t, e, i) {
-    return t + i * (e - t);
+  _calcRelativeProgress(startValue, endValue, progress) {
+    return startValue + progress * (endValue - startValue);
   }
-  /** @eyes-analysis
-   * 执行 _calcFpEventOffset 对应的组件业务步骤。
-   */
-  _calcFpEventOffset(t, e) {
+  _calcFpEventOffset(marker, eventIndex) {
     const {
       leftOffset: leftOffset
     } = this._options.focusPanel.touch;
-    return leftOffset - t.fpEventXs[e];
+    return leftOffset - marker.fpEventXs[eventIndex];
   }
-  /** @eyes-analysis
-   * 执行 _nestedPropsChanged 对应的组件业务步骤；调用 this._nestedPropsChanged。
-   * 调用线索：console.error、this._nestedPropsChanged。
-   */
-  _nestedPropsChanged(t, e) {
-    for (const i in t) {
-      if (null !== t[i] && null !== e[i] && typeof t[i] != typeof e[i]) {
-        console.error("Mismatched state types in object", t);
+  _nestedPropsChanged(updates, previousState) {
+    for (const propertyName in updates) {
+      if (null !== updates[propertyName] && null !== previousState[propertyName] && typeof updates[propertyName] != typeof previousState[propertyName]) {
+        console.error("Mismatched state types in object", updates);
         return false;
       }
-      if (null !== t[i] && t[i].constructor === Object) {
-        if (this._nestedPropsChanged(t[i], e[i])) return true;
-      } else if (t[i] !== e[i]) return true;
+      if (null !== updates[propertyName] && updates[propertyName].constructor === Object) {
+        if (this._nestedPropsChanged(updates[propertyName], previousState[propertyName])) return true;
+      } else if (updates[propertyName] !== previousState[propertyName]) return true;
     }
     return false;
   }
-  /** @eyes-analysis
-   * 执行 _showToolTip 对应的组件业务步骤；调用 Math.min, Math.max, Math.abs, this._setTooltipModifiers, this.setLocalState。
-   * 调用线索：Math.abs、Math.max、Math.min、e.show、setTimeout等。
-   */
-  _showToolTip(t = "timelinebar") {
-    const e = this._tooltips[t];
+  _showToolTip(tooltipSection = "timelinebar") {
+    const tooltip = this._tooltips[tooltipSection];
     const {
       isTouch: isTouch,
       activeMarkerIndex: activeMarkerIndex,
       timelinebar: timelinebar
     } = this._localState;
-    if (this._localState[t].displayedTip || !e) return;
-    const o = this._markers[activeMarkerIndex];
-    if (isTouch && o && !o.cluster) {
-      const t = .5 * timelinebar.width;
-      const i = o.leftX < t ? "right" : "left";
-      const s = ({
+    if (this._localState[tooltipSection].displayedTip || !tooltip) return;
+    const activeMarker = this._markers[activeMarkerIndex];
+    if (isTouch && activeMarker && !activeMarker.cluster) {
+      const timelineMidpoint = .5 * timelinebar.width;
+      const arrowSide = activeMarker.leftX < timelineMidpoint ? "right" : "left";
+      const calculateOffset = ({
         placement: placement,
-        _: i,
+        _: unusedPopperData,
         popper: popper
       }) => {
         if ("top" === placement) {
-          const e = .5 * popper.width;
-          return [Math.min(Math.max(o.leftX, e), timelinebar.width - e) - t, 30];
+          const halfTooltipWidth = .5 * popper.width;
+          return [Math.min(Math.max(activeMarker.leftX, halfTooltipWidth), timelinebar.width - halfTooltipWidth) - timelineMidpoint, 30];
         }
         return [];
       };
-      const r = ({
+      const calculateArrowPadding = ({
         popper: popper,
-        _: s,
+        _: unusedPopperData,
         placement: placement
       }) => {
         if ("top" === placement) {
-          const s = .3 + .4 * Math.abs((o.leftX - t) / t);
+          const paddingRatio = .3 + .4 * Math.abs((activeMarker.leftX - timelineMidpoint) / timelineMidpoint);
           return {
-            [i]: popper.width * s
+            [arrowSide]: popper.width * paddingRatio
           };
         }
         return 0;
       };
-      this._setTooltipModifiers(e, s, r);
+      this._setTooltipModifiers(tooltip, calculateOffset, calculateArrowPadding);
     }
-    e.show();
+    tooltip.show();
     const {
       minTime: minTime
     } = this._options.tooltips;
     this.setLocalState({
       toolTipTimeout: setTimeout(() => {
         this.setLocalState({
-          [t]: {
+          [tooltipSection]: {
             displayedTip: true
           }
         });
       }, minTime)
     });
   }
-  /** @eyes-analysis
-   * 执行 _setTooltipModifiers 对应的组件业务步骤。
-   * 调用线索：s.push、t.setProps。
-   */
-  _setTooltipModifiers(t, e, i) {
-    const s = [];
-    "function" == typeof e && s.push({
+  _setTooltipModifiers(tooltip, offsetCallback, arrowPaddingCallback) {
+    const modifiers = [];
+    "function" == typeof offsetCallback && modifiers.push({
       name: "offset",
       options: {
-        offset: e
+        offset: offsetCallback
       }
     });
-    "function" == typeof i && s.push({
+    "function" == typeof arrowPaddingCallback && modifiers.push({
       name: "arrow",
       options: {
-        padding: i
+        padding: arrowPaddingCallback
       }
     });
-    t.setProps({
+    tooltip.setProps({
       popperOptions: {
-        modifiers: s
+        modifiers: modifiers
       }
     });
   }
-  /** @eyes-analysis
-   * 执行 _resetTooltip 对应的组件业务步骤；调用 this._showToolTipDebounced.cancel。
-   * 调用线索：clearTimeout、this._showToolTipDebounced.cancel。
-   */
   _resetTooltip() {
     this._showToolTipDebounced.cancel();
     clearTimeout(this._localState.toolTipTimeout);
   }
-  /** @eyes-analysis
-   * 执行 _hideTooltip 对应的组件业务步骤；调用 this._resetTooltip, Object.values。
-   * 调用线索：Object.values、Object.values(this._tooltips).forEach、t.hide、this._resetTooltip。
-   */
-  _hideTooltip(t = true) {
-    t && this._resetTooltip();
-    Object.values(this._tooltips).forEach(t => t.hide());
+  _hideTooltip(resetPendingTooltip = true) {
+    resetPendingTooltip && this._resetTooltip();
+    Object.values(this._tooltips).forEach(tooltip => tooltip.hide());
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 Eyes.AppUtils.isMobile, Eyes.AppUtils.isMobilePortrait, Eyes.AppUtils.isTablet, this._app.getComponent, this._app.getComponent("eventsBlock").setState, this._hideTooltip, this._markers.forEach, this._setActive, this.setLocalState, this.setState；写入 。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isMobilePortrait、Eyes.AppUtils.isTablet、this._app.getComponent、this._app.getComponent("collapsibleMenu")?.getState等。
-   */
   _resetStates({
-    hideFocusPanel: t = true,
-    hideClusterLine: e = true,
-    hideDate: i = true
+    hideFocusPanel = true,
+    hideClusterLine = true,
+    hideDate = true
   } = {}) {
     const {
       timelinebar: timelinebar
     } = this._localState;
-    if (this._hideTooltip(false), Eyes.AppUtils.isMobilePortrait() && this._app.getComponent("collapsibleMenu")?.getState("isVisible") && (t ? this._settings?.show() : this._settings?.hide()), this.setState({
-      fpVisibleClass: t ? "hidden" : "",
-      rangeDatesVisibleClass: t ? "" : "hidden",
-      clusterLineVisibleClass: e ? "hidden" : "",
-      targetDateVisibleClass: i && !timelinebar.active ? "hidden" : "",
+    if (this._hideTooltip(false), Eyes.AppUtils.isMobilePortrait() && this._app.getComponent("collapsibleMenu")?.getState("isVisible") && (hideFocusPanel ? this._settings?.show() : this._settings?.hide()), this.setState({
+      fpVisibleClass: hideFocusPanel ? "hidden" : "",
+      rangeDatesVisibleClass: hideFocusPanel ? "" : "hidden",
+      clusterLineVisibleClass: hideClusterLine ? "hidden" : "",
+      targetDateVisibleClass: hideDate && !timelinebar.active ? "hidden" : "",
       fpArrowVisible: Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTablet() ? "" : "hidden"
     }), this.setLocalState({
       activeMarkerIndex: -1,
@@ -1653,63 +1390,51 @@ class EventsTimeline extends Eyes.BaseComponent {
         isIntroLabelVisible: ""
       });
     }
-    this._markers.forEach(t => this._setActive(t.element, false));
+    this._markers.forEach(marker => this._setActive(marker.element, false));
   }
-  /** @eyes-analysis
-   * 执行 _setViewingLineX 对应的组件业务步骤；调用 this._calcXfromTime, this._getFpViewingLineX, this._children.timelinebar.style.setProperty, this._children.focusPanel.style.setProperty, this.setState, this.setLocalState。
-   * 调用线索：this._calcXfromTime、this._children.focusPanel.style.setProperty、this._children.timelinebar.style.setProperty、this._getFpViewingLineX、this.setLocalState等。
-   */
-  _setViewingLineX(t) {
+  _setViewingLineX(currentTime) {
     const {
       timelinebar: timelinebar,
       updateViewingLine: updateViewingLine,
       focusPanel: focusPanel
     } = this._localState;
-    const n = {
+    const visibilityUpdates = {
       viewingLineVisibleClass: "hidden",
       fpViewingLineVisibleClass: "hidden"
     };
-    const o = {
+    const localUpdates = {
       updateViewingLine: false
     };
-    const r = this._calcXfromTime(t);
-    const a = this._getFpViewingLineX(t);
-    if (r) {
-      const t = timelinebar.width && r <= timelinebar.width;
-      n.viewingLineVisibleClass = t ? "" : "hidden";
-      (r !== timelinebar.viewingLineX || updateViewingLine) && (this._children.timelinebar.style.setProperty("--viewingline-X", `${r}px`), o.timelinebar = {
-        viewingLineX: r
+    const timelineX = this._calcXfromTime(currentTime);
+    const focusX = this._getFpViewingLineX(currentTime);
+    if (timelineX) {
+      const withinTimelineWidth = timelinebar.width && timelineX <= timelinebar.width;
+      visibilityUpdates.viewingLineVisibleClass = withinTimelineWidth ? "" : "hidden";
+      (timelineX !== timelinebar.viewingLineX || updateViewingLine) && (this._children.timelinebar.style.setProperty("--viewingline-X", `${timelineX}px`), localUpdates.timelinebar = {
+        viewingLineX: timelineX
       });
     }
-    a && (n.fpViewingLineVisibleClass = "", (a !== focusPanel.viewingLineX || updateViewingLine) && (this._children.focusPanel.style.setProperty("--fp-viewingline-X", `${a}px`), o.focusPanel = {
-      viewingLineX: a
+    focusX && (visibilityUpdates.fpViewingLineVisibleClass = "", (focusX !== focusPanel.viewingLineX || updateViewingLine) && (this._children.focusPanel.style.setProperty("--fp-viewingline-X", `${focusX}px`), localUpdates.focusPanel = {
+      viewingLineX: focusX
     }));
-    this.setState(n);
-    this.setLocalState(o);
+    this.setState(visibilityUpdates);
+    this.setLocalState(localUpdates);
   }
-  /** @eyes-analysis
-   * 执行 _setFpViewingLineStart 对应的组件业务步骤；调用 this._children.focusPanel.style.setProperty。
-   * 调用线索：this._children.focusPanel.style.setProperty。
-   */
-  _setFpViewingLineStart(t) {
+  _setFpViewingLineStart(viewingLineIsLeft) {
     const {
       focusPanel: focusPanel
     } = this._localState;
-    const i = focusPanel.width || 1e3;
-    const s = t ? -i : 2 * i;
-    this._children.focusPanel.style.setProperty("--fp-viewingline-X", `${s}px`);
+    const panelWidth = focusPanel.width || 1e3;
+    const startPositionX = viewingLineIsLeft ? -panelWidth : 2 * panelWidth;
+    this._children.focusPanel.style.setProperty("--fp-viewingline-X", `${startPositionX}px`);
   }
-  /** @eyes-analysis
-   * 执行 _setClusterEvent 对应的组件业务步骤；调用 this._setEventName, this._setDateAndPosition, this._setClusterLineTransform, this.setState, this._setFpElementActive。
-   * 调用线索：this._setClusterLineTransform、this._setDateAndPosition、this._setEventName、this._setFpElementActive、this.setState。
-   */
-  _setClusterEvent(t, e) {
-    const i = t.events[e];
-    const s = t.eventXs[e];
-    const n = t.fpEventElements[e];
-    this._setEventName(i.title, i.start);
-    this._setDateAndPosition(i.start, s);
-    this._setClusterLineTransform(s);
+  _setClusterEvent(marker, eventIndex) {
+    const eventInfo = marker.events[eventIndex];
+    const timelineX = marker.eventXs[eventIndex];
+    const focusElement = marker.fpEventElements[eventIndex];
+    this._setEventName(eventInfo.title, eventInfo.start);
+    this._setDateAndPosition(eventInfo.start, timelineX);
+    this._setClusterLineTransform(timelineX);
     this.setState({
       clusterLineVisibleClass: "",
       clusterLineColorClass: "white",
@@ -1718,66 +1443,62 @@ class EventsTimeline extends Eyes.BaseComponent {
       fpTargetLineVisibleClass: "hidden",
       fpVisibleClass: ""
     });
-    this._setFpElementActive(t, n);
+    this._setFpElementActive(marker, focusElement);
   }
-  /** @eyes-analysis
-   * 执行 _setFpAnimation 对应的组件业务步骤；调用 this._markers.indexOf, this._getNormDistance, this._calcRelativeProgress, this.setState, this.setLocalState, this._depopulateFocusPanel, this._populateFocusPanel, this._setClusterEvent, this._getFpEventsEnterAnim, this._getFpEventsExitAnim, this._getFpTickAnim, this._getFpLineAnim, this._createAnimation。
-   * 调用线索：_.play、c.play、l.play、m.play、p.play等。
-   */
-  _setFpAnimation(t, e, i) {
-    const s = t;
-    const n = this._markers.indexOf(e);
+  _setFpAnimation(previousMarker, nextMarker, selectedEventIndex) {
+    const hasPreviousMarker = previousMarker;
+    const nextMarkerIndex = this._markers.indexOf(nextMarker);
     const {
       isTouch: isTouch
     } = this._localState;
-    if (s) {
-      const s = 700;
-      const r = 2e3;
-      const a = t.leftX < e.leftX;
-      const l = this._getNormDistance(t, e);
-      const c = this._calcRelativeProgress(s, r, l);
-      const h = .39 * c;
-      const d = {
+    if (hasPreviousMarker) {
+      const minimumDuration = 700;
+      const maximumDuration = 2e3;
+      const movingRight = previousMarker.leftX < nextMarker.leftX;
+      const normalizedDistance = this._getNormDistance(previousMarker, nextMarker);
+      const durationMillis = this._calcRelativeProgress(minimumDuration, maximumDuration, normalizedDistance);
+      const eventDuration = .39 * durationMillis;
+      const animationState = {
         focusPanel: {
           animating: true
         }
       };
       isTouch || (this.setState({
         clusterLineVisibleClass: "hidden"
-      }), d.activeMarkerIndex = -1);
-      this.setLocalState(d);
-      const u = () => {
-        t.fpEventElements = [];
-        this._depopulateFocusPanel(t);
-        this._populateFocusPanel(e);
-        const s = {
-          activeMarkerIndex: n,
-          animMarkerIndex: n,
+      }), animationState.activeMarkerIndex = -1);
+      this.setLocalState(animationState);
+      const populateNextMarker = () => {
+        previousMarker.fpEventElements = [];
+        this._depopulateFocusPanel(previousMarker);
+        this._populateFocusPanel(nextMarker);
+        const focusState = {
+          activeMarkerIndex: nextMarkerIndex,
+          animMarkerIndex: nextMarkerIndex,
           updateViewingLine: true,
           [isTouch ? "touchDeltaX" : "wheelX"]: 0,
           focusPanel: {
             active: true
           }
         };
-        void 0 !== i && this._setClusterEvent(e, i);
-        this.setLocalState(s);
-        const r = this._getFpEventsEnterAnim(h, a, 0);
-        r.onfinish = () => {
+        void 0 !== selectedEventIndex && this._setClusterEvent(nextMarker, selectedEventIndex);
+        this.setLocalState(focusState);
+        const enterAnimation = this._getFpEventsEnterAnim(eventDuration, movingRight, 0);
+        enterAnimation.onfinish = () => {
           this.setLocalState({
             focusPanel: {
               animating: false
             }
           });
         };
-        r.play();
+        enterAnimation.play();
       };
-      const p = this._getFpEventsExitAnim(h, a);
-      p.onfinish = u;
-      p.play();
-      const _ = this._getFpTickAnim(l, c, a);
-      const m = this._getFpLineAnim(c);
-      _.play();
-      m.play();
+      const exitAnimation = this._getFpEventsExitAnim(eventDuration, movingRight);
+      exitAnimation.onfinish = populateNextMarker;
+      exitAnimation.play();
+      const ticksAnimation = this._getFpTickAnim(normalizedDistance, durationMillis, movingRight);
+      const lineAnimation = this._getFpLineAnim(durationMillis);
+      ticksAnimation.play();
+      lineAnimation.play();
     } else {
       const {
         animation: {
@@ -1786,195 +1507,151 @@ class EventsTimeline extends Eyes.BaseComponent {
         }
       } = this._options;
       this._depopulateFocusPanel();
-      this._populateFocusPanel(e);
-      const r = {
-        activeMarkerIndex: n,
-        animMarkerIndex: n,
+      this._populateFocusPanel(nextMarker);
+      const focusState = {
+        activeMarkerIndex: nextMarkerIndex,
+        animMarkerIndex: nextMarkerIndex,
         updateViewingLine: true,
         [isTouch ? "touchDeltaX" : "wheelX"]: 0,
         focusPanel: {
           active: true
         }
       };
-      const a = [...keyframes.fpEvents.zoom];
-      void 0 !== i && this._setClusterEvent(e, i);
-      this.setLocalState(r);
-      this._createAnimation(this._children.fpContent, a, timings.zoom).play();
-      const l = this._createAnimation(this._children.fpTicks, keyframes.fpTicks.zoom, timings.zoom);
-      const c = this._createAnimation(this._children.fpLine, keyframes.fpLine, timings.zoom);
-      l.play();
-      c.play();
+      const zoomKeyframes = [...keyframes.fpEvents.zoom];
+      void 0 !== selectedEventIndex && this._setClusterEvent(nextMarker, selectedEventIndex);
+      this.setLocalState(focusState);
+      this._createAnimation(this._children.fpContent, zoomKeyframes, timings.zoom).play();
+      const ticksAnimation = this._createAnimation(this._children.fpTicks, keyframes.fpTicks.zoom, timings.zoom);
+      const lineAnimation = this._createAnimation(this._children.fpLine, keyframes.fpLine, timings.zoom);
+      ticksAnimation.play();
+      lineAnimation.play();
     }
   }
-  /** @eyes-analysis
-   * 执行 _getFpViewingLineX 对应的组件业务步骤；调用 this._calcXfromTime, Math.round。
-   * 调用线索：Math.round、this._calcXfromTime。
-   */
-  _getFpViewingLineX(t) {
+  _getFpViewingLineX(currentTime) {
     const {
       activeMarkerIndex: activeMarkerIndex,
       focusPanel: focusPanel
     } = this._localState;
     if (-1 !== activeMarkerIndex) {
       const {
-        focusPanel: s
+        focusPanel: focusOptions
       } = this._options;
       const {
         min: min,
         timeRange: timeRange
       } = this._markers[activeMarkerIndex];
-      const r = .01 * s.padding * focusPanel.contentWidth;
-      const a = focusPanel.contentWidth - 2 * r;
-      const l = this._calcXfromTime(t, min, timeRange, a, 0);
-      if (null !== l) {
-        const t = l + Math.round(r);
-        if (t > -a && t < 2 * a) return t;
+      const paddingPixels = .01 * focusOptions.padding * focusPanel.contentWidth;
+      const usableWidth = focusPanel.contentWidth - 2 * paddingPixels;
+      const eventX = this._calcXfromTime(currentTime, min, timeRange, usableWidth, 0);
+      if (null !== eventX) {
+        const paddedX = eventX + Math.round(paddingPixels);
+        if (paddedX > -usableWidth && paddedX < 2 * usableWidth) return paddedX;
       }
     }
     return null;
   }
-  /** @eyes-analysis
-   * 执行 _getNearestEvent 对应的组件业务步骤；调用 this._getNearestIndex。
-   * 调用线索：this._getNearestIndex。
-   */
-  _getNearestEvent(t, e) {
-    if (t.cluster) {
-      const i = this._getNearestIndex(e, t.eventXs);
-      return t.events[i];
+  _getNearestEvent(marker, timelineX) {
+    if (marker.cluster) {
+      const eventIndex = this._getNearestIndex(timelineX, marker.eventXs);
+      return marker.events[eventIndex];
     }
-    return t.events[0];
+    return marker.events[0];
   }
-  /** @eyes-analysis
-   * 执行 _getNextEventIndexByTime 对应的组件业务步骤。
-   * 调用线索：e.events.forEach、e.start.valueOf。
-   */
-  _getNextEventIndexByTime(t = this._localState.time, e, i) {
-    let s = -1;
-    e.events.forEach((e, i) => {
-      t > e.start.valueOf() && (s = i);
+  _getNextEventIndexByTime(selectedTime = this._localState.time, marker, movingLeft) {
+    let previousEventIndex = -1;
+    marker.events.forEach((eventInfo, eventIndex) => {
+      selectedTime > eventInfo.start.valueOf() && (previousEventIndex = eventIndex);
     });
-    return i ? s : s + 1;
+    return movingLeft ? previousEventIndex : previousEventIndex + 1;
   }
-  /** @eyes-analysis
-   * 执行 _setDateAndPosition 对应的组件业务步骤。
-   * 调用线索：("number"==typeof t?getMomentSecondary()(t):t).format、getMomentSecondary、getMomentSecondary()、timelinebar.style.setProperty。
-   */
-  _setDateAndPosition(t, e) {
+  _setDateAndPosition(selectedTime, timelineX) {
     const {
       timelinebar: timelinebar
     } = this._children;
-    const s = ("number" == typeof t ? getMomentSecondary()(t) : t).format("MMM DD, YYYY");
-    timelinebar.style.setProperty("--formatted-date", `'${s}'`);
-    e && timelinebar.style.setProperty("--dateline-X", `${e}px`);
+    const formattedDate = ("number" == typeof selectedTime ? getMomentSecondary()(selectedTime) : selectedTime).format("MMM DD, YYYY");
+    timelinebar.style.setProperty("--formatted-date", `'${formattedDate}'`);
+    timelineX && timelinebar.style.setProperty("--dateline-X", `${timelineX}px`);
   }
-  /** @eyes-analysis
-   * 执行 _setEventName 对应的组件业务步骤；调用 this._element.style.setProperty, this.setState。
-   * 调用线索：("number"==typeof t?getMomentSecondary()(t):t).format、getMomentSecondary、getMomentSecondary()、this._element.style.setProperty、this.setState。
-   */
-  _setEventName(t, e = null) {
+  _setEventName(eventTitle, eventTime = null) {
     const {
       activeMarkerIndex: activeMarkerIndex,
       timelinebar: timelinebar
     } = this._localState;
-    let o = 50;
-    const r = this._markers[activeMarkerIndex];
-    if (r && !r.cluster && (o = r.leftX / timelinebar.width * 100), this._element.style.setProperty("--event-offset-x", `-${o}%`), this._element.style.setProperty("--event-name", `'${t}'`), e) {
-      const t = e;
-      const i = ("number" == typeof t ? getMomentSecondary()(t) : t).format("MMM DD, YYYY");
+    let labelOffsetPercent = 50;
+    const activeMarker = this._markers[activeMarkerIndex];
+    if (activeMarker && !activeMarker.cluster && (labelOffsetPercent = activeMarker.leftX / timelinebar.width * 100), this._element.style.setProperty("--event-offset-x", `-${labelOffsetPercent}%`), this._element.style.setProperty("--event-name", `'${eventTitle}'`), eventTime) {
+      const timeValue = eventTime;
+      const formattedDate = ("number" == typeof timeValue ? getMomentSecondary()(timeValue) : timeValue).format("MMM DD, YYYY");
       this.setState({
-        fpEventTime: i
+        fpEventTime: formattedDate
       });
     }
     this.setState({
-      fpEventName: t
+      fpEventName: eventTitle
     });
   }
-  /** @eyes-analysis
-   * 执行 _setActive 对应的组件业务步骤；调用 List.add, List.remove。
-   * 调用线索：t.classList.add、t.classList.remove。
-   */
-  _setActive(t, e) {
-    e ? t.classList.add("active") : t.classList.remove("active");
+  _setActive(element, isActive) {
+    isActive ? element.classList.add("active") : element.classList.remove("active");
   }
-  /** @eyes-analysis
-   * 执行 _getNormDistance 对应的组件业务步骤；调用 Math.abs。
-   * 调用线索：Math.abs。
-   */
-  _getNormDistance(t, e) {
+  _getNormDistance(previousMarker, nextMarker) {
     const {
       timelinebar: timelinebar
     } = this._localState;
-    return Math.abs(e.leftX - t.leftX) / timelinebar.width;
+    return Math.abs(nextMarker.leftX - previousMarker.leftX) / timelinebar.width;
   }
-  /** @eyes-analysis
-   * 执行 _getFpEventsEnterAnim 对应的组件业务步骤；调用 this._createAnimation。
-   * 调用线索：this._createAnimation。
-   */
-  _getFpEventsEnterAnim(t, e, i) {
-    const s = {
-      duration: t,
+  _getFpEventsEnterAnim(durationMillis, movingRight, targetOffsetX) {
+    const timingOptions = {
+      duration: durationMillis,
       fill: "forwards",
       easing: "cubic-bezier(0, 1, 0, 1)"
     };
-    const n = e ? "" : "-";
-    const o = [{
-      transform: `translateX(${n}100%) scaleY(0)`
+    const directionSign = movingRight ? "" : "-";
+    const keyframes = [{
+      transform: `translateX(${directionSign}100%) scaleY(0)`
     }, {
-      transform: `translateX(${n}50%) scaleY(0.1)`
+      transform: `translateX(${directionSign}50%) scaleY(0.1)`
     }, {
-      transform: `translateX(${i}px) scaleY(1) rotate(0.01deg)`
+      transform: `translateX(${targetOffsetX}px) scaleY(1) rotate(0.01deg)`
     }];
-    return this._createAnimation(this._children.fpContent, o, s);
+    return this._createAnimation(this._children.fpContent, keyframes, timingOptions);
   }
-  /** @eyes-analysis
-   * 执行 _getFpEventsExitAnim 对应的组件业务步骤；调用 this._createAnimation。
-   * 调用线索：this._createAnimation。
-   */
-  _getFpEventsExitAnim(t, e) {
-    const i = {
-      duration: t,
+  _getFpEventsExitAnim(durationMillis, movingRight) {
+    const timingOptions = {
+      duration: durationMillis,
       easing: "cubic-bezier(.2, 0, 0, 1)"
     };
-    const s = e ? "-" : "";
-    const n = [{
-      transform: `translateX(${s}50%) scaleY(0.1)`,
+    const directionSign = movingRight ? "-" : "";
+    const keyframes = [{
+      transform: `translateX(${directionSign}50%) scaleY(0.1)`,
       offset: .5
     }, {
-      transform: `translateX(${s}100%) scaleY(0)`
+      transform: `translateX(${directionSign}100%) scaleY(0)`
     }];
-    return this._createAnimation(this._children.fpContent, n, i);
+    return this._createAnimation(this._children.fpContent, keyframes, timingOptions);
   }
-  /** @eyes-analysis
-   * 执行 _getFpTickAnim 对应的组件业务步骤；调用 this._calcRelativeProgress, this._createAnimation。
-   * 调用线索：this._calcRelativeProgress、this._createAnimation。
-   */
-  _getFpTickAnim(t, e, i) {
-    const s = {
-      duration: e,
+  _getFpTickAnim(normalizedDistance, durationMillis, movingRight) {
+    const timingOptions = {
+      duration: durationMillis,
       fill: "forwards",
       easing: "cubic-bezier(0, 1, 0, 1)"
     };
-    const n = this._calcRelativeProgress(50, 150, t);
-    const o = [{
+    const translationPercent = this._calcRelativeProgress(50, 150, normalizedDistance);
+    const keyframes = [{
       transform: "translateX(0%)"
     }, {
-      transform: `translateX(${i ? "-" : ""}${n}%)`,
+      transform: `translateX(${movingRight ? "-" : ""}${translationPercent}%)`,
       offset: .49
     }, {
-      transform: `translateX(${i ? "" : "-"}${n}%)`,
+      transform: `translateX(${movingRight ? "" : "-"}${translationPercent}%)`,
       offset: .5
     }, {
       transform: "translateX(0%)"
     }];
-    return this._createAnimation(this._children.fpTicksContainer, o, s);
+    return this._createAnimation(this._children.fpTicksContainer, keyframes, timingOptions);
   }
-  /** @eyes-analysis
-   * 执行 _getFpLineAnim 对应的组件业务步骤；调用 this._createAnimation。
-   * 调用线索：this._createAnimation。
-   */
-  _getFpLineAnim(t) {
-    const e = {
-      duration: t,
+  _getFpLineAnim(durationMillis) {
+    const timingOptions = {
+      duration: durationMillis,
       fill: "forwards",
       easing: "cubic-bezier(0, 1, 0, 1)"
     };
@@ -1984,50 +1661,30 @@ class EventsTimeline extends Eyes.BaseComponent {
       opacity: .6
     }, {
       opacity: 0
-    }], e);
+    }], timingOptions);
   }
-  /** @eyes-analysis
-   * 执行 _setFpEventScaledClass 对应的组件业务步骤；调用 EventElements.forEach, List.add, List.remove。
-   * 调用线索：requestAnimationFrame、t.classList.add、t.classList.remove、t.fpEventElements.forEach。
-   */
-  _setFpEventScaledClass(t) {
-    t.fpEventElements.forEach(t => t.classList.add("scaled"));
-    requestAnimationFrame(() => t.fpEventElements.forEach(t => t.classList.remove("scaled")));
+  _setFpEventScaledClass(marker) {
+    marker.fpEventElements.forEach(eventElement => eventElement.classList.add("scaled"));
+    requestAnimationFrame(() => marker.fpEventElements.forEach(eventElement => eventElement.classList.remove("scaled")));
   }
-  /** @eyes-analysis
-   * 执行 _setClusterLineTransform 对应的组件业务步骤；调用 this._clusterEventLine.style.setProperty。
-   * 调用线索：this._clusterEventLine.style.setProperty。
-   */
-  _setClusterLineTransform(t) {
-    this._clusterEventLine.style.setProperty("transform", `translateX(calc(${t}px - 50%))`);
+  _setClusterLineTransform(timelineX) {
+    this._clusterEventLine.style.setProperty("transform", `translateX(calc(${timelineX}px - 50%))`);
   }
-  /** @eyes-analysis
-   * 执行 _getMarkerAndIndexFromFocusEl 对应的组件业务步骤；调用 EventElements.indexOf。
-   * 调用线索：e.fpEventElements.indexOf。
-   */
-  _getMarkerAndIndexFromFocusEl(t) {
-    for (const e of this._markers) if (e.fpEventElements) {
-      const i = e.fpEventElements.indexOf(t);
-      if (i > -1) return [e, i];
+  _getMarkerAndIndexFromFocusEl(focusElement) {
+    for (const marker of this._markers) if (marker.fpEventElements) {
+      const eventIndex = marker.fpEventElements.indexOf(focusElement);
+      if (eventIndex > -1) return [marker, eventIndex];
     }
     return null;
   }
-  /** @eyes-analysis
-   * 执行 _setFpElementActive 对应的组件业务步骤；调用 EventElements.forEach, List.toggle, EventElements.indexOf, this.setLocalState。
-   * 调用线索：t.classList.toggle、t.fpEventElements.forEach、t.fpEventElements.indexOf、this.setLocalState。
-   */
-  _setFpElementActive(t, e) {
-    t.fpEventElements.forEach(t => t.classList.toggle("active", t === e));
-    const i = t.fpEventElements.indexOf(e);
-    const s = i > -1 ? t.events[i].id : null;
+  _setFpElementActive(marker, activeElement) {
+    marker.fpEventElements.forEach(eventElement => eventElement.classList.toggle("active", eventElement === activeElement));
+    const eventIndex = marker.fpEventElements.indexOf(activeElement);
+    const eventId = eventIndex > -1 ? marker.events[eventIndex].id : null;
     this.setLocalState({
-      activeEventId: s
+      activeEventId: eventId
     });
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 Math.max, Math.min, focusPanel.getBoundingClientRect, focusPanel.style.setProperty, fpDetails.getBoundingClientRect, fpMask.getBoundingClientRect, this._setNumOfTicks, this.setLocalState；写入 。
-   * 调用线索：Math.max、Math.min、focusPanel.getBoundingClientRect、focusPanel.style.setProperty、fpDetails.getBoundingClientRect等。
-   */
   _setFocusPanelPos({
     leftX: leftX,
     widthPx: widthPx
@@ -2038,146 +1695,107 @@ class EventsTimeline extends Eyes.BaseComponent {
       fpDetails: fpDetails
     } = this._children;
     if (this._localState.focusPanel.calcWidths) {
-      const t = focusPanel.getBoundingClientRect().width;
-      const e = fpMask.getBoundingClientRect().width;
-      const n = .5 * (t - e);
-      this._setNumOfTicks(e);
+      const panelWidth = focusPanel.getBoundingClientRect().width;
+      const maskWidth = fpMask.getBoundingClientRect().width;
+      const arrowWidth = .5 * (panelWidth - maskWidth);
+      this._setNumOfTicks(maskWidth);
       this.setLocalState({
         focusPanel: {
           calcWidths: false,
-          totalWidth: t,
-          contentWidth: e,
-          arrowWidth: n
+          totalWidth: panelWidth,
+          contentWidth: maskWidth,
+          arrowWidth: arrowWidth
         }
       });
-      focusPanel.style.setProperty("--fp-midpoint", .5 * t + "px");
+      focusPanel.style.setProperty("--fp-midpoint", .5 * panelWidth + "px");
     }
     const {
       timelinebar: timelinebar,
-      focusPanel: r
+      focusPanel: focusState
     } = this._localState;
-    const a = fpDetails.getBoundingClientRect().width;
-    const l = a / 2;
-    const c = timelinebar.width - a > 0 ? timelinebar.width - a : 0;
-    const h = Math.min(Math.max(leftX - l, 0), c);
-    const d = leftX - l;
-    const u = widthPx / r.contentWidth;
-    focusPanel.style.setProperty("--focus-X", `${h}px`);
-    focusPanel.style.setProperty("--fpMarker-X", `${d}px`);
-    focusPanel.style.setProperty("--fpMarker-scaleX", `${u}`);
+    const detailsWidth = fpDetails.getBoundingClientRect().width;
+    const halfDetailsWidth = detailsWidth / 2;
+    const maximumLeft = timelinebar.width - detailsWidth > 0 ? timelinebar.width - detailsWidth : 0;
+    const clampedLeft = Math.min(Math.max(leftX - halfDetailsWidth, 0), maximumLeft);
+    const markerLeft = leftX - halfDetailsWidth;
+    const markerScale = widthPx / focusState.contentWidth;
+    focusPanel.style.setProperty("--focus-X", `${clampedLeft}px`);
+    focusPanel.style.setProperty("--fpMarker-X", `${markerLeft}px`);
+    focusPanel.style.setProperty("--fpMarker-scaleX", `${markerScale}`);
   }
-  /** @eyes-analysis
-   * 执行 _setNumOfTicks 对应的组件业务步骤；调用 Math.round, Char.repeat。
-   * 状态写入：_children.fpTicks.innerText。
-   * 调用线索：Math.round、tickChar.repeat。
-   */
-  _setNumOfTicks(t) {
+  _setNumOfTicks(contentWidth) {
     const {
       tickChar: tickChar,
       tickMult: tickMult
     } = this._options.focusPanel;
-    const s = Math.round(t * tickMult);
-    this._children.fpTicks.innerText = tickChar.repeat(s);
+    const tickCount = Math.round(contentWidth * tickMult);
+    this._children.fpTicks.innerText = tickChar.repeat(tickCount);
   }
-  /** @eyes-analysis
-   * 执行 _getLastCluster 对应的组件业务步骤。
-   */
   _getLastCluster() {
-    for (let t = this._markers.length - 1; t >= 0; t--) {
-      const e = this._markers[t];
-      if (e.cluster) return e;
+    for (let markerIndex = this._markers.length - 1; markerIndex >= 0; markerIndex--) {
+      const marker = this._markers[markerIndex];
+      if (marker.cluster) return marker;
     }
     return null;
   }
-  /** @eyes-analysis
-   * 执行 _setMarkerPositions 对应的组件业务步骤；调用 this._markers.forEach, Math.max, this._calcWidthBtwnTimes, this._calcMidpointX, Math.min, this._createEventElement。
-   * 调用线索：Math.max、Math.min、o.end.clone、o.end.clone().add、o.start.clone等。
-   */
   _setMarkerPositions() {
     const {
       events: events,
       range: range
     } = this._options;
-    const i = .01 * events.clusterThresh * 2 * range;
-    const s = .5 * i;
-    this._markers.forEach((t, e) => {
-      const n = t.cluster ? 3 : 2;
-      const o = t.events[0];
-      const r = t.events[t.events.length - 1];
-      t.widthPx = Math.max(this._calcWidthBtwnTimes(o.start, r.end), n);
-      t.leftX = this._calcMidpointX(o.start, r.end);
-      t.min = Math.min(...t.events.map(t => t.start));
-      t.max = Math.max(...t.events.map(t => t.end));
-      t.timeRange = t.max - t.min;
-      const a = 1 === t.events.length;
-      a && t.timeRange < i && (0 === e ? t.max = o.end.clone().add(i, "milliseconds") : e === this._markers.length - 1 ? t.min = o.start.clone().subtract(i, "milliseconds") : (t.min = o.start.clone().subtract(s, "milliseconds"), t.max = o.end.clone().add(s, "milliseconds")), t.timeRange = t.max - t.min);
-      t.cluster && (t.eventXs = t.events.map(t => this._calcMidpointX(t.start, t.end)), a && this._createEventElement(t));
-      t.element.style.setProperty("width", u);
-      t.element.style.setProperty("transform", `translateX(calc(${t.leftX}px - 50%))`);
+    const minimumTimeRange = .01 * events.clusterThresh * 2 * range;
+    const halfTimeRange = .5 * minimumTimeRange;
+    this._markers.forEach((marker, markerIndex) => {
+      const minimumMarkerWidth = marker.cluster ? 3 : 2;
+      const firstEvent = marker.events[0];
+      const lastEvent = marker.events[marker.events.length - 1];
+      marker.widthPx = Math.max(this._calcWidthBtwnTimes(firstEvent.start, lastEvent.end), minimumMarkerWidth);
+      marker.leftX = this._calcMidpointX(firstEvent.start, lastEvent.end);
+      marker.min = Math.min(...marker.events.map(eventInfo => eventInfo.start));
+      marker.max = Math.max(...marker.events.map(eventInfo => eventInfo.end));
+      marker.timeRange = marker.max - marker.min;
+      const isSingleEvent = 1 === marker.events.length;
+      isSingleEvent && marker.timeRange < minimumTimeRange && (0 === markerIndex ? marker.max = firstEvent.end.clone().add(minimumTimeRange, "milliseconds") : markerIndex === this._markers.length - 1 ? marker.min = firstEvent.start.clone().subtract(minimumTimeRange, "milliseconds") : (marker.min = firstEvent.start.clone().subtract(halfTimeRange, "milliseconds"), marker.max = firstEvent.end.clone().add(halfTimeRange, "milliseconds")), marker.timeRange = marker.max - marker.min);
+      marker.cluster && (marker.eventXs = marker.events.map(eventInfo => this._calcMidpointX(eventInfo.start, eventInfo.end)), isSingleEvent && this._createEventElement(marker));
+      marker.element.style.setProperty("width", markerBaseWidth);
+      marker.element.style.setProperty("transform", `translateX(calc(${marker.leftX}px - 50%))`);
     });
   }
-  /** @eyes-analysis
-   * 执行 _getNearestIndex 对应的组件业务步骤；调用 Math.abs。
-   * 调用线索：Math.abs、e.indexOf、e.reduce。
-   */
-  _getNearestIndex(t, e) {
-    const i = e.reduce((e, i) => Math.abs(i - t) < Math.abs(e - t) ? i : e);
-    return e.indexOf(i);
+  _getNearestIndex(targetPosition, positions) {
+    const nearestPosition = positions.reduce((closestPosition, candidatePosition) => Math.abs(candidatePosition - targetPosition) < Math.abs(closestPosition - targetPosition) ? candidatePosition : closestPosition);
+    return positions.indexOf(nearestPosition);
   }
-  /** @eyes-analysis
-   * 执行 setOptions 对应的组件业务步骤；写入 _options。
-   * 状态写入：_options。
-   * 调用线索：deepMerge。
-   */
-  setOptions(t, e = false) {
-    const i = e ? this.defaultOptions : this._options;
-    this._options = deepMerge(i, t);
+  setOptions(optionUpdates, useDefaults = false) {
+    const baseOptions = useDefaults ? this.defaultOptions : this._options;
+    this._options = deepMerge(baseOptions, optionUpdates);
   }
-  /** @eyes-analysis
-   * 执行 setLocalState 对应的组件业务步骤；调用 this._nestedPropsChanged；写入 _localState。
-   * 状态写入：_localState。
-   * 调用线索：deepMerge、this._nestedPropsChanged。
-   */
-  setLocalState(t) {
+  setLocalState(stateUpdates) {
     const localState = this._localState;
-    this._nestedPropsChanged(t, localState) && (this._localState = deepMerge(this._localState, t));
+    this._nestedPropsChanged(stateUpdates, localState) && (this._localState = deepMerge(this._localState, stateUpdates));
   }
-  /** @eyes-analysis
-   * 执行 _setEvents 对应的组件业务步骤；调用 this._events.forEach, this._events.sort；写入 _events。
-   * 状态写入：_events。
-   * 调用线索：getMomentSecondary、getMomentSecondary()、t.start.clone、t.start.clone().add、this._events.forEach等。
-   */
-  _setEvents(t) {
-    this._events = [...t];
-    this._events.forEach(t => {
-      t.start = getMomentSecondary()(t.start);
-      t.end = t.end ? getMomentSecondary()(t.end) : t.start.clone().add(1, "hours");
+  _setEvents(events) {
+    this._events = [...events];
+    this._events.forEach(eventInfo => {
+      eventInfo.start = getMomentSecondary()(eventInfo.start);
+      eventInfo.end = eventInfo.end ? getMomentSecondary()(eventInfo.end) : eventInfo.start.clone().add(1, "hours");
     });
-    this._events.sort((t, e) => t.start > e.start);
+    this._events.sort((leftEvent, rightEvent) => leftEvent.start > rightEvent.start);
   }
-  /** @eyes-analysis
-   * 执行 _buildRangeOptions 对应的组件业务步骤；调用 this.setOptions。
-   * 调用线索：s.end.clone、s.end.clone().add、s.start.clone、s.start.clone().subtract、this.setOptions。
-   */
-  _buildRangeOptions(t) {
+  _buildRangeOptions(dateRange) {
     const {
       start: start,
       end: end
-    } = t;
-    const s = {
+    } = dateRange;
+    const rangeOptions = {
       start: start,
       end: end
     };
-    const n = (s.end - s.start) * this._options.marginPercent * .01;
-    s.min = s.start.clone().subtract(n, "milliseconds");
-    s.max = s.end.clone().add(n, "milliseconds");
-    s.range = s.max - s.min;
-    this.setOptions(s);
+    const marginMillis = (rangeOptions.end - rangeOptions.start) * this._options.marginPercent * .01;
+    rangeOptions.min = rangeOptions.start.clone().subtract(marginMillis, "milliseconds");
+    rangeOptions.max = rangeOptions.end.clone().add(marginMillis, "milliseconds");
+    rangeOptions.range = rangeOptions.max - rangeOptions.min;
+    this.setOptions(rangeOptions);
   }
-  /** @eyes-analysis
-   * 执行 _setStartEndDates 对应的组件业务步骤；调用 DateStart.setAttribute, DateEnd.setAttribute。
-   * 调用线索：end.format、end.toISOString、rangeDateEnd.setAttribute、rangeDateStart.setAttribute、start.format等。
-   */
   _setStartEndDates() {
     const {
       start: start,
@@ -2192,11 +1810,7 @@ class EventsTimeline extends Eyes.BaseComponent {
     rangeDateEnd.setAttribute("datetime", end.toISOString());
     rangeDateEnd.innerText = end.format("MMM DD, YYYY");
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 getMomentSecondary, getMomentSecondary(), getMomentSecondary().max, getMomentSecondary().min, this._app.getManager, this._app.getManager("scene").getCoverage, this._app.getManager("time").getDefaultLimits；写入 。
-   * 调用线索：getMomentSecondary、getMomentSecondary()、getMomentSecondary().max、getMomentSecondary().min、this._app.getManager等。
-   */
-  _calcCoverage(t, {
+  _calcCoverage(entityId, {
     start: start,
     end: end
   } = {}) {
@@ -2204,9 +1818,9 @@ class EventsTimeline extends Eyes.BaseComponent {
       min: min,
       max: max
     } = this._app.getManager("time").getDefaultLimits();
-    const r = this._app.getManager("scene").getCoverage(t);
-    null !== r.min && (min = getMomentSecondary().max(min, r.min));
-    null !== r.max && (max = getMomentSecondary().min(max, r.max));
+    const coverage = this._app.getManager("scene").getCoverage(entityId);
+    null !== coverage.min && (min = getMomentSecondary().max(min, coverage.min));
+    null !== coverage.max && (max = getMomentSecondary().min(max, coverage.max));
     start && (min = getMomentSecondary()(start));
     end && (max = getMomentSecondary()(end));
     return {
@@ -2214,101 +1828,65 @@ class EventsTimeline extends Eyes.BaseComponent {
       end: max
     };
   }
-  /** @eyes-analysis
-   * 源码扩展或访问入口；调用 this._buildRangeOptions, this._calcCoverage, this._setEvents, this._setStartEndDates, this.setLocalState, this.setTime；写入 。
-   * 调用线索：this._buildRangeOptions、this._calcCoverage、this._setEvents、this._setStartEndDates、this.setLocalState等。
-   */
   setTarget({
     id: id,
     title: title,
     dates: dates,
     orderedEvents: orderedEvents
   }) {
-    const n = id !== this._localState.target;
-    if (id && orderedEvents && (this.setTime(), n)) {
+    const targetChanged = id !== this._localState.target;
+    if (id && orderedEvents && (this.setTime(), targetChanged)) {
       this.setLocalState({
         target: id,
         title: title,
         dates: dates
       });
       this._setEvents(orderedEvents);
-      const n = this._calcCoverage(id, dates);
-      this._buildRangeOptions(n);
+      const targetCoverage = this._calcCoverage(id, dates);
+      this._buildRangeOptions(targetCoverage);
       this._setStartEndDates();
     }
   }
-  /** @eyes-analysis
-   * 执行 checkForZoom 对应的组件业务步骤；调用 this._markers.find, this._zoomIntoCluster, this._zoomOutOfCluster。
-   * 调用线索：e.events?.find、this._markers.find、this._zoomIntoCluster、this._zoomOutOfCluster。
-   */
-  checkForZoom(t) {
+  checkForZoom(eventInfo) {
     if (!this._markers) return;
-    const e = this._markers.find(e => e.events.length > 1 ? e.events?.find(e => e?.id === t?.id) : null);
-    t && e ? this._zoomIntoCluster(e) : this._zoomOutOfCluster();
+    const containingMarker = this._markers.find(candidateMarker => candidateMarker.events.length > 1 ? candidateMarker.events?.find(candidateEvent => candidateEvent?.id === eventInfo?.id) : null);
+    eventInfo && containingMarker ? this._zoomIntoCluster(containingMarker) : this._zoomOutOfCluster();
   }
-  /** @eyes-analysis
-   * 执行 show 对应的组件业务步骤；调用 super.show, this._setResizeTimeout。
-   * 调用线索：super.show、this._setResizeTimeout。
-   */
   show() {
     super.show();
     this._setResizeTimeout(200);
   }
-  /** @eyes-analysis
-   * 执行 hide 对应的组件业务步骤；调用 super.hide。
-   * 调用线索：super.hide。
-   */
   hide() {
     super.hide();
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 super.__disable。
-   * 调用线索：clearTimeout、super.__disable。
-   */
   __disable() {
     clearTimeout(this._resizeTimeout);
     super.__disable();
   }
-  /** @eyes-analysis
-   * 执行 goToTime 对应的组件业务步骤；调用 this._app.getManager, this.routeManager.navigate。
-   * 调用线索：e.indexOf、e.slice、this._app.getManager、this._app.getManager("time").getTimeUrl、this.routeManager.navigate。
-   */
-  goToTime(t) {
-    const e = this.routeManager.currentRoute.url;
-    const i = e.indexOf("events");
-    const s = i > -1 ? e.slice(0, i) : e;
-    const n = this._app.getManager("time").getTimeUrl(t);
+  goToTime(selectedTime) {
+    const currentUrl = this.routeManager.currentRoute.url;
+    const eventsSegmentIndex = currentUrl.indexOf("events");
+    const objectRoute = eventsSegmentIndex > -1 ? currentUrl.slice(0, eventsSegmentIndex) : currentUrl;
+    const timeUrl = this._app.getManager("time").getTimeUrl(selectedTime);
     this.routeManager.navigate({
-      time: n
-    }, s);
+      time: timeUrl
+    }, objectRoute);
   }
-  /** @eyes-analysis
-   * 执行 goToEvent 对应的组件业务步骤；调用 this.routeManager.navigate。
-   * 调用线索：e.endsWith、e.lastIndexOf、s.endsWith、s.slice、this.routeManager.navigate。
-   */
-  goToEvent(t) {
-    const e = this.routeManager.currentRoute.url;
-    const i = e.lastIndexOf("events");
-    let s = `${e}${e.endsWith("/") ? "" : "/"}`;
-    -1 === i ? s += `events/${t}` : (s.endsWith("https://eyes.nasa.gov/apps/solar-system/events/") || (s = s.slice(0, i + 7)), s += t);
-    this.routeManager.navigate(s);
+  goToEvent(eventId) {
+    const currentUrl = this.routeManager.currentRoute.url;
+    const eventsSegmentIndex = currentUrl.lastIndexOf("events");
+    let eventRoute = `${currentUrl}${currentUrl.endsWith("/") ? "" : "/"}`;
+    -1 === eventsSegmentIndex ? eventRoute += `events/${eventId}` : (eventRoute.endsWith("https://eyes.nasa.gov/apps/solar-system/events/") || (eventRoute = eventRoute.slice(0, eventsSegmentIndex + 7)), eventRoute += eventId);
+    this.routeManager.navigate(eventRoute);
   }
-  /** @eyes-analysis
-   * 执行 setTime 对应的组件业务步骤；调用 this.setLocalState。
-   * 调用线索：getMomentSecondary、getMomentSecondary()、getMomentSecondary()(t).valueOf、this.setLocalState。
-   */
   setTime() {
-    const t = this.routeManager.query.time;
-    t && this.setLocalState({
-      time: getMomentSecondary()(t).valueOf()
+    const routeTime = this.routeManager.query.time;
+    routeTime && this.setLocalState({
+      time: getMomentSecondary()(routeTime).valueOf()
     });
   }
-  /** @eyes-analysis
-   * 执行 update 对应的组件业务步骤；调用 this.isEnabled, this._setViewingLineXThrottled。
-   * 调用线索：this._setViewingLineXThrottled、this.isEnabled。
-   */
-  update(t) {
-    this._state.isVisible && this.isEnabled() && this._setViewingLineXThrottled(t);
+  update(currentTime) {
+    this._state.isVisible && this.isEnabled() && this._setViewingLineXThrottled(currentTime);
   }
 }
 EventsTimeline.html = getEventsTimelineTemplate();

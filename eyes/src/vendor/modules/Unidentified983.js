@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：Popper 浮层定位：识别参考被裁剪或浮层逃逸并设置 data 属性
- * 依据：// Recovered from vendors.js:2403182-2404020.；exports: default
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:2403182-2404020.
 import * as afterMain from "./afterMain-955.js";
 import * as Unidentified958 from "./Unidentified958.js";

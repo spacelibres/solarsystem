@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：Three.js WebGL 渲染器和 GLSL shader chunks；重导出 core 并管理 GPU、阴影、环境贴图和 XR
- * 依据：// Recovered from vendors.js:154-386330.；exports: ACESFilmicToneMapping, AddEquation, AddOperation, AdditiveAnimationBlendMode, AdditiveBlending, AgXToneMapping, AlphaFormat, AlwaysCompare, AlwaysDepth, AlwaysStencilFunc, AmbientLight, AnimationAction, AnimationClip, AnimationLoader, AnimationMixer, AnimationObjectGroup, AnimationUtils, ArcCurve, ArrayCamera, ArrowHelper, AttachedBindMode, Audio, AudioAnalyser, AudioContext, AudioListener, AudioLoader, AxesHelper, BackSide, BasicDepthPacking, BasicShadowMap, BatchedMesh, BezierInterpolant, Bone, BooleanKeyframeTrack, Box2, Box3, Box3Helper, BoxGeometry, BoxHelper, BufferAttribute, BufferGeometry, BufferGeometryLoader, ByteType, Cache, Cam…
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:154-386330.
 import * as ThreeCore from "./core.js";
 function i() {
@@ -1332,24 +1326,10 @@ let y = null,
   v = 0,
   T = !1;
 const vector3 = new ThreeCore.Vector3();
-/** @eyes-analysis
- * 类职责：将环境纹理预滤波为多粗糙度立方 UV 辐照贴图
- * 继承：无显式父类；导出：PMREMGenerator。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class PMREMGenerator {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_backgroundBox、_blurMaterial、_cubeSize、_cubemapMaterial、_equirectMaterial、_ggxMaterial、_lodMax、_lodMeshes等；完整记录见索引。
-   */
   constructor(renderer) {
     this._renderer = renderer, this._pingPongRenderTarget = null, this._lodMax = 0, this._cubeSize = 0, this._sizeLods = [], this._sigmas = [], this._lodMeshes = [], this._backgroundBox = null, this._cubemapMaterial = null, this._equirectMaterial = null, this._blurMaterial = null, this._ggxMaterial = null;
   }
-  /** @eyes-analysis
-   * 源码方法 fromScene；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_renderer.xr.enabled。
-   * 调用线索：this._allocateTargets、this._applyPMREM、this._blur、this._cleanup、this._renderer.getActiveCubeFace等。
-   */
   fromScene(e, t = 0, n = .1, r = 100, i = {}) {
     const {
       size: a = 256,
@@ -1359,82 +1339,36 @@ class PMREMGenerator {
     const o = this._allocateTargets();
     return o.depthBuffer = !0, this._sceneToCubeUV(e, n, r, o, s), t > 0 && this._blur(o, 0, 0, t), this._applyPMREM(o), this._cleanup(o), o;
   }
-  /** @eyes-analysis
-   * 源码方法 fromEquirectangular；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._fromTexture。
-   */
   fromEquirectangular(e, t = null) {
     return this._fromTexture(e, t);
   }
-  /** @eyes-analysis
-   * 源码方法 fromCubemap；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._fromTexture。
-   */
   fromCubemap(e, t = null) {
     return this._fromTexture(e, t);
   }
-  /** @eyes-analysis
-   * 源码方法 compileCubemapShader；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_cubemapMaterial。
-   * 调用线索：C、this._compileMaterial。
-   */
   compileCubemapShader() {
     null === this._cubemapMaterial && (this._cubemapMaterial = C(), this._compileMaterial(this._cubemapMaterial));
   }
-  /** @eyes-analysis
-   * 源码方法 compileEquirectangularShader；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_equirectMaterial。
-   * 调用线索：this._compileMaterial、x。
-   */
   compileEquirectangularShader() {
     null === this._equirectMaterial && (this._equirectMaterial = x(), this._compileMaterial(this._equirectMaterial));
   }
-  /** @eyes-analysis
-   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
-   * 调用线索：this._backgroundBox.geometry.dispose、this._backgroundBox.material.dispose、this._cubemapMaterial.dispose、this._dispose、this._equirectMaterial.dispose。
-   */
   dispose() {
     this._dispose(), null !== this._cubemapMaterial && this._cubemapMaterial.dispose(), null !== this._equirectMaterial && this._equirectMaterial.dispose(), null !== this._backgroundBox && (this._backgroundBox.geometry.dispose(), this._backgroundBox.material.dispose());
   }
-  /** @eyes-analysis
-   * 源码方法 _setSize；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_cubeSize、_lodMax。
-   * 调用线索：Math.floor、Math.log2、Math.pow。
-   */
   _setSize(e) {
     this._lodMax = Math.floor(Math.log2(e)), this._cubeSize = Math.pow(2, this._lodMax);
   }
-  /** @eyes-analysis
-   * 源码方法 _dispose；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._blurMaterial.dispose、this._ggxMaterial.dispose、this._lodMeshes[e].geometry.dispose、this._pingPongRenderTarget.dispose。
-   */
   _dispose() {
     null !== this._blurMaterial && this._blurMaterial.dispose(), null !== this._ggxMaterial && this._ggxMaterial.dispose(), null !== this._pingPongRenderTarget && this._pingPongRenderTarget.dispose();
     for (let e = 0; e < this._lodMeshes.length; e++) this._lodMeshes[e].geometry.dispose();
   }
-  /** @eyes-analysis
-   * 源码方法 _cleanup；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_renderer.xr.enabled。
-   * 调用线索：E、this._renderer.setRenderTarget。
-   */
   _cleanup(e) {
     this._renderer.setRenderTarget(y, L, v), this._renderer.xr.enabled = T, e.scissorTest = !1, E(e, 0, 0, e.width, e.height);
   }
-  /** @eyes-analysis
-   * 源码方法 _fromTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_renderer.xr.enabled。
-   * 调用线索：this._allocateTargets、this._applyPMREM、this._cleanup、this._renderer.getActiveCubeFace、this._renderer.getActiveMipmapLevel等。
-   */
   _fromTexture(e, t) {
     e.mapping === ThreeCore.CubeReflectionMapping || e.mapping === ThreeCore.CubeRefractionMapping ? this._setSize(0 === e.image.length ? 16 : e.image[0].width || e.image[0].image.width) : this._setSize(e.image.width / 4), y = this._renderer.getRenderTarget(), L = this._renderer.getActiveCubeFace(), v = this._renderer.getActiveMipmapLevel(), T = this._renderer.xr.enabled, this._renderer.xr.enabled = !1;
     const n = t || this._allocateTargets();
     return this._textureToCubeUV(e, n), this._applyPMREM(n), this._cleanup(n), n;
   }
-  /** @eyes-analysis
-   * 源码方法 _allocateTargets；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_blurMaterial、_ggxMaterial、_pingPongRenderTarget。
-   * 调用线索：Math.max、Math.pow、b.set、bufferGeometry.setAttribute、float32Array.set等。
-   */
   _allocateTargets() {
     const e = 3 * Math.max(this._cubeSize, 112),
       t = 4 * this._cubeSize,
@@ -1568,19 +1502,10 @@ class PMREMGenerator {
     }
     return i;
   }
-  /** @eyes-analysis
-   * 源码方法 _compileMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：new ThreeCore.BufferGeometry、new ThreeCore.Mesh、this._renderer.compile。
-   */
   _compileMaterial(e) {
     const mesh = new ThreeCore.Mesh(new ThreeCore.BufferGeometry(), e);
     this._renderer.compile(mesh, orthographicCamera);
   }
-  /** @eyes-analysis
-   * 源码方法 _sceneToCubeUV；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_backgroundBox。
-   * 调用线索：E、new ThreeCore.BoxGeometry、new ThreeCore.Mesh、new ThreeCore.MeshBasicMaterial、new ThreeCore.PerspectiveCamera等。
-   */
   _sceneToCubeUV(e, t, n, i, a) {
     const perspectiveCamera = new ThreeCore.PerspectiveCamera(90, 1, t, n),
       o = [1, -1, 1, 1, 1, 1],
@@ -1608,11 +1533,6 @@ class PMREMGenerator {
     }
     renderer.toneMapping = d, renderer.autoClear = u, e.background = m;
   }
-  /** @eyes-analysis
-   * 源码方法 _textureToCubeUV；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：_cubemapMaterial、_cubemapMaterial.uniforms.flipEnvMap.value、_equirectMaterial。
-   * 调用线索：C、E、renderer.render、renderer.setRenderTarget、x。
-   */
   _textureToCubeUV(e, t) {
     const renderer = this._renderer,
       i = e.mapping === ThreeCore.CubeReflectionMapping || e.mapping === ThreeCore.CubeRefractionMapping;
@@ -1624,10 +1544,6 @@ class PMREMGenerator {
     const cubeSize = this._cubeSize;
     E(t, 0, 0, 3 * cubeSize, 2 * cubeSize), renderer.setRenderTarget(t), renderer.render(s, orthographicCamera);
   }
-  /** @eyes-analysis
-   * 源码方法 _applyPMREM；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._applyGGXFilter。
-   */
   _applyPMREM(e) {
     const renderer = this._renderer,
       n = renderer.autoClear;
@@ -1636,10 +1552,6 @@ class PMREMGenerator {
     for (let t = 1; t < r; t++) this._applyGGXFilter(e, t - 1, t);
     renderer.autoClear = n;
   }
-  /** @eyes-analysis
-   * 源码方法 _applyGGXFilter；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：E、Math.sqrt、renderer.render、renderer.setRenderTarget。
-   */
   _applyGGXFilter(e, t, n) {
     const renderer = this._renderer,
       pingPongRenderTarget = this._pingPongRenderTarget,
@@ -1658,18 +1570,10 @@ class PMREMGenerator {
       f = 4 * (this._cubeSize - h);
     o.envMap.value = e.texture, o.roughness.value = u, o.mipInt.value = _lodMax - t, E(pingPongRenderTarget, p, f, 3 * h, 2 * h), renderer.setRenderTarget(pingPongRenderTarget), renderer.render(s, orthographicCamera), o.envMap.value = pingPongRenderTarget.texture, o.roughness.value = 0, o.mipInt.value = _lodMax - n, E(e, p, f, 3 * h, 2 * h), renderer.setRenderTarget(e), renderer.render(s, orthographicCamera);
   }
-  /** @eyes-analysis
-   * 源码方法 _blur；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._halfBlur。
-   */
   _blur(e, t, n, r, i) {
     const pingPongRenderTarget = this._pingPongRenderTarget;
     this._halfBlur(e, pingPongRenderTarget, t, n, r, "latitudinal", i), this._halfBlur(pingPongRenderTarget, e, n, n, r, "longitudinal", i);
   }
-  /** @eyes-analysis
-   * 源码方法 _halfBlur；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：0,ThreeCore.error、0,ThreeCore.warn、E、M.push、Math.exp等。
-   */
   _halfBlur(e, t, n, i, a, s, o) {
     const renderer = this._renderer,
       blurMaterial = this._blurMaterial;
@@ -1742,17 +1646,7 @@ function C() {
 function z() {
   return "\n\n\t\tprecision mediump float;\n\t\tprecision mediump int;\n\n\t\tattribute float faceIndex;\n\n\t\tvarying vec3 vOutputDirection;\n\n\t\t// RH coordinate system; PMREM face-indexing convention\n\t\tvec3 getDirection( vec2 uv, float face ) {\n\n\t\t\tuv = 2.0 * uv - 1.0;\n\n\t\t\tvec3 direction = vec3( uv, 1.0 );\n\n\t\t\tif ( face == 0.0 ) {\n\n\t\t\t\tdirection = direction.zyx; // ( 1, v, u ) pos x\n\n\t\t\t} else if ( face == 1.0 ) {\n\n\t\t\t\tdirection = direction.xzy;\n\t\t\t\tdirection.xz *= -1.0; // ( -u, 1, -v ) pos y\n\n\t\t\t} else if ( face == 2.0 ) {\n\n\t\t\t\tdirection.x *= -1.0; // ( -u, v, 1 ) pos z\n\n\t\t\t} else if ( face == 3.0 ) {\n\n\t\t\t\tdirection = direction.zyx;\n\t\t\t\tdirection.xz *= -1.0; // ( -1, v, -u ) neg x\n\n\t\t\t} else if ( face == 4.0 ) {\n\n\t\t\t\tdirection = direction.xzy;\n\t\t\t\tdirection.xy *= -1.0; // ( -u, -1, v ) neg y\n\n\t\t\t} else if ( face == 5.0 ) {\n\n\t\t\t\tdirection.z *= -1.0; // ( u, v, -1 ) neg z\n\n\t\t\t}\n\n\t\t\treturn direction;\n\n\t\t}\n\n\t\tvoid main() {\n\n\t\t\tvOutputDirection = getDirection( uv, faceIndex );\n\t\t\tgl_Position = vec4( position, 1.0 );\n\n\t\t}\n\t";
 }
-/** @eyes-analysis
- * 类职责：WebGLCube 离屏颜色/深度附件、尺寸和释放生命周期
- * 继承：ThreeCore.WebGLRenderTarget；导出：WebGLCubeRenderTarget。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebGLCubeRenderTarget extends ThreeCore.WebGLRenderTarget {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：isWebGLCubeRenderTarget、texture、texture.isRenderTargetTexture。
-   * 调用线索：new ThreeCore.CubeTexture、super、this._setTextureOptions。
-   */
   constructor(e = 1, t = {}) {
     super(e, e, t), this.isWebGLCubeRenderTarget = !0;
     const n = {
@@ -1763,11 +1657,6 @@ class WebGLCubeRenderTarget extends ThreeCore.WebGLRenderTarget {
       i = [n, n, n, n, n, n];
     this.texture = new ThreeCore.CubeTexture(i), this._setTextureOptions(t), this.texture.isRenderTargetTexture = !0;
   }
-  /** @eyes-analysis
-   * 源码方法 fromEquirectangularTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：texture.colorSpace、texture.generateMipmaps、texture.magFilter、texture.minFilter、texture.type。
-   * 调用线索：0,ThreeCore.cloneUniforms、mesh.geometry.dispose、mesh.material.dispose、new ThreeCore.BoxGeometry、new ThreeCore.CubeCamera等。
-   */
   fromEquirectangularTexture(e, t) {
     this.texture.type = t.type, this.texture.colorSpace = t.colorSpace, this.texture.generateMipmaps = t.generateMipmaps, this.texture.minFilter = t.minFilter, this.texture.magFilter = t.magFilter;
     const n = {
@@ -1794,10 +1683,6 @@ class WebGLCubeRenderTarget extends ThreeCore.WebGLRenderTarget {
     t.minFilter === ThreeCore.LinearMipmapLinearFilter && (t.minFilter = ThreeCore.LinearFilter);
     return new ThreeCore.CubeCamera(1, 10, this).update(e, mesh), t.minFilter = o, mesh.geometry.dispose(), mesh.material.dispose(), this;
   }
-  /** @eyes-analysis
-   * 源码方法 clear；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.clear、e.getRenderTarget、e.setRenderTarget。
-   */
   clear(e, t = !0, n = !0, r = !0) {
     const i = e.getRenderTarget();
     for (let i = 0; i < 6; i++) e.setRenderTarget(this, i), e.clear(t, n, r);
@@ -2424,17 +2309,7 @@ function Pe(e, t, n) {
   $(cache, a) || (e.uniform1iv(this.addr, a), Z(cache, a));
   for (let e = 0; e !== i; ++e) n.setTexture2DArray(t[e] || dataArrayTexture, a[e]);
 }
-/** @eyes-analysis
- * 类职责：上传单个 GL uniform 并缓存前值
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SingleUniform {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：addr、cache、id、setValue、type。
-   * 调用线索：function(e){switch(e){case 5126:return te;case 35664:return ne;case 35665:return re;case 35666:return ie;case 35674:return ae;case 35675:return se;case 35676:return oe;case 5124:case 35670:return ce;case 35667:case 35671:return le;case 35668:case 35672:return ue;case 35669:case 35673:return de;case 5125:return he;case 36294:return pe;case 36295:return fe;case 36296:return me;case 35678:case 36198:case 36298:case 36306:case 35682:return Me;case 35679:case 36299:case 36307:return _e;case 35680:case 36300:case 36308:case 36293:return Ae;case 36289:case 36303:case 36311:case 36292:return ge;}}。
-   */
   constructor(id, t, addr) {
     this.id = id, this.addr = addr, this.cache = [], this.type = t.type, this.setValue = function (e) {
       switch (e) {
@@ -2496,17 +2371,7 @@ class SingleUniform {
     }(t.type);
   }
 }
-/** @eyes-analysis
- * 类职责：按类型上传连续 GL uniform 数组
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class PureArrayUniform {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：addr、cache、id、setValue、size、type。
-   * 调用线索：function(e){switch(e){case 5126:return be;case 35664:return ye;case 35665:return Le;case 35666:return ve;case 35674:return Te;case 35675:return Se;case 35676:return we;case 5124:case 35670:return Ee;case 35667:case 35671:return xe;case 35668:case 35672:return Ce;case 35669:case 35673:return ze;case 5125:return Oe;case 36294:return Be;case 36295:return De;case 36296:return Ne;case 35678:case 36198:case 36298:case 36306:case 35682:return Ie;case 35679:case 36299:case 36307:return Re;case 35680:case 36300:case 36308:case 36293:return ke;case 36289:case 36303:case 36311:case 36292:return Pe;}}。
-   */
   constructor(id, t, addr) {
     this.id = id, this.addr = addr, this.cache = [], this.type = t.type, this.size = t.size, this.setValue = function (e) {
       switch (e) {
@@ -2568,23 +2433,10 @@ class PureArrayUniform {
     }(t.type);
   }
 }
-/** @eyes-analysis
- * 类职责：按树递归上传结构体 uniform
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class StructuredUniform {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：id、map、seq。
-   */
   constructor(id) {
     this.id = id, this.seq = [], this.map = {};
   }
-  /** @eyes-analysis
-   * 源码方法 setValue；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：a.setValue。
-   */
   setValue(e, t, n) {
     const seq = this.seq;
     for (let i = 0, a = seq.length; i !== a; ++i) {
@@ -2616,17 +2468,7 @@ function Fe(e, t, n) {
     }
   }
 }
-/** @eyes-analysis
- * 类职责：反射 GL uniform 类型并缓存上传值
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebGLUniforms {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：map、seq。
-   * 调用线索：Fe、e.getActiveUniform、e.getProgramParameter、e.getUniformLocation、i.push等。
-   */
   constructor(e, t) {
     this.seq = [], this.map = {};
     const n = e.getProgramParameter(t, e.ACTIVE_UNIFORMS);
@@ -2639,26 +2481,14 @@ class WebGLUniforms {
     for (const t of this.seq) t.type === e.SAMPLER_2D_SHADOW || t.type === e.SAMPLER_CUBE_SHADOW || t.type === e.SAMPLER_2D_ARRAY_SHADOW ? r.push(t) : i.push(t);
     r.length > 0 && (this.seq = r.concat(i));
   }
-  /** @eyes-analysis
-   * 源码方法 setValue；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：i.setValue。
-   */
   setValue(e, t, n, r) {
     const i = this.map[t];
     void 0 !== i && i.setValue(e, n, r);
   }
-  /** @eyes-analysis
-   * 源码方法 setOptional；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this.setValue。
-   */
   setOptional(e, t, n) {
     const r = t[n];
     void 0 !== r && this.setValue(e, n, r);
   }
-  /** @eyes-analysis
-   * 源码方法 upload；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：a.setValue。
-   */
   static upload(e, t, n, r) {
     for (let i = 0, a = t.length; i !== a; ++i) {
       const a = t[i],
@@ -2666,10 +2496,6 @@ class WebGLUniforms {
       !1 !== s.needsUpdate && a.setValue(e, s.value, r);
     }
   }
-  /** @eyes-analysis
-   * 源码方法 seqWithValue；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：n.push。
-   */
   static seqWithValue(e, t) {
     const n = [];
     for (let r = 0, i = e.length; r !== i; ++r) {
@@ -2901,87 +2727,40 @@ function ht(e, cacheKey, n, i) {
   }, this.type = n.shaderType, this.name = n.shaderName, this.id = He++, this.cacheKey = cacheKey, this.usedTimes = 1, this.program = program, this.vertexShader = vertexShader, this.fragmentShader = fragmentShader, this;
 }
 let pt = 0;
-/** @eyes-analysis
- * 类职责：以材质关联缓存 shader stage 源码及使用计数
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebGLShaderCache {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：materialCache、shaderCache。
-   * 调用线索：new Map。
-   */
   constructor() {
     this.shaderCache = new Map(), this.materialCache = new Map();
   }
-  /** @eyes-analysis
-   * 按当前时间或场景状态推进对象并维护缓存失效
-   * 调用线索：r.add、r.has、this._getShaderCacheForMaterial。
-   */
   update(e, t, n) {
     const r = this._getShaderCacheForMaterial(e);
     return !1 === r.has(t) && (r.add(t), t.usedTimes++), !1 === r.has(n) && (r.add(n), n.usedTimes++), this;
   }
-  /** @eyes-analysis
-   * 源码方法 remove；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this.materialCache.delete、this.materialCache.get、this.shaderCache.delete。
-   */
   remove(e) {
     const t = this.materialCache.get(e);
     for (const e of t) e.usedTimes--, 0 === e.usedTimes && this.shaderCache.delete(e.code);
     return this.materialCache.delete(e), this;
   }
-  /** @eyes-analysis
-   * 源码方法 getVertexShaderStage；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._getShaderStage。
-   */
   getVertexShaderStage(e) {
     return this._getShaderStage(e.vertexShader);
   }
-  /** @eyes-analysis
-   * 源码方法 getFragmentShaderStage；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._getShaderStage。
-   */
   getFragmentShaderStage(e) {
     return this._getShaderStage(e.fragmentShader);
   }
-  /** @eyes-analysis
-   * 发送释放事件或销毁持有的 GPU/worker 资源；JS 对象仍需调用方解除引用
-   * 调用线索：this.materialCache.clear、this.shaderCache.clear。
-   */
   dispose() {
     this.shaderCache.clear(), this.materialCache.clear();
   }
-  /** @eyes-analysis
-   * 源码方法 _getShaderCacheForMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：materialCache.get、materialCache.set、new Set。
-   */
   _getShaderCacheForMaterial(e) {
     const materialCache = this.materialCache;
     let n = materialCache.get(e);
     return void 0 === n && (n = new Set(), materialCache.set(e, n)), n;
   }
-  /** @eyes-analysis
-   * 源码方法 _getShaderStage；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：new WebGLShaderStage、shaderCache.get、shaderCache.set。
-   */
   _getShaderStage(e) {
     const shaderCache = this.shaderCache;
     let n = shaderCache.get(e);
     return void 0 === n && (n = new WebGLShaderStage(e), shaderCache.set(e, n)), n;
   }
 }
-/** @eyes-analysis
- * 类职责：保存 shader 源码与稳定 stage 标识
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebGLShaderStage {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：code、id、usedTimes。
-   */
   constructor(code) {
     this.id = pt++, this.code = code, this.usedTimes = 0;
   }
@@ -4914,35 +4693,16 @@ function WebGLUtils(e, t) {
     }
   };
 }
-/** @eyes-analysis
- * 类职责：将 XR 深度纹理整合到渲染器深度采样
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebXRDepthSensing {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：depthFar、depthNear、mesh、texture。
-   */
   constructor() {
     this.texture = null, this.mesh = null, this.depthNear = 0, this.depthFar = 0;
   }
-  /** @eyes-analysis
-   * 初始化延迟资源和运行时能力；必须先完成再使用依赖资源的方法
-   * 状态写入：depthFar、depthNear、texture。
-   * 调用线索：new ThreeCore.ExternalTexture。
-   */
   init(e, t) {
     if (null === this.texture) {
       const n = new ThreeCore.ExternalTexture(e.texture);
       e.depthNear === t.depthNear && e.depthFar === t.depthFar || (this.depthNear = e.depthNear, this.depthFar = e.depthFar), this.texture = n;
     }
   }
-  /** @eyes-analysis
-   * 源码方法 getMesh；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：mesh。
-   * 调用线索：new ThreeCore.Mesh、new ThreeCore.PlaneGeometry、new ThreeCore.ShaderMaterial。
-   */
   getMesh(e) {
     if (null !== this.texture && null === this.mesh) {
       const t = e.cameras[0].viewport,
@@ -4965,31 +4725,14 @@ class WebXRDepthSensing {
     }
     return this.mesh;
   }
-  /** @eyes-analysis
-   * 源码方法 reset；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：mesh、texture。
-   */
   reset() {
     this.texture = null, this.mesh = null;
   }
-  /** @eyes-analysis
-   * 源码方法 getDepthTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   getDepthTexture() {
     return this.texture;
   }
 }
-/** @eyes-analysis
- * 类职责：协调 XRSession、帧、相机、控制器和渲染目标生命周期
- * 继承：ThreeCore.EventDispatcher；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebXRManager extends ThreeCore.EventDispatcher {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：cameraAutoUpdate、dispose、enabled、getBaseLayer、getBinding、getCamera、getCameraTexture、getController等；完整记录见索引。
-   * 调用线索：0,ThreeCore.warn、I.distanceTo、I.setFromMatrixPosition、L[e].disconnect、L[r].disconnect等。
-   */
   constructor(e, t) {
     super();
     const n = this;
@@ -5425,17 +5168,7 @@ function Pt(e, t, n, i) {
 Rt.set(-1, 0, 0, 0, 1, 0, 0, 0, 1);
 const uint16Array = new Uint16Array([12469, 15057, 12620, 14925, 13266, 14620, 13807, 14376, 14323, 13990, 14545, 13625, 14713, 13328, 14840, 12882, 14931, 12528, 14996, 12233, 15039, 11829, 15066, 11525, 15080, 11295, 15085, 10976, 15082, 10705, 15073, 10495, 13880, 14564, 13898, 14542, 13977, 14430, 14158, 14124, 14393, 13732, 14556, 13410, 14702, 12996, 14814, 12596, 14891, 12291, 14937, 11834, 14957, 11489, 14958, 11194, 14943, 10803, 14921, 10506, 14893, 10278, 14858, 9960, 14484, 14039, 14487, 14025, 14499, 13941, 14524, 13740, 14574, 13468, 14654, 13106, 14743, 12678, 14818, 12344, 14867, 11893, 14889, 11509, 14893, 11180, 14881, 10751, 14852, 10428, 14812, 10128, 14765, 9754, 14712, 9466, 14764, 13480, 14764, 13475, 14766, 13440, 14766, 13347, 14769, 13070, 14786, 12713, 14816, 12387, 14844, 11957, 14860, 11549, 14868, 11215, 14855, 10751, 14825, 10403, 14782, 10044, 14729, 9651, 14666, 9352, 14599, 9029, 14967, 12835, 14966, 12831, 14963, 12804, 14954, 12723, 14936, 12564, 14917, 12347, 14900, 11958, 14886, 11569, 14878, 11247, 14859, 10765, 14828, 10401, 14784, 10011, 14727, 9600, 14660, 9289, 14586, 8893, 14508, 8533, 15111, 12234, 15110, 12234, 15104, 12216, 15092, 12156, 15067, 12010, 15028, 11776, 14981, 11500, 14942, 11205, 14902, 10752, 14861, 10393, 14812, 9991, 14752, 9570, 14682, 9252, 14603, 8808, 14519, 8445, 14431, 8145, 15209, 11449, 15208, 11451, 15202, 11451, 15190, 11438, 15163, 11384, 15117, 11274, 15055, 10979, 14994, 10648, 14932, 10343, 14871, 9936, 14803, 9532, 14729, 9218, 14645, 8742, 14556, 8381, 14461, 8020, 14365, 7603, 15273, 10603, 15272, 10607, 15267, 10619, 15256, 10631, 15231, 10614, 15182, 10535, 15118, 10389, 15042, 10167, 14963, 9787, 14883, 9447, 14800, 9115, 14710, 8665, 14615, 8318, 14514, 7911, 14411, 7507, 14279, 7198, 15314, 9675, 15313, 9683, 15309, 9712, 15298, 9759, 15277, 9797, 15229, 9773, 15166, 9668, 15084, 9487, 14995, 9274, 14898, 8910, 14800, 8539, 14697, 8234, 14590, 7790, 14479, 7409, 14367, 7067, 14178, 6621, 15337, 8619, 15337, 8631, 15333, 8677, 15325, 8769, 15305, 8871, 15264, 8940, 15202, 8909, 15119, 8775, 15022, 8565, 14916, 8328, 14804, 8009, 14688, 7614, 14569, 7287, 14448, 6888, 14321, 6483, 14088, 6171, 15350, 7402, 15350, 7419, 15347, 7480, 15340, 7613, 15322, 7804, 15287, 7973, 15229, 8057, 15148, 8012, 15046, 7846, 14933, 7611, 14810, 7357, 14682, 7069, 14552, 6656, 14421, 6316, 14251, 5948, 14007, 5528, 15356, 5942, 15356, 5977, 15353, 6119, 15348, 6294, 15332, 6551, 15302, 6824, 15249, 7044, 15171, 7122, 15070, 7050, 14949, 6861, 14818, 6611, 14679, 6349, 14538, 6067, 14398, 5651, 14189, 5311, 13935, 4958, 15359, 4123, 15359, 4153, 15356, 4296, 15353, 4646, 15338, 5160, 15311, 5508, 15263, 5829, 15188, 6042, 15088, 6094, 14966, 6001, 14826, 5796, 14678, 5543, 14527, 5287, 14377, 4985, 14133, 4586, 13869, 4257, 15360, 1563, 15360, 1642, 15358, 2076, 15354, 2636, 15341, 3350, 15317, 4019, 15273, 4429, 15203, 4732, 15105, 4911, 14981, 4932, 14836, 4818, 14679, 4621, 14517, 4386, 14359, 4156, 14083, 3795, 13808, 3437, 15360, 122, 15360, 137, 15358, 285, 15355, 636, 15344, 1274, 15322, 2177, 15281, 2765, 15215, 3223, 15120, 3451, 14995, 3569, 14846, 3567, 14681, 3466, 14511, 3305, 14344, 3121, 14037, 2800, 13753, 2467, 15360, 0, 15360, 1, 15359, 21, 15355, 89, 15346, 253, 15325, 479, 15287, 796, 15225, 1148, 15133, 1492, 15008, 1749, 14856, 1882, 14685, 1886, 14506, 1783, 14324, 1608, 13996, 1398, 13702, 1183]);
 let Wt = null;
-/** @eyes-analysis
- * 类职责：WebGL 渲染主循环：更新对象、灯光、材质程序、排序和绘制并维护 GPU 资源
- * 继承：无显式父类；导出：WebGLRenderer。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class WebGLRenderer {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：_outputColorSpace、autoClear、autoClearColor、autoClearDepth、autoClearStencil、clear、clearColor、clearDepth等；完整记录见索引。
-   * 调用线索：$e、0,ThreeCore.createCanvasElement、0,ThreeCore.error、0,ThreeCore.log、0,ThreeCore.probeAsync等。
-   */
   constructor(e = {}) {
     const {
       canvas: domElement = (0, ThreeCore.createCanvasElement)(),
@@ -6127,23 +5860,12 @@ class WebGLRenderer {
       detail: this
     }));
   }
-  /** @eyes-analysis
-   * 只读返回 ThreeCore.WebGLCoordinateSystem；此 getter 不执行对应 setter 的写入或更新通知
-   */
   get coordinateSystem() {
     return ThreeCore.WebGLCoordinateSystem;
   }
-  /** @eyes-analysis
-   * 只读返回 this._outputColorSpace；此 getter 不执行对应 setter 的写入或更新通知
-   */
   get outputColorSpace() {
     return this._outputColorSpace;
   }
-  /** @eyes-analysis
-   * 写入输出颜色空间，同时更新 GL drawingBufferColorSpace 和 unpackColorSpace
-   * 状态写入：_outputColorSpace。
-   * 调用线索：ThreeCore.ColorManagement._getDrawingBufferColorSpace、ThreeCore.ColorManagement._getUnpackColorSpace、this.getContext。
-   */
   set outputColorSpace(outputColorSpace) {
     this._outputColorSpace = outputColorSpace;
     const t = this.getContext();

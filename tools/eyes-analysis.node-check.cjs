@@ -49,6 +49,32 @@ test('follows optional member/call syntax in manager and component queries',()=>
  assert.ok(m.managers.includes('time'));assert.ok(m.calls.some(c=>c.includes('getTime')));
  assert.ok(m.reads.some(c=>c.includes('_app')));
 });
+test('uses handwritten lifecycle comments as semantic evidence and excludes generated boilerplate',()=>{
+ const result=analyzeJavaScript('/** Owns the frame loop. */ class Engine{/** Save previous state before controllers run. */ update(){this.scene.update();}}');
+ assert.equal(result.classes[0].documentation,'Owns the frame loop.');
+ assert.equal(result.classes[0].methods[0].documentation,'Save previous state before controllers run.');
+ const generated=analyzeJavaScript('/** @eyes-analysis structural placeholder */ class A{}');
+ assert.equal(generated.classes[0].documentation,'');
+});
+test('analysis commands reject retired bulk source annotation without changing source',()=>{
+ const fs=require('node:fs'),cp=require('node:child_process');const file='eyes/src/app/PreloadManager.js';const before=fs.readFileSync(file,'utf8');
+ const result=cp.spawnSync(process.execPath,['tools/analyze-eyes.cjs','annotate'],{encoding:'utf8'});
+ assert.notEqual(result.status,0);assert.match(result.stderr,/Bulk source annotation is retired/);
+ assert.equal(fs.readFileSync(file,'utf8'),before);
+});
+test('semantic acceptance records pin current source and point to committed evidence',()=>{
+ const fs=require('node:fs'),crypto=require('node:crypto');
+ const progress=JSON.parse(fs.readFileSync('docs/eyes-analysis/semantic-progress.json','utf8'));
+ assert.ok(progress.exceptions.length>=3);
+ for(const [file,review]of Object.entries(progress.files)){
+  if(review.status==='not-semantically-accepted')continue;
+  assert.ok(review.evidence.length,file+' needs evidence');
+  for(const evidence of review.evidence)assert.ok(fs.existsSync(evidence),file+': '+evidence);
+  const source=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
+  assert.equal(crypto.createHash('sha256').update(source).digest('hex'),review.sourceSha256,file+' changed after review');
+ }
+});
+
 test('published reference accounts for every tracked file and every indexed class callable',()=>{
  const fs=require('node:fs'),cp=require('node:child_process'),path=require('node:path');
  const root=path.resolve(__dirname,'..');

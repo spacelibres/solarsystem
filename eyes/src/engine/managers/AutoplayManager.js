@@ -1,27 +1,12 @@
-/** @eyes-analysis
- * 文件职责：按设定实体/时间/相机序列自动播放并响应暂停/交互。
- * 依据：import ../../vendor/modules/FollowName.cjs；import ../pioneer/index.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1318433-1324616.
+/* 自动播放持有轮播 interval 与当前页 timeout，进入每页先暂停 interval、恢复上一页临时地图设置，再加载目标资源。异步资源与相机阶段后检查取消令牌；停止清理两个计时器，按当前路由归还时间/速率并恢复默认光照。 */
 import FollowName from "../../vendor/modules/FollowName.cjs";
 import "../pioneer/index.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 var getFollowName = () => FollowName;
-/** @eyes-analysis
- * 类职责：按设定实体/时间/相机序列自动播放并响应暂停/交互。
- * 继承：EyesPublicApi.BaseManager；导出：AutoplayManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class AutoplayManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentIndex`、`_interval`、`_intervalTimer`、`_isPlaying`、`_resetStates`、`_slideTimer`、`_slides`、`_url`；调用 `super`、`this._eventNames.push`、`this._initCallbacks`、`this.bindFunctions`。
-   * 状态写入：_currentIndex、_interval、_intervalTimer、_isPlaying、_resetStates、_slideTimer、_slides、_url。
-   * 调用线索：super、this._eventNames.push、this._initCallbacks、this.bindFunctions。
-   */
-  constructor(t, url) {
-    super(t);
+  constructor(app, url) {
+    super(app);
     this._url = url;
     this._isPlaying = false;
     this._interval = 1e4;
@@ -38,81 +23,44 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     this._initCallbacks();
     this.bindFunctions(["startAutoplay", "stopAutoplay"]);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_slides`；调用 `EyesPublicApi.AppUtils.loadJSON`、`console.error`。
-   * 状态写入：_slides。
-   * 调用线索：EyesPublicApi.AppUtils.loadJSON、console.error。
-   */
   async init() {
     try {
       this._slides = await EyesPublicApi.AppUtils.loadJSON(this._url);
-    } catch (t) {
-      console.error(t);
+    } catch (loadError) {
+      console.error(loadError);
       this._slides = [];
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._interval`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get interval() {
     return this._interval;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (t)；实际写入 `_interval`；调用 `this._isValidTime`。
-   * 状态写入：_interval。
-   * 调用线索：this._isValidTime。
-   */
-  set interval(t) {
-    this._isValidTime(t) && (this._interval = 1e3 * t);
+  set interval(intervalSeconds) {
+    this._isValidTime(intervalSeconds) && (this._interval = 1e3 * intervalSeconds);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `""!==t&&!isNaN(Number(t))&&Number(t)>0`；调用 `Number`、`isNaN`。
-   * 调用线索：Number、isNaN。
-   */
-  _isValidTime(t) {
-    return "" !== t && !isNaN(Number(t)) && Number(t) > 0;
+  _isValidTime(durationValue) {
+    return "" !== durationValue && !isNaN(Number(durationValue)) && Number(durationValue) > 0;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_isPlaying`；调用 `this._app.getManager`、`this._app.getManager("time").resetLimits`、`this._triggerInterval`、`this.playNextSlide`、`this.triggerCallbacks`。
-   * 状态写入：_isPlaying。
-   * 调用线索：this._app.getManager、this._app.getManager("time").resetLimits、this._triggerInterval、this.playNextSlide、this.triggerCallbacks。
-   */
-  async startAutoplay(t) {
+  async startAutoplay(cancelToken) {
     this._isPlaying = true;
     this.triggerCallbacks("autoplaychange", [true]);
     this._app.getManager("time").resetLimits();
-    await this.playNextSlide(t);
-    this._triggerInterval(t);
+    await this.playNextSlide(cancelToken);
+    this._triggerInterval(cancelToken);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_intervalTimer`；调用 `clearInterval`、`setInterval`、`this.playNextSlide`、`this.stopAutoplay`。
-   * 状态写入：_intervalTimer。
-   * 调用线索：clearInterval、setInterval、this.playNextSlide、this.stopAutoplay。
-   */
-  _triggerInterval(t) {
+  _triggerInterval(cancelToken) {
     clearInterval(this._intervalTimer);
     this._intervalTimer = null;
     this._isPlaying && (this._intervalTimer = setInterval(async () => {
-      t?.isCanceled ? await this.stopAutoplay() : await this.playNextSlide(t);
+      cancelToken?.isCanceled ? await this.stopAutoplay() : await this.playNextSlide(cancelToken);
     }, this._interval));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentIndex`；调用 `this.playSlide`。
-   * 状态写入：_currentIndex。
-   * 调用线索：this.playSlide。
-   */
-  async playNextSlide(t) {
+  async playNextSlide(cancelToken) {
     this._currentIndex++;
     this._currentIndex >= this._slides.length && (this._currentIndex = 0);
-    await this.playSlide(this._currentIndex, t);
+    await this.playSlide(this._currentIndex, cancelToken);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_intervalTimer`、`_slideTimer`；返回 `void` 或 `void this._triggerInterval(e)`；调用 `EyesPublicApi.AppUtils.deepCopy`、`cameraManager.updateLighting`、`clearInterval`、`clearTimeout`、`console.error`、`contentManager.getEntityInfo`。
-   * 状态写入：_intervalTimer、_slideTimer。
-   * 调用线索：EyesPublicApi.AppUtils.deepCopy、cameraManager.updateLighting、clearInterval、clearTimeout、console.error等。
-   */
-  async playSlide(t, e) {
-    if (!this._isPlaying || !this._slides[t] || !this._slides[t].id) return;
+  async playSlide(slideIndex, cancelToken) {
+    if (!this._isPlaying || !this._slides[slideIndex] || !this._slides[slideIndex].id) return;
     this._slideTimer && clearTimeout(this._slideTimer);
     clearInterval(this._intervalTimer);
     this._intervalTimer = null;
@@ -121,99 +69,90 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     const sceneManager = this._app.getManager("scene");
     const cameraManager = this.app.getManager("camera");
     const layerManager = this._app.getManager("layer");
-    let c;
-    if (timeManager.resetTimeRate(), cameraManager.updateLighting(this._resetStates.lighting), t - 1 >= 0 && "object" === this._slides[t - 1].type) {
-      const e = contentManager.getEntityInfo(this._slides[t - 1].id);
-      const i = contentManager.getSpheroidId(e);
-      void 0 !== this._slides[t - 1].hd && (await sceneManager.toggleHDTextureForEntity(i, this._resetStates.hd));
-      void 0 !== this._slides[t - 1].surfaceMapTiling && (await layerManager.resetSpheroidMap(i));
+    let entityInfo;
+    if (timeManager.resetTimeRate(), cameraManager.updateLighting(this._resetStates.lighting), slideIndex - 1 >= 0 && "object" === this._slides[slideIndex - 1].type) {
+      const previousEntityInfo = contentManager.getEntityInfo(this._slides[slideIndex - 1].id);
+      const previousSpheroidId = contentManager.getSpheroidId(previousEntityInfo);
+      void 0 !== this._slides[slideIndex - 1].hd && (await sceneManager.toggleHDTextureForEntity(previousSpheroidId, this._resetStates.hd));
+      void 0 !== this._slides[slideIndex - 1].surfaceMapTiling && (await layerManager.resetSpheroidMap(previousSpheroidId));
     }
-    if ("event" === this._slides[t].type) {
-      if (!this._slides[t].target) return void this._triggerInterval(e);
-      if (c = contentManager.getEntityInfo(this._slides[t].target), !c) return void this._triggerInterval(e);
-      if (await contentManager.loadEvents(this._slides[t].target, {
+    if ("event" === this._slides[slideIndex].type) {
+      if (!this._slides[slideIndex].target) return void this._triggerInterval(cancelToken);
+      if (entityInfo = contentManager.getEntityInfo(this._slides[slideIndex].target), !entityInfo) return void this._triggerInterval(cancelToken);
+      if (await contentManager.loadEvents(this._slides[slideIndex].target, {
         all: "all_events"
-      }, e), e?.isCanceled) return void (await this.stopAutoplay());
-      const n = contentManager.context.events[this._slides[t].id];
-      if (!n) return void this._triggerInterval(e);
-      if (await contentManager.loadEvents(this._slides[t].target, {
-        event: this._slides[t].id
-      }, e), e?.isCanceled) return void (await this.stopAutoplay());
-      const r = EyesPublicApi.AppUtils.deepCopy(contentManager.context.eventDesc);
-      const a = {
-        ...n,
-        ...r
+      }, cancelToken), cancelToken?.isCanceled) return void (await this.stopAutoplay());
+      const eventInfo = contentManager.context.events[this._slides[slideIndex].id];
+      if (!eventInfo) return void this._triggerInterval(cancelToken);
+      if (await contentManager.loadEvents(this._slides[slideIndex].target, {
+        event: this._slides[slideIndex].id
+      }, cancelToken), cancelToken?.isCanceled) return void (await this.stopAutoplay());
+      const eventDescription = EyesPublicApi.AppUtils.deepCopy(contentManager.context.eventDesc);
+      const mergedEventInfo = {
+        ...eventInfo,
+        ...eventDescription
       };
-      if (timeManager.setTime(n.start), await this._updateCamera(c, a), e?.isCanceled) return void (await this.stopAutoplay());
-      const l = a.rate || this._slides[t].rate;
-      void 0 !== l && timeManager.setTimeRate(l);
+      if (timeManager.setTime(eventInfo.start), await this._updateCamera(entityInfo, mergedEventInfo), cancelToken?.isCanceled) return void (await this.stopAutoplay());
+      const eventRate = mergedEventInfo.rate || this._slides[slideIndex].rate;
+      void 0 !== eventRate && timeManager.setTimeRate(eventRate);
     } else {
-      if (c = contentManager.getEntityInfo(this._slides[t].id), !c) return void this._triggerInterval(e);
-      if (await contentManager.loadDescriptions([this._slides[t].id]), e?.isCanceled) return void (await this.stopAutoplay());
-      const o = contentManager.context[this._slides[t].id];
-      if (this._slides[t].time) timeManager.setTime(this._slides[t].time);else if (o?.dates?.end && o?.dates?.start) {
-        this.app.getManager("scene").setEntitiesForceVisible([this._slides[t].id], true);
-        let e = timeManager.getDefaultLimits().min.clone();
-        await sceneManager.get("main").getEntity(this._slides[t].id).getLoadedPromise();
-        const s = sceneManager.getCoverage(this._slides[t].id);
-        null !== s.min && (e = getFollowName().max(e, s.min));
-        const a = timeManager.parseTime(o.dates.start);
-        e = getFollowName().max(a, e);
-        timeManager.setTime(e);
+      if (entityInfo = contentManager.getEntityInfo(this._slides[slideIndex].id), !entityInfo) return void this._triggerInterval(cancelToken);
+      if (await contentManager.loadDescriptions([this._slides[slideIndex].id]), cancelToken?.isCanceled) return void (await this.stopAutoplay());
+      const entityDescription = contentManager.context[this._slides[slideIndex].id];
+      if (this._slides[slideIndex].time) timeManager.setTime(this._slides[slideIndex].time);else if (entityDescription?.dates?.end && entityDescription?.dates?.start) {
+        this.app.getManager("scene").setEntitiesForceVisible([this._slides[slideIndex].id], true);
+        let earliestTime = timeManager.getDefaultLimits().min.clone();
+        await sceneManager.get("main").getEntity(this._slides[slideIndex].id).getLoadedPromise();
+        const coverage = sceneManager.getCoverage(this._slides[slideIndex].id);
+        null !== coverage.min && (earliestTime = getFollowName().max(earliestTime, coverage.min));
+        const descriptionStart = timeManager.parseTime(entityDescription.dates.start);
+        earliestTime = getFollowName().max(descriptionStart, earliestTime);
+        timeManager.setTime(earliestTime);
       } else timeManager.setToNow();
-      if (await this._updateCamera(c), e?.isCanceled) return void (await this.stopAutoplay());
-      this._slides[t].rate && timeManager.setTimeRate(this._slides[t].rate);
+      if (await this._updateCamera(entityInfo), cancelToken?.isCanceled) return void (await this.stopAutoplay());
+      this._slides[slideIndex].rate && timeManager.setTimeRate(this._slides[slideIndex].rate);
     }
-    const h = contentManager.getSpheroidId(c);
-    if (void 0 !== this._slides[t].hd) await sceneManager.toggleHDTextureForEntity(h, this._slides[t].hd);else if (true === this._slides[t].surfaceMapTiling) {
-      const t = contentManager.getSpheroidLayers(h);
-      if (t) {
-        const e = t.find(t => "wmts" === t.type);
+    const spheroidId = contentManager.getSpheroidId(entityInfo);
+    if (void 0 !== this._slides[slideIndex].hd) await sceneManager.toggleHDTextureForEntity(spheroidId, this._slides[slideIndex].hd);else if (true === this._slides[slideIndex].surfaceMapTiling) {
+      const surfaceMaps = contentManager.getSpheroidLayers(spheroidId);
+      if (surfaceMaps) {
+        const tiledMap = surfaceMaps.find(surfaceMap => "wmts" === surfaceMap.type);
         try {
-          e && (await this._app.getManager("layer").changeSpheroidMap(h, e));
-        } catch (t) {
-          console.error(t);
+          tiledMap && (await this._app.getManager("layer").changeSpheroidMap(spheroidId, tiledMap));
+        } catch (mapError) {
+          console.error(mapError);
         }
       }
     }
-    this._isValidTime(this._slides[t].duration) && (this._slideTimer = setTimeout(() => this._triggerInterval(e), 1e3 * this._slides[t].duration));
-    this._slides[t].lighting && cameraManager.updateLighting(this._slides[t].lighting);
-    this._slides[t].duration || this._isPlaying && this._triggerInterval(e);
+    this._isValidTime(this._slides[slideIndex].duration) && (this._slideTimer = setTimeout(() => this._triggerInterval(cancelToken), 1e3 * this._slides[slideIndex].duration));
+    this._slides[slideIndex].lighting && cameraManager.updateLighting(this._slides[slideIndex].lighting);
+    this._slides[slideIndex].duration || this._isPlaying && this._triggerInterval(cancelToken);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.category.toLowerCase`、`this._app.cameraScripts.alignObjects`、`this._app.cameraScripts.alignSpacecraftPlanet`、`this._app.cameraScripts.goToCelestialObject`、`this._app.cameraScripts.goToInstrument`、`this._app.cameraScripts.goToSpacecraft`。
-   * 调用线索：t.category.toLowerCase、this._app.cameraScripts.alignObjects、this._app.cameraScripts.alignSpacecraftPlanet、this._app.cameraScripts.goToCelestialObject、this._app.cameraScripts.goToInstrument等。
-   */
-  async _updateCamera(t, e = {}) {
-    const i = t.category.toLowerCase();
+  async _updateCamera(entityInfo, eventInfo = {}) {
+    const category = entityInfo.category.toLowerCase();
     const {
       target: target,
       related: related
-    } = e;
-    const o = this._app.getManager("content").hasLanded(t);
-    if (this.app.getManager("scene").setEntitiesForceVisible([...(related || []), ...(target ? [target] : []), ...(null !== t.id ? [t.id] : [])], true), "spacecraft" === i) {
-      if (o) await this._app.cameraScripts.alignSpacecraftPlanet(t.id);else if (target) {
+    } = eventInfo;
+    const hasLanded = this._app.getManager("content").hasLanded(entityInfo);
+    if (this.app.getManager("scene").setEntitiesForceVisible([...(related || []), ...(target ? [target] : []), ...(null !== entityInfo.id ? [entityInfo.id] : [])], true), "spacecraft" === category) {
+      if (hasLanded) await this._app.cameraScripts.alignSpacecraftPlanet(entityInfo.id);else if (target) {
         const {
           duration: duration,
           distance: distance,
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset
-        } = e;
-        await this._app.cameraScripts.alignObjects(t.id, target, {
+        } = eventInfo;
+        await this._app.cameraScripts.alignObjects(entityInfo.id, target, {
           duration: duration,
           distance: distance,
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset,
           ...this._slides[this._currentIndex].cameraOptions
         });
-      } else await this._app.cameraScripts.goToSpacecraft(t.id, this._slides[this._currentIndex].cameraOptions);
-    } else "landing site" === i ? await this._app.cameraScripts.alignSpacecraftPlanet(t.id, this._slides[this._currentIndex].cameraOptions) : "instrument" === i ? await this._app.cameraScripts.goToInstrument(t.id, this._slides[this._currentIndex].cameraOptions) : await this._app.cameraScripts.goToCelestialObject(t.id, this._slides[this._currentIndex].cameraOptions);
+      } else await this._app.cameraScripts.goToSpacecraft(entityInfo.id, this._slides[this._currentIndex].cameraOptions);
+    } else "landing site" === category ? await this._app.cameraScripts.alignSpacecraftPlanet(entityInfo.id, this._slides[this._currentIndex].cameraOptions) : "instrument" === category ? await this._app.cameraScripts.goToInstrument(entityInfo.id, this._slides[this._currentIndex].cameraOptions) : await this._app.cameraScripts.goToCelestialObject(entityInfo.id, this._slides[this._currentIndex].cameraOptions);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentIndex`、`_intervalTimer`、`_isPlaying`、`_slideTimer`；返回 `void`；调用 `cameraManager.updateLighting`、`clearInterval`、`clearTimeout`、`contentManager.getEntityInfo`、`contentManager.getSpheroidId`、`layerManager.resetSpheroidMap`。
-   * 状态写入：_currentIndex、_intervalTimer、_isPlaying、_slideTimer。
-   * 调用线索：cameraManager.updateLighting、clearInterval、clearTimeout、contentManager.getEntityInfo、contentManager.getSpheroidId等。
-   */
   async stopAutoplay() {
     if (clearInterval(this._intervalTimer), this._intervalTimer = null, clearTimeout(this._slideTimer), this._slideTimer = null, !this._isPlaying && -1 === this._currentIndex) return;
     this._isPlaying = false;
@@ -225,11 +164,11 @@ class AutoplayManager extends EyesPublicApi.BaseManager {
     const contentManager = this.app.getManager("content");
     const layerManager = this._app.getManager("layer");
     if (this._currentIndex >= 0 && "object" === this._slides[this._currentIndex].type) {
-      const t = this._slides[this._currentIndex];
-      const e = contentManager.getEntityInfo(t.id);
-      const s = contentManager.getSpheroidId(e);
-      void 0 !== t.hd && sceneManager.toggleHDTextureForEntity(s, this._resetStates.hd);
-      void 0 !== t.surfaceMapTiling && true !== t.surfaceMapTiling && (await layerManager.resetSpheroidMap(s));
+      const currentSlide = this._slides[this._currentIndex];
+      const entityInfo = contentManager.getEntityInfo(currentSlide.id);
+      const spheroidId = contentManager.getSpheroidId(entityInfo);
+      void 0 !== currentSlide.hd && sceneManager.toggleHDTextureForEntity(spheroidId, this._resetStates.hd);
+      void 0 !== currentSlide.surfaceMapTiling && true !== currentSlide.surfaceMapTiling && (await layerManager.resetSpheroidMap(spheroidId));
     }
     sceneManager.setEntitiesForceVisible([], true);
     timeManager.setTimeRate("rate" in routerManager.query ? routerManager.query.rate : this._resetStates.rate);

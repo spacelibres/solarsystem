@@ -1,28 +1,18 @@
-/** @eyes-analysis
- * 文件职责：为动画生成插值/缓动函数和组合操作。
- * 依据：顶层副作用 AnimationUtils.createAnimation=(t,e,i)=>{const keyframeEffect=new KeyframeEffect(t,e,i);return new Animation(keyframeEffect,t.ownerDocument.timeline);}；顶层副作用 AnimationUtils.directionalFade=(t,{direction:e="up",fade:i="in",yOffset:s=0,xOffset:n=0,timings:o=AnimationUtils.defaultTimings})=>{const r={x:{ori:0,dest:0},y:{ori:0,dest:0},opacity:{ori:1,dest:0}};"up"===e||"down"===e?
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+/** 封装 Web Animations API；位移用元素百分比，方向控制起止偏移符号，timings 和原键名直接传给浏览器。 */
 // Recovered from app.js:546745-547759.
-/** @eyes-analysis
- * 类职责：为动画生成插值/缓动函数和组合操作。
- * 继承：无显式父类；导出：AnimationUtils。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class AnimationUtils {}
-AnimationUtils.createAnimation = (t, e, i) => {
-  const keyframeEffect = new KeyframeEffect(t, e, i);
-  return new Animation(keyframeEffect, t.ownerDocument.timeline);
+AnimationUtils.createAnimation = (element, keyframes, timings) => {
+  const keyframeEffect = new KeyframeEffect(element, keyframes, timings);
+  return new Animation(keyframeEffect, element.ownerDocument.timeline);
 };
-AnimationUtils.directionalFade = (t, {
-  direction: e = "up",
-  fade: i = "in",
-  yOffset: s = 0,
-  xOffset: n = 0,
-  timings: o = AnimationUtils.defaultTimings
+AnimationUtils.directionalFade = (element, {
+  direction = "up",
+  fade = "in",
+  yOffset = 0,
+  xOffset = 0,
+  timings = AnimationUtils.defaultTimings
 }) => {
-  const r = {
+  const endpoints = {
     x: {
       ori: 0,
       dest: 0
@@ -36,20 +26,37 @@ AnimationUtils.directionalFade = (t, {
       dest: 0
     }
   };
-  "up" === e || "down" === e ? (r.y.ori = "in" === i ? 100 : 0, r.y.dest = 100 - r.y.ori, "up" === e && (r.y.ori *= -1, r.y.dest *= -1)) : (r.x.ori = "in" === i ? 100 : 0, r.x.dest = 100 - r.x.ori, "left" === e && (r.x.ori *= -1, r.x.dest *= -1));
-  "in" === i && (r.opacity.ori = 0, r.opacity.dest = 1);
-  r.x.ori += n;
-  r.x.dest += n;
-  r.y.ori += s;
-  r.y.dest += s;
-  const a = [{
-    transform: "translate(" + r.x.ori + "%, " + r.y.ori + "%)",
-    opacity: r.opacity.ori
+  if ("up" === direction || "down" === direction) {
+    endpoints.y.ori = "in" === fade ? 100 : 0;
+    endpoints.y.dest = 100 - endpoints.y.ori;
+    if ("up" === direction) {
+      endpoints.y.ori *= -1;
+      endpoints.y.dest *= -1;
+    }
+  } else {
+    endpoints.x.ori = "in" === fade ? 100 : 0;
+    endpoints.x.dest = 100 - endpoints.x.ori;
+    if ("left" === direction) {
+      endpoints.x.ori *= -1;
+      endpoints.x.dest *= -1;
+    }
+  }
+  if ("in" === fade) {
+    endpoints.opacity.ori = 0;
+    endpoints.opacity.dest = 1;
+  }
+  endpoints.x.ori += xOffset;
+  endpoints.x.dest += xOffset;
+  endpoints.y.ori += yOffset;
+  endpoints.y.dest += yOffset;
+  const keyframes = [{
+    transform: "translate(" + endpoints.x.ori + "%, " + endpoints.y.ori + "%)",
+    opacity: endpoints.opacity.ori
   }, {
-    transform: "translate(" + r.x.dest + "%, " + r.y.dest + "%)",
-    opacity: r.opacity.dest
+    transform: "translate(" + endpoints.x.dest + "%, " + endpoints.y.dest + "%)",
+    opacity: endpoints.opacity.dest
   }];
-  return AnimationUtils.createAnimation(t, a, o);
+  return AnimationUtils.createAnimation(element, keyframes, timings);
 };
 AnimationUtils.defaultTimings = {
   duration: 1e3,

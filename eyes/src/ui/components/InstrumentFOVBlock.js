@@ -1,9 +1,3 @@
-/** @eyes-analysis
- * 文件职责：仪器视场选项内容块
- * 依据：imports: ../../engine/solar-system/public-api.js, ../../engine/pioneer/index.js, ../../app/public-api.js, ../../styles/extracted/InstrumentFOVBlockStyles.js, ../templates/InstrumentFOVBlockTemplate.html
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1489381-1500476.
 import * as SolarSystemSceneExports from "../../engine/solar-system/public-api.js";
 import * as Pioneer from "../../engine/pioneer/index.js";
@@ -11,19 +5,10 @@ import * as SolarSystemPublicApi from "../../app/public-api.js";
 import "../../styles/extracted/InstrumentFOVBlockStyles.js";
 import InstrumentFOVBlockTemplate from "../templates/InstrumentFOVBlockTemplate.html";
 var getInstrumentFOVBlockTemplate = () => InstrumentFOVBlockTemplate;
-/** @eyes-analysis
- * 类职责：仪器视场选项内容块；继承 SolarSystemPublicApi.OptionsBlock
- * 继承：SolarSystemPublicApi.OptionsBlock；导出：InstrumentFOVBlock。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 仪器配置与实例几何分离，实例属性优先于仪器公共属性。存在 keyframes 的仪器使用三态开关：关闭、覆盖区间、完整视锥；总开关与单仪器互相同步时跳过回调，避免循环触发。 */
 class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；调用 Object.assign, Pioneer.Vector3, Pioneer.Color；写入 _previousEntity, _spacecraft, _instrumentCheckboxes。
-   * 状态写入：_instrumentCheckboxes、_previousEntity、_spacecraft。
-   * 调用线索：Object.assign、new Pioneer.Color、new Pioneer.Vector3、super。
-   */
-  constructor(t) {
-    super(t, null, {
+  constructor(app) {
+    super(app, null, {
       entityName: ""
     });
     Object.assign(this._class, {
@@ -45,7 +30,7 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
           numConeLines: 2,
           intersectionEntities: ["titan"],
           spinAngle: Math.PI / 2,
-          keyframes: l,
+          keyframes: cassiniRadarCoverageIntervals,
           instances: [{
             fov: {
               x: 1.3,
@@ -428,158 +413,128 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
     };
     this._instrumentCheckboxes = [];
   }
-  /** @eyes-analysis
-   * 执行 hasInstrumentsWithFOV 对应的组件业务步骤。
-   */
-  hasInstrumentsWithFOV(t) {
-    return void 0 !== this._spacecraft[t];
+  hasInstrumentsWithFOV(spacecraftId) {
+    return void 0 !== this._spacecraft[spacecraftId];
   }
-  /** @eyes-analysis
-   * 初始化模板与关联资源；调用 super.init。
-   * 调用线索：super.init。
-   */
   init() {
     super.init();
   }
-  /** @eyes-analysis
-   * 响应路径参数变化并刷新本模块；调用 this.reset, this.setState, this._addInstrumentOptions, this._setVariables；写入 _previousEntity。
-   * 状态写入：_children.instrumentsList.innerHTML、_previousEntity。
-   * 调用线索：this._addInstrumentOptions、this._setVariables、this.reset、this.setState。
-   */
-  onRouteChange(t, e) {
-    const previousEntity = t.id;
+  onRouteChange(entityInfo, entityName) {
+    const previousEntity = entityInfo.id;
     this._previousEntity && this._previousEntity !== previousEntity && this.reset();
     this.setState({
-      entityName: e
+      entityName: entityName
     });
-    const s = this._spacecraft[previousEntity];
-    s ? (this._addInstrumentOptions(previousEntity, s), this._previousEntity = previousEntity, this._setVariables(this._children.instrumentFOVBlock)) : this._children.instrumentsList.innerHTML = "";
+    const spacecraftInfo = this._spacecraft[previousEntity];
+    spacecraftInfo ? (this._addInstrumentOptions(previousEntity, spacecraftInfo), this._previousEntity = previousEntity, this._setVariables(this._children.instrumentFOVBlock)) : this._children.instrumentsList.innerHTML = "";
   }
-  /** @eyes-analysis
-   * 执行 _addInstrumentOptions 对应的组件业务步骤；调用 this.reset, this._instrumentCheckboxes.forEach, this._toggleFrustums, this._createMultistateCheckbox, this._createCheckbox, this._children.instrumentsList.appendChild, this._instrumentCheckboxes.some, this._instrumentCheckboxes.push。
-   * 状态写入：_children.instrumentsList.innerHTML。
-   * 调用线索：a、checkbox.cycle、checkbox.toggle、console.warn、i.every等。
-   */
-  _addInstrumentOptions(t, e) {
+  _addInstrumentOptions(spacecraftId, spacecraftInfo) {
     this._children.instrumentsList.innerHTML = "";
     this.reset();
-    const i = e.instruments;
-    if (void 0 === i) return void console.warn(`Spacecraft ${t} is missing instruments`);
-    const s = t => t.keyframes || t.instances.some(t => t.keyframes);
-    const n = t => "number" == typeof t ? t : t ? 2 : 0;
-    i.forEach(t => {
-      void 0 === t.enabled && (t.enabled = false);
-      s(t) && (t.enabled = n(t.enabled));
+    const instruments = spacecraftInfo.instruments;
+    if (void 0 === instruments) return void console.warn(`Spacecraft ${spacecraftId} is missing instruments`);
+    const hasKeyframes = instrumentInfo => instrumentInfo.keyframes || instrumentInfo.instances.some(instanceInfo => instanceInfo.keyframes);
+    const toStateIndex = enabledState => "number" == typeof enabledState ? enabledState : enabledState ? 2 : 0;
+    instruments.forEach(instrumentInfo => {
+      void 0 === instrumentInfo.enabled && (instrumentInfo.enabled = false);
+      hasKeyframes(instrumentInfo) && (instrumentInfo.enabled = toStateIndex(instrumentInfo.enabled));
     });
-    const o = i.every(s);
-    let r;
-    const a = i => {
-      e.enabled = i;
+    const allUseKeyframes = instruments.every(hasKeyframes);
+    let allCheckbox;
+    const setAllInstruments = enabledState => {
+      spacecraftInfo.enabled = enabledState;
       this._instrumentCheckboxes.forEach(({
         instrument: instrument,
         checkbox: checkbox
       }) => {
-        (r.cycle ? i !== instrument.enabled : n(i) !== n(instrument.enabled)) && (checkbox.cycle ? (instrument.enabled = n(i), checkbox.cycle(null, true, instrument.enabled)) : (instrument.enabled = i, checkbox.toggle(null, true)), this._toggleFrustums(t, instrument, e.enabled));
+        (allCheckbox.cycle ? enabledState !== instrument.enabled : toStateIndex(enabledState) !== toStateIndex(instrument.enabled)) && (checkbox.cycle ? (instrument.enabled = toStateIndex(enabledState), checkbox.cycle(null, true, instrument.enabled)) : (instrument.enabled = enabledState, checkbox.toggle(null, true)), this._toggleFrustums(spacecraftId, instrument, spacecraftInfo.enabled));
       });
     };
-    const l = t => ({
+    const allCheckboxOptions = readState => ({
       key: "allInstruments",
       text: () => "All Instruments",
-      function: () => a(t())
+      function: () => setAllInstruments(readState())
     });
-    o ? (e.enabled = n(e.enabled), r = this._createMultistateCheckbox(l(() => r.getCurrentStateIndex()), 3, e.enabled), r.setClassesForIndex({
+    allUseKeyframes ? (spacecraftInfo.enabled = toStateIndex(spacecraftInfo.enabled), allCheckbox = this._createMultistateCheckbox(allCheckboxOptions(() => allCheckbox.getCurrentStateIndex()), 3, spacecraftInfo.enabled), allCheckbox.setClassesForIndex({
       checkbox: "checked",
       icon: "fov-coverage"
-    }, 1)) : r = this._createCheckbox(l(() => !e.enabled), e.enabled);
-    r.setEnabled(true);
-    this._children.instrumentsList.appendChild(r.element);
-    i.forEach(i => {
-      let o;
-      const a = s => {
-        i.enabled = s;
-        const o = !this._instrumentCheckboxes.some(({
+    }, 1)) : allCheckbox = this._createCheckbox(allCheckboxOptions(() => !spacecraftInfo.enabled), spacecraftInfo.enabled);
+    allCheckbox.setEnabled(true);
+    this._children.instrumentsList.appendChild(allCheckbox.element);
+    instruments.forEach(instrumentInfo => {
+      let instrumentCheckbox;
+      const setInstrumentState = enabledState => {
+        instrumentInfo.enabled = enabledState;
+        const allFrustumsEnabled = !this._instrumentCheckboxes.some(({
           instrument: instrument
-        }) => 2 !== n(instrument.enabled));
-        const a = !this._instrumentCheckboxes.some(({
+        }) => 2 !== toStateIndex(instrument.enabled));
+        const allCoverageEnabled = !this._instrumentCheckboxes.some(({
           instrument: instrument
-        }) => 1 !== n(instrument.enabled));
-        if (r.cycle) {
-          const t = o ? 2 : a ? 1 : 0;
-          e.enabled !== t && (e.enabled = t, r.cycle(null, true, e.enabled));
-        } else e.enabled !== o && (e.enabled = o, r.toggle(null, true, e.enabled));
-        this._toggleFrustums(t, i, e.enabled);
+        }) => 1 !== toStateIndex(instrument.enabled));
+        if (allCheckbox.cycle) {
+          const aggregateState = allFrustumsEnabled ? 2 : allCoverageEnabled ? 1 : 0;
+          spacecraftInfo.enabled !== aggregateState && (spacecraftInfo.enabled = aggregateState, allCheckbox.cycle(null, true, spacecraftInfo.enabled));
+        } else spacecraftInfo.enabled !== allFrustumsEnabled && (spacecraftInfo.enabled = allFrustumsEnabled, allCheckbox.toggle(null, true, spacecraftInfo.enabled));
+        this._toggleFrustums(spacecraftId, instrumentInfo, spacecraftInfo.enabled);
       };
-      const l = t => ({
-        key: i.id,
-        text: () => i.name,
-        function: () => a(t())
+      const instrumentCheckboxOptions = readState => ({
+        key: instrumentInfo.id,
+        text: () => instrumentInfo.name,
+        function: () => setInstrumentState(readState())
       });
-      s(i) ? (o = this._createMultistateCheckbox(l(() => o.getCurrentStateIndex()), 3, n(e.enabled || i.enabled)), o.setClassesForIndex({
+      hasKeyframes(instrumentInfo) ? (instrumentCheckbox = this._createMultistateCheckbox(instrumentCheckboxOptions(() => instrumentCheckbox.getCurrentStateIndex()), 3, toStateIndex(spacecraftInfo.enabled || instrumentInfo.enabled)), instrumentCheckbox.setClassesForIndex({
         checkbox: "checked",
         icon: "fov-coverage"
-      }, 1)) : o = this._createCheckbox(l(() => !i.enabled), e.enabled || i.enabled);
-      this._toggleFrustums(t, i, e.enabled);
-      o.setEnabled(true);
-      this._children.instrumentsList.appendChild(o.element);
+      }, 1)) : instrumentCheckbox = this._createCheckbox(instrumentCheckboxOptions(() => !instrumentInfo.enabled), spacecraftInfo.enabled || instrumentInfo.enabled);
+      this._toggleFrustums(spacecraftId, instrumentInfo, spacecraftInfo.enabled);
+      instrumentCheckbox.setEnabled(true);
+      this._children.instrumentsList.appendChild(instrumentCheckbox.element);
       this._instrumentCheckboxes.push({
-        instrument: i,
-        checkbox: o
+        instrument: instrumentInfo,
+        checkbox: instrumentCheckbox
       });
     });
   }
-  /** @eyes-analysis
-   * 执行 _toggleFrustums 对应的组件业务步骤；调用 this._app.scene.getEntity, Object.entries。
-   * 调用线索：Object.entries、Object.entries(i).forEach、e.instances.forEach、n.addComponent、n.getComponent等。
-   */
-  _toggleFrustums(t, e, i = false) {
-    const n = this._app.scene.getEntity(t);
-    i || e.enabled ? e.instances.forEach((t, i) => {
-      const o = `${e.id}_${i}`;
-      let r = n.getComponent(SolarSystemSceneExports.FrustumComponent, o);
-      if (!r) {
-        r = n.addComponent(SolarSystemSceneExports.FrustumComponent, o);
-        const i = {
-          frustumType: t => r.setFrustumType(t),
-          color: t => r.setColor(t),
-          position: t => r.setOriginOffset(t),
-          direction: t => r.setDirection(t),
-          fov: t => r.setFOVDegrees(t.x, t.y),
-          nearBase: t => r.setNearBase(t.x, t.y),
-          farBase: t => r.setFarBase(t.x, t.y),
-          frustumLength: t => r.setLength(t),
-          spinAngle: t => r.setSpinAngle(t),
-          numConeLines: t => r.setNumConeLines(t),
-          numCirlePoints: t => r.setNumberOfCirclePoints(t),
-          intersectionEntities: t => r.setIntersectionEntities(t),
-          hiddenPyramidEdges: t => r.setHiddenPyramidEdges(t),
-          keyframes: t => r.setKeyframes(t)
+  _toggleFrustums(spacecraftId, instrumentInfo, allEnabled = false) {
+    const spacecraftEntity = this._app.scene.getEntity(spacecraftId);
+    allEnabled || instrumentInfo.enabled ? instrumentInfo.instances.forEach((instanceInfo, instanceIndex) => {
+      const componentId = `${instrumentInfo.id}_${instanceIndex}`;
+      let frustumComponent = spacecraftEntity.getComponent(SolarSystemSceneExports.FrustumComponent, componentId);
+      if (!frustumComponent) {
+        frustumComponent = spacecraftEntity.addComponent(SolarSystemSceneExports.FrustumComponent, componentId);
+        const propertySetters = {
+          frustumType: frustumType => frustumComponent.setFrustumType(frustumType),
+          color: color => frustumComponent.setColor(color),
+          position: originOffset => frustumComponent.setOriginOffset(originOffset),
+          direction: direction => frustumComponent.setDirection(direction),
+          fov: fieldOfView => frustumComponent.setFOVDegrees(fieldOfView.x, fieldOfView.y),
+          nearBase: nearBase => frustumComponent.setNearBase(nearBase.x, nearBase.y),
+          farBase: farBase => frustumComponent.setFarBase(farBase.x, farBase.y),
+          frustumLength: frustumLength => frustumComponent.setLength(frustumLength),
+          spinAngle: spinAngle => frustumComponent.setSpinAngle(spinAngle),
+          numConeLines: coneLineCount => frustumComponent.setNumConeLines(coneLineCount),
+          numCirlePoints: circlePointCount => frustumComponent.setNumberOfCirclePoints(circlePointCount),
+          intersectionEntities: intersectionEntityIds => frustumComponent.setIntersectionEntities(intersectionEntityIds),
+          hiddenPyramidEdges: hiddenEdges => frustumComponent.setHiddenPyramidEdges(hiddenEdges),
+          keyframes: keyframes => frustumComponent.setKeyframes(keyframes)
         };
-        Object.entries(i).forEach(([i, s]) => {
-          const n = t[i] ?? e[i];
-          void 0 !== n && s(n);
+        Object.entries(propertySetters).forEach(([propertyName, applyProperty]) => {
+          const propertyValue = instanceInfo[propertyName] ?? instrumentInfo[propertyName];
+          void 0 !== propertyValue && applyProperty(propertyValue);
         });
       }
-      "number" == typeof e.enabled && (t.keyframes || e.keyframes) && r.setUseKeyframes(1 === e.enabled);
-      r.setEnabled(true);
-    }) : e.instances.forEach((t, i) => {
-      const o = n.getComponent(SolarSystemSceneExports.FrustumComponent, `${e.id}_${i}`);
-      o && o.setEnabled(false);
+      "number" == typeof instrumentInfo.enabled && (instanceInfo.keyframes || instrumentInfo.keyframes) && frustumComponent.setUseKeyframes(1 === instrumentInfo.enabled);
+      frustumComponent.setEnabled(true);
+    }) : instrumentInfo.instances.forEach((instanceInfo, instanceIndex) => {
+      const frustumComponent = spacecraftEntity.getComponent(SolarSystemSceneExports.FrustumComponent, `${instrumentInfo.id}_${instanceIndex}`);
+      frustumComponent && frustumComponent.setEnabled(false);
     });
   }
-  /** @eyes-analysis
-   * 执行 reset 对应的组件业务步骤；写入 _instrumentCheckboxes, _triggeredByInstrumentCheckbox, _triggeredByAllCheckbox。
-   * 状态写入：_instrumentCheckboxes、_triggeredByAllCheckbox、_triggeredByInstrumentCheckbox。
-   */
   reset() {
     this._instrumentCheckboxes = [];
     this._triggeredByInstrumentCheckbox = false;
     this._triggeredByAllCheckbox = false;
   }
-  /** @eyes-analysis
-   * 卸载 DOM 并取消业务订阅；调用 this.setState, super.__disable；写入 _previousEntity。
-   * 状态写入：_previousEntity。
-   * 调用线索：super.__disable、this.setState。
-   */
   __disable() {
     this._previousEntity = null;
     this.setState({
@@ -588,6 +543,6 @@ class InstrumentFOVBlock extends SolarSystemPublicApi.OptionsBlock {
     super.__disable();
   }
 }
-const l = [[152076418.941, 152077844.412], [161721448.394, 161724013.234], [179351880.56, 179352668.353], [183743728.557, 183746127.345], [199702044.251, 199703987.076], [206798889.687, 206801144.93200004], [210932215.601, 210932517.45200002], [212309741.233, 212310243.7950001], [213685760.527, 213688255.84599993], [219195475.712, 219197059.475], [221948389.032, 221950786.682], [225384888.335, 225387096.692], [229516775.022, 229519123.281], [230894296.139, 230896399.898], [232272791.587, 232273835.696], [244571878.159, 244572546.418], [251462344.531, 251463838.295], [256972389.815, 256974676.527], [263857450.298, 263859678.339], [265234202.56, 265236244.55], [281758018.902, 281759595.803], [283135322.768, 283137674.735], [287268409.109, 287269025.629], [296212054.577, 296214379.301], [297589376.218, 297591620.304], [298967209.919, 298970186.382], [300343766.246, 300345887.534], [301721355.559, 301722016.9010002], [304475666.639, 304477841.213], [315231186.563, 315232652.162], [316609663.387, 316610787.603], [331733884.384, 331734589.517], [361865506.41000015, 361866749.799], [390920724.199, 390922243.28], [392298523.298, 392300869.696], [422601256.394, 422602979.474], [426733393.407, 426735687.991], [434998223.861, 434999085.116], [444640446.583, 444641556.386], [461880883.82, 461881966.261], [546113407.629, 546114474.108]];
+const cassiniRadarCoverageIntervals = [[152076418.941, 152077844.412], [161721448.394, 161724013.234], [179351880.56, 179352668.353], [183743728.557, 183746127.345], [199702044.251, 199703987.076], [206798889.687, 206801144.93200004], [210932215.601, 210932517.45200002], [212309741.233, 212310243.7950001], [213685760.527, 213688255.84599993], [219195475.712, 219197059.475], [221948389.032, 221950786.682], [225384888.335, 225387096.692], [229516775.022, 229519123.281], [230894296.139, 230896399.898], [232272791.587, 232273835.696], [244571878.159, 244572546.418], [251462344.531, 251463838.295], [256972389.815, 256974676.527], [263857450.298, 263859678.339], [265234202.56, 265236244.55], [281758018.902, 281759595.803], [283135322.768, 283137674.735], [287268409.109, 287269025.629], [296212054.577, 296214379.301], [297589376.218, 297591620.304], [298967209.919, 298970186.382], [300343766.246, 300345887.534], [301721355.559, 301722016.9010002], [304475666.639, 304477841.213], [315231186.563, 315232652.162], [316609663.387, 316610787.603], [331733884.384, 331734589.517], [361865506.41000015, 361866749.799], [390920724.199, 390922243.28], [392298523.298, 392300869.696], [422601256.394, 422602979.474], [426733393.407, 426735687.991], [434998223.861, 434999085.116], [444640446.583, 444641556.386], [461880883.82, 461881966.261], [546113407.629, 546114474.108]];
 InstrumentFOVBlock.html = getInstrumentFOVBlockTemplate();
 export { InstrumentFOVBlock };

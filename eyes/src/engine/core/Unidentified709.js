@@ -1,9 +1,4 @@
-/** @eyes-analysis
- * 文件职责：声明式实体目录，注册 16 个实体/参考系（如 sc_artemis_1、sc_artemis_2、sc_capstone、sc_clementine、sc_danuri、sc_grail_a），供 Entity-567 工厂创建半径、父级、几何与控制器。
- * 依据：import ../pioneer/index.js；import ./Entity-567.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 月球任务目录含 Clementine 覆盖区间模型切换及 THEMIS/ARTEMIS 标签名称切换；enter/exit 每次重新解析组件，保留任务父级与原事件时间。
 // Recovered from app.js:1108291-1117755.
 import * as Pioneer from "../pioneer/index.js";
 import * as Entity from "./Entity-567.js";
@@ -140,13 +135,17 @@ Entity.Entity.register({
       url: "sc_clementine/ori"
     }, {
       type: "coverage",
-      enter: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_clementine/clementine_isas.gltf");
+      enter: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_clementine/clementine_isas.gltf");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.ModelComponent);
-        e && e.setUrl("$STATIC_ASSETS_URL/models/sc_clementine/clementine.gltf");
+      exit: entity => {
+        const model = entity.getComponent(Pioneer.ModelComponent);
+        if (model) {
+          model.setUrl("$STATIC_ASSETS_URL/models/sc_clementine/clementine.gltf");
+        }
       },
       coverage: [Number.NEGATIVE_INFINITY, -186451139]
     }]
@@ -512,13 +511,17 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, 264427265],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("ARTEMIS P1", "THEMIS B"));
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("ARTEMIS P1", "THEMIS B");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("THEMIS B", "ARTEMIS P1"));
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("THEMIS B", "ARTEMIS P1");
+        }
       }
     }]
   },
@@ -555,13 +558,17 @@ Entity.Entity.register({
     }, {
       type: "coverage",
       coverage: [Number.NEGATIVE_INFINITY, 264427265],
-      enter: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("ARTEMIS P2", "THEMIS C"));
+      enter: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("ARTEMIS P2", "THEMIS C");
+        }
       },
-      exit: t => {
-        const e = t.getComponent(Pioneer.DivComponent);
-        e && (e.getDiv().innerHTML = e.getDiv().innerHTML.replace("THEMIS C", "ARTEMIS P2"));
+      exit: entity => {
+        const label = entity.getComponent(Pioneer.DivComponent);
+        if (label) {
+          label.getDiv().innerHTML = label.getDiv().innerHTML.replace("THEMIS C", "ARTEMIS P2");
+        }
       }
     }]
   }

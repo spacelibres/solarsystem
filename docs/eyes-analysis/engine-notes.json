@@ -5130,78 +5130,6 @@
       "notes": [],
       "renames": []
     },
-    "eyes/src/engine/core/Unidentified1081.js": {
-      "purpose": "2023 日环食故事定义：图层进入/退出、地月日观察按钮、影锥/轮廓纹理开关与状态恢复。",
-      "confidence": "observed",
-      "evidence": [
-        "import ../pioneer/index.js",
-        "import ../solar-system/public-api.js",
-        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"moon\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");t.getManager(\"time\").resetLimits();[\"asteroids\",\"com",
-        "实际标题：Annular Solar Eclipse"
-      ],
-      "classes": {},
-      "notes": [
-        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
-      ],
-      "renames": []
-    },
-    "eyes/src/engine/core/Unidentified1082.js": {
-      "purpose": "2024 日全食故事定义：地理城市/遮挡百分比标记、日食时间段、视角与贴图切换。",
-      "confidence": "observed",
-      "evidence": [
-        "import ../pioneer/index.js",
-        "import ../solar-system/public-api.js",
-        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"earth\",\"moon\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");t.getManager(\"time\").resetLimits();const r=t",
-        "实际标题：Total Solar Eclipse"
-      ],
-      "classes": {},
-      "notes": [
-        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
-      ],
-      "renames": []
-    },
-    "eyes/src/engine/core/Unidentified1083.js": {
-      "purpose": "土卫二发现故事定义：围绕 Enceladus 的幻灯片、介绍内容和相机/图层操作。",
-      "confidence": "observed",
-      "evidence": [
-        "import ../pioneer/index.js",
-        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_cassini\",\"enceladus\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");[\"asteroids\",\"comets\",\"dwarfPlanet",
-        "实际标题：Discovery at Enceladus；There is Something Happening on Enceladus；Detection；Water Vapor at the South Pole；Enceladus Terrain；Enceladus Temperature；A Major Announcement；Enceladus Icy Jets；Cassini and the Jets；What We Learned Along the Way；Enceladus cutaway；Enceladus cutaway with description"
-      ],
-      "classes": {},
-      "notes": [
-        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
-      ],
-      "renames": []
-    },
-    "eyes/src/engine/core/Unidentified1084.js": {
-      "purpose": "旅行者大巡游故事定义：任务阶段、时间和视角的叙事配置。",
-      "confidence": "observed",
-      "evidence": [
-        "import ../pioneer/index.js",
-        "import ../solar-system/public-api.js",
-        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_voyager_1\",\"sc_voyager_2\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");[\"asteroids\",\"comets\",\"dwarfP",
-        "实际标题：Voyager's Grand Tour；Voyager 1 \"Blue Movie\"；Volcanic Explosion on Io；Io with Loki Plume on Bright Limb；Jupiter's Great Red Spot；Io Rotation Movie；Jupiter's Great Red Spot；Saturn's Ring System；Titan's Thick Haze Layer；Uranus as seen by NASA's Voyager 2；Titania High-Resolution Color Composite；Miranda's Geologic History (Variety of Terrain)"
-      ],
-      "classes": {},
-      "notes": [
-        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
-      ],
-      "renames": []
-    },
-    "eyes/src/engine/core/Unidentified1085.js": {
-      "purpose": "帕克太阳探测器近日点故事定义，协调 2024-12-24 事件时间和观察步骤。",
-      "confidence": "observed",
-      "evidence": [
-        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_parker_solar_probe\"],onEnter:async t=>{t.getManager(\"layer\").toggleLayer(\"spacecraft\",{},false);},slides:[{id:\"slide_1\",type:\"overlay\",classList:[\"opaque\",\"black\"],conten",
-        "实际标题：Parker Solar Probe's Closest Pass by the Sun ；Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS；Venus as seen by Parker Solar Probe. Credit: NASA；Coronal streamers up close. Credit: NASA SVS；Conceptual image of Parker Solar Probe passing through the corona. Credit: NASA SVS"
-      ],
-      "classes": {},
-      "notes": [
-        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
-      ],
-      "renames": []
-    },
     "eyes/src/engine/core/Unidentified511.js": {
       "purpose": "应用可配置设置项表，包含详情面板、NASA 标志、搜索、分享等开关。",
       "confidence": "observed",
@@ -6799,6 +6727,78 @@
         "import ../core/DateTime.js",
         "import ../core/Entity-567.js",
         "import ../core/Features.js"
+      ],
+      "classes": {},
+      "notes": [
+        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
+      ],
+      "renames": []
+    },
+    "eyes/src/engine/core/AnnularSolarEclipseStory.js": {
+      "purpose": "2023 日环食故事定义：图层进入/退出、地月日观察按钮、影锥/轮廓纹理开关与状态恢复。",
+      "confidence": "observed",
+      "evidence": [
+        "import ../pioneer/index.js",
+        "import ../solar-system/public-api.js",
+        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"moon\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");t.getManager(\"time\").resetLimits();[\"asteroids\",\"com",
+        "实际标题：Annular Solar Eclipse"
+      ],
+      "classes": {},
+      "notes": [
+        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
+      ],
+      "renames": []
+    },
+    "eyes/src/engine/core/TotalSolarEclipseStory.js": {
+      "purpose": "2024 日全食故事定义：地理城市/遮挡百分比标记、日食时间段、视角与贴图切换。",
+      "confidence": "observed",
+      "evidence": [
+        "import ../pioneer/index.js",
+        "import ../solar-system/public-api.js",
+        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"earth\",\"moon\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");t.getManager(\"time\").resetLimits();const r=t",
+        "实际标题：Total Solar Eclipse"
+      ],
+      "classes": {},
+      "notes": [
+        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
+      ],
+      "renames": []
+    },
+    "eyes/src/engine/core/EnceladusDiscoveryStory.js": {
+      "purpose": "土卫二发现故事定义：围绕 Enceladus 的幻灯片、介绍内容和相机/图层操作。",
+      "confidence": "observed",
+      "evidence": [
+        "import ../pioneer/index.js",
+        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_cassini\",\"enceladus\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");[\"asteroids\",\"comets\",\"dwarfPlanet",
+        "实际标题：Discovery at Enceladus；There is Something Happening on Enceladus；Detection；Water Vapor at the South Pole；Enceladus Terrain；Enceladus Temperature；A Major Announcement；Enceladus Icy Jets；Cassini and the Jets；What We Learned Along the Way；Enceladus cutaway；Enceladus cutaway with description"
+      ],
+      "classes": {},
+      "notes": [
+        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
+      ],
+      "renames": []
+    },
+    "eyes/src/engine/core/VoyagerGrandTourStory.js": {
+      "purpose": "旅行者大巡游故事定义：任务阶段、时间和视角的叙事配置。",
+      "confidence": "observed",
+      "evidence": [
+        "import ../pioneer/index.js",
+        "import ../solar-system/public-api.js",
+        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_voyager_1\",\"sc_voyager_2\"],onEnter:async t=>{const layerManager=t.getManager(\"layer\");const layerPanelComponent=t.getComponent(\"layerPanel\");[\"asteroids\",\"comets\",\"dwarfP",
+        "实际标题：Voyager's Grand Tour；Voyager 1 \"Blue Movie\"；Volcanic Explosion on Io；Io with Loki Plume on Bright Limb；Jupiter's Great Red Spot；Io Rotation Movie；Jupiter's Great Red Spot；Saturn's Ring System；Titan's Thick Haze Layer；Uranus as seen by NASA's Voyager 2；Titania High-Resolution Color Composite；Miranda's Geologic History (Variety of Terrain)"
+      ],
+      "classes": {},
+      "notes": [
+        "本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。"
+      ],
+      "renames": []
+    },
+    "eyes/src/engine/core/ParkerSolarProbePerihelionStory.js": {
+      "purpose": "帕克太阳探测器近日点故事定义，协调 2024-12-24 事件时间和观察步骤。",
+      "confidence": "observed",
+      "evidence": [
+        "顶层副作用 defaultExport={type:\"nonsequential\",entities:[\"sc_parker_solar_probe\"],onEnter:async t=>{t.getManager(\"layer\").toggleLayer(\"spacecraft\",{},false);},slides:[{id:\"slide_1\",type:\"overlay\",classList:[\"opaque\",\"black\"],conten",
+        "实际标题：Parker Solar Probe's Closest Pass by the Sun ；Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS；Venus as seen by Parker Solar Probe. Credit: NASA；Coronal streamers up close. Credit: NASA SVS；Conceptual image of Parker Solar Probe passing through the corona. Credit: NASA SVS"
       ],
       "classes": {},
       "notes": [

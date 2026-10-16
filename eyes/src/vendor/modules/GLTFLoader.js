@@ -1,24 +1,8 @@
-/** @eyes-analysis
- * 文件职责：GLTFLoader 对应资源的请求、解析与缓存协作；glTF Lights 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsUnlit 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsEmissiveStrength 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsClearcoat 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsDispersion 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsIridescence 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsSheen 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsTransmission 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsVolume 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsIor 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsSpecular 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsBump 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF MaterialsAnisotropy 扩展处理器；将扩展字段映射到 Three 对象或材质；glTF TextureBasisU 扩展处理器；将…
- * 依据：// Recovered from vendors.js:912013-958087.；exports: GLTFLoader
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:912013-958087.
 import * as ThreeCore from "../three/core.js";
 import * as computeMikkTSpaceTangents from "./computeMikkTSpaceTangents.js";
 import * as clone from "./clone.js";
-/** @eyes-analysis
- * 类职责：GLTFLoader 对应资源的请求、解析与缓存协作
- * 继承：ThreeCore.Loader；导出：GLTFLoader。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFLoader extends ThreeCore.Loader {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：dracoLoader、ktx2Loader、meshoptDecoder、pluginCallbacks。
-   * 调用线索：new GLTFLightsExtension、new GLTFMaterialsAnisotropyExtension、new GLTFMaterialsBumpExtension、new GLTFMaterialsClearcoatExtension、new GLTFMaterialsDispersionExtension等。
-   */
   constructor(e) {
     super(e), this.dracoLoader = null, this.ktx2Loader = null, this.meshoptDecoder = null, this.pluginCallbacks = [], this.register(function (e) {
       return new GLTFMaterialsClearcoatExtension(e);
@@ -58,10 +42,6 @@ class GLTFLoader extends ThreeCore.Loader {
       return new GLTFMeshGpuInstancing(e);
     });
   }
-  /** @eyes-analysis
-   * 发起异步资源获取并交给解析路径；管理加载器回调和错误传播
-   * 调用线索：ThreeCore.LoaderUtils.extractUrlBase、ThreeCore.LoaderUtils.resolveURL、a.manager.itemEnd、a.manager.itemError、a.parse等。
-   */
   load(e, t, n, i) {
     const a = this;
     let s;
@@ -84,45 +64,21 @@ class GLTFLoader extends ThreeCore.Loader {
       }
     }, n, o);
   }
-  /** @eyes-analysis
-   * 源码方法 setDRACOLoader；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：dracoLoader。
-   */
   setDRACOLoader(dracoLoader) {
     return this.dracoLoader = dracoLoader, this;
   }
-  /** @eyes-analysis
-   * 源码方法 setKTX2Loader；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：ktx2Loader。
-   */
   setKTX2Loader(ktx2Loader) {
     return this.ktx2Loader = ktx2Loader, this;
   }
-  /** @eyes-analysis
-   * 源码方法 setMeshoptDecoder；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：meshoptDecoder。
-   */
   setMeshoptDecoder(meshoptDecoder) {
     return this.meshoptDecoder = meshoptDecoder, this;
   }
-  /** @eyes-analysis
-   * 源码方法 register；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this.pluginCallbacks.indexOf、this.pluginCallbacks.push。
-   */
   register(e) {
     return -1 === this.pluginCallbacks.indexOf(e) && this.pluginCallbacks.push(e), this;
   }
-  /** @eyes-analysis
-   * 源码方法 unregister；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this.pluginCallbacks.indexOf、this.pluginCallbacks.splice。
-   */
   unregister(e) {
     return -1 !== this.pluginCallbacks.indexOf(e) && this.pluginCallbacks.splice(this.pluginCallbacks.indexOf(e), 1), this;
   }
-  /** @eyes-analysis
-   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
-   * 调用线索：JSON.parse、console.error、console.warn、gLTFParser.fileLoader.setRequestHeader、gLTFParser.parse等。
-   */
   parse(e, t, n, r) {
     let i;
     const a = {},
@@ -174,10 +130,6 @@ class GLTFLoader extends ThreeCore.Loader {
     }
     gLTFParser.setExtensions(a), gLTFParser.setPlugins(s), gLTFParser.parse(n, r);
   }
-  /** @eyes-analysis
-   * 源码方法 parseAsync；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：n.parse、new Promise。
-   */
   parseAsync(e, t) {
     const n = this;
     return new Promise(function (r, i) {
@@ -231,26 +183,13 @@ const c = {
   KHR_MESHOPT_COMPRESSION: "KHR_meshopt_compression",
   EXT_MESH_GPU_INSTANCING: "EXT_mesh_gpu_instancing"
 };
-/** @eyes-analysis
- * 类职责：glTF Lights 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFLightsExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：cache、name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_LIGHTS_PUNCTUAL, this.cache = {
       refs: {},
       uses: {}
     };
   }
-  /** @eyes-analysis
-   * 源码方法 _markDefs；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：parser._addNodeRef。
-   */
   _markDefs() {
     const parser = this.parser,
       t = this.parser.json.nodes || [];
@@ -259,10 +198,6 @@ class GLTFLightsExtension {
       r.extensions && r.extensions[this.name] && void 0 !== r.extensions[this.name].light && parser._addNodeRef(this.cache, r.extensions[this.name].light);
     }
   }
-  /** @eyes-analysis
-   * 源码方法 _loadLight；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、color.setRGB、new Error、new ThreeCore.Color、new ThreeCore.DirectionalLight等。
-   */
   _loadLight(e) {
     const parser = this.parser,
       n = "light:" + e;
@@ -289,17 +224,9 @@ class GLTFLightsExtension {
     }
     return o.position.set(0, 0, 0), w(o, s), void 0 !== s.intensity && (o.intensity = s.intensity), o.name = parser.createUniqueName(s.name || "light_" + e), i = Promise.resolve(o), parser.cache.add(n, i), i;
   }
-  /** @eyes-analysis
-   * 源码方法 getDependency；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._loadLight。
-   */
   getDependency(e, t) {
     if ("light" === e) return this._loadLight(t);
   }
-  /** @eyes-analysis
-   * 源码方法 createNodeAttachment；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：parser._getNodeRef、this._loadLight、this._loadLight(i).then。
-   */
   createNodeAttachment(e) {
     const t = this,
       parser = this.parser,
@@ -310,29 +237,13 @@ class GLTFLightsExtension {
     });
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsUnlit 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsUnlitExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name。
-   */
   constructor() {
     this.name = c.KHR_MATERIALS_UNLIT;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   getMaterialType() {
     return ThreeCore.MeshBasicMaterial;
   }
-  /** @eyes-analysis
-   * 源码方法 extendParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Array.isArray、Promise.all、e.color.setRGB、i.push、n.assignTexture等。
-   */
   extendParams(e, t, n) {
     const i = [];
     e.color = new ThreeCore.Color(1, 1, 1), e.opacity = 1;
@@ -347,52 +258,22 @@ class GLTFMaterialsUnlitExtension {
     return Promise.all(i);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsEmissiveStrength 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsEmissiveStrengthExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_EMISSIVE_STRENGTH;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、o。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     return null === n || void 0 !== n.emissiveStrength && (t.emissiveIntensity = n.emissiveStrength), Promise.resolve();
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsClearcoat 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsClearcoatExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_CLEARCOAT;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、i.push、new ThreeCore.Vector2、o等。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -404,59 +285,25 @@ class GLTFMaterialsClearcoatExtension {
     return Promise.all(i);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsDispersion 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsDispersionExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_DISPERSION;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、o。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     return null === n || (t.dispersion = void 0 !== n.dispersion ? n.dispersion : 0), Promise.resolve();
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsIridescence 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsIridescenceExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_IRIDESCENCE;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、o、r.push、this.parser.assignTexture。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -464,30 +311,13 @@ class GLTFMaterialsIridescenceExtension {
     return void 0 !== n.iridescenceFactor && (t.iridescence = n.iridescenceFactor), void 0 !== n.iridescenceTexture && r.push(this.parser.assignTexture(t, "iridescenceMap", n.iridescenceTexture)), void 0 !== n.iridescenceIor && (t.iridescenceIOR = n.iridescenceIor), void 0 === t.iridescenceThicknessRange && (t.iridescenceThicknessRange = [100, 400]), void 0 !== n.iridescenceThicknessMinimum && (t.iridescenceThicknessRange[0] = n.iridescenceThicknessMinimum), void 0 !== n.iridescenceThicknessMaximum && (t.iridescenceThicknessRange[1] = n.iridescenceThicknessMaximum), void 0 !== n.iridescenceThicknessTexture && r.push(this.parser.assignTexture(t, "iridescenceThicknessMap", n.iridescenceThicknessTexture)), Promise.all(r);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsSheen 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsSheenExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_SHEEN;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、i.push、new ThreeCore.Color、o等。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -499,30 +329,13 @@ class GLTFMaterialsSheenExtension {
     return void 0 !== n.sheenRoughnessFactor && (t.sheenRoughness = n.sheenRoughnessFactor), void 0 !== n.sheenColorTexture && i.push(this.parser.assignTexture(t, "sheenColorMap", n.sheenColorTexture, ThreeCore.SRGBColorSpace)), void 0 !== n.sheenRoughnessTexture && i.push(this.parser.assignTexture(t, "sheenRoughnessMap", n.sheenRoughnessTexture)), Promise.all(i);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsTransmission 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsTransmissionExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_TRANSMISSION;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、o、r.push、this.parser.assignTexture。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -530,30 +343,13 @@ class GLTFMaterialsTransmissionExtension {
     return void 0 !== n.transmissionFactor && (t.transmission = n.transmissionFactor), void 0 !== n.transmissionTexture && r.push(this.parser.assignTexture(t, "transmissionMap", n.transmissionTexture)), Promise.all(r);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsVolume 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsVolumeExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_VOLUME;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、i.push、new ThreeCore.Color、new ThreeCore.Color().setRGB等。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -563,59 +359,25 @@ class GLTFMaterialsVolumeExtension {
     return t.attenuationColor = new ThreeCore.Color().setRGB(a[0], a[1], a[2], ThreeCore.LinearSRGBColorSpace), Promise.all(i);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsIor 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsIorExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_IOR;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、o。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     return null === n || (t.ior = void 0 !== n.ior ? n.ior : 1.5, 0 === t.ior && (t.ior = 1e3)), Promise.resolve();
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsSpecular 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsSpecularExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_SPECULAR;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、i.push、new ThreeCore.Color、new ThreeCore.Color().setRGB等。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -625,30 +387,13 @@ class GLTFMaterialsSpecularExtension {
     return t.specularColor = new ThreeCore.Color().setRGB(a[0], a[1], a[2], ThreeCore.LinearSRGBColorSpace), void 0 !== n.specularColorTexture && i.push(this.parser.assignTexture(t, "specularColorMap", n.specularColorTexture, ThreeCore.SRGBColorSpace)), Promise.all(i);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsBump 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsBumpExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.EXT_MATERIALS_BUMP;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、o、r.push、this.parser.assignTexture。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -656,30 +401,13 @@ class GLTFMaterialsBumpExtension {
     return t.bumpScale = void 0 !== n.bumpFactor ? n.bumpFactor : 1, void 0 !== n.bumpTexture && r.push(this.parser.assignTexture(t, "bumpMap", n.bumpTexture)), Promise.all(r);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MaterialsAnisotropy 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMaterialsAnisotropyExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_MATERIALS_ANISOTROPY;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：o。
-   */
   getMaterialType(e) {
     return null !== o(this.parser, e, this.name) ? ThreeCore.MeshPhysicalMaterial : null;
   }
-  /** @eyes-analysis
-   * 源码方法 extendMaterialParams；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.resolve、o、r.push、this.parser.assignTexture。
-   */
   extendMaterialParams(e, t) {
     const n = o(this.parser, e, this.name);
     if (null === n) return Promise.resolve();
@@ -687,23 +415,10 @@ class GLTFMaterialsAnisotropyExtension {
     return void 0 !== n.anisotropyStrength && (t.anisotropy = n.anisotropyStrength), void 0 !== n.anisotropyRotation && (t.anisotropyRotation = n.anisotropyRotation), void 0 !== n.anisotropyTexture && r.push(this.parser.assignTexture(t, "anisotropyMap", n.anisotropyTexture)), Promise.all(r);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF TextureBasisU 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFTextureBasisUExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.KHR_TEXTURE_BASISU;
   }
-  /** @eyes-analysis
-   * 源码方法 loadTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：n.extensionsRequired.indexOf、new Error、parser.loadTextureImage。
-   */
   loadTexture(e) {
     const parser = this.parser,
       n = parser.json,
@@ -718,23 +433,10 @@ class GLTFTextureBasisUExtension {
     return parser.loadTextureImage(e, i.source, a);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF TextureWebP 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFTextureWebPExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.EXT_TEXTURE_WEBP;
   }
-  /** @eyes-analysis
-   * 源码方法 loadTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：parser.loadTextureImage、parser.options.manager.getHandler。
-   */
   loadTexture(e) {
     const name = this.name,
       parser = this.parser,
@@ -751,23 +453,10 @@ class GLTFTextureWebPExtension {
     return parser.loadTextureImage(e, a.source, o);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF TextureAVIF 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFTextureAVIFExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.parser = parser, this.name = c.EXT_TEXTURE_AVIF;
   }
-  /** @eyes-analysis
-   * 源码方法 loadTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：parser.loadTextureImage、parser.options.manager.getHandler。
-   */
   loadTexture(e) {
     const name = this.name,
       parser = this.parser,
@@ -784,23 +473,10 @@ class GLTFTextureAVIFExtension {
     return parser.loadTextureImage(e, a.source, o);
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MeshoptCompression 解析、缓存或插值组件
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMeshoptCompression {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser, name) {
     this.name = name, this.parser = parser;
   }
-  /** @eyes-analysis
-   * 源码方法 loadBufferView；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：i.decodeGltfBuffer、i.decodeGltfBufferAsync、i.decodeGltfBufferAsync(a,s,uint8Array,e.mode,e.filter).then、i.ready.then、new ArrayBuffer等。
-   */
   loadBufferView(e) {
     const t = this.parser.json,
       n = t.bufferViews[e];
@@ -829,23 +505,10 @@ class GLTFMeshoptCompression {
     return null;
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MeshGpuInstancing 解析、缓存或插值组件
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMeshGpuInstancing {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name、parser。
-   */
   constructor(parser) {
     this.name = c.EXT_MESH_GPU_INSTANCING, this.parser = parser;
   }
-  /** @eyes-analysis
-   * 源码方法 createNodeMesh；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.all(s).then、ThreeCore.Object3D.prototype.copy.call、a.push、c.fromBufferAttribute等。
-   */
   createNodeMesh(e) {
     const t = this.parser.json,
       n = t.nodes[e];
@@ -881,17 +544,7 @@ class GLTFMeshGpuInstancing {
 const l = "glTF",
   u = 1313821514,
   d = 5130562;
-/** @eyes-analysis
- * 类职责：glTF Binary 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFBinaryExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：body、content、header、name。
-   * 调用线索：dataView.getUint32、e.slice、i.getUint32、new DataView、new Error等。
-   */
   constructor(e) {
     this.name = c.KHR_BINARY_GLTF, this.content = null, this.body = null;
     const dataView = new DataView(e, 0, 12),
@@ -921,25 +574,11 @@ class GLTFBinaryExtension {
     if (null === this.content) throw new Error("THREE.GLTFLoader: JSON content not found.");
   }
 }
-/** @eyes-analysis
- * 类职责：glTF DracoMeshCompression 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFDracoMeshCompressionExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：dracoLoader、json、name。
-   * 调用线索：new Error、this.dracoLoader.preload。
-   */
   constructor(json, dracoLoader) {
     if (!dracoLoader) throw new Error("THREE.GLTFLoader: No DRACOLoader instance provided.");
     this.name = c.KHR_DRACO_MESH_COMPRESSION, this.json = json, this.dracoLoader = dracoLoader, this.dracoLoader.preload();
   }
-  /** @eyes-analysis
-   * 源码方法 decodePrimitive；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：dracoLoader.decodeDracoFile、e.toLowerCase、new Promise、t、t.getDependency等。
-   */
   decodePrimitive(e, t) {
     const json = this.json,
       dracoLoader = this.dracoLoader,
@@ -974,57 +613,23 @@ class GLTFDracoMeshCompressionExtension {
     });
   }
 }
-/** @eyes-analysis
- * 类职责：glTF TextureTransform 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFTextureTransformExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name。
-   */
   constructor() {
     this.name = c.KHR_TEXTURE_TRANSFORM;
   }
-  /** @eyes-analysis
-   * 源码方法 extendTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.clone、e.offset.fromArray、e.repeat.fromArray。
-   */
   extendTexture(e, t) {
     return void 0 !== t.texCoord && t.texCoord !== e.channel || void 0 !== t.offset || void 0 !== t.rotation || void 0 !== t.scale ? (e = e.clone(), void 0 !== t.texCoord && (e.channel = t.texCoord), void 0 !== t.offset && e.offset.fromArray(t.offset), void 0 !== t.rotation && (e.rotation = t.rotation), void 0 !== t.scale && e.repeat.fromArray(t.scale), e.needsUpdate = !0, e) : e;
   }
 }
-/** @eyes-analysis
- * 类职责：glTF MeshQuantization 扩展处理器；将扩展字段映射到 Three 对象或材质
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFMeshQuantizationExtension {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：name。
-   */
   constructor() {
     this.name = c.KHR_MESH_QUANTIZATION;
   }
 }
-/** @eyes-analysis
- * 类职责：GLTFCubicSpline 插值算法；对关键帧区间求连续或离散值
- * 继承：ThreeCore.Interpolant；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFCubicSplineInterpolant extends ThreeCore.Interpolant {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：super。
-   */
   constructor(e, t, n, r) {
     super(e, t, n, r);
   }
-  /** @eyes-analysis
-   * 源码方法 copySampleValue_；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   copySampleValue_(e) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -1033,9 +638,6 @@ class GLTFCubicSplineInterpolant extends ThreeCore.Interpolant {
     for (let e = 0; e !== valueSize; e++) resultBuffer[e] = sampleValues[i + e];
     return resultBuffer;
   }
-  /** @eyes-analysis
-   * 在当前时间区间执行特定插值算法
-   */
   interpolate_(e, t, n, r) {
     const resultBuffer = this.resultBuffer,
       sampleValues = this.sampleValues,
@@ -1063,16 +665,7 @@ class GLTFCubicSplineInterpolant extends ThreeCore.Interpolant {
   }
 }
 const quaternion = new ThreeCore.Quaternion();
-/** @eyes-analysis
- * 类职责：GLTFCubicSplineQuaternion 插值算法；对关键帧区间求连续或离散值
- * 继承：GLTFCubicSplineInterpolant；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFCubicSplineQuaternionInterpolant extends GLTFCubicSplineInterpolant {
-  /** @eyes-analysis
-   * 在当前时间区间执行特定插值算法
-   * 调用线索：quaternion.fromArray、quaternion.fromArray(i).normalize、quaternion.fromArray(i).normalize().toArray、super.interpolate_。
-   */
   interpolate_(e, t, n, r) {
     const i = super.interpolate_(e, t, n, r);
     return quaternion.fromArray(i).normalize().toArray(i), i;
@@ -1208,17 +801,7 @@ function z(e) {
   }
 }
 const matrix4 = new ThreeCore.Matrix4();
-/** @eyes-analysis
- * 类职责：glTF Parser 解析、缓存或插值组件
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class GLTFParser {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 状态写入：associations、cache、cameraCache、extensions、fileLoader、json、lightCache、meshCache等；完整记录见索引。
-   * 调用线索：/^((?!chrome|android).)*safari/i.test、e.indexOf、e.match、new Map、new ThreeCore.FileLoader等。
-   */
   constructor(json = {}, options = {}) {
     this.json = json, this.extensions = {}, this.plugins = {}, this.options = options, this.cache = new s(), this.associations = new Map(), this.primitiveCache = {}, this.nodeCache = {}, this.meshCache = {
       refs: {},
@@ -1242,25 +825,12 @@ class GLTFParser {
     }
     "undefined" == typeof createImageBitmap || n && i < 17 || a && o < 98 ? this.textureLoader = new ThreeCore.TextureLoader(this.options.manager) : this.textureLoader = new ThreeCore.ImageBitmapLoader(this.options.manager), this.textureLoader.setCrossOrigin(this.options.crossOrigin), this.textureLoader.setRequestHeader(this.options.requestHeader), this.fileLoader = new ThreeCore.FileLoader(this.options.manager), this.fileLoader.setResponseType("arraybuffer"), "use-credentials" === this.options.crossOrigin && this.fileLoader.setWithCredentials(!0);
   }
-  /** @eyes-analysis
-   * 源码方法 setExtensions；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：extensions。
-   */
   setExtensions(extensions) {
     this.extensions = extensions;
   }
-  /** @eyes-analysis
-   * 源码方法 setPlugins；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：plugins。
-   */
   setPlugins(plugins) {
     this.plugins = plugins;
   }
-  /** @eyes-analysis
-   * 把资源字节/JSON转为运行时对象；依赖解析、缓存和错误回调
-   * 状态写入：nodeCache。
-   * 调用线索：Promise.all、Promise.all(n._invokeAll(function(e){return e.afterRoot&&e.afterRoot(a);})).then、Promise.all(this._invokeAll(function(e){return e.beforeRoot&&e.beforeRoot();})).then、Promise.all(this._invokeAll(function(e){return e.beforeRoot&&e.beforeRoot();})).then(function(){return Promise.all([n.getDependencies("scene"),n.getDependencies("animation"),n.getDependencies("camera")]);}).then、Promise.all(this._invokeAll(function(e){return e.beforeRoot&&e.beforeRoot();})).then(function(){return Promise.all([n.getDependencies("scene"),n.getDependencies("animation"),n.getDependencies("camera")]);}).then(function(t){const a={scene:t[0][json.scene||0],scenes:t[0],animations:t[1],cameras:t[2],asset…
-   */
   parse(e, t) {
     const n = this,
       json = this.json,
@@ -1289,10 +859,6 @@ class GLTFParser {
       });
     }).catch(t);
   }
-  /** @eyes-analysis
-   * 源码方法 _markDefs；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：this._addNodeRef。
-   */
   _markDefs() {
     const e = this.json.nodes || [],
       t = this.json.skins || [],
@@ -1306,16 +872,9 @@ class GLTFParser {
       void 0 !== r.mesh && (this._addNodeRef(this.meshCache, r.mesh), void 0 !== r.skin && (n[r.mesh].isSkinnedMesh = !0)), void 0 !== r.camera && this._addNodeRef(this.cameraCache, r.camera);
     }
   }
-  /** @eyes-analysis
-   * 源码方法 _addNodeRef；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   _addNodeRef(e, t) {
     void 0 !== t && (void 0 === e.refs[t] && (e.refs[t] = e.uses[t] = 0), e.refs[t]++);
   }
-  /** @eyes-analysis
-   * 源码方法 _getNodeRef；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.children.entries、i、n.clone、this.associations.get、this.associations.set。
-   */
   _getNodeRef(e, t, n) {
     if (e.refs[t] <= 1) return n;
     const r = n.clone(),
@@ -1326,10 +885,6 @@ class GLTFParser {
       };
     return i(n, r), r.name += "_instance_" + e.uses[t]++, r;
   }
-  /** @eyes-analysis
-   * 源码方法 _invokeOne；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Object.values、e、t.push。
-   */
   _invokeOne(e) {
     const t = Object.values(this.plugins);
     t.push(this);
@@ -1339,10 +894,6 @@ class GLTFParser {
     }
     return null;
   }
-  /** @eyes-analysis
-   * 源码方法 _invokeAll；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Object.values、e、n.push、t.unshift。
-   */
   _invokeAll(e) {
     const t = Object.values(this.plugins);
     t.unshift(this);
@@ -1353,10 +904,6 @@ class GLTFParser {
     }
     return n;
   }
-  /** @eyes-analysis
-   * 源码方法 getDependency；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.loadAnimation、e.loadBufferView、e.loadMaterial、e.loadMesh、e.loadNode等。
-   */
   getDependency(e, t) {
     const n = e + ":" + t;
     let r = this.cache.get(n);
@@ -1416,10 +963,6 @@ class GLTFParser {
     }
     return r;
   }
-  /** @eyes-analysis
-   * 源码方法 getDependencies；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、n.getDependency、r.map、this.cache.add、this.cache.get。
-   */
   getDependencies(e) {
     let t = this.cache.get(e);
     if (!t) {
@@ -1431,10 +974,6 @@ class GLTFParser {
     }
     return t;
   }
-  /** @eyes-analysis
-   * 源码方法 loadBuffer；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、ThreeCore.LoaderUtils.resolveURL、a、fileLoader.load、new Error等。
-   */
   loadBuffer(e) {
     const t = this.json.buffers[e],
       fileLoader = this.fileLoader;
@@ -1447,10 +986,6 @@ class GLTFParser {
       });
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadBufferView；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：e.slice、this.getDependency、this.getDependency("buffer",t.buffer).then。
-   */
   loadBufferView(e) {
     const t = this.json.bufferViews[e];
     return this.getDependency("buffer", t.buffer).then(function (e) {
@@ -1459,10 +994,6 @@ class GLTFParser {
       return e.slice(r, r + n);
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadAccessor；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Math.floor、Promise.all、Promise.all(a).then、Promise.resolve、a.push等。
-   */
   loadAccessor(e) {
     const t = this,
       json = this.json,
@@ -1508,10 +1039,6 @@ class GLTFParser {
       return m;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：options.manager.getHandler、this.loadTextureImage。
-   */
   loadTexture(e) {
     const json = this.json,
       options = this.options,
@@ -1524,11 +1051,6 @@ class GLTFParser {
     }
     return this.loadTextureImage(e, r, textureLoader);
   }
-  /** @eyes-analysis
-   * 源码方法 loadTextureImage；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：textureCache[c]。
-   * 调用线索：i.associations.set、o.uri.startsWith、this.loadImageSource、this.loadImageSource(t,n).then、this.loadImageSource(t,n).then(function(t){t.flipY=!1,t.name=s.name||o.name||"",""===t.name&&"string"==typeof o.uri&&!1===o.uri.startsWith("data:image/")&&(t.name=o.uri);const n=(json.samplers||{})[s.sampler]||{};return t.magFilter=m[n.magFilter]||ThreeCore.LinearFilter,t.minFilter=m[n.minFilter]||ThreeCore.LinearMipmapLinearFilter,t.wrapS=M[n.wrapS]||ThreeCore.RepeatWrapping,t.wrapT=M[n.wrapT]||ThreeCore.RepeatWrapping,t.generateMipmaps=!t.isCompressedTexture&&t.minFilter!==ThreeCore.NearestFilter&&t.minFilter!==ThreeCore.LinearFilter,i.associations.set(t,{textures:e}),t;}).catch。
-   */
   loadTextureImage(e, t, n) {
     const i = this,
       json = this.json,
@@ -1547,11 +1069,6 @@ class GLTFParser {
     });
     return this.textureCache[c] = l, l;
   }
-  /** @eyes-analysis
-   * 源码方法 loadImageSource；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：sourceCache[e]。
-   * 调用线索：(t=s.uri).search、Promise.resolve、Promise.resolve(c).then、Promise.resolve(c).then(function(e){return new Promise(function(n,i){let s=n;!0===t.isImageBitmapLoader&&(s=function(e){const texture=new ThreeCore.Texture(e);texture.needsUpdate=!0,n(texture);}),t.load(ThreeCore.LoaderUtils.resolveURL(e,options.path),s,void 0,i);});}).then、Promise.resolve(c).then(function(e){return new Promise(function(n,i){let s=n;!0===t.isImageBitmapLoader&&(s=function(e){const texture=new ThreeCore.Texture(e);texture.needsUpdate=!0,n(texture);}),t.load(ThreeCore.LoaderUtils.resolveURL(e,options.path),s,void 0,i);});}).then(function(e){var t;return!0===l&&o.revokeObjectURL(c),w(e,s),e.userData.mimeType=s.mimeTy…
-   */
   loadImageSource(e, t) {
     const n = this,
       json = this.json,
@@ -1584,10 +1101,6 @@ class GLTFParser {
     });
     return this.sourceCache[e] = u, u;
   }
-  /** @eyes-analysis
-   * 源码方法 assignTexture；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：a.clone、i.associations.get、i.associations.set、i.extensions[c.KHR_TEXTURE_TRANSFORM].extendTexture、this.getDependency等。
-   */
   assignTexture(e, t, n, r) {
     const i = this;
     return this.getDependency("texture", n.index).then(function (a) {
@@ -1602,10 +1115,6 @@ class GLTFParser {
       return void 0 !== r && (a.colorSpace = r), e[t] = a, a;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 assignFinalMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：ThreeCore.Material.prototype.copy.call、n.clone、new ThreeCore.LineBasicMaterial、new ThreeCore.PointsMaterial、t.color.copy等。
-   */
   assignFinalMaterial(e) {
     const t = e.geometry;
     let n = e.material;
@@ -1629,16 +1138,9 @@ class GLTFParser {
     }
     e.material = n;
   }
-  /** @eyes-analysis
-   * 源码方法 getMaterialType；作用以类职责与源码实现为准，未猜测压缩参数含义
-   */
   getMaterialType() {
     return ThreeCore.MeshStandardMaterial;
   }
-  /** @eyes-analysis
-   * 源码方法 loadMaterial；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Array.isArray、Promise.all、Promise.all(l).then、S、e.extendParams等。
-   */
   loadMaterial(e) {
     const t = this,
       json = this.json,
@@ -1679,19 +1181,10 @@ class GLTFParser {
       }), a.extensions && S(extensions, n, a), n;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 createUniqueName；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：nodeNamesUsed[t]。
-   * 调用线索：ThreeCore.PropertyBinding.sanitizeNodeName。
-   */
   createUniqueName(e) {
     const t = ThreeCore.PropertyBinding.sanitizeNodeName(e || "");
     return t in this.nodeNamesUsed ? t + "_" + ++this.nodeNamesUsed[t] : (this.nodeNamesUsed[t] = 0, t);
   }
-  /** @eyes-analysis
-   * 源码方法 loadGeometries；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：B、Promise.all、a、extensions[c.KHR_DRACO_MESH_COMPRESSION].decodePrimitive、extensions[c.KHR_DRACO_MESH_COMPRESSION].decodePrimitive(e,t).then等。
-   */
   loadGeometries(e) {
     const t = this,
       extensions = this.extensions,
@@ -1716,10 +1209,6 @@ class GLTFParser {
     }
     return Promise.all(s);
   }
-  /** @eyes-analysis
-   * 源码方法 loadMesh；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：0,computeMikkTSpaceTangents.toTrianglesDrawMode、E、Object.keys、Promise.all、Promise.all(c).then等。
-   */
   loadMesh(e) {
     const t = this,
       json = this.json,
@@ -1759,10 +1248,6 @@ class GLTFParser {
       return group;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadCamera；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.resolve、ThreeCore.MathUtils.radToDeg、console.warn、new ThreeCore.OrthographicCamera、new ThreeCore.PerspectiveCamera等。
-   */
   loadCamera(e) {
     let t;
     const n = this.json.cameras[e],
@@ -1770,10 +1255,6 @@ class GLTFParser {
     if (i) return "perspective" === n.type ? t = new ThreeCore.PerspectiveCamera(ThreeCore.MathUtils.radToDeg(i.yfov), i.aspectRatio || 1, i.znear || 1, i.zfar || 2e6) : "orthographic" === n.type && (t = new ThreeCore.OrthographicCamera(-i.xmag, i.xmag, i.ymag, -i.ymag, i.znear, i.zfar)), n.name && (t.name = this.createUniqueName(n.name)), w(t, n), Promise.resolve(t);
     console.warn("THREE.GLTFLoader: Missing camera parameters.");
   }
-  /** @eyes-analysis
-   * 源码方法 loadSkin；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.all(n).then、a.push、console.warn、e.pop等。
-   */
   loadSkin(e) {
     const t = this.json.skins[e],
       n = [];
@@ -1794,10 +1275,6 @@ class GLTFParser {
       return new ThreeCore.Skeleton(a, s);
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadAnimation；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.all([Promise.all(s),Promise.all(o),Promise.all(c),Promise.all(l),Promise.all(u)]).then、c.push、l.push、n._createAnimationTracks等。
-   */
   loadAnimation(e) {
     const json = this.json,
       n = this,
@@ -1839,10 +1316,6 @@ class GLTFParser {
       return w(animationClip, i), animationClip;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 createNodeMesh；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：n._getNodeRef、n.getDependency、n.getDependency("mesh",r.mesh).then、t.traverse。
-   */
   createNodeMesh(e) {
     const json = this.json,
       n = this,
@@ -1854,10 +1327,6 @@ class GLTFParser {
       }), t;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 loadNode；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：Promise.all、Promise.all([i,Promise.all(a),o]).then、Promise.resolve、a.push、e.bind等。
-   */
   loadNode(e) {
     const t = this,
       n = this.json.nodes[e],
@@ -1882,11 +1351,6 @@ class GLTFParser {
       return t;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 _loadNodeShallow；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 状态写入：nodeCache[e]。
-   * 调用线索：Promise.all、Promise.all(o).then、S、e.fromArray、i._getNodeRef等。
-   */
   _loadNodeShallow(e) {
     const json = this.json,
       extensions = this.extensions,
@@ -1922,10 +1386,6 @@ class GLTFParser {
       return i.associations.get(o).nodes = e, o;
     }), this.nodeCache[e];
   }
-  /** @eyes-analysis
-   * 源码方法 loadScene；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：0,clone.clone、Promise.all、Promise.all(c).then、S、c.push等。
-   */
   loadScene(e) {
     const extensions = this.extensions,
       n = this.json.scenes[e],
@@ -1950,10 +1410,6 @@ class GLTFParser {
       })(group), group;
     });
   }
-  /** @eyes-analysis
-   * 源码方法 _createAnimationTracks；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：c.push、e.children.forEach、l、new u、s.push等。
-   */
   _createAnimationTracks(e, t, n, i, a) {
     const s = [],
       o = e.name ? e.name : e.uuid,
@@ -1984,10 +1440,6 @@ class GLTFParser {
     }
     return s;
   }
-  /** @eyes-analysis
-   * 源码方法 _getArrayFromAccessor；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：new Float32Array、z。
-   */
   _getArrayFromAccessor(e) {
     let t = e.array;
     if (e.normalized) {
@@ -1998,10 +1450,6 @@ class GLTFParser {
     }
     return t;
   }
-  /** @eyes-analysis
-   * 源码方法 _createCubicSplineTrackInterpolant；作用以类职责与源码实现为准，未猜测压缩参数含义
-   * 调用线索：new this instanceof ThreeCore.QuaternionKeyframeTrack?GLTFCubicSplineQuaternionInterpolant:GLTFCubicSplineInterpolant、this.getValueSize。
-   */
   _createCubicSplineTrackInterpolant(e) {
     e.createInterpolant = function (e) {
       return new (this instanceof ThreeCore.QuaternionKeyframeTrack ? GLTFCubicSplineQuaternionInterpolant : GLTFCubicSplineInterpolant)(this.times, this.values, this.getValueSize() / 3, e);

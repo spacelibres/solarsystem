@@ -1,28 +1,13 @@
-/** @eyes-analysis
- * 文件职责：单个精选故事卡片
- * 依据：imports: ../../framework/eyes/index.js, ../../app/public-api.js, ../templates/FeaturedStoryBlockTemplate.html, ../../styles/extracted/FeaturedStoryBlockStyles.js；manager dependencies: content, router
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1438051-1440063.
 import "../../framework/eyes/index.js";
 import * as SolarSystemPublicApi from "../../app/public-api.js";
 import FeaturedStoryBlockTemplate from "../templates/FeaturedStoryBlockTemplate.html";
 import "../../styles/extracted/FeaturedStoryBlockStyles.js";
 var getFeaturedStoryBlockTemplate = () => FeaturedStoryBlockTemplate;
-/** @eyes-analysis
- * 类职责：单个精选故事卡片；继承 SolarSystemPublicApi.BaseContentBlock
- * 继承：SolarSystemPublicApi.BaseContentBlock；导出：FeaturedStoryBlock。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
+/* 故事卡片支持外部链接、内部路由和故事 id 三种跳转。节点由此块重建，标题和颜色等 class 占位符在创建后登记到基类状态绑定。 */
 class FeaturedStoryBlock extends SolarSystemPublicApi.BaseContentBlock {
-  /** @eyes-analysis
-   * 建立实例初始字段和依赖；写入 _storyList。
-   * 状态写入：_more.isHidden.moreMessage、_storyList。
-   * 调用线索：super。
-   */
-  constructor(t) {
-    super(t, null, {
+  constructor(app) {
+    super(app, null, {
       colorClass: "spacecraft",
       blockTitle: "",
       hideTitle: ""
@@ -30,19 +15,14 @@ class FeaturedStoryBlock extends SolarSystemPublicApi.BaseContentBlock {
     this._more.isHidden.moreMessage = "Show More";
     this._storyList = null;
   }
-  /** @eyes-analysis
-   * 响应路径参数变化并刷新本模块；调用 this.setEnabled, this._app.getManager, List.add, this._storyList.appendChild, this._setVariables, this.setState；写入 _storyList。
-   * 状态写入：_storyList、_storyList.innerHTML。
-   * 调用线索：_.classList.add、_.setAttribute、d.appendChild、d.classList.add、document.createElement等。
-   */
-  onRouteChange(t, e, i, s) {
+  onRouteChange(entityId, blockTitle, stories, cancelToken) {
     if (this._storyList = this._children.storyList, null === this._storyList || void 0 === this._storyList) return void this.setEnabled(false);
-    if ("home" !== t && void 0 === this._app.getManager("content").context[t]) return;
+    if ("home" !== entityId && void 0 === this._app.getManager("content").context[entityId]) return;
     this._storyList.innerHTML = "";
-    i.forEach(t => {
-      const e = document.createElement("li");
-      let s = null;
-      s = void 0 === t.storyId ? t : i[t.storyId];
+    stories.forEach(storyEntry => {
+      const listItem = document.createElement("li");
+      let storyInfo = null;
+      storyInfo = void 0 === storyEntry.storyId ? storyEntry : stories[storyEntry.storyId];
       const {
         title: title,
         subtitle: subtitle,
@@ -50,46 +30,46 @@ class FeaturedStoryBlock extends SolarSystemPublicApi.BaseContentBlock {
         link: link,
         isExternal: isExternal,
         isInternal: isInternal
-      } = s;
-      const h = document.createElement("div");
-      h.classList.add("story-container");
-      e.appendChild(h);
-      const d = document.createElement("div");
-      d.classList.add("story-title");
-      const u = document.createElement("h2");
-      if (u.appendChild(document.createTextNode(title)), d.appendChild(u), h.appendChild(d), subtitle) {
-        const t = document.createElement("div");
-        t.classList.add("story-list", "story-subtitle", "wide-text", "color", "{{colorClass}}", "x-small");
-        t.appendChild(document.createTextNode(subtitle));
-        h.appendChild(t);
+      } = storyInfo;
+      const storyContainer = document.createElement("div");
+      storyContainer.classList.add("story-container");
+      listItem.appendChild(storyContainer);
+      const titleContainer = document.createElement("div");
+      titleContainer.classList.add("story-title");
+      const titleElement = document.createElement("h2");
+      if (titleElement.appendChild(document.createTextNode(title)), titleContainer.appendChild(titleElement), storyContainer.appendChild(titleContainer), subtitle) {
+        const subtitleElement = document.createElement("div");
+        subtitleElement.classList.add("story-list", "story-subtitle", "wide-text", "color", "{{colorClass}}", "x-small");
+        subtitleElement.appendChild(document.createTextNode(subtitle));
+        storyContainer.appendChild(subtitleElement);
       }
-      const p = document.createElement("div");
-      p.classList.add("story-icon");
-      const _ = document.createElement("img");
-      const m = `${subtitle}: ${title}`;
-      if (_.setAttribute("alt", m), _.setAttribute("src", icon), _.classList.add("story-icon-image"), p.appendChild(_), h.appendChild(p), isExternal) e.addEventListener("click", () => {
+      const iconContainer = document.createElement("div");
+      iconContainer.classList.add("story-icon");
+      const iconElement = document.createElement("img");
+      const iconAltText = `${subtitle}: ${title}`;
+      if (iconElement.setAttribute("alt", iconAltText), iconElement.setAttribute("src", icon), iconElement.classList.add("story-icon-image"), iconContainer.appendChild(iconElement), storyContainer.appendChild(iconContainer), isExternal) listItem.addEventListener("click", () => {
         window.open(link);
-      }, false);else if (isInternal) e.addEventListener("click", () => {
+      }, false);else if (isInternal) listItem.addEventListener("click", () => {
         this._app.getManager("router").navigate(link);
       }, false);else {
-        const i = "story/" + t.id;
-        e.addEventListener("click", () => {
-          this._app.getManager("router").navigate(i);
+        const storyRoute = "story/" + storyEntry.id;
+        listItem.addEventListener("click", () => {
+          this._app.getManager("router").navigate(storyRoute);
         }, false);
       }
       if (isExternal) {
-        const t = document.createElement("div");
-        t.classList.add("icon", "icon-external");
-        h.appendChild(t);
+        const externalIcon = document.createElement("div");
+        externalIcon.classList.add("icon", "icon-external");
+        storyContainer.appendChild(externalIcon);
       }
-      e.classList.add("clickable");
-      this._storyList.appendChild(e);
+      listItem.classList.add("clickable");
+      this._storyList.appendChild(listItem);
     });
-    const n = "" === e ? "hidden" : "";
+    const hideTitleClass = "" === blockTitle ? "hidden" : "";
     this._setVariables(this._element);
     this.setState({
-      blockTitle: e,
-      hideTitle: n
+      blockTitle: blockTitle,
+      hideTitle: hideTitleClass
     });
   }
 }

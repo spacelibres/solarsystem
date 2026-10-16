@@ -1,21 +1,6 @@
-/** @eyes-analysis
- * 文件职责：将 WKT2 坐标轴、单位和投影参数映射为内部表示
- * 依据：// Recovered from vendors.js:1737557-1742551.；exports: default
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from vendors.js:1737557-1742551.
 let defaultExport;
-defaultExport = /** @eyes-analysis
-                 * 类职责：将 WKT2 坐标轴、单位和投影参数映射为内部表示中的 PROJJSONBuilderBase 实现（角色需结合调用者确认）
-                 * 继承：无显式父类；导出：default。
-                 * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
-                 */
-                class PROJJSONBuilderBase {
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：Array.isArray、e.find、parseInt。
-   */
+defaultExport = class PROJJSONBuilderBase {
   static getId(e) {
     const t = e.find(e => Array.isArray(e) && "ID" === e[0]);
     return t && t.length >= 3 ? {
@@ -23,10 +8,6 @@ defaultExport = /** @eyes-analysis
       code: parseInt(t[2], 10)
     } : null;
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：Array.isArray、e.find、parseFloat、parseInt。
-   */
   static convertUnit(e, t = "unit") {
     if (!e || e.length < 3) return {
       type: t,
@@ -46,10 +27,6 @@ defaultExport = /** @eyes-analysis
       } : null
     };
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：Array.isArray、e.find、new Error、parseInt、r[1].toUpperCase等。
-   */
   static convertAxis(e) {
     const t = e[1] || "Unknown";
     let n;
@@ -71,17 +48,9 @@ defaultExport = /** @eyes-analysis
       order: a
     };
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：Array.isArray、e.filter、e.filter(e=>Array.isArray(e)&&"AXIS"===e[0]).map、e.filter(e=>Array.isArray(e)&&"AXIS"===e[0]).map(e=>this.convertAxis(e)).sort、this.convertAxis。
-   */
   static extractAxes(e) {
     return e.filter(e => Array.isArray(e) && "AXIS" === e[0]).map(e => this.convertAxis(e)).sort((e, t) => (e.order || 0) - (t.order || 0));
   }
-  /** @eyes-analysis
-   * 方法语义尚未人工确认；以下是当前源码的句法证据。
-   * 调用线索：Array.isArray、Math.round、c.find、e.filter、e.filter(e=>Array.isArray(e)&&"MEMBER"===e[0]).map等。
-   */
   static convert(e, t = {}) {
     switch (e[0]) {
       case "PROJCRS":

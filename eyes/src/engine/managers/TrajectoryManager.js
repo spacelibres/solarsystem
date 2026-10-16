@@ -1,23 +1,8 @@
-/** @eyes-analysis
- * 文件职责：为定制任务创建按阶段控制的轨迹、指示器与 UI，进入/退出时保存恢复图层及时间控件。
- * 依据：import ../../framework/eyes/index.js；import ../pioneer/index.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1405886-1422621.
+/* 任务定义表与生命周期钩子分别拥有静态选项和交互行为；轨迹组件按任务 ID 挂在实体上，停用时移除任务轨迹并恢复默认轨迹、标签和时间控件。日期 URL 先转 ET 秒，逐帧检查选中任务终点与实体覆盖终点；关联 Voyager 的相对时间计算和强制加载规则保持原样。DOM 观察器只在启用期连接，帧回调由 _callbackEnabled 防止重复注册。 */
 import * as Eyes from "../../framework/eyes/index.js";
 import * as Pioneer from "../pioneer/index.js";
-/** @eyes-analysis
- * 类职责：为定制任务创建按阶段控制的轨迹、指示器与 UI，进入/退出时保存恢复图层及时间控件。
- * 继承：Eyes.BaseManager；导出：TrajectoryManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class TrajectoryManager extends Eyes.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_app`、`_atSystem`、`_callbackEnabled`、`_entityId`、`_isEnabled`、`_offsetObserver`、`_prevEntityId`、`_resizeObserver`；调用 `new MutationObserver`、`new ResizeObserver`、`super`、`t.forEach`、`this._calcIndicatorPadding`、`this._eventNames.push`。
-   * 状态写入：_app、_atSystem、_callbackEnabled、_entityId、_isEnabled、_offsetObserver、_prevEntityId、_resizeObserver等；完整记录见索引。
-   * 调用线索：new MutationObserver、new ResizeObserver、super、t.forEach、this._calcIndicatorPadding等。
-   */
   constructor(app) {
     super(app);
     this._app = app;
@@ -31,126 +16,97 @@ class TrajectoryManager extends Eyes.BaseManager {
     this.bindFunctions(["customEngineLoopCallback", "setEngineLoopCallback"]);
     this._eventNames.push("trajectorySelect");
     this._initCallbacks();
-    this._offsetObserver = new MutationObserver(t => {
-      t.forEach(t => {
-        "class" === t.attributeName && this._calcIndicatorPadding();
+    this._offsetObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        "class" === mutation.attributeName && this._calcIndicatorPadding();
       });
     });
     this._resizeObserver = new ResizeObserver(() => {
       this._calcIndicatorPadding();
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `r`。
-   */
   getCustomMissions() {
-    return r;
+    return missionDefinitions;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `new Pioneer.Color`、`p.setAlphaFade`、`p.setColor`、`p.setDrawStartTime`、`p.setEnabled`、`p.setEndTime`。
-   * 调用线索：new Pioneer.Color、p.setAlphaFade、p.setColor、p.setDrawStartTime、p.setEnabled等。
-   */
-  createTrajectory(t, e, i = null) {
-    let s = t.getName();
-    if ("" === s && (s = this._entityId), "all" === e) return;
+  createTrajectory(entity, missionId, startTimeOverride = null) {
+    let entityId = entity.getName();
+    if ("" === entityId && (entityId = this._entityId), "all" === missionId) return;
     const {
       cameraOnEnterParams: cameraOnEnterParams
-    } = r[s] ?? {};
-    const a = r[s]?.missionOptions[e];
+    } = missionDefinitions[entityId] ?? {};
+    const missionOptions = missionDefinitions[entityId]?.missionOptions[missionId];
     const {
       start: start,
       end: end,
       color: color
-    } = a ?? {};
-    const d = i ?? this._app.getManager("time").urlToET(start);
-    const u = this._app.getManager("time").urlToET(end);
-    const p = t.getComponent(Pioneer.TrailComponent, e) ?? t.addComponent(Pioneer.TrailComponent, e);
-    p.setAlphaFade(1);
-    p.setColor(color ?? new Pioneer.Color(1, 1, 1, .7));
-    cameraOnEnterParams?.system && p.setRelativeToEntity(cameraOnEnterParams.system);
-    d && (p.setRelativeStartTime(false), p.setStartTime(d), p.setDrawStartTime(d));
-    u ? (p.setEndTime(u), p.setRelativeEndTime(false)) : (p.setEndTime(0), p.setRelativeEndTime(true));
-    u - d > 2628e3 && p.setPointsPerFrame(18);
-    p.setEnabled(false);
+    } = missionOptions ?? {};
+    const startET = startTimeOverride ?? this._app.getManager("time").urlToET(start);
+    const endET = this._app.getManager("time").urlToET(end);
+    const trailComponent = entity.getComponent(Pioneer.TrailComponent, missionId) ?? entity.addComponent(Pioneer.TrailComponent, missionId);
+    trailComponent.setAlphaFade(1);
+    trailComponent.setColor(color ?? new Pioneer.Color(1, 1, 1, .7));
+    cameraOnEnterParams?.system && trailComponent.setRelativeToEntity(cameraOnEnterParams.system);
+    startET && (trailComponent.setRelativeStartTime(false), trailComponent.setStartTime(startET), trailComponent.setDrawStartTime(startET));
+    endET ? (trailComponent.setEndTime(endET), trailComponent.setRelativeEndTime(false)) : (trailComponent.setEndTime(0), trailComponent.setRelativeEndTime(true));
+    endET - startET > 2628e3 && trailComponent.setPointsPerFrame(18);
+    trailComponent.setEnabled(false);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `!!t&&Object.keys(this.getCustomMissions()).includes(t)`；调用 `Object.keys`、`Object.keys(this.getCustomMissions()).includes`、`this.getCustomMissions`。
-   * 调用线索：Object.keys、Object.keys(this.getCustomMissions()).includes、this.getCustomMissions。
-   */
-  hasTrajectoryOptions(t) {
-    return !!t && Object.keys(this.getCustomMissions()).includes(t);
+  hasTrajectoryOptions(entityId) {
+    return !!entityId && Object.keys(this.getCustomMissions()).includes(entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_entityId`、`_isEnabled`、`_prevEntityId`、`_urlMissionChoice`、`_wasAlreadyEnabled`；调用 `Object.keys`、`o.includes`、`this._app.getManager`、`this._app.getManager("router").navigate`、`this._enterSelectedTrajectoryView`、`this._offsetObserver.disconnect`。
-   * 状态写入：_entityId、_isEnabled、_prevEntityId、_urlMissionChoice、_wasAlreadyEnabled。
-   * 调用线索：Object.keys、o.includes、this._app.getManager、this._app.getManager("router").navigate、this._enterSelectedTrajectoryView等。
-   */
-  async setEnabled(isEnabled, entityId, i = ["trajectory"]) {
+  async setEnabled(isEnabled, entityId, removedQueries = ["trajectory"]) {
     this._wasAlreadyEnabled = this._isEnabled;
     this._isEnabled = isEnabled;
     const {
       query: query
     } = this.app.getManager("router").currentRoute;
     const {
-      trajectory: n
+      trajectory: requestedMission
     } = this.app.getManager("router").parseQuery(query);
-    this._urlMissionChoice = n;
-    const o = this.hasTrajectoryOptions(entityId) ? Object.keys(r[entityId]?.missionOptions) : null;
-    o && !o.includes(n) && (this._urlMissionChoice = o[0]);
+    this._urlMissionChoice = requestedMission;
+    const missionIds = this.hasTrajectoryOptions(entityId) ? Object.keys(missionDefinitions[entityId]?.missionOptions) : null;
+    missionIds && !missionIds.includes(requestedMission) && (this._urlMissionChoice = missionIds[0]);
     this._prevEntityId = this._entityId;
     this._entityId = entityId;
     this._toggleLayers();
     isEnabled ? (this._onEnable(), this._enterSelectedTrajectoryView(entityId, this._urlMissionChoice), this._resizeObserver.observe(document.body), this._offsetObserver.observe(document.body, {
       attributes: true
     })) : (await this._onDisable(), this._resizeObserver.disconnect(), this._offsetObserver.disconnect(), this._app.getManager("router").navigate({
-      __remove: i
+      __remove: removedQueries
     }));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_atSystem`、`_entityId`；调用 `Object.keys`、`Object.keys(r[entityId].missionOptions).forEach`、`document.getElementById`、`this._toggleLayers`、`this.app.cameraScripts.goToSystem`、`this.triggerCallbacks`。
-   * 状态写入：_atSystem、_entityId。
-   * 调用线索：Object.keys、Object.keys(r[entityId].missionOptions).forEach、Object.keys(r[entityId]?.missionOptions)?.includes、document.getElementById、e?.classList.toggle等。
-   */
-  async _enterSelectedTrajectoryView(entityId, e) {
+  async _enterSelectedTrajectoryView(entityId, requestedMission) {
     this._entityId = entityId;
-    let i = "primary";
-    Object.keys(r[entityId]?.missionOptions)?.includes(e) && (i = e);
-    const s = o[entityId];
+    let selectedMission = "primary";
+    Object.keys(missionDefinitions[entityId]?.missionOptions)?.includes(requestedMission) && (selectedMission = requestedMission);
+    const lifecycleHooks = missionLifecycleHooks[entityId];
     const {
       cameraOnEnterParams: cameraOnEnterParams
-    } = r[entityId];
+    } = missionDefinitions[entityId];
     this._atSystem || (await this.app.cameraScripts.goToSystem(cameraOnEnterParams.system), this._atSystem = true);
-    this.triggerCallbacks("trajectorySelect", [i]);
-    await s?.onSelect?.(this.app, i);
+    this.triggerCallbacks("trajectorySelect", [selectedMission]);
+    await lifecycleHooks?.onSelect?.(this.app, selectedMission);
     this._toggleLayers();
-    Object.keys(r[entityId].missionOptions).forEach(t => {
-      const e = document.getElementById(`${t}-radio-button`);
-      e?.classList.toggle("checked", t === i);
+    Object.keys(missionDefinitions[entityId].missionOptions).forEach(missionId => {
+      const radioButton = document.getElementById(`${missionId}-radio-button`);
+      radioButton?.classList.toggle("checked", missionId === selectedMission);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._app.getComponent`、`this._app.getManager`、`this._app.getManager("layer").toggleLayer`。
-   * 调用线索：hideLayers?.forEach、this._app.getComponent、this._app.getComponent("layersBlock")?.syncAllLayerCheckboxes、this._app.getManager、this._app.getManager("layer").toggleLayer。
-   */
   _toggleLayers() {
     const {
       hideLayers: hideLayers
-    } = r[this._entityId] ?? r[this._prevEntityId] ?? {};
-    hideLayers?.forEach(t => {
-      this._app.getManager("layer").toggleLayer(t, {}, !this._isEnabled);
+    } = missionDefinitions[this._entityId] ?? missionDefinitions[this._prevEntityId] ?? {};
+    hideLayers?.forEach(layerId => {
+      this._app.getManager("layer").toggleLayer(layerId, {}, !this._isEnabled);
     });
     this._app.getComponent("layersBlock")?.syncAllLayerCheckboxes();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Eyes.AppUtils.isMobile`、`document.getElementById`、`this._app.getComponent`、`this._app.getManager`、`this._app.getManager("label").setClickable`、`this._app.getManager("selection").setClickable`。
-   * 调用线索：Eyes.AppUtils.isMobile、clockComponent?.isEnabled、clockComponent?.setEnabled、clockShortcutComponent?.isEnabled、clockShortcutComponent?.setEnabled等。
-   */
   _onEnable() {
     if (this._wasAlreadyEnabled) return;
     const {
       showStoryClock: showStoryClock
-    } = r[this._entityId] ?? {};
-    o[this._entityId]?.onCreate?.(this._app);
+    } = missionDefinitions[this._entityId] ?? {};
+    missionLifecycleHooks[this._entityId]?.onCreate?.(this._app);
     const timeControlsComponent = this._app.getComponent("timeControls");
     timeControlsComponent?.isEnabled() && timeControlsComponent?.setEnabled(false);
     const clockShortcutComponent = this._app.getComponent("clockShortcut");
@@ -165,14 +121,9 @@ class TrajectoryManager extends Eyes.BaseManager {
     this._app.getManager("selection").setClickable(false);
     this._app.getComponent("contentPanel")?.selectTab("viewOptions");
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_atSystem`；调用 `Eyes.AppUtils.isMobile`、`Object.keys`、`Object.keys(r[e].missionOptions).forEach`、`document.getElementById`、`r[e].associatedEntities.forEach`、`this._app.getComponent`。
-   * 状态写入：_atSystem。
-   * 调用线索：Eyes.AppUtils.isMobile、Object.keys、Object.keys(r[e].missionOptions).forEach、clockComponent?.isEnabled、clockComponent?.setEnabled等。
-   */
   async _onDisable() {
     const timeManager = this._app.getManager("time");
-    o[this._entityId]?.onLeave?.(this._app);
+    missionLifecycleHooks[this._entityId]?.onLeave?.(this._app);
     if (false !== this._app.getManager("router").configs.timeControls) {
       const timeControlsComponent = this._app.getComponent("timeControls");
       timeControlsComponent?.isEnabled() || timeControlsComponent?.setEnabled(true);
@@ -183,21 +134,21 @@ class TrajectoryManager extends Eyes.BaseManager {
     }
     Eyes.AppUtils.isMobile() && document.getElementById("extended-controls")?.classList.remove("mobile-bottom-margin");
     this._app.getComponent("storyClock")?.setEnabled(false);
-    const e = this._entityId ?? this._prevEntityId;
-    if (e) {
-      const t = this._app.scene.getEntity(e);
-      r[e]?.missionOptions && Object.keys(r[e].missionOptions).forEach(e => {
-        const i = t?.getComponent(Pioneer.TrailComponent, e);
-        i && t?.removeComponent(i);
+    const entityId = this._entityId ?? this._prevEntityId;
+    if (entityId) {
+      const entity = this._app.scene.getEntity(entityId);
+      missionDefinitions[entityId]?.missionOptions && Object.keys(missionDefinitions[entityId].missionOptions).forEach(missionId => {
+        const missionTrail = entity?.getComponent(Pioneer.TrailComponent, missionId);
+        missionTrail && entity?.removeComponent(missionTrail);
       });
-      this._setUpIndicatorForEntity(t, false);
-      r[e]?.associatedEntities?.length && r[e].associatedEntities.forEach(t => {
-        const e = this._app.pioneer.getScene("main").getEntity(t);
-        e && this.setUpAssociatedEntities(e, false);
+      this._setUpIndicatorForEntity(entity, false);
+      missionDefinitions[entityId]?.associatedEntities?.length && missionDefinitions[entityId].associatedEntities.forEach(associatedEntityId => {
+        const associatedEntity = this._app.pioneer.getScene("main").getEntity(associatedEntityId);
+        associatedEntity && this.setUpAssociatedEntities(associatedEntity, false);
       });
     }
-    const i = this._app.pioneer.getScene("main")?.getEntity(this._entityId)?.getComponent(Pioneer.TrailComponent);
-    i?.setEnabled(true);
+    const defaultTrail = this._app.pioneer.getScene("main")?.getEntity(this._entityId)?.getComponent(Pioneer.TrailComponent);
+    defaultTrail?.setEnabled(true);
     this._app.getManager("time").getTimeRate() > this._app.getManager("time").getDefaultTimeRate() && this._app.getManager("time").resetTimeRate();
     this._callbackEnabled && this.setEngineLoopCallback(false);
     this._atSystem = false;
@@ -208,262 +159,213 @@ class TrajectoryManager extends Eyes.BaseManager {
     this._toggleLayers();
     this._app.getComponent("contentPanel")?.selectTab("info");
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._isEnabled`。
-   */
   isEnabled() {
     return this._isEnabled;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Array.from`、`Array.from(t.children).filter`、`t.appendChild`、`t.classList.contains`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`。
-   * 调用线索：Array.from、Array.from(t.children).filter、i?.appendChild、t.appendChild、t.classList.contains等。
-   */
-  createUI(t) {
-    if (!t) return;
-    if (!(Array.from(t.children).filter(t => t.classList.contains("trajectory-options")).length > 0)) {
-      const e = this._app.pioneer.getScene("main").getEntity(this._entityId);
-      const i = this._createCheckboxOptions(e);
-      t.appendChild(i);
-      const s = this._createExitButton();
-      i?.appendChild(s);
+  createUI(parentElement) {
+    if (!parentElement) return;
+    if (!(Array.from(parentElement.children).filter(childElement => childElement.classList.contains("trajectory-options")).length > 0)) {
+      const entity = this._app.pioneer.getScene("main").getEntity(this._entityId);
+      const optionsElement = this._createCheckboxOptions(entity);
+      parentElement.appendChild(optionsElement);
+      const exitButton = this._createExitButton();
+      optionsElement?.appendChild(exitButton);
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t`；调用 `document.createElement`、`t.addEventListener`、`this._app.getComponent`、`this._app.getComponent("cameraViewBlock").goToDefaultView`、`this.setEnabled`。
-   * 调用线索：document.createElement、t.addEventListener、this._app.getComponent、this._app.getComponent("cameraViewBlock").goToDefaultView、this.setEnabled。
-   */
   _createExitButton() {
-    const t = document.createElement("button");
-    t.className = "trajectory-exit-button clickable";
-    t.innerHTML = "Exit Trajectory View";
-    t.addEventListener("click", () => {
+    const exitButton = document.createElement("button");
+    exitButton.className = "trajectory-exit-button clickable";
+    exitButton.innerHTML = "Exit Trajectory View";
+    exitButton.addEventListener("click", () => {
       this.setEnabled(false, this._entityId);
       this._app.getComponent("cameraViewBlock") && this._app.getComponent("cameraViewBlock").goToDefaultView();
     });
-    return t;
+    return exitButton;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_trajectoryViewId`；返回 `void` 或 `e`；调用 `Object.keys`、`Object.keys(r[t.getName()].missionOptions).forEach`、`a.appendChild`、`document.createElement`、`e.appendChild`、`h.setAttribute`。
-   * 状态写入：_trajectoryViewId。
-   * 调用线索：Object.keys、Object.keys(r[t.getName()].missionOptions).forEach、a.appendChild、document.createElement、e.appendChild等。
-   */
-  _createCheckboxOptions(t) {
-    if (!t) return;
-    const e = document.createElement("div");
-    e.className = "trajectory-options option clickable";
-    e.id = "trajectory-options-container";
-    const i = [];
-    Object.keys(r[t.getName()].missionOptions).forEach(s => {
-      const o = r[t.getName()].missionOptions[s];
-      if (!o) return;
-      this._trajectoryViewId = t?.getName();
-      const a = document.createElement("div");
-      a.className = "option-container";
-      const l = document.createElement("input");
-      l.type = "radio";
-      l.name = "mission";
-      l.className = "radio-button clickable";
-      const c = `${s}-radio-button`;
-      l.id = c;
-      const h = document.createElement("label");
-      h.innerHTML = `Draw ${o?.displayName ?? ""}`;
-      h.setAttribute("for", c);
-      h.className = "mission-option-label";
-      const d = document.createElement("span");
-      d.className = "radio-icon";
-      i.push(l);
-      t.getComponent(Pioneer.TrailComponent, s) || this.createTrajectory(t, s);
-      l.addEventListener("click", async () => {
-        i.forEach(t => {
-          t.classList.toggle("checked", t.id === l.id);
+  _createCheckboxOptions(entity) {
+    if (!entity) return;
+    const optionsElement = document.createElement("div");
+    optionsElement.className = "trajectory-options option clickable";
+    optionsElement.id = "trajectory-options-container";
+    const radioButtons = [];
+    Object.keys(missionDefinitions[entity.getName()].missionOptions).forEach(missionId => {
+      const missionOptions = missionDefinitions[entity.getName()].missionOptions[missionId];
+      if (!missionOptions) return;
+      this._trajectoryViewId = entity?.getName();
+      const optionElement = document.createElement("div");
+      optionElement.className = "option-container";
+      const radioButton = document.createElement("input");
+      radioButton.type = "radio";
+      radioButton.name = "mission";
+      radioButton.className = "radio-button clickable";
+      const radioId = `${missionId}-radio-button`;
+      radioButton.id = radioId;
+      const labelElement = document.createElement("label");
+      labelElement.innerHTML = `Draw ${missionOptions?.displayName ?? ""}`;
+      labelElement.setAttribute("for", radioId);
+      labelElement.className = "mission-option-label";
+      const radioIcon = document.createElement("span");
+      radioIcon.className = "radio-icon";
+      radioButtons.push(radioButton);
+      entity.getComponent(Pioneer.TrailComponent, missionId) || this.createTrajectory(entity, missionId);
+      radioButton.addEventListener("click", async () => {
+        radioButtons.forEach(optionRadioButton => {
+          optionRadioButton.classList.toggle("checked", optionRadioButton.id === radioButton.id);
         });
-        this.app.getManager("router").navigate(`/${t.getName()}?trajectory=${s}`);
+        this.app.getManager("router").navigate(`/${entity.getName()}?trajectory=${missionId}`);
       });
-      a.appendChild(l);
-      a.appendChild(h);
-      a.appendChild(d);
-      e.appendChild(a);
-      s === this._urlMissionChoice && l.click();
+      optionElement.appendChild(radioButton);
+      optionElement.appendChild(labelElement);
+      optionElement.appendChild(radioIcon);
+      optionsElement.appendChild(optionElement);
+      missionId === this._urlMissionChoice && radioButton.click();
     });
-    return e;
+    return optionsElement;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.min`、`Math.round`、`Object.keys`、`Object.keys(l).forEach`、`isNaN`、`this._app.getManager`。
-   * 调用线索：Math.min、Math.round、Object.keys、Object.keys(l).forEach、e?.getComponent等。
-   */
   customEngineLoopCallback() {
     const timeManager = this._app.getManager("time");
-    const e = this._app.pioneer.getScene("main").getEntity(this._entityId);
-    const i = timeManager.getTime();
-    const s = timeManager.momentToET(i);
-    const o = timeManager.momentToET(timeManager.getLimits().max);
-    const a = Math.round(Math.min(e?.getPositionCoverage()?.max, o));
-    const l = r[this._entityId].missionOptions;
-    Object.keys(l).forEach(i => {
-      const o = timeManager.urlToET(l[i].start);
-      const r = timeManager.urlToET(l[i].end);
-      if (o && r) {
-        if (o <= s && s <= r && timeManager.getTimeRate() > 0) {
-          const t = e?.getComponent(Pioneer.TrailComponent, i);
-          t?.isEnabled() || t?.setEnabled(true);
+    const entity = this._app.pioneer.getScene("main").getEntity(this._entityId);
+    const currentTime = timeManager.getTime();
+    const currentET = timeManager.momentToET(currentTime);
+    const limitEndET = timeManager.momentToET(timeManager.getLimits().max);
+    const coverageEndET = Math.round(Math.min(entity?.getPositionCoverage()?.max, limitEndET));
+    const missionOptions = missionDefinitions[this._entityId].missionOptions;
+    Object.keys(missionOptions).forEach(missionId => {
+      const startET = timeManager.urlToET(missionOptions[missionId].start);
+      const endET = timeManager.urlToET(missionOptions[missionId].end);
+      if (startET && endET) {
+        if (startET <= currentET && currentET <= endET && timeManager.getTimeRate() > 0) {
+          const missionTrail = entity?.getComponent(Pioneer.TrailComponent, missionId);
+          missionTrail?.isEnabled() || missionTrail?.setEnabled(true);
         }
       }
-      i === this._urlMissionChoice && (Math.round(s + timeManager.getTimeRate()) >= r || Math.round(s + timeManager.getTimeRate()) >= a) && e?.isInPositionCoverage() && (timeManager.pause(), isNaN(a) || this._app.pioneer.setTime(isNaN(r) ? a : r));
+      missionId === this._urlMissionChoice && (Math.round(currentET + timeManager.getTimeRate()) >= endET || Math.round(currentET + timeManager.getTimeRate()) >= coverageEndET) && entity?.isInPositionCoverage() && (timeManager.pause(), isNaN(coverageEndET) || this._app.pioneer.setTime(isNaN(endET) ? coverageEndET : endET));
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_callbackEnabled`；调用 `this._app.pioneer.addCallback`、`this._app.pioneer.removeCallback`。
-   * 状态写入：_callbackEnabled。
-   * 调用线索：this._app.pioneer.addCallback、this._app.pioneer.removeCallback。
-   */
-  setEngineLoopCallback(t) {
-    t !== this._callbackEnabled && (t ? (this._app.pioneer.addCallback(this.customEngineLoopCallback, true), this._callbackEnabled = true) : (this._app.pioneer.removeCallback(this.customEngineLoopCallback), this._callbackEnabled = false));
+  setEngineLoopCallback(enabled) {
+    enabled !== this._callbackEnabled && (enabled ? (this._app.pioneer.addCallback(this.customEngineLoopCallback, true), this._callbackEnabled = true) : (this._app.pioneer.removeCallback(this.customEngineLoopCallback), this._callbackEnabled = false));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `r[t].associatedEntities.forEach`、`this._app.getManager`、`this._app.getManager("scene").setEntitiesForceVisible`、`this._app.pioneer.getScene`、`this._app.pioneer.getScene("main").getEntity`、`this._app.pioneer.getScene("main").getEntity(t).setEnabled`。
-   * 调用线索：r[t].associatedEntities.forEach、this._app.getManager、this._app.getManager("scene").setEntitiesForceVisible、this._app.pioneer.getScene、this._app.pioneer.getScene("main").getEntity等。
-   */
-  enableAssociatedEntities(t) {
-    r[t].associatedEntities.length && r[t].associatedEntities.forEach(t => {
-      this._app.getManager("scene").setEntitiesForceVisible([t], false);
-      this._app.pioneer.getScene("main").getEntity(t).setEnabled(true);
+  enableAssociatedEntities(entityId) {
+    missionDefinitions[entityId].associatedEntities.length && missionDefinitions[entityId].associatedEntities.forEach(associatedEntityId => {
+      this._app.getManager("scene").setEntitiesForceVisible([associatedEntityId], false);
+      this._app.pioneer.getScene("main").getEntity(associatedEntityId).setEnabled(true);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._setUpAssociatedEntityTrails`、`this._setUpIndicatorForEntity`。
-   * 调用线索：this._setUpAssociatedEntityTrails、this._setUpIndicatorForEntity。
-   */
-  setUpAssociatedEntities(t, e = true) {
-    this._setUpAssociatedEntityTrails(t, e);
-    this._setUpIndicatorForEntity(t, e);
+  setUpAssociatedEntities(entity, enabled = true) {
+    this._setUpAssociatedEntityTrails(entity, enabled);
+    this._setUpIndicatorForEntity(entity, enabled);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void` 或 `void t.getComponent(Pioneer.TrailComponent,i)?.setEnabled(false)`；调用 `Math.abs`、`Object.keys`、`t.getComponent`、`t.getName`、`this.createTrajectory`。
-   * 调用线索：Math.abs、Object.keys、h?.setEnabled、h?.setRelativeEndTime、h?.setRelativeStartTime等。
-   */
-  _setUpAssociatedEntityTrails(t, e = true) {
-    if (!t) return;
-    const i = Object.keys(r[t.getName()]?.missionOptions)[0];
-    if (!e) {
-      t.getComponent(Pioneer.TrailComponent)?.setEnabled(true);
-      return void t.getComponent(Pioneer.TrailComponent, i)?.setEnabled(false);
+  _setUpAssociatedEntityTrails(entity, enabled = true) {
+    if (!entity) return;
+    const missionId = Object.keys(missionDefinitions[entity.getName()]?.missionOptions)[0];
+    if (!enabled) {
+      entity.getComponent(Pioneer.TrailComponent)?.setEnabled(true);
+      return void entity.getComponent(Pioneer.TrailComponent, missionId)?.setEnabled(false);
     }
-    const s = t.getComponent(Pioneer.TrailComponent);
-    const o = s?.getStartTime();
-    const a = s?.getEndTime();
-    const l = Math.abs(a - o) ?? 1e8;
-    const c = s?.getStartTime() * l;
-    this.createTrajectory(t, i, c);
-    const h = t.getComponent(Pioneer.TrailComponent, i);
-    s?.setEnabled(false);
-    h?.setEnabled(true);
-    h?.setRelativeStartTime(true);
-    h?.setRelativeEndTime(true);
-    h?.setRelativeToEntity("sun");
+    const defaultTrail = entity.getComponent(Pioneer.TrailComponent);
+    const trailStart = defaultTrail?.getStartTime();
+    const trailEnd = defaultTrail?.getEndTime();
+    const trailDuration = Math.abs(trailEnd - trailStart) ?? 1e8;
+    const relativeStartTime = defaultTrail?.getStartTime() * trailDuration;
+    this.createTrajectory(entity, missionId, relativeStartTime);
+    const missionTrail = entity.getComponent(Pioneer.TrailComponent, missionId);
+    defaultTrail?.setEnabled(false);
+    missionTrail?.setEnabled(true);
+    missionTrail?.setRelativeStartTime(true);
+    missionTrail?.setRelativeEndTime(true);
+    missionTrail?.setRelativeToEntity("sun");
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void(e&&t.removeComponent(e))`；调用 `s.getDiv`、`s.getDiv().classList.add`、`t.addComponent`、`t.getComponent`、`t.getName`、`t.removeComponent`。
-   * 调用线索：s.getDiv、s.getDiv().classList.add、t.addComponent、t.getComponent、t.getName等。
-   */
-  _setUpIndicatorForEntity(t, e = true) {
-    if (!e) {
-      const e = t.getComponent(Pioneer.IndicatorComponent, "indicator");
-      return void (e && t.removeComponent(e));
+  _setUpIndicatorForEntity(entity, enabled = true) {
+    if (!enabled) {
+      const existingIndicator = entity.getComponent(Pioneer.IndicatorComponent, "indicator");
+      return void (existingIndicator && entity.removeComponent(existingIndicator));
     }
     const {
       iauName: iauName
-    } = this._app.getManager("content").getEntityInfo(t.getName());
-    const s = t.getComponent(Pioneer.IndicatorComponent, "indicator") ?? t.addComponent(Pioneer.IndicatorComponent, "indicator");
-    s.getDiv().innerHTML = `<span class="left">« </span><span>${iauName}</span><span class="right"> »</span>`;
-    s.getDiv().classList.add("pioneer-indicator");
-    this._calcIndicatorPadding(t.getName());
+    } = this._app.getManager("content").getEntityInfo(entity.getName());
+    const indicatorComponent = entity.getComponent(Pioneer.IndicatorComponent, "indicator") ?? entity.addComponent(Pioneer.IndicatorComponent, "indicator");
+    indicatorComponent.getDiv().innerHTML = `<span class="left">« </span><span>${iauName}</span><span class="right"> »</span>`;
+    indicatorComponent.getDiv().classList.add("pioneer-indicator");
+    this._calcIndicatorPadding(entity.getName());
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Eyes.AppUtils.isMobile`、`Eyes.AppUtils.isTablet`、`Math.round`、`[t,...(r[t]?.associatedEntities??[])].forEach`、`document.body.classList.contains`、`this._app.getComponent`。
-   * 调用线索：Eyes.AppUtils.isMobile、Eyes.AppUtils.isTablet、Math.round、[t,...(r[t]?.associatedEntities??[])].forEach、document.body.classList.contains等。
-   */
-  _calcIndicatorPadding(t = this._entityId) {
-    const e = document.body.classList.contains("offset-right");
+  _calcIndicatorPadding(entityId = this._entityId) {
+    const offsetRight = document.body.classList.contains("offset-right");
     const contentPanelComponent = this._app.getComponent("contentPanel");
-    const o = 25;
-    let a = o;
-    let l = o;
-    if (e) {
-      const t = this.app.pioneer.getInput().getActiveViewport();
-      const e = t?.getBounds().size.x;
-      const s = contentPanelComponent?.element.offsetWidth;
-      if (e) {
-        const t = Math.round(.12 * e);
-        a = s - t + o;
-        l = e - (e - t) + o;
+    const basePadding = 25;
+    let leftPadding = basePadding;
+    let rightPadding = basePadding;
+    if (offsetRight) {
+      const activeViewport = this.app.pioneer.getInput().getActiveViewport();
+      const viewportWidth = activeViewport?.getBounds().size.x;
+      const contentPanelWidth = contentPanelComponent?.element.offsetWidth;
+      if (viewportWidth) {
+        const viewportInset = Math.round(.12 * viewportWidth);
+        leftPadding = contentPanelWidth - viewportInset + basePadding;
+        rightPadding = viewportWidth - (viewportWidth - viewportInset) + basePadding;
       }
     }
-    [t, ...(r[t]?.associatedEntities ?? [])].forEach(t => {
-      const e = this._app.pioneer.getScene("main").getEntity(t)?.getComponent(Pioneer.IndicatorComponent);
+    [entityId, ...(missionDefinitions[entityId]?.associatedEntities ?? [])].forEach(indicatedEntityId => {
+      const indicatorComponent = this._app.pioneer.getScene("main").getEntity(indicatedEntityId)?.getComponent(Pioneer.IndicatorComponent);
       if (Eyes.AppUtils.isMobile() || Eyes.AppUtils.isTablet()) {
-        const t = (contentPanelComponent?.element.offsetHeight ?? 100) + o;
-        e?.setPadding(o, o, o, t);
-      } else e?.setPadding(a, l, o, o);
+        const bottomPadding = (contentPanelComponent?.element.offsetHeight ?? 100) + basePadding;
+        indicatorComponent?.setPadding(basePadding, basePadding, basePadding, bottomPadding);
+      } else indicatorComponent?.setPadding(leftPadding, rightPadding, basePadding, basePadding);
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.abs`、`c.addComponent`、`c.getComponent`、`d.setDrawStartTime`、`d.setEnabled`、`d.setEndTime`。
-   * 调用线索：Math.abs、_?.setEnabled、c.addComponent、c.getComponent、d.setDrawStartTime等。
-   */
-  setUpVoyagers(t, e) {
-    const i = "sc_voyager_1" === t ? "sc_voyager_2" : "sc_voyager_1";
+  setUpVoyagers(entityId, missionId) {
+    const companionEntityId = "sc_voyager_1" === entityId ? "sc_voyager_2" : "sc_voyager_1";
     const {
       start: start,
       timeRate: timeRate,
       setForceLoadEntity: setForceLoadEntity
-    } = r[t].missionOptions[e];
-    const l = this._app.getManager("time").urlToET(start);
-    this._app.pioneer.setTime(l);
+    } = missionDefinitions[entityId].missionOptions[missionId];
+    const startET = this._app.getManager("time").urlToET(start);
+    this._app.pioneer.setTime(startET);
     this._app.getManager("time").setTimeRate(timeRate);
-    const c = this._app.pioneer.getScene("main").getEntity(t);
-    const h = c.getComponent(Pioneer.TrailComponent);
-    const d = c.getComponent(Pioneer.TrailComponent, e) ?? c.addComponent(Pioneer.TrailComponent, e);
-    const u = Math.abs(h?.getEndTime() - h?.getStartTime()) ?? 1e8;
-    const p = h?.getStartTime() * u;
-    d.setStartTime(p);
-    d.setDrawStartTime(p);
-    d.setEndTime(h?.getEndTime() || 0);
-    d.setRelativeStartTime(true);
-    d.setRelativeEndTime(true);
-    d.setRelativeToEntity("sun");
-    d.setEnabled(true);
-    this._setUpIndicatorForEntity(c);
-    setForceLoadEntity ? this._app.getView("object").appendForceLoadEntities(i) : this._app.getView("object").removeForceLoadEntities(i);
-    this._app.getManager("scene").setEntitiesForceVisible([t, i], true);
-    const _ = this._app.pioneer.getScene("main").getEntity(i);
+    const entity = this._app.pioneer.getScene("main").getEntity(entityId);
+    const defaultTrail = entity.getComponent(Pioneer.TrailComponent);
+    const missionTrail = entity.getComponent(Pioneer.TrailComponent, missionId) ?? entity.addComponent(Pioneer.TrailComponent, missionId);
+    const trailDuration = Math.abs(defaultTrail?.getEndTime() - defaultTrail?.getStartTime()) ?? 1e8;
+    const relativeStartTime = defaultTrail?.getStartTime() * trailDuration;
+    missionTrail.setStartTime(relativeStartTime);
+    missionTrail.setDrawStartTime(relativeStartTime);
+    missionTrail.setEndTime(defaultTrail?.getEndTime() || 0);
+    missionTrail.setRelativeStartTime(true);
+    missionTrail.setRelativeEndTime(true);
+    missionTrail.setRelativeToEntity("sun");
+    missionTrail.setEnabled(true);
+    this._setUpIndicatorForEntity(entity);
+    setForceLoadEntity ? this._app.getView("object").appendForceLoadEntities(companionEntityId) : this._app.getView("object").removeForceLoadEntities(companionEntityId);
+    this._app.getManager("scene").setEntitiesForceVisible([entityId, companionEntityId], true);
+    const companionEntity = this._app.pioneer.getScene("main").getEntity(companionEntityId);
     this._app.getManager("scene").setVisibility(true === setForceLoadEntity, "sc_voyager_2");
-    _?.setEnabled(true === setForceLoadEntity);
-    setForceLoadEntity && this.setUpAssociatedEntities(_);
+    companionEntity?.setEnabled(true === setForceLoadEntity);
+    setForceLoadEntity && this.setUpAssociatedEntities(companionEntity);
   }
 }
-const o = {
+const missionLifecycleHooks = {
   sc_artemis_1: {
-    onSelect: async (t, e) => {
-      const timeManager = t.getManager("time");
-      const s = e;
-      const o = t.pioneer.getScene("main").getEntity("sc_artemis_1");
+    onSelect: async (app, missionId) => {
+      const timeManager = app.getManager("time");
+      const selectedMissionId = missionId;
+      const entity = app.pioneer.getScene("main").getEntity("sc_artemis_1");
       const {
         customAppTime: customAppTime,
         start: start,
         timeRate: timeRate,
         cameraAngle: cameraAngle,
         resetCameraToSystem: resetCameraToSystem
-      } = r.sc_artemis_1.missionOptions[e];
-      const u = timeManager.urlToET(start);
-      const p = timeManager.urlToET(customAppTime) ?? u;
-      t.pioneer.setTime(p);
-      const _ = o.getComponent(Pioneer.TrailComponent, e);
-      if (_?.setEnabled(false), resetCameraToSystem) {
+      } = missionDefinitions.sc_artemis_1.missionOptions[missionId];
+      const startET = timeManager.urlToET(start);
+      const appTimeET = timeManager.urlToET(customAppTime) ?? startET;
+      app.pioneer.setTime(appTimeET);
+      const selectedTrail = entity.getComponent(Pioneer.TrailComponent, missionId);
+      if (selectedTrail?.setEnabled(false), resetCameraToSystem) {
         const {
           distance: distance,
           angle: angle
         } = resetCameraToSystem;
-        await t.cameraScripts.goToSystem("earth", {
+        await app.cameraScripts.goToSystem("earth", {
           distance: distance,
           angle: angle
         });
@@ -474,41 +376,41 @@ const o = {
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset
         } = cameraAngle;
-        await t.cameraScripts.alignObjects("moon", "earth", {
+        await app.cameraScripts.alignObjects("moon", "earth", {
           distance: distance,
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset
         });
       }
-      Object.keys(r.sc_artemis_1.missionOptions).forEach(t => {
-        const e = o?.getComponent(Pioneer.TrailComponent, t);
-        e && e?.setEnabled(t === s);
+      Object.keys(missionDefinitions.sc_artemis_1.missionOptions).forEach(optionId => {
+        const optionTrail = entity?.getComponent(Pioneer.TrailComponent, optionId);
+        optionTrail && optionTrail?.setEnabled(optionId === selectedMissionId);
       });
       timeManager.setTimeRate(timeRate);
     }
   },
   sc_artemis_2: {
-    onSelect: async (t, e) => {
-      const timeManager = t.getManager("time");
-      const s = e;
-      const o = t.pioneer.getScene("main").getEntity("sc_artemis_2");
+    onSelect: async (app, missionId) => {
+      const timeManager = app.getManager("time");
+      const selectedMissionId = missionId;
+      const entity = app.pioneer.getScene("main").getEntity("sc_artemis_2");
       const {
         customAppTime: customAppTime,
         start: start,
         timeRate: timeRate,
         cameraAngle: cameraAngle,
         resetCameraToSystem: resetCameraToSystem
-      } = r.sc_artemis_2.missionOptions[e];
-      const u = timeManager.urlToET(start);
-      const p = timeManager.urlToET(customAppTime) ?? u;
-      t.pioneer.setTime(p);
-      const _ = o.getComponent(Pioneer.TrailComponent, e);
-      if (_?.setEnabled(false), resetCameraToSystem) {
+      } = missionDefinitions.sc_artemis_2.missionOptions[missionId];
+      const startET = timeManager.urlToET(start);
+      const appTimeET = timeManager.urlToET(customAppTime) ?? startET;
+      app.pioneer.setTime(appTimeET);
+      const selectedTrail = entity.getComponent(Pioneer.TrailComponent, missionId);
+      if (selectedTrail?.setEnabled(false), resetCameraToSystem) {
         const {
           distance: distance,
           angle: angle
         } = resetCameraToSystem;
-        await t.cameraScripts.goToSystem("earth", {
+        await app.cameraScripts.goToSystem("earth", {
           distance: distance,
           angle: angle
         });
@@ -519,78 +421,78 @@ const o = {
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset
         } = cameraAngle;
-        await t.cameraScripts.alignObjects("moon", "earth", {
+        await app.cameraScripts.alignObjects("moon", "earth", {
           distance: distance,
           horizontalOffset: horizontalOffset,
           verticalOffset: verticalOffset
         });
       }
-      Object.keys(r.sc_artemis_2.missionOptions).forEach(t => {
-        const e = o?.getComponent(Pioneer.TrailComponent, t);
-        e && e?.setEnabled(t === s);
+      Object.keys(missionDefinitions.sc_artemis_2.missionOptions).forEach(optionId => {
+        const optionTrail = entity?.getComponent(Pioneer.TrailComponent, optionId);
+        optionTrail && optionTrail?.setEnabled(optionId === selectedMissionId);
       });
       timeManager.setTimeRate(timeRate);
     }
   },
   sc_cassini: {
-    onSelect: async (t, e) => {
-      const i = e;
-      const s = t.pioneer.getScene("main").getEntity("sc_cassini");
-      s?.getComponent(Pioneer.DivComponent)?.setRenderingEnabled(false);
+    onSelect: async (app, missionId) => {
+      const selectedMissionId = missionId;
+      const entity = app.pioneer.getScene("main").getEntity("sc_cassini");
+      entity?.getComponent(Pioneer.DivComponent)?.setRenderingEnabled(false);
       const {
         start: start,
         timeRate: timeRate
-      } = r.sc_cassini.missionOptions[i];
-      const l = t.getManager("time").urlToET(start);
-      if (timeRate && t.pioneer.setTimeRate(timeRate), "all" !== e) {
-        t.pioneer.setTime(l);
-        Object.keys(r.sc_cassini.missionOptions).forEach(t => {
-          const e = s?.getComponent(Pioneer.TrailComponent, t);
-          e?.setEnabled(false);
+      } = missionDefinitions.sc_cassini.missionOptions[selectedMissionId];
+      const startET = app.getManager("time").urlToET(start);
+      if (timeRate && app.pioneer.setTimeRate(timeRate), "all" !== missionId) {
+        app.pioneer.setTime(startET);
+        Object.keys(missionDefinitions.sc_cassini.missionOptions).forEach(optionId => {
+          const optionTrail = entity?.getComponent(Pioneer.TrailComponent, optionId);
+          optionTrail?.setEnabled(false);
         });
-        s?.getComponent(Pioneer.TrailComponent, i)?.setEnabled(true);
+        entity?.getComponent(Pioneer.TrailComponent, selectedMissionId)?.setEnabled(true);
       } else {
-        const e = r.sc_cassini.missionOptions.primary;
-        const i = t.getManager("time").urlToET(e.start);
-        t.pioneer.setTime(i);
-        Object.keys(r.sc_cassini.missionOptions).forEach(t => {
-          const e = s?.getComponent(Pioneer.TrailComponent, t);
-          e?.setEnabled(false);
+        const primaryMission = missionDefinitions.sc_cassini.missionOptions.primary;
+        const primaryStartET = app.getManager("time").urlToET(primaryMission.start);
+        app.pioneer.setTime(primaryStartET);
+        Object.keys(missionDefinitions.sc_cassini.missionOptions).forEach(optionId => {
+          const optionTrail = entity?.getComponent(Pioneer.TrailComponent, optionId);
+          optionTrail?.setEnabled(false);
         });
       }
-      t.getManager("trajectory").setEngineLoopCallback(true);
+      app.getManager("trajectory").setEngineLoopCallback(true);
     },
-    onLeave: async t => {
-      t.pioneer.getScene("main").getEntity("sc_cassini")?.getComponent(Pioneer.DivComponent)?.setRenderingEnabled(true);
-      t.getManager("trajectory").setEngineLoopCallback(false);
+    onLeave: async app => {
+      app.pioneer.getScene("main").getEntity("sc_cassini")?.getComponent(Pioneer.DivComponent)?.setRenderingEnabled(true);
+      app.getManager("trajectory").setEngineLoopCallback(false);
     }
   },
   sc_voyager_1: {
-    onCreate: t => {
-      t.getManager("trajectory").enableAssociatedEntities("sc_voyager_1");
+    onCreate: app => {
+      app.getManager("trajectory").enableAssociatedEntities("sc_voyager_1");
     },
-    onSelect: async (t, e) => {
-      t.getManager("trajectory").setUpVoyagers("sc_voyager_1", e);
-      t.getManager("trajectory").setEngineLoopCallback(true);
+    onSelect: async (app, missionId) => {
+      app.getManager("trajectory").setUpVoyagers("sc_voyager_1", missionId);
+      app.getManager("trajectory").setEngineLoopCallback(true);
     },
-    onLeave: t => {
-      t.getManager("trajectory").setEngineLoopCallback(false);
+    onLeave: app => {
+      app.getManager("trajectory").setEngineLoopCallback(false);
     }
   },
   sc_voyager_2: {
-    onCreate: t => {
-      t.getManager("trajectory").enableAssociatedEntities("sc_voyager_2");
+    onCreate: app => {
+      app.getManager("trajectory").enableAssociatedEntities("sc_voyager_2");
     },
-    onSelect: async (t, e) => {
-      t.getManager("trajectory").setUpVoyagers("sc_voyager_2", e);
-      t.getManager("trajectory").setEngineLoopCallback(true);
+    onSelect: async (app, missionId) => {
+      app.getManager("trajectory").setUpVoyagers("sc_voyager_2", missionId);
+      app.getManager("trajectory").setEngineLoopCallback(true);
     },
-    onLeave: async t => {
-      t.getManager("trajectory").setEngineLoopCallback(false);
+    onLeave: async app => {
+      app.getManager("trajectory").setEngineLoopCallback(false);
     }
   }
 };
-const r = {
+const missionDefinitions = {
   sc_artemis_1: {
     cameraOnEnterParams: {
       system: "earth"

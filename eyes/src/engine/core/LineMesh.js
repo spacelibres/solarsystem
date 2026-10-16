@@ -1,22 +1,7 @@
-/** @eyes-analysis
- * 文件职责：构建宽线所需的顶点、索引和相邻点属性。
- * 依据：import ../pioneer/public-api.js；LineMesh @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 线段端点必须成对，每端复制左右两个顶点；15 分量交错布局保存当前/前/后点、RGBA、带正负号线宽与累计虚线距离。几何按 65536 顶点分块以保持 Uint16 索引，所有块共享组件材质。
 // Recovered from app.js:75336-82494.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：构建宽线所需的顶点、索引和相邻点属性。
- * 继承：无显式父类；导出：LineMesh。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class LineMesh {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_component`、`_dashGapLength`、`_dashLength`、`_glowWidth`、`_orientation`、`_position`、`_scale`、`_threeJsMaterial`；调用 `component.getEntity`、`component.getEntity().getScene`、`component.getEntity().getScene().getEngine`、`component.getEntity().getScene().getEngine().getMaterialManager`、`component.getEntity().getScene().getEngine().getMaterialManager().getPreloaded`、`component.getThreeJsMaterials`。
-   * 状态写入：_component、_dashGapLength、_dashLength、_glowWidth、_orientation、_position、_scale、_threeJsMaterial等；完整记录见索引。
-   * 调用线索：component.getEntity、component.getEntity().getScene、component.getEntity().getScene().getEngine、component.getEntity().getScene().getEngine().getMaterialManager、component.getEntity().getScene().getEngine().getMaterialManager().getPreloaded等。
-   */
   constructor(component) {
     this._component = component;
     this._position = new PioneerPublicApi.Vector3();
@@ -32,208 +17,198 @@ class LineMesh {
     this._threeJsMaterial.uniforms.dashGapLength.value = this._dashGapLength;
     this._threeJsMaterial.uniforms.glowWidth.value = this._glowWidth;
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.MathUtils.wrap`、`PioneerPublicApi.Vector3.pool.get`、`PioneerPublicApi.Vector3.pool.release`、`e.copy`、`h.equals`、`i.copy`；含显式错误分支。
-   * 调用线索：PioneerPublicApi.MathUtils.wrap、PioneerPublicApi.Vector3.pool.get、PioneerPublicApi.Vector3.pool.release、e.copy、h.equals等。
-   */
-  setPositions(t) {
-    if (t.length % 2 != 0) throw new Error("Number of positions in the LineMesh must be even.");
-    this._adjustVerticesInGeometries(2 * t.length);
-    const e = PioneerPublicApi.Vector3.pool.get();
-    const i = PioneerPublicApi.Vector3.pool.get();
-    const n = PioneerPublicApi.Vector3.pool.get();
-    const o = PioneerPublicApi.Vector3.pool.get();
-    const r = PioneerPublicApi.Vector3.pool.get();
-    let a = 0;
-    for (let n = 0; n < this._threeJsObjects.length; n++) {
-      const o = this._threeJsObjects[n].geometry.getAttribute("position");
-      const l = o.array;
-      for (let o = 0; o < l.length / (2 * LineMesh._floatsPerVertex); o++) {
-        const c = o + n * (LineMesh._maxVerticesPerGeometry / 2);
-        const h = t[c];
-        l[2 * o * LineMesh._floatsPerVertex + 0] = h.x;
-        l[2 * o * LineMesh._floatsPerVertex + 1] = h.y;
-        l[2 * o * LineMesh._floatsPerVertex + 2] = h.z;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 0] = h.x;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 1] = h.y;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 2] = h.z;
-        c % 2 == 0 ? h.equals(t[PioneerPublicApi.MathUtils.wrap(c - 1, 0, t.length)]) ? (e.copy(t[PioneerPublicApi.MathUtils.wrap(c - 2, 0, t.length)]), i.copy(t[c + 1])) : (e.copy(h), i.copy(t[c + 1]), a = 0) : c % 2 == 1 && (h.equals(t[PioneerPublicApi.MathUtils.wrap(c + 1, 0, t.length)]) ? (e.copy(t[c - 1]), i.copy(t[PioneerPublicApi.MathUtils.wrap(c + 2, 0, t.length)])) : (e.copy(t[c - 1]), i.copy(h)), r.sub(h, t[c - 1]), a += r.magnitude());
-        l[2 * o * LineMesh._floatsPerVertex + 3] = e.x;
-        l[2 * o * LineMesh._floatsPerVertex + 4] = e.y;
-        l[2 * o * LineMesh._floatsPerVertex + 5] = e.z;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 3] = e.x;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 4] = e.y;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 5] = e.z;
-        l[2 * o * LineMesh._floatsPerVertex + 6] = i.x;
-        l[2 * o * LineMesh._floatsPerVertex + 7] = i.y;
-        l[2 * o * LineMesh._floatsPerVertex + 8] = i.z;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 6] = i.x;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 7] = i.y;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 8] = i.z;
-        l[2 * o * LineMesh._floatsPerVertex + 14] = a;
-        l[(2 * o + 1) * LineMesh._floatsPerVertex + 14] = a;
-      }
-      o.data.needsUpdate = true;
-    }
-    PioneerPublicApi.Vector3.pool.release(n);
-    PioneerPublicApi.Vector3.pool.release(o);
-    PioneerPublicApi.Vector3.pool.release(e);
-    PioneerPublicApi.Vector3.pool.release(i);
-    PioneerPublicApi.Vector3.pool.release(r);
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`this._adjustVerticesInGeometries`、`this._threeJsObjects[e].geometry.getAttribute`；含显式错误分支。
-   * 调用线索：new Error、this._adjustVerticesInGeometries、this._threeJsObjects[e].geometry.getAttribute。
-   */
-  setColors(t) {
-    if (t.length % 2 != 0) throw new Error("Number of colors in the LineMesh must be even.");
-    this._adjustVerticesInGeometries(2 * t.length);
-    for (let e = 0; e < this._threeJsObjects.length; e++) {
-      const i = this._threeJsObjects[e].geometry.getAttribute("color");
-      const s = i.array;
-      for (let i = 0; i < s.length / (2 * LineMesh._floatsPerVertex); i++) {
-        const n = t[i + e * (LineMesh._maxVerticesPerGeometry / 2)];
-        s[2 * i * LineMesh._floatsPerVertex + 9] = n.r;
-        s[2 * i * LineMesh._floatsPerVertex + 10] = n.g;
-        s[2 * i * LineMesh._floatsPerVertex + 11] = n.b;
-        s[2 * i * LineMesh._floatsPerVertex + 12] = n.a;
-        s[(2 * i + 1) * LineMesh._floatsPerVertex + 9] = n.r;
-        s[(2 * i + 1) * LineMesh._floatsPerVertex + 10] = n.g;
-        s[(2 * i + 1) * LineMesh._floatsPerVertex + 11] = n.b;
-        s[(2 * i + 1) * LineMesh._floatsPerVertex + 12] = n.a;
-      }
-      i.data.needsUpdate = true;
-    }
-  }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Error`、`this._adjustVerticesInGeometries`、`this._threeJsObjects[e].geometry.getAttribute`；含显式错误分支。
-   * 调用线索：new Error、this._adjustVerticesInGeometries、this._threeJsObjects[e].geometry.getAttribute。
-   */
-  setWidths(t) {
-    if ("number" == typeof t) for (let e = 0; e < this._threeJsObjects.length; e++) {
-      const i = this._threeJsObjects[e].geometry.getAttribute("width");
-      const s = i.array;
-      for (let e = 0; e < s.length / (2 * LineMesh._floatsPerVertex); e++) {
-        s[2 * e * LineMesh._floatsPerVertex + 13] = t;
-        s[(2 * e + 1) * LineMesh._floatsPerVertex + 13] = -t;
-      }
-      i.data.needsUpdate = true;
-    } else {
-      if (t.length % 2 != 0) throw new Error("Number of widths in the LineMesh must be even.");
-      this._adjustVerticesInGeometries(2 * t.length);
-      for (let e = 0; e < this._threeJsObjects.length; e++) {
-        const i = this._threeJsObjects[e].geometry.getAttribute("width");
-        const s = i.array;
-        for (let i = 0; i < s.length / (2 * LineMesh._floatsPerVertex); i++) {
-          const n = t[i + e * (LineMesh._maxVerticesPerGeometry / 2)];
-          s[2 * i * LineMesh._floatsPerVertex + 13] = n;
-          s[(2 * i + 1) * LineMesh._floatsPerVertex + 13] = -n;
+  // 相邻线段端点相等时沿前后段连接，否则虚线累计长度从零开始；GPU 通过前后点扩展线宽。
+  setPositions(positions) {
+    if (positions.length % 2 != 0) throw new Error("Number of positions in the LineMesh must be even.");
+    this._adjustVerticesInGeometries(2 * positions.length);
+    const previousPosition = PioneerPublicApi.Vector3.pool.get();
+    const nextPosition = PioneerPublicApi.Vector3.pool.get();
+    const unusedPosition = PioneerPublicApi.Vector3.pool.get();
+    const unusedDirection = PioneerPublicApi.Vector3.pool.get();
+    const segmentDelta = PioneerPublicApi.Vector3.pool.get();
+    let dashOffset = 0;
+    for (let objectIndex = 0; objectIndex < this._threeJsObjects.length; objectIndex++) {
+      const positionAttribute = this._threeJsObjects[objectIndex].geometry.getAttribute("position");
+      const vertexData = positionAttribute.array;
+      for (let localPointIndex = 0; localPointIndex < vertexData.length / (2 * LineMesh._floatsPerVertex); localPointIndex++) {
+        const pointIndex = localPointIndex + objectIndex * (LineMesh._maxVerticesPerGeometry / 2);
+        const position = positions[pointIndex];
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 0] = position.x;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 1] = position.y;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 2] = position.z;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 0] = position.x;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 1] = position.y;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 2] = position.z;
+        if (pointIndex % 2 == 0) {
+          if (position.equals(positions[PioneerPublicApi.MathUtils.wrap(pointIndex - 1, 0, positions.length)])) {
+            previousPosition.copy(positions[PioneerPublicApi.MathUtils.wrap(pointIndex - 2, 0, positions.length)]);
+            nextPosition.copy(positions[pointIndex + 1]);
+          } else {
+            previousPosition.copy(position);
+            nextPosition.copy(positions[pointIndex + 1]);
+            dashOffset = 0;
+          }
+        } else {
+          if (pointIndex % 2 == 1) {
+            if (position.equals(positions[PioneerPublicApi.MathUtils.wrap(pointIndex + 1, 0, positions.length)])) {
+              previousPosition.copy(positions[pointIndex - 1]);
+              nextPosition.copy(positions[PioneerPublicApi.MathUtils.wrap(pointIndex + 2, 0, positions.length)]);
+            } else {
+              previousPosition.copy(positions[pointIndex - 1]);
+              nextPosition.copy(position);
+            }
+            segmentDelta.sub(position, positions[pointIndex - 1]);
+            dashOffset += segmentDelta.magnitude();
+          }
         }
-        i.data.needsUpdate = true;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 3] = previousPosition.x;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 4] = previousPosition.y;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 5] = previousPosition.z;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 3] = previousPosition.x;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 4] = previousPosition.y;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 5] = previousPosition.z;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 6] = nextPosition.x;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 7] = nextPosition.y;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 8] = nextPosition.z;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 6] = nextPosition.x;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 7] = nextPosition.y;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 8] = nextPosition.z;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 14] = dashOffset;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 14] = dashOffset;
+      }
+      positionAttribute.data.needsUpdate = true;
+    }
+    PioneerPublicApi.Vector3.pool.release(unusedPosition);
+    PioneerPublicApi.Vector3.pool.release(unusedDirection);
+    PioneerPublicApi.Vector3.pool.release(previousPosition);
+    PioneerPublicApi.Vector3.pool.release(nextPosition);
+    PioneerPublicApi.Vector3.pool.release(segmentDelta);
+  }
+  setColors(colors) {
+    if (colors.length % 2 != 0) throw new Error("Number of colors in the LineMesh must be even.");
+    this._adjustVerticesInGeometries(2 * colors.length);
+    for (let objectIndex = 0; objectIndex < this._threeJsObjects.length; objectIndex++) {
+      const colorAttribute = this._threeJsObjects[objectIndex].geometry.getAttribute("color");
+      const vertexData = colorAttribute.array;
+      for (let localPointIndex = 0; localPointIndex < vertexData.length / (2 * LineMesh._floatsPerVertex); localPointIndex++) {
+        const color = colors[localPointIndex + objectIndex * (LineMesh._maxVerticesPerGeometry / 2)];
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 9] = color.r;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 10] = color.g;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 11] = color.b;
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 12] = color.a;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 9] = color.r;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 10] = color.g;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 11] = color.b;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 12] = color.a;
+      }
+      colorAttribute.data.needsUpdate = true;
+    }
+  }
+  setWidths(widths) {
+    if ("number" == typeof widths) for (let objectIndex = 0; objectIndex < this._threeJsObjects.length; objectIndex++) {
+      const widthAttribute = this._threeJsObjects[objectIndex].geometry.getAttribute("width");
+      const vertexData = widthAttribute.array;
+      for (let localPointIndex = 0; localPointIndex < vertexData.length / (2 * LineMesh._floatsPerVertex); localPointIndex++) {
+        vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 13] = widths;
+        vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 13] = -widths;
+      }
+      widthAttribute.data.needsUpdate = true;
+    } else {
+      if (widths.length % 2 != 0) throw new Error("Number of widths in the LineMesh must be even.");
+      this._adjustVerticesInGeometries(2 * widths.length);
+      for (let objectIndex = 0; objectIndex < this._threeJsObjects.length; objectIndex++) {
+        const widthAttribute = this._threeJsObjects[objectIndex].geometry.getAttribute("width");
+        const vertexData = widthAttribute.array;
+        for (let localPointIndex = 0; localPointIndex < vertexData.length / (2 * LineMesh._floatsPerVertex); localPointIndex++) {
+          const width = widths[localPointIndex + objectIndex * (LineMesh._maxVerticesPerGeometry / 2)];
+          vertexData[2 * localPointIndex * LineMesh._floatsPerVertex + 13] = width;
+          vertexData[(2 * localPointIndex + 1) * LineMesh._floatsPerVertex + 13] = -width;
+        }
+        widthAttribute.data.needsUpdate = true;
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_dashGapLength`、`_dashLength`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`。
-   * 状态写入：_dashGapLength、_dashLength。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber。
-   */
   setDashLength(dashLength, dashGapLength) {
     this._dashLength = dashLength;
     this._dashGapLength = dashGapLength;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "dashLength", this._dashLength);
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "dashGapLength", this._dashGapLength);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_glowWidth`；调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`。
-   * 状态写入：_glowWidth。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber。
-   */
   setGlowWidth(glowWidth) {
     this._glowWidth = glowWidth;
     PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "glowWidth", this._glowWidth);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_scale`；调用 `PioneerPublicApi.ThreeJsHelper.setScale`。
-   * 状态写入：_scale。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setScale。
-   */
   setScale(scale) {
     this._scale = scale;
     PioneerPublicApi.ThreeJsHelper.setScale(this._threeJsObjects, scale);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.ThreeJsHelper.setUniformVector2`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`、`e.copy`、`e.set`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.ThreeJsHelper.setUniformVector2、PioneerPublicApi.Vector2.pool.get、PioneerPublicApi.Vector2.pool.release、e.copy等。
-   */
-  prepareForRender(t) {
-    const e = PioneerPublicApi.Vector2.pool.get();
-    if (t instanceof PioneerPublicApi.SpoutComponent) e.set(.1 * t.getRenderWidth(), .5 * t.getRenderWidth() * .1);else {
-      const i = t.getViewport();
-      i && e.copy(i.getBounds().size);
+  prepareForRender(camera) {
+    const viewportSize = PioneerPublicApi.Vector2.pool.get();
+    if (camera instanceof PioneerPublicApi.SpoutComponent) viewportSize.set(.1 * camera.getRenderWidth(), .5 * camera.getRenderWidth() * .1);else {
+      const viewport = camera.getViewport();
+      if (viewport) {
+        viewportSize.copy(viewport.getBounds().size);
+      }
     }
-    PioneerPublicApi.ThreeJsHelper.setUniformVector2(this._threeJsMaterial, "viewportSize", e);
-    PioneerPublicApi.Vector2.pool.release(e);
-    const i = this._component.getVisibleInterval().getFadeMultiplier(this._component.getEntity(), t);
-    PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "alphaMultiplier", i);
+    PioneerPublicApi.ThreeJsHelper.setUniformVector2(this._threeJsMaterial, "viewportSize", viewportSize);
+    PioneerPublicApi.Vector2.pool.release(viewportSize);
+    const fadeMultiplier = this._component.getVisibleInterval().getFadeMultiplier(this._component.getEntity(), camera);
+    PioneerPublicApi.ThreeJsHelper.setUniformNumber(this._threeJsMaterial, "alphaMultiplier", fadeMultiplier);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `Math.ceil`、`Math.min`、`PioneerPublicApi.ThreeJsHelper.createMeshObject`、`PioneerPublicApi.ThreeJsHelper.destroyObject`、`PioneerPublicApi.ThreeJsHelper.setOrientation`、`PioneerPublicApi.ThreeJsHelper.setPosition`。
-   * 调用线索：Math.ceil、Math.min、PioneerPublicApi.ThreeJsHelper.createMeshObject、PioneerPublicApi.ThreeJsHelper.destroyObject、PioneerPublicApi.ThreeJsHelper.setOrientation等。
-   */
-  _adjustVerticesInGeometries(t) {
-    const e = Math.ceil(t / LineMesh._maxVerticesPerGeometry);
-    for (; this._threeJsObjects.length > e;) {
-      const t = this._threeJsObjects[this._threeJsObjects.length - 1];
-      PioneerPublicApi.ThreeJsHelper.destroyObject(t);
+  _adjustVerticesInGeometries(vertexCount) {
+    const geometryCount = Math.ceil(vertexCount / LineMesh._maxVerticesPerGeometry);
+    for (; this._threeJsObjects.length > geometryCount;) {
+      const object = this._threeJsObjects[this._threeJsObjects.length - 1];
+      PioneerPublicApi.ThreeJsHelper.destroyObject(object);
       this._threeJsObjects.splice(this._threeJsObjects.length - 1, 1);
-      for (let e = 0, i = this._component.getThreeJsObjects().length; e < i; e++) if (this._component.getThreeJsObjects()[e] === t) {
-        this._component.getThreeJsObjects().splice(e, 1);
+      for (let componentObjectIndex = 0, componentObjectCount = this._component.getThreeJsObjects().length; componentObjectIndex < componentObjectCount; componentObjectIndex++) if (this._component.getThreeJsObjects()[componentObjectIndex] === object) {
+        this._component.getThreeJsObjects().splice(componentObjectIndex, 1);
         break;
       }
     }
-    if (this._threeJsObjects.length < e) {
-      this._threeJsObjects.length > 0 && this._setupThreeJsGeometry(this._threeJsObjects[this._threeJsObjects.length - 1].geometry, LineMesh._maxVerticesPerGeometry);
-      for (let i = this._threeJsObjects.length; i < e; i++) {
-        const e = PioneerPublicApi.ThreeJsHelper.createMeshObject(this._component, this._threeJsMaterial, [], false);
-        this._threeJsObjects.push(e);
-        this._component.getThreeJsObjects().push(e);
-        const n = Math.min(t - i * LineMesh._maxVerticesPerGeometry, LineMesh._maxVerticesPerGeometry);
-        this._setupThreeJsGeometry(e.geometry, n);
-        PioneerPublicApi.ThreeJsHelper.setPosition(e, this._position);
-        PioneerPublicApi.ThreeJsHelper.setOrientation(e, this._orientation);
-        PioneerPublicApi.ThreeJsHelper.setScale(e, this._scale);
-        e.frustumCulled = false;
+    if (this._threeJsObjects.length < geometryCount) {
+      if (this._threeJsObjects.length > 0) {
+        this._setupThreeJsGeometry(this._threeJsObjects[this._threeJsObjects.length - 1].geometry, LineMesh._maxVerticesPerGeometry);
       }
-    } else if (e > 0) {
-      const i = this._threeJsObjects[e - 1].geometry;
-      const s = t - (e - 1) * LineMesh._maxVerticesPerGeometry;
-      i.getAttribute("position").array.length !== s * LineMesh._floatsPerVertex && this._setupThreeJsGeometry(i, s);
+      for (let geometryIndex = this._threeJsObjects.length; geometryIndex < geometryCount; geometryIndex++) {
+        const object = PioneerPublicApi.ThreeJsHelper.createMeshObject(this._component, this._threeJsMaterial, [], false);
+        this._threeJsObjects.push(object);
+        this._component.getThreeJsObjects().push(object);
+        const geometryVertexCount = Math.min(vertexCount - geometryIndex * LineMesh._maxVerticesPerGeometry, LineMesh._maxVerticesPerGeometry);
+        this._setupThreeJsGeometry(object.geometry, geometryVertexCount);
+        PioneerPublicApi.ThreeJsHelper.setPosition(object, this._position);
+        PioneerPublicApi.ThreeJsHelper.setOrientation(object, this._orientation);
+        PioneerPublicApi.ThreeJsHelper.setScale(object, this._scale);
+        object.frustumCulled = false;
+      }
+    } else if (geometryCount > 0) {
+      const geometry = this._threeJsObjects[geometryCount - 1].geometry;
+      const lastVertexCount = vertexCount - (geometryCount - 1) * LineMesh._maxVerticesPerGeometry;
+      if (geometry.getAttribute("position").array.length !== lastVertexCount * LineMesh._floatsPerVertex) {
+        this._setupThreeJsGeometry(geometry, lastVertexCount);
+      }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `new Float32Array`、`new PioneerPublicApi.THREE.BufferAttribute`、`new PioneerPublicApi.THREE.InterleavedBuffer`、`new PioneerPublicApi.THREE.InterleavedBufferAttribute`、`new Uint16Array`、`t.setAttribute`。
-   * 调用线索：new Float32Array、new PioneerPublicApi.THREE.BufferAttribute、new PioneerPublicApi.THREE.InterleavedBuffer、new PioneerPublicApi.THREE.InterleavedBufferAttribute、new Uint16Array等。
-   */
-  _setupThreeJsGeometry(t, e) {
-    const float32Array = new Float32Array(e * LineMesh._floatsPerVertex);
+  // 每线段四顶点、六索引；正负 width 区分同一端点的左右侧，dashOffset 使用空间累计距离。
+  _setupThreeJsGeometry(geometry, vertexCount) {
+    const float32Array = new Float32Array(vertexCount * LineMesh._floatsPerVertex);
     const interleavedBuffer = new PioneerPublicApi.THREE.InterleavedBuffer(float32Array, LineMesh._floatsPerVertex);
-    t.setAttribute("position", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 0, false));
-    t.setAttribute("positionPrev", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 3, false));
-    t.setAttribute("positionNext", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 6, false));
-    t.setAttribute("color", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 4, 9, false));
-    t.setAttribute("width", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 1, 13, false));
-    t.setAttribute("dashOffset", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 1, 14, false));
-    const uint16Array = new Uint16Array(6 * e / 4);
-    for (let t = 0; t < e / 4; t++) {
-      uint16Array[6 * t + 0] = 4 * t;
-      uint16Array[6 * t + 1] = 4 * t + 2;
-      uint16Array[6 * t + 2] = 4 * t + 3;
-      uint16Array[6 * t + 3] = 4 * t;
-      uint16Array[6 * t + 4] = 4 * t + 3;
-      uint16Array[6 * t + 5] = 4 * t + 1;
+    geometry.setAttribute("position", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 0, false));
+    geometry.setAttribute("positionPrev", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 3, false));
+    geometry.setAttribute("positionNext", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 3, 6, false));
+    geometry.setAttribute("color", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 4, 9, false));
+    geometry.setAttribute("width", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 1, 13, false));
+    geometry.setAttribute("dashOffset", new PioneerPublicApi.THREE.InterleavedBufferAttribute(interleavedBuffer, 1, 14, false));
+    const uint16Array = new Uint16Array(6 * vertexCount / 4);
+    for (let segmentIndex = 0; segmentIndex < vertexCount / 4; segmentIndex++) {
+      uint16Array[6 * segmentIndex + 0] = 4 * segmentIndex;
+      uint16Array[6 * segmentIndex + 1] = 4 * segmentIndex + 2;
+      uint16Array[6 * segmentIndex + 2] = 4 * segmentIndex + 3;
+      uint16Array[6 * segmentIndex + 3] = 4 * segmentIndex;
+      uint16Array[6 * segmentIndex + 4] = 4 * segmentIndex + 3;
+      uint16Array[6 * segmentIndex + 5] = 4 * segmentIndex + 1;
     }
-    t.setIndex(new PioneerPublicApi.THREE.BufferAttribute(uint16Array, 1));
+    geometry.setIndex(new PioneerPublicApi.THREE.BufferAttribute(uint16Array, 1));
   }
   static _floatsPerVertex = 15;
   static _maxVerticesPerGeometry = 65536;

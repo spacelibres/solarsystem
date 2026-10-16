@@ -1,25 +1,10 @@
-/** @eyes-analysis
- * 文件职责：将可搜索数据库条目交给模糊搜索实例，按 id 取条目并限制搜索结果数量。
- * 依据：import ../../vendor/modules/KeyStore.js；import ../../framework/eyes/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1301907-1302985.
+/* 搜索索引从目录排除 searchable=false 的实体，find 返回最多指定条数的 Fuse 匹配。setDatabase 会把关键词数组写回原目录项；原 map 结果未使用的行为保留。 */
 import * as KeyStore from "../../vendor/modules/KeyStore.js";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
-/** @eyes-analysis
- * 类职责：将可搜索数据库条目交给模糊搜索实例，按 id 取条目并限制搜索结果数量。
- * 继承：EyesPublicApi.BaseManager；导出：SearchManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class SearchManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_database`、`_fuse`、`_maxEntries`、`_options`；调用 `super`。
-   * 状态写入：_database、_fuse、_maxEntries、_options。
-   * 调用线索：super。
-   */
-  constructor(t, e = {}) {
-    super(t);
+  constructor(app, options = {}) {
+    super(app);
     this._maxEntries = 10;
     this._fuse = null;
     this._database = null;
@@ -35,49 +20,31 @@ class SearchManager extends EyesPublicApi.BaseManager {
       includeScore: true,
       includeMatches: true,
       ignoreLocation: true,
-      ...e
+      ...options
     };
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_fuse`；调用 `Object.assign`、`new KeyStore.default`。
-   * 状态写入：_fuse。
-   * 调用线索：Object.assign、new KeyStore.default。
-   */
-  setOptions(t) {
-    Object.assign(this._options, t);
+  setOptions(options) {
+    Object.assign(this._options, options);
     this._fuse = new KeyStore.default(this._database, this._options);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_database`、`_fuse`；调用 `Array.isArray`、`Object.assign`、`Object.keys`、`Object.keys(t).filter`、`console.error`、`i.map`。
-   * 状态写入：_database、_fuse。
-   * 调用线索：Array.isArray、Object.assign、Object.keys、Object.keys(t).filter、Object.keys(t).filter(e=>false!==t[e].searchable).map等。
-   */
-  setDatabase(t, e = {}) {
-    t ? (Object.assign(this._options, e), this._database = Object.keys(t).filter(e => false !== t[e].searchable).map(e => {
-      const i = t[e].keywords || [];
-      i.map(t => ({
-        value: t
+  setDatabase(database, options = {}) {
+    database ? (Object.assign(this._options, options), this._database = Object.keys(database).filter(entryId => false !== database[entryId].searchable).map(entryId => {
+      const keywords = database[entryId].keywords || [];
+      keywords.map(keyword => ({
+        value: keyword
       }));
-      t[e].keywords = i;
-      return t[e];
+      database[entryId].keywords = keywords;
+      return database[entryId];
     }), Array.isArray(this._database) ? this._fuse = new KeyStore.default(this._database, this._options) : console.error("[SearchManager.setDatabase] Database is not an array.")) : console.error("[SearchManager.setDatabase] Missing database.");
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._database.find(e=>e.id===t)`；调用 `this._database.find`。
-   * 调用线索：this._database.find。
-   */
-  getEntry(t) {
-    return this._database.find(e => e.id === t);
+  getEntry(entityId) {
+    return this._database.find(entry => entry.id === entityId);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null` 或 `i`；调用 `i.slice`、`this._fuse.search`。
-   * 调用线索：i.slice、this._fuse.search。
-   */
-  find(t, e = this._maxEntries) {
-    if ("" === t || null == t || !this._fuse) return null;
-    let i = this._fuse.search(t);
-    i = i.slice(0, e);
-    return i;
+  find(searchText, maximumEntries = this._maxEntries) {
+    if ("" === searchText || null == searchText || !this._fuse) return null;
+    let matches = this._fuse.search(searchText);
+    matches = matches.slice(0, maximumEntries);
+    return matches;
   }
 }
 export { SearchManager };

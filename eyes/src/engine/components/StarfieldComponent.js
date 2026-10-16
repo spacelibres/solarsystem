@@ -1,26 +1,11 @@
-/** @eyes-analysis
- * 文件职责：解析星表并构造星点，按亮度/颜色和相机方向渲染背景恒星。
- * 依据：import ../pioneer/public-api.js；Star @3
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 星表读取视星等、绝对星等、RGB 和坐标，按黄道到赤道变换后写入点云；颜色第四分量保存绝对星等供 shader 求亮度，保留资源与池对象的原释放路径。
 // Recovered from app.js:421561-426233.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
-/** @eyes-analysis
- * 类职责：星表单颗恒星的数据记录。
- * 继承：无显式父类；导出：模块内部声明。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Star {
   mag;
   absMag;
   color;
   position;
-  /** @eyes-analysis
-   * 【结构证据】写入 `absMag`、`color`、`mag`、`position`；调用 `new PioneerPublicApi.Color`、`new PioneerPublicApi.Vector3`。
-   * 状态写入：absMag、color、mag、position。
-   * 调用线索：new PioneerPublicApi.Color、new PioneerPublicApi.Vector3。
-   */
   constructor() {
     this.mag = 0;
     this.absMag = 0;
@@ -28,73 +13,40 @@ class Star {
     this.position = new PioneerPublicApi.Vector3();
   }
 }
-/** @eyes-analysis
- * 类职责：解析星表并构造星点，按亮度/颜色和相机方向渲染背景恒星。
- * 继承：PioneerPublicApi.BaseComponent；导出：StarfieldComponent。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class StarfieldComponent extends PioneerPublicApi.BaseComponent {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_particleSize`、`_url`；调用 `super`、`this.__setRadius`。
-   * 状态写入：_particleSize、_url。
-   * 调用线索：super、this.__setRadius。
-   */
-  constructor(t, e) {
-    super(t, e);
+  constructor(componentName, entity) {
+    super(componentName, entity);
     this._url = "";
     this._particleSize = 1;
     this.__setRadius(1e24);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._url`。
-   */
   getUrl() {
     return this._url;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_url`；调用 `this.resetResources`。
-   * 状态写入：_url。
-   * 调用线索：this.resetResources。
-   */
   setUrl(url) {
     this._url = url;
     this.resetResources();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._particleSize`。
-   */
   getParticleSize() {
     return this._particleSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_particleSize`。
-   * 状态写入：_particleSize。
-   */
   setParticleSize(particleSize) {
     this._particleSize = particleSize;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `Math.max`、`Math.sqrt`、`PioneerPublicApi.ThreeJsHelper.setPositionToEntity`、`PioneerPublicApi.ThreeJsHelper.setUniformNumber`、`PioneerPublicApi.Vector2.pool.get`、`PioneerPublicApi.Vector2.pool.release`。
-   * 调用线索：Math.max、Math.sqrt、PioneerPublicApi.ThreeJsHelper.setPositionToEntity、PioneerPublicApi.ThreeJsHelper.setUniformNumber、PioneerPublicApi.Vector2.pool.get等。
-   */
-  __prepareForRender(t) {
-    const e = PioneerPublicApi.Vector2.pool.get();
-    if (t instanceof PioneerPublicApi.SpoutComponent) e.set(t.getRenderWidth(), .5 * t.getRenderWidth());else {
-      const i = t.getViewport();
-      if (!i) return;
-      e.copy(i.getBounds().size);
+  __prepareForRender(camera) {
+    const renderSize = PioneerPublicApi.Vector2.pool.get();
+    if (camera instanceof PioneerPublicApi.SpoutComponent) renderSize.set(camera.getRenderWidth(), .5 * camera.getRenderWidth());else {
+      const viewport = camera.getViewport();
+      if (!viewport) return;
+      renderSize.copy(viewport.getBounds().size);
     }
-    const i = Math.sqrt(Math.max(e.x, e.y) * window.devicePixelRatio) / 60;
-    PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "particleSize", this._particleSize * i);
-    PioneerPublicApi.Vector2.pool.release(e);
-    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), t);
+    const particleScale = Math.sqrt(Math.max(renderSize.x, renderSize.y) * window.devicePixelRatio) / 60;
+    PioneerPublicApi.ThreeJsHelper.setUniformNumber(this.getThreeJsMaterials()[0], "particleSize", this._particleSize * particleScale);
+    PioneerPublicApi.Vector2.pool.release(renderSize);
+    PioneerPublicApi.ThreeJsHelper.setPositionToEntity(this.getThreeJsObjects()[0], this.getEntity(), camera);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `void`；调用 `PioneerPublicApi.ThreeJsHelper.setIndices`、`PioneerPublicApi.ThreeJsHelper.setVertices`、`PioneerPublicApi.ThreeJsHelper.setupObject`、`bufferGeometry.setAttribute`、`bufferGeometry.setIndex`、`new Float32Array`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.setIndices、PioneerPublicApi.ThreeJsHelper.setVertices、PioneerPublicApi.ThreeJsHelper.setupObject、bufferGeometry.setAttribute、bufferGeometry.setIndex等。
-   */
   async __loadResources() {
-    const t = await this._loadStars();
+    const stars = await this._loadStars();
     if (this.isDestroyed()) return;
     const shaderMaterial = new PioneerPublicApi.THREE.ShaderMaterial({
       vertexShader: StarfieldComponent.vertexShader,
@@ -116,41 +68,33 @@ class StarfieldComponent extends PioneerPublicApi.BaseComponent {
     PioneerPublicApi.ThreeJsHelper.setupObject(this, points);
     points.renderOrder = -2;
     this.getThreeJsObjects().push(points);
-    const float32Array = new Float32Array(3 * t.length);
-    const r = new Float32Array(4 * t.length);
-    const uint16Array = new Uint16Array(t.length);
-    for (let e = 0; e < t.length; e++) {
-      const i = t[e];
-      float32Array[3 * e + 0] = i.position.x;
-      float32Array[3 * e + 1] = i.position.y;
-      float32Array[3 * e + 2] = i.position.z;
-      r[4 * e + 0] = i.color.r;
-      r[4 * e + 1] = i.color.g;
-      r[4 * e + 2] = i.color.b;
-      r[4 * e + 3] = i.absMag;
-      uint16Array[e] = e;
+    const positions = new Float32Array(3 * stars.length);
+    const colors = new Float32Array(4 * stars.length);
+    const indices = new Uint16Array(stars.length);
+    for (let starIndex = 0; starIndex < stars.length; starIndex++) {
+      const star = stars[starIndex];
+      positions[3 * starIndex + 0] = star.position.x;
+      positions[3 * starIndex + 1] = star.position.y;
+      positions[3 * starIndex + 2] = star.position.z;
+      colors[4 * starIndex + 0] = star.color.r;
+      colors[4 * starIndex + 1] = star.color.g;
+      colors[4 * starIndex + 2] = star.color.b;
+      colors[4 * starIndex + 3] = star.absMag;
+      indices[starIndex] = starIndex;
     }
-    PioneerPublicApi.ThreeJsHelper.setVertices(bufferGeometry, "position", float32Array);
-    PioneerPublicApi.ThreeJsHelper.setVertices(bufferGeometry, "color", r);
-    PioneerPublicApi.ThreeJsHelper.setIndices(bufferGeometry, uint16Array);
+    PioneerPublicApi.ThreeJsHelper.setVertices(bufferGeometry, "position", positions);
+    PioneerPublicApi.ThreeJsHelper.setVertices(bufferGeometry, "color", colors);
+    PioneerPublicApi.ThreeJsHelper.setIndices(bufferGeometry, indices);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials`。
-   * 调用线索：PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials。
-   */
   __unloadResources() {
     PioneerPublicApi.ThreeJsHelper.destroyAllObjectsAndMaterials(this);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `n`；调用 `n.push`、`new PioneerPublicApi.Reader`、`new Star`、`reader.readByte`、`reader.readFloat32`、`reader.readInt32`。
-   * 调用线索：n.push、new PioneerPublicApi.Reader、new Star、reader.readByte、reader.readFloat32等。
-   */
   async _loadStars() {
-    const t = await this.getEntity().getScene().getEngine().getDownloader().download(this._url, "binary", -this.getEntity().getLeastCameraDepth());
-    const reader = new PioneerPublicApi.Reader(t.content);
-    const i = reader.readInt32();
-    const n = [];
-    for (let t = 0; t < i; t++) {
+    const download = await this.getEntity().getScene().getEngine().getDownloader().download(this._url, "binary", -this.getEntity().getLeastCameraDepth());
+    const reader = new PioneerPublicApi.Reader(download.content);
+    const starCount = reader.readInt32();
+    const stars = [];
+    for (let starIndex = 0; starIndex < starCount; starIndex++) {
       const star = new Star();
       star.mag = reader.readFloat32();
       star.absMag = reader.readFloat32();
@@ -162,9 +106,9 @@ class StarfieldComponent extends PioneerPublicApi.BaseComponent {
       star.position.z = reader.readFloat32();
       star.position.x = reader.readFloat32();
       star.position.rotate(StarfieldComponent.eclipJ2000ToJ2000Rotation, star.position);
-      n.push(star);
+      stars.push(star);
     }
-    return n;
+    return stars;
   }
   _url;
   _particleSize;

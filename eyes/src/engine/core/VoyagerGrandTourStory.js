@@ -1,37 +1,41 @@
-/** @eyes-analysis
- * 文件职责：旅行者大巡游故事定义：任务阶段、时间和视角的叙事配置。
- * 依据：import ../pioneer/index.js；import ../solar-system/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1723208-1734752.
+/** 旅行者故事：临时轨迹长度、标签例外、回到当前时刻的定时器与相机缩放适配。 */
 import * as Pioneer from "../pioneer/index.js";
 import * as SolarSystemSceneExports from "../solar-system/public-api.js";
-let defaultExport;
-const o = {
+let voyagerGrandTourStory;
+const savedStoryState = {
   layers: []
 };
-defaultExport = {
+voyagerGrandTourStory = {
   type: "nonsequential",
   entities: ["sc_voyager_1", "sc_voyager_2"],
-  onEnter: async t => {
-    const layerManager = t.getManager("layer");
-    const layerPanelComponent = t.getComponent("layerPanel");
-    ["asteroids", "comets", "dwarfPlanets", "minorMoons", "spacecraft"].forEach(t => {
-      layerManager.getLayer(t).visible && (o.layers.push(t), layerPanelComponent.toggleLayer(t));
+  onEnter: async app => {
+    const layerManager = app.getManager("layer");
+    const layerPanelComponent = app.getComponent("layerPanel");
+    ["asteroids", "comets", "dwarfPlanets", "minorMoons", "spacecraft"].forEach(layerId => {
+      if (layerManager.getLayer(layerId).visible) {
+        savedStoryState.layers.push(layerId);
+        layerPanelComponent.toggleLayer(layerId);
+      }
     });
-    ["planets", "majorMoons"].forEach(t => {
-      layerManager.getLayer(t).visible || (o.layers.push(t), layerPanelComponent.toggleLayer(t));
+    ["planets", "majorMoons"].forEach(layerId => {
+      if (!layerManager.getLayer(layerId).visible) {
+        savedStoryState.layers.push(layerId);
+        layerPanelComponent.toggleLayer(layerId);
+      }
     });
   },
-  onLeave: t => {
-    o.zoomFitController && t.scene.getEntity("camera").getController(SolarSystemSceneExports.ZoomFitController) && (t.scene.getEntity("camera").removeController(o.zoomFitController), delete o.zoomFitController);
+  onLeave: app => {
+    if (savedStoryState.zoomFitController && app.scene.getEntity("camera").getController(SolarSystemSceneExports.ZoomFitController)) {
+      app.scene.getEntity("camera").removeController(savedStoryState.zoomFitController);
+      delete savedStoryState.zoomFitController;
+    }
     const {
       layers: layers
-    } = o;
-    const layerPanelComponent = t.getComponent("layerPanel");
-    for (let t = 0; t < layers.length; t++) layerPanelComponent.toggleLayer(layers[t]);
-    o.layers = [];
+    } = savedStoryState;
+    const layerPanelComponent = app.getComponent("layerPanel");
+    for (let layerIndex = 0; layerIndex < layers.length; layerIndex++) layerPanelComponent.toggleLayer(layers[layerIndex]);
+    savedStoryState.layers = [];
   },
   slides: [{
     id: "slide_1",
@@ -44,8 +48,8 @@ defaultExport = {
     }],
     time: "1977-09-05T12:56:00Z",
     rate: 0,
-    camera: [async t => {
-      await t.cameraScripts.goToSystem("outer_solar_system");
+    camera: [async app => {
+      await app.cameraScripts.goToSystem("outer_solar_system");
     }]
   }, {
     id: "slide_2",
@@ -58,51 +62,61 @@ defaultExport = {
     }],
     time: "1977-09-05T12:56:00Z",
     rate: 25228800,
-    onEnter: async t => {
-      if (t.getManager("label").addExceptions(["sc_voyager_1", "sc_voyager_2"]), !o.trail) {
-        const e = t.scene.getEntity("sc_voyager_1").getComponent(Pioneer.TrailComponent);
-        const i = t.scene.getEntity("sc_voyager_2").getComponent(Pioneer.TrailComponent);
-        o.trail = {
-          sc_voyager_1: e.getStartTime(),
-          sc_voyager_2: i.getStartTime()
+    onEnter: async app => {
+      app.getManager("label").addExceptions(["sc_voyager_1", "sc_voyager_2"]);
+      if (!savedStoryState.trail) {
+        const voyagerOneTrail = app.scene.getEntity("sc_voyager_1").getComponent(Pioneer.TrailComponent);
+        const voyagerTwoTrail = app.scene.getEntity("sc_voyager_2").getComponent(Pioneer.TrailComponent);
+        savedStoryState.trail = {
+          sc_voyager_1: voyagerOneTrail.getStartTime(),
+          sc_voyager_2: voyagerTwoTrail.getStartTime()
         };
-        e.setStartTime(1e8 * e.getStartTime());
-        i.setStartTime(1e8 * i.getStartTime());
+        voyagerOneTrail.setStartTime(1e8 * voyagerOneTrail.getStartTime());
+        voyagerTwoTrail.setStartTime(1e8 * voyagerTwoTrail.getStartTime());
       }
-      if (!o.timeCheck) {
-        const timeManager = t.getManager("time");
-        o.timeCheck = setInterval(() => {
-          timeManager.getTime().valueOf() >= timeManager.getNow().valueOf() && (clearInterval(o.timeCheck), timeManager.resetTimeRate(), timeManager.setToNow(), delete o.timeCheck);
+      // 500ms 只检查是否到达真实现在；到达或离开 slide 都必须释放该定时器。
+      if (!savedStoryState.timeCheck) {
+        const timeManager = app.getManager("time");
+        savedStoryState.timeCheck = setInterval(() => {
+          if (timeManager.getTime().valueOf() >= timeManager.getNow().valueOf()) {
+            clearInterval(savedStoryState.timeCheck);
+            timeManager.resetTimeRate();
+            timeManager.setToNow();
+            delete savedStoryState.timeCheck;
+          }
         }, 500);
       }
-      await t.getManager("scene").isListReady(["sun", "earth", "sc_voyager_1", "sc_voyager_2"]);
+      await app.getManager("scene").isListReady(["sun", "earth", "sc_voyager_1", "sc_voyager_2"]);
     },
-    onLeave: t => {
-      t.getManager("label").removeExceptions(["sc_voyager_1", "sc_voyager_2"]);
-      t.scene.getEntity("sc_voyager_1").getComponent(Pioneer.TrailComponent).setStartTime(o.trail.sc_voyager_1);
-      t.scene.getEntity("sc_voyager_2").getComponent(Pioneer.TrailComponent).setStartTime(o.trail.sc_voyager_2);
-      delete o.trail;
-      o.timeCheck && (clearInterval(o.timeCheck), delete o.timeCheck);
+    onLeave: app => {
+      app.getManager("label").removeExceptions(["sc_voyager_1", "sc_voyager_2"]);
+      app.scene.getEntity("sc_voyager_1").getComponent(Pioneer.TrailComponent).setStartTime(savedStoryState.trail.sc_voyager_1);
+      app.scene.getEntity("sc_voyager_2").getComponent(Pioneer.TrailComponent).setStartTime(savedStoryState.trail.sc_voyager_2);
+      delete savedStoryState.trail;
+      if (savedStoryState.timeCheck) {
+        clearInterval(savedStoryState.timeCheck);
+        delete savedStoryState.timeCheck;
+      }
     },
-    camera: [async t => {
-      const timeManager = t.getManager("time");
+    camera: [async app => {
+      const timeManager = app.getManager("time");
       timeManager.pause();
-      await t.cameraScripts.showLocation("sun", "earth", "earth", "planeNormal", {
+      await app.cameraScripts.showLocation("sun", "earth", "earth", "planeNormal", {
         distance: 6e8,
         duration: 2,
         startFromTarget: false,
         rotateByScreenRatio: false
       });
-      await t.scene.getLoadedPromise();
-      const i = t.scene.getEntity("camera");
-      o.zoomFitController = i.addController(SolarSystemSceneExports.ZoomFitController, "", i.getController(Pioneer.AlignController));
-      o.zoomFitController.addEntity("sun");
-      o.zoomFitController.addEntity("sc_voyager_1");
-      o.zoomFitController.addEntity("sc_voyager_2");
-      o.zoomFitController.setEdgeSize(.04);
-      o.zoomFitController.setTightFit(true);
-      o.zoomFitController.setZoomOutOnly(false);
-      await t.scene.getLoadedPromise();
+      await app.scene.getLoadedPromise();
+      const cameraEntity = app.scene.getEntity("camera");
+      savedStoryState.zoomFitController = cameraEntity.addController(SolarSystemSceneExports.ZoomFitController, "", cameraEntity.getController(Pioneer.AlignController));
+      savedStoryState.zoomFitController.addEntity("sun");
+      savedStoryState.zoomFitController.addEntity("sc_voyager_1");
+      savedStoryState.zoomFitController.addEntity("sc_voyager_2");
+      savedStoryState.zoomFitController.setEdgeSize(.04);
+      savedStoryState.zoomFitController.setTightFit(true);
+      savedStoryState.zoomFitController.setZoomOutOnly(false);
+      await app.scene.getLoadedPromise();
       timeManager.play();
     }]
   }, {
@@ -151,8 +165,8 @@ defaultExport = {
     time: "1979-03-04T15:56:00-08:00",
     rate: 600,
     entities: ["jupiter", "io"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_voyager_1", "jupiter", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_voyager_1", "jupiter", {
         duration: 4,
         distance: .04,
         horizontalOffset: 10
@@ -180,8 +194,8 @@ defaultExport = {
     time: "1980-11-11T15:00:00-08:00",
     rate: 3600,
     entities: ["saturn", "titan"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_voyager_1", "saturn", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_voyager_1", "saturn", {
         duration: 4,
         distance: .04,
         horizontalOffset: 10,
@@ -222,8 +236,8 @@ defaultExport = {
     time: "1986-01-23T04:00:00-08:00",
     rate: 3600,
     entities: ["uranus"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_voyager_2", "uranus", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_voyager_2", "uranus", {
         duration: 4,
         distance: .08,
         horizontalOffset: 15
@@ -257,18 +271,18 @@ defaultExport = {
     time: "1989-08-24T16:30:00Z",
     rate: 3e3,
     entities: ["neptune", "triton"],
-    camera: [async t => {
-      await t.cameraScripts.alignObjects("sc_voyager_2", "neptune", {
+    camera: [async app => {
+      await app.cameraScripts.alignObjects("sc_voyager_2", "neptune", {
         duration: 4,
         distance: .07,
         verticalOffset: 10
       });
     }],
-    onEnter: t => {
-      t.getComponent("settings").toggleLightOptions("flood");
+    onEnter: app => {
+      app.getComponent("settings").toggleLightOptions("flood");
     },
-    onLeave: t => {
-      t.getComponent("settings").toggleLightOptions("shadow");
+    onLeave: app => {
+      app.getComponent("settings").toggleLightOptions("shadow");
     }
   }, {
     id: "slide_7",
@@ -284,14 +298,14 @@ defaultExport = {
       clickable: true
     }],
     time: "2012-08-25T00:00:00-08:00",
-    onEnter: t => {
-      t.scene.getEntity("sun").getComponent(Pioneer.ModelComponent)?.setEnabled(true);
+    onEnter: app => {
+      app.scene.getEntity("sun").getComponent(Pioneer.ModelComponent)?.setEnabled(true);
     },
-    onLeave: t => {
-      t.scene.getEntity("sun").getComponent(Pioneer.ModelComponent)?.setEnabled(false);
+    onLeave: app => {
+      app.scene.getEntity("sun").getComponent(Pioneer.ModelComponent)?.setEnabled(false);
     },
-    camera: [async t => {
-      await t.getManager("camera").goToEntity("sc_voyager_1", {
+    camera: [async app => {
+      await app.getManager("camera").goToEntity("sc_voyager_1", {
         duration: 3,
         destination: new Pioneer.Vector3(82226007739.1375, -56908057519.63546, 597193963.1270928),
         destinationUp: Pioneer.Vector3.ZAxis
@@ -316,8 +330,8 @@ defaultExport = {
       alt: "Voyager's Golden Record",
       clickable: true
     }],
-    onEnter: async t => {
-      const sceneManager = t.getManager("scene");
+    onEnter: async app => {
+      const sceneManager = app.getManager("scene");
       await sceneManager.isReady("sc_voyager_1");
       SolarSystemSceneExports.Entity.createFromOptions("voyager_disc", {
         occlusionRadius: 1e-4,
@@ -330,16 +344,16 @@ defaultExport = {
         }, {
           type: "rotateByEntityOrientation"
         }]
-      }, t.scene);
+      }, app.scene);
       await sceneManager.isReady("voyager_disc");
-      await t.pioneer.waitUntilNextFrame();
+      await app.pioneer.waitUntilNextFrame();
     },
-    onLeave: async t => {
-      t.scene.getEntity("camera").setParent(t.scene.getEntity("sc_voyager_1"));
-      t.scene.removeEntity("voyager_disc");
+    onLeave: async app => {
+      app.scene.getEntity("camera").setParent(app.scene.getEntity("sc_voyager_1"));
+      app.scene.removeEntity("voyager_disc");
     },
-    camera: [async t => {
-      await t.cameraScripts.goToInstrument("voyager_disc", {
+    camera: [async app => {
+      await app.cameraScripts.goToInstrument("voyager_disc", {
         distance: .005,
         upVector: "-z-axis",
         forwardVector: "x-axis"
@@ -347,4 +361,4 @@ defaultExport = {
     }]
   }]
 };
-export { defaultExport as default };
+export { voyagerGrandTourStory as default };

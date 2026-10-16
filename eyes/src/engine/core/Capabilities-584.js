@@ -1,77 +1,53 @@
-/** @eyes-analysis
- * 文件职责：解析 WMTS Capabilities XML，提取 Layer 与 TileMatrixSet 的图层、维度、坐标矩阵和资源模板。
- * 依据：import ../pioneer/index.js；import ../../vendor/modules/Unidentified585.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// WMTS 能力解析器区分 Layer 与 TileMatrixSet，验证比例尺逐级减半并从左上角/矩阵尺寸构造 bounds；CRS 坐标先裁剪再投影成弧度 LLA，未知 EPSG 定义按原 URL 在线取得，不更改地图协议。
 // Recovered from app.js:777992-786118.
 import * as Pioneer from "../pioneer/index.js";
 import * as Unidentified585 from "../../vendor/modules/Unidentified585.js";
-/** @eyes-analysis
- * 类职责：解析 WMTS Capabilities XML，提取 Layer 与 TileMatrixSet 的图层、维度、坐标矩阵和资源模板。
- * 继承：无显式父类；导出：Capabilities。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Capabilities {
   endPoint;
   layers;
   readyPromise;
-  /** @eyes-analysis
-   * 【结构证据】写入 `_capabilitiesXML`、`endPoint`、`layers`、`readyPromise`；调用 `e.getDownloader`、`e.getDownloader().download`、`e.getDownloader().download(s,"text",i).then`、`new DOMParser`、`new DOMParser().parseFromString`、`new Document`；含显式错误分支。
-   * 状态写入：_capabilitiesXML、endPoint、layers、readyPromise。
-   * 调用线索：e.getDownloader、e.getDownloader().download、e.getDownloader().download(s,"text",i).then、new DOMParser、new DOMParser().parseFromString等。
-   */
-  constructor(endPoint, e, i) {
+  constructor(endPoint, engine, priority) {
     this.endPoint = endPoint;
     this.layers = new Map();
     this._capabilitiesXML = new Document();
-    const s = `${this.endPoint}/1.0.0/WMTSCapabilities.xml`;
-    this.readyPromise = e.getDownloader().download(s, "text", i).then(t => {
-      this._capabilitiesXML = new DOMParser().parseFromString(t.content, "application/xml");
-      const e = this._capabilitiesXML.querySelectorAll("Contents > Layer");
-      for (const t of e) {
-        const e = t.querySelector("*|Title");
-        const i = t.querySelector("*|Identifier");
-        if (!e || !i) throw new Error(`Malformed WMTSCapabilities.xml at ${s}`);
-        this.layers.set(e.textContent, i.textContent);
+    const capabilitiesUrl = `${this.endPoint}/1.0.0/WMTSCapabilities.xml`;
+    this.readyPromise = engine.getDownloader().download(capabilitiesUrl, "text", priority).then(download => {
+      this._capabilitiesXML = new DOMParser().parseFromString(download.content, "application/xml");
+      const layerNodes = this._capabilitiesXML.querySelectorAll("Contents > Layer");
+      for (const layerNode of layerNodes) {
+        const titleNode = layerNode.querySelector("*|Title");
+        const identifierNode = layerNode.querySelector("*|Identifier");
+        if (!titleNode || !identifierNode) throw new Error(`Malformed WMTSCapabilities.xml at ${capabilitiesUrl}`);
+        this.layers.set(titleNode.textContent, identifierNode.textContent);
       }
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `new Layer`、`s.querySelector`、`this._capabilitiesXML.querySelectorAll`。
-   * 调用线索：new Layer、s.querySelector、this._capabilitiesXML.querySelectorAll。
-   */
-  getLayer(t) {
-    let e = null;
-    const i = this._capabilitiesXML.querySelectorAll("Contents > Layer");
-    for (const s of i) {
-      const i = s.querySelector("*|Identifier");
-      if (!i) continue;
-      t === i.textContent && (e = new Layer(s, `${this.endPoint}/1.0.0`));
+  getLayer(identifier) {
+    let layer = null;
+    const layerNodes = this._capabilitiesXML.querySelectorAll("Contents > Layer");
+    for (const layerNode of layerNodes) {
+      const identifierNode = layerNode.querySelector("*|Identifier");
+      if (!identifierNode) continue;
+      if (identifier === identifierNode.textContent) {
+        layer = new Layer(layerNode, `${this.endPoint}/1.0.0`);
+      }
     }
-    return e;
+    return layer;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `new TileMatrixSet`、`s.querySelector`、`this._capabilitiesXML.querySelectorAll`。
-   * 调用线索：new TileMatrixSet、s.querySelector、this._capabilitiesXML.querySelectorAll。
-   */
-  getTileMatrixSet(t) {
-    let e = null;
-    const i = this._capabilitiesXML.querySelectorAll("Contents > TileMatrixSet");
-    for (const s of i) {
-      const i = s.querySelector("*|Identifier");
-      if (!i) continue;
-      t === i.textContent && (e = new TileMatrixSet(s));
+  getTileMatrixSet(identifier) {
+    let matrixSet = null;
+    const matrixSetNodes = this._capabilitiesXML.querySelectorAll("Contents > TileMatrixSet");
+    for (const matrixSetNode of matrixSetNodes) {
+      const identifierNode = matrixSetNode.querySelector("*|Identifier");
+      if (!identifierNode) continue;
+      if (identifier === identifierNode.textContent) {
+        matrixSet = new TileMatrixSet(matrixSetNode);
+      }
     }
-    return e;
+    return matrixSet;
   }
   _capabilitiesXML;
 }
-/** @eyes-analysis
- * 类职责：WMTS XML 图层：标识、格式、维度和资源模板。
- * 继承：无显式父类；导出：Layer。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class Layer {
   title;
   identifier;
@@ -80,170 +56,166 @@ class Layer {
   dimensions;
   tileMatrixSets;
   url;
-  /** @eyes-analysis
-   * 【结构证据】写入 `_baseUrl`、`boundingBox`、`defaultStyle`、`dimensions`、`identifier`、`tileMatrixSets`、`title`、`url`；调用 `/^(?:[a-z]+:)?\/\//iu.test`、`Number.parseFloat`、`a.textContent.split`、`l.textContent.split`、`new Error`、`new Map`；含显式错误分支。
-   * 状态写入：_baseUrl、boundingBox、defaultStyle、dimensions、identifier、tileMatrixSets、title、url。
-   * 调用线索：/^(?:[a-z]+:)?\/\//iu.test、Number.parseFloat、a.textContent.split、l.textContent.split、new Error等。
-   */
-  constructor(t, baseUrl) {
-    const i = t.querySelector("*|Title");
-    if (!i) throw new Error(`Malformed WMTSCapabilities.xml at ${baseUrl}`);
-    const n = t.querySelector("*|Identifier");
-    if (!n) throw new Error(`Malformed WMTSCapabilities.xml at ${baseUrl}`);
-    this.title = i.textContent;
-    this.identifier = n.textContent;
+  constructor(layerNode, baseUrl) {
+    const titleNode = layerNode.querySelector("*|Title");
+    if (!titleNode) throw new Error(`Malformed WMTSCapabilities.xml at ${baseUrl}`);
+    const identifierNode = layerNode.querySelector("*|Identifier");
+    if (!identifierNode) throw new Error(`Malformed WMTSCapabilities.xml at ${baseUrl}`);
+    this.title = titleNode.textContent;
+    this.identifier = identifierNode.textContent;
     this.defaultStyle = "";
     this.boundingBox = new Pioneer.Rect();
     this.dimensions = new Map();
     this.tileMatrixSets = new Set();
     this.url = "";
     this._baseUrl = baseUrl;
-    const o = t.querySelectorAll("Style");
-    for (const t of o) {
-      const e = t.querySelector("*|Identifier");
-      if (!e) continue;
-      const defaultStyle = e.textContent;
-      "true" === t.getAttribute("isDefault") && (this.defaultStyle = defaultStyle);
+    const styleNodes = layerNode.querySelectorAll("Style");
+    for (const styleNode of styleNodes) {
+      const styleIdentifierNode = styleNode.querySelector("*|Identifier");
+      if (!styleIdentifierNode) continue;
+      const defaultStyle = styleIdentifierNode.textContent;
+      if ("true" === styleNode.getAttribute("isDefault")) {
+        this.defaultStyle = defaultStyle;
+      }
     }
-    let r = t.querySelector("*|BoundingBox");
-    if (r ??= t.querySelector("*|WGS84BoundingBox"), null === r) throw new Error(`Layer "${this.identifier}" missing a BoundingBox or a WGS84BoundingBox tag.`);
-    const a = r.querySelector("*|LowerCorner");
-    const l = r.querySelector("*|UpperCorner");
-    if (!a || !l) throw new Error(`Layer "${this.identifier}" missing BoundingBox or WGS84BoundingBox corners.`);
-    const c = a.textContent.split(" ");
-    const h = l.textContent.split(" ");
-    if (c.length < 2 || h.length < 2) throw new Error(`Layer "${this.identifier}" has invalid BoundingBox or WGS84BoundingBox corners.`);
-    if (this.boundingBox.origin.set(Number.parseFloat(c[0]), Number.parseFloat(c[1])), this.boundingBox.size.set(Number.parseFloat(h[0]) - this.boundingBox.origin.x, Number.parseFloat(h[1]) - this.boundingBox.origin.y), this.boundingBox.origin.isNaN() || this.boundingBox.size.isNaN()) throw new Error(`Layer "${this.identifier}" has invalid BoundingBox or WGS84BoundingBox corners.`);
-    const d = t.querySelectorAll("Dimension");
-    for (const t of d) {
-      const e = t.querySelector("*|Identifier");
-      const i = t.querySelector("Default");
-      if (!e || !i) continue;
-      const s = e.textContent;
-      const n = i.textContent;
-      this.dimensions.set(s, n);
+    let boundsNode = layerNode.querySelector("*|BoundingBox");
+    boundsNode ??= layerNode.querySelector("*|WGS84BoundingBox");
+    if (null === boundsNode) throw new Error(`Layer "${this.identifier}" missing a BoundingBox or a WGS84BoundingBox tag.`);
+    const lowerCorner = boundsNode.querySelector("*|LowerCorner");
+    const upperCorner = boundsNode.querySelector("*|UpperCorner");
+    if (!lowerCorner || !upperCorner) throw new Error(`Layer "${this.identifier}" missing BoundingBox or WGS84BoundingBox corners.`);
+    const lowerValues = lowerCorner.textContent.split(" ");
+    const upperValues = upperCorner.textContent.split(" ");
+    if (lowerValues.length < 2 || upperValues.length < 2) throw new Error(`Layer "${this.identifier}" has invalid BoundingBox or WGS84BoundingBox corners.`);
+    this.boundingBox.origin.set(Number.parseFloat(lowerValues[0]), Number.parseFloat(lowerValues[1]));
+    this.boundingBox.size.set(Number.parseFloat(upperValues[0]) - this.boundingBox.origin.x, Number.parseFloat(upperValues[1]) - this.boundingBox.origin.y);
+    if (this.boundingBox.origin.isNaN() || this.boundingBox.size.isNaN()) throw new Error(`Layer "${this.identifier}" has invalid BoundingBox or WGS84BoundingBox corners.`);
+    const dimensionNodes = layerNode.querySelectorAll("Dimension");
+    for (const dimensionNode of dimensionNodes) {
+      const identifierNode = dimensionNode.querySelector("*|Identifier");
+      const defaultNode = dimensionNode.querySelector("Default");
+      if (!identifierNode || !defaultNode) continue;
+      const dimensionName = identifierNode.textContent;
+      const defaultValue = defaultNode.textContent;
+      this.dimensions.set(dimensionName, defaultValue);
     }
-    const u = t.querySelectorAll("TileMatrixSetLink");
-    for (const t of u) {
-      const e = t.querySelector("TileMatrixSet");
-      if (!e) continue;
-      const i = e.textContent;
-      this.tileMatrixSets.add(i);
+    const linkNodes = layerNode.querySelectorAll("TileMatrixSetLink");
+    for (const linkNode of linkNodes) {
+      const matrixSetNode = linkNode.querySelector("TileMatrixSet");
+      if (!matrixSetNode) continue;
+      const matrixSetName = matrixSetNode.textContent;
+      this.tileMatrixSets.add(matrixSetName);
     }
-    const p = t.querySelector("ResourceURL");
-    if (!p) throw new Error(`Layer "${this.identifier}" missing ResourceURL.`);
-    const url = p.getAttribute("template");
+    const resourceNode = layerNode.querySelector("ResourceURL");
+    if (!resourceNode) throw new Error(`Layer "${this.identifier}" missing ResourceURL.`);
+    const url = resourceNode.getAttribute("template");
     if (null === url) throw new Error(`Layer "${this.identifier}" missing ResourceURL template attribute.`);
     this.url = url;
-    /^(?:[a-z]+:)?\/\//iu.test(this.url) || (this.url = this._baseUrl + this.url);
+    if (!/^(?:[a-z]+:)?\/\//iu.test(this.url)) {
+      this.url = this._baseUrl + this.url;
+    }
   }
   _baseUrl;
 }
-/** @eyes-analysis
- * 类职责：WMTS 坐标矩阵集合及每级矩阵尺寸。
- * 继承：无显式父类；导出：TileMatrixSet。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class TileMatrixSet {
   identifier;
   boundingBox;
   readyPromise;
   numLevels;
   maxPixelSize;
-  /** @eyes-analysis
-   * 【结构证据】写入 `_crs`、`_numTiles`、`_numTiles[numLevels]`、`boundingBox`、`boundingBox.origin.y`、`boundingBox.size.x`、`boundingBox.size.y`、`identifier`；调用 `Math.abs`、`Math.max`、`Math.round`、`Number.parseFloat`、`Promise.resolve`、`TileMatrixSet.setCRS`；含显式错误分支。
-   * 状态写入：_crs、_numTiles、_numTiles[numLevels]、boundingBox、boundingBox.origin.y、boundingBox.size.x、boundingBox.size.y、identifier等；完整记录见索引。
-   * 调用线索：Math.abs、Math.max、Math.round、Number.parseFloat、Promise.resolve等。
-   */
-  constructor(t) {
+  constructor(matrixSetNode) {
     this.boundingBox = new Pioneer.Rect();
     this.readyPromise = Promise.resolve();
     this.numLevels = 0;
     this._numTiles = [];
-    const e = t.querySelector("*|Identifier");
-    if (!e) throw new Error("TileMatrixSet missing identifier.");
-    this.identifier = e.textContent;
-    const i = t.querySelector("*|SupportedCRS");
-    if (!i) throw new Error(`TileMatrixSet ${this.identifier} missing SupportedCRS.`);
-    let o;
-    this._crs = i.textContent;
+    const identifierNode = matrixSetNode.querySelector("*|Identifier");
+    if (!identifierNode) throw new Error("TileMatrixSet missing identifier.");
+    this.identifier = identifierNode.textContent;
+    const crsNode = matrixSetNode.querySelector("*|SupportedCRS");
+    if (!crsNode) throw new Error(`TileMatrixSet ${this.identifier} missing SupportedCRS.`);
+    let previousScale;
+    this._crs = crsNode.textContent;
     let numLevels = 0;
-    for (const e of t.querySelectorAll("TileMatrix")) {
-      const t = e.querySelector("ScaleDenominator");
-      if (!t) throw new Error(`ScaleDenominator tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
-      const i = parseFloat(t.innerHTML);
-      if (void 0 !== o && Math.abs(2 * i - o) / i > .01) throw new Error(`ScaleDenominator for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier} must be half of the next higher level, but is not.`);
-      o = i;
-      const n = e.querySelector("MatrixWidth");
-      const a = e.querySelector("MatrixHeight");
-      if (!n || !a) throw new Error(`MatrixWidth or MatrixHeight tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
-      this._numTiles[numLevels] = new Pioneer.Vector2(parseFloat(n.innerHTML), parseFloat(a.innerHTML));
+    for (const matrixNode of matrixSetNode.querySelectorAll("TileMatrix")) {
+      const scaleNode = matrixNode.querySelector("ScaleDenominator");
+      if (!scaleNode) throw new Error(`ScaleDenominator tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
+      const scale = parseFloat(scaleNode.innerHTML);
+      if (void 0 !== previousScale && Math.abs(2 * scale - previousScale) / scale > .01) throw new Error(`ScaleDenominator for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier} must be half of the next higher level, but is not.`);
+      previousScale = scale;
+      const widthNode = matrixNode.querySelector("MatrixWidth");
+      const heightNode = matrixNode.querySelector("MatrixHeight");
+      if (!widthNode || !heightNode) throw new Error(`MatrixWidth or MatrixHeight tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
+      this._numTiles[numLevels] = new Pioneer.Vector2(parseFloat(widthNode.innerHTML), parseFloat(heightNode.innerHTML));
       numLevels += 1;
     }
-    if (this.numLevels = numLevels, 0 === this._numTiles.length) throw new Error(`There are no levels found for TileMatrixSet ${this.identifier}.`);
-    const a = t.querySelector("TileMatrix");
-    if (!a) throw new Error(`TileMatrix tag not found for TileMatrixSet ${this.identifier}.`);
-    const l = a.querySelector("ScaleDenominator");
-    if (!l) throw new Error(`ScaleDenominator tag not found for TileMatrixSet ${this.identifier} level 0.`);
-    const c = Number.parseFloat(l.textContent);
-    const h = a.querySelector("TileWidth");
-    if (!h) throw new Error(`TileWidth tag not found for TileMatrixSet ${this.identifier} level 0.`);
-    const d = a.querySelector("TileHeight");
-    if (!d) throw new Error(`TileHeight tag not found for TileMatrixSet ${this.identifier} level 0.`);
-    const vector2 = new Pioneer.Vector2(Number.parseFloat(h.textContent), Number.parseFloat(d.textContent));
+    this.numLevels = numLevels;
+    if (0 === this._numTiles.length) throw new Error(`There are no levels found for TileMatrixSet ${this.identifier}.`);
+    const rootMatrixNode = matrixSetNode.querySelector("TileMatrix");
+    if (!rootMatrixNode) throw new Error(`TileMatrix tag not found for TileMatrixSet ${this.identifier}.`);
+    const rootScaleNode = rootMatrixNode.querySelector("ScaleDenominator");
+    if (!rootScaleNode) throw new Error(`ScaleDenominator tag not found for TileMatrixSet ${this.identifier} level 0.`);
+    const rootScale = Number.parseFloat(rootScaleNode.textContent);
+    const tileWidthNode = rootMatrixNode.querySelector("TileWidth");
+    if (!tileWidthNode) throw new Error(`TileWidth tag not found for TileMatrixSet ${this.identifier} level 0.`);
+    const tileHeightNode = rootMatrixNode.querySelector("TileHeight");
+    if (!tileHeightNode) throw new Error(`TileHeight tag not found for TileMatrixSet ${this.identifier} level 0.`);
+    const vector2 = new Pioneer.Vector2(Number.parseFloat(tileWidthNode.textContent), Number.parseFloat(tileHeightNode.textContent));
     this.maxPixelSize = Math.max(vector2.x, vector2.y);
-    const p = 28e-8 * c;
-    const _ = new Pioneer.Vector2(p * vector2.x, p * vector2.y);
-    const m = new Pioneer.Vector2(_.x * this._numTiles[0].x, _.y * this._numTiles[0].y);
-    const g = a.querySelector("TopLeftCorner");
-    if (!g) throw new Error(`TopLeftCorner tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
-    const y = g.textContent.split(" ");
-    if (y.length < 2) throw new Error(`TopLeftCorner tag is invalid for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
-    if (this.boundingBox.origin.set(Number.parseFloat(y[0]), Number.parseFloat(y[1])), this.boundingBox.origin.isNaN()) throw new Error(`TopLeftCorner tag is invalid for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
+    const metersPerPixel = 28e-8 * rootScale;
+    const tileSpan = new Pioneer.Vector2(metersPerPixel * vector2.x, metersPerPixel * vector2.y);
+    const matrixSpan = new Pioneer.Vector2(tileSpan.x * this._numTiles[0].x, tileSpan.y * this._numTiles[0].y);
+    const topLeftNode = rootMatrixNode.querySelector("TopLeftCorner");
+    if (!topLeftNode) throw new Error(`TopLeftCorner tag not found for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
+    const topLeftValues = topLeftNode.textContent.split(" ");
+    if (topLeftValues.length < 2) throw new Error(`TopLeftCorner tag is invalid for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
+    this.boundingBox.origin.set(Number.parseFloat(topLeftValues[0]), Number.parseFloat(topLeftValues[1]));
+    if (this.boundingBox.origin.isNaN()) throw new Error(`TopLeftCorner tag is invalid for TileMatrix ${numLevels} of TileMatrixSet ${this.identifier}.`);
     this.readyPromise = TileMatrixSet.setCRS(this._crs).then(crs => {
       this._crs = crs;
-      let e = 1e3;
-      const i = Unidentified585.default.defs(this._crs);
-      void 0 !== i.to_meter ? e = 1e3 / i.to_meter : "degrees" === i.units ? e = .00898315284 : "feet" !== i.units && "us feet" !== i.units || (e = 3280.83333335);
-      this.boundingBox.size.x = Math.round(m.x * e * 1e6) / 1e6;
-      this.boundingBox.size.y = Math.round(m.y * e * 1e6) / 1e6;
+      let unitsPerKilometer = 1e3;
+      const crsDefinition = Unidentified585.default.defs(this._crs);
+      if (void 0 !== crsDefinition.to_meter) {
+        unitsPerKilometer = 1e3 / crsDefinition.to_meter;
+      } else {
+        if ("degrees" === crsDefinition.units) {
+          unitsPerKilometer = .00898315284;
+        } else {
+          if (!("feet" !== crsDefinition.units && "us feet" !== crsDefinition.units)) {
+            unitsPerKilometer = 3280.83333335;
+          }
+        }
+      }
+      this.boundingBox.size.x = Math.round(matrixSpan.x * unitsPerKilometer * 1e6) / 1e6;
+      this.boundingBox.size.y = Math.round(matrixSpan.y * unitsPerKilometer * 1e6) / 1e6;
       this.boundingBox.origin.y -= this.boundingBox.size.y;
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._numTiles[t]`。
-   */
-  getNumTiles(t) {
-    return this._numTiles[t];
+  getNumTiles(level) {
+    return this._numTiles[level];
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `0,Unidentified585.default`、`Pioneer.MathUtils.clamp`、`Pioneer.MathUtils.degToRad`、`Pioneer.MathUtils.wrapAngle`、`t.set`。
-   * 调用线索：0,Unidentified585.default、Pioneer.MathUtils.clamp、Pioneer.MathUtils.degToRad、Pioneer.MathUtils.wrapAngle、t.set。
-   */
-  crsUnitsToLLA(t, e) {
-    const i = Pioneer.MathUtils.clamp(e.x, this.boundingBox.origin.x, this.boundingBox.origin.x + this.boundingBox.size.x);
-    const o = Pioneer.MathUtils.clamp(e.y, this.boundingBox.origin.y, this.boundingBox.origin.y + this.boundingBox.size.y);
-    const r = (0, Unidentified585.default)(this._crs, "WGS84", [i, o]);
-    t.set(Pioneer.MathUtils.degToRad(Pioneer.MathUtils.clamp(r[1], -90, 90)), Pioneer.MathUtils.wrapAngle(Pioneer.MathUtils.degToRad(r[0])), 0);
+  crsUnitsToLLA(output, position) {
+    const clampedX = Pioneer.MathUtils.clamp(position.x, this.boundingBox.origin.x, this.boundingBox.origin.x + this.boundingBox.size.x);
+    const clampedY = Pioneer.MathUtils.clamp(position.y, this.boundingBox.origin.y, this.boundingBox.origin.y + this.boundingBox.size.y);
+    const longitudeLatitude = (0, Unidentified585.default)(this._crs, "WGS84", [clampedX, clampedY]);
+    output.set(Pioneer.MathUtils.degToRad(Pioneer.MathUtils.clamp(longitudeLatitude[1], -90, 90)), Pioneer.MathUtils.wrapAngle(Pioneer.MathUtils.degToRad(longitudeLatitude[0])), 0);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t`；调用 `TileMatrixSet.crsToWKT.get`、`Unidentified585.default.defs`、`fetch`、`new Error`、`s.text`、`t.match`；含显式错误分支。
-   * 调用线索：TileMatrixSet.crsToWKT.get、Unidentified585.default.defs、fetch、new Error、s.text等。
-   */
-  static async setCRS(t) {
-    t.startsWith("urn:ogc:def:crs:") && (t = t.substring(16));
-    let e = TileMatrixSet.crsToWKT.get(t);
-    if (void 0 === e) {
-      const i = t.match(/EPSG:[0-9.]*:(\d+)/u);
-      if (!i) throw new Error("Only CRS starting with EPSG: supported.");
+  // OGC URN 先去前缀；内置月球/火星/WGS84 定义优先，其他 EPSG 仍沿原 epsg.io 路径加载。
+  static async setCRS(crs) {
+    if (crs.startsWith("urn:ogc:def:crs:")) {
+      crs = crs.substring(16);
+    }
+    let definition = TileMatrixSet.crsToWKT.get(crs);
+    if (void 0 === definition) {
+      const epsgMatch = crs.match(/EPSG:[0-9.]*:(\d+)/u);
+      if (!epsgMatch) throw new Error("Only CRS starting with EPSG: supported.");
       {
-        const t = `https://epsg.io/${i[1]}.proj4`;
-        const s = await fetch(t);
-        e = await s.text();
+        const definitionUrl = `https://epsg.io/${epsgMatch[1]}.proj4`;
+        const response = await fetch(definitionUrl);
+        definition = await response.text();
       }
     }
-    Unidentified585.default.defs(t, e);
-    return t;
+    Unidentified585.default.defs(crs, definition);
+    return crs;
   }
   _crs;
   _numTiles;

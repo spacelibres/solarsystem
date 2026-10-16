@@ -1,26 +1,11 @@
-/** @eyes-analysis
- * 文件职责：解析路径与查询参数，推送导航并向应用广播路由变化。
- * 依据：import ../../vendor/modules/Unidentified719.cjs；import ../../framework/eyes/public-api.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:1206413-1214238.
+/* 路由管理器分开保存路径查询与嵌入 configs，parseQuery 会把已登记配置写入 configs 而不返回到普通 query。视图切换先 await 离开/进入，再区分路径更新与查询更新；每次路由参数有独立 CancelToken。navigate/updateQuery 会消费 __remove 并修改传入对象，保留 keepTime 与参数优先级的原逻辑。 */
 import Unidentified719 from "../../vendor/modules/Unidentified719.cjs";
 import * as EyesPublicApi from "../../framework/eyes/public-api.js";
 var getUnidentified719 = () => Unidentified719;
-/** @eyes-analysis
- * 类职责：解析路径与查询参数，推送导航并向应用广播路由变化。
- * 继承：EyesPublicApi.BaseManager；导出：RouteManager。
- * 字段、全部方法、读写/调用证据及语义置信边界见逐类参考；本注释不改变执行流程。
- */
 class RouteManager extends EyesPublicApi.BaseManager {
-  /** @eyes-analysis
-   * 【结构证据】写入 `_alwaysHiddenComponents`、`_configs`、`_currentRoute`、`_currentView`、`_firstLoad`、`_homeRoute`、`_previousRoute`、`_previousView`；调用 `getUnidentified719`、`new getUnidentified719()`、`super`、`this.bindFunctions`。
-   * 状态写入：_alwaysHiddenComponents、_configs、_currentRoute、_currentView、_firstLoad、_homeRoute、_previousRoute、_previousView等；完整记录见索引。
-   * 调用线索：getUnidentified719、new getUnidentified719()、super、this.bindFunctions。
-   */
-  constructor(t) {
-    super(t);
+  constructor(app) {
+    super(app);
     this._router = new (getUnidentified719())(null, true);
     this._previousRoute = null;
     this._currentRoute = {};
@@ -35,449 +20,283 @@ class RouteManager extends EyesPublicApi.BaseManager {
     this._alwaysHiddenComponents = [];
     this.bindFunctions(["navigate", "onRootRoute", "onNotFound", "leave"]);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._homeRoute`。
-   */
   get homeRoute() {
     return this._homeRoute;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._previousRoute`。
-   */
   get previousRoute() {
     return this._previousRoute;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._currentRoute`。
-   */
   get currentRoute() {
     return this._currentRoute;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._query`。
-   */
   get query() {
     return this._query;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._configs`。
-   */
   get configs() {
     return this._configs;
   }
-  /** @eyes-analysis
-   * 【结构证据】读取访问器，返回 `this._currentView`；本访问器没有 AST 可见的 this 字段直接赋值。
-   */
   get currentView() {
     return this._currentView;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入访问器，接收参数 (currentView)；实际写入 `_currentView`。
-   * 状态写入：_currentView。
-   */
   set currentView(currentView) {
     this._currentView = currentView;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._previousView`。
-   */
   get previousView() {
     return this._previousView;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentRoute`、`_currentRoute.url`、`_firstLoad`、`_previousRoute`；调用 `e`、`t`、`this._currentRoute.url.replace`、`this._router.hooks`、`this._router.lastRouteResolved`、`this._router.on`。
-   * 状态写入：_currentRoute、_currentRoute.url、_firstLoad、_previousRoute。
-   * 调用线索：e、t、this._currentRoute.url.replace、this._router.hooks、this._router.lastRouteResolved等。
-   */
-  init(t, e) {
+  init(beforeRoute, afterRoute) {
     this._router.hooks({
-      before: async e => {
+      before: async continueRoute => {
         this._previousRoute = {
           ...this._currentRoute
         };
         this._currentRoute = this._router.lastRouteResolved() || {};
         this._currentRoute.url && (this._currentRoute.url = this._currentRoute.url.replace(/(\/)+/, "/"));
         this.addQuery(this.parseQuery(this.currentRoute.query));
-        "function" == typeof t && (await t(this._currentRoute, this._previousRoute));
-        e();
+        "function" == typeof beforeRoute && (await beforeRoute(this._currentRoute, this._previousRoute));
+        continueRoute();
       },
       after: async () => {
-        "function" == typeof e && (await e(this._currentRoute, this._previousRoute));
+        "function" == typeof afterRoute && (await afterRoute(this._currentRoute, this._previousRoute));
         this._firstLoad = false;
       }
     });
     this._router.on(this.onRootRoute).notFound(this.onNotFound).on("milky_way", this.onNotFound).on("observable_universe", this.onNotFound);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.cancelToken.cancel`。
-   * 调用线索：t.cancelToken.cancel。
-   */
-  leave(t) {
-    t.cancelToken.cancel();
+  leave(routeParams) {
+    routeParams.cancelToken.cancel();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this.reroute`。
-   * 调用线索：this.reroute。
-   */
-  onRootRoute(t) {
-    this.reroute(this._homeRoute, t);
+  onRootRoute(queryParams) {
+    this.reroute(this._homeRoute, queryParams);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._router.navigate`。
-   * 调用线索：this._router.navigate。
-   */
-  onNotFound(t) {
+  onNotFound(queryString) {
     let homeRoute = this._homeRoute;
-    t && (homeRoute += "?" + t);
+    queryString && (homeRoute += "?" + queryString);
     this._router.navigate(homeRoute);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `history.replaceState`。
-   * 调用线索：history.replaceState。
-   */
-  replaceState(t) {
-    history.replaceState({}, "", t);
+  replaceState(url) {
+    history.replaceState({}, "", url);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `EyesPublicApi.AppUtils.filterObject`、`history.replaceState`、`this._router.resolve`、`this.buildQuery`、`this.parseQuery`。
-   * 调用线索：EyesPublicApi.AppUtils.filterObject、history.replaceState、this._router.resolve、this.buildQuery、this.parseQuery。
-   */
-  reroute(t, e = "") {
-    let i;
-    "string" == typeof e && (e = this.parseQuery(e));
-    const s = EyesPublicApi.AppUtils.filterObject(this._configs, t => void 0 !== t);
-    i = this.buildQuery({
-      ...e,
-      ...s
+  reroute(routePath, queryParams = "") {
+    let queryString;
+    "string" == typeof queryParams && (queryParams = this.parseQuery(queryParams));
+    const activeConfigs = EyesPublicApi.AppUtils.filterObject(this._configs, configValue => void 0 !== configValue);
+    queryString = this.buildQuery({
+      ...queryParams,
+      ...activeConfigs
     });
-    const n = window.location.pathname;
-    history.replaceState(i, "", `${n}#${t}${i}`);
+    const pathname = window.location.pathname;
+    history.replaceState(queryString, "", `${pathname}#${routePath}${queryString}`);
     this._router.resolve();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `new EyesPublicApi.CancelToken`。
-   * 调用线索：new EyesPublicApi.CancelToken。
-   */
-  addCancelToken(t) {
-    const e = t || {};
-    e.cancelToken = new EyesPublicApi.CancelToken();
-    return e;
+  addCancelToken(routeParams) {
+    const paramsWithToken = routeParams || {};
+    paramsWithToken.cancelToken = new EyesPublicApi.CancelToken();
+    return paramsWithToken;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._router.lastRouteResolved()`；调用 `this._router.lastRouteResolved`。
-   * 调用线索：this._router.lastRouteResolved。
-   */
   lastRouteResolved() {
     return this._router.lastRouteResolved();
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.query?t.url+"?"+t.query:t.url`；调用 `this._router.lastRouteResolved`。
-   * 调用线索：this._router.lastRouteResolved。
-   */
   lastPathResolved() {
-    const t = this._router.lastRouteResolved();
-    return t.query ? t.url + "?" + t.query : t.url;
+    const resolvedRoute = this._router.lastRouteResolved();
+    return resolvedRoute.query ? resolvedRoute.url + "?" + resolvedRoute.query : resolvedRoute.url;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `t.split`、`this._cleanGETParam`。
-   * 调用线索：t.split、this._cleanGETParam。
-   */
-  getOnlyURL(t) {
-    let e = t;
-    const i = t.split("#");
-    e = i.length > 1 ? this._cleanGETParam(i[1]) : this._cleanGETParam(i[0]);
-    return e;
+  getOnlyURL(url) {
+    let routePath = url;
+    const hashParts = url.split("#");
+    routePath = hashParts.length > 1 ? this._cleanGETParam(hashParts[1]) : this._cleanGETParam(hashParts[0]);
+    return routePath;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `t.split(/\?(.*)?$/)[0]`；调用 `t.split`。
-   * 调用线索：t.split。
-   */
-  _cleanGETParam(t) {
-    return t.split(/\?(.*)?$/)[0];
+  _cleanGETParam(routePath) {
+    return routePath.split(/\?(.*)?$/)[0];
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._validQueries`。
-   */
   getValidQueries() {
     return this._validQueries;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_validQueries`。
-   * 状态写入：_validQueries。
-   */
   setValidQueries(validQueries) {
     this._validQueries = validQueries;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_configs[o]`；返回 `{}` 或 `t.split("&").reduce((t,e)=>{const i=e.split("=");if(i.length>1){const e=decodeURIComponent(i[0].trim());let s=decodeURIComponent(i[1].trim());const n=`；调用 `Number`、`Number.isNaN`、`Object.keys`、`Object.keys(this.configs).includes`、`decodeURIComponent`、`e.split`。
-   * 状态写入：_configs[o]。
-   * 调用线索：Number、Number.isNaN、Object.keys、Object.keys(this.configs).includes、decodeURIComponent等。
-   */
-  parseQuery(t) {
-    if (!t) return {};
-    t.replace("?", "");
-    return t.split("&").reduce((t, e) => {
-      const i = e.split("=");
-      if (i.length > 1) {
-        const e = decodeURIComponent(i[0].trim());
-        let s = decodeURIComponent(i[1].trim());
-        const n = {
+  parseQuery(queryString) {
+    if (!queryString) return {};
+    queryString.replace("?", "");
+    return queryString.split("&").reduce((parsedQuery, queryEntry) => {
+      const entryParts = queryEntry.split("=");
+      if (entryParts.length > 1) {
+        const queryName = decodeURIComponent(entryParts[0].trim());
+        let queryValue = decodeURIComponent(entryParts[1].trim());
+        const allowedConfigValues = {
           lighting: ["flood", "natural", "shadow"]
         };
-        switch (s.toLowerCase()) {
+        switch (queryValue.toLowerCase()) {
           case "true":
-            s = true;
+            queryValue = true;
             break;
           case "false":
-            s = false;
+            queryValue = false;
             break;
           case "undefined":
           case "":
-            s = void 0;
+            queryValue = void 0;
             break;
           case "null":
-            s = null;
+            queryValue = null;
             break;
           default:
             {
-              const t = Number(s);
-              Number.isNaN(t) ? e in n ? n[e].includes(s) || (s = false) : Object.keys(this.configs).includes(e) && "true" !== s && (s = "false" !== s && void 0) : s = t;
+              const numericValue = Number(queryValue);
+              Number.isNaN(numericValue) ? queryName in allowedConfigValues ? allowedConfigValues[queryName].includes(queryValue) || (queryValue = false) : Object.keys(this.configs).includes(queryName) && "true" !== queryValue && (queryValue = "false" !== queryValue && void 0) : queryValue = numericValue;
               break;
             }
         }
-        const o = decodeURIComponent(i[0].trim());
-        o in this._configs ? void 0 === this._configs[o] && (this._configs[o] = s) : t[o] = s;
+        const configKey = decodeURIComponent(entryParts[0].trim());
+        configKey in this._configs ? void 0 === this._configs[configKey] && (this._configs[configKey] = queryValue) : parsedQuery[configKey] = queryValue;
       }
-      return t;
+      return parsedQuery;
     }, {});
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `e`；调用 `Object.entries`、`e.replace`。
-   * 调用线索：Object.entries、e.replace。
-   */
-  buildQuery(t) {
-    let e = "";
-    for (const [i, s] of Object.entries(t)) e += "&" + i + "=" + s;
-    e = e.replace("&", "?");
-    return e;
+  buildQuery(queryParams) {
+    let queryString = "";
+    for (const [queryName, queryValue] of Object.entries(queryParams)) queryString += "&" + queryName + "=" + queryValue;
+    queryString = queryString.replace("&", "?");
+    return queryString;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_query`；返回 `this._query`。
-   * 状态写入：_query。
-   */
-  addQuery(t) {
+  addQuery(queryUpdates) {
     this._query = {
       ...this._query,
-      ...t
+      ...queryUpdates
     };
     return this._query;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._query`；调用 `t.forEach`。
-   * 调用线索：t.forEach。
-   */
-  removeQuery(t = []) {
-    t.forEach(t => delete this._query[t]);
+  removeQuery(queryNames = []) {
+    queryNames.forEach(queryName => delete this._query[queryName]);
     return this._query;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_configs`；返回 `this._configs`。
-   * 状态写入：_configs。
-   */
-  addConfigs(t) {
+  addConfigs(configUpdates) {
     this._configs = {
       ...this._configs,
-      ...t
+      ...configUpdates
     };
     return this._configs;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `configs[t]`。
-   * 状态写入：configs[t]。
-   */
-  setConfig(t, e) {
-    this.configs[t] = e;
+  setConfig(configName, configValue) {
+    this.configs[configName] = configValue;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._configs`；调用 `t.forEach`。
-   * 调用线索：t.forEach。
-   */
-  removeConfigs(t = []) {
-    t.forEach(t => delete this._configs[t]);
+  removeConfigs(configNames = []) {
+    configNames.forEach(configName => delete this._configs[configName]);
     return this._configs;
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_query`；返回 `{...this.addQuery(t),...e}`；调用 `EyesPublicApi.AppUtils.filterObject`、`this.addQuery`、`this.removeQuery`。
-   * 状态写入：_query。
-   * 调用线索：EyesPublicApi.AppUtils.filterObject、this.addQuery、this.removeQuery。
-   */
-  updateQuery(t) {
-    t.__remove && ("all" === t.__remove ? this._query = {} : this.removeQuery(t.__remove), delete t.__remove);
-    const e = EyesPublicApi.AppUtils.filterObject(this._configs, t => void 0 !== t);
+  updateQuery(queryUpdates) {
+    queryUpdates.__remove && ("all" === queryUpdates.__remove ? this._query = {} : this.removeQuery(queryUpdates.__remove), delete queryUpdates.__remove);
+    const activeConfigs = EyesPublicApi.AppUtils.filterObject(this._configs, configValue => void 0 !== configValue);
     return {
-      ...this.addQuery(t),
-      ...e
+      ...this.addQuery(queryUpdates),
+      ...activeConfigs
     };
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `(e||this._router.lastRouteResolved().url).replace(/(\/)(?=\/*\1)/,"")+this.buildQuery(this.updateQuery(t))`；调用 `(e||this._router.lastRouteResolved().url).replace`、`this._router.lastRouteResolved`、`this.buildQuery`、`this.updateQuery`。
-   * 调用线索：(e||this._router.lastRouteResolved().url).replace、this._router.lastRouteResolved、this.buildQuery、this.updateQuery。
-   */
-  updateQueryPath(t, e = "") {
-    return (e || this._router.lastRouteResolved().url).replace(/(\/)(?=\/*\1)/, "") + this.buildQuery(this.updateQuery(t));
+  updateQueryPath(queryUpdates, routePath = "") {
+    return (routePath || this._router.lastRouteResolved().url).replace(/(\/)(?=\/*\1)/, "") + this.buildQuery(this.updateQuery(queryUpdates));
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentView`、`_previousView`；调用 `this._app.getView`、`this._app.getView(s).setEnabled`、`this._app.getView(this._currentView).onEnter`、`this._app.getView(this._previousView).onLeave`、`this._app.getViews`。
-   * 状态写入：_currentView、_previousView。
-   * 调用线索：this._app.getView、this._app.getView(s).setEnabled、this._app.getView(this._currentView).onEnter、this._app.getView(this._previousView).onLeave、this._app.getViews。
-   */
-  async resetView(currentView, e) {
+  async resetView(currentView, routeParams) {
     if (this._previousView = this._currentView, this._currentView = currentView, this._currentView !== this._previousView) {
-      null !== this._previousView && (await this._app.getView(this._previousView).onLeave(e));
-      await this._app.getView(this._currentView).onEnter(e);
-      const i = this._app.getViews();
-      for (let e = i.length - 1; e >= 0; e--) {
-        const s = i[e];
-        this._app.getView(s).setEnabled(s === currentView);
+      null !== this._previousView && (await this._app.getView(this._previousView).onLeave(routeParams));
+      await this._app.getView(this._currentView).onEnter(routeParams);
+      const views = this._app.getViews();
+      for (let viewIndex = views.length - 1; viewIndex >= 0; viewIndex--) {
+        const viewName = views[viewIndex];
+        this._app.getView(viewName).setEnabled(viewName === currentView);
       }
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_currentRoute.params`；调用 `this.addCancelToken`、`this.goToView`、`this.parseQuery`、`this.resetView`。
-   * 状态写入：_currentRoute.params。
-   * 调用线索：this.addCancelToken、this.goToView、this.parseQuery、this.resetView。
-   */
-  async handleRoute(t, e, i) {
-    e || (e = this.addCancelToken(e), this._currentRoute.params = e);
-    let s = {};
-    i && (s = this.parseQuery(i));
-    await this.resetView(t, {
-      ...e,
-      ...s,
+  async handleRoute(viewName, routeParams, queryString) {
+    routeParams || (routeParams = this.addCancelToken(routeParams), this._currentRoute.params = routeParams);
+    let queryParams = {};
+    queryString && (queryParams = this.parseQuery(queryString));
+    await this.resetView(viewName, {
+      ...routeParams,
+      ...queryParams,
       ...this._configs
     });
-    await this.goToView(t, e, {
-      ...s,
+    await this.goToView(viewName, routeParams, {
+      ...queryParams,
       ...this._configs
     });
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `null!==e&&void 0!==e[1]&&e[1]===t`；调用 `this._currentRoute.url.match`。
-   * 调用线索：this._currentRoute.url.match。
-   */
-  stillOnRoute(t) {
-    const e = this._currentRoute.url.match(/^\/([^!/]*)/);
-    return null !== e && void 0 !== e[1] && e[1] === t;
+  stillOnRoute(routeName) {
+    const routeMatch = this._currentRoute.url.match(/^\/([^!/]*)/);
+    return null !== routeMatch && void 0 !== routeMatch[1] && routeMatch[1] === routeName;
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this.getOnlyURL(t)!==this.getOnlyURL(e)`；调用 `this.getOnlyURL`。
-   * 调用线索：this.getOnlyURL。
-   */
-  urlChanged(t, e) {
-    return this.getOnlyURL(t) !== this.getOnlyURL(e);
+  urlChanged(currentUrl, previousUrl) {
+    return this.getOnlyURL(currentUrl) !== this.getOnlyURL(previousUrl);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `true` 或 `t.url!==e.url`；调用 `EyesPublicApi.AppUtils.deepCopy`、`EyesPublicApi.AppUtils.deepEqual`、`EyesPublicApi.AppUtils.isEmptyObject`。
-   * 调用线索：EyesPublicApi.AppUtils.deepCopy、EyesPublicApi.AppUtils.deepEqual、EyesPublicApi.AppUtils.isEmptyObject。
-   */
-  routeChanged(t, e) {
-    if ("" === t && !e) return true;
-    if (!e || EyesPublicApi.AppUtils.isEmptyObject(e)) return true;
-    if (t.url) return t.url !== e.url;
-    const i = EyesPublicApi.AppUtils.deepCopy(t);
-    const s = EyesPublicApi.AppUtils.deepCopy(e);
-    return !EyesPublicApi.AppUtils.deepEqual(i, s);
+  routeChanged(currentRoute, previousRoute) {
+    if ("" === currentRoute && !previousRoute) return true;
+    if (!previousRoute || EyesPublicApi.AppUtils.isEmptyObject(previousRoute)) return true;
+    if (currentRoute.url) return currentRoute.url !== previousRoute.url;
+    const currentSnapshot = EyesPublicApi.AppUtils.deepCopy(currentRoute);
+    const previousSnapshot = EyesPublicApi.AppUtils.deepCopy(previousRoute);
+    return !EyesPublicApi.AppUtils.deepEqual(currentSnapshot, previousSnapshot);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `true` 或 `!EyesPublicApi.AppUtils.deepEqual(i,s)`；调用 `EyesPublicApi.AppUtils.deepCopy`、`EyesPublicApi.AppUtils.deepEqual`、`e.split`、`e.split("&").forEach`、`i[t].toString`、`t.split`。
-   * 调用线索：EyesPublicApi.AppUtils.deepCopy、EyesPublicApi.AppUtils.deepEqual、e.split、e.split("&").forEach、i[t].toString等。
-   */
-  queryChanged(t, e) {
-    if (!e) return true;
-    const i = EyesPublicApi.AppUtils.deepCopy(t);
-    const s = {};
-    for (const t in i) "function" == typeof i[t].toString && (i[t] = i[t].toString());
-    e.split("&").forEach(t => {
-      const e = t.split("=");
-      s[e[0]] = e[1];
+  queryChanged(currentQuery, previousQueryString) {
+    if (!previousQueryString) return true;
+    const currentSnapshot = EyesPublicApi.AppUtils.deepCopy(currentQuery);
+    const previousSnapshot = {};
+    for (const queryName in currentSnapshot) "function" == typeof currentSnapshot[queryName].toString && (currentSnapshot[queryName] = currentSnapshot[queryName].toString());
+    previousQueryString.split("&").forEach(queryEntry => {
+      const entryParts = queryEntry.split("=");
+      previousSnapshot[entryParts[0]] = entryParts[1];
     });
-    return !EyesPublicApi.AppUtils.deepEqual(i, s);
+    return !EyesPublicApi.AppUtils.deepEqual(currentSnapshot, previousSnapshot);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._app.getView`、`this._app.getView(t).onQueryChange`、`this._app.getView(t).onRouteChange`、`this.queryChanged`、`this.routeChanged`。
-   * 调用线索：this._app.getView、this._app.getView(t).onQueryChange、this._app.getView(t).onRouteChange、this.queryChanged、this.routeChanged。
-   */
-  async goToView(t, e, i) {
-    this.routeChanged(this.currentRoute, this.previousRoute) ? await this._app.getView(t).onRouteChange({
-      ...e,
-      ...i
-    }) : this.queryChanged(i, this.previousRoute.query) && (await this._app.getView(t).onQueryChange({
-      ...e,
-      ...i
+  async goToView(viewName, routeParams, queryParams) {
+    this.routeChanged(this.currentRoute, this.previousRoute) ? await this._app.getView(viewName).onRouteChange({
+      ...routeParams,
+      ...queryParams
+    }) : this.queryChanged(queryParams, this.previousRoute.query) && (await this._app.getView(viewName).onQueryChange({
+      ...routeParams,
+      ...queryParams
     }));
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._router.on`、`this.before`、`this.handleRoute`。
-   * 调用线索：this._router.on、this.before、this.handleRoute。
-   */
-  addRoutes(t) {
-    for (let e = 0; e < t.length; e++) {
+  addRoutes(routeDefinitions) {
+    for (let routeIndex = 0; routeIndex < routeDefinitions.length; routeIndex++) {
       const {
         route: route,
         view: view
-      } = t[e];
-      this._router.on(route, async (t, e) => {
-        await this.handleRoute(view, t, e);
+      } = routeDefinitions[routeIndex];
+      this._router.on(route, async (routeParams, queryString) => {
+        await this.handleRoute(view, routeParams, queryString);
       }, {
-        before: async (t, e) => {
-          await this.before(t, e, view);
+        before: async (continueRoute, routeParams) => {
+          await this.before(continueRoute, routeParams, view);
         },
         leave: this.leave
       });
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `e.cancelToken.cancel`、`t`、`this._app.getView`、`this.addCancelToken`、`this.parseQuery`。
-   * 调用线索：e.cancelToken.cancel、t、this._app.getView、this._app.getView(i)?.validateQuery、this.addCancelToken等。
-   */
-  before(t, e, i) {
-    let s = {};
-    this._currentRoute.query && (s = this.parseQuery(this._currentRoute.query));
-    e = this.addCancelToken(e);
-    const n = this._app.getView(i)?.validateQuery({
-      ...e,
-      ...s
+  before(continueRoute, routeParams, viewName) {
+    let queryParams = {};
+    this._currentRoute.query && (queryParams = this.parseQuery(this._currentRoute.query));
+    routeParams = this.addCancelToken(routeParams);
+    const isValid = this._app.getView(viewName)?.validateQuery({
+      ...routeParams,
+      ...queryParams
     });
-    n || (e.cancelToken.cancel(), "function" == typeof t && t(false));
-    "function" == typeof t && t();
+    isValid || (routeParams.cancelToken.cancel(), "function" == typeof continueRoute && continueRoute(false));
+    "function" == typeof continueRoute && continueRoute();
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_queryCallbacks[t]`；返回 `()=>{const i=this._queryCallbacks[t].indexOf(e);this._queryCallbacks[t].splice(i,1);}`；调用 `this._queryCallbacks[t].includes`、`this._queryCallbacks[t].indexOf`、`this._queryCallbacks[t].push`、`this._queryCallbacks[t].splice`。
-   * 状态写入：_queryCallbacks[t]。
-   * 调用线索：this._queryCallbacks[t].includes、this._queryCallbacks[t].indexOf、this._queryCallbacks[t].push、this._queryCallbacks[t].splice。
-   */
-  subscribeToQuery(t, e) {
-    if ("function" == typeof e) {
-      this._queryCallbacks[t] || (this._queryCallbacks[t] = []);
-      this._queryCallbacks[t].includes(e) || this._queryCallbacks[t].push(e);
+  subscribeToQuery(queryName, callback) {
+    if ("function" == typeof callback) {
+      this._queryCallbacks[queryName] || (this._queryCallbacks[queryName] = []);
+      this._queryCallbacks[queryName].includes(callback) || this._queryCallbacks[queryName].push(callback);
       return () => {
-        const i = this._queryCallbacks[t].indexOf(e);
-        this._queryCallbacks[t].splice(i, 1);
+        const callbackIndex = this._queryCallbacks[queryName].indexOf(callback);
+        this._queryCallbacks[queryName].splice(callbackIndex, 1);
       };
     }
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this._router.resolve`、`this.handleEmbedQueries`。
-   * 调用线索：this._router.resolve、this.handleEmbedQueries。
-   */
   start() {
     this._router.resolve();
     this.handleEmbedQueries();
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `t.description.replace`、`this._alwaysHiddenComponents.push`、`this.app.getComponent`。
-   * 调用线索：searchComponent?.hide、settingsComponent?.hideFullScreenOption、settingsComponent?.toggleLightOptions、t.description.replace、this._alwaysHiddenComponents.push等。
-   */
   handleEmbedQueries() {
     const {
       hideFullScreenToggle: hideFullScreenToggle,
@@ -485,79 +304,62 @@ class RouteManager extends EyesPublicApi.BaseManager {
       noKeyboard: noKeyboard,
       search: search
     } = this._configs;
-    const n = true === noKeyboard || false === search;
+    const hideSearch = true === noKeyboard || false === search;
     const searchComponent = this.app.getComponent("search");
     const settingsComponent = this.app.getComponent("settings");
-    let a = [];
-    let l = null;
+    let tutorialsWithoutSearch = [];
+    let tutorials = null;
     const tutorialOverlayComponent = this.app.getComponent("tutorialOverlay");
-    if (true === hideFullScreenToggle && settingsComponent?.hideFullScreenOption?.(), "flood" !== lighting && "natural" !== lighting || settingsComponent?.toggleLightOptions?.(lighting), n && (this._alwaysHiddenComponents.push("search"), searchComponent?.hide(), a = tutorialOverlayComponent?.hideTutorialSlide?.("search")), true === this._configs.hideFullScreenToggle) {
-      const t = this.app.tutorials?.find(t => "settings" === t.id);
-      t && (t.description = t.description.replace(t.description, t.alternateDescription));
+    if (true === hideFullScreenToggle && settingsComponent?.hideFullScreenOption?.(), "flood" !== lighting && "natural" !== lighting || settingsComponent?.toggleLightOptions?.(lighting), hideSearch && (this._alwaysHiddenComponents.push("search"), searchComponent?.hide(), tutorialsWithoutSearch = tutorialOverlayComponent?.hideTutorialSlide?.("search")), true === this._configs.hideFullScreenToggle) {
+      const settingsTutorial = this.app.tutorials?.find(tutorial => "settings" === tutorial.id);
+      settingsTutorial && (settingsTutorial.description = settingsTutorial.description.replace(settingsTutorial.description, settingsTutorial.alternateDescription));
     }
-    l = this.app.setTutorialVariables?.(a.length ? a : this.app.tutorials);
-    tutorialOverlayComponent?.setTutorials?.(l);
+    tutorials = this.app.setTutorialVariables?.(tutorialsWithoutSearch.length ? tutorialsWithoutSearch : this.app.tutorials);
+    tutorialOverlayComponent?.setTutorials?.(tutorials);
   }
-  /** @eyes-analysis
-   * 【结构证据】返回 `this._navigate(t,e)`；调用 `EyesPublicApi.AppUtils.cleanPathDuplicate`、`EyesPublicApi.AppUtils.isEmptyObject`、`e.includes`、`this._app.getManager`、`this._navigate`、`timeManager.getTimeRate`。
-   * 调用线索：EyesPublicApi.AppUtils.cleanPathDuplicate、EyesPublicApi.AppUtils.isEmptyObject、e.includes、this._app.getManager、this._navigate等。
-   */
-  navigate(t, e = "", i = {}) {
-    if (EyesPublicApi.AppUtils.isEmptyObject(i) || "string" == typeof t && (e = EyesPublicApi.AppUtils.cleanPathDuplicate(`${e}/${t}`), t = {}), i.__remove && (t.__remove = i.__remove), i.keepTime) {
+  navigate(queryOrPath, routePath = "", options = {}) {
+    if (EyesPublicApi.AppUtils.isEmptyObject(options) || "string" == typeof queryOrPath && (routePath = EyesPublicApi.AppUtils.cleanPathDuplicate(`${routePath}/${queryOrPath}`), queryOrPath = {}), options.__remove && (queryOrPath.__remove = options.__remove), options.keepTime) {
       const timeManager = this._app.getManager("time");
-      this.query.time && timeManager && (e.includes("time=") || (t.time = t.time || timeManager.getTimeUrl()), e.includes("rate=") || (t.rate = t.rate || timeManager.getTimeRate()));
+      this.query.time && timeManager && (routePath.includes("time=") || (queryOrPath.time = queryOrPath.time || timeManager.getTimeUrl()), routePath.includes("rate=") || (queryOrPath.rate = queryOrPath.rate || timeManager.getTimeRate()));
     }
-    return this._navigate(t, e);
+    return this._navigate(queryOrPath, routePath);
   }
-  /** @eyes-analysis
-   * 【结构证据】写入 `_query`；返回 `true` 或 `false`；调用 `EyesPublicApi.AppUtils.filterObject`、`s.split`、`t.includes`、`t.startsWith`、`this._router.navigate`、`this.buildQuery`。
-   * 状态写入：_query。
-   * 调用线索：EyesPublicApi.AppUtils.filterObject、s.split、t.includes、t.startsWith、this._router.navigate等。
-   */
-  _navigate(t, e = "") {
-    if ("string" == typeof t) {
-      const i = this.lastPathResolved();
-      let s = t;
-      if (t.startsWith("/") || (s = "/" + t), t.includes(e) || (s = e + t), i !== s) {
-        const t = s.split("?");
-        if (t.length > 1) this._query = this.parseQuery(t[1]);else {
+  _navigate(queryOrPath, routePrefix = "") {
+    if ("string" == typeof queryOrPath) {
+      const currentPath = this.lastPathResolved();
+      let destinationPath = queryOrPath;
+      if (queryOrPath.startsWith("/") || (destinationPath = "/" + queryOrPath), queryOrPath.includes(routePrefix) || (destinationPath = routePrefix + queryOrPath), currentPath !== destinationPath) {
+        const pathParts = destinationPath.split("?");
+        if (pathParts.length > 1) this._query = this.parseQuery(pathParts[1]);else {
           this._query = {};
-          const t = EyesPublicApi.AppUtils.filterObject(this._configs, t => void 0 !== t);
-          s += this.buildQuery(t);
+          const activeConfigs = EyesPublicApi.AppUtils.filterObject(this._configs, configValue => void 0 !== configValue);
+          destinationPath += this.buildQuery(activeConfigs);
         }
-        this._router.navigate(s);
+        this._router.navigate(destinationPath);
         return true;
       }
       return false;
     }
-    return this.navigate(this.updateQueryPath(t, e), e);
+    return this.navigate(this.updateQueryPath(queryOrPath, routePrefix), routePrefix);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `this.buildQuery`、`this.navigate`。
-   * 调用线索：this.buildQuery、this.navigate。
-   */
-  returnHome(t = true) {
-    const e = t ? this.buildQuery(this.query) : "";
-    this.navigate(e);
+  returnHome(keepQuery = true) {
+    const queryString = keepQuery ? this.buildQuery(this.query) : "";
+    this.navigate(queryString);
   }
-  /** @eyes-analysis
-   * 【结构证据】调用 `i.onQueryChange`、`i.onRouteChange`、`this._app.getView`、`this._router.lastRouteResolved`、`this.parseQuery`。
-   * 调用线索：i.onQueryChange、i.onRouteChange、this._app.getView、this._router.lastRouteResolved、this.parseQuery。
-   */
-  async reload(t = true, e = false) {
-    const i = await this._app.getView(this._currentView);
+  async reload(queryOnly = true, ignoreQuery = false) {
+    const currentView = await this._app.getView(this._currentView);
     const {
       params: params,
       query: query
     } = this._router.lastRouteResolved();
-    let o = {};
-    !e && query && (o = this.parseQuery(query));
-    t ? i.onQueryChange({
+    let queryParams = {};
+    !ignoreQuery && query && (queryParams = this.parseQuery(query));
+    queryOnly ? currentView.onQueryChange({
       ...params,
-      ...o
-    }) : i.onRouteChange({
+      ...queryParams
+    }) : currentView.onRouteChange({
       ...params,
-      ...o
+      ...queryParams
     });
   }
 }

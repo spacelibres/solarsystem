@@ -1,10 +1,7 @@
-/** @eyes-analysis
- * 文件职责：声明 PlumesShader 的 uniforms/properties 与顶点、片元 GLSL 源码，供材质系统创建实际 GPU 程序。
- * 依据：import ./ShaderChunkLogDepth.js
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
 // Recovered from app.js:211401-213867.
+/** 喷流贴图：time*speed 沿 UV 的 Y 方向以周期 1 滚动，colorMultiplier 调色，再以 1-vUV.y 衰减 alpha；生成式 GLSL helper 名称原样保留。
+ * GLSL 现在以实际多行展示；uniform/attribute 名称、插值表达式和运行时 shader 字节均保持。
+ */
 import * as ShaderChunkLogDepth from "./ShaderChunkLogDepth.js";
 const PlumesShader = {
   uniforms: {
@@ -23,10 +20,81 @@ const PlumesShader = {
     blending: "normal"
   },
   vertex: {
-    code: `\n\t\t\tin vec3 position;\n\t\t\tin vec2 uv;\n\t\t\tuniform mat4 modelViewMatrix;\n\t\t\tuniform mat4 projectionMatrix;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}\n\n\t\t\tout vec2 vUV;\n\n\t\t\tvoid main() {\n\t\t\t\tgl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);\n\t\t\t\tvUV = uv;\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}\n\t\t\t}\n\t\t\t`
+    code: `
+			in vec3 position;
+			in vec2 uv;
+			uniform mat4 modelViewMatrix;
+			uniform mat4 projectionMatrix;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.VertexHead}
+
+			out vec2 vUV;
+
+			void main() {
+				gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+				vUV = uv;
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Vertex}
+			}
+			`
   },
   fragment: {
-    code: `\n\t\t\tprecision highp float;\n\n\t\t\tuniform sampler2D colorTexture;\n\t\t\tuniform vec4 colorMultiplier;\n\t\t\tuniform float speed;\n\t\t\tuniform float time;\n\t\t\tin vec2 vUV;\n\n\t\t\t// The output color.\n\t\t\tout vec4 outColor;\n\n\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}\n\n\t\t\tvec2 v2_construct_func(float x, float y) {\n\t\t\t\treturn vec2(x, y);\n\t\t\t}\n\t\t\tfloat s_mult_func(float s1, float s2) {\n\t\t\t\treturn s1 * s2;\n\t\t\t}\n\t\t\tfloat s_mod_func(float s1, float s2) {\n\t\t\t\treturn mod(s1, s2);\n\t\t\t}\n\t\t\tvec2 v2s_mult_func(vec2 v, float s) {\n\t\t\t\treturn v * s;\n\t\t\t}\n\t\t\tvec2 v2_add_func(vec2 v1, vec2 v2) {\n\t\t\t\treturn v1 + v2;\n\t\t\t}\n\t\t\tvec4 texture_func(sampler2D tex, vec2 uv) {\n\t\t\t\treturn texture(tex, uv);\n\t\t\t}\n\t\t\tvec4 v4v4_mult_func(vec4 v1, vec4 v2) {\n\t\t\t\treturn v1 * v2;\n\t\t\t}\n\t\t\tfloat s_sub_func(float s1, float s2) {\n\t\t\t\treturn s1 - s2;\n\t\t\t}\n\t\t\tvec4 alpha_mult_func(vec4 color, float alpha) {\n\t\t\t\treturn vec4(color.rgb, color.a * alpha);\n\t\t\t}\n\t\t\tvoid main() {\n\t\t\t\tvec2 yAxis = v2_construct_func(0.0, 1.0);\n\t\t\t\tfloat yMultiplier = s_mult_func(time, speed);\n\t\t\t\tfloat yMultiplierMod = s_mod_func(yMultiplier, 1.0);\n\t\t\t\tvec2 uvOffset = v2s_mult_func(yAxis, yMultiplierMod);\n\t\t\t\tvec2 finalUV = v2_add_func(vUV, uvOffset);\n\t\t\t\tvec4 textureOffset = texture_func(colorTexture, finalUV);\n\t\t\t\tvec4 color = v4v4_mult_func(textureOffset, colorMultiplier);\n\t\t\t\tfloat fade = s_sub_func(1.0, vUV.y);\n\t\t\t\tvec4 color_with_fade = alpha_mult_func(color, fade);\n\t\t\t\toutColor = color_with_fade;\n\n\t\t\t\t${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}\n\t\t\t}\n\t\t\t`
+    code: `
+			precision highp float;
+
+			uniform sampler2D colorTexture;
+			uniform vec4 colorMultiplier;
+			uniform float speed;
+			uniform float time;
+			in vec2 vUV;
+
+			// The output color.
+			out vec4 outColor;
+
+			${ShaderChunkLogDepth.ShaderChunkLogDepth.FragmentHead}
+
+			vec2 v2_construct_func(float x, float y) {
+				return vec2(x, y);
+			}
+			float s_mult_func(float s1, float s2) {
+				return s1 * s2;
+			}
+			float s_mod_func(float s1, float s2) {
+				return mod(s1, s2);
+			}
+			vec2 v2s_mult_func(vec2 v, float s) {
+				return v * s;
+			}
+			vec2 v2_add_func(vec2 v1, vec2 v2) {
+				return v1 + v2;
+			}
+			vec4 texture_func(sampler2D tex, vec2 uv) {
+				return texture(tex, uv);
+			}
+			vec4 v4v4_mult_func(vec4 v1, vec4 v2) {
+				return v1 * v2;
+			}
+			float s_sub_func(float s1, float s2) {
+				return s1 - s2;
+			}
+			vec4 alpha_mult_func(vec4 color, float alpha) {
+				return vec4(color.rgb, color.a * alpha);
+			}
+			void main() {
+				vec2 yAxis = v2_construct_func(0.0, 1.0);
+				float yMultiplier = s_mult_func(time, speed);
+				float yMultiplierMod = s_mod_func(yMultiplier, 1.0);
+				vec2 uvOffset = v2s_mult_func(yAxis, yMultiplierMod);
+				vec2 finalUV = v2_add_func(vUV, uvOffset);
+				vec4 textureOffset = texture_func(colorTexture, finalUV);
+				vec4 color = v4v4_mult_func(textureOffset, colorMultiplier);
+				float fade = s_sub_func(1.0, vUV.y);
+				vec4 color_with_fade = alpha_mult_func(color, fade);
+				outColor = color_with_fade;
+
+				${ShaderChunkLogDepth.ShaderChunkLogDepth.Fragment}
+			}
+			`
   }
 };
 export { PlumesShader };

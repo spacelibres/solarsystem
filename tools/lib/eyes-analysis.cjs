@@ -7,6 +7,10 @@ function parse(source, file='source.js') {
   return parser.parse(source, { sourceType: file.endsWith('.cjs') ? 'script' : 'unambiguous', allowReturnOutsideFunction: true });
 }
 function text(node) { return node ? generate(node, {compact:true,comments:false}).code : ''; }
+function documentation(node){
+  return (node.leadingComments||[]).filter(comment=>!/@eyes-analysis|@license|copyright|Recovered from/i.test(comment.value))
+    .map(comment=>comment.value.replace(/^\s*\* ?/gm,'').trim()).filter(Boolean).join('\n');
+}
 function key(node) { return t.isIdentifier(node) ? node.name : t.isStringLiteral(node) || t.isNumericLiteral(node) ? String(node.value) : text(node); }
 function className(p,index) {
   if(p.node.id)return p.node.id.name;
@@ -47,7 +51,7 @@ function methodInfo(p) {
     StringLiteral(q){if(q.node.value.length>1&&q.node.value.length<90)strings.add(q.node.value);}
   });
   const parameters=n.params||[];
-  return {name:key(n.key),kind:n.kind||'method',static:!!n.static,async:!!n.async,generator:!!n.generator,line:n.loc.start.line,endLine:n.loc.end.line,params:parameters.map(text),reads:[...reads].sort(),writes:[...writes].sort(),calls:[...calls].sort(),returns:[...returns],throws:[...throws],managers:[...managers],components:[...components],literals:[...strings],branches,loops,awaits};
+  return {name:key(n.key),documentation:documentation(n),kind:n.kind||'method',static:!!n.static,async:!!n.async,generator:!!n.generator,line:n.loc.start.line,endLine:n.loc.end.line,params:parameters.map(text),reads:[...reads].sort(),writes:[...writes].sort(),calls:[...calls].sort(),returns:[...returns],throws:[...throws],managers:[...managers],components:[...components],literals:[...strings],branches,loops,awaits};
 }
 function analyzeJavaScript(source,file='source.js') {
   const ast=parse(source,file);const result={imports:[],exports:[],aliases:{},classes:[],functions:[],shortBindings:[],topLevelEffects:[]};const seen=new Set();const aliases=new Map();
@@ -70,7 +74,7 @@ function analyzeJavaScript(source,file='source.js') {
     Class(p){
       const index=result.classes.length+1;const name=className(p,index);
       const binding=p.parentPath.isVariableDeclarator()?text(p.parent.id):p.parentPath.isAssignmentExpression()?text(p.parent.left):name;
-      const record={name,binding,ordinal:index,line:p.node.loc.start.line,endLine:p.node.loc.end.line,extends:text(p.node.superClass)||null,methods:[],fields:[],nested:!!p.findParent(q=>q.isClass()),exportedAs:[]};
+      const record={name,binding,documentation:documentation(p.node)||documentation(p.parent),ordinal:index,line:p.node.loc.start.line,endLine:p.node.loc.end.line,extends:text(p.node.superClass)||null,methods:[],fields:[],nested:!!p.findParent(q=>q.isClass()),exportedAs:[]};
       for(const member of p.get('body.body')){
         if(member.isClassMethod()||member.isClassPrivateMethod())record.methods.push(methodInfo(member));
         else if(member.isClassProperty()||member.isClassPrivateProperty()){
@@ -85,7 +89,7 @@ function analyzeJavaScript(source,file='source.js') {
       if(p.isClassMethod()||p.isClassPrivateMethod()||p.isObjectMethod())return;
       if(p.findParent(q=>q.isClass()))return;
       const name=p.node.id?.name || (p.parentPath.isVariableDeclarator()?text(p.parent.id):p.parentPath.isObjectProperty()?key(p.parent.key):'anonymous');
-      result.functions.push({name,line:p.node.loc.start.line,endLine:p.node.loc.end.line,async:!!p.node.async,params:p.node.params.map(text)});
+      result.functions.push({name,documentation:documentation(p.node)||documentation(p.parent),line:p.node.loc.start.line,endLine:p.node.loc.end.line,async:!!p.node.async,params:p.node.params.map(text)});
     },
     Scopable(p){
       for(const binding of Object.values(p.scope.bindings)){

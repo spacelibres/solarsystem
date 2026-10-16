@@ -1,23 +1,24 @@
-/** @eyes-analysis
- * 文件职责：按轮询间隔等待谓词满足并提供超时错误。
- * 依据：当前源码声明、导入关系及工程调用链
- * 语义细节、命名依据和未确认项：docs/eyes-analysis/README.md 中本文件条目。
- * 短名称保留其作用域；语义建议不等同于恢复 NASA 未发布的原始标识符。
- */
+// 轮询间隔与超时均以秒传入、计时器使用毫秒；谓词成功或抛错即清理 interval，异常转为 Error 后拒绝。保留同次 tick 的超时检查顺序。
 // Recovered from app.js:44989-45345.
-async function waitUntil(t, e, i) {
-  return new Promise((s, n) => {
-    let o = 0;
-    const r = setInterval(() => {
+async function waitUntil(predicate, intervalSeconds, timeoutSeconds) {
+  return new Promise((resolve, reject) => {
+    let elapsedSeconds = 0;
+    const timer = setInterval(() => {
       try {
-        t() && (clearInterval(r), s(void 0));
-      } catch (t) {
-        clearInterval(r);
-        return void n(t instanceof Error ? t : new Error());
+        if (predicate()) {
+          clearInterval(timer);
+          resolve(void 0);
+        }
+      } catch (error) {
+        clearInterval(timer);
+        return void reject(error instanceof Error ? error : new Error());
       }
-      o += e;
-      o >= i && (clearInterval(r), n(new Error(`Timed out after ${i} seconds.`)));
-    }, 1e3 * e);
+      elapsedSeconds += intervalSeconds;
+      if (elapsedSeconds >= timeoutSeconds) {
+        clearInterval(timer);
+        reject(new Error(`Timed out after ${timeoutSeconds} seconds.`));
+      }
+    }, 1e3 * intervalSeconds);
   });
 }
 export { waitUntil };

@@ -5,6 +5,9 @@ import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 let root: string;
+// These integration cases start Node and npm; Windows process/filesystem startup
+// can exceed Vitest's five-second default even when every version assertion passes.
+const releaseScriptTimeout = 20_000;
 
 beforeEach(() => {
   root = mkdtempSync(join(tmpdir(), 'solar-version-test-'));
@@ -24,7 +27,7 @@ afterEach(() => rmSync(root, { recursive: true, force: true }));
 describe('release version script', () => {
   it('updates package, lockfile, VERSION and UI version when launched directly by Node', () => {
     execFileSync(process.execPath, [join(root, 'scripts/set-version.mjs'), '0.0.2'], {
-      cwd: root, stdio: 'pipe',
+      cwd: root, stdio: 'pipe', timeout: 15_000,
     });
     expect(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version).toBe('0.0.2');
     const lock = JSON.parse(readFileSync(join(root, 'package-lock.json'), 'utf8'));
@@ -32,7 +35,7 @@ describe('release version script', () => {
     expect(lock.packages[''].version).toBe('0.0.2');
     expect(readFileSync(join(root, 'VERSION'), 'utf8')).toBe('0.0.2\n');
     expect(readFileSync(join(root, 'src/lib/version.ts'), 'utf8')).toContain("VERSION = '0.0.2'");
-  });
+  }, releaseScriptTimeout);
 
   it('rejects a non-increasing version without changing package metadata', () => {
     const result = spawnSync(process.execPath, [join(root, 'scripts/set-version.mjs'), '0.0.1'], { cwd: root });
@@ -45,9 +48,9 @@ it('keeps the standalone recovered project package versions in sync when present
   mkdirSync(join(root, 'eyes'));
   writeFileSync(join(root, 'eyes/package.json'), JSON.stringify({ name: 'recovered-eyes', version: '0.0.1' }));
   writeFileSync(join(root, 'eyes/package-lock.json'), JSON.stringify({ version: '0.0.1', packages: { '': { version: '0.0.1' } } }));
-  execFileSync(process.execPath, [join(root, 'scripts/set-version.mjs'), '0.0.2'], { cwd: root, stdio: 'pipe' });
+  execFileSync(process.execPath, [join(root, 'scripts/set-version.mjs'), '0.0.2'], { cwd: root, stdio: 'pipe', timeout: 15_000 });
   expect(JSON.parse(readFileSync(join(root, 'eyes/package.json'), 'utf8')).version).toBe('0.0.2');
   const lock = JSON.parse(readFileSync(join(root, 'eyes/package-lock.json'), 'utf8'));
   expect(lock.version).toBe('0.0.2');
   expect(lock.packages[''].version).toBe('0.0.2');
-});
+}, releaseScriptTimeout);
