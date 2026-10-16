@@ -25,8 +25,9 @@ import { pixelSpaceRadius } from '../lib/scene/projection';
 import { buildStarfield, parseStarfield } from '../lib/scene/starfield';
 import { buildSurface } from '../lib/scene/surface';
 import { RING_SPECS, buildRings } from '../lib/scene/rings';
+import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-colors';
 import { starfieldUrl } from '../lib/nasa/assets';
-import { LABEL } from '../lib/theme/nasa-tokens';
+import { LABEL, bodyIconName } from '../lib/theme/nasa-tokens';
 
 /** One loaded ephemeris: the points plus the parent they are relative to. */
 export interface LoadedOrbit {
@@ -76,8 +77,6 @@ export interface SceneOptions {
   startTime?: number;
   bodyColorFn?: (entity: CatalogEntity) => string;
 }
-
-const KM_PER_AU = 149_597_870.7;
 
 /**
  * Minimum on-screen radius, in pixels. Without this, a true-to-scale Earth is
@@ -135,8 +134,15 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const entityById = new Map(entities.map((e) => [e.id, e]));
 
   // --- Register bodies -------------------------------------------------------
-  // The Sun's direction from each body drives the night-lights blend.
+  // Every body shares one Sun-direction vector, used by the night-lights
+  // uniforms.
   const sunDirection = new THREE.Vector3(0, 0, 1);
+
+  // Layer visibility, driven by the layer panel.
+  const layers: Required<LayerVisibility> = { orbits: true, labels: true, stars: true };
+
+  // Orbit lines keyed by body id; only the planets and the Moon have one.
+  const orbitLines = new Map<string, THREE.Line>();
 
   for (const entity of entities) {
     const isSun = entity.id === 'sun';
@@ -198,8 +204,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       mesh.add(rings);
     }
 
-    const accent = new THREE.Color(bodyColorFn ? bodyColorFn(entity) : '#ffffff');
-
     if (isSun) {
       const glow = new THREE.Sprite(
         new THREE.SpriteMaterial({
@@ -213,10 +217,35 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       scene.add(glow);
     }
 
-    const label = makeLabel(labelLayer, entity.label, accent.getStyle());
+    // Orbit lines exist only for the eight planets and the Moon, with NASA's
+    // own per-body colours (see `orbit-colors.ts`). Moons and spacecraft get
+    // none, which is what keeps the view readable as bodies are added.
+    const entityOrbit = orbits.get(entity.id) ?? null;
+    if (
+      hasOrbitLine(entity.id) &&
+      entityOrbit &&
+      entityOrbit.points.length > 0
+    ) {
+      const { rgb, alpha } = orbitColor(entity.id);
+      const orbitLine = new THREE.Line(
+        buildOrbitGeometry(entityOrbit.points[0]),
+        new THREE.LineBasicMaterial({
+          color: new THREE.Color(rgb[0], rgb[1], rgb[2]),
+          transparent: true,
+          opacity: alpha,
+        }),
+      );
+      orbitLine.userData.epoch = entityOrbit.points[0].time;
+      orbitLine.userData.owner = entity.id;
+      orbitLine.visible = layers.orbits;
+      scene.add(orbitLine);
+      orbitLines.set(entity.id, orbitLine);
+    }
+
+    const label = makeLabel(labelLayer, entity);
     bodies.set(entity.id, {
       entity,
-      orbit: orbits.get(entity.id) ?? null,
+      orbit: entityOrbit,
       mesh,
       orbitLine: null,
       label,
@@ -227,7 +256,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   // --- Per-frame state -------------------------------------------------------
   const tree: Map<string, TreeNode> = new Map();
   const worldById = new Map<string, THREE.Vector3>();
-  const camDist = new THREE.Vector3();
 
   let simTime = startTime;
   let daysPerSecond = 1;
@@ -316,23 +344,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         if (rings) rings.scale.setScalar(1 / body.mesh.scale.x);
       }
     }
-
-    // Rebuild orbit lines lazily for bodies that changed epoch.
-    for (const body of bodies.values()) {
-      if (!body.orbit || body.orbit.points.length === 0) continue;
-      const p = nearestSample(body.orbit.points, simTime);
-      if (!body.orbitLine) {
-        const mat = body.mesh.material as THREE.MeshStandardMaterial;
-        body.orbitLine = new THREE.Line(
-          buildOrbitGeometry(p),
-          new THREE.LineBasicMaterial({ color: mat.color, transparent: true, opacity: 0.28 }),
-        );
-        body.orbitLine.userData.epoch = p.time;
-        body.orbitLine.userData.owner = body.entity.id;
-        body.orbitLine.visible = layers.orbits;
-        scene.add(body.orbitLine);
-      }
-    }
   }
 
   function depth(body: SceneBody): number {
@@ -357,9 +368,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   let lastY = 0;
   let pointerMoved = 0;
   let pickCallback: ((id: string | null) => void) | null = null;
-
-  // Layer visibility; the layer panel drives these.
-  const layers: Required<LayerVisibility> = { orbits: true, labels: true, stars: true };
 
   function applyCamera(): void {
     const sinPhi = Math.sin(camPhi);
@@ -471,8 +479,10 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const show = layers.labels && inFrame && !collides;
       if (show) placed.push({ x, y });
       const s = body.label.style;
-      // NASA places the label up and to the right of the body.
-      s.transform = `translate(6px, -50%) translate(${x}px, ${y}px)`;
+      // The label's left edge sits at the body's projected position; the icon
+      // then hangs 28px further left and the text begins 18px to the right,
+      // matching `.pioneer-label-div { left: 18px }` with its icon translate.
+      s.transform = `translate(0, -50%) translate(${x}px, ${y}px)`;
       s.opacity = show ? '1' : '0';
     }
   }
@@ -501,8 +511,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
 
     applyCamera();
     projectLabels();
-    void camDist;
-    void KM_PER_AU;
     renderer.render(scene, camera);
   }
 
@@ -635,8 +643,8 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     },
     setLayers(visibility) {
       Object.assign(layers, visibility);
+      for (const line of orbitLines.values()) line.visible = layers.orbits;
       for (const body of bodies.values()) {
-        if (body.orbitLine) body.orbitLine.visible = layers.orbits;
         if (!layers.labels) body.label.style.opacity = '0';
       }
       for (const s of starLayers) s.visible = layers.stars;
@@ -673,15 +681,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       for (const body of bodies.values()) {
         body.mesh.geometry.dispose();
         (body.mesh.material as THREE.Material).dispose();
-        body.orbitLine?.geometry.dispose();
-        (body.orbitLine?.material as THREE.Material | undefined)?.dispose();
       }
-      renderer.dispose();
-      el.remove();
+      for (const line of orbitLines.values()) {
+        line.geometry.dispose();
+        (line.material as THREE.Material).dispose();
+      }
       for (const s of starLayers) {
         s.geometry.dispose();
         (s.material as THREE.Material).dispose();
       }
+      renderer.dispose();
+      el.remove();
     },
   };
 }
@@ -701,7 +711,7 @@ function nearestSample(points: OrbPoint[], time: number): OrbPoint {
 
 /** Sample one full period of an osculating orbit, relative to its parent. */
 function buildOrbitGeometry(point: OrbPoint): THREE.BufferGeometry {
-  const SEGMENTS = 512;
+  const SEGMENTS = ORBIT_SEGMENTS;
   const positions = new Float32Array((SEGMENTS + 1) * 3);
   const period = (2 * Math.PI) / Math.abs(point.meanAngularMotion || 1e-12);
   for (let i = 0; i <= SEGMENTS; i++) {
@@ -716,9 +726,14 @@ function buildOrbitGeometry(point: OrbPoint): THREE.BufferGeometry {
   return geometry;
 }
 
-function makeLabel(layer: HTMLElement, text: string, color: string): HTMLDivElement {
-  // NASA's label is `<span.icon>` (left) + `<span.text>`; the icon sits a fixed
-  // distance left of the text origin, so we render a dot plus the name.
+function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
+  // Structure and metrics match NASA's `.pioneer-label-div` exactly: a
+  // `<span class="icon">` carrying the `icon-circle-<body>` sprite sits to the
+  // LEFT of a `<span class="text">`. The text is always pure white at 0.75
+  // opacity; only the icon carries the body's colour.
+  const isSun = entity.id === 'sun';
+  const isSpacecraft = entity.groups.includes('spacecraft');
+
   const el = document.createElement('div');
   el.style.cssText = [
     'position:absolute',
@@ -727,36 +742,44 @@ function makeLabel(layer: HTMLElement, text: string, color: string): HTMLDivElem
     'pointer-events:none',
     'display:flex',
     'align-items:center',
-    'gap:6px',
     'white-space:nowrap',
-    'transition:opacity 140ms linear',
+    'transition:opacity 250ms ease-out',
   ].join(';');
 
-  const dot = document.createElement('span');
-  dot.style.cssText = [
-    'width:7px',
-    'height:7px',
-    'border-radius:50%',
-    `border:1.5px solid ${color}`,
-    'display:inline-block',
+  const iconSize = isSpacecraft ? LABEL.iconSizeSpacecraft : LABEL.iconSize;
+  const iconOffsetX = isSpacecraft ? LABEL.iconOffsetXSpacecraft : LABEL.iconOffsetX;
+
+  const icon = document.createElement('img');
+  icon.src = `/icons/icon-${bodyIconName(entity.id, entity.groups)}.svg`;
+  icon.alt = '';
+  icon.draggable = false;
+  icon.style.cssText = [
+    `width:${iconSize}px`,
+    `height:${iconSize}px`,
+    // NASA positions the icon at translate(-50% - 18px, -50% + 6px) from the
+    // label origin; we place it in flow and pull it back by the same amount.
+    `margin-left:${iconOffsetX}px`,
+    `margin-top:${LABEL.iconOffsetY}px`,
     'flex:0 0 auto',
-    'box-shadow:0 0 6px rgba(0,0,0,0.9)',
+    'display:block',
   ].join(';');
 
-  const name = document.createElement('span');
-  name.textContent = text;
-  name.style.cssText = [
-    'font-family:var(--nasa-font, sans-serif)',
-    `font-size:${LABEL.fontSize}px`,
-    `font-weight:${LABEL.weightPlanet}`,
-    `letter-spacing:${LABEL.letterSpacingPlanet}`,
+  const text = document.createElement('span');
+  text.textContent = entity.label;
+  text.style.cssText = [
+    'font-family:var(--nasa-font, Metropolis, sans-serif)',
+    `font-size:${isSun ? LABEL.fontSizeSun : LABEL.fontSize}px`,
+    `font-weight:${LABEL.weight}`,
+    `letter-spacing:${isSun ? LABEL.letterSpacingSun : LABEL.letterSpacing}`,
     'text-transform:uppercase',
-    `color:${color}`,
-    'text-shadow:0 1px 6px rgba(0,0,0,0.95)',
+    `color:${LABEL.color}`,
+    `opacity:${LABEL.opacity}`,
+    // NASA sets no text-shadow on these labels.
+    'white-space:nowrap',
   ].join(';');
 
-  el.appendChild(dot);
-  el.appendChild(name);
+  el.appendChild(icon);
+  el.appendChild(text);
   layer.appendChild(el);
   return el;
 }

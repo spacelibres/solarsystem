@@ -3,6 +3,39 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.7 - 2026-10-15
+
+Body labels and orbit lines rebuilt from measured values, not approximations.
+
+### Fixed
+
+`tools/dump-labels.cjs` now reads the live page's computed styles for every
+visible `.pioneer-label-div`. That exposed several places where our labels had
+drifted from the original:
+
+- **Text colour.** NASA labels are pure white at 0.75 opacity. We were tinting
+  the text with each body's hue; the hue belongs to the *icon* only.
+- **Type.** 16px for planets and 18px for the Sun, weight 600, with pixel
+  tracking of 4.8px (5.4px for the Sun) — not `0.3em`.
+- **Icons.** NASA renders the `icon-circle-<body>` sprite at 20x20, offset
+  (-28px, -4px) from the text origin. We were drawing a 7px dot inline.
+- **No text-shadow**: NASA sets none on these labels.
+
+### Changed
+
+- **Orbit lines now match `TrailManager` exactly.** Only the eight planets and
+  the Moon have an orbit line (moons and spacecraft have none), with NASA's own
+  colours and alpha 0.75 (white at 0.35 for anything without an entry), sampled
+  at 720 segments. The values live in `src/lib/scene/orbit-colors.ts`.
+- `bodyIconName` maps a body to its `icon-circle-*` sprite.
+
+### Verified
+
+- `npm test` (27/27), `npm run check` and `npm run build` clean.
+- Headless render: labels carry the real circular icons with white
+  wide-tracked text, and orbit lines take their per-planet colours. No
+  exceptions, no failed requests, **0 requests to nasa.gov**.
+
 ## 0.2.6 - 2026-10-15
 
 Ring systems and multi-layer planet surfaces.

@@ -121,37 +121,60 @@ export const BREAKPOINTS = {
 } as const;
 
 /**
- * Body label metrics, transcribed from `.pioneer-label-div` in the stylesheet.
+ * Body label metrics, transcribed from the live page's computed styles.
  *
- * Planets and the Sun use wide letter-spacing and bold uppercase text; the icon
- * sits to the LEFT of the text (negative `iconOffset`), which is why the names
- * read as a legend against the orbits.
+ * Measured from `.pioneer-label-div` on NASA's home view:
+ *
+ *   planet   font 16px, weight 600, letter-spacing 4.8px, text-transform
+ *            uppercase, colour #fff at opacity .75, icon 20x20 offset
+ *            (-28px, -4px) from the text origin
+ *   sun      font 18px, letter-spacing 5.4px, icon 20x20
+ *
+ * The label text is always white; a body's own hue is carried only by its
+ * circular icon (the `icon-circle-*` sprites).
  */
 export const LABEL = {
-  /** Base font size below the desktop breakpoint. */
-  fontSizeSmall: 14,
   /** Base font size at `min-width: 1025px`. */
   fontSize: 16,
-  /** The Sun is one step larger. */
+  /** Applies below that breakpoint. */
+  fontSizeSmall: 14,
+  /** The Sun is one step larger than the planets. */
   fontSizeSun: 18,
-  letterSpacingPlanet: '0.3em',
-  weightPlanet: 600,
-  /** Horizontal offset of the label origin, per kind. */
+  /** Pixel tracking, not `em`: NASA sets 4.8px for planets, 5.4px for the Sun. */
+  letterSpacing: '4.8px',
+  letterSpacingSun: '5.4px',
+  weight: 600,
+  /** Colour and opacity of every label's text. */
+  color: '#ffffff',
+  opacity: 0.75,
+  /** Icon box, in CSS pixels. */
+  iconSize: 20,
+  /** Icon offset from the text origin (NASA's `translate(-50% - 18px, -50% + 6px)`). */
+  iconOffsetX: -28,
+  iconOffsetY: -4,
+  /** Spacecraft labels use a smaller icon sitting closer to the text. */
+  iconSizeSpacecraft: 14,
+  iconOffsetXSpacecraft: -24,
+  /** Label origin offsets, per kind. */
   offsetPlanet: 18,
   offsetSun: 20,
   offsetSpacecraft: 14,
   offsetDefault: 12,
-  /** Vertical nudge, per kind. */
   topPlanet: -6,
   topSun: 8,
   topDefault: -4,
-  /** Icon box, per kind. */
-  iconPlanet: 20,
-  iconSpacecraft: 14,
-  iconDefault: 16,
-  /** Icon centre sits this far left of the text origin. */
-  iconGap: 12,
 } as const;
+
+/** Icon sprite name for a body, matching NASA's `icon-circle-<id>` set. */
+export function bodyIconName(id: string, groups: string[] = []): string {
+  const known = [
+    'sun', 'mercury', 'venus', 'earth', 'mars',
+    'jupiter', 'saturn', 'uranus', 'neptune',
+  ];
+  if (known.includes(id)) return `circle-${id}`;
+  if (groups.includes('moons')) return 'circle-white-small';
+  return 'circle-white-small';
+}
 
 /** Constellation labels: monospace, wide tracking, with a glow. */
 export const CONSTELLATION_LABEL = {
