@@ -1,0 +1,27 @@
+<div key="kioskContainer" class='kiosk-container {{isVisibleClass}}' onclick="onWindowInteract" ontouchstart="onWindowInteract">
+	<div key="kioskLoadingText" class='loading-text {{loadingTextVisibleClass}}'>
+		Starting experience...
+	</div>
+	<div key="kioskSessionEnd" class="session-end-container {{sessionEndVisibleClass}}">
+		<div key="sessionEndButtons" class="session-end-buttons-container">
+			<div class="session-ended-msg">
+				This session has ended
+			</div>
+			<div key="kioskStartOverBtn" class='kiosk-btn session-end-btn {{forceRestartClass}}' onclick="sessionStartOverButtonClick" ontouchstart="sessionStartOverButtonClick">
+				START OVER
+			</div>
+			<div key="kioskContinueBtn" class='kiosk-btn session-end-btn {{continueButtonVisibleClass}}'>
+				CONTINUE
+			</div>
+		</div>
+	</div>
+	<div key="kioskAutoplay" class="autoplay-container {{autoplayVisibleClass}}">
+		<div class='kiosk-btn'>
+			TOUCH TO START
+		</div>
+	</div>
+	<div key="kioskSessionTimer" class="session-timer-container {{sessionTimerVisibleClass}}">
+		<div class="session-countdown-timer">Time left: </div>
+		<Clock id="kioskSessionClock" class="session-countdown-timer {{isKioskCountdownClass}}"></Clock>
+	</div>
+</div>

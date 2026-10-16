@@ -1,0 +1,19 @@
+<article class="featured-stories-panel {{isVisibleClass}} {{isOverlayClass}}">
+	<div class="featured-stories-header">
+		<span class="featured-stories-title color gray {{isOpenTitleClass}}" >
+			Featured Stories and Events
+		</span>
+		<span class="button clickable icon desktop-collapse-button {{desktopIconName}} {{isOpenButtonClass}}" onclick="onClickShowCollapse"></span>
+	</div>
+
+	<div id="content-body" class="content-body panel scrollable">
+		<div class="content-header">
+			<span class="mobile-button-pair">
+				<button key="expandToggleBtn" class="button clickable icon {{mobileIconName}} mobile-collapse-button" onclick="onClickShowCollapse"></button>
+			</span>
+		</div>
+		<div id="content" class="content">
+			<FeaturedStoryBlock></FeaturedStoryBlock>
+		</div>
+	</div>
+</article>

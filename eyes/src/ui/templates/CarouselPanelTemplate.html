@@ -1,0 +1,47 @@
+<section id="panel-container" class="{{panelTypeClass}} {{isVisibleClass}} {{isExpandedClass}}">
+
+	<!-- Simple panel (collapsed) -->
+	<div class="panel-simple clickable" onclick="expand">
+		<div class="expand-button">
+			<div class="icon circle-arrow"></div>
+		</div>
+		<h5 class="simple-pretitle">{{preTitle}}</h5>
+		<h4 class="simple-title">{{title}}</h4>
+	</div>
+
+	<!-- Main panel (expanded) -->
+	<div class="panel-main">
+
+		<div class="panel-header">
+			<div class="header-title">
+				<div class="title-icon icon icon-large {{headerIconClass}}"></div>
+				<h4 class="title-text">{{title}}</h4>
+				<div class="collapse-button clickable" onclick="collapse">
+					<div class="icon circle-arrow"></div>
+				</div>
+			</div>
+			<h5 class="header-caption {{captionClass}}">{{caption}}</h5>
+		</div>
+
+		<!-- Carousel content -->
+		<div key="content" class="panel-content">
+			<nav key="tabsContainer" class="tabs-container {{tabsVisibleClass}} {{tabNumClass}}"></nav>
+			<div class="swiper {{carouselClass}}">
+				<div key="swiperSlides" class="swiper-wrapper"></div>
+
+
+				<div class="swiper-pagination {{paginationClass}}"></div>
+
+				<div class="swiper-button-prev icon prev-arrow {{prevButtonClass}}"></div>
+				<div class="swiper-button-next icon next-arrow {{nextButtonClass}}"></div>
+
+				<div key="bullets" class="bullet-container"></div>
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+</section>

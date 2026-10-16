@@ -1,0 +1,280 @@
+#loading-screen {
+  background: #000;
+  inset: 0;
+  pointer-events: none;
+  position: fixed;
+  z-index: 2;
+}
+#loading-screen-wrapper {
+  animation: fadeInDelayed .8s linear;
+  opacity: 0;
+  transition: opacity .5s var(--ease-out-bezier), visibility .5s var(--ease-out-bezier);
+  visibility: hidden;
+}
+.show > #loading-screen-wrapper {
+  opacity: 1;
+  visibility: visible;
+}
+#loading-screen-container {
+  text-align: center;
+  top: 50%;
+}
+#loading-screen-container,
+#loading-screen-logo {
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%) translateY(-50%);
+}
+#loading-screen-logo {
+  background-image: url(https://eyes.nasa.gov/apps/solar-system/assets/default/svg/nasa_logo.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 110px;
+  opacity: .7;
+  top: 15%;
+  width: 110px;
+}
+#loading-screen-text {
+  font-size: 22px;
+  font-weight: 200;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+}
+#loading-screen-bar {
+  background: hsla(0, 0%, 100%, .5);
+  border-radius: 4px;
+  height: 4px;
+  margin-top: 20px;
+  max-width: 85vw;
+  overflow: hidden;
+  width: 200px;
+}
+#loading-screen-bar:after {
+  animation: load 2s cubic-bezier(.4, 0, .2, 1) infinite;
+  background: #fff;
+  content: "";
+  display: block;
+  height: 4px;
+}
+#loading-screen-stars1 {
+  background: transparent;
+  height: 2px;
+  pointer-events: none;
+  width: 2px;
+}
+#loading-screen-stars2 {
+  background: transparent;
+  height: 1px;
+  pointer-events: none;
+  width: 1px;
+}
+@keyframes load {
+  0% {
+    margin-left: 0;
+    margin-right: 100%;
+  }
+  50% {
+    margin-left: 25%;
+    margin-right: 0;
+  }
+  to {
+    margin-left: 100%;
+    margin-right: 0;
+  }
+}
+@keyframes fadeInDelayed {
+  0% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media only screen and (max-width: 960px) {
+  #loading-screen-logo {
+    height: 90px;
+    width: 90px;
+  }
+  #loading-screen-text {
+    font-size: 18px;
+  }
+}
+@media only screen and (max-width: 660px) {
+  #loading-screen-logo {
+    height: 80px;
+    width: 80px;
+  }
+}
+@media only screen and (max-height: 550px) {
+  #loading-screen-logo {
+    height: 70px;
+    width: 70px;
+  }
+}
+#embed-overlay {
+  align-items: center;
+  backdrop-filter: blur(0);
+  background-color: rgba(0, 0, 0, .2);
+  display: flex;
+  inset: 0;
+  justify-content: center;
+  opacity: 0;
+  position: fixed;
+  transition-duration: .5s;
+  transition-property:
+    backdrop-filter,
+    opacity,
+    visibility;
+  transition-timing-function: var(--ease-out-bezier);
+  visibility: hidden;
+  z-index: 2;
+  --loading-blue:#288bff;
+  --load-percent:0%;
+}
+#embed-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+#embed-overlay.show.loading {
+  backdrop-filter: blur(.5rem);
+}
+#embed-overlay.show.view {
+  backdrop-filter: blur(.3rem);
+}
+#embed-overlay.show.interact {
+  pointer-events: none;
+  transition-delay: .6s;
+}
+#embed-overlay.view,
+body:has(#embed-overlay.interact) {
+  cursor: pointer;
+}
+@supports not (backdrop-filter:blur()) {
+  #embed-overlay.show.loading {
+    background-color: rgba(0, 0, 0, .8);
+  }
+  #embed-overlay.show.interact {
+    backdrop-filter: rgba(0, 0, 0, .3);
+  }
+}
+#embed-overlay > .embed-wrapper {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 15rem;
+  position: relative;
+}
+#embed-overlay img.embed-interact {
+  animation: interactanimation 2s linear infinite alternate-reverse;
+  height: clamp(5rem, min(15vw, 15vh), 8rem);
+  opacity: 0;
+  transition: opacity .5s var(--ease-out-bezier);
+}
+#embed-overlay.interact img.embed-interact {
+  opacity: 1;
+  transition: opacity .5s var(--ease-out-bezier) 1s;
+}
+#embed-overlay .embed-loader {
+  background-color: var(--grayDark);
+  border-radius: .25rem;
+  height: .5rem;
+  opacity: 0;
+  position: relative;
+  transition-delay: 1.5s;
+  transition-duration: .5s;
+  transition-property: margin-top, opacity;
+  transition-timing-function: var(--ease-out-bezier);
+  width: 100%;
+}
+#embed-overlay .embed-loader:after {
+  background-color: var(--loading-blue);
+  border-radius: .25rem;
+  content: "";
+  height: .5rem;
+  left: 0;
+  position: absolute;
+  transition: width 1s var(--ease-out-bezier);
+  width: var(--load-percent);
+}
+#embed-overlay.loading .embed-loader {
+  margin-top: 5vh;
+  opacity: 1;
+}
+@keyframes interactanimation {
+  0% {
+    transform: translateX(-25%);
+  }
+  to {
+    transform: translateX(25%);
+  }
+}
+#embed-overlay span {
+  opacity: 0;
+}
+#embed-overlay span.loader-text {
+  font-size: min(1.8rem, min(5.5vh, 5.5vw));
+  line-height: min(2rem, min(7vh, 7vw));
+  text-align: center;
+  transition: opacity .5s var(--ease-out-bezier) 1.5s;
+  word-break: break-word;
+}
+#embed-overlay span.interact-text {
+  font-size: min(1.5rem, min(5vh, 5vw));
+  font-weight: 600;
+  left: 50%;
+  line-height: min(1.6rem, min(6vh, 6vw));
+  margin-top: 5vh;
+  position: absolute;
+  text-align: center;
+  top: clamp(5rem, min(15vw, 15vh), 8rem);
+  transform: translateX(-50%);
+  transition: opacity .5s var(--ease-out-bezier) 1s;
+  width: 100%;
+}
+#embed-overlay button.view-btn {
+  border: .1em solid var(--loading-blue);
+  border-radius: .5em;
+  color: var(--grayLight);
+  filter: brightness(.7);
+  font-size: min(1.8rem, min(5.5vh, 5.5vw));
+  font-weight: 900;
+  line-height: min(2rem, min(7vh, 7vw));
+  opacity: 0;
+  padding: .5em;
+  transition-delay:
+    2s,
+    0s,
+    0s;
+  transition-duration:
+    .6s,
+    .3s,
+    .3s;
+  transition-property:
+    opacity,
+    filter,
+    transform;
+  transition-timing-function: var(--ease-out-bezier);
+  width: 7em;
+}
+#embed-overlay.interact button.view-btn {
+  transition-delay: 0s;
+}
+#embed-overlay button.view-btn:active,
+#embed-overlay button.view-btn:focus,
+#embed-overlay:hover button.view-btn,
+body:not(.hover) #embed-overlay button.view-btn {
+  filter: brightness(1);
+}
+#embed-overlay:hover button.view-btn {
+  transform: scale(1.05);
+  transition-duration: .6s;
+}
+#embed-overlay.interact span.interact-text,
+#embed-overlay.loading span.loader-text,
+#embed-overlay.view button.view-btn {
+  opacity: 1;
+}

@@ -1,0 +1,248 @@
+{
+  "stories": {
+    "annular_solar_eclipse": {
+      "id": "annular_solar_eclipse",
+      "title": "2023 Annular Solar Eclipse",
+      "subtitle": "October 14, 2023",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/annular_eclipse.png"
+    },
+    "total_solar_eclipse": {
+      "id": "total_solar_eclipse",
+      "title": "2024 Total Solar Eclipse",
+      "subtitle": "April 8, 2024",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/total_eclipse.png"
+    },
+    "voyager_grand_tour": {
+      "id": "voyager_grand_tour",
+      "title": "Voyager's Grand Tour",
+      "subtitle": "1977 - Today",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/voyager_story_icon.png"
+    },
+    "enceladus_discovery": {
+      "id": "enceladus_discovery",
+      "title": "Discovery at Enceladus",
+      "subtitle": "Cassini",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/enceladus.png"
+    },
+    "psp_perihelion": {
+      "id": "psp_perihelion",
+      "title": "Parker Solar Probe Perihelion",
+      "subtitle": "Closest Approach to the Sun",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/psp_perihelion_100.png"
+    }
+  },
+  "external": {
+    "mars2020": {
+      "id": "mars2020",
+      "title": "Entry, Descent, and Landing",
+      "subtitle": "Perseverance",
+      "link": "https://eyes.nasa.gov/apps/mars2020/",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/perseverance.png"
+    },
+    "asteroids_missions": {
+      "id": "asteroids_missions",
+      "title": "Asteroid and Comet Missions",
+      "subtitle": "Eyes on Asteroids",
+      "link": "https://eyes.nasa.gov/apps/asteroids/#/story/asteroids_missions",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/asteroid.png"
+    },
+    "experience_curiosity": {
+      "id": "experience_curiosity",
+      "title": "Experience Curiosity",
+      "subtitle": "Interactive",
+      "link": "https://eyes.nasa.gov/curiosity/",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/curiosity.png"
+    },
+    "experience_insight": {
+      "id": "experience_insight",
+      "title": "Experience Insight",
+      "subtitle": "Interactive",
+      "link": "https://eyes.nasa.gov/apps/experience-insight/InSight.html",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/insight.png"
+    }
+  },
+  "internal": {
+    "psp_perihelion": {
+      "id": "psp_perihelion",
+      "title": "Parker Solar Probe Perihelion",
+      "subtitle": "December 24th, 2024",
+      "internal": true,
+      "link": "sc_parker_solar_probe?rate=1&time=2024-12-24T11:27:38.887+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/psp_perihelion_100.png"
+    },
+    "prefire_launch": {
+      "id": "prefire_launch",
+      "title": "PREFIRE Cubesats Launched",
+      "subtitle": "May/June 2024",
+      "internal": true,
+      "link": "sc_prefire_1",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/prefire_ad.png"
+    },
+    "clipper_launch": {
+      "id": "clipper_launch",
+      "title": "Europa Clipper Launch",
+      "subtitle": "Mission Launch October 14th, 2024",
+      "internal": true,
+      "link": "sc_europa_clipper",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/clipper_icon.png"
+    },
+    "clipper_mars_assist": {
+      "id": "clipper_mars_assist",
+      "title": "Europa Clipper Mars Gravity Assist",
+      "subtitle": "Mars Flyby on March 1st, 2025",
+      "internal": true,
+      "link": "sc_europa_clipper/events/mars_flyby?rate=120&time=2025-03-01T17:10:05.000+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/clipper_icon.png"
+    },
+    "artemis": {
+      "id": "artemis",
+      "title": "Artemis I",
+      "subtitle": "Fly Along Live!",
+      "internal": true,
+      "link": "sc_artemis_1",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/artemis_icon.png"
+    },
+    "artemis2": {
+      "id": "artemis2",
+      "title": "Artemis II Launch",
+      "subtitle": "Mission Launch April 1st, 2026",
+      "internal": true,
+      "link": "sc_artemis_2?lighting=flood&surfaceMapTiling=true",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/artemis2_icon.png"
+    },
+    "dinkinesh": {
+      "id": "dinkinesh",
+      "title": "Lucy's First Asteroid Flyby",
+      "subtitle": "November 1, 2023",
+      "internal": true,
+      "link": "sc_lucy/events/lucy_dinkinesh_flyby?time=2023-11-01T16:54:45.000+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/lucy_dinki.png"
+    },
+    "donaldjohanson": {
+      "id": "donaldjohanson",
+      "title": "Lucy's Second Asteroid Flyby",
+      "subtitle": "April 20th, 2025",
+      "internal": true,
+      "link": "sc_lucy/events/lucy_donaldjohanson_flyby?time=2025-04-20T17:51:00.000+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/lucy_dinki.png"
+    },
+    "comet_3i_mars_flyby": {
+      "id": "comet_3i_mars_flyby",
+      "title": "Comet 3I/ATLAS Mars Flyby",
+      "subtitle": "October 3rd, 2025",
+      "internal": true,
+      "link": "c_2025_n1/events/mars_flyby?rate=3000&time=2025-10-03T03:59:09.564+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/event_3i_atlas.webp"
+    },
+    "comet_3i_jupiter_flyby": {
+      "id": "comet_3i_jupiter_flyby",
+      "title": "Comet 3I/ATLAS Jupiter Flyby",
+      "subtitle": "March 15th, 2026",
+      "internal": true,
+      "link": "https://eyes.nasa.gov/apps/solar-system/#/c_2025_n1/events/jupiter_flyby?rate=3000&time=2026-03-12T11:05:09.564+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/event_3i_atlas.webp"
+    },
+    "ORX_SRC": {
+      "id": "ORX_SRC",
+      "title": "OSIRIS-REx Sample Return Capsule",
+      "subtitle": "Return to Earth September 24, 2023",
+      "internal": true,
+      "link": "sc_osiris_rex_src",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/ORX_SRC_v2.png"
+    },
+    "spherex_launch": {
+      "id": "spherex_launch",
+      "title": "SPHEREx Launch",
+      "subtitle": "Mission Launch March 11th, 2025",
+      "internal": true,
+      "link": "sc_spherex",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/spherex_100.png"
+    },
+    "nisar_launch": {
+      "id": "nisar_launch",
+      "title": "NISAR Mission",
+      "subtitle": "Mission Launch July 30th, 2025",
+      "internal": true,
+      "link": "sc_nisar",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/nisar_100.png"
+    },
+    "sentinel_6b_launch": {
+      "id": "sentinel_6b_launch",
+      "title": "Sentinel-6B Mission",
+      "subtitle": "Mission Launch November 16th, 2025",
+      "internal": true,
+      "link": "sc_sentinel_6b",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/sentinel6b_launch_100.webp"
+    },
+    "imap_launch": {
+      "id": "imap_launch",
+      "title": "IMAP Mission",
+      "subtitle": "Mission Launch September 24th, 2025",
+      "internal": true,
+      "link": "sc_imap",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/imap_launch_100.webp"
+    },
+    "escapade_launch": {
+      "id": "escapade_launch",
+      "title": "ESCAPADE Mission",
+      "subtitle": "Mission Launch November 13th, 2025",
+      "internal": true,
+      "link": "sc_escapade_blue",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/escapade_launch_100.png"
+    },
+    "psyche_launch": {
+      "id": "psyche_launch",
+      "title": "Psyche Launch",
+      "subtitle": "Mission Launch October 13, 2023",
+      "internal": true,
+      "link": "sc_psyche",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/psyche_outline.png"
+    },
+    "psyche_mars_assist": {
+      "id": "psyche_mars_assist",
+      "title": "Psyche Mars Gravity Assist",
+      "subtitle": "Mars Flyby on May 15th, 2026",
+      "internal": true,
+      "link": "sc_psyche/events/mars_flyby?rate=600&time=2026-05-15T14:36:05.000+00:00",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/psyche_outline.png"
+    },
+    "artemis_1_trajectory": {
+      "id": "artemis_1_trajectory",
+      "internal": true,
+      "contentPanelTab": "viewOptions",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/see_mission_trajectory.svg",
+      "iconFullSize": true,
+      "link": "sc_artemis_1?trajectory=primary"
+    },
+    "artemis_2_trajectory": {
+      "id": "artemis_2_trajectory",
+      "internal": true,
+      "contentPanelTab": "viewOptions",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/see_mission_trajectory.svg",
+      "iconFullSize": true,
+      "link": "sc_artemis_2?trajectory=primary"
+    },
+    "cassini_trajectory": {
+      "id": "cassini_trajectory",
+      "internal": true,
+      "contentPanelTab": "viewOptions",
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/see_mission_trajectory.svg",
+      "iconFullSize": true,
+      "link": "sc_cassini?trajectory=all"
+    },
+    "roman_launch": {
+      "id": "roman_launch",
+      "title": "Roman Space Telescope Launch",
+      "subtitle": "Mission Launch August 30th, 2026",
+      "internal": true,
+      "icon": "https://eyes.nasa.gov/apps/solar-system/assets/images/cards/roman_space_telescope.webp",
+      "link": "sc_roman_space_telescope"
+    }
+  },
+  "featured": [
+    "roman_launch",
+    "psyche_mars_assist",
+    "artemis2",
+    "voyager_grand_tour"
+  ]
+}

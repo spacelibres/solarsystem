@@ -1,0 +1,52 @@
+<div class="compare">
+	<section key="left" class="left section">
+		<div class="block {{isVisibleClass}}">
+			<h5 class="semi title">{{leftTitle}}</h5>
+			<div class="data-area">
+				<div class="data left">
+					<span class="{{fontSizeClass}} color gray med">Type</span>
+					<span class="{{fontSizeClass}} color gray semi upper">{{leftType}}</span>
+				</div>
+				<div class="data right">
+					<span class="{{fontSizeClass}} color gray med">{{leftIdentifier}}</span>
+					<span class="{{fontSizeClass}} {{leftValueClass}} radius semi">{{leftRadius}}</span>
+					<span class="{{altFontSizeClass}} color gray semi upper">{{unit}}</span>
+				</div>
+			</div>
+			<div class="{{leftGenericDisclaimerClass}} generic-model-disclaimer color gray">
+				This <span>{{leftCategory}}</span> is represented by a generic model.
+			</div>
+		</div>
+	</section>
+	<div class="divider"></div>
+	<section key="right" class="right section">
+		<div class="block {{isVisibleClass}}">
+			<h5 class="semi title">{{rightTitle}}</h5>
+			<div class="data-area">
+				<div class="data left">
+					<span class="{{fontSizeClass}} color gray med">Type</span>
+					<span class="{{fontSizeClass}} color gray semi upper">{{rightType}}</span>
+				</div>
+				<div class="data right">
+					<span class="{{fontSizeClass}} color gray med">{{rightIdentifier}}</span>
+					<span class="{{fontSizeClass}} {{rightValueClass}} radius semi">{{rightRadius}}</span>
+					<span class="{{altFontSizeClass}} color gray semi upper">{{rightUnit}}</span>
+				</div>
+			</div>
+			<div class="{{rightGenericDisclaimerClass}} generic-model-disclaimer color gray">
+				This <span>{{rightCategory}}</span> is represented by a generic model.
+			</div>
+		</div>
+		<span key="previous" alt="Previous compare object" class="previous icon clickable icon-arrow-left-large"></span>
+		<span key="next" alt="Next compare object" class="next icon clickable icon-arrow-right-large"></span>
+	</section>
+	<footer class="footer {{isVisibleClass}}">
+		<span class="menu {{altFontSizeClass}} semi upper color gray">Comparison Overview</span>
+		<span key="exit" class="exit clickable {{isVisibleClass}}">
+			<span class="text upper semi">Exit</span>
+			<span key="exitIcon" alt="Close comparison" class="icon icon-box {{isVisibleClass}}">
+				<span class="icon icon-close"></span>
+			</span>
+		</span>
+	</footer>
+</div>

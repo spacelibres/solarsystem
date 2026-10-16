@@ -1,0 +1,12 @@
+<time class="clock {{isVisibleClass}}">
+	<div class="datetime-container {{alert}}">
+		<div key="displayContainer" class="display-container">
+			<div key="date" class="date {{isDateVisibleClass}} monospace" onclick="onDateTimeClick">{{date}}</div>
+			<div key="time" class="time {{isTimeVisibleClass}} monospace" onclick="onDateTimeClick">{{time}}</div>
+			<div key="meridiem" class="meridiem {{isMeridiemVisibleClass}} monospace" onclick="onDateTimeClick">{{meridiem}}</div>
+		</div>
+		<form key="timeForm" class="hidden" method="post" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+			<input key="timeInput" type="text" name="hour" class="hour-input" placeholder="hour" autocorrect="off" autocapitalize="off" spellcheck="false" size="25"></input>
+		</form>
+	</div>
+</time>

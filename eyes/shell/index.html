@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<title>Eyes on the Solar System - NASA/JPL</title>
+	<!-- NOTE about user-scalable attrribute: https://accessibilityinsights.io/info-examples/web/meta-viewport/ -->
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+	<meta name="description"
+		content="Explore the 3D world of the Solar System. Learn about past and future missions." />
+	<meta property="og:type" content="website" />
+	<meta property="og:site_name" content="Eyes on the Solar System - NASA/JPL" />
+	<meta property="og:description"
+		content="Explore the 3D world of the Solar System. Learn about past and future missions." />
+	<meta property="og:title" content="Eyes on the Solar System - NASA/JPL" />
+	<meta property="og:url" content="https://eyes.nasa.gov/apps/solar-system" />
+	<meta property="og:image" content="https://eyes.nasa.gov/apps/solar-system/og_img.jpg" />
+	<meta name="robots" content="noarchive" />
+	<link rel="canonical" href="https://eyes.nasa.gov/apps/solar-system" />
+	<link rel="apple-touch-icon" sizes="180x180" href="https://eyes.nasa.gov/apps/solar-system/apple-touch-icon.png" />
+	<link rel="icon" type="image/png" sizes="32x32" href="https://eyes.nasa.gov/apps/solar-system/favicon-32x32.png" />
+	<link rel="icon" type="image/png" sizes="194x194" href="https://eyes.nasa.gov/apps/solar-system/favicon-194x194.png" />
+	<link rel="icon" type="image/png" sizes="192x192" href="https://eyes.nasa.gov/apps/solar-system/android-chrome-192x192.png" />
+	<link rel="icon" type="image/png" sizes="16x16" href="https://eyes.nasa.gov/apps/solar-system/favicon-16x16.png" />
+	<link rel="manifest" href="https://eyes.nasa.gov/apps/solar-system/site.webmanifest" />
+	<link rel="mask-icon" href="https://eyes.nasa.gov/apps/solar-system/safari-pinned-tab.svg" color="#2b5797" />
+	<link rel="shortcut icon" href="https://eyes.nasa.gov/apps/solar-system/favicon.ico" />
+	<meta name="msapplication-TileColor" content="#2b5797" />
+	<meta name="msapplication-config" content="./browserconfig.xml" />
+	<meta name="theme-color" content="#000000" />
+	<!-- Import bundled CSS -->
+	<link rel="stylesheet" type="text/css" href="./preload.css" />
+	<link rel="stylesheet" type="text/css" href="./vendors.css" />
+	<link rel="stylesheet" type="text/css" href="./app.css" />
+	<!-- Preload NASA logo, embed play button and font -->
+	<link rel="preload" href="https://eyes.nasa.gov/apps/solar-system/assets/default/svg/nasa_logo.svg" as="image" />
+	<link rel="preload" href="https://eyes.nasa.gov/apps/solar-system/assets/default/fonts/Metropolis-SemiBold.woff" as="font" crossorigin="anonymous" />
+</head>
+
+<body class="solar-system">
+	<div id="pioneer"></div>
+	<div id="ui" class="ui">
+		<div id="static-ui" class="ui grid-layout simple-grid">
+			<Overlay></Overlay>
+		</div>
+		<div id="dynamic-ui" class="ui grid-layout simple-grid"></div>
+	</div>
+	<LoadIcon></LoadIcon>
+	<div id="loading-screen"></div>
+	<div id="embed-overlay"></div>
+	
+<script>config = {
+	staticAssetsUrl: 'https://eyes.nasa.gov/assets/static',
+	dynamicAssetsUrl: 'https://eyes.nasa.gov/assets/dynamic'
+}
+</script><script src="application.js"></script></body>
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,35 @@
+<div class="slide hidden {$type}">
+	<div class="container {{collapseClass}}">
+		<div class="container-wrapper">
+			<div class="mobile-hint small">
+				<span class="icon icon-greater up clickable" onclick="goToPrevSlide"></span>
+				<span class="hint-text">{$hintText}</span>
+				<span class="icon icon-greater down clickable" onclick="goToNextSlide"></span>
+			</div>
+			<div class="content-container">
+				<div class="content-wrapper">
+					<div class="content"></div>
+					<div class="controls {{isControlsVisibleClass}}">
+						<button class="icon icon-clock clickable" onclick="_onControlsToggle"></button>
+						<button class="icon collapse-button clickable {{collapseButtonClass}}" onclick="_toggleCollapse"></button>
+					</div>
+					<button class="navigation-button replay mobile clickable" onclick="goToFirstSlide">
+						<span class="icon {$replayButtonIcon}"></span>
+						{$replayButtonText}
+					</button>
+				</div>
+			</div>
+			<button class="navigation-button next clickable" onclick="goToNextSlide">
+				{$nextButtonText}
+				<span class="icon {$nextButtonIcon}"></span>
+			</button>
+			<button class="navigation-button replay clickable" onclick="goToFirstSlide">
+				<span class="icon {$replayButtonIcon}"></span>
+				{$replayButtonText}
+			</button>
+		</div>
+	</div>
+	<div class="collapse-container {{collapseClass}}">
+		<button class="mobile-collapse icon clickable {{collapseButtonClass}}" onclick="_toggleCollapse"></button>
+	</div>
+</div>

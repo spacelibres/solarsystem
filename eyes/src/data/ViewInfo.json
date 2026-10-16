@@ -1,0 +1,173 @@
+[
+  {
+    "class": "HomeView",
+    "name": "home",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "settings",
+      "menu",
+      "layerPanel",
+      "breadcrumb",
+      "searchDesktop",
+      "searchMobile",
+      "mobileExpandButton",
+      "featuredStoriesPanel",
+      "overlay",
+      "infoPanel",
+      "shareModal",
+      "collapsibleMenu",
+      "timeControls",
+      "kioskMode",
+      "kioskSessionClock"
+    ]
+  },
+  {
+    "class": "ObjectView",
+    "name": "object",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "cameraFollowSearch",
+      "settings",
+      "menu",
+      "layerPanel",
+      "breadcrumb",
+      "searchDesktop",
+      "searchMobile",
+      "overlay",
+      "loadIcon",
+      "contentPanel",
+      "eventsTimeline",
+      "infoPanel",
+      "shareModal",
+      "collapsibleMenu",
+      "timeControls",
+      "kioskMode",
+      "kioskSessionClock",
+      "toast"
+    ]
+  },
+  {
+    "class": "StoryView",
+    "name": "story",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "settings",
+      "layerPanel",
+      "shareModal",
+      "breadcrumb",
+      "story",
+      "overlay",
+      "infoPanel",
+      "collapsibleMenu",
+      "timeControls",
+      "kioskMode",
+      "kioskSessionClock",
+      "menu"
+    ]
+  },
+  {
+    "class": "CompareView",
+    "name": "compare",
+    "components": [
+      "settings",
+      "breadcrumb",
+      "loadIcon",
+      "comparison",
+      "infoPanel",
+      "shareModal",
+      "overlay",
+      "kioskMode",
+      "kioskSessionClock",
+      "menu"
+    ]
+  },
+  {
+    "class": "EventView",
+    "name": "event",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "cameraFollowSearch",
+      "settings",
+      "menu",
+      "layerPanel",
+      "breadcrumb",
+      "searchDesktop",
+      "searchMobile",
+      "overlay",
+      "loadIcon",
+      "contentPanel",
+      "eventsTimeline",
+      "infoPanel",
+      "shareModal",
+      "collapsibleMenu",
+      "timeControls",
+      "kioskMode",
+      "kioskSessionClock",
+      "toast"
+    ]
+  },
+  {
+    "class": "TelescopeView",
+    "name": "telescope",
+    "components": [
+      "menu",
+      "telescope",
+      "breadcrumb",
+      "searchDesktop",
+      "searchMobile",
+      "overlay",
+      "loadIcon",
+      "infoPanel",
+      "shareModal",
+      "kioskMode",
+      "kioskSessionClock"
+    ]
+  },
+  {
+    "class": "FeatureView",
+    "name": "feature",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "settings",
+      "menu",
+      "layerPanel",
+      "breadcrumb",
+      "searchDesktop",
+      "searchMobile",
+      "overlay",
+      "loadIcon",
+      "contentPanel",
+      "infoPanel",
+      "shareModal",
+      "collapsibleMenu",
+      "timeControls",
+      "kioskMode",
+      "kioskSessionClock"
+    ]
+  },
+  {
+    "class": "DistanceView",
+    "name": "distance",
+    "components": [
+      "clock",
+      "clockShortcut",
+      "settings",
+      "layerPanel",
+      "breadcrumb",
+      "distancePanel",
+      "distanceSourceSearch",
+      "distanceTargetSearch",
+      "collapsibleMenu",
+      "timeControls",
+      "shareModal",
+      "kioskMode",
+      "kioskSessionClock",
+      "overlay"
+    ]
+  }
+]

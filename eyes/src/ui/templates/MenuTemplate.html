@@ -1,0 +1,20 @@
+<nav class="mega-menu">
+	<button class="menu-btn clickable" onclick="toggle">
+		<span class="icon icon-menu"></span>
+		{{menuText}}
+	</button>
+	<div class="overlay-bg clickable {{isVisibleClass}}" onclick="hide"></div>
+	<div key="container" class="menu-container {{menuClass}} {{isVisibleClass}} scrollable">
+		<div key="header" class="menu-header">
+			<div key="branding" class="branding">
+				<span class="icon icon-nasa-logo clickable" onclick="hide"></span>
+				<span class="semi clickable app-title" onclick="hide">{{brandingText}}</span>
+			</div>
+			<h5 class="semi">{{titleText}}</h5>
+			<span class="icon icon-close clickable close-button" onclick="hide"></span>
+		</div>
+		<div key="contentWrapper" class="content-wrapper">
+			<div key="mainMenu" class="main-menu"></div>
+		</div>
+	</div>
+</nav>

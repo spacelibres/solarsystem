@@ -1,0 +1,12 @@
+<div class="carousel-container {{isVisibleClass}} {{slideType}}">
+	<button class="close-button clickable {{isCloseButtonVisibleClass}}" onclick="close">
+		<span class="text">{{closeButtonText}}</span>
+		<span class="icon icon-close"></span>
+	</button>
+	<div class="progress {{slideType}}">
+		<span key="progress" class="icon icon-triangle"></span>
+	</div>
+	<div key="carousel" class="carousel {{collapseClass}} {{isScrollingClass}} {{slideType}}">
+		<div class="track" key="track"></div>
+	</div>
+</div>

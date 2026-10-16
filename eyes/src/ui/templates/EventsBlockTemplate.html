@@ -1,0 +1,43 @@
+<div class="content-block events-block panel-block">
+	<div class="title-toggle-block {{isViewToggleVisible}}">
+		<h5 class="title {{isNumEventsVisible}}">Events</h5>
+		<h5 class="num-events-label {{isNumEventsVisible}}">{{numEvents}}</h5>
+		<div key="toggleContainer" id="toggle-container" class="{{isViewToggleVisible}}">
+			<span class="tab selected clickable" onclick="_onTabSelect">
+				<div class="toggle-icon icon-timeline"></div>
+				<span class="toggle-title">Timeline</span>
+			</span>
+			<span class="tab clickable" onclick="_onTabSelect">
+				<div class="toggle-icon icon-table"></div>
+				<span class="toggle-title">Table</span>
+			</span>
+			<div class="toggle-slider"></div>
+		</div>
+	</div>
+	<div class="intro-label {{isIntroLabelVisible}}">{{introLabelText}}</div>
+
+	<div class="loading-bar {{isLoadingClass}}"></div>
+
+	<div id="events-view-container" class="{{isEventsViewContainerVisible}}">
+		<div key="timelineContainer" class="events-timeline"></div>
+		<div key="tableContainer" class="table-container scrollable">
+			<table key="table">
+				<thead>
+					<th scope="col" id='title-header'class="clickable" onclick="sortEventsByTitle">
+						Event
+						<span class="sort-triangle title"></span>
+					</th>
+					<th scope="col" id='year-header' class="clickable" onclick="sortEventsByYear">
+						Year
+						<span class="sort-triangle year"></span>
+					</th>
+					<th scope="col" id='target-header' class="clickable" onclick="sortEventsByTarget">
+						Target
+						<span class="sort-triangle target"></span>
+					</th>
+				</thead>
+				<tbody key="eventsTable"></tbody>
+			</table>
+		</div>
+	</div>
+</div>

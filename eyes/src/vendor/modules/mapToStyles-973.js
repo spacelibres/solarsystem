@@ -1,0 +1,112 @@
+// Recovered from vendors.js:2393787-2396152.
+import * as afterMain from "./afterMain-955.js";
+import * as Unidentified952 from "./Unidentified952.js";
+import * as Unidentified933 from "./Unidentified933.js";
+import * as Unidentified945 from "./Unidentified945.js";
+import * as Unidentified947 from "./Unidentified947.js";
+import * as Unidentified965 from "./Unidentified965.js";
+import * as Unidentified966 from "./Unidentified966.js";
+import * as max from "./max-938.js";
+let defaultExport;
+var d = {
+  top: "auto",
+  right: "auto",
+  bottom: "auto",
+  left: "auto"
+};
+function mapToStyles(e) {
+  var t,
+    n = e.popper,
+    c = e.popperRect,
+    l = e.placement,
+    h = e.variation,
+    p = e.offsets,
+    f = e.position,
+    m = e.gpuAcceleration,
+    M = e.adaptive,
+    _ = e.roundOffsets,
+    A = e.isFixed,
+    g = p.x,
+    b = void 0 === g ? 0 : g,
+    y = p.y,
+    L = void 0 === y ? 0 : y,
+    v = "function" == typeof _ ? _({
+      x: b,
+      y: L
+    }) : {
+      x: b,
+      y: L
+    };
+  b = v.x, L = v.y;
+  var T = p.hasOwnProperty("x"),
+    S = p.hasOwnProperty("y"),
+    w = afterMain.left,
+    E = afterMain.top,
+    x = window;
+  if (M) {
+    var C = (0, Unidentified952.default)(n),
+      z = "clientHeight",
+      O = "clientWidth";
+    if (C === (0, Unidentified933.default)(n) && (C = (0, Unidentified945.default)(n), "static" !== (0, Unidentified947.default)(C).position && "absolute" === f && (z = "scrollHeight", O = "scrollWidth")), l === afterMain.top || (l === afterMain.left || l === afterMain.right) && h === afterMain.end) E = afterMain.bottom, L -= (A && C === x && x.visualViewport ? x.visualViewport.height : C[z]) - c.height, L *= m ? 1 : -1;
+    if (l === afterMain.left || (l === afterMain.top || l === afterMain.bottom) && h === afterMain.end) w = afterMain.right, b -= (A && C === x && x.visualViewport ? x.visualViewport.width : C[O]) - c.width, b *= m ? 1 : -1;
+  }
+  var B,
+    D = Object.assign({
+      position: f
+    }, M && d),
+    N = !0 === _ ? function (e, t) {
+      var n = e.x,
+        r = e.y,
+        i = t.devicePixelRatio || 1;
+      return {
+        x: (0, max.round)(n * i) / i || 0,
+        y: (0, max.round)(r * i) / i || 0
+      };
+    }({
+      x: b,
+      y: L
+    }, (0, Unidentified933.default)(n)) : {
+      x: b,
+      y: L
+    };
+  return b = N.x, L = N.y, m ? Object.assign({}, D, ((B = {})[E] = S ? "0" : "", B[w] = T ? "0" : "", B.transform = (x.devicePixelRatio || 1) <= 1 ? "translate(" + b + "px, " + L + "px)" : "translate3d(" + b + "px, " + L + "px, 0)", B)) : Object.assign({}, D, ((t = {})[E] = S ? L + "px" : "", t[w] = T ? b + "px" : "", t.transform = "", t));
+}
+defaultExport = {
+  name: "computeStyles",
+  enabled: !0,
+  phase: "beforeWrite",
+  fn: function (e) {
+    var t = e.state,
+      n = e.options,
+      r = n.gpuAcceleration,
+      i = void 0 === r || r,
+      a = n.adaptive,
+      s = void 0 === a || a,
+      o = n.roundOffsets,
+      u = void 0 === o || o,
+      d = {
+        placement: (0, Unidentified965.default)(t.placement),
+        variation: (0, Unidentified966.default)(t.placement),
+        popper: t.elements.popper,
+        popperRect: t.rects.popper,
+        gpuAcceleration: i,
+        isFixed: "fixed" === t.options.strategy
+      };
+    null != t.modifiersData.popperOffsets && (t.styles.popper = Object.assign({}, t.styles.popper, mapToStyles(Object.assign({}, d, {
+      offsets: t.modifiersData.popperOffsets,
+      position: t.options.strategy,
+      adaptive: s,
+      roundOffsets: u
+    })))), null != t.modifiersData.arrow && (t.styles.arrow = Object.assign({}, t.styles.arrow, mapToStyles(Object.assign({}, d, {
+      offsets: t.modifiersData.arrow,
+      position: "absolute",
+      adaptive: !1,
+      roundOffsets: u
+    })))), t.attributes.popper = Object.assign({}, t.attributes.popper, {
+      "data-popper-placement": t.placement
+    });
+  },
+  data: {}
+};
+export { mapToStyles };
+export { defaultExport as default };

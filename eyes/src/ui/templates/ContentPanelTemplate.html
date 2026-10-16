@@ -1,0 +1,67 @@
+<article class="content-panel-container scrollable {{isVisibleClass}} {{isOverlayClass}} {{isExpandedClass}} {{isCollapsedClass}}">
+	<button key="desktopCollapseExpandButton" class="button clickable icon {{desktopIconName}} desktop-collapse-button" data-tippy-content="Toggle content panel." onclick="onClickShowCollapse"></button>
+
+	<div key="tabGroup" class="tab-group">
+		<!-- Drag bar -->
+		<span key="dragHandle" ontouchstart="onDragStart" ontouchmove="onDrag" ontouchend="onDragEnd">
+			<span class="drag-handle clickable"></span>
+		</span>
+
+		<span class="expand-btn-group">
+			<button key="expandButton" class="button clickable expand-button icon-bg" data-tippy-content="Expand content panel." aria-label="Expand content panel" onclick="expand">
+				<icon class="icon {{iconExpandClass}}"></icon>
+			</button>
+			<button key="collapseButton" class="button clickable collapse-button icon-bg" data-tippy-content="Collapse content panel" aria-label="Collapse content panel" onclick="collapse">
+				<icon class="icon {{iconCollapseClass}}"></icon>
+			</button>
+		</span>
+
+		<!-- Tab nav -->
+	   <nav class="{{tabsVisible}}">
+			<ul id="sub-tab-container" class="sub-tab-container {{subtabsVisible}}">
+				<div key="subTabNav" class="sub-tab-nav"></div>
+			</ul>
+			<ul id="tab-container" class="tab-nav" role="tablist">
+				<li key="infoTab" class="{{infoTabVisibleClass}}" role="presentation">
+					<div class="icon info-sel" aria-hidden="true"></div>
+					<div class="icon info" aria-hidden="true"></div>
+					<button class="clickable" role="tab" aria-selected="false"
+						aria-controls="info-tab-panel" id="info-tab" data-tab="info"
+						onclick="_onTabSelect">Info</button>
+					<div class="bg" aria-hidden="true"></div>
+				</li>
+				<li key="toolboxTab" class="{{toolboxTabVisibleClass}}" role="presentation">
+
+					<div class="icon toolbox-sel" aria-hidden="true"></div>
+					<div class="icon toolbox" aria-hidden="true"></div>
+					<button class="clickable" role="tab" aria-selected="false"
+						aria-controls="toolbox-tab-panel" id="toolbox-tab" data-tab="toolbox"
+						onclick="_onTabSelect">Toolbox</button>
+					<div class="bg" aria-hidden="true"></div>
+				</li>
+				<li key="viewOptionsTab" class="{{viewOptionsTabVisibleClass}}" role="presentation">
+
+					<div class="icon view-options-sel" aria-hidden="true"></div>
+					<div class="icon view-options" aria-hidden="true"></div>
+					<button class="clickable" role="tab" aria-selected="false"
+						aria-controls="viewOptions-tab-panel" id="viewOptions-tab" data-tab="viewOptions"
+						onclick="_onTabSelect">View Options</button>
+					<div class="bg" aria-hidden="true"></div>
+				</li>
+			</ul>
+	   </nav>
+	   <!-- Main content -->
+	   <main id="content-main">
+		<!-- Info tab -->
+		<div key="infoPanel" class="tab-content" id="info-tab-panel" role="tabpanel" aria-labelledby="info-tab"></div>
+		<!-- Toolbox tab -->
+		<div key="toolboxPanel" class="tab-content" id="toolbox-tab-panel" role="tabpanel" aria-labelledby="toolbox-tab">
+			<div class="content-block toolbox-content">
+				<ul></ul>
+			</div>
+		</div>
+		<!-- View Options tab -->
+		<div key="viewOptionsPanel" class="tab-content {{viewOptionsSelectedClass}}" id="viewOptions-tab-panel" role="tabpanel" aria-labelledby="viewOptions-tab"></div>
+	</main>
+   </div>
+</article>

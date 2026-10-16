@@ -40,3 +40,14 @@ describe('release version script', () => {
     expect(JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version).toBe('0.0.1');
   });
 });
+
+it('keeps the standalone recovered project package versions in sync when present', () => {
+  mkdirSync(join(root, 'eyes'));
+  writeFileSync(join(root, 'eyes/package.json'), JSON.stringify({ name: 'recovered-eyes', version: '0.0.1' }));
+  writeFileSync(join(root, 'eyes/package-lock.json'), JSON.stringify({ version: '0.0.1', packages: { '': { version: '0.0.1' } } }));
+  execFileSync(process.execPath, [join(root, 'scripts/set-version.mjs'), '0.0.2'], { cwd: root, stdio: 'pipe' });
+  expect(JSON.parse(readFileSync(join(root, 'eyes/package.json'), 'utf8')).version).toBe('0.0.2');
+  const lock = JSON.parse(readFileSync(join(root, 'eyes/package-lock.json'), 'utf8'));
+  expect(lock.version).toBe('0.0.2');
+  expect(lock.packages[''].version).toBe('0.0.2');
+});

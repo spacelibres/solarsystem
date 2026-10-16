@@ -1,0 +1,65 @@
+<div id="share-modal" class="{{isVisibleClass}}" onclick="handleClick">
+	<article class="modal-main" >
+		<header class="modal-header">
+			<div class="modal-icon icon icon-share"></div>
+			<h3 class="modal-title">Share</h3>
+			<!-- Tab headers -->
+			<ul class="tab-headers" onclick="handleTabClick" key="tabHeaders">
+				<li class="tab-header link"><button class="clickable">Link</button></li>
+				<li class="tab-header embed"><button class="clickable">Embed</button></li>
+			</ul>
+			<button class="modal-close clickable icon icon-close" key="closeButton"></button>
+		</header>
+		<section class="modal-content">
+			 <!-- Tab content -->
+			<div class="tab-content" key="tabContent">
+				<div class="tab-pane link" key="linkContainer">
+					<!-- Content for Link tab -->
+					<img key="linkImage">
+					<div class="link-container">
+						<span>{{linkTitle}}</span>
+						<code class="scrollable" key="linkCode"></code>
+					</div>
+					<button class="copy-link clickable" onclick="copyToClipboard">
+						<div class="icon icon-copy"></div>
+						<span>Copy Link</span>
+					</button>
+				</div>
+				<div class="tab-pane embed" key="embedContainer">
+					<!-- Content for Embed tab -->
+					<section class="main-section">
+						<div class="preview-container {{previewDevice}} {{previewVisibleClass}}">
+							<span>Interactive Preview</span>
+							<div class="preview" key="embedPreviewParent"></div>
+						</div>
+						<code class="scrollable" key="embedCode"></code>
+						<div class="input-container">
+							<input class="clickable" type="checkbox" id="iframe-elements-checkbox" onchange="toggleIframeElements" checked />
+							<label class="clickable" for="iframe-elements-checkbox">Include i-frame elements</label>
+							<span class="clickable icon icon-help" data-tippy-content="Include the iframe HTML tags in the embed code" aria-label="Help: Include the iframe HTML tags in the embed code" tabindex="0"></span>
+						</div>
+
+						<button class="copy-link clickable" onclick="copyToClipboard">
+							<div class="icon icon-copy"></div>
+							<span>Copy Embed Code</span>
+						</button>
+					</section>
+					<section class="options-section">
+						<h5>Embed Options</h5>
+						<div class="options-container scrollable">
+							<div class="options basic-options" key="embedOptsContent"></div>
+							<details class="advanced">
+								<summary class="clickable">Advanced Options</summary>
+								<div class="options embed-adv-container" key="embedAdvOptsContent"></div>
+							</details>
+						</div>
+
+					</section>
+				</div>
+			</div>
+
+		</section>
+		<h3 class="copied-overlay" key="copiedOverlay">Copied to clipboard!</h3>
+
+	</article>
+</div>

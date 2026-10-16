@@ -1,3 +1,22 @@
+# Native source project — current status (0.2.29)
+
+The runnable, editable project is now [eyes/](../eyes/README.md), with 1,087
+accounted modules, 733 native ESM modules, 55 HTML templates and relative source
+imports. The webpack factory registry and chunk startup runtime are removed.
+Normal builds compile checked-in code and preserve edits. Source recovery tools
+are `tools/recover-native-eyes.cjs` and `tools/lib/native-eyes.cjs`.
+
+Original classes/exports, template ownership and named fields provide semantic
+names. Unknown minified locals and vendor package boundaries are recorded
+honestly rather than fabricated. Third-party snapshots remain in vendor source.
+Detailed provenance is in `eyes/provenance.json`; upstream notices are in
+`eyes/THIRD_PARTY_LICENSES.txt`. No imagery/models/ephemeris library is mirrored.
+
+The notes below describe the earlier class-extraction research, not the active
+source project or its current blocking issues.
+
+---
+
 # De-obfuscation status
 
 How far the NASA Eyes bundle has been recovered, what is usable today, and what

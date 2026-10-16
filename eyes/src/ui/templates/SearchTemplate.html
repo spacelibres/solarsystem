@@ -1,0 +1,18 @@
+<div class="search {{isVisibleClass}}">
+	<span class="icon icon-search clickable {{magClass}}" onclick="onIconClick"></span>
+	<div class="{{searchClass}} {{focusedClass}}">
+		<div class="cover" onclick="reset"></div>
+		<div key="container" class="bar">
+			<span class="icon icon-search clickable"></span>
+			<input key="input" type="text" placeholder="{$placeholderText}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" oninput="_find" onfocus="onInputFocus" onkeydown="keydown"></input>
+			<span class="close icon icon-close clickable search-close-icon" onclick="reset"></span>
+			<div class="results-container">
+				<div key="results" class="scrollable results gradient"></div>
+			</div>
+			<span class="search-info tiny {{allowInfoClass}}">{{searchInfo}}</span>
+			<div class="featured gradient scrollable {{allowFeaturedClass}} {{isFeaturedVisibleClass}}">
+				<ul key="featured"></ul>
+			</div>
+		</div>
+	</div>
+</div>

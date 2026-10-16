@@ -1,0 +1,89 @@
+{
+  "Planet": [
+    "mercury",
+    "venus",
+    "earth",
+    "sun",
+    "moon",
+    "mars",
+    "1_ceres",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "134340_pluto"
+  ],
+  "Moon": [
+    "mercury",
+    "moon",
+    "phobos",
+    "1_ceres",
+    "io",
+    "europa",
+    "ganymede",
+    "callisto",
+    "enceladus",
+    "titan",
+    "134340_pluto"
+  ],
+  "Asteroid": [
+    "101955_bennu",
+    "16_psyche",
+    "433_eros",
+    "4_vesta",
+    "1p_halley",
+    "67p_churyumov_gerasimenko",
+    "81p_wild_2",
+    "9p_tempel_1",
+    "c_1995_o1"
+  ],
+  "Comet": [
+    "101955_bennu",
+    "16_psyche",
+    "433_eros",
+    "4_vesta",
+    "1p_halley",
+    "67p_churyumov_gerasimenko",
+    "81p_wild_2",
+    "9p_tempel_1",
+    "c_1995_o1"
+  ],
+  "DwarfPlanet": [
+    "earth",
+    "moon",
+    "1_ceres",
+    "io",
+    "europa",
+    "titan",
+    "134340_pluto",
+    "136472_makemake",
+    "136108_haumea",
+    "136199_eris"
+  ],
+  "Spacecraft": [
+    "sc_hubble_space_telescope",
+    "sc_jwst",
+    "scientist",
+    "school_bus",
+    "rose_bowl",
+    "sc_parker_solar_probe",
+    "sc_osiris_rex",
+    "sc_juno",
+    "sc_new_horizons",
+    "sc_voyager_1"
+  ],
+  "default": [
+    "sun",
+    "mercury",
+    "venus",
+    "earth",
+    "moon",
+    "mars",
+    "4_vesta",
+    "jupiter",
+    "saturn",
+    "uranus",
+    "neptune",
+    "134340_pluto"
+  ]
+}

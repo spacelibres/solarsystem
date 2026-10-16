@@ -1,34 +1,37 @@
 # spacelibre · solar system
 
-A browser-based solar system explorer built with **Next.js** and **Three.js**,
-driven by **NASA Eyes' own public ephemeris data**. It reads NASA's binary
-`dynamo` (`.dyn`) files directly and renders planetary imagery from NASA's asset
-library, presented with the [spacelibre visual standard](../spacelibre-vi).
+An independent source reconstruction of NASA Eyes on the Solar System, with
+its original browser UI and engine, hosted locally with Next.js. The earlier
+spacelibre Three.js implementation remains in the repository as reference.
 
 > Not affiliated with or endorsed by NASA. See **Attribution** below.
 
-## Original NASA application recovery
+## Editable NASA Eyes source project
 
-The default entry now runs the recovered NASA Eyes Solar System application.
-Run `npm ci` then `npm run dev`. The predev/prebuild hook captures the nine
-small application shell files from the official URL (or reuses the local capture),
-extracts all 1,087 webpack factories into readable ESM files, and rebuilds them.
-No iframe or remote minified app script is used to execute the application.
-Imagery, models, ephemerides, fonts and content continue to load from NASA.
+The primary application now lives in [eyes/](eyes/README.md), as normal source
+modules with explicit relative imports/exports. It no longer runs webpack module
+factories or the captured chunk runtime. Start with `npm ci` and `npm run dev`.
+Normal dev/build commands compile the checked-in sources and never regenerate
+or overwrite edits. The original NASA UI, rendering engine and interactions are
+retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 
-- `npm run eyes:recover`: rebuild the original application shell.
-- `npm run test:recovery`: check the recovery transform.
-- `deobf/project/src/modules/`: editable recovered modules with original IDs.
-- `deobf/project/manifest.json`: origin hashes, exports, dependencies and source spans.
-- `deobf/project/`: standalone project; `npm install && npm run build` rebuilds its JS.
+- [Application entry](eyes/src/app/SolarSystemApp.js)
+- [Component layout](eyes/src/app/config/components.js), [views](eyes/src/app/config/views.js), [settings](eyes/src/app/config/settings.js)
+- [HTML templates](eyes/src/ui/templates/), [engine](eyes/src/engine/), [shared Eyes framework](eyes/src/framework/eyes/)
+- `npm run eyes:build`: compile and publish the editable source to the local host.
+- `npm run eyes:check`: audit source syntax and import resolution.
+- `cd eyes && npm ci && npm run dev`: independent source project on port 3002.
 
-Generated NASA sources and shell output are excluded from Git. The complete
-module factories retain the original webpack compatibility runtime to preserve
-live exports, circular imports and startup order. Identifier names erased by the
-minifier are not all recoverable. See [recovery notes](docs/original-eyes-restoration.md).
-The previous custom Three.js viewer remains in source as reference, but is no
-longer the default UI. This independent reconstruction is not NASA's unpublished
-source repository and is not affiliated with or endorsed by NASA.
+The recovery accounts for 1,087 original modules, with 733 native ESM modules,
+55 HTML template files, JSON data and ordinary third-party CommonJS modules.
+`eyes/provenance.json` records original IDs, ranges and bundle hashes. The old
+`deobf/` factory project remains ignored research output; it is not the active
+source. Recovery is an explicit tooling command, not a development prerequisite.
+
+This independent reconstruction is not NASA's unpublished original repository
+and is not affiliated with or endorsed by NASA. Some minified local identifiers
+remain unresolved. Original third-party snapshots and their license notices are
+preserved rather than replaced with different dependency versions.
 
 ## Earlier custom viewer foundation
 

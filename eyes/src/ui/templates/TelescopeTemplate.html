@@ -1,0 +1,97 @@
+<div class="telescope">
+	<span class="air {{airClass}}">
+		<div class="description above">
+			<span class="semi small">Pick a location</span>
+		</div>
+
+		<div class="container">
+			<div class="title">
+				<div class="vertical">
+					<snap class="menu semi upper color gray small">Telescope Mode</snap>
+				</div>
+			</div>
+
+			<span>
+				<div class="latlong semi small color gray">
+					<div key="coordinateTipPopup" class="coordinate-info-tip-popup {{inputTipVisibleClass}}" >
+						<span class="semi small">Positive inputs are North and East. Negative inputs are South and West.</span>
+					</div>
+					<span key="coordinateInfo" class="coordinate-info-icon clickable icon icon-info" onclick="showCoordinateInputTip" ontouch="showCoordinateInputTip"></span>
+					<snap class="latitude">
+						<label>{{latitudeTitle}}</label>
+						<input class='clickable' key="latitude" type="text" oninput="latitudeInputChange"/>
+					</snap>
+
+					<snap class="longitude">
+						<label>{{longitudeTitle}}</label>
+						<input class='clickable' key="longitude" type="text" oninput="longitudeInputChange"/>
+					</snap>
+					<button class='go-btn-footer clickable' onclick="goSurfaceViewClick"> 
+						GO
+					</button>
+				</div>
+			</span>
+
+			<div class="exit">
+				<span class="exit clickable active" onclick="exitTelescope">
+					<span class="text semi menu upper small">Exit</span>
+					<span alt="Close telescope mode" class="icon icon-box active">
+						<span class="icon icon-close"></span>
+					</span>
+				</span>
+			</div>
+		</div>
+	</span>
+
+	<span class="surface {{surfaceClass}}">
+		<div class="description surface top">
+			<span class="semi small">{{azimuth}}</span>
+			<span class="semi small">{{elevation}}</span>
+			<span class="text semi small color gray">Azimuth</span>
+			<span class="text semi small color gray">Elevation</span>
+		</div>
+
+		<div class="container">
+			<div class="title">
+				<div class="vertical">
+					<snap class="menu semi upper color gray small">Telescope Mode</snap>
+				</div>
+			</div>
+			<span class="readout">
+				<div class="semi small color gray middle" onclick="exitSurfaceMode">
+					<snap class="menu semi upper color gray small changeLocation clickable">CHANGE LOCATION</snap>
+
+					<div class="location clickable">
+						<span class="icon latlong-target"></span>
+						<snap>{{formattedLatitude}}</snap>
+						<snap> / </snap>
+						<snap>{{formattedLongitude}}</snap>
+					</div>
+				</div>
+
+				<span key="constellationToggleButton" class="{{constellationsClass}} icon icon-constellation clickable" onclick="toggleConstellation"></span>
+				<span class="target icon telescope-target">
+					<div class="description surface center">
+						<span class="semi small">{{azimuth}}</span>
+						<span class="semi small">{{elevation}}</span>
+						<span class="text semi small color gray">Azimuth</span>
+						<span class="text semi small color gray">Elevation</span>
+					</div>
+				</span>
+			</span>
+
+			<div class="exit">
+				<span class="exit clickable active" onclick="exitSurfaceMode">
+					<span class="text semi menu upper small">Exit</span>
+					<span alt="Close telescope mode" class="icon icon-box active">
+						<span class="icon icon-close"></span>
+					</span>
+				</span>
+			</div>
+		</div>
+	</span>
+	<div class="tap-hint" key="tapHint">
+		<div class="circle"></div>
+		<div class="icon icon-finger"></div>
+	</div>
+</div>

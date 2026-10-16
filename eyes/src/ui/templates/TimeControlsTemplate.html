@@ -1,0 +1,37 @@
+<nav class="time-controls {{isVisibleClass}} {{touchActiveClass}} {{isLiveClass}} {{isPlayingClass}}">
+	<div class="datetime-container">
+		<time class="date">{{dateValue}}</time>
+		<time class="time">{{timeValue}}</time>
+	</div>
+	<h3 class="rate {{isRateControlsVisible}}">{{rateDisplay}}</h3>
+	<div class="rate-controls {{isRateControlsVisible}}">
+		<button class="clickable" data-tippy-content="Decrease time rate" aria-label="Decrease time rate"
+			onclick="decreaseRate">
+			<span class="icon rate-change decrease"></span>
+		</button>
+		<button class="clickable" data-tippy-content="Pause / play" aria-label="Pause or play" onclick="playPauseRate">
+			<span class="icon {{playIconClass}}"></span>
+		</button>
+		<button class="clickable" data-tippy-content="Increase time rate" aria-label="Increase time rate"
+			onclick="increaseRate">
+			<span class="icon rate-change increase"></span>
+		</button>
+	</div>
+	<div key='sliderContainer' class="slider-container">
+		<input id="time-slider-input" class='slider-input clickable scrollable' key='inputRange' type="range" min="0" max="100">
+		<svg class='svg-parent' key='svgParent' height="50" width="600">
+			<defs>
+				<linearGradient id="path-stroke" x1="0%" y1="0%" x2="0%" y2="100%">
+					<stop offset="0%" stop-color="rgba(255, 255, 255, 0)" />
+					<stop offset="100%" stop-color="rgba(255, 255, 255, 1)" />
+				</linearGradient>
+			</defs>
+
+			<path key='sliderPath' stroke="url(#path-stroke)" stroke-width="2" stroke-opacity="0.5"
+				stroke-linecap="round" fill="none" />
+		</svg>
+		<button class="realtime clickable {{realTimeBtnClass}}" data-tippy-content="Return to real time speed"
+			aria-label="Return to real time speed" onclick="onRealtimeClick"></button>
+		<label class="knob" for="time-slider-input">Drag time slider thumb</label>
+	</div>
+</nav>

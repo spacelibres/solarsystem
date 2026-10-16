@@ -1,0 +1,54 @@
+<div class="distance-panel-container {{isVisibleClass}} {{canMinimizeClass}} {{isMinimizedClass}} {{isSearchingClass}}"
+	onclick="onContainerClick">
+	<div class="distance-panel {{isDraggableClass}} {{currDraggingClass}}">
+		<div key="dragArea" class="distance-panel-header drag-container">
+			<button class="icon icon-drag"></button>
+			<h1 key="dpTitle" class="dp-title small semi color gray light">Distance Tool</h1>
+			<button key="dpCloseButton" class="dp-close-button icon icon-close clickable" onclick="exit"></button>
+		</div>
+		<div class="distance-panel-content">
+			<div key="sourceSearchContainer" class="search-container source">
+				<span class="from-to color gray x-small">{{fromText}}</span>
+				<button class="{{showSourceMPToggleClass}} clickable" onClick="toggleSourceMP"
+					aria-label="toggle between the center or the surface of the source"></button>
+			</div>
+			<button class="swap-btn icon distance-swap clickable {{swapIsVisibleClass}} {{swapOffsetClass}}" onClick="onSwapClick"></button>
+			<div key="targetSearchContainer" class="search-container target">
+				<span class="from-to color gray x-small">{{toText}}</span>
+				<button class="{{showTargetMPToggleClass}} clickable" onClick="toggleTargetMP"
+					aria-label="toggle between the center or the surface of the target"></button>
+			</div>
+			<div class="line-graphic-container {{touchActiveClass}} {{dotPosClass}}">
+				<button class="source-mp-toggle clickable {{sourceMpClass}}" onClick="toggleSourceMP">
+					<span class="icon distance-source source-icon"></span>
+				</button>
+				<button class="target-mp-toggle clickable {{targetMpClass}}" onClick="toggleTargetMP">
+					<span class="icon distance-target target-icon"></span>
+				</button>
+				<div class="line-graphic" key="lineGraphic" onClick="onLineClick"></div>
+			</div>
+		</div>
+	</div>
+	<div class="result-container {{isExpandedClass}}" onClick="onResultClick">
+		<div class="distance-subcontainer">
+			<h3 class="result-text {{resultTextClass}}">{{resultText}}</h3>
+			<h3 class="result-unit clickable monospace" onclick="toggleUnitSystem">{{resultUnit}}</h3>
+			<div class="loading-bar {{isLoadingClass}}"></div>
+		</div>
+		<div class="result-subcontainer rel-velocity-subcontainer">
+			<div>
+				<span class="tooltip {{relVelocityClass}}"></span>
+				<h3 class="result-text distance {{relVelocityClass}}">{{relVelocityText}}</h3>
+				<h3 class="result-unit clickable {{relVelocityClass}}" onclick="toggleUnitSystem">{{relVelocityUnit}}</h3>
+			</div>
+		</div>
+		<div class="result-subcontainer light-time-subcontainer {{lightTimeVisibleClass}}">
+			<div>
+				<span class="tooltip monospace"></span>
+				<h3 class="result-text monospace">{{lightTimeText}}</h3>
+			</div>
+		</div>
+	</div>
+	<button key="maxMinButton" class="max-min-btn icon {{maxMinIconClass}} {{maxMinBtnPosition}} clickable"
+		onClick="toggleIsMinimized"></button>
+</div>

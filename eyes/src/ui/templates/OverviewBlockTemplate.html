@@ -1,0 +1,23 @@
+<div id="overview-block" class="content-block overview panel-block">
+	<button class="back-button {{isBackButtonVisible}} clickable" onclick="goBack">
+		<div class="icon caret-up"></div>
+	</button>
+	
+	<div class="overview-content-container">
+		<span key="overviewTitle" class="semi title" aria-labelledby="title">{{title}}</span>
+		<div class="subtitle-container">
+			<div class="event-title {{isBackButtonVisible}}">
+				<div class="icon icon-calendar"></div>
+				Event
+			</div>
+			<span class="{{isBackButtonVisible}}">·</span>
+			<div class="subtitle">
+				<div class="shape {{shapeType}} {{shapeColor}} {{isShapeVisibleClass}}"></div>
+				<span class="subtitle category {{isCategoryVisibleClass}}">{{category}}</span>
+				<span class="{{isDateVisible}}">· <span>{{missionDates}}</span></span>
+			</div>
+		</div>
+		
+		<span class="{{disclaimerClass}} color gray x-small">{{disclaimerMessage}}</span>
+	</div>
+</div>

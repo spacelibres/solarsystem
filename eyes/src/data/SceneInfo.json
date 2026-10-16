@@ -1,0 +1,20 @@
+{
+  "zoomMax": 0,
+  "staticEntityGroups": [
+    "stars",
+    "planets"
+  ],
+  "dynamicEntities": [
+    "all"
+  ],
+  "entityOptions": {
+    "milkyWaySprite": true,
+    "heliosphere": true
+  },
+  "meta": {
+    "titlePrefix": "Eyes on the Solar System",
+    "titleSuffix": "NASA/JPL",
+    "url": "https://eyes.nasa.gov/apps/solar-system",
+    "description": "Eyes on the Solar System lets you explore the planets, their moons, asteroids, comets and the spacecraft exploring them from 1950 to 2050.  You are in control of time and space!  Using real trajectory data you can recreate famous moments in solar system exploration, or preview exciting adventures yet to come."
+  }
+}

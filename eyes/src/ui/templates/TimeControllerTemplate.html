@@ -1,0 +1,18 @@
+<div class="time-controller {{isVisibleClass}}">
+	<div class="rate-container">
+		<button key="toggleBtn" class="icon {{playClass}} clickable play-pause" data-tippy-content="Pause / play" onclick="togglePlayPause"></button>
+		<label key="label" class="rate-label">rate</label>
+		<button key="decreaseBtn" class="prev-rate clickable" data-tippy-content="Decrease time rate" onclick="decreaseRate">
+			<span key="decreaseContainer" class="container">
+				<span class="icon icon-backward"></span>
+			</span>
+		</button>
+		<div class="vertical-line"></div>
+		<button key="increaseBtn" class="next-rate clickable" data-tippy-content="Increase time rate" onclick="increaseRate">
+			<span key="increaseContainer" class="container">
+				<span class="icon icon-forward"></span>
+			</span>
+		</button>
+		<label key="rateDisplay" class="rate-display-label">{{rateDisplay}}</label>
+	</div>
+</div>

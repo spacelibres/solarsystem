@@ -3,6 +3,24 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.29 - 2026-10-16
+
+Replace the factory-wrapper reconstruction with an editable native source project.
+
+- Check in the recovered application, framework, Pioneer engine, UI and vendor
+  sources under eyes/. Account for 1,087 modules, including 733 native ESM
+  modules and 55 separate HTML templates, plus JSON and ordinary CommonJS.
+- Remove webpack's chunk runtime, numeric dependency API and factory registry.
+  Use explicit relative source imports and live native exports/reexports.
+- Recover names from original exports/classes, template ownership, named fields
+  and destructuring. Expand application comma statements and boolean literals.
+  Preserve unresolved names honestly and keep captured third-party versions.
+- Build and watch editable source without regenerating it. Provide independent
+  install/build/dev scripts and preserve original media URLs and vendor notices.
+- Audit source syntax, import resolution, path case and recovery provenance;
+  test circular imports, mutable exports, locale contexts and rename capture.
+- Keep standalone package versions synchronized by the release-version script.
+
 ## 0.2.28 - 2026-10-16
 
 Restore the original NASA Eyes Solar System application as a locally rebuilt

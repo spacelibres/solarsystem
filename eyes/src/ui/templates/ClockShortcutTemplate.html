@@ -1,0 +1,10 @@
+<nav class="clock-shortcut shortcut {{isVisibleClass}}">
+	<div class="{{replayClass}} replay-container clickable" onclick="_replay" key="replayContainer">
+		<span class="icon {{replayIcon}}" key="iconReplay"></span>
+		<div class="replay text semi" key="replay">Replay</div>
+	</div>
+	<div class="{{liveContainerClass}} live-container container" onclick="backToLive" key="liveContainer" data-tippy-content="Reset time to live.">
+		<span class="icon {{liveIcon}}" key="iconLive"></span>
+		<div class="{{liveClass}} text" key="live">{{liveText}}</div>
+	</div>
+</nav>

@@ -1,0 +1,63 @@
+<timeline class="events-timeline small semi {{isVisibleClass}}">
+	<div 
+		class="focus-container {{fpVisibleClass}}" 
+		key="focusPanel"
+		onmouseenter="_onFpMouseEnter"
+		onmouseleave="_onFpMouseLeaveDebounced"
+		onwheel="_onFpWheel"
+	>
+	<button class="fp-arrow left clickable {{fpArrowVisible}}" direction="left" onclick="_onFpArrowClick"></button>
+		<div 
+			class="fp-mask"
+			key="fpMask"
+			ontouchstart="_onFpTouchStart"
+			ontouchmove="_onFpTouchMoveThrottled"
+			ontouchend="_onFpTouchEnd"
+		>
+			<div key="fpDetails" class="fp-details">
+				<h2>{{fpEventName}}</h2>
+				<time>{{fpEventTime}}</time>
+			</div>
+			<div class="focus-ticks-container hidden" key="fpTicksContainer">
+				<div class="focus-line" key="fpLine"></div>
+				<span 
+					class="focus-ticks"
+					key="fpTicks"
+					ontouchstart="_onFpTicksTouchStart"
+					ontouchmove="_onFpTicksTouchMove"
+					ontouchend="_onFpTicksTouchEnd"
+					onmouseenter="_onFpTicksMouseEnter"
+					onmousemove="_onFpTicksMouseMove"
+					onmouseleave="_onFpTicksMouseLeave"
+					onclick="_onFpTicksClick"
+				>
+				</span>
+				<div class="focus-target-line {{fpTargetLineVisibleClass}}"></div>
+				<div class="focus-viewing-line {{fpViewingLineVisibleClass}}"></div>
+			</div>
+		</div>
+		<button class="fp-arrow right clickable {{fpArrowVisible}}" direction="right" onclick="_onFpArrowClick"></button>
+	</div>
+	<div 
+		class="bar" 
+		key="timelinebar"
+		ontouchstart="_onTimelineTouchStart"
+		ontouchmove="_onTimelineTouchMove"
+		ontouchend="_onTimelineTouchEnd"
+		onmousemove="_onTimelineMouseMove"
+		onmouseleave="_onTimelineMouseLeaveDebounced"
+		onclick="_onTimelineClick"
+	>
+		<div class="event-container" key="eventContainer"></div>
+		<div class="focus-content {{focusContentVisibleClass}}"  key="fpContent"></div>
+		<div class="marker-container" key="markerContainer"></div>
+		<div class="viewing-line {{viewingLineVisibleClass}}"></div>
+		<div class="target-date-line {{targetLineVisibleClass}}"></div>
+		<span class="target-date-label {{targetDateVisibleClass}} {{targetDateColorClass}}" ontouchstart="_onDateTouchStart" ontouchend="_onDateTouchEnd"></span>
+	</div>
+	<div class="timeline-footer-container">
+		<time class="range-date start-date" key="rangeDateStart"></time>
+		<div class="reset-zoom-button clickable {{resetZoomVisibleClass}}" onclick="_zoomOutOfCluster">Reset Zoom</div>
+		<time class="range-date end-date" key="rangeDateEnd"></time>
+	</div>
+</timeline>

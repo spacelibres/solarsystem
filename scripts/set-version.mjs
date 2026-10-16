@@ -13,7 +13,7 @@
  * broken release cannot be produced by accident.
  */
 import { execFileSync } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -49,6 +49,15 @@ execFileSync(npmCli ? process.execPath : 'npm', [
   cwd: root,
   stdio: 'inherit',
 });
+
+for (const name of ['package.json', 'package-lock.json']) {
+  const file = join(root, 'eyes', name);
+  if (!existsSync(file)) continue;
+  const metadata = JSON.parse(readFileSync(file, 'utf8'));
+  metadata.version = target;
+  if (metadata.packages?.['']) metadata.packages[''].version = target;
+  writeFileSync(file, JSON.stringify(metadata, null, 2) + '\n');
+}
 
 writeFileSync(versionFile, `${target}\n`);
 

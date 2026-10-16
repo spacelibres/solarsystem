@@ -1,0 +1,23 @@
+<li key="toolboxBlock" class="toolbox-block content-block clickable hover-background {{isVisibleClass}}">
+	<div key="clickableDiv" class="clickable-div"></div>
+	<span class="icon circle mobile-icon">
+		<span class="icon {{iconClass}} mobile-icon"></span>
+	</span>
+	<div class="toolbox-description">
+		<div class="title capitalize">{{title}}</div>
+		<div class="tooltop-icon-container">
+			<div key="tooltipIcon" class="tooltip tooltip-info-icon clickable icon icon-info" 
+				onclick="_showTooltip" 
+				ontouch="_showTooltip">
+			</div>
+		</div>
+	</div>
+	<span key="goButton" class="icon caret-right mobile-icon hover-background clickable"></span>
+	<div key="tooltipPopup" class="tooltip-popup {{inputTipVisibleClass}}">
+		<div class="semi tooltip-text">
+			<div alt="Close tooltip" class="tooltip-close-btn semi" onclick="_closeTooltip" ontouchstart="_closeTooltip">
+				<div class="icon icon-close"></div>
+			</div>{{tooltipText}}
+		</div>
+	</div>
+</li>

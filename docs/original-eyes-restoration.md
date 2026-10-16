@@ -60,3 +60,10 @@ build pass. Standalone build recreated HTML/CSS/JS after its output was moved aw
 Independent review findings on embedded asset URLs and clean standalone builds
 were fixed and reviewed again. Complete story-by-story parity remains an ongoing
 acceptance task; this milestone does not claim exhaustive visual parity coverage.
+
+## Native source follow-up (0.2.29)
+
+The factory-based milestone above is superseded by the checked-in `eyes/` source
+project. Its native imports/exports, templates, data and normal CommonJS packages
+replace the chunk registry/runtime. Normal development compiles source and never
+recovers it again. See `eyes/README.md` and the native-source implementation plan.

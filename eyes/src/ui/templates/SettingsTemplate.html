@@ -1,0 +1,37 @@
+<div class="settings {{isVisibleClass}} {{orientationClass}}">
+	<div key="container" class="container {{containerClass}}">
+		<div key="content" class="content">
+			<button class="clickable icon icon-box {{allowInfoPanelClass}}" onclick="toggleInfoPanel" data-tippy-content="Show info panel" aria-label="show info panel">
+				<span class="icon {{infoButton}}"></span>
+			</button>
+			<button class="clickable icon icon-layers {{allowLayersClass}}" onclick="toggleLayers" data-tippy-content="Toggle layers" aria-label="toggle layers"></button>
+			<button class="clickable icon {{unitButton}} {{allowToggleUnitClass}}" onclick="toggleUnit" data-tippy-content="Toggle between metric and imperial units" aria-label="toggle between metric and imperial units"></button>
+			<button class="clickable icon icon-hide {{photoModeClass}} {{allowPhotoModeClass}}" onclick="togglePhotoMode" data-tippy-content="Show or hide UI" aria-label="show or hide UI"></button>
+			<button class="clickable icon-bg zoom {{allowZoomClass}}">
+				<span key="zoomInButton" class="icon icon-plus" data-tippy-content="Zoom in" aria-label="zoom in" role="button"></span>
+				<div class="horizontal-line"></div>
+				<span key="zoomOutButton" class="icon icon-minus" data-tippy-content="Zoom out" aria-label="zoom out" role="button"></span>
+			</button>
+			<button key="lightToggle" class="light-toggle clickable icon icon-box {{allowLightingClass}}" onclick="toggleLight" data-tippy-content="Toggle light modes" aria-label="toggle light modes">
+				<span class="icon {{lightClass}}"></span>
+			</button>
+			<button class="clickable icon {{guidedClass}} {{allowGuidedCameraClass}}" onclick="toggleGuidedCamera" data-tippy-content="Toggle auto camera" aria-label="toggle auto camera"></button>
+			<div key="lightOptions" class="lighting-option-container small {{showLightingOptionsClass}}">
+				<button key="flood" class="button lighting-option clickable">
+					<span class="lighting-icon icon icon-flood-light"></span>
+					<span class="title">Flood Lighting</span>
+				</button>
+				<button key="shadow" class="button lighting-option clickable" value="shadow">
+					<span class="lighting-icon icon icon-shadow-light"></span>
+					<span class="title">Shadow Lighting</span>
+				</button>
+				<button key="natural" class="button lighting-option clickable" value="natural">
+					<span class="lighting-icon icon icon-natural-light"></span>
+					<span class="title">Natural Lighting</span>
+				</button>
+			</div>
+			<button class="clickable icon icon-fullscreen {{fullscreenClass}} {{allowFullscreenClass}}" onclick="toggleFullscreen" data-tippy-content="Toggle fullscreen" aria-label="toggle fullscreen"></button>
+		</div>
+	</div>
+	<button class="toggle clickable icon icon-controls {{isCollapsibleClass}}" onclick="toggleCollapse" data-tippy-content="Show or hide settings" aria-label="show or hide settings"></button>
+</div>

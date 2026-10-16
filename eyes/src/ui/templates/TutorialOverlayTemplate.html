@@ -1,0 +1,21 @@
+<div id="tutorial-overlay" class="{{isVisibleClass}} {{slideClass}}">
+
+	<div class="swiper {{carouselClass}}">
+		<div key="swiperSlides" class="swiper-wrapper"></div>
+
+		<div class="swiper-button-prev icon prev-arrow tutorial-carousel-prev"></div>
+		<div class="swiper-button-next icon next-arrow tutorial-carousel-next"></div>
+
+		<div key="bullets" class="bullet-container"></div>
+
+	</div>
+
+	<div class="dismiss-container">
+		<button class="dismiss-button clickable" onclick="close">{{dismissText}}</button>
+	</div>
+
+
+	<footer>
+		<p class='tutorial-smallprint'>The data used to generate this visualization is from the <a href='https://cneos.jpl.nasa.gov' target='_blank'>Center for Near-Earth Object Studies</a> and JPL's <a href='https://ssd.jpl.nasa.gov' target='_blank'>Solar System Dynamics</a> website. Visit the <a href='https://www.nasa.gov/planetarydefense/overview' target='_blank'>Planetary Defense Coordination Office</a> for more information on how NASA monitors for potentially hazardous asteroids and comets.</p>
+	</footer>
+</div>

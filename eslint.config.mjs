@@ -18,6 +18,8 @@ const config = [
       'artifacts/**',
       'deobf/**',
       'public/eyes/**',
+      'eyes/src/**',
+      'eyes/dist/**',
     ],
   },
 ];

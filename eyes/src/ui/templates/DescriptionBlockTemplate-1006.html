@@ -1,0 +1,11 @@
+<div class="content-block description panel-block {{isExpanded}}">
+    <h5 class="title {{showTitleLabel}}">Description</h5>
+	<div key="copyContainer" class="copy-container">
+		<div class="copy">{{blurbDescription}}</div>
+		<div key="moreContainer" class="more-container {{isMoreVisible}}">
+			<div class="copy more line-break-text" key="moreCopy">{{moreDescription}}</div>
+		</div>
+	</div>
+	
+	<button class="more-button clickable {{isButtonVisible}} " onclick="onClickReadMore">Read <span>{{readMsg}}</span></button>
+</div> 

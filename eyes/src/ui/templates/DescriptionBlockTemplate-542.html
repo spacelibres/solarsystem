@@ -1,0 +1,19 @@
+<div class="description-block">
+	<div key="header" class="header">
+		<h2 class="title">{$title}</h2>
+		<h3 class="subtitle semi">{$subtitle}</h3>
+	</div>
+	<div key="body" class="body">
+		<div class="description">{$description}</div>
+		<span class="more-description {{moreClass}}" >
+			{$more}
+		</span>
+		<span class="clickable more-toggle {{hasMoreClass}}" onclick="toggleMore">
+			<span class="x-small more-message">
+				{{moreMessage}}
+			</span>
+			<span class="button clickable icon more-icon {{moreIcon}}"></span>
+		</span>
+	</div>
+	<div key="footer" class="footer"></div>
+</div>

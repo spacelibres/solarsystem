@@ -29,3 +29,7 @@ deploy/.env
 
 # Generated original application shell (NASA media stays remote)
 public/eyes/
+
+# Recovered source project's build output
+eyes/dist/
+eyes/node_modules/

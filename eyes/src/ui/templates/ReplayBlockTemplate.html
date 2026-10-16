@@ -1,0 +1,25 @@
+<div id="replay-block" class="content-block panel-block">
+	<div class="date-container">
+		<div class="date">{{dateText}}</div>
+		<span>·</span>
+		<time key="clockContainer" class="clock"></time>
+	</div>
+
+	<div key='eventsSliderContainer' class="slider-container">
+		<input id="event-slider-range" class='slider-input clickable scrollable' key='eventInputRange' type="range">
+	</div>
+
+	<div class="button-container">
+		<button class="event-button clickable color gray med small {{isPrevBtnActive}}" onclick="prevButtonClicked">
+			<span class="prev-icon icon next-arrow-solid"></span>
+			Prev Event
+		</button>
+		<button class="clickable play-pause-button event-button" data-tippy-content="Pause / play" aria-label="Pause or play" onclick="playPauseEvent">
+			<span class="icon {{playIconClass}}"></span>
+		</button>
+		<button class="event-button clickable color gray med small {{hideNextEventButton}} {{isNextBtnActive}}" onclick="nextButtonClicked">
+			Next Event
+			<span class="icon icon next-arrow-solid"></span>
+		</button>
+	</div>
+</div>

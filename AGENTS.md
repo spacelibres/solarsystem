@@ -36,7 +36,8 @@ in `(v<version>)`, then create and push an annotated tag `v<version>`.
 ## Layout
 
 ```
-src/app/           Next.js app router pages
+eyes/              Editable recovered NASA application (native ESM/CJS/templates)
+src/app/           Next.js host pages (default redirects to eyes output)
 src/components/    scene + UI components
 src/lib/dynamo/    the .dyn parser, loader and orbit geometry
 src/lib/nasa/      asset endpoints and catalog types
@@ -85,3 +86,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Recovered source project
+
+The active application is checked-in under `eyes/`. Normal dev/build commands
+compile this tree and must never invoke recovery or overwrite source edits.
+`tools/recover-native-eyes.cjs` is explicit research/reconstruction tooling.
+Keep NASA UI at the owner's explicit direction; use the spacelibre standard for
+new spacelibre surfaces. NASA media remain runtime URLs, never a local library.
+Original source provenance and third-party notices live in `eyes/`. Do not
+claim all minifier-erased identifiers or the unpublished original repo were recovered.
