@@ -3,6 +3,40 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.17 - 2026-10-16
+
+One-command deployment and automatic redeploys from GitHub.
+
+### Added
+
+- **`deploy/deploy.sh`** — a single idempotent installer for a Debian/Ubuntu VPS
+  running Caddy. It installs Node if needed, creates a no-login service user,
+  clones or fast-forwards the repository, builds, mirrors NASA's assets when they
+  are absent, and installs three systemd units plus a Caddy site block. Re-running
+  it updates and reloads.
+- **`deploy/update.sh`** — fetch, then `npm ci`, `npm test`, `npm run check` and
+  `npm run build`, restarting only if every gate passes. A failing push therefore
+  cannot take the site down; the previous build keeps serving and the failure lands
+  in `/var/log/solarsystem-update.log`.
+- **`deploy/webhook.cjs`** — a dependency-free GitHub webhook listener that
+  verifies GitHub's HMAC-SHA256 signature in constant time and triggers the
+  updater. Written in plain Node with no imports from the app, because it is what
+  repairs the app and must survive the app being broken. Replies `pong` to GitHub's
+  `ping` so the hook can be verified immediately.
+- **`deploy/vps.py`** — a small Paramiko helper for driving the host without
+  `sshpass`, reading credentials from the environment so they never reach a shell
+  history or a committed file.
+- **`docs/deploy.md`** — the runbook, including why the app binds `127.0.0.1`,
+  why Caddy is added to rather than rewritten, and how the update gates work.
+
+### Notes
+
+- The host already runs another Next.js app on port 3000, so this one defaults to
+  **4310** and is reachable only through Caddy.
+- Caddy configuration is **added to, never replaced**: a new file under
+  `/etc/caddy/sites/` plus a single `import sites/*.caddy` line, with the existing
+  `Caddyfile` backed up and `caddy validate` run before any reload.
+
 ## 0.2.16 - 2026-10-16
 
 The camera and sky now follow NASA's real scale relationships.
