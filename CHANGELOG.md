@@ -3,6 +3,20 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.28 - 2026-10-16
+
+Restore the original NASA Eyes Solar System application as a locally rebuilt
+module project, replacing the custom viewer at the default entry.
+
+- Recover all 1,087 module factories with scoped parameter names, export labels,
+  source ranges, dependency audit and source hashes; retain original runtime
+  semantics and emit readable ESM files plus a standalone build project.
+- Rebuild original UI, styles, content database and rendering engine locally.
+  Keep NASA imagery, models and ephemerides at their exact remote URLs.
+- Correct relative application/CSS assets and autoplay configuration paths;
+  remove the original page analytics script from the reconstructed shell.
+- Add recovery transform tests and automatic dev/build preparation.
+
 ## 0.2.27 - 2026-10-16
 
 Restore the viewer on checkouts without a local NASA asset library.

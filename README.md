@@ -7,7 +7,30 @@ library, presented with the [spacelibre visual standard](../spacelibre-vi).
 
 > Not affiliated with or endorsed by NASA. See **Attribution** below.
 
-## What works today
+## Original NASA application recovery
+
+The default entry now runs the recovered NASA Eyes Solar System application.
+Run `npm ci` then `npm run dev`. The predev/prebuild hook captures the nine
+small application shell files from the official URL (or reuses the local capture),
+extracts all 1,087 webpack factories into readable ESM files, and rebuilds them.
+No iframe or remote minified app script is used to execute the application.
+Imagery, models, ephemerides, fonts and content continue to load from NASA.
+
+- `npm run eyes:recover`: rebuild the original application shell.
+- `npm run test:recovery`: check the recovery transform.
+- `deobf/project/src/modules/`: editable recovered modules with original IDs.
+- `deobf/project/manifest.json`: origin hashes, exports, dependencies and source spans.
+- `deobf/project/`: standalone project; `npm install && npm run build` rebuilds its JS.
+
+Generated NASA sources and shell output are excluded from Git. The complete
+module factories retain the original webpack compatibility runtime to preserve
+live exports, circular imports and startup order. Identifier names erased by the
+minifier are not all recoverable. See [recovery notes](docs/original-eyes-restoration.md).
+The previous custom Three.js viewer remains in source as reference, but is no
+longer the default UI. This independent reconstruction is not NASA's unpublished
+source repository and is not affiliated with or endorsed by NASA.
+
+## Earlier custom viewer foundation
 
 - **A from-scratch `.dyn` parser** (`src/lib/dynamo/`) for NASA's binary
   ephemeris format, covering the `orb`, `pos`, `lin`, `ori` and `quat` point

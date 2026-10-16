@@ -26,3 +26,6 @@ deobf/
 
 # Deployment scratch (never commit host credentials or generated config)
 deploy/.env
+
+# Generated original application shell (NASA media stays remote)
+public/eyes/

@@ -17,6 +17,7 @@ const config = [
       'data/**',
       'artifacts/**',
       'deobf/**',
+      'public/eyes/**',
     ],
   },
 ];

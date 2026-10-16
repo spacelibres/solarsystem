@@ -1,9 +1,5 @@
-import SolarViewer from '../components/SolarViewer';
+import { redirect } from 'next/navigation';
 
 export default function HomePage() {
-  return (
-    <main>
-      <SolarViewer />
-    </main>
-  );
+  redirect('/eyes/index.html');
 }
