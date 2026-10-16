@@ -6,7 +6,8 @@ import catalogData from '../data/catalog.json';
 import type { CatalogEntity } from '../lib/nasa/catalog';
 import { loadDynamo } from '../lib/dynamo/loader';
 import { createSolarScene, type SolarSceneHandle, type LoadedOrbit } from './solar-scene';
-import { DEFAULT_PRESET, applyPaletteToDocument } from '../lib/theme/palette';
+import { DEFAULT_PRESET, applyPaletteToDocument, isDarkSurface } from '../lib/theme/palette';
+import useFavicon from './useFavicon';
 import { bodyColor } from '../lib/theme/nasa-tokens';
 import { FEATURED_STORIES } from '../lib/nasa/featured';
 import InfoPanel from './InfoPanel';
@@ -99,9 +100,19 @@ export default function SolarViewer() {
     trails: true,
   });
 
+  // The active preset drives every surface, including the logo and favicon. A
+  // theme change that reaches only part of the page is a failed implementation,
+  // so the name is state rather than a one-shot effect.
+  const [palette] = useState(DEFAULT_PRESET);
+
   useEffect(() => {
-    applyPaletteToDocument(DEFAULT_PRESET);
-  }, []);
+    applyPaletteToDocument(palette);
+  }, [palette]);
+
+  // The viewer chrome is dark, so the mark takes the white ink; a light-surface
+  // preset switches it to black. Full-colour marks follow the palette's own
+  // role attributes instead.
+  useFavicon(palette.name, isDarkSurface(palette.colors.deep));
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -219,10 +230,10 @@ export default function SolarViewer() {
   const selected = selectedId ? CATALOG[selectedId] ?? null : null;
 
   return (
-    <div className="ns-app">
+    <div className="ns-app" data-palette={palette.name}>
       <header className="ns-header">
         <div className="ns-header__left">
-          <SpacelibreLogo variant="horizontal" height={26} />
+          <SpacelibreLogo orientation="horizontal" width={240} />
           <h1 className="ns-header__title">Eyes on the Solar System</h1>
           {selected && (
             <nav className="ns-breadcrumb" aria-label="Location">

@@ -119,10 +119,31 @@ export function applyPalette(root: HTMLElement, preset: PalettePreset): void {
   root.dataset.palette = preset.name;
 }
 
-/** Apply a preset to the document root (for SSR-hydrated pages). */
+/**
+ * Apply a preset to the document root (for SSR-hydrated pages).
+ */
 export function applyPaletteToDocument(preset: PalettePreset): void {
   if (typeof document === 'undefined') return;
   applyPalette(document.documentElement, preset);
+}
+
+/**
+ * Whether a `deep` role reads as a dark surface.
+ *
+ * Used to pick a monochrome ink for the logo and favicon: a single-ink mark has
+ * to contrast with whatever the palette puts behind it, and "dark" is a property
+ * of the generated colour rather than something to hardcode per preset. Uses the
+ * same relative-luminance definition as the VI engine so thresholds agree.
+ */
+export function isDarkSurface(hex: string): boolean {
+  const rgb = hex
+    .replace('#', '')
+    .match(/[a-f\d]{2}/gi)
+    ?.map((pair) => parseInt(pair, 16) / 255)
+    .map((v) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4));
+  if (!rgb || rgb.length < 3) return true;
+  const luminance = 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  return luminance < 0.5;
 }
 
 function camelToKebab(value: string): string {

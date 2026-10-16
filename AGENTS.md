@@ -21,7 +21,10 @@ format directly and renders NASA's own planetary imagery, presented with the
 4. **Follow the visual standard.** Palette roles come from
    `src/lib/theme/palette.ts`, derived from the spacelibre VI standard. The logo
    must be the approved SVG masters in `public/brand/`, never reconstructed.
-   Monochrome masters keep one ink and are never recoloured.
+   Monochrome masters keep one ink and are never recoloured. Read
+   [`docs/visual-identity.md`](docs/visual-identity.md) before touching any logo,
+   icon or colour — it is binding, and `tests/vi-constraints.test.ts` enforces
+   the parts that can be checked mechanically.
 
 ## Release discipline
 

@@ -3,6 +3,58 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.25 - 2026-10-16
+
+Bind the logo, icons and colours to the spacelibre VI standard, and make the
+constraints enforceable.
+
+### Added
+
+- **`docs/visual-identity.md`** — the binding rules for every logo, icon and
+  colour decision, written as constraints rather than suggestions: the approved
+  master set, canvas sizes and minimum display widths, the 0.25-canvas-height
+  clear space rule, monochrome precedence, the full-colour planet/orbit role
+  bindings, the 16 palette roles, and the rule that a theme change must reach the
+  logo and favicon and not just an accent.
+- **The complete approved master set** in `public/brand/` — `horizontal`,
+  `stacked` and `icon` each in four inks (`primary`, `navy`, `white`, `black`),
+  twelve masters in total. Previously only two ad-hoc files existed
+  (`horizontal-white.svg`, `icon-white.svg`), so the stacked and full-colour
+  variants simply were not available; the two present are byte-identical to the
+  approved originals and have been renamed canonically.
+- **`tests/vi-constraints.test.ts`** (33 tests) and `tests/logo-roles.test.ts`
+  (12 tests). They fail if a master is missing, renamed, reshaped, given a second
+  ink, or if the favicon drifts from the icon master. Verified by deliberately
+  breaking each case and watching the suite catch it.
+- `src/lib/theme/logo.ts`, `logo-roles.ts` and `usePalette.ts`, plus
+  `tools/logo-shot.cjs` for checking the mark at its real display sizes.
+
+### Fixed
+
+- **The favicon was missing entirely.** No icon was declared in the metadata and
+  `/favicon.ico` returned 404, so the browser fell back to its own default. The
+  icon now comes from the approved `icon` master (copied verbatim, so it cannot
+  drift), and `useFavicon` re-inks it when the palette changes the surface.
+- **The full-colour mark rendered its navy fallback and disappeared.** The
+  masters carry `data-stroke-role="planet"` instead of a final colour, which is
+  deliberate — one file serves every palette. Served as a plain `<img>` the role
+  is never resolved, so the planet stayed `#002044` and vanished against dark
+  chrome. Roles are now resolved against the palette before display, and
+  `planet` resolves contextually to `planetOnDark` on a dark surface rather than
+  the literal. The monochrome masters are left untouched, and the mask's
+  structural black/white is never themed. Measured: only the planet changes —
+  the wordmark's five navy paths keep their colour.
+- `themeColor` was a hardcoded `#000000`; it now follows the palette's `deep`
+  role, so the browser chrome agrees with the theme.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 215 tests
+across seventeen files, from 170 across fifteen. The mark was checked at 240 px,
+120 px, 64 px, 32 px, 24 px and 16 px on both light and dark surfaces: the orbit
+tips survive down to 16 px, and the monochrome mark — the correct choice for the
+viewer's dark chrome — stays legible throughout.
+
 ## 0.2.24 - 2026-10-16
 
 Stop exposing the webhook's port to the internet.
