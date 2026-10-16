@@ -1,3 +1,4 @@
+import { localDecoderUrl } from '../../runtime/decoder-paths.js';
 // Recovered from app.js:350460-363613.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 import * as GLTFLoader from "../../vendor/modules/GLTFLoader.js";
@@ -157,7 +158,7 @@ class ModelComponent extends PioneerPublicApi.BaseComponent {
       }), !ModelComponent._dracoLoader && false !== t.getConfig().getValue("draco")) {
         ModelComponent._dracoLoader = new CustomDracoLoader(this, r, this.getLoadState());
         const e = t.getConfig().getValue("dracoPath");
-        const i = t.getDownloader().processUrl("string" == typeof e ? e : "$STATIC_ASSETS_URL/wasm/draco/");
+        const i = t.getDownloader().processUrl("string" == typeof e ? e : localDecoderUrl("draco/"));
         ModelComponent._dracoLoader.setDecoderPath(i);
       }
       const gLTFLoader = new GLTFLoader.GLTFLoader(loadingManager);

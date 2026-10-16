@@ -1,12 +1,13 @@
 {
   "name": "recovered-eyes-solar-system",
-  "version": "0.2.29",
+  "version": "0.2.30",
   "private": true,
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
     "dev": "node scripts/serve.mjs",
-    "check": "node scripts/audit.mjs"
+    "check": "node scripts/audit.mjs",
+    "decoders:cache": "node scripts/decoder-cache.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

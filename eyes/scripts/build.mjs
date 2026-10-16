@@ -1,3 +1,4 @@
+import { ensureDecoderCache } from './decoder-cache.mjs';
 import { build, context } from 'esbuild';
 import { mkdir, cp } from 'node:fs/promises';
 import { watch as watchDirectory } from 'node:fs';
@@ -5,11 +6,13 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 const project = fileURLToPath(new URL('../', import.meta.url));
 export async function buildEyes({ watch = false, publish = false } = {}) {
+  const cache = await ensureDecoderCache();
   const dist = path.join(project, 'dist');
   await mkdir(dist, { recursive: true });
   const copyShell = async () => cp(path.join(project, 'shell'), dist, { recursive: true });
   const publishOutput = async () => {
     await copyShell();
+    await cp(cache.root, path.join(dist, 'decoders', cache.revision), { recursive: true });
     if (publish) await cp(dist, path.resolve(project, '../public/eyes'), { recursive: true });
   };
   const options = {

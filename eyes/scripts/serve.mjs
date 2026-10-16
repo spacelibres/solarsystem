@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { buildEyes } from './build.mjs';
 await buildEyes({watch:true});
 const root = fileURLToPath(new URL('../dist/', import.meta.url));
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.map': 'application/json' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.map': 'application/json', '.wasm': 'application/wasm' };
 http.createServer(async (req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   const file = path.resolve(root, '.' + decodeURIComponent(pathname === '/' ? '/index.html' : pathname));

@@ -20,6 +20,7 @@ const config = [
       'public/eyes/**',
       'eyes/src/**',
       'eyes/dist/**',
+      'eyes/.cache/**',
     ],
   },
 ];

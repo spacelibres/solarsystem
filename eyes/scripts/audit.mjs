@@ -15,7 +15,7 @@ function walk(node, visit) {
     else if (value && typeof value === 'object') walk(value, visit);
   }
 }
-for (const file of [...files, 'main.js', 'runtime/interop.cjs']) {
+for (const file of [...files, 'main.js', 'runtime/interop.cjs', 'runtime/decoder-paths.js']) {
   const absolute = path.join(project, 'src', file);
   const source = await readFile(absolute, 'utf8');
   if (file.endsWith('.json')) { JSON.parse(source); continue; }

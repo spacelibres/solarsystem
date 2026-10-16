@@ -9,6 +9,9 @@ const nextConfig = {
   // double-invoking effects in development only doubles network traffic.
   reactStrictMode: false,
   images: { unoptimized: true },
+  async headers() {
+    return [{ source: '/eyes/decoders/:path*', headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }] }];
+  },
 };
 
 export default nextConfig;

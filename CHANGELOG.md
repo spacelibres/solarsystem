@@ -3,6 +3,19 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.30 - 2026-10-16
+
+Cache original decoding dependencies locally instead of fetching them from NASA
+while rendering models and compressed textures.
+
+- Pin 12 Draco/Basis JavaScript and WASM resources (3.18 MiB) by original URL,
+  SHA-256 and size; validate WASM and reuse verified on-disk cache offline.
+- Publish the cache under a versioned local decoder directory. Both normal
+  loader defaults and bundled fallback URLs use local files; ZSTD remains inline.
+- Download only missing/corrupt entries, write atomically, and reject mismatches.
+  Preserve original NASA media URLs and avoid mirroring the asset library.
+- Add cache reuse, integrity rejection, repair and directory-URL regressions.
+
 ## 0.2.29 - 2026-10-16
 
 Replace the factory-wrapper reconstruction with an editable native source project.

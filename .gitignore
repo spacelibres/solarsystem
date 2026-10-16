@@ -33,3 +33,6 @@ public/eyes/
 # Recovered source project's build output
 eyes/dist/
 eyes/node_modules/
+
+# Pinned local decoder dependencies (recreated by decoders:cache)
+eyes/.cache/

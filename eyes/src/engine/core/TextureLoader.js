@@ -1,3 +1,4 @@
+import { localDecoderUrl } from '../../runtime/decoder-paths.js';
 // Recovered from app.js:231271-234398.
 import * as PioneerPublicApi from "../pioneer/public-api.js";
 import * as KTX2Loader from "../../vendor/modules/KTX2Loader.js";
@@ -81,7 +82,7 @@ class TextureLoader {
     if (!TextureLoader._ktx2Loader && false !== this._engine.getConfig().getValue("ktx2")) {
       TextureLoader._ktx2Loader = new KTX2Loader.KTX2Loader();
       const t = this._engine.getConfig().getValue("ktx2Path");
-      const e = this._engine.getDownloader().processUrl("string" == typeof t ? t : "$STATIC_ASSETS_URL/wasm/ktx2/");
+      const e = this._engine.getDownloader().processUrl("string" == typeof t ? t : localDecoderUrl("ktx2/"));
       TextureLoader._ktx2Loader.setTranscoderPath(e);
       TextureLoader._ktx2Loader.detectSupport(this._engine.__getThreeJsRenderer());
     }

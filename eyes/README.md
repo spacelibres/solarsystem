@@ -59,3 +59,17 @@ This project is independent and is not affiliated with or endorsed by NASA/JPL.
 Original NASA UI is retained at the owner's request. See the repository README
 attribution and `THIRD_PARTY_LICENSES.txt` for upstream vendor notices; the host
 project's license does not override upstream terms.
+
+## Local decoder cache
+
+`npm run decoders:cache` pins and caches only Draco/Basis decoder JS and WASM.
+Normal builds verify the cache and download only missing or corrupt files.
+`decoders/manifest.json` records original URLs, SHA-256, byte lengths and revision.
+The ignored disk cache lives at `.cache/decoders/`; build output serves it at
+`decoders/<revision>/`. Both default loader paths and bundled fallback paths are
+local. ZSTD remains embedded in local JavaScript and has no decoder download.
+
+Only these 12 decoder dependencies (3.18 MiB) are cached, not the NASA media
+library. The static Draco JS fallback is not publicly accessible at its nominal
+URL, so the cache uses the exact original bundled JS fallback instead. Hash
+failures stop the build rather than silently accepting different decoder bytes.

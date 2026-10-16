@@ -1,0 +1,78 @@
+{
+  "description": "Only original decoder/transcoder runtime dependencies; no NASA imagery, model or ephemeris library.",
+  "resources": [
+    {
+      "file": "draco/draco_wasm_wrapper.js",
+      "url": "https://eyes.nasa.gov/assets/static/wasm/draco/draco_wasm_wrapper.js",
+      "sha256": "1e84f83bb64351002fafa20741ae5bc3d9cce35fac47e804197ab695618e6605",
+      "bytes": 58784
+    },
+    {
+      "file": "draco/draco_decoder.wasm",
+      "url": "https://eyes.nasa.gov/assets/static/wasm/draco/draco_decoder.wasm",
+      "sha256": "c55a594e8ffd18426d36b27fea9618af3df5e173640a3e56d46f09d76f0574f2",
+      "bytes": 285747
+    },
+    {
+      "file": "draco/draco_decoder.js",
+      "url": "https://eyes.nasa.gov/apps/solar-system/786c7dae1f2e34c054da.js",
+      "sha256": "697dd98b6cafc7368885c13b545f26623dd4dfdc1720e52d30dcb1c36af89e6e",
+      "bytes": 627048
+    },
+    {
+      "file": "ktx2/basis_transcoder.js",
+      "url": "https://eyes.nasa.gov/assets/static/wasm/ktx2/basis_transcoder.js",
+      "sha256": "e8a4b3fd4929970fad231f639702cf5c5957f2eeca16e33ac97bd96a6133b496",
+      "bytes": 57549
+    },
+    {
+      "file": "ktx2/basis_transcoder.wasm",
+      "url": "https://eyes.nasa.gov/assets/static/wasm/ktx2/basis_transcoder.wasm",
+      "sha256": "6cf17dc889352c42e9acf8897107978d127005fe3386c36a0e3845e27967630a",
+      "bytes": 527333
+    },
+    {
+      "file": "bundled/c58ed249a0b6b2787e4f.wasm",
+      "url": "https://eyes.nasa.gov/apps/solar-system/c58ed249a0b6b2787e4f.wasm",
+      "sha256": "6cf17dc889352c42e9acf8897107978d127005fe3386c36a0e3845e27967630a",
+      "bytes": 527333
+    },
+    {
+      "file": "bundled/0389c8aac482cf438e98.js",
+      "url": "https://eyes.nasa.gov/apps/solar-system/0389c8aac482cf438e98.js",
+      "sha256": "e229f45adb77d638200a18b457ce682fc78a01cb493f2a6b7a16f0438fff8c12",
+      "bytes": 28878
+    },
+    {
+      "file": "bundled/a1553835436ceb1527f4.wasm",
+      "url": "https://eyes.nasa.gov/apps/solar-system/a1553835436ceb1527f4.wasm",
+      "sha256": "c55a594e8ffd18426d36b27fea9618af3df5e173640a3e56d46f09d76f0574f2",
+      "bytes": 285747
+    },
+    {
+      "file": "bundled/ced5c642e77e3c24f122.js",
+      "url": "https://eyes.nasa.gov/apps/solar-system/ced5c642e77e3c24f122.js",
+      "sha256": "59541a6c2931764e22a31ab0b163d811500118252e981679682d1b8eb838e583",
+      "bytes": 58301
+    },
+    {
+      "file": "bundled/786c7dae1f2e34c054da.js",
+      "url": "https://eyes.nasa.gov/apps/solar-system/786c7dae1f2e34c054da.js",
+      "sha256": "697dd98b6cafc7368885c13b545f26623dd4dfdc1720e52d30dcb1c36af89e6e",
+      "bytes": 627048
+    },
+    {
+      "file": "bundled/9d116d62fde9fd5bbbaa.js",
+      "url": "https://eyes.nasa.gov/apps/solar-system/9d116d62fde9fd5bbbaa.js",
+      "sha256": "06ba7ff54df91c28159c4575812c60a43ef6faa1ea05617cdf782f228eb31929",
+      "bytes": 57994
+    },
+    {
+      "file": "bundled/8e17072deeb50510e590.wasm",
+      "url": "https://eyes.nasa.gov/apps/solar-system/8e17072deeb50510e590.wasm",
+      "sha256": "a680d927bed9cb864ddbd63521868891af2bfbe755092761b4837487618df8ac",
+      "bytes": 192420
+    }
+  ],
+  "revision": "1225db209857fe97"
+}
