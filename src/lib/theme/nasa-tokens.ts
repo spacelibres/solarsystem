@@ -269,6 +269,28 @@ export const CONSTELLATION_LABEL = {
   color: BODY_COLORS.constellation,
 } as const;
 
+/**
+ * Constellation rendering constants, from `SceneManager.toggleConstellations`.
+ *
+ *   i.setUrl("$STATIC_ASSETS_URL/stars/constellations.bin")
+ *   i.setColor(new Color(.35, .7, 1, .5))          // lines
+ *   const labelColor = new Color(.35, .7, 1, 1)    // labels
+ *   i.setHighlight(index, labelColor, 2.5)         // hover
+ *
+ * Note the line alpha is 0.5 while the label alpha is 1 — the lines sit behind
+ * the stars and would otherwise compete with them.
+ */
+export const CONSTELLATION = {
+  /** Line colour, RGBA. `#59b2ff` at half alpha. */
+  lineColor: [0.35, 0.7, 1, 0.5] as [number, number, number, number],
+  /** Label colour, RGBA — the same hue, fully opaque. */
+  labelColor: [0.35, 0.7, 1, 1] as [number, number, number, number],
+  /** Line width on hover, in pixels. */
+  highlightLineWidth: 2.5,
+  /** Entity id prefix, e.g. `constellation_label_Orion`. */
+  labelPrefix: 'constellation_label_',
+} as const;
+
 /** Resolve a body's accent colour, falling back by category. */
 export function bodyColor(id: string, groups: string[] = []): string {
   if (BODY_COLORS[id]) return BODY_COLORS[id];

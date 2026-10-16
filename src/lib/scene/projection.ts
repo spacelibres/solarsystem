@@ -69,3 +69,44 @@ export const SUBSYSTEM_PIXEL_THRESHOLD = 20;
 export function subsystemVisible(parentPixelRadius: number): boolean {
   return parentPixelRadius >= SUBSYSTEM_PIXEL_THRESHOLD;
 }
+
+/**
+ * Whether a child system is large enough, inside its parent, to be instantiated.
+ *
+ * Transcribed from `SceneManager._isEntityVisibleWithinParent`:
+ *
+ *   const parent = Parenting.getParentOfEntity(entity, time);
+ *   if (!parent) return false;
+ *   const opts = Entity.getEntityOptions(entity);
+ *   return (opts.systemRadius || 25 * opts.radius || 25 * opts.extentsRadius)
+ *          / parent.getExtentsRadius()
+ *          * parent.getGreatestPixelSpaceExtentsRadius() >= 20;
+ *
+ * Two details matter and are easy to miss:
+ *
+ *  1. The child's extent is `systemRadius`, falling back to **25 × radius** — not
+ *     the radius itself. A body's visual system is treated as 25 radii across
+ *     when no explicit systemRadius is given, which is what lets a moon system
+ *     appear well before the planet fills the screen.
+ *  2. It is the ratio of the child's extent to the parent's extents radius, so the
+ *     test is scale-invariant: it depends on how big the child is *relative to its
+ *     parent*, multiplied by the parent's on-screen extent.
+ *
+ * @param childSystemRadiusKm   child's `systemRadius`, if it has one
+ * @param childRadiusKm         child's `radius`
+ * @param childExtentsRadiusKm  child's `extentsRadius`
+ * @param parentExtentsRadiusKm parent's `extentsRadius`
+ * @param parentPixelExtents    parent's on-screen extents radius, in pixels
+ */
+export function subsystemVisibleWithinParent(
+  childSystemRadiusKm: number | null,
+  childRadiusKm: number | null,
+  childExtentsRadiusKm: number | null,
+  parentExtentsRadiusKm: number,
+  parentPixelExtents: number,
+): boolean {
+  const childExtent =
+    childSystemRadiusKm || 25 * (childRadiusKm ?? 0) || 25 * (childExtentsRadiusKm ?? 0);
+  if (!(childExtent > 0) || !(parentExtentsRadiusKm > 0)) return false;
+  return (childExtent / parentExtentsRadiusKm) * parentPixelExtents >= SUBSYSTEM_PIXEL_THRESHOLD;
+}

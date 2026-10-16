@@ -154,14 +154,56 @@ a signed component, which clips half the sky and, with a far plane derived from
 the orbit radius, discards everything. The shell plus a normal perspective
 projection reproduces the same pinned-to-the-sky look without that fragility.
 
+### Scene-graph rules
+
+*Status: transcribed from `SceneManager` and applied.*
+
+`tools/audit-scene-rules.cjs` extracts these from the bundle so they can be
+re-checked after a NASA update.
+
+| rule | NASA | previously ours |
+|---|---|---|
+| scene ambient light | `Color(.005,.005,.005)` — essentially black | `0.16`, 32× too bright |
+| subsystem visibility | `(systemRadius ‖ 25·radius ‖ 25·extentsRadius) / parentExtentsRadius × parentPixelExtents >= 20` | only a bare pixel check |
+| child extent fallback | when there is no `systemRadius`, the visual system is **25 radii** across | used the radius itself |
+| per-component visibility | the `trails` layer gates `TrailComponent`, `labels` gates `DivComponent`, everything else by type | per-entity only |
+| Sun exemption | `"sun" !== s.getName()` — the Sun never responds to a layer toggle | none |
+| starfield count | `for (let e = 0; e < 7; e++)` | we load 7 correctly |
+| heliosphere owner | `sun.getComponent(ModelComponent)` | correct |
+| constellation lines | `Color(.35, .7, 1, .5)`, labels `(.35, .7, 1, 1)`, highlight width `2.5` | colour right, alpha missing |
+| HD breakpoints | `_hdBreakpointSize 512`, `_maxTextureSize 4096`, `_mobileTextureSize 1024` | 4096 used |
+| HD categories | `Planet`, `Moon`, `Dwarf Planet`, `Star` | — |
+
+The **25× radius** fallback is the subtle one: it is what lets a moon system appear
+while its planet subtends only a few pixels, long before the planet fills the
+screen. Using the radius directly would pop in every moon far too late.
+
+The ambient light matters more than it looks: at `0.16`, night sides were lit
+enough that the terminator was invisible and every body looked flat. NASA relies
+almost entirely on the Sun's `LightSourceComponent`, which is why its phases read
+sharply.
+
+### Constellations
+
+*Status: implemented.*
+
+`src/lib/scene/constellations.ts` decodes all **88** IAU constellations from
+`stars/constellations.bin` and draws them as `LineSegments` on the same sky shell
+the starfield uses, so the two register with each other. The decoder round-trips
+exactly — it consumes all 10,952 bytes — which is the check that the record layout
+is right. The layer is **off** by default, matching `addLayer`.
+
 ### Still open
 
 8. **Comet tails.** Three `CometTailComponent`s per comet.
 9. **The `camera` entity** and its `DynamicEnvironmentMapComponent`.
-10. **Body orientation.** `entityOrientation` in the scene currently returns the
-    identity because no `.ori` controller is loaded, so the atmosphere shader is
-    integrated in the unrotated frame.
+10. **Body orientation.** `entityOrientation` in the scene returns the identity
+    because no `.ori` controller is loaded, so the atmosphere shader integrates in
+    the unrotated frame.
 11. **Mars' second spheroid** (the atmosphere shell is a separate spheroid).
+12. **Constellation labels.** NASA adds a `constellation_label_<name>` entity per
+    constellation with its own label weight and hover highlight; we draw the lines
+    only.
 
 ## Comparison method
 

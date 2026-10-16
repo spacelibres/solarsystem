@@ -3,6 +3,45 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.14 - 2026-10-16
+
+NASA's de-obfuscated scene rules applied, and the constellation layer built.
+
+### Added
+
+- **The constellation layer**, decoding all **88** IAU constellations from
+  `stars/constellations.bin` (`src/lib/scene/constellations.ts`). Drawn as
+  `LineSegments` on the same sky shell the starfield uses, so the two register
+  with each other, at NASA's `(.35, .7, 1, .5)`. Off by default, matching
+  `addLayer`. The decoder consumes all 10,952 bytes exactly, which is the check
+  that the record layout is right.
+- **`subsystemVisibleWithinParent`**, NASA's real child-visibility test, from
+  `SceneManager._isEntityVisibleWithinParent`:
+  `(systemRadius ‖ 25·radius ‖ 25·extentsRadius) / parentExtentsRadius ×
+  parentPixelExtents >= 20`. The **25× radius** fallback is the subtle part — it is
+  what lets a moon system appear while its planet subtends only a few pixels.
+- **`CONSTELLATION` tokens** — line colour, label colour, highlight width and the
+  `constellation_label_` id prefix, from `SceneManager.toggleConstellations`.
+- **`tools/audit-scene-rules.cjs`**, which extracts these rules from the bundle so
+  they can be re-checked after a NASA update.
+
+### Fixed
+
+- **The scene ambient light was 32× too bright.** NASA sets
+  `Color(.005, .005, .005)` — essentially black — and relies almost entirely on the
+  Sun's light source. At our `0.16` the night sides were lit enough that the
+  terminator was invisible and every body looked flat. Phases now read sharply.
+- **Per-component visibility.** NASA dispatches by component, not entity: the
+  `trails` layer gates `TrailComponent`, `labels` gates `DivComponent`. The **Sun
+  is exempt** entirely (`"sun" !== s.getName()`), so its starfields and glow no
+  longer respond to a layer toggle.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 129 tests across
+ten files. The constellation layer was confirmed by screenshot, and Mars' phase
+was compared to confirm the ambient-light correction.
+
 ## 0.2.13 - 2026-10-16
 
 All nine binary assets decoded to readable text.

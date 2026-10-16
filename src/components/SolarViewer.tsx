@@ -206,6 +206,7 @@ export default function SolarViewer() {
       labels: layers.labels,
       stars: layers.stars,
       trails: layers.trails,
+      constellations: layers.constellations,
     });
   }, [layers, scene]);
 

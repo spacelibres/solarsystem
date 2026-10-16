@@ -22,7 +22,8 @@ import type { OrbPoint } from '../lib/dynamo/parse';
 import { orbPositionAt } from '../lib/dynamo/orbit';
 import { ALWAYS, buildTree, parentAtTime, type TreeNode } from '../lib/scene/parenting';
 import { pixelSpaceRadius } from '../lib/scene/projection';
-import { buildStarfield, parseStarfield } from '../lib/scene/starfield';
+import { buildStarfield, parseStarfield, STAR_SHELL_KM } from '../lib/scene/starfield';
+import { buildConstellations, parseConstellations } from '../lib/scene/constellations';
 import { buildSurface } from '../lib/scene/surface';
 import {
   ATMOSPHERES,
@@ -38,7 +39,7 @@ import {
   milkyWayVisible,
   projectSunOntoBackdrop,
 } from '../lib/scene/milky-way';
-import { GALAXIES_URL, starfieldUrl } from '../lib/nasa/assets';
+import { CONSTELLATIONS_URL, GALAXIES_URL, starfieldUrl } from '../lib/nasa/assets';
 import { LABEL, bodyIconName, labelWeight } from '../lib/theme/nasa-tokens';
 
 /** One loaded ephemeris: the points plus the parent they are relative to. */
@@ -63,6 +64,7 @@ export interface LayerVisibility {
   labels?: boolean;
   stars?: boolean;
   trails?: boolean;
+  constellations?: boolean;
 }
 
 export interface SolarSceneHandle {
@@ -129,7 +131,14 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   camera.position.set(0, 8e8, 1.6e9);
   camera.lookAt(0, 0, 0);
 
-  scene.add(new THREE.AmbientLight(0xffffff, 0.16));
+  // Scene ambient light.
+  //
+  // NASA sets `setAmbientLightColor(new Color(.005, .005, .005))` on the main
+  // scene — essentially black. All illumination comes from the Sun's
+  // LightSourceComponent, which is why night sides are genuinely dark and the
+  // terminators read sharply. Our previous 0.16 was 32× too bright and washed
+  // out every night side.
+  scene.add(new THREE.AmbientLight(0xffffff, 0.005));
   const sunLight = new THREE.PointLight(0xfff4e0, 3.2, 0, 0);
   scene.add(sunLight);
 
@@ -145,6 +154,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     ...[0, 1, 2, 3, 4, 5].map((i) => starfieldUrl(i)),
   ];
   const starLayers: THREE.Points[] = [];
+
+  // Layer visibility, driven by the layer panel. Declared before the loaders so
+  // their async continuations can read it.
+  const layers: Required<LayerVisibility> = {
+    orbits: true,
+    labels: true,
+    stars: true,
+    trails: true,
+    // Constellations default to off, matching NASA's addLayer call.
+    constellations: false,
+  };
   void Promise.all(
     STAR_LAYERS.map(async (url) => {
       try {
@@ -160,6 +180,27 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       }
     }),
   );
+
+  // Constellations.
+  //
+  // NASA loads these lazily from `stars/constellations.bin` when the layer is
+  // switched on, drawing the lines at `(.35, .7, 1, .5)` on the same sky shell
+  // as the stars. The layer is off by default.
+  let constellationLines: THREE.LineSegments | null = null;
+  void (async () => {
+    try {
+      const res = await fetch(CONSTELLATIONS_URL);
+      if (!res.ok) return;
+      const parsed = parseConstellations(await res.arrayBuffer());
+      const lines = buildConstellations(parsed, STAR_SHELL_KM);
+      // `layers` is declared just above this block's enclosing scope.
+      lines.visible = layers.constellations;
+      constellationLines = lines;
+      scene.add(lines);
+    } catch {
+      /* constellations are cosmetic */
+    }
+  })();
 
   const loader = new THREE.TextureLoader();
   const labelLayer = document.createElement('div');
@@ -190,15 +231,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   // uniforms.
   const sunDirection = new THREE.Vector3(0, 0, 1);
 
-  // Layer visibility, driven by the layer panel.
-  const layers: Required<LayerVisibility> = {
-    orbits: true,
-    labels: true,
-    stars: true,
-    trails: true,
-  };
-
-  /** Orbit lines keyed by body id; only the planets and the Moon have one. */
+  // Orbit lines keyed by body id; only the planets and the Moon have one.
   const orbitLines = new Map<string, THREE.Line>();
 
   /**
@@ -1030,12 +1063,30 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     },
     setLayers(visibility) {
       Object.assign(layers, visibility);
+
+      // NASA dispatches visibility per *component*, not per entity, in
+      // `SceneManager.setVisibility`:
+      //
+      //   trails layer  gates TrailComponent
+      //   labels layer  gates DivComponent
+      //   everything else is gated by the entity's own visibility
+      //
+      // with one exception — the Sun is exempt entirely (`"sun" !== s.getName()`),
+      // so its starfields, glow and heliosphere never respond to a layer toggle.
+      for (const [id, trail] of trails) {
+        if (id === 'sun') continue;
+        trail.visible = layers.trails;
+      }
       for (const line of orbitLines.values()) line.visible = layers.orbits;
-      for (const trail of trails.values()) trail.visible = layers.trails;
-      for (const body of bodies.values()) {
+
+      for (const [id, body] of bodies) {
+        if (id === 'sun') continue;
         if (!layers.labels) body.label.style.opacity = '0';
       }
+
       for (const s of starLayers) s.visible = layers.stars;
+      const constellationGroup = constellationLines;
+      if (constellationGroup) constellationGroup.visible = layers.constellations;
     },
     setTimeScale(days) {
       daysPerSecond = days;
