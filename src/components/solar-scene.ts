@@ -43,6 +43,12 @@ export interface SceneBody {
   local: THREE.Vector3;
 }
 
+export interface LayerVisibility {
+  orbits?: boolean;
+  labels?: boolean;
+  stars?: boolean;
+}
+
 export interface SolarSceneHandle {
   setTime(time: number): void;
   getTime(): number;
@@ -56,6 +62,8 @@ export interface SolarSceneHandle {
   visibleCount(): number;
   /** Invoked when the user clicks a body (or empty space, with null). */
   onPick(callback: (id: string | null) => void): void;
+  /** Toggle scene layers (orbit lines, labels, starfield). */
+  setLayers(visibility: LayerVisibility): void;
 }
 
 export interface SceneOptions {
@@ -272,6 +280,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         );
         body.orbitLine.userData.epoch = p.time;
         body.orbitLine.userData.owner = body.entity.id;
+        body.orbitLine.visible = layers.orbits;
         scene.add(body.orbitLine);
       }
     }
@@ -299,6 +308,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   let lastY = 0;
   let pointerMoved = 0;
   let pickCallback: ((id: string | null) => void) | null = null;
+
+  // Layer visibility; the layer panel drives these.
+  const layers: Required<LayerVisibility> = { orbits: true, labels: true, stars: true };
 
   function applyCamera(): void {
     const sinPhi = Math.sin(camPhi);
@@ -407,7 +419,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const x = (v.x * 0.5 + 0.5) * rect.width;
       const y = (-v.y * 0.5 + 0.5) * rect.height;
       const collides = placed.some((p) => Math.abs(p.x - x) < 70 && Math.abs(p.y - y) < 15);
-      const show = inFrame && !collides;
+      const show = layers.labels && inFrame && !collides;
       if (show) placed.push({ x, y });
       const s = body.label.style;
       // NASA places the label up and to the right of the body.
@@ -512,6 +524,14 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     },
     onPick(callback) {
       pickCallback = callback;
+    },
+    setLayers(visibility) {
+      Object.assign(layers, visibility);
+      for (const body of bodies.values()) {
+        if (body.orbitLine) body.orbitLine.visible = layers.orbits;
+        if (!layers.labels) body.label.style.opacity = '0';
+      }
+      for (const s of starLayers) s.visible = layers.stars;
     },
     setTimeScale(days) {
       daysPerSecond = days;

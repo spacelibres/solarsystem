@@ -3,6 +3,40 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.4 - 2026-10-15
+
+Featured stories panel, NASA's real interface icons, layers and lighting.
+
+### Added
+
+- **Featured stories panel** (left), transcribed from `.featured-stories-panel`
+  and `.story-container` (372px column, `rgba(37,37,39,0.6)` cards, 3px radius,
+  20/25px padding, two-column text|icon grid, 29px/300 titles, 0.6em-tracked
+  uppercase subtitles). Cards focus their target body and jump to the story's
+  date; the header collapses.
+- **NASA's own interface icons.** `tools/split-sprite.cjs` splits the site's
+  IcoMoon sprite (58 KB, 87 icons) into individual SVGs served from `/icons`, so
+  the chrome uses the real artwork rather than substitutes.
+- **Settings rail** with layers, lighting (natural/flood/shadow), return-to-view
+  and fullscreen, plus a layer panel styled after `.layer-panel`.
+- **Layer visibility** wired into the scene: orbit paths, labels and the
+  starfield can be toggled independently.
+- **Live indicator** in the time bar: a green `LIVE` dot while running, orange
+  `PAUSED` when stopped, matching NASA's `--live` / `--paused` states.
+- `tools/mirror-controllers.cjs` seeds specific controllers and their windows
+  when the app starts loading new bodies.
+
+### Changed
+
+- Starfield layers are tracked so they can be hidden and disposed.
+- Card artwork mirrored from the site's `images/cards/` set (188 KB).
+
+### Verified
+
+- `npm test` (27/27), `npm run check` and `npm run build` clean.
+- Headless render: 45 bodies, featured cards and settings rail present, LIVE
+  readout, no exceptions, no failed requests, **0 requests to nasa.gov**.
+
 ## 0.2.3 - 2026-10-15
 
 Make every body visible and selectable, and fix the parenting tree.

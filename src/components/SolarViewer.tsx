@@ -8,10 +8,14 @@ import { loadDynamo } from '../lib/dynamo/loader';
 import { createSolarScene, type SolarSceneHandle, type LoadedOrbit } from './solar-scene';
 import { DEFAULT_PRESET, applyPaletteToDocument } from '../lib/theme/palette';
 import { bodyColor } from '../lib/theme/nasa-tokens';
+import { FEATURED_STORIES } from '../lib/nasa/featured';
 import InfoPanel from './InfoPanel';
 import TimeBar from './TimeBar';
+import FeaturedStories from './FeaturedStories';
+import SettingsRail, { type LayerState } from './SettingsRail';
 import SpacelibreLogo from './SpacelibreLogo';
 import { VERSION } from '../lib/version';
+import type { FeaturedStory } from '../lib/nasa/featured';
 
 /** Simulation epoch: 2026-01-01, so the bodies sit where they are today. */
 const START_TIME = (Date.UTC(2026, 0, 1) - Date.UTC(2000, 0, 1, 12)) / 1000;
@@ -31,6 +35,11 @@ const CORE_IDS = [
   'neptune',
 ] as const;
 
+/** Bodies the featured cards reference, so those stories can fly to them. */
+const FEATURED_TARGET_IDS = FEATURED_STORIES.map((s) => s.target).filter(
+  (id): id is string => Boolean(id),
+);
+
 /** How many additional bodies (moons, spacecraft) to load in this pass. */
 const MAX_EXTRA = 60;
 
@@ -41,7 +50,7 @@ const MAX_EXTRA = 60;
  * only costs load time.
  */
 function selectEntities(catalog: Record<string, CatalogEntity>): CatalogEntity[] {
-  const core = new Set<string>(CORE_IDS);
+  const core = new Set<string>([...CORE_IDS, ...FEATURED_TARGET_IDS]);
   const chosen: CatalogEntity[] = [];
 
   for (const id of core) if (catalog[id]) chosen.push(catalog[id]);
@@ -75,6 +84,12 @@ export default function SolarViewer() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(0);
+  const [layers, setLayers] = useState<LayerState>({
+    orbits: true,
+    labels: true,
+    stars: true,
+    constellations: true,
+  });
 
   useEffect(() => {
     applyPaletteToDocument(DEFAULT_PRESET);
@@ -153,6 +168,19 @@ export default function SolarViewer() {
     sceneRef.current?.focus(null);
   }, []);
 
+  /** A featured card focuses its target body and jumps to the story's date. */
+  const onStory = useCallback((story: FeaturedStory) => {
+    const scene = sceneRef.current;
+    if (story.date) {
+      const t = (Date.parse(story.date) - Date.UTC(2000, 0, 1, 12)) / 1000;
+      scene?.setTime(t);
+    }
+    if (story.target && CATALOG[story.target]) {
+      setSelectedId(story.target);
+      scene?.focus(story.target);
+    }
+  }, []);
+
   // Clicking a body focuses it and opens its panel; clicking empty space clears.
   useEffect(() => {
     if (!scene) return;
@@ -161,6 +189,15 @@ export default function SolarViewer() {
       scene.focus(id);
     });
   }, [scene]);
+
+  // Push layer visibility into the scene whenever it changes.
+  useEffect(() => {
+    sceneRef.current?.setLayers({
+      orbits: layers.orbits,
+      labels: layers.labels,
+      stars: layers.stars,
+    });
+  }, [layers, scene]);
 
   const selected = selectedId ? CATALOG[selectedId] ?? null : null;
 
@@ -186,6 +223,8 @@ export default function SolarViewer() {
       <section className="ns-stage" aria-label="Solar system explorer">
         <div ref={mountRef} className="ns-canvas" />
 
+        <FeaturedStories onSelect={onStory} />
+
         <InfoPanel entity={selected} onClose={onClosePanel} />
 
         {selected && (
@@ -194,17 +233,7 @@ export default function SolarViewer() {
           </button>
         )}
 
-        <div className="ns-settings">
-          <button type="button" className="ns-settings__btn is-on" title="Orbits">
-            ◯
-          </button>
-          <button type="button" className="ns-settings__btn is-on" title="Labels">
-            ≡
-          </button>
-          <button type="button" className="ns-settings__btn" title="Reset view" onClick={onClosePanel}>
-            ⌂
-          </button>
-        </div>
+        <SettingsRail onResetView={onClosePanel} layers={layers} onLayersChange={setLayers} />
 
         {status !== 'ready' && (
           <div className="ns-overlay">

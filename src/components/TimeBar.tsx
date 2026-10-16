@@ -37,7 +37,6 @@ export default function TimeBar({ scene }: Props) {
   const [playing, setPlaying] = useState(true);
   const [speedIndex, setSpeedIndex] = useState(1);
   const [time, setTime] = useState(0);
-  const [scrubbing, setScrubbing] = useState(false);
   const dragRef = useRef(false);
 
   // Drive the scene's clock rate.
@@ -120,11 +119,9 @@ export default function TimeBar({ scene }: Props) {
           style={{ ['--progress' as string]: `${progress}%` }}
           onPointerDown={() => {
             dragRef.current = true;
-            setScrubbing(true);
           }}
           onPointerUp={() => {
             dragRef.current = false;
-            setScrubbing(false);
           }}
           onChange={(e) => onScrub(Number(e.target.value))}
           aria-label="Simulation time"
@@ -132,10 +129,11 @@ export default function TimeBar({ scene }: Props) {
       </div>
 
       <div className="ns-time__readout">
-        <span className="ns-time__date">
-          {formatSimTime(time)}
-          {scrubbing ? ' ·' : ''}
+        <span className="ns-time__live">
+          <span className={`ns-time__dot${playing ? '' : ' is-paused'}`} aria-hidden />
+          {playing ? 'Live' : 'Paused'}
         </span>
+        <span className="ns-time__date">{formatSimTime(time)}</span>
         <div className="ns-time__speeds" role="group" aria-label="Time speed">
           {SPEEDS.map((s, i) => (
             <button

@@ -334,6 +334,7 @@ button {
   z-index: 40;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 2px;
   padding: 6px;
   border-radius: 3px;
@@ -343,24 +344,105 @@ button {
 .ns-settings__btn {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   background: none;
   border: 0;
   border-radius: 4px;
-  color: var(--nasa-gb-light);
-  font-size: 13px;
-  opacity: 0.55;
+  opacity: 0.5;
   transition: opacity 0.1s ease-out;
 }
 
+.ns-settings__btn img {
+  filter: invert(1);
+}
+
 .ns-settings__btn:hover {
-  opacity: 1;
+  opacity: 0.95;
 }
 
 .ns-settings__btn.is-on {
   opacity: 1;
-  color: var(--nasa-cta-blue);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Layer panel, styled after .layer-panel */
+.ns-layerpanel {
+  position: absolute;
+  right: 46px;
+  bottom: 0;
+  min-width: 190px;
+  background: var(--nasa-bg-gradient);
+  border-radius: 3px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.ns-layerpanel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.ns-layerpanel__title {
+  margin: 0;
+  font-size: var(--nasa-font-size-small);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.ns-layerpanel__close {
+  background: none;
+  border: 0;
+  opacity: 0.6;
+  padding: 2px;
+}
+
+.ns-layerpanel__close img {
+  filter: invert(1);
+}
+
+.ns-layerpanel__close:hover {
+  opacity: 1;
+}
+
+.ns-layerpanel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.ns-layerpanel__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 0;
+  background: none;
+  border: 0;
+  color: var(--nasa-gb-light);
+  font-size: var(--nasa-font-size-small);
+  opacity: 0.75;
+  text-align: left;
+}
+
+.ns-layerpanel__row:hover {
+  opacity: 1;
+}
+
+.ns-layerpanel__row[aria-pressed='true'] {
+  opacity: 1;
+}
+
+.ns-layerpanel__row img {
+  filter: invert(1);
+}
+
+.ns-layerpanel__row[aria-pressed='true'] img {
+  filter: invert(56%) sepia(89%) saturate(2200%) hue-rotate(202deg) brightness(101%) contrast(101%);
 }
 
 /* ---------------------------------------------------------------------------
@@ -558,6 +640,158 @@ button {
 }
 
 /* ---------------------------------------------------------------------------
+   Featured stories panel (left), mirroring .featured-stories-panel
+   --------------------------------------------------------------------------- */
+
+.ns-stories {
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 372px;
+  max-width: calc(100vw - 40px);
+  z-index: 25;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding-top: 85px;
+  pointer-events: none;
+}
+
+.ns-stories__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 25px 0 20px;
+  height: 30px;
+  pointer-events: auto;
+}
+
+.ns-stories__title {
+  font-size: var(--nasa-font-size);
+  font-weight: 300;
+  color: var(--nasa-gray);
+}
+
+.ns-stories__toggle {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--nasa-gray-dark);
+  border-radius: 3px;
+  background: var(--nasa-gray-alpha);
+  color: var(--nasa-gb-med);
+  font-size: 12px;
+  line-height: 1;
+}
+
+.ns-stories__toggle:hover {
+  color: #fff;
+  border-color: var(--nasa-gb-button);
+}
+
+.ns-stories__list {
+  list-style: none;
+  margin: 15px 0 0;
+  padding: 0 0 20px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  pointer-events: auto;
+  /* Cards keep their natural height; the panel scrolls instead of stretching. */
+  flex: 0 1 auto;
+}
+
+.ns-stories__list::-webkit-scrollbar {
+  display: none;
+}
+
+/* .story-container */
+.ns-story {
+  margin: 10px 0;
+}
+
+.ns-story__btn {
+  align-items: center;
+  background: var(--nasa-gray-alpha);
+  border: 0;
+  border-radius: 3px;
+  color: inherit;
+  display: grid;
+  gap: 5px 10px;
+  grid-template-columns: minmax(55%, auto) minmax(40px, 100px);
+  grid-template-rows: auto auto;
+  min-height: 165px;
+  padding: 20px 20px 20px 25px;
+  text-align: left;
+  width: 100%;
+  word-break: break-word;
+  transition: background-color 0.15s var(--nasa-ease-out);
+}
+
+.ns-story__btn:hover {
+  background: rgba(37, 37, 39, 0.85);
+}
+
+.ns-story__title {
+  align-self: end;
+  grid-column: 1;
+  grid-row: 1;
+  z-index: 10;
+  font-size: 29px;
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.58px;
+  color: #fff;
+}
+
+.ns-story__subtitle {
+  align-self: start;
+  grid-column: 1;
+  grid-row: 2;
+  z-index: 10;
+  min-width: 185px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: var(--nasa-font-size-xsmall);
+  color: var(--nasa-gb-text);
+}
+
+.ns-story__icon {
+  align-self: center;
+  grid-column: 2;
+  grid-row: span 2;
+  justify-self: end;
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  z-index: 0;
+}
+
+/* Time readout: rate + live indicator */
+.ns-time__live {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--nasa-font-size-xsmall);
+  letter-spacing: 0.32px;
+  text-transform: uppercase;
+  color: var(--nasa-gray);
+}
+
+.ns-time__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nasa-live);
+  box-shadow: 0 0 8px var(--nasa-live-alpha);
+}
+
+.ns-time__dot.is-paused {
+  background: var(--nasa-paused);
+  box-shadow: 0 0 8px var(--nasa-paused-alpha);
+}
+
+/* ---------------------------------------------------------------------------
    Loading / error overlay
    --------------------------------------------------------------------------- */
 
@@ -597,6 +831,9 @@ button {
 }
 
 @media (max-width: 1024px) {
+  .ns-stories {
+    display: none;
+  }
   .ns-panel {
     top: auto;
     bottom: 0;
