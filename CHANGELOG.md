@@ -3,6 +3,50 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.19 - 2026-10-16
+
+Auto-deploy actually works. Pushing to `main` now builds and ships on the host
+instead of being killed partway through.
+
+### Fixed
+
+- **The build was being OOM-killed on the deployment host.** The 1.6 GB NASA
+  asset mirror sat at `data/mirror` inside the checkout, and Turbopack resolves
+  the mirror path at build time and globs whatever it points at — so the build
+  walked 214,419 files, grew past the host's 2 GB and was killed mid-build with
+  nothing but `Killed` to show for it. The mirror now lives outside the tree at
+  `/srv/solarsystem-mirror` and the app reads it via `MIRROR_ROOT`; the build
+drops from over 1.5 GB of memory to a few hundred, and completes in seconds.
+- **The webhook is no longer a 403-shaped hole in the deploy story**, and a
+  single push can no longer start two builds. `git push --follow-tags` fires the
+  hook once for the branch and once for the tag; both used to deploy, racing on
+  `git fetch` and running two `next build` processes at once. Tag pushes and
+  pushes to non-deploy branches now return `204` and are ignored, and `update.sh`
+  takes a `flock` as a second line of defence.
+- **Updater output goes to `/var/log/solarsystem-update.log` as documented.**
+  The header always claimed that path, but the webhook spawns the updater with
+  its stdio inherited, so output only ever reached the journal.
+
+### Added
+
+- `npm run build` refuses to start while a populated `data/mirror` exists, and
+  names the fix instead of failing later with a bare `Killed`.
+  `scripts/check-build-prereqs.mjs` runs as npm's `prebuild` hook.
+- `npm run mirror:park` and `npm run mirror:restore` move the mirror out of the
+  project and back, for local builds.
+- `deploy/update.sh` parks the mirror around the build automatically, and
+  restores it before restarting the service.
+- `tests/mirror.test.ts` and `tests/build-guard.test.ts` cover the mirror root
+  resolution and the build gate.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 160 tests
+across thirteen files, from 147 across eleven. On the live host, the update ran
+end to end from a clean checkout at 0.2.17: build succeeded, the service
+restarted, `https://solarsystem.spacelibre.cn` serves **0.2.19**, and the mirror
+was restored intact at 93,218 files with real assets returning 200.
+
 ## 0.2.18 - 2026-10-16
 
 The viewer is live, and pushes to `main` deploy themselves.

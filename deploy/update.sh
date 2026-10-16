@@ -8,17 +8,44 @@
 #
 # It refuses to rebuild unless the tests and type checks pass, so a bad push
 # cannot take the site down — the old build keeps serving instead.
+#
+# Only one update may run at a time. A single `git push --follow-tags` fires the
+# webhook once for the branch and once for the tag; without the lock those two
+# runs raced on `git fetch` and then built concurrently, and two `next build`
+# processes on a 2 GB box trip the OOM killer.
 set -euo pipefail
 
 APP_DIR="${APP_DIR:-/srv/solarsystem}"
 APP_USER="${APP_USER:-solarsystem}"
 APP_BRANCH="${APP_BRANCH:-main}"
+MIRROR_DIR="${MIRROR_DIR:-/srv/solarsystem-mirror}"
+LOG_FILE="${LOG_FILE:-/var/log/solarsystem-update.log}"
+LOCK_FILE="${LOCK_FILE:-/var/lock/solarsystem-update.lock}"
+
+# Keep the build's own heap in bounds. The real cause of the OOM was the asset
+# mirror being inside the tree (see below), but a ceiling still stops a runaway
+# build from taking the host down.
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=1536}"
+export NEXT_TELEMETRY_DISABLED=1
 
 log() { printf '\033[1;36m[update]\033[0m %s\n' "$*"; }
 die() { printf '\033[1;31m[update] error\033[0m %s\n' "$*" >&2; exit 1; }
 
 [ -d "$APP_DIR/.git" ] || die "$APP_DIR is not a git checkout"
 cd "$APP_DIR"
+
+# Serialise concurrent invocations. `flock -n` fails immediately rather than
+# queueing, so a duplicate delivery is dropped instead of stacking a second
+# build on top of one already in flight.
+exec 9>"$LOCK_FILE"
+if ! flock -n 9; then
+  log "another update is already running; skipping this one"
+  exit 0
+fi
+
+# Mirror stdout/stderr into the file the docs point at, while still writing to
+# the journal (the webhook spawns this with stdio inherited).
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 BEFORE="$(sudo -u "$APP_USER" git rev-parse HEAD)"
 
@@ -39,27 +66,56 @@ sudo -u "$APP_USER" git reset --hard -q "origin/$APP_BRANCH"
 NEW_VERSION="$(cat VERSION 2>/dev/null || echo unknown)"
 log "building version $NEW_VERSION"
 
+# The NASA asset mirror is ~1.6 GB across 214k files. Turbopack resolves its
+# path at build time and globs whatever it points at, so with the mirror inside
+# the project the build walks the whole thing, exceeds this host's 2 GB and is
+# killed mid-build. Nothing in the build needs it — it is read at runtime via
+# MIRROR_ROOT — so move it out of the tree for the build and put it back
+# afterwards, whatever the outcome. `npm run build` also refuses to run with the
+# mirror in place, so this has to happen before the build.
+MIRROR_SRC="$APP_DIR/data/mirror"
+MIRROR_PARK="$MIRROR_DIR"
+moved_mirror=0
+
+restore_mirror() {
+  if [ "$moved_mirror" = 1 ] && [ -d "$MIRROR_PARK" ]; then
+    log "restoring the asset mirror"
+    rm -rf "$MIRROR_SRC"
+    mkdir -p "$(dirname "$MIRROR_SRC")"
+    mv "$MIRROR_PARK" "$MIRROR_SRC"
+  fi
+}
+trap restore_mirror EXIT
+
+if [ -d "$MIRROR_SRC" ]; then
+  log "parking the asset mirror outside the build tree"
+  rm -rf "$MIRROR_PARK"
+  mv "$MIRROR_SRC" "$MIRROR_PARK"
+  moved_mirror=1
+fi
+
 log "installing dependencies"
 sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm ci --no-audit --no-fund" >/dev/null
 
 # Gate on tests and checks. A failing push leaves the previous build serving.
-if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm test" >/tmp/solarsystem-test.log 2>&1; then
-  log "TESTS FAILED — leaving the running build in place"
-  tail -20 /tmp/solarsystem-test.log >&2
-  exit 1
+if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm test"; then
+  die "TESTS FAILED — leaving the running build in place"
 fi
-if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run check" >/tmp/solarsystem-check.log 2>&1; then
-  log "TYPE/LINT CHECK FAILED — leaving the running build in place"
-  tail -20 /tmp/solarsystem-check.log >&2
+if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run check"; then
+  die "TYPE/LINT CHECK FAILED — leaving the running build in place"
+fi
+
+log "building (serialised, mirror parked)"
+if ! sudo -u "$APP_USER" env NODE_OPTIONS="$NODE_OPTIONS" NEXT_TELEMETRY_DISABLED=1 \
+     bash -lc "cd '$APP_DIR' && npm run build"; then
+  log "BUILD FAILED — leaving the running build in place"
   exit 1
 fi
 
-log "building"
-if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run build" >/tmp/solarsystem-build.log 2>&1; then
-  log "BUILD FAILED — leaving the running build in place"
-  tail -30 /tmp/solarsystem-build.log >&2
-  exit 1
-fi
+# The service reads the mirror from MIRROR_ROOT, so it must be back in place —
+# and the running app keeps serving from the same path — before the restart.
+restore_mirror
+moved_mirror=0
 
 log "restarting the service"
 systemctl restart solarsystem

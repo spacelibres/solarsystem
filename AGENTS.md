@@ -46,11 +46,26 @@ tests/             parser/geometry tests + real .dyn fixtures
 ## Commands
 
 ```bash
-npm run dev      # dev server
-npm test         # tests
-npm run check    # typecheck + lint
-npm run build    # production build
+npm run dev             # dev server
+npm test                # tests
+npm run check           # typecheck + lint
+npm run build           # production build
+npm run mirror:park     # move data/mirror aside so a build can run
+npm run mirror:restore  # put it back afterwards
 ```
+
+## Build prerequisite: the asset mirror must be out of tree
+
+`npm run build` **refuses to run** while `data/mirror` exists and is populated.
+Turbopack resolves the mirror path at build time and globs whatever it points at,
+so an in-tree mirror makes the build walk 214,419 files and exceed the deployment
+host's 2 GB — it is killed mid-build, reported only as `Killed`. Park it with
+`npm run mirror:park`, or point the app at an out-of-tree mirror with
+`MIRROR_ROOT`.
+
+Setting `MIRROR_ROOT` alone is *not* enough to avoid the scan (measured), which
+is why the build refuses rather than warns. `deploy/update.sh` parks the mirror
+around the build automatically.
 
 ## Style
 

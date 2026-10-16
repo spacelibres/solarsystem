@@ -1,19 +1,22 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.18",
+  "version": "0.2.19",
   "private": true,
   "description": "A spacelibre solar system explorer built on NASA Eyes's public dynamo data format.",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/check-build-prereqs.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint"
+    "check": "npm run typecheck && npm run lint",
+    "mirror:park": "node scripts/park-mirror.mjs park",
+    "mirror:restore": "node scripts/park-mirror.mjs restore"
   },
   "dependencies": {
     "next": "16.4.1",

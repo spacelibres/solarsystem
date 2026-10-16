@@ -16,8 +16,22 @@
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 
-/** Root of the downloaded mirror, relative to the project directory. */
-export const MIRROR_ROOT = join(process.cwd(), 'data', 'mirror');
+/**
+ * Root of the downloaded mirror.
+ *
+ * Defaults to `data/mirror` inside the project, which is where
+ * `tools/download-mirror.cjs` puts it for local work. Production sets
+ * `MIRROR_ROOT` to a directory outside the project tree.
+ *
+ * This only decides where the app *reads* assets at runtime. It does not stop
+ * Turbopack globbing `data/mirror` during a build — that path is resolved
+ * statically — so a build with the mirror in-tree is refused outright by
+ * `scripts/assert-mirror-outside-tree.mjs`. Setting MIRROR_ROOT alone was
+ * measured not to prevent the 214,419-file scan.
+ */
+export const MIRROR_ROOT: string = process.env.MIRROR_ROOT
+  ? process.env.MIRROR_ROOT
+  : join(process.cwd(), 'data', 'mirror');
 
 /** Public URL prefix the Next.js route serves the mirror under. */
 export const MIRROR_URL_PREFIX = '/nasa';

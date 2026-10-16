@@ -21,6 +21,7 @@ const PORT = Number(process.env.WEBHOOK_PORT || 9100);
 const SECRET = process.env.WEBHOOK_SECRET || '';
 const PATHNAME = process.env.WEBHOOK_PATH || '/hooks/deploy';
 const UPDATE_CMD = process.env.WEBHOOK_UPDATE_CMD || '/usr/local/bin/solarsystem-update';
+const DEPLOY_BRANCH = process.env.WEBHOOK_BRANCH || 'main';
 
 const log = (...args) => console.log('[webhook]', ...args);
 
@@ -122,6 +123,25 @@ const server = http.createServer((req, res) => {
       ref = payload.ref || '';
     } catch {
       /* a malformed body still passes the signature check above, so carry on */
+    }
+
+    // `git push --follow-tags` fires this hook twice: once for the branch and
+    // once for the tag. Both point at the same commit, so deploying for the tag
+    // would build the identical tree a second time. Tag pushes are ignored; the
+    // branch push is what ships a release.
+    if (ref.startsWith('refs/tags/')) {
+      log(`ignoring tag push ${ref} — the branch push deploys the same commit`);
+      res.writeHead(204);
+      res.end();
+      return;
+    }
+
+    // Only the deployed branch is interesting; other branches must not deploy.
+    if (ref && ref !== `refs/heads/${DEPLOY_BRANCH}`) {
+      log(`ignoring push to ${ref}`);
+      res.writeHead(204);
+      res.end();
+      return;
     }
 
     log(`push to ${ref || '(unknown ref)'} — accepted`);

@@ -33,16 +33,31 @@ through Caddy.
 existing `Caddyfile`, backing it up first. It validates with `caddy validate`
 before reloading, so a bad block cannot take the other site down.
 
-**The NASA mirror is 1.6 GB.** It is git-ignored (it is NASA's data), so a fresh
-host has to fetch it once from `tools/download-mirror.cjs`. That is the slow step;
-re-runs skip it when `data/mirror/static/maps` already exists. Use
-`--skip-mirror` to update code without touching assets.
+**The NASA mirror is 1.6 GB across 214k files, and lives outside the project.**
+It is git-ignored (it is NASA's data), so a fresh host has to fetch it once from
+`tools/download-mirror.cjs`. That is the slow step; re-runs resume and skip it
+when the target already exists. Use `--skip-mirror` to update code without
+touching assets.
+
+The default location is `/srv/solarsystem-mirror`, *not* `data/mirror` inside the
+checkout. Turbopack resolves the mirror path at build time and globs whatever it
+points at, so an in-tree mirror makes the build walk all 214,419 files, exceed
+this host's 2 GB and get OOM-killed partway through — reported only as `Killed`.
+The service reads assets from `MIRROR_ROOT` instead, and `npm run build` refuses
+to start while a populated `data/mirror` exists (see
+`scripts/check-build-prereqs.mjs`). For local work, `npm run mirror:park` moves it
+aside and `npm run mirror:restore` puts it back.
 
 **The updater gates on tests.** `update.sh` runs `npm ci`, `npm test`,
 `npm run check` and only then `npm run build`. If any step fails it leaves the
 currently-running build in place, so a broken push cannot take the site down —
 the webhook returns 202 and the failure lands in
 `/var/log/solarsystem-update.log`.
+
+**Only one update runs at a time.** `update.sh` takes a `flock`, and the listener
+ignores tag pushes. Both matter: `git push --follow-tags` fires the hook twice
+(once for the branch, once for the tag), and two concurrent builds on a 2 GB box
+trip the OOM killer. The branch push is what deploys.
 
 ## Automatic deploys from GitHub
 
@@ -54,9 +69,11 @@ the webhook returns 202 and the failure lands in
    - **Events** *Just the push event*
 3. The first delivery is a `ping`; the listener replies `pong` and logs it.
 
-Every push to `main` then redeploys. The listener verifies GitHub's
-HMAC-SHA256 signature in constant time and rejects anything unsigned, so the open
-port is not a way in.
+Every push to `main` then redeploys. Pushes to any other branch, and tag pushes
+(the same commit as the branch push), are acknowledged with `204` and ignored so a
+single push cannot start two builds. The listener verifies GitHub's HMAC-SHA256
+signature in constant time and rejects anything unsigned, so the open port is not
+a way in.
 
 Verify a delivery arrived:
 
@@ -77,20 +94,20 @@ caddy validate --config /etc/caddy/Caddyfile
 
 ## Troubleshooting
 
-**The build runs out of memory.** The reference host has 2 GB total. If
-`npm run build` is killed, add swap or raise the limit:
-
-```bash
-fallocate -l 2G /swapfile && chmod 600 /swapfile && mkswap /swapfile && swapon /swapfile
-```
+**The build is killed for memory (`Killed` mid-build).** Almost always an asset
+mirror inside the project tree, which makes Turbopack walk 214k files. Confirm
+with `ls /srv/solarsystem/data/mirror` — if that exists, move it to
+`/srv/solarsystem-mirror` and point the service's `MIRROR_ROOT` there. That is
+the layout `deploy/update.sh` maintains; the host only has 2 GB, so keep swap
+enabled regardless.
 
 **Caddy serves the other site but not this one.** Check
 `grep -n 'import sites' /etc/caddy/Caddyfile` — the import must be present, and
 `caddy validate` must pass before the reload happens.
 
 **Textures 404.** The mirror is incomplete. Re-run
-`node tools/download-mirror.cjs` in `/srv/solarsystem` as the `solarsystem` user;
-it resumes where it left off.
+`node tools/download-mirror.cjs --out /srv/solarsystem-mirror` as the
+`solarsystem` user; it resumes where it left off.
 
 **DNS.** `solarsystem.spacelibre.cn` must resolve to the host before Caddy can
 issue a certificate. Caddy retries automatically once it does.

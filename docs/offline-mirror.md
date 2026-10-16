@@ -46,6 +46,14 @@ node tools/expand-segments.cjs
 node tools/download-mirror.cjs --concurrency 32 --retry 3
 ```
 
+**Keep the mirror outside the project tree when you build.** It is large, and
+Turbopack globs the path the app resolves it from, so an in-tree mirror (214,419
+files, ~1.6 GB) makes the build walk all of it and get OOM-killed on a small
+host. `npm run build` refuses to start in that state; either pass
+`--out /srv/solarsystem-mirror` and set `MIRROR_ROOT` accordingly, or move it
+aside for the build with `npm run mirror:park` and back with
+`npm run mirror:restore`.
+
 Segment files are named by the index header's `digits` field (usually 3), so
 `.../orb/def.dyn` enumerates `000.dyn … 385.dyn`. The app requests only the
 window covering the current epoch, which is why a partial mirror appears to work

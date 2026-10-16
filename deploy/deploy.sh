@@ -24,6 +24,7 @@
 #   APP_USER       default solarsystem
 #   APP_DIR        default /srv/solarsystem
 #   APP_PORT       default 4310
+#   MIRROR_DIR     default /srv/solarsystem-mirror (kept out of the build tree)
 #   REPO_URL       default https://github.com/spacelibres/solarsystem.git
 #   WEBHOOK_SECRET secret shared with GitHub; required for the webhook
 set -euo pipefail
@@ -32,6 +33,7 @@ APP_DOMAIN="${APP_DOMAIN:-solarsystem.spacelibre.cn}"
 APP_USER="${APP_USER:-solarsystem}"
 APP_DIR="${APP_DIR:-/srv/solarsystem}"
 APP_PORT="${APP_PORT:-4310}"
+MIRROR_DIR="${MIRROR_DIR:-/srv/solarsystem-mirror}"
 REPO_URL="${REPO_URL:-https://github.com/spacelibres/solarsystem.git}"
 BRANCH="main"
 SKIP_MIRROR=0
@@ -106,20 +108,24 @@ sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run build"
 
 # --- 5. NASA asset mirror ----------------------------------------------------
 #
-# The app serves NASA's textures, models and ephemerides from data/mirror/, which
+# The app serves NASA's textures, models and ephemerides from the mirror, which
 # is git-ignored (it is NASA's data, not ours). On a fresh host it has to be
-# fetched once. It is ~1.6 GB and tens of thousands of files, so this is the slow
-# step and is skipped when a mirror is already present.
+# fetched once. It is ~1.6 GB across 90k+ files, so this is the slow step and is
+# skipped when a mirror is already present.
+#
+# It lives OUTSIDE the project tree on purpose: Next's build walks the project
+# directory, and scanning that many files made the build exceed this host's
+# memory and get OOM-killed. The service reads it via MIRROR_ROOT instead.
 
 if [ "$SKIP_MIRROR" -eq 0 ]; then
-  if [ -d "$APP_DIR/data/mirror/static/maps" ]; then
+  if [ -d "$MIRROR_DIR/static/maps" ]; then
     log "NASA mirror already present, skipping (use a fresh clone to refetch)"
   else
     log "building the asset manifest"
     sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/build-manifest.cjs" || warn "manifest build failed"
     sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/expand-segments.cjs" || warn "segment expansion failed"
     log "downloading NASA assets (this takes a while — ~1.6 GB)"
-    sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/download-mirror.cjs --concurrency 24 --retry 3" \
+    sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/download-mirror.cjs --out '$MIRROR_DIR' --concurrency 24 --retry 3" \
       || warn "some assets failed; re-run this script to resume"
   fi
 else
@@ -144,6 +150,10 @@ WorkingDirectory=$APP_DIR
 Environment=NODE_ENV=production
 Environment=PORT=$APP_PORT
 Environment=HOSTNAME=127.0.0.1
+# The mirror lives outside the project tree so Next's build never walks its
+# 90k+ files (that scan is what exhausted this host's memory).
+Environment=MIRROR_ROOT=$MIRROR_DIR
+Environment=NODE_OPTIONS=--max-old-space-size=1536
 ExecStart=$(command -v npm) run start
 Restart=always
 RestartSec=5
@@ -239,6 +249,7 @@ User=root
 Environment=WEBHOOK_PORT=9100
 Environment=WEBHOOK_SECRET=$WEBHOOK_SECRET
 Environment=WEBHOOK_UPDATE_CMD=/usr/local/bin/solarsystem-update
+Environment=WEBHOOK_BRANCH=$BRANCH
 ExecStart=$(command -v node) /usr/local/bin/solarsystem-webhook
 Restart=always
 RestartSec=5
