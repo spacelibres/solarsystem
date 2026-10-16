@@ -3,9 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { parseConstellations, buildConstellations } from '../src/lib/scene/constellations';
 import { CONSTELLATION, CONSTELLATION_LABEL } from '../src/lib/theme/nasa-tokens';
 import {
+  NASA_HORIZONTAL_FOV_RADIANS,
   SUBSYSTEM_PIXEL_THRESHOLD,
   subsystemVisible,
   subsystemVisibleWithinParent,
+  verticalFovForHorizontal,
 } from '../src/lib/scene/projection';
 
 /** Build one constellation record in NASA's layout. */
@@ -117,6 +119,41 @@ describe('constellation tokens', () => {
     expect(CONSTELLATION.labelPrefix).toBe('constellation_label_');
     // The body colour keeps the same hue.
     expect(CONSTELLATION_LABEL.color).toBe('#59b2ff');
+  });
+});
+
+describe('camera field of view (CameraComponent._fieldOfView)', () => {
+  it('is 60 degrees, applied horizontally', () => {
+    expect(NASA_HORIZONTAL_FOV_RADIANS).toBeCloseTo(1.0471975512, 10);
+    expect((NASA_HORIZONTAL_FOV_RADIANS * 180) / Math.PI).toBeCloseTo(60, 6);
+  });
+
+  it('derives a narrower vertical FOV for a wide viewport', () => {
+    // The live reference reports 0.636503881827892 rad at aspect 1.7524644.
+    const v = verticalFovForHorizontal(1.0471975512, 1.7524644030668126);
+    expect(v).toBeCloseTo(0.636503881827892, 9);
+    // A wide screen must give a *smaller* vertical angle than 60 degrees.
+    expect(v).toBeLessThan(NASA_HORIZONTAL_FOV_RADIANS);
+  });
+
+  it('gives a square viewport the same angle in both axes', () => {
+    expect(verticalFovForHorizontal(NASA_HORIZONTAL_FOV_RADIANS, 1))
+      .toBeCloseTo(NASA_HORIZONTAL_FOV_RADIANS, 10);
+  });
+
+  it('gives a tall viewport a larger vertical angle', () => {
+    const v = verticalFovForHorizontal(NASA_HORIZONTAL_FOV_RADIANS, 0.5);
+    expect(v).toBeGreaterThan(NASA_HORIZONTAL_FOV_RADIANS);
+  });
+
+  it('is not the 42 degrees the scene previously assumed', () => {
+    const v = verticalFovForHorizontal(NASA_HORIZONTAL_FOV_RADIANS, 16 / 9);
+    expect((v * 180) / Math.PI).not.toBeCloseTo(42, 0);
+  });
+
+  it('falls back safely on a degenerate aspect', () => {
+    expect(verticalFovForHorizontal(NASA_HORIZONTAL_FOV_RADIANS, 0))
+      .toBe(NASA_HORIZONTAL_FOV_RADIANS);
   });
 });
 

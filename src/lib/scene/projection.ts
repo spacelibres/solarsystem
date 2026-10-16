@@ -16,6 +16,43 @@
  * the parent body's radius.
  */
 
+/**
+ * NASA's camera field of view.
+ *
+ * `CameraComponent` ships `_fieldOfView = 1.0471975512` rad, which is **60°**,
+ * and it is applied **horizontally**: `getHorizontalFieldOfView()` returns
+ * `_fieldOfView` unchanged, while the vertical FOV is derived from the aspect
+ * ratio. The live reference confirms it — at a 1.7525 aspect the vertical FOV is
+ * 0.6365 rad (36.47°), not 60°.
+ *
+ * three.js `PerspectiveCamera.fov` is the **vertical** angle, so the two must be
+ * converted rather than equated. Using 60° as the vertical FOV (or 42°, as we
+ * previously did) narrows the view and throws off every framing calculation:
+ * how much of a system fits, when a subsystem crosses its 20-pixel threshold,
+ * and how large a body appears at a given distance.
+ */
+export const NASA_HORIZONTAL_FOV_RADIANS = 1.0471975512;
+
+/** NASA's horizontal FOV in degrees. */
+export const NASA_HORIZONTAL_FOV_DEGREES = (NASA_HORIZONTAL_FOV_RADIANS * 180) / Math.PI;
+
+/**
+ * Convert NASA's horizontal FOV to the vertical FOV three.js expects.
+ *
+ *   tan(vFov / 2) = tan(hFov / 2) / aspect
+ *
+ * For a wide viewport this makes the vertical FOV *smaller* than the horizontal,
+ * which is why equating the two is wrong.
+ */
+export function verticalFovForHorizontal(
+  horizontalRadians: number,
+  aspect: number,
+): number {
+  if (!(aspect > 0)) return horizontalRadians;
+  const halfHorizontal = horizontalRadians / 2;
+  return 2 * Math.atan(Math.tan(halfHorizontal) / aspect);
+}
+
 const FOV_RADIANS = (42 * Math.PI) / 180; // matches the scene camera
 
 /** Fraction of the viewport a body of `radiusKm` subtends at `distanceKm`. */

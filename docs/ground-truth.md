@@ -193,6 +193,60 @@ the starfield uses, so the two register with each other. The decoder round-trips
 exactly — it consumes all 10,952 bytes — which is the check that the record layout
 is right. The layer is **off** by default, matching `addLayer`.
 
+### Camera — NASA's real model
+
+*Status: the FOV and plane rules are transcribed and applied.*
+
+From `CameraComponent.__update` and its defaults:
+
+```js
+_fieldOfView     = 1.0471975512              // 60 degrees, applied HORIZONTALLY
+autoNearDistance = max(1e-5, 0.1 * (|cameraPos| - parentExtentsRadius))
+autoMidDistance  = min(1e4 * autoNearDistance, |cameraPos| + 10 * parentExtentsRadius)
+```
+
+Three mistakes this corrected:
+
+1. **The field of view was 42° vertical.** NASA ships 60° **horizontal**, and
+   derives the vertical angle from the aspect ratio. At the reference's 1.7525
+   aspect that is 0.6365 rad = 36.5°, not 60°. three.js takes a vertical angle, so
+   the two cannot be equated — `verticalFovForHorizontal` does the conversion, and
+   a test reproduces the reference's exact value.
+2. **The near and mid planes were invented** as `0.05×` and `100×` the orbit
+   radius. NASA's are `0.1 × (distance − parentExtentsRadius)` and
+   `min(1e4 × near, distance + 10 × parentExtentsRadius)`. Our near plane was
+   therefore about twenty times too far out.
+3. **Framing used `radius × 6`.** NASA uses
+   `max(minDistance, 1.2 × equatorialRadius)` or an auto-fit of the whole child
+   system (`Cameras.getDistanceToFitEntities`), floored by
+   `CameraScripts._customSystemDistances` — a per-body table
+   (`mercury 425648, venus 862136, earth 1040264, mars 8e4, jupiter 7157638,
+   saturn 4869142, uranus 1886367, neptune 2407045`, plus the dwarf planets)
+   which is a **minimum**, not the framing distance.
+
+The system presets are NASA's too: `inner_solar_system` is `distance 7e8,
+angle 25, planeId earth`; `outer_solar_system` is `distance 1e10, angle 25`.
+Zoom is exponential (`2^(delta · sensitivity)`, sensitivity 0.05, smoothed with
+`lerp(…, 0.8)` clamped to `[0.8, 1.25]`) and measures distance **from the parent's
+surface**, not its centre (`max(|offset| - groundRadius, 0)`).
+
+### The starfield must move with the camera
+
+The starfield and constellations are now **unit spheres scaled every frame** to a
+fixed fraction of the orbit radius (`STAR_SHELL_CAMERA_FRACTION = 0.5`), with the
+object following the camera position. That is what keeps the sky in sync with the
+solar system at every zoom.
+
+Baking a fixed radius into the geometry was the bug: once the camera passed it,
+the stars slid inward and then vanished. NASA solves the same problem inside its
+shader with `gl_Position.w = viewPosition.y`, which divides by a signed component
+and clips half the sky — it is why we had to drop that line for the starfield, and
+scaling on the CPU achieves the same result without the fragility.
+
+Brightness is unaffected by the scaling because the true parallax distance rides
+in its own `distance` attribute rather than being read back from the transformed
+position.
+
 ### Still open
 
 8. **Comet tails — geometry done, shader not yet drawing.**

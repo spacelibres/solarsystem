@@ -48,12 +48,20 @@ const ECLIP_J2000_TO_J2000 = new THREE.Quaternion(
 );
 
 /**
- * Radius the star directions are placed at, in km.
+ * Radius the star directions are scaled to, as a fraction of the camera's orbit
+ * radius.
  *
- * Must sit comfortably inside the camera's far plane at every zoom level. At the
- * widest (galactic) zoom `far` is 2e18, so 1e12 is safely inside while being far
- * enough from any body that the field never intersects the scene.
+ * The starfield is a **unit** sphere scaled per frame to this fraction of the
+ * camera distance, so the sky always sits at the same apparent depth relative to
+ * the solar system regardless of zoom. A fixed world radius would desync the two
+ * the moment the camera passed it — the stars would slide inward and then vanish.
+ *
+ * Well inside the far plane (which NASA sets to `|cameraPos| + 10 ×
+ * parentExtentsRadius`) and far outside anything in the scene.
  */
+export const STAR_SHELL_CAMERA_FRACTION = 0.5;
+
+/** Kept for callers that want a nominal world radius. */
 export const STAR_SHELL_KM = 1e12;
 
 export const STAR_BYTES = 23;
@@ -187,10 +195,12 @@ export function buildStarfield(layers: Star[][]): THREE.Points {
   for (let i = 0; i < stars.length; i++) {
     const s = stars[i];
     const len = s.position.length() || 1;
-    // Unit direction on a fixed shell, computed in float64.
-    positions[i * 3] = (s.position.x / len) * STAR_SHELL_KM;
-    positions[i * 3 + 1] = (s.position.y / len) * STAR_SHELL_KM;
-    positions[i * 3 + 2] = (s.position.z / len) * STAR_SHELL_KM;
+    // A **unit** direction; the scene scales the object to place it at whatever
+    // radius the current camera can see. Baking in a fixed shell would desync the
+    // sky from the solar system as soon as the camera passed that radius.
+    positions[i * 3] = s.position.x / len;
+    positions[i * 3 + 1] = s.position.y / len;
+    positions[i * 3 + 2] = s.position.z / len;
     // The true parallax distance drives the flux, so near stars stay brighter.
     distances[i] = len;
 

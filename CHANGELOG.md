@@ -3,6 +3,54 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.16 - 2026-10-16
+
+The camera and sky now follow NASA's real scale relationships.
+
+### Fixed
+
+- **The field of view was wrong, and it is the largest scale error we had.** NASA
+  ships `CameraComponent._fieldOfView = 1.0471975512` rad — **60°, applied
+  horizontally** — and derives the vertical angle from the aspect ratio. At the
+  reference's 1.7525 aspect that is 36.5°, not 60°. We used a flat **42° vertical**,
+  which narrows the view and throws off every framing decision: how much of a
+  system fits on screen, when a subsystem crosses its 20-pixel threshold, and how
+  large a body appears at a given distance. three.js takes a vertical angle, so
+  `verticalFovForHorizontal` now converts, and is recomputed on resize. A test
+  reproduces the reference's exact value, 0.636503881827892 rad.
+- **The near and mid planes were invented.** We used `0.05×` and `100×` the orbit
+  radius. NASA's are
+  `max(1e-5, 0.1 × (|cameraPos| − parentExtentsRadius))` and
+  `min(1e4 × near, |cameraPos| + 10 × parentExtentsRadius)` — so our near plane sat
+  about twenty times too far out, wrecking depth precision on close approach.
+- **The sky did not stay in sync with the solar system.** The starfield and
+  constellations were unit spheres baked to a fixed 1e12 km radius, so once the
+  camera passed that distance the stars slid inward and vanished, and the two
+  scaled independently. Both are now scaled every frame to a fixed fraction of the
+  orbit radius (0.5) and follow the camera, which keeps the sky at a constant
+  apparent depth at every zoom. Brightness is unaffected because the true parallax
+  distance rides in its own attribute rather than being read back from the
+  transformed position.
+
+### Added
+
+- `NASA_HORIZONTAL_FOV_RADIANS`, `verticalFovForHorizontal` and
+  `STAR_SHELL_CAMERA_FRACTION`, with tests covering the conversion at square,
+  wide, tall and degenerate aspect ratios.
+- `docs/ground-truth.md` now records NASA's full camera model in one place: the
+  FOV, the auto near/mid rules, `CameraScripts._customSystemDistances` (the
+  per-body framing **floors**: mercury 425648, venus 862136, earth 1040264,
+  mars 8e4, jupiter 7157638, saturn 4869142, uranus 1886367, neptune 2407045,
+  plus the dwarf planets), the system presets (`inner_solar_system` is
+  `distance 7e8, angle 25, planeId earth`), and the exponential zoom behaviour.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 147 tests across
+eleven files. The inner-solar-system view was compared side by side against the
+reference at the same preset: orbit colours, star density and scale, trail
+colours, body sizes and labels now align.
+
 ## 0.2.15 - 2026-10-16
 
 Comet tails: NASA's three-component construction, from the de-obfuscated source.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { STAR_BYTES, STARFIELD_LAYERS, STAR_SHELL_KM, buildStarfield, parseStarfield } from '../src/lib/scene/starfield';
+import { STAR_BYTES, STARFIELD_LAYERS, STAR_SHELL_CAMERA_FRACTION, buildStarfield, parseStarfield } from '../src/lib/scene/starfield';
 
 /** Build one 23-byte star record. */
 function starRecord(mag: number, absMag: number, r: number, g: number, b: number, x: number, y: number, z: number): ArrayBuffer {
@@ -63,30 +63,33 @@ describe('starfield geometry', () => {
     expect(color.getW(0)).toBeCloseTo(-1.5, 5);
   });
 
-  it('normalises positions to a fixed shell, because float32 cannot hold 1e19 km', () => {
+  it('normalises positions to a unit sphere, because float32 cannot hold 1e19 km', () => {
     // The files store real parallax coordinates up to 3e20 km. Uploaded raw as
     // float32 the direction is lost to rounding and the field projects to NaN and
-    // disappears; so the CPU normalises and the magnitude stays in alpha.
+    // disappears; so the CPU normalises to a unit vector and the scene scales the
+    // object per frame to keep the sky in sync with the camera.
     const far = starRecord(0, -5, 255, 255, 255, 1e19, 2e19, 3e19);
     const points = buildStarfield([parseStarfield(far)]);
     const p = points.geometry.getAttribute('position');
     const len = Math.hypot(p.getX(0), p.getY(0), p.getZ(0));
-    expect(len).toBeCloseTo(STAR_SHELL_KM, -6);
-    // The components are unit-scale but non-zero, i.e. the direction survived
-    // rather than collapsing to zero or NaN through float32 rounding.
+    expect(len).toBeCloseTo(1, 5);
+    // The components are unit-scale and finite: the direction survived rather than
+    // collapsing to NaN through float32 rounding, and the ecliptic rotation is
+    // applied on top (so the raw proportions no longer hold).
     for (const c of [p.getX(0), p.getY(0), p.getZ(0)]) {
       expect(Number.isFinite(c)).toBe(true);
     }
-    expect(Math.hypot(p.getX(0), p.getY(0), p.getZ(0))).toBeGreaterThan(0);
 
     // The true distance is preserved separately, for the flux term.
     const d = points.geometry.getAttribute('distance');
     expect(d.getX(0)).toBeCloseTo(Math.hypot(1e19, 2e19, 3e19), -14);
   });
 
-  it('keeps the shell inside the widest camera far plane', () => {
-    // The galactic view reaches camRadius 2e18, so the shell must be far nearer.
-    expect(STAR_SHELL_KM).toBeLessThan(2e18);
+  it('keeps the sky well inside the far plane at every zoom', () => {
+    // The scene places the sky at this fraction of the orbit radius, so it can
+    // never fall outside the near/far pair however far the camera pulls out.
+    expect(STAR_SHELL_CAMERA_FRACTION).toBeGreaterThan(0);
+    expect(STAR_SHELL_CAMERA_FRACTION).toBeLessThan(1);
   });
 
   it('pins to the sky and draws additively, as NASA does', () => {

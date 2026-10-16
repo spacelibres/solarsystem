@@ -21,8 +21,18 @@ import { SPRITES, pickSize, textureUrl } from '../lib/nasa/assets';
 import type { OrbPoint } from '../lib/dynamo/parse';
 import { orbPositionAt } from '../lib/dynamo/orbit';
 import { ALWAYS, buildTree, parentAtTime, type TreeNode } from '../lib/scene/parenting';
-import { pixelSpaceRadius } from '../lib/scene/projection';
-import { buildStarfield, parseStarfield, STAR_SHELL_KM } from '../lib/scene/starfield';
+import {
+  NASA_HORIZONTAL_FOV_RADIANS,
+  autoMidDistance,
+  autoNearDistance,
+  pixelSpaceRadius,
+  verticalFovForHorizontal,
+} from '../lib/scene/projection';
+import {
+  STAR_SHELL_CAMERA_FRACTION,
+  buildStarfield,
+  parseStarfield,
+} from '../lib/scene/starfield';
 import { buildConstellations, parseConstellations } from '../lib/scene/constellations';
 import { buildSurface } from '../lib/scene/surface';
 import {
@@ -127,8 +137,15 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   container.appendChild(renderer.domElement);
 
   const scene = new THREE.Scene();
+  // NASA's camera is 60° **horizontal** (`CameraComponent._fieldOfView =
+  // 1.0471975512`). three.js takes a vertical angle, so it is converted per
+  // resize; see `verticalFovForHorizontal`.
   const camera = new THREE.PerspectiveCamera(
-    42,
+    (verticalFovForHorizontal(
+      NASA_HORIZONTAL_FOV_RADIANS,
+      container.clientWidth / Math.max(1, container.clientHeight),
+    ) * 180) /
+      Math.PI,
     container.clientWidth / container.clientHeight,
     1e-4,
     // NASA uses a logarithmic depth buffer rather than near/far planes, which
@@ -201,7 +218,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const res = await fetch(CONSTELLATIONS_URL);
       if (!res.ok) return;
       const parsed = parseConstellations(await res.arrayBuffer());
-      const lines = buildConstellations(parsed, STAR_SHELL_KM);
+      // Build at unit scale: the scene scales the sky object each frame so the
+      // constellations stay registered with the starfield at every zoom.
+      const lines = buildConstellations(parsed, 1);
       // `layers` is declared just above this block's enclosing scope.
       lines.visible = layers.constellations;
       constellationLines = lines;
@@ -787,12 +806,25 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     );
     camera.lookAt(focusTarget);
 
-    // NASA derives near/mid planes from the camera's distance to the parent
-    // body (0.1x, floored at 1e-5 km) rather than using a fixed pair. Without
-    // this, a near/far ratio spanning 23 orders of magnitude destroys depth
-    // precision and the Milky Way quad disappears behind the far plane.
-    const near = Math.max(1e-5, camRadius * 0.05);
-    const far = camRadius * 100;
+    // NASA derives the near and mid planes from the camera's distance to its
+    // parent, in `CameraComponent.__update`:
+    //
+    //   autoNearDistance = max(1e-5, 0.1 * (|cameraPos| - parentExtentsRadius))
+    //   autoMidDistance  = min(1e4 * autoNearDistance,
+    //                          |cameraPos| + 10 * parentExtentsRadius)
+    //
+    // Both scale with the *orbit radius*, so they track the scene through 23
+    // orders of magnitude instead of being a fixed pair. Our previous 0.05x /
+    // 100x were invented and put the near plane twenty times too far out.
+    const parent = focusedId ? worldById.get(focusedId) : null;
+    const parentExtentsRadius =
+      (focusedId ? entityById.get(focusedId)?.extentsRadius ??
+        entityById.get(focusedId)?.radius : null) ?? 0;
+    const cameraDistance = parent
+      ? Math.max(1e-5, camera.position.distanceTo(parent))
+      : Math.max(1e-5, camRadius);
+    const near = autoNearDistance(cameraDistance, parentExtentsRadius);
+    const far = autoMidDistance(cameraDistance, parentExtentsRadius, near);
     if (camera.near !== near || camera.far !== far) {
       camera.near = near;
       camera.far = far;
@@ -945,11 +977,27 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       focusTarget.lerp(new THREE.Vector3(0, 0, 0), 0.08);
     }
 
-    // The starfield is pinned to the sky inside its vertex shader (positions are
-    // normalised to a shell at a fixed distance), so it must NOT also follow the
-    // camera: translating the object would cancel the direction it computes.
-    // Leaving it at the origin means `modelViewMatrix` gives the true parallax
-    // vector, which is what the flux term needs.
+    // Keep the sky registered with the solar system.
+    //
+    // The starfield and constellations are unit spheres, scaled every frame to a
+    // fixed fraction of the camera's orbit radius. That is what keeps the two in
+    // sync at every zoom: the stars stay at a constant apparent depth instead of
+    // sliding inward and vanishing once the camera passes a baked-in radius.
+    //
+    // NASA achieves the same end inside its shader, with
+    // `gl_Position.w = viewPosition.y`; scaling on the CPU avoids that line's
+    // signed-w clipping and is equivalent for a field that only needs a direction.
+    const skyRadius = camRadius * STAR_SHELL_CAMERA_FRACTION;
+    for (const s of starLayers) {
+      s.scale.setScalar(skyRadius);
+      // The camera moves through the scene, so the sky has to follow it to stay
+      // centred on the viewer — otherwise it would drift off as the camera flies.
+      s.position.copy(camera.position);
+    }
+    if (constellationLines) {
+      constellationLines.scale.setScalar(skyRadius);
+      constellationLines.position.copy(camera.position);
+    }
 
     // Swap in the Milky Way once the camera is far outside the solar system,
     // matching NASA's `z-distance` visible interval on the galactic quad.
@@ -1165,6 +1213,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     },
     resize(w, h) {
       camera.aspect = w / h;
+      // The vertical FOV is derived from NASA's horizontal one, so it has to be
+      // recomputed whenever the aspect changes.
+      camera.fov = (verticalFovForHorizontal(NASA_HORIZONTAL_FOV_RADIANS, w / h) * 180) / Math.PI;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     },
