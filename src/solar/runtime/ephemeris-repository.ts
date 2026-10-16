@@ -7,14 +7,16 @@ import { ResourcePool } from './resource-pool';
 export type EphemerisRepositoryErrorCode = 'invalid-request' | 'invalid-data' | 'no-data' | 'fetch-failed';
 
 export class EphemerisRepositoryError extends Error {
+  readonly unavailableInterval?: { readonly min: number; readonly max: number };
   constructor(
     readonly code: EphemerisRepositoryErrorCode,
     message: string,
     readonly url?: string,
-    options?: ErrorOptions,
+    options?: ErrorOptions & { readonly unavailableInterval?: { readonly min: number; readonly max: number } },
   ) {
     super(message, options);
     this.name = 'EphemerisRepositoryError';
+    this.unavailableInterval = options?.unavailableInterval;
   }
 }
 
@@ -24,6 +26,7 @@ interface Block {
   readonly header: DynHeader;
   readonly points: readonly DynPoint[];
   readonly children: readonly Child[];
+  readonly sourcePoints?: readonly DynPoint[];
 }
 export interface EphemerisRepositoryOptions {
   readonly fetchBuffer?: (url: string, signal: AbortSignal) => Promise<ArrayBuffer>;
@@ -78,24 +81,30 @@ function decode(buffer: ArrayBuffer, inherited: DynHeader | undefined, name: str
       adapted.set(block, 1);
       block = adapted;
     }
-    const points = parseDynSegment(block, header.pointType);
+    const rawPoints = parseDynSegment(block, header.pointType);
+    const points: DynPoint[] = [];
     const stride = POINT_STRIDE[header.pointType];
-    // Voyager 1's verified pos leaf repeats its final record exactly. Removing
-    // only identical terminal records preserves every nonzero source interval.
-    while (points.length > 2 && points[points.length - 1].time === points[points.length - 2].time) {
-      const lastOffset = 5 + (points.length - 1) * stride;
-      const previousOffset = lastOffset - stride;
-      const identical = block.subarray(lastOffset, lastOffset + stride)
-        .every((byte, index) => byte === block[previousOffset + index]);
-      if (!identical) break;
-      points.pop();
-    }
-    for (let i = 0; i < points.length; i++) {
-      if (!finiteTree(points[i]) || (i > 0 && points[i].time <= points[i - 1].time)) {
-        invalid('Samples must be finite with strictly increasing times');
+    let hasBackstep = false;
+    for (let i = 0; i < rawPoints.length; i++) {
+      const point = rawPoints[i];
+      if (!finiteTree(point)) invalid('Samples must contain only finite values');
+      if (i > 0 && point.time === rawPoints[i - 1].time) {
+        const offset = 5 + i * stride;
+        const identical = block.subarray(offset, offset + stride)
+          .every((byte, index) => byte === block[offset - stride + index]);
+        if (!identical) invalid('Conflicting samples at the same time');
+        // Verified Venus interior and Voyager terminal repeats carry no new interval.
+        continue;
       }
+      if (i > 0 && point.time < rawPoints[i - 1].time) hasBackstep = true;
+      points.push(point);
     }
-    return { header, points, children: [] };
+    if (rawPoints.length > 1 && (points.length < 2 || points[0].time >= points[points.length - 1].time)) {
+      invalid('Samples do not define positive coverage');
+    }
+    // Mars contains overlapping historical spans. Keep its original indices for
+    // source-compatible pair lookup; never sort or interpolate across the backstep.
+    return { header, points, children: [], sourcePoints: hasBackstep ? rawPoints : undefined };
   }
   const count = reader.readInt32();
   const stride = header.version === 1 ? 16 : 8;
@@ -122,6 +131,67 @@ function decode(buffer: ArrayBuffer, inherited: DynHeader | undefined, name: str
   // The v2 terminal boundary closes its predecessor; it is never a downloadable child.
   if (header.version === 2) children.pop();
   return { header, points: [], children };
+}
+
+function selectSourcePair(points: readonly DynPoint[], time: number): readonly DynPoint[] {
+  let index = 0;
+  // PointSet.getPoints with a fresh hint, including its two fast paths.
+  if (!(points[0].time <= time && time < points[1].time)) {
+    if (points.length > 2 && points[1].time <= time && time < points[2].time) {
+      index = 1;
+    } else {
+      let upper = points.length - 2;
+      while (index !== upper) {
+        const middle = Math.ceil((index + upper) / 2);
+        if (time < points[middle].time) upper = middle - 1;
+        else index = middle;
+      }
+    }
+  }
+  return points.slice(index, index + 2);
+}
+
+function nextDown(value: number): number {
+  if (value === 0) return -Number.MIN_VALUE;
+  const bits = new DataView(new ArrayBuffer(8));
+  bits.setFloat64(0, value);
+  let high = bits.getUint32(0);
+  let low = bits.getUint32(4);
+  if (value > 0) {
+    if (low === 0) { high--; low = 0xffffffff; }
+    else low--;
+  } else {
+    if (low === 0xffffffff) { high++; low = 0; }
+    else low++;
+  }
+  bits.setUint32(0, high);
+  bits.setUint32(4, low);
+  return bits.getFloat64(0);
+}
+
+function sourceSelectorInterval(points: readonly DynPoint[], time: number): Interval {
+  let min = -Infinity;
+  let next = Infinity;
+  // All source lookup branches compare ET to record timestamps. Between two
+  // adjacent distinct timestamps their outcomes are stable, even with backsteps.
+  for (const point of points) {
+    if (point.time <= time) min = Math.max(min, point.time);
+    else next = Math.min(next, point.time);
+  }
+  // EphemerisWindow uses inclusive bounds, so encode this half-open selector cell
+  // with the preceding representable ET. The final coverage endpoint stays closed.
+  return { min, max: Number.isFinite(next) ? nextDown(next) : Infinity };
+}
+
+/** The exact connected no-data cell containing ET, excluding valid endpoints. */
+function unavailableCell(timeEt: number, available: readonly Interval[], domain: Interval = { min: -Infinity, max: Infinity }): Interval {
+  let min = domain.min;
+  let max = domain.max;
+  for (const interval of available) {
+    if (interval.max < timeEt) min = Math.max(min, -nextDown(-interval.max));
+    if (interval.min > timeEt) max = Math.min(max, nextDown(interval.min));
+  }
+  return { min, max };
 }
 
 async function fetchBinary(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
@@ -159,18 +229,32 @@ export class EphemerisRepository {
       const block = await this.readBlock(blockPath, header, name, signal);
       header = block.header;
       if (block.points.length > 0) {
-        const min = Math.max(interval.min, block.points[0].time);
-        const max = Math.min(interval.max, block.points[block.points.length - 1].time);
-        if (block.points.length < 2 || timeEt < min || timeEt > max) this.noData(path, timeEt);
-        return { header, points: block.points, interval: { min, max }, source: { path, segment: name === 'def' ? null : name } };
+        const first = block.points[0].time;
+        const last = block.points[block.points.length - 1].time;
+        if (block.points.length < 2 || timeEt < first || timeEt > last) this.noData(path, timeEt, unavailableCell(timeEt, block.points.length < 2 ? [] : [{ min: first, max: last }], interval));
+        const points = block.sourcePoints ? selectSourcePair(block.sourcePoints, timeEt) : block.points;
+        if (points[points.length - 1].time <= points[0].time) {
+          throw new EphemerisRepositoryError('invalid-data', 'Source selected a nonpositive sample interval', dynamoUrl(blockPath));
+        }
+        const selector = block.sourcePoints ? sourceSelectorInterval(block.sourcePoints, timeEt) : interval;
+        const min = Math.max(interval.min, points[0].time, selector.min);
+        const max = Math.min(interval.max, points[points.length - 1].time, selector.max);
+        if (timeEt < min || timeEt > max) this.noData(path, timeEt, unavailableCell(timeEt, min <= max ? [{ min, max }] : [], { min: Math.max(interval.min, selector.min), max: Math.min(interval.max, selector.max) }));
+        return { header, points, interval: { min, max }, source: { path, segment: name === 'def' ? null : name } };
       }
       // Shared endpoints choose the right interval; a terminal endpoint stays closed.
       let selected: Child | undefined;
       for (const child of block.children) {
         if (timeEt >= child.interval.min && timeEt <= child.interval.max) selected = child;
       }
-      if (!selected || timeEt < interval.min || timeEt > interval.max) this.noData(path, timeEt);
-      interval = { min: Math.max(interval.min, selected.interval.min), max: Math.min(interval.max, selected.interval.max) };
+      if (timeEt < interval.min || timeEt > interval.max) this.noData(path, timeEt, unavailableCell(timeEt, [interval]));
+      if (!selected) this.noData(path, timeEt, unavailableCell(timeEt, block.children.map(child => child.interval), interval));
+      const nextChild = block.children[block.children.indexOf(selected) + 1];
+      // At a shared boundary the right child wins, so the left child's cached
+      // availability (including negative results) must exclude that exact ET.
+      const selectedMax = nextChild && nextChild.interval.min <= selected.interval.max
+        ? nextDown(nextChild.interval.min) : selected.interval.max;
+      interval = { min: Math.max(interval.min, selected.interval.min), max: Math.min(interval.max, selectedMax) };
       name = selected.name;
       blockPath = `${base}${name}.dyn`;
     }
@@ -190,8 +274,8 @@ export class EphemerisRepository {
     if (this.disposed || signal?.aborted) throw new DOMException('Ephemeris load canceled', 'AbortError');
   }
 
-  private noData(path: string, timeEt: number): never {
-    throw new EphemerisRepositoryError('no-data', `No samples cover ET ${timeEt}`, dynamoUrl(path));
+  private noData(path: string, timeEt: number, unavailableInterval: Interval): never {
+    throw new EphemerisRepositoryError('no-data', `No samples cover ET ${timeEt}`, dynamoUrl(path), { unavailableInterval });
   }
 
   private async readBlock(path: string, header: DynHeader | undefined, name: string, signal?: AbortSignal): Promise<Block> {

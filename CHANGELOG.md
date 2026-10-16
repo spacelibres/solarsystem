@@ -3,6 +3,26 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.36 - 2026-10-17
+
+Expand the independent explorer from six targets to source-derived planetary
+systems, satellite navigation and real NASA spacecraft models.
+
+- Compile 844 original registrations with exact provenance and unsupported
+  expression diagnostics; expose the heliocentric 842-object catalog, categories
+  and search without executing recovered application code.
+- Add overview/system/body views, collision-aware projected labels, true-data
+  osculating orbits/trails, source solar texture/glow and three planetary rings.
+- Load actual GLTF models with official Draco/KTX2/Meshopt support, revision-pinned
+  decoder paths, source transforms and independent cancelable resource ownership.
+- Resolve visible-system dependencies, repeated-parent candidate coverage and
+  supported fixed/alignment/rotation/spin controllers; preserve unknown attitude.
+- Handle real Venus duplicate samples and Mars overlapping historical spans using
+  original source pair selection with selector-valid cache coverage, including
+  reverse playback and backward-seek regressions.
+- Keep unsupported mechanisms, special controllers, advanced rendering and full
+  Eyes tool/story parity explicit in the documentation.
+
 ## 0.2.35 - 2026-10-16
 
 Add the independent controllable Solar System foundation at `/explorer`.

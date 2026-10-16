@@ -213,3 +213,55 @@ describe('verified curated scene', () => {
     expect(DEFAULT_SCENE[0]).toMatchObject({ staticPosition: zero, staticOrientation: identity, phases: [{ parentId: null }] });
   });
 });
+
+describe('catalog runtime loading', () => {
+  it('resolves repeated-parent candidate controllers by real coverage', async () => {
+    const repository = new Repository();
+    const runtime = new ExplorerRuntime({ entities: [body('probe', { phases: [{ startEt: 0, parentId: null, positionPaths: ['probe/1/def.dyn', 'probe/2/def.dyn'] }] })], repository, timeEt: 22 });
+    expect(repository.requests.map(request => request.path)).toEqual(['probe/1/def.dyn', 'probe/2/def.dyn']);
+    repository.requests[0].reject(new Error('outside coverage')); repository.complete(1, 20, 30); await settle();
+    expect(runtime.snapshot()).toMatchObject({ phase: 'ready', errors: {} });
+    expect(runtime.snapshot().frames.get('probe')).toMatchObject({ position: { x: 22 } });
+  });
+  it('loads requested entities with current parent dependencies and ignores stale selection loads', async () => {
+    const repository = new Repository();
+    const runtime = new ExplorerRuntime({ entities: [root, body('earth'), body('moon', { phases: [{ startEt: 0, parentId: 'earth', positionPath: 'moon/pos/def.dyn' }] }), body('probe')], repository, timeEt: 2, activeIds: ['moon'] });
+    expect(repository.requests.map(request => request.path)).toEqual(['earth/pos/def.dyn', 'moon/pos/def.dyn']);
+    expect(runtime.snapshot().frames.get('probe')).toMatchObject({ reason: 'inactive' });
+    runtime.setActive(['probe']);
+    expect(repository.requests[0].signal?.aborted).toBe(true);
+    repository.complete(0, 0, 10); repository.complete(1, 0, 10); repository.complete(2, 0, 10); await settle();
+    expect(runtime.snapshot().frames.get('moon')).toMatchObject({ reason: 'inactive' });
+    expect(runtime.snapshot().phase).toBe('ready');
+    expect(() => runtime.setActive(['absent'])).toThrow(/entity/i);
+  });
+});
+
+import { EphemerisRepositoryError } from '../src/solar/runtime/ephemeris-repository';
+describe('time-scoped no-data caching', () => {
+  const unavailable = (min: number, max: number) => new EphemerisRepositoryError('no-data', 'outside coverage', undefined, { unavailableInterval: { min, max } });
+  it('retries another candidate when forward playback exits its known unavailable interval', async () => {
+    const repository = new Repository();
+    const runtime = new ExplorerRuntime({ entities: [body('probe', { phases: [{startEt:-100,parentId:null,positionPaths:['a/def.dyn','b/def.dyn']} ] })], repository, timeEt: 2 });
+    repository.complete(0,0,10); repository.requests[1].reject(unavailable(-Infinity,9.999999999999998)); await settle();
+    runtime.play(1); runtime.tick(7); await settle(); expect(repository.requests).toHaveLength(2);
+    runtime.tick(2); expect(repository.requests.map(r=>[r.path,r.timeEt])).toContainEqual(['b/def.dyn',11]);
+    const b=repository.requests.findIndex(r=>r.path==='b/def.dyn'&&r.timeEt===11);repository.complete(b,10,20);await settle();
+    expect(runtime.snapshot().frames.get('probe')).toMatchObject({status:'ready',position:{x:11}});
+  });
+  it('retries after initial precoverage and reverse postcoverage no-data without per-frame loops', async () => {
+    for (const [initial,min,max,rate] of [[-1,-Infinity,-Number.MIN_VALUE,1],[11,10.000000000000002,Infinity,-1]] as const) {
+      const repository=new Repository();const runtime=new ExplorerRuntime({entities:[body('probe')],repository,timeEt:initial});
+      repository.requests[0].reject(unavailable(min,max));await settle();
+      runtime.play(rate);runtime.tick(0.1);runtime.tick(0.1);expect(repository.requests).toHaveLength(1);
+      runtime.tick(2);expect(repository.requests).toHaveLength(2);repository.complete(1,0,10);await settle();
+      expect(runtime.snapshot().frames.get('probe')?.status).toBe('ready');
+    }
+  });
+  it('retains network failures for explicit retry even when time moves substantially', async () => {
+    const repository=new Repository();const runtime=new ExplorerRuntime({entities:[body('probe')],repository,timeEt:2});
+    repository.requests[0].reject(new EphemerisRepositoryError('fetch-failed','offline'));await settle();
+    runtime.play(1);runtime.tick(100);runtime.tick(100);expect(repository.requests).toHaveLength(1);
+    runtime.retry();expect(repository.requests).toHaveLength(2);
+  });
+});

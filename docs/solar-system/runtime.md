@@ -12,6 +12,10 @@ Public commands are `seek`, `play`, `pause`, `live`, `select`, `retry`, `tick` a
 
 Phase values are `loading` while a required controller request is pending, `ready` when all configured frames resolve, `partial` when some resolve, and `error` when none resolve. Per-controller errors preserve failed load/evaluation reasons; per-entity frames preserve `no-phase`, missing parent, cycle and missing local/orientation states separately. The static heliocentric Sun can therefore retain a ready frame during a partial data failure. The renderer hides all bodies while the selected focus is unavailable; a ready Sun frame alone does not imply a visible fallback view.
 
+## Full-scene host and compatibility fixture
+
+The independent UI now passes `FULL_SCENE` from `scene-catalog.ts` and an explicit active-system subset. `setActive` includes current parent and supported controller dependencies. See [catalog](catalog.md), [controller plans](controllers.md) and [display](display.md). The six-entry default below remains a compatibility fixture and is not the current UI catalog.
+
 ## Curated initial scene
 
 `src/solar/config/default-scene.ts` contains six explicitly mapped entities: Sun, Earth, Moon, Jupiter, Saturn and Voyager 1. This is an initial foundation slice, not the complete NASA catalog or functional parity.

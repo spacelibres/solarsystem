@@ -51,17 +51,48 @@ closed-interval searches. Sample coverage can narrow an index interval; no
 nearest-window fallback or quarter-year cache key is used.
 
 The live `sc_voyager_1/sun/3/def.dyn` response checked on 2026-10-16 contains seven
-`pos` samples, the last two byte-identical at ET 3155716800. Source PointSet
-selection uses earlier nonzero intervals for ordinary dates, so rejecting the
-whole controller would discard valid coverage. The repository removes only
-byte-identical terminal repeats while retaining at least two records, then
-applies strict increasing-time validation. This preserves all nonzero source
-intervals and makes its closed final endpoint evaluable. Interior duplicates,
-conflicting terminal records and insufficient distinct samples remain invalid.
-The exact 404-byte Voyager response is embedded in the repository regression
-test; it requires no network request during tests.
+`pos` samples, the last two byte-identical at ET 3155716800. The live
+`venus/sun/orb/def.dyn` response contains 34 orbital samples with an identical
+interior repeat at ET -16495135.816. The repository coalesces only byte-identical
+adjacent records, preserving every positive-duration source interval and
+requiring at least two distinct records when multiple samples were supplied.
+This deliberately extends v0.2.35's terminal-only normalization based on the
+verified Venus response. Conflicting equal-time records remain invalid.
 
-Malformed/truncated buffers, other duplicate or descending times, nonfinite fields,
+The live `mars/sun/orb/def.dyn` response contains 50 orbital samples with a
+historical backstep at record 12→13, from ET -78799646 to -742490410. The original
+record order contains overlapping spans. Sorting would invent adjacent pairs,
+so the repository retains the original indices and applies the recovered
+`PointSet.getPoints` lookup with a fresh hint for each request. For such leaves,
+it returns only the selected original adjacent pair, provided its interval has
+positive duration and contains the requested ET. Its reusable `window.interval`
+is narrower: the intersection of that pair, ancestor coverage, and the cell
+between adjacent distinct source timestamps containing the requested ET. All
+source lookup comparisons are stable within that cell. The exclusive upper
+timestamp is represented by the immediately preceding IEEE-754 double because
+window bounds are inclusive; the final coverage endpoint remains closed.
+This distinction matters for Mars: ET -78000000 selects a pair beginning at
+-265179805, but a fresh lookup at -100000000 selects a different historical
+pair. A window loaded at -78000000 therefore cannot claim reusable coverage
+back to -265179805. Backward seeks and playback reload the appropriate pair from
+cached raw bytes, while normal small time advances within a cell reuse it.
+The repository never crosses a backward edge or extrapolates. No-data and invalid selected
+intervals remain explicit errors. This is a deliberate change from rejecting
+the entire leaf for a historical backstep. Different requests reselect from
+the cached raw bytes, including backward seeks; no repaired/sorted array is
+cached. The policy is deterministic and does not claim to reproduce historical
+query-dependent hint choices in overlapping source spans.
+
+Regression tests embed the exact 404-byte Voyager response, exact Venus records
+around its duplicate, and a focused Mars fixture with all 50 verified timestamps
+and exact present-day endpoint values. The Mars tests compare several historical,
+present and final-endpoint selections against the actual recovered PointSet
+class executed in a CPU-only VM. `tests/solar-unordered-runtime.test.ts` reproduces
+the historical overlap through the real runtime cache with backward seek and
+playback, and verifies selector boundaries around negative ET, zero and
+subnormals. They require no network request during tests.
+
+Malformed/truncated buffers, conflicting duplicate times, nonfinite fields,
 overlapping v1 intervals, unsafe paths and nonfinite request times are rejected.
 Traversal allows at most 16 nested child levels. Empty or insufficient samples
 and requests outside coverage return a typed `no-data` error; they never create

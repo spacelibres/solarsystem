@@ -1,7 +1,10 @@
+import { applyFrameTransform } from '../src/solar/render/frame';
+import { Group } from 'three';
+import { createRingGeometry } from '../src/solar/render/rings';
 import { describe, expect, it } from 'vitest';
 import { Vector3 } from 'three';
 import { createSpheroidFace, spheroidFacePoint } from '../src/solar/render/spheroid';
-import { cameraFitDistance } from '../src/solar/render/camera';
+import { modelIsResolvable, cameraFitDistance } from '../src/solar/render/camera';
 import { createRenderWorld } from '../src/solar/render/render-world';
 
 describe('NASA six-face mapping with standard Three geometry', () => {
@@ -67,4 +70,33 @@ describe('camera framing', () => {
       expect(Math.asin(6378 / distance)).toBeLessThan(Math.min(vertical, horizontal) / 2);
     }
   });
+});
+
+describe('source radial ring map', () => {
+  it('maps inner/outer edge to U0/U1 rather than planar texture coordinates', () => {
+    const geometry=createRingGeometry(74270.580913,140478.924731);
+    const positions=geometry.getAttribute('position'),uv=geometry.getAttribute('uv');
+    for(let i=0;i<positions.count;i++){
+      const radius=Math.hypot(positions.getX(i),positions.getY(i));
+      expect(uv.getX(i)).toBeCloseTo((radius-74270.580913)/(140478.924731-74270.580913),5);
+      expect(uv.getY(i)).toBe(0);
+      expect(positions.getZ(i)).toBe(0);
+    }
+    geometry.dispose();
+  });
+});
+
+it('defers sub-pixel spacecraft geometry until focused or visibly resolved',()=>{
+ expect(modelIsResolvable(.072,749000,Math.PI/4,500,false)).toBe(false);
+ expect(modelIsResolvable(.072,.3,Math.PI/4,500,true)).toBe(true);
+ expect(modelIsResolvable(10,100,Math.PI/4,500,false)).toBe(true);
+});
+
+it('uses camera-relative offsets and clears a previous model attitude when the next one is unknown',()=>{
+ const group=new Group();
+ applyFrameTransform(group,{x:1e9+3,y:1e9+4,z:1e9+5},{w:0,x:0,y:0,z:1},{x:1e9,y:1e9,z:1e9});
+ expect(group.position.toArray()).toEqual([3,4,5]);
+ expect(group.quaternion.w).toBe(0);
+ applyFrameTransform(group,{x:0,y:0,z:0},null,{x:0,y:0,z:0});
+ expect(group.quaternion.toArray()).toEqual([0,0,0,1]);
 });

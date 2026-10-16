@@ -1,9 +1,10 @@
 import { readFileSync } from 'node:fs';
+import { runInNewContext } from 'node:vm';
 import { describe, expect, it, vi } from 'vitest';
 import { EphemerisRepository, EphemerisRepositoryError } from '../src/solar/runtime/ephemeris-repository';
 import { dynamoUrl } from '../src/lib/nasa/assets';
 import { clearDynamoCache, loadDynamo } from '../src/lib/dynamo/loader';
-import type { PointType } from '../src/lib/dynamo/parse';
+import { parseDyn, type DynPoint, type PointType } from '../src/lib/dynamo/parse';
 import { evaluateEphemeris } from '../src/solar/domain/ephemeris';
 
 class Bytes {
@@ -41,6 +42,20 @@ function leaf(times: number[], type: PointType = 'lin', version = 2) {
   }
   return b.buffer();
 }
+function orbitalRecords(records: readonly (readonly number[])[]) {
+  const b = new Bytes().byte(1).integer(records.length);
+  for (const record of records) record.forEach(value => b.double(value));
+  return b.buffer();
+}
+function sourcePair(points: readonly DynPoint[], time: number): readonly DynPoint[] {
+  const source = readFileSync('eyes/src/engine/controllers/DynamoController.js', 'utf8');
+  const body = source.slice(source.indexOf('class PointSet {'), source.indexOf('class DynamoController extends'));
+  const PointSet = runInNewContext(`${body}\nPointSet`) as { prototype: { getPoints: (output: DynPoint[], time: number) => void } };
+  const instance = Object.assign(Object.create(PointSet.prototype), { _points: points, _hintIndex: 0 }) as { getPoints: (output: DynPoint[], time: number) => void };
+  const result: DynPoint[] = [];
+  instance.getPoints(result, time);
+  return result;
+}
 const path = 'test/sun/lin/def.dyn';
 const child = (name: string) => `test/sun/lin/${name}.dyn`;
 function fixtureRepository(files: Record<string, ArrayBuffer>, maxBytes?: number) {
@@ -71,14 +86,74 @@ describe('source-derived dynamo repository', () => {
     repository.dispose();
   });
 
-  it('still rejects interior and conflicting terminal duplicates', async () => {
+  it('still rejects conflicting interior and terminal duplicates', async () => {
     const conflicting = leaf([0, 10, 10], 'pos');
     new DataView(conflicting).setFloat64(5 + 2 * 56 + 8, 999, true);
-    for (const bytes of [root(leaf([0, 10, 10, 20])), root(conflicting, 2, 'pos')]) {
+    const interior = leaf([0, 10, 10, 20]);
+    new DataView(interior).setFloat64(5 + 2 * 32 + 8, 999, true);
+    for (const bytes of [root(interior), root(conflicting, 2, 'pos')]) {
       const { repository } = fixtureRepository({ [path]: bytes });
       await expect(repository.load(path, 5)).rejects.toMatchObject({ code: 'invalid-data' });
       repository.dispose();
     }
+  });
+
+  it('coalesces the verified byte-identical Venus interior record without changing either positive interval', async () => {
+    // Exact four records around the duplicate in the live Venus orb response, 2026-10-16.
+    const records = [
+      [-53092736.814,108207899.89618126,0.006778274603491435,3.2364425043540703e-7,2.551319966004506,0.3977004184913597,0.11219201894602919,-0.17941308989140858,0.8927812000665272],
+      [-16495135.816,108208699.95369588,0.006780353543698131,3.2364066107240593e-7,1.826668966879606,0.39647621805651995,0.11194637377044994,-0.17956769331974365,0.8933252831030094],
+      [-16495135.816,108208699.95369588,0.006780353543698131,3.2364066107240593e-7,1.826668966879606,0.39647621805651995,0.11194637377044994,-0.17956769331974365,0.8933252831030094],
+      [197902579,108208489.49183074,0.006766315768849428,3.236416052781324e-7,2.1018808488145626,0.3976914992933442,0.11219250183305249,-0.17942545351469066,0.8927826278290255],
+    ];
+    const bytes = root(orbitalRecords(records), 2, 'orb');
+    const { repository } = fixtureRepository({ [path]: bytes });
+    const window = await repository.load(path, 0);
+    expect(window.points).toHaveLength(3);
+    expect(window.points.map(point => point.time)).toEqual([records[0][0], records[1][0], records[3][0]]);
+    for (const time of [-30000000, records[1][0], 0]) {
+      expect(evaluateEphemeris(window, time)).toMatchObject({ status: 'ready' });
+      const reference = sourcePair(parseDyn(bytes).points, time);
+      const selected = window.points.filter(point => reference.some(other => other.time === point.time));
+      expect(selected).toEqual(reference);
+    }
+    repository.dispose();
+  });
+
+  it('preserves Mars original-order source pair selection across its historical backstep and repeated seeks', async () => {
+    // All 50 timestamps from the 3628-byte live Mars root, preserving the 12->13 backstep.
+    const times = [-3155716758.816,-2813992703.8175755,-2621557644.7237186,-2396145026.614604,-2024384525.971887,-1690308923.2988899,-1354237618.9642744,-1123009265.3955674,-931890518.0692738,-702196563.591141,-509614451.11638725,-208434961.17802674,-78799646,-742490410,-738461957,-416546278.7013104,-265179805.10695326,-72717692,-7689600,-2507347,57128464,125539264,128262836,195285665,225623375,225657862,265008306,288169447,288210177,397477501,464590867,464758867,530107268,596376069.183,666932224,794086294,794230007,831828698,832302380,873258326,873517951,1134311346.692306,1221857105.6951253,1517983182.9451685,1798115113.8113098,2100663711.1683388,2401172848.6898375,2697881485.8795795,3038512048.168521,3155716869.184];
+    const records = times.map(time => [time, 227930000, 0.0934, 1.05865e-7, 0, 1, 0, 0, 0]);
+    // Exact source records bracketing present ET, including quaternion W-first fields.
+    records[38] = [832302380,227929944.0679331,0.09343752982651743,1.0586534356174824e-7,0.4787676900379745,0.9562344596465,0.20624175026692718,0.05592537744649474,-0.1998808414752842];
+    records[39] = [873258326,227930320.87561515,0.09349692708669932,1.0586508104166267e-7,-1.4715186927015405,0.9564834348445399,0.206313628857261,0.0556659524353164,-0.19868423982593103];
+    const bytes = root(orbitalRecords(records), 2, 'orb');
+    const { repository, fetchBuffer } = fixtureRepository({ [path]: bytes });
+    for (const time of [845436800, -3000000000, -740000000, -500000000, -100000000, -78799646, -78000000, 0, 3155716869.184, 845436800]) {
+      const expected = sourcePair(parseDyn(bytes).points, time);
+      const window = await repository.load(path, time);
+      expect(window.points).toEqual(expected);
+      expect(window.interval.min).toBeGreaterThanOrEqual(expected[0].time);
+      expect(window.interval.max).toBeLessThanOrEqual(expected[1].time);
+      expect(window.interval.min).toBeLessThanOrEqual(time);
+      expect(window.interval.max).toBeGreaterThanOrEqual(time);
+      expect(evaluateEphemeris(window, time)).toMatchObject({ status: 'ready', kind: 'position' });
+      if (time === 845436800) expect(window.points.map(point => point.time)).toEqual([832302380, 873258326]);
+    }
+    expect(fetchBuffer).toHaveBeenCalledTimes(1);
+    repository.dispose();
+  });
+
+  it('does not sort, cross a descending edge or extrapolate an unordered leaf', async () => {
+    const { repository } = fixtureRepository({ [path]: root(leaf([0, 20, 10, 30])) });
+    const window = await repository.load(path, 15);
+    expect(window.points.map(point => point.time)).toEqual([0, 20]);
+    await expect(repository.load(path, -1)).rejects.toMatchObject({ code: 'no-data' });
+    await expect(repository.load(path, 31)).rejects.toMatchObject({ code: 'no-data' });
+    repository.dispose();
+    const invalid = fixtureRepository({ [path]: root(leaf([10, 0])) }).repository;
+    await expect(invalid.load(path, 5)).rejects.toMatchObject({ code: 'invalid-data' });
+    invalid.dispose();
   });
 
   it('fixes the actual old quarter-bucket collision and never downloads v2 sentinel', async () => {
@@ -96,7 +171,9 @@ describe('source-derived dynamo repository', () => {
     for (const time of [0, 15, 25, 10, 30, 5]) windows.push(await repository.load(path, time));
     expect(windows.map(window => window.points[0].time)).toEqual([0, 10, 20, 10, 20, 0]);
     expect(windows[1].source).toEqual({ path, segment: '01' });
-    expect(windows[1].interval).toEqual({ min: 10, max: 20 });
+    expect(windows[1].interval.min).toBe(10);
+    expect(windows[1].interval.max).toBeLessThan(20);
+    expect(windows[1].interval.max).toBeGreaterThan(19.99999999999999);
     expect(fetchBuffer).toHaveBeenCalledTimes(4);
     await expect(repository.load(path, 30.001)).rejects.toMatchObject({ code: 'no-data' });
     expect(fetchBuffer).toHaveBeenCalledTimes(4);
@@ -275,4 +352,33 @@ describe('source-derived dynamo repository', () => {
     expect(repository.snapshot()).toEqual({ active: 0, queued: 0, entries: 0, bytes: 0, references: 0 });
     repository.dispose();
   });
+});
+
+it('reports exact unavailable query cells before/after leaf coverage and between v1 children', async () => {
+  const {repository}=fixtureRepository({[path]:root(leaf([0,10]))});
+  const before=await repository.load(path,-1).catch(error=>error) as EphemerisRepositoryError;
+  const after=await repository.load(path,11).catch(error=>error) as EphemerisRepositoryError;
+  expect(before.unavailableInterval?.min).toBe(-Infinity);expect(before.unavailableInterval?.max).toBeLessThan(0);
+  expect(after.unavailableInterval?.min).toBeGreaterThan(10);expect(after.unavailableInterval?.max).toBe(Infinity);
+  expect((await repository.load(path,0)).interval.min).toBe(0);expect((await repository.load(path,10)).interval.max).toBe(10);
+  const gap=fixtureRepository({[path]:root(index([0,10,20,30],1),1)}).repository;
+  const error=await gap.load(path,15).catch(error=>error) as EphemerisRepositoryError;
+  expect(error.unavailableInterval?.min).toBeGreaterThan(10);expect(error.unavailableInterval?.max).toBeLessThan(20);
+  expect(error.unavailableInterval?.min).toBeLessThan(15);expect(error.unavailableInterval?.max).toBeGreaterThan(15);
+  repository.dispose();gap.dispose();
+});
+
+it('expires nested child no-data before a shared endpoint and loads the right child there', async () => {
+  const {repository}=fixtureRepository({[path]:root(index([0,10,20])),[child('00')]:leaf([0,9]),[child('01')]:leaf([10,20])});
+  const error=await repository.load(path,9.5).catch(error=>error) as EphemerisRepositoryError;
+  expect(error.unavailableInterval?.max).toBeLessThan(10);
+  const {ExplorerRuntime}=await import('../src/solar/runtime/explorer-runtime');
+  const runtime=new ExplorerRuntime({entities:[{id:'probe',label:'probe',radiusKm:1,kind:'marker',source:'test',phases:[{startEt:0,parentId:null,positionPath:path}]}],repository,timeEt:9.5});
+  for(let i=0;i<100;i++)await Promise.resolve();
+  expect(runtime.snapshot().frames.get('probe')?.status).toBe('unavailable');
+  runtime.play(1);runtime.tick(0.5);
+  for(let i=0;i<100;i++)await Promise.resolve();
+  expect(runtime.snapshot().frames.get('probe')).toMatchObject({status:'ready',position:{x:10}});
+  expect((await repository.load(path,20)).interval.max).toBe(20);
+  runtime.dispose();
 });
