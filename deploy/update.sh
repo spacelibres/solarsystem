@@ -78,18 +78,32 @@ MIRROR_PARK="$MIRROR_DIR"
 moved_mirror=0
 
 restore_mirror() {
+  local status=$?
   if [ "$moved_mirror" = 1 ] && [ -d "$MIRROR_PARK" ]; then
     log "restoring the asset mirror"
     rm -rf "$MIRROR_SRC"
     mkdir -p "$(dirname "$MIRROR_SRC")"
     mv "$MIRROR_PARK" "$MIRROR_SRC"
   fi
+  return $status
 }
 trap restore_mirror EXIT
 
+# A previous run that was killed between the park and the restore can leave the
+# mirror outside the tree. Recover it rather than treating the park path as
+# disposable: deleting it below would destroy 200k files that took hours to
+# fetch.
+if [ ! -d "$MIRROR_SRC" ] && [ -d "$MIRROR_PARK" ]; then
+  log "found the asset mirror parked from an earlier run; restoring it first"
+  mkdir -p "$(dirname "$MIRROR_SRC")"
+  mv "$MIRROR_PARK" "$MIRROR_SRC"
+fi
+
 if [ -d "$MIRROR_SRC" ]; then
   log "parking the asset mirror outside the build tree"
-  rm -rf "$MIRROR_PARK"
+  if [ -e "$MIRROR_PARK" ]; then
+    die "$MIRROR_PARK already exists; move it away so the mirror can be parked there"
+  fi
   mv "$MIRROR_SRC" "$MIRROR_PARK"
   moved_mirror=1
 fi

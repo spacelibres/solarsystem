@@ -3,6 +3,30 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.21 - 2026-10-16
+
+Make the auto-deploy resilient to its own interruption.
+
+### Fixed
+
+- **An interrupted deploy can no longer destroy the asset mirror.** If a run
+  died between parking the mirror and restoring it, the next run deleted the
+  parked copy (`rm -rf` on the park path) before moving anything there —
+  throwing away 105k files that took hours to download. The updater now detects
+  a parked mirror left by an earlier run, restores it first, then parks it
+  again; and it refuses to overwrite a non-empty park path rather than deleting
+  it. Verified by simulating a crashed run: the mirror was recovered intact.
+- The exit trap now preserves the script's exit status instead of masking a
+  failure with its own return code.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 163 tests
+across fourteen files. On the host: an interrupted-run simulation recovered the
+mirror (105,120 files) and completed the deploy, and 25 deliberately aborted
+asset requests produced **zero** uncaught exceptions, where the same check
+previously logged `Controller is already closed` six times.
+
 ## 0.2.20 - 2026-10-16
 
 Auto-deploy confirmed working end to end, and a production crash in the asset
