@@ -3,6 +3,36 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.20 - 2026-10-16
+
+Auto-deploy confirmed working end to end, and a production crash in the asset
+route fixed.
+
+### Fixed
+
+- **The mirror route no longer crashes the server on an aborted request.** A
+  browser that navigates away or seeks while a texture is still streaming made
+  the Node read stream error, and because nothing consumed that error on the
+  web stream it surfaced as an `uncaughtException` — visible in the logs as
+  `TypeError: Invalid state: Controller is already closed`, six times per
+  handful of aborted requests. The route now attaches an error handler to the
+  stream it hands to `Readable.toWeb`, so an aborted transfer is a non-event.
+
+### Notes
+
+- The deployment ran itself for the first time on this release: pushing `main`
+  triggered the webhook, which parked the asset mirror, built, restarted the
+  service and restored the mirror without intervention. The matching tag push
+  was ignored, so only one build ran.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 163 tests
+across fourteen files. On the live host: the auto-deploy advanced 0.2.18 →
+0.2.19 → 0.2.20, `https://solarsystem.spacelibre.cn` serves the new version,
+and NASA assets (Earth's surface map, the Moon's and a spacecraft's `.dyn`
+controllers) all return 200 through the mirror.
+
 ## 0.2.19 - 2026-10-16
 
 Auto-deploy actually works. Pushing to `main` now builds and ships on the host

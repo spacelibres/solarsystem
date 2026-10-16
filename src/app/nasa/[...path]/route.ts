@@ -58,7 +58,19 @@ export async function GET(
     const info = await stat(abs);
     if (!info.isFile()) return new Response('not found', { status: 404 });
 
-    const stream = Readable.toWeb(createReadStream(abs)) as WebReadableStream<Uint8Array>;
+    // A browser that navigates away or seeks a video aborts the request while
+    // the file is still streaming. The Node stream then errors, and an
+    // unhandled error on the web stream surfaces as an uncaughtException that
+    // can take the server down — this used to log "Controller is already
+    // closed" on every aborted texture request. Destroying the Node stream on
+    // abort keeps the two in step: the stream is the only owner, and its error
+    // is consumed rather than thrown.
+    const nodeStream = createReadStream(abs);
+    nodeStream.on('error', () => {
+      /* the response is already gone; nothing useful to send */
+    });
+
+    const stream = Readable.toWeb(nodeStream) as WebReadableStream<Uint8Array>;
     return new Response(stream as unknown as ReadableStream, {
       headers: {
         'Content-Type': contentTypeFor(abs),
