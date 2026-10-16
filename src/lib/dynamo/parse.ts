@@ -212,12 +212,11 @@ function readPoint(reader: Reader, type: PointType): DynPoint {
         eccentricity: reader.readFloat64(),
         meanAngularMotion: reader.readFloat64(),
         meanAnomalyAtEpoch: reader.readFloat64(),
-        orientation: {
-          x: reader.readFloat64(),
-          y: reader.readFloat64(),
-          z: reader.readFloat64(),
-          w: reader.readFloat64(),
-        },
+        // NASA reads this quaternion with `Quaternion.set(w, x, y, z)`, so the
+        // file order is W-first. Reading it as (x,y,z,w) rotates every orbit
+        // about the wrong axis (Earth came out at -19.5° ecliptic latitude
+        // instead of ~0°).
+        orientation: readQuatWxyz(reader),
       };
     case 'pos':
       return {
@@ -232,11 +231,11 @@ function readPoint(reader: Reader, type: PointType): DynPoint {
       return {
         kind: 'ori',
         time,
-        orientation: quatFrom(reader),
+        orientation: readQuatWxyz(reader),
         angularVelocity: vec3From(reader),
       };
     case 'quat':
-      return { kind: 'quat', time, orientation: quatFrom(reader) };
+      return { kind: 'quat', time, orientation: readQuatWxyz(reader) };
   }
 }
 
@@ -246,12 +245,19 @@ const vec3From = (r: Reader): Vec3 => ({
   z: r.readFloat64(),
 });
 
-const quatFrom = (r: Reader): Quat => ({
-  x: r.readFloat64(),
-  y: r.readFloat64(),
-  z: r.readFloat64(),
-  w: r.readFloat64(),
-});
+/**
+ * Read a quaternion stored in NASA's `(w, x, y, z)` order.
+ *
+ * NASA's `Quaternion.set(w, x, y, z)` is used by `OrbPoint.load`, `OriPoint`
+ * and `QuatPoint`, so all quaternions in `.dyn` files are W-first.
+ */
+const readQuatWxyz = (r: Reader): Quat => {
+  const w = r.readFloat64();
+  const x = r.readFloat64();
+  const y = r.readFloat64();
+  const z = r.readFloat64();
+  return { x, y, z, w };
+};
 
 /**
  * Parse a dynamo *segment* file (`<kind>/<NNN>.dyn`).

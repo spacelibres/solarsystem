@@ -11,7 +11,13 @@ export interface Vec3 {
   z: number;
 }
 
-/** Quaternion ordered (x, y, z, w) — the order NASA Eyes writes to .dyn files. */
+/**
+ * Quaternion stored as named components.
+ *
+ * NASA's `.dyn` files write quaternions in `(w, x, y, z)` order, which
+ * `parse.ts` unpacks into this object. The field order inside the object is
+ * irrelevant as long as accessors use the names.
+ */
 export interface Quat {
   x: number;
   y: number;
@@ -21,7 +27,7 @@ export interface Quat {
 
 export const vec3 = (x: number, y: number, z: number): Vec3 => ({ x, y, z });
 
-/** Active rotation of a vector by a unit quaternion (x, y, z, w). */
+/** Active rotation of a vector by a unit quaternion. */
 export function rotateByQuat(v: Vec3, q: Quat): Vec3 {
   const { x, y, z, w } = q;
   // t = 2 * (q_vec × v)

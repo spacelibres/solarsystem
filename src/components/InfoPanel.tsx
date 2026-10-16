@@ -2,6 +2,7 @@
 
 import type { CatalogEntity } from '../lib/nasa/catalog';
 import { describeParents } from '../lib/nasa/groups';
+import { formatDistance } from '../lib/nasa/units';
 import { bodyColor } from '../lib/theme/nasa-tokens';
 
 interface Props {
@@ -38,14 +39,22 @@ export default function InfoPanel({ entity, onClose }: Props) {
             <dl className="ns-facts">
               {entity.radius !== null && (
                 <>
-                  <dt>Radius</dt>
-                  <dd>{formatKm(entity.radius)}</dd>
+                  <dt>Mean radius</dt>
+                  <dd>{formatDistance(entity.radius)}</dd>
+                </>
+              )}
+              {entity.spheroid && (
+                <>
+                  <dt>Equatorial</dt>
+                  <dd>{formatDistance(entity.spheroid.equatorialRadius)}</dd>
+                  <dt>Polar</dt>
+                  <dd>{formatDistance(entity.spheroid.polarRadius)}</dd>
                 </>
               )}
               {entity.systemRadius !== null && (
                 <>
                   <dt>System</dt>
-                  <dd>{formatKm(entity.systemRadius)}</dd>
+                  <dd>{formatDistance(entity.systemRadius)}</dd>
                 </>
               )}
               {entity.parents.length > 0 && (
@@ -86,9 +95,4 @@ function kindLabel(entity: CatalogEntity): string {
   if (g.includes('comets')) return 'Comet';
   if (g.includes('asteroids')) return 'Asteroid';
   return 'Body';
-}
-
-function formatKm(km: number): string {
-  if (km >= 1000) return `${km.toLocaleString('en-US')} km`;
-  return `${km.toLocaleString('en-US', { maximumFractionDigits: 1 })} km`;
 }

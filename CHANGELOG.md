@@ -3,6 +3,51 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.8 - 2026-10-15
+
+Fix the orientation quaternion order: every planet sat on the wrong orbit plane.
+
+### Fixed
+
+**`.dyn` quaternions are written `(w, x, y, z)`, and we were reading them as
+`(x, y, z, w)`.** NASA unpacks them with `Quaternion.set(w, x, y, z)` in
+`OrbPoint.load` / `OriPoint` / `QuatPoint`. Because the wrong order is still a
+unit quaternion, magnitudes stayed correct — so every existing test passed —
+while each orbit was rotated about the wrong axis:
+
+| body | latitude before | true orbital inclination |
+|---|---|---|
+| Earth | −19.5° | 0.0° |
+| Mercury | 77.8° | 7.005° |
+| Jupiter | −12.3° | 1.303° |
+| Mars | 1.3° | 1.850° |
+
+The planets now trace correct, near-coplanar ellipses. `readQuatWxyz` reads the
+NASA order explicitly for the `orb`, `ori` and `quat` point types.
+
+### Added
+
+- A **direction assertion** in the parser tests, which the old suite lacked: it
+  rotates each orbit into the ecliptic frame (via the inverse of NASA's
+  `eclipJ2000ToJ2000Rotation`) and checks the latitude against the body's real
+  orbital inclination. A length-only check cannot catch an axis error.
+- **`src/lib/nasa/units.ts`**: NASA's own astronomical constants, transcribed
+  from `AppUtils` — `auToKm: 149597871` (the integer NASA ships, not the IAU
+  2012 149597870.7), `ldToKm: 384398`, the Julian light year
+  `9460730472580.8`, `speedOfLight: 299792.458`, the ±8e15 s time bounds, and
+  the `eclipJ2000ToJ2000Rotation` quaternion (23.4393° obliquity). Includes
+  NASA's distance formatter, and 7 tests covering the values and thresholds.
+- The info panel now reports mean, equatorial and polar radii through that
+  formatter, so units read as NASA displays them.
+
+### Verified
+
+- `npm test` — 35/35 (dynamo 14, scene 14, units 7), including the new latitude
+  assertions for Earth, Mercury and Jupiter.
+- `npm run check` and `npm run build` clean.
+- Headless render: the inner planets now share a single orbital plane. No
+  exceptions, no failed requests, **0 requests to nasa.gov**.
+
 ## 0.2.7 - 2026-10-15
 
 Body labels and orbit lines rebuilt from measured values, not approximations.

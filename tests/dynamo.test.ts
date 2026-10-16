@@ -133,9 +133,46 @@ describe('orbit geometry', () => {
   });
 
   it('rotates by a unit quaternion without changing length', () => {
-    const q = { x: 0.6134625094429162, y: 0.1273131201926585, z: -0.1584199438136041, w: 0.7631240006295859 };
+    const q = { x: 0.1273131201926585, y: -0.1584199438136041, z: 0.7631240006295859, w: 0.6134625094429162 };
     const v = { x: 3, y: -4, z: 12 };
     const out = rotateByQuat(v, q);
     expect(Math.hypot(out.x, out.y, out.z)).toBeCloseTo(13, 9);
+  });
+
+  it('places each planet near its true ecliptic latitude', () => {
+    // Direction matters as much as distance. Reading the orientation quaternion
+    // with the wrong component order keeps |r| correct, so a length-only check
+    // passes while every orbit tilts about the wrong axis.
+    //
+    // The `.dyn` orientation maps the perifocal plane into J2000 *equatorial*
+    // coordinates, so the raw result must be rotated by the inverse of NASA's
+    // `eclipJ2000ToJ2000Rotation` before its latitude is the ecliptic one.
+    const q = {
+      w: 0.9791532214288992,
+      x: 0.2031230389823101,
+      y: 0,
+      z: 0,
+    };
+    const toEcliptic = (v: { x: number; y: number; z: number }) =>
+      rotateByQuat(v, { w: q.w, x: -q.x, y: -q.y, z: -q.z });
+
+    // Planets orbit within a few degrees of the ecliptic; the limit is each
+    // body's orbital inclination plus a small margin.
+    const INCLINATION_DEG: Record<string, number> = {
+      'earth-sun-orb.dyn': 0.1,
+      'mercury-sun-orb.dyn': 7.005,
+      'jupiter-sun-orb.dyn': 1.303,
+    };
+
+    for (const [file, incl] of Object.entries(INCLINATION_DEG)) {
+      const pts = fixture(file).points as OrbPoint[];
+      for (const idx of [0, Math.floor(pts.length / 2), pts.length - 1]) {
+        const p = pts[idx];
+        const r = toEcliptic(orbPositionAt(p, p.time));
+        const len = Math.hypot(r.x, r.y, r.z);
+        const latDeg = (Math.asin(r.z / len) * 180) / Math.PI;
+        expect(Math.abs(latDeg)).toBeLessThan(incl + 1.0);
+      }
+    }
   });
 });
