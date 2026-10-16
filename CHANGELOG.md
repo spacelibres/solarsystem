@@ -3,6 +3,58 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.26 - 2026-10-16
+
+Make the de-obfuscated NASA source complete and trustworthy, and correct a
+wrong conclusion about the starfield.
+
+### Fixed
+
+- **Two silent bugs in the class splitter, one of which lost whole classes.**
+  Both produced output that looked correct, so parsing was not evidence of
+  completeness:
+  - *Brace matching inside template literals.* A class's end was found by
+    counting braces in the raw text, but the bundle contains literals such as
+    `` `Error loading ${name} (${url}): ${err.message}\n` `` whose body holds a
+    literal `}`. `ResourceManager` was written at 2,490 bytes instead of 4,933 —
+    cut in half, and the only file that would not parse. Spans now come from
+    acorn.
+  - *Colliding class names.* NASA defines a base class and a subclass sharing a
+    name, and writing both to `<Name>.js` meant the second silently overwrote the
+    first. **Nine classes were lost outright**, including `Settings` (13,760
+    bytes), `Search` (11,800), `LabelManager` (7,421) and `TimeManager` (5,528).
+    Collisions are now suffixed by size.
+  - Result: **251 → 260 classes, all parseable**, verified by a new
+    `tools/audit-deobf.cjs` that compares spans against the AST rather than
+    trusting that a file parses.
+- **The starfield no longer loses the sky at close range.** Our notes claimed
+  NASA's `gl_Position.w = viewPosition.y` "clips half the sky", so we dropped it
+  and scaled a real sphere on the CPU instead. That sphere is centred on the
+  camera, so its rear half always sits behind the near plane and a hard-edged
+  dark disc appeared whenever the focused body gave a narrow far plane. Reading
+  the extracted shader shows the line is present and works: dividing by the
+  view-space vertical component makes the projection depend on direction alone,
+  so no clip plane can reach it. The line is restored, verified against the live
+  reference, and pinned by a test that fails if it is removed again.
+
+### Added
+
+- `tools/ref-dump.cjs`, `tools/ref-health.cjs`, `tools/compare-layers.cjs` and
+  `tools/audit-deobf.cjs`, plus `docs/deobfuscation.md` recording the extraction
+  state: 260/260 classes, 63.9% of the bundle as class code, and the three gaps
+  (no module wiring, six unresolved symbols, mangled locals) that still stand
+  between it and a buildable project.
+- `docs/ground-truth.md` now records that NASA populates `extentsRadius` on all
+  45 entities — equal to `radius` for solid bodies — where our catalog holds
+  `null` on 28 of them, since that value feeds the camera's near/far maths.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 216 tests
+across seventeen files. All 18 layers match the live reference exactly on ids,
+categories, groups and visibility defaults. The class split is deterministic
+across runs, and the audit fails if a class is truncated or dropped.
+
 ## 0.2.25 - 2026-10-16
 
 Bind the logo, icons and colours to the spacelibre VI standard, and make the

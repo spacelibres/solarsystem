@@ -85,9 +85,26 @@ describe('starfield geometry', () => {
     expect(d.getX(0)).toBeCloseTo(Math.hypot(1e19, 2e19, 3e19), -14);
   });
 
-  it('keeps the sky well inside the far plane at every zoom', () => {
-    // The scene places the sky at this fraction of the orbit radius, so it can
-    // never fall outside the near/far pair however far the camera pulls out.
+  it('flattens the cloud to infinity so the clip planes cannot cut it', () => {
+    const points = buildStarfield([parseStarfield(starRecord(0, 0, 255, 255, 255, 0, 0, 1))]);
+    const shader = (points.material as unknown as { vertexShader: string }).vertexShader;
+
+    // NASA's line, and the reason the sky is never half-missing: overwriting `w`
+    // with the view-space vertical component makes the projection depend on a
+    // star's direction only, so a star behind the camera is not clipped.
+    expect(shader).toContain('gl_Position.w = viewPosition.y');
+
+    // It must come AFTER the ordinary projection, or it would be overwritten.
+    expect(shader.indexOf('gl_Position = projectionMatrix')).toBeLessThan(
+      shader.indexOf('gl_Position.w = viewPosition.y'),
+    );
+  });
+
+  it('scales the shell as a float32 convenience, not a clipping workaround', () => {
+    // Sizing a real sphere to fit between near and far cannot work: the camera
+    // sits at its centre, so the rear half is always behind the near plane.
+    const points = buildStarfield([parseStarfield(starRecord(0, 0, 255, 255, 255, 0, 0, 1))]);
+    expect(points.frustumCulled).toBe(false);
     expect(STAR_SHELL_CAMERA_FRACTION).toBeGreaterThan(0);
     expect(STAR_SHELL_CAMERA_FRACTION).toBeLessThan(1);
   });

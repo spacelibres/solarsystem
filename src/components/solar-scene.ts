@@ -29,7 +29,7 @@ import {
   verticalFovForHorizontal,
 } from '../lib/scene/projection';
 import {
-  STAR_SHELL_CAMERA_FRACTION,
+  starShellRadius,
   buildStarfield,
   parseStarfield,
 } from '../lib/scene/starfield';
@@ -412,6 +412,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
           color: new THREE.Color(rgb[0], rgb[1], rgb[2]),
           transparent: true,
           opacity: alpha,
+          // NASA declares every orbit/line shader as
+          //   `properties: { transparent: true, depthWrite: false, side: "double" }`
+          // and never sets depthWrite true anywhere in the bundle. Leaving it at
+          // the three.js default let an orbit line write depth, and a distant
+          // body's orbit spans billions of km — at close range it covers the
+          // whole viewport and its depth write rejects everything drawn after
+          // it, which is what drew a hard-edged black disc over the scene.
+          depthWrite: false,
+          // Without this, a line seen from "behind" disappears, because the
+          // default FrontSide culls it.
+          side: THREE.DoubleSide,
         }),
       );
       orbitLine.userData.epoch = entityOrbit.points[0].time;
@@ -980,14 +991,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     // Keep the sky registered with the solar system.
     //
     // The starfield and constellations are unit spheres, scaled every frame to a
-    // fixed fraction of the camera's orbit radius. That is what keeps the two in
-    // sync at every zoom: the stars stay at a constant apparent depth instead of
-    // sliding inward and vanishing once the camera passes a baked-in radius.
+    // radius derived from the camera's clip planes. That keeps the two in sync at
+    // every zoom: the stars stay at a constant apparent depth instead of sliding
+    // inward and vanishing once the camera passes a baked-in radius.
     //
     // NASA achieves the same end inside its shader, with
     // `gl_Position.w = viewPosition.y`; scaling on the CPU avoids that line's
     // signed-w clipping and is equivalent for a field that only needs a direction.
-    const skyRadius = camRadius * STAR_SHELL_CAMERA_FRACTION;
+    // The catch is that the sphere must fit between the clip planes, which is
+    // what `starShellRadius` works out — a plain fraction of `camRadius` left the
+    // sky half-clipped whenever the focused body gave a narrow far plane.
+    const skyRadius = starShellRadius(camRadius);
     for (const s of starLayers) {
       s.scale.setScalar(skyRadius);
       // The camera moves through the scene, so the sky has to follow it to stay
@@ -1126,6 +1140,11 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
           camera: [camera.position.x, camera.position.y, camera.position.z],
           focusTarget: [focusTarget.x, focusTarget.y, focusTarget.z],
           bodyWorld: w ? [w.x, w.y, w.z] : null,
+          /** Clip planes, so depth-range bugs can be diagnosed from outside. */
+          near: camera.near,
+          far: camera.far,
+          fov: camera.fov,
+          aspect: camera.aspect,
         };
       },
       /**

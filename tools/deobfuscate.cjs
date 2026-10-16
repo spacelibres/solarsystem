@@ -126,20 +126,44 @@ function beautify(src) {
   return out;
 }
 
-/** Every `class X extends Y {` span, by brace matching on the raw source. */
+/**
+ * Every class in the bundle, with the span from its declaration to its last byte.
+ *
+ * Taken from the AST rather than by matching braces in the raw text. Brace
+ * matching looks equivalent and is not: this bundle contains template literals
+ * such as
+ *
+ *   `Error loading ${name} (${url}): ${err.message}\n`
+ *
+ * whose body holds a literal `}` that has nothing to do with block structure. A
+ * naive depth counter stops at that brace, so `ResourceManager` was written out
+ * at 2,490 bytes instead of its real 4,933 — truncated mid-class, and the only
+ * file in the set that would not parse. Acorn already gives exact node ranges, so
+ * there is no reason to re-derive them by hand.
+ */
 function findClasses(src) {
-  const re = /class\s+([A-Za-z_$][\w$]*)\s*(?:extends\s+([A-Za-z_$][\w$.]*))?\s*\{/g;
+  const ast = parse(src);
   const out = [];
-  let m;
-  while ((m = re.exec(src))) {
-    let d = 0;
-    let end = m.index;
-    for (let i = src.indexOf('{', m.index); i < src.length; i++) {
-      if (src[i] === '{') d++;
-      else if (src[i] === '}') { d--; if (d === 0) { end = i; break; } }
+
+  const visit = (node) => {
+    if (!node || typeof node.type !== 'string') return;
+    if (node.type === 'ClassDeclaration' && node.id && node.id.name && node.end != null) {
+      out.push({
+        name: node.id.name,
+        base: node.superClass ? src.slice(node.superClass.start, node.superClass.end) : '',
+        start: node.start,
+        end: node.end,
+      });
     }
-    out.push({ name: m[1], base: m[2] || '', start: m.index, end: end + 1 });
-  }
+    for (const key of Object.keys(node)) {
+      if (key === 'start' || key === 'end' || key === 'loc') continue;
+      const value = node[key];
+      if (Array.isArray(value)) for (const child of value) visit(child);
+      else if (value && typeof value === 'object' && typeof value.type === 'string') visit(value);
+    }
+  };
+
+  visit(ast);
   return out;
 }
 
@@ -157,28 +181,49 @@ if (cmd === 'beautify') {
   const dir = path.join(OUT, 'classes');
   fs.mkdirSync(dir, { recursive: true });
   const classes = findClasses(src);
-  const index = [];
+
+  // Class names are NOT unique in this bundle: NASA defines a base class and a
+  // subclass that share a name, e.g. a 13,760-byte `Settings extends
+  // o.BaseComponent` alongside a 445-byte `Settings extends s.Settings`. Writing
+  // both to `Settings.js` silently dropped the larger one, so ten classes were
+  // lost to collisions. Disambiguate by size instead.
+  const byName = new Map();
   for (const c of classes) {
-    const body = src.slice(c.start, c.end);
-    const file = `${c.name}.js`;
-    // Beautify each class on its own, so the file is readable standalone.
-    let rendered = body + '\n';
-    try {
-      rendered = beautify(body) + '\n';
-    } catch {
-      // A class body can fail to parse in isolation if it relies on an
-      // outer expression; keep the raw slice in that case.
-    }
-    fs.writeFileSync(path.join(dir, file), rendered);
-    index.push({ name: c.name, base: c.base, bytes: c.end - c.start, file });
+    if (!byName.has(c.name)) byName.set(c.name, []);
+    byName.get(c.name).push(c);
   }
+
+  const index = [];
+  for (const [name, group] of byName) {
+    group.sort((a, b) => b.end - b.start - (a.end - a.start));
+    group.forEach((c, i) => {
+      const file = group.length === 1 ? `${name}.js` : `${name}.${i === 0 ? 'base' : 'sub' + i}.js`;
+      const body = src.slice(c.start, c.end);
+      let rendered = body + '\n';
+      try {
+        rendered = beautify(body) + '\n';
+      } catch {
+        // A class body can fail to parse in isolation if it relies on an
+        // outer expression; keep the raw slice in that case.
+      }
+      fs.writeFileSync(path.join(dir, file), rendered);
+      index.push({
+        name,
+        variant: group.length === 1 ? null : i === 0 ? 'base' : `sub${i}`,
+        base: c.base,
+        bytes: c.end - c.start,
+        file,
+      });
+    });
+  }
+
   fs.writeFileSync(
     path.join(dir, '_index.json'),
     JSON.stringify(index.sort((a, b) => b.bytes - a.bytes), null, 2),
   );
   console.log(`${index.length} classes -> ${dir}`);
   for (const r of index.sort((a, b) => b.bytes - a.bytes).slice(0, 12)) {
-    console.log(`  ${String(r.bytes).padStart(7)}  ${r.name}${r.base ? ' <- ' + r.base : ''}`);
+    console.log(`  ${String(r.bytes).padStart(7)}  ${r.name}${r.variant ? ' [' + r.variant + ']' : ''}${r.base ? ' <- ' + r.base : ''}`);
   }
 } else if (cmd === 'symbols') {
   // Name recovery from evidence: class names, string literals and the module map.

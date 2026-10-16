@@ -40,6 +40,31 @@ The boot set is:
 - `c_2025_n1` — a comet, with three `CometTailComponent`s.
 - `follow_sum_parent` — a component-less helper entity.
 
+**`extentsRadius` is populated for every entity.** Read with `tools/ref-dump.cjs`
+and diffed against our catalog, NASA reports a non-zero `extentsRadius` on all 45
+entities, and for solid bodies it **equals `radius` exactly** (earth 6378.1, moon
+1737.4, sun 695500, triton 1353.4). Only the synthetic helpers differ
+(`observable_universe` 5e23, `milky_way` 1e18, `camera` 0).
+
+Our catalog holds `null` for `extentsRadius` on **28** of those bodies, keeping
+only `radius`. That matters because `extentsRadius` feeds the camera maths
+(`autoNearDistance` / `autoMidDistance`) and the subsystem-visibility test. A
+`null` there silently becomes 0, which collapses the far plane to the camera
+distance and changes what is in the frustum. `tools/compare-layers.cjs` checks the
+layer table; the catalog still needs the same treatment.
+
+Two further measured facts about the boot scene:
+
+- The boot set is **mission-dependent**, not fixed. Which spacecraft and small
+  bodies appear depends on the missions enabled, so it should not be treated as a
+  constant list to hard-code.
+- The default layer visibility explains the small boot count:
+  `planets`, `majorMoons`, `spacecraft` and `ui`/`orbits`/`labels`/`icons`/
+  `trails` are **on**; `asteroids`, `comets`, `dwarfPlanets`, `minorMoons`,
+  `starfield`, `heliosphere` and `constellations` are **off**. We match all 18
+  layers exactly on ids, categories, groups and these defaults
+  (`tools/compare-layers.cjs` → all match).
+
 ## Component assignment — the real table
 
 `probe-app.cjs entities`, component names per entity:
