@@ -3,6 +3,44 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.6 - 2026-10-15
+
+Ring systems and multi-layer planet surfaces.
+
+### Added
+
+- **Planetary ring systems** (`src/lib/scene/rings.ts`), using the radii and
+  sprites from each body's `postCreateFunction`: Saturn 74270.58–140478.92 km
+  with distinct top/bottom maps, Uranus 26840–103000 km, Neptune 40900–62964 km.
+  Rings are annuli in the equatorial plane, parented to the body and scaled back
+  out of the body's exaggerated draw scale.
+- **Multi-layer surfaces** (`src/lib/scene/surface.ts`): the surface composes
+  `color`, `normal`, `specular` and `night` roles, with `decal` drawn as a
+  separate translucent cloud shell 1.2% larger than the body.
+- **Night-lights blend**: a shader patch fades the `night` emissive map in
+  across the terminator (`smoothstep` on `dot(normal, sunDirection)`), so city
+  lights appear only on the dark hemisphere.
+- Debug hooks `focus`, `camera` and `inspect` for automation, plus
+  `tools/focus-shot.cjs` to frame a body and capture it.
+
+### Fixed
+
+- **Ring strips are 2048x1.** The sprite's horizontal axis runs inner→outer, so
+  the annulus must map U to radius and hold V constant; the original mapping put
+  the strip around the circumference and the rings never appeared. Mipmapping a
+  one-pixel-tall texture also erased them at distance, so mipmaps are off.
+- **Camera never converged on a moving body.** `focusTarget.lerp(0.15)` lags by a
+  fixed offset while the target keeps moving, so the body drifted out of frame.
+  The target is now tracked exactly.
+- Focusing a ringed planet frames its ring system, not just the body.
+
+### Verified
+
+- `npm test` (27/27), `npm run check` and `npm run build` clean.
+- Close-range captures: Saturn renders its full ring system with the Cassini
+  division; Earth renders surface, clouds and night lights across a natural
+  terminator. No exceptions, no failed requests, **0 requests to nasa.gov**.
+
 ## 0.2.5 - 2026-10-15
 
 Top navigation and the footer time readout, matched to the live page's boxes.

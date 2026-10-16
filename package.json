@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "private": true,
   "description": "A spacelibre solar system explorer built on NASA Eyes's public dynamo data format.",
   "license": "MIT",

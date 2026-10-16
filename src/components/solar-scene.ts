@@ -23,6 +23,8 @@ import { orbPositionAt } from '../lib/dynamo/orbit';
 import { ALWAYS, buildTree, parentAtTime, type TreeNode } from '../lib/scene/parenting';
 import { pixelSpaceRadius } from '../lib/scene/projection';
 import { buildStarfield, parseStarfield } from '../lib/scene/starfield';
+import { buildSurface } from '../lib/scene/surface';
+import { RING_SPECS, buildRings } from '../lib/scene/rings';
 import { starfieldUrl } from '../lib/nasa/assets';
 import { LABEL } from '../lib/theme/nasa-tokens';
 
@@ -133,35 +135,68 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const entityById = new Map(entities.map((e) => [e.id, e]));
 
   // --- Register bodies -------------------------------------------------------
+  // The Sun's direction from each body drives the night-lights blend.
+  const sunDirection = new THREE.Vector3(0, 0, 1);
+
   for (const entity of entities) {
     const isSun = entity.id === 'sun';
     const rKm = entity.radius ?? entity.extentsRadius ?? 1000;
     const isCore = entity.systemRadius !== null;
 
-    const material = isSun
-      ? new THREE.MeshBasicMaterial({ color: 0xffd9a0 })
-      : new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
+    // Core bodies get their full texture stack (normal/specular/night plus a
+    // cloud shell); everything else gets a single colour map, because fetching
+    // multi-megabyte cubemaps for 140 moons at once exhausts the connection
+    // pool.
+    let surfaceMaterial: THREE.Material;
+    let shellMaterial: THREE.Material | undefined;
 
-    // Textures are only fetched for bodies that are actually resolvable on
-    // screen. Loading a 2048px cubemap face for 140 moons at once exhausts the
-    // browser's connection pool, so distant bodies get a flat colour until the
-    // camera approaches.
-    const colorDesc = entity.textures.color;
-    if (colorDesc && isCore) {
-      const size = pickSize(colorDesc.sizes, 1024);
-      material.map = loader.load(textureUrl(colorDesc, size, 0), (t) => {
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      });
-    } else if (!isSun) {
-      material.color = new THREE.Color(bodyColorFn ? bodyColorFn(entity) : '#ffffff');
+    if (isSun) {
+      surfaceMaterial = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
+    } else if (isCore) {
+      const built = buildSurface(entity, loader, 1024, sunDirection);
+      surfaceMaterial = built.surface;
+      shellMaterial = built.shell;
+    } else {
+      surfaceMaterial = new THREE.MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
+      const colorDesc = entity.textures.color;
+      if (colorDesc) {
+        const size = pickSize(colorDesc.sizes, 1024);
+        (surfaceMaterial as THREE.MeshStandardMaterial).map = loader.load(
+          textureUrl(colorDesc, size, 0),
+          (t) => {
+            t.colorSpace = THREE.SRGBColorSpace;
+          },
+        );
+      } else {
+        (surfaceMaterial as THREE.MeshStandardMaterial).color = new THREE.Color(
+          bodyColorFn ? bodyColorFn(entity) : '#ffffff',
+        );
+      }
     }
 
-    const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 48, 32), material);
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 48), surfaceMaterial);
     mesh.scale.setScalar(rKm);
     mesh.userData.entityId = entity.id;
     mesh.frustumCulled = false;
     scene.add(mesh);
+
+    // Cloud/atmosphere shell: a slightly larger translucent sphere so the
+    // surface still shows through the gaps.
+    if (shellMaterial) {
+      const shell = new THREE.Mesh(new THREE.SphereGeometry(1.012, 64, 48), shellMaterial);
+      shell.frustumCulled = false;
+      mesh.add(shell);
+    }
+
+    // Ring system, if this body has one. The rings are authored in kilometres
+    // like the body, but they are parented to a mesh that is already scaled to
+    // the body's radius, so the ring group is scaled back to compensate.
+    const ringSpec = RING_SPECS[entity.id];
+    if (ringSpec) {
+      const rings = buildRings(ringSpec, loader);
+      rings.scale.setScalar(1 / rKm);
+      mesh.add(rings);
+    }
 
     const accent = new THREE.Color(bodyColorFn ? bodyColorFn(entity) : '#ffffff');
 
@@ -236,6 +271,8 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       (a, b) => depth(a) - depth(b),
     );
 
+    const sunWorld = worldById.get('sun');
+
     for (const body of ordered) {
       const local = computeLocal(body);
       const parentId = tree.get(body.entity.id)?.parentId ?? null;
@@ -251,6 +288,12 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       worldById.set(body.entity.id, world);
       body.mesh.position.copy(world);
 
+      // Keep the Sun direction uniform in sync so night lights land on the
+      // correct hemisphere.
+      if (sunWorld && body.entity.id !== 'sun') {
+        sunDirection.subVectors(sunWorld, world).normalize();
+      }
+
       // Draw size: keep true kilometres, but never let a body fall below a few
       // pixels. Only the rendered radius changes — position stays exact, so
       // orbits and parenting are unaffected.
@@ -265,6 +308,12 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         } else {
           body.mesh.scale.setScalar(rKm);
         }
+
+        // Rings are authored in km but live under a scaled mesh, so cancel the
+        // mesh scale out every frame (the mesh scale changes as the minimum-size
+        // rule kicks in).
+        const rings = body.mesh.children.find((c) => c.name === 'rings');
+        if (rings) rings.scale.setScalar(1 / body.mesh.scale.x);
       }
     }
 
@@ -442,8 +491,13 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     updatePositions();
 
     const focus = focusedId ? worldById.get(focusedId) : null;
-    if (focus) focusTarget.lerp(focus, 0.15);
-    else focusTarget.lerp(new THREE.Vector3(0, 0, 0), 0.08);
+    if (focus) {
+      // Track the body exactly. An exponential follow would lag by a fixed
+      // offset while the body keeps moving, pushing it out of frame.
+      focusTarget.copy(focus);
+    } else {
+      focusTarget.lerp(new THREE.Vector3(0, 0, 0), 0.08);
+    }
 
     applyCamera();
     projectLabels();
@@ -462,6 +516,57 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       pick(x: number, y: number) {
         const rect = el.getBoundingClientRect();
         pickAt(rect.left + x, rect.top + y);
+      },
+      /** Focus a body by id without going through the DOM (for automation). */
+      focus(id: string | null) {
+        focusedId = id;
+        if (!id) {
+          camRadius = 1.9e9;
+          return;
+        }
+        const entity = entityById.get(id);
+        const rKm = entity?.radius ?? entity?.extentsRadius ?? 5000;
+        // Ring systems extend well beyond the body, so frame generously.
+        const ring = RING_SPECS[id];
+        const frameKm = ring ? ring.outerRadius * 1.4 : rKm * 6;
+        camRadius = Math.max(frameKm, 2e3);
+      },
+      /** Snapshot of camera and a body's world position (for automation). */
+      camera() {
+        const w = focusedId ? worldById.get(focusedId) : null;
+        return {
+          focusedId,
+          camRadius,
+          camera: [camera.position.x, camera.position.y, camera.position.z],
+          focusTarget: [focusTarget.x, focusTarget.y, focusTarget.z],
+          bodyWorld: w ? [w.x, w.y, w.z] : null,
+        };
+      },
+      /** Inspect a body's mesh hierarchy (for automation). */
+      inspect(id: string) {
+        const body = bodies.get(id);
+        if (!body) return { error: 'no body' };
+        const rings = body.mesh.children.find((c) => c.name === 'rings');
+        return {
+          id,
+          meshScale: body.mesh.scale.toArray(),
+          children: body.mesh.children.map((c) => ({
+            name: c.name || c.type,
+            type: c.type,
+            visible: c.visible,
+            scale: c.scale.toArray(),
+          })),
+          rings: rings
+            ? {
+                scale: rings.scale.toArray(),
+                children: rings.children.map((m) => ({
+                  type: m.type,
+                  visible: m.visible,
+                  count: (m as THREE.Mesh).geometry?.attributes?.position?.count ?? 0,
+                })),
+              }
+            : null,
+        };
       },
       screenPositions() {
         const rect = container.getBoundingClientRect();
@@ -520,7 +625,10 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       }
       const entity = entityById.get(id);
       const rKm = entity?.radius ?? entity?.extentsRadius ?? 5000;
-      camRadius = Math.max(rKm * 6, 2e3);
+      // Ring systems extend far beyond the body, so frame generously.
+      const ring = RING_SPECS[id];
+      const frameKm = ring ? ring.outerRadius * 1.4 : rKm * 6;
+      camRadius = Math.max(frameKm, 2e3);
     },
     onPick(callback) {
       pickCallback = callback;
