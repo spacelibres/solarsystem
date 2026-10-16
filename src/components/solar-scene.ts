@@ -9,8 +9,9 @@
  *   it is currently attached to (`moon/earth/orb`, `sc_juno/jupiter/orb`). World
  *   position is the sum of local positions up the chain, recomputed each frame
  *   from the time-segmented parenting table.
- * - **Screen-space decisions.** Visibility and LOD use a body's pixel radius, so
- *   satellites appear only once their planet is large enough on screen.
+ * - **Screen-space sizing.** A body is never drawn smaller than a few pixels, so
+ *   distant planets and moons remain visible and clickable instead of thinning
+ *   to nothing. NASA solves the same problem with exaggerated `extentsRadius`.
  */
 
 import * as THREE from 'three';
@@ -53,6 +54,8 @@ export interface SolarSceneHandle {
   getTimeScale(): number;
   /** Number of bodies currently rendered, for the UI readout. */
   visibleCount(): number;
+  /** Invoked when the user clicks a body (or empty space, with null). */
+  onPick(callback: (id: string | null) => void): void;
 }
 
 export interface SceneOptions {
@@ -65,6 +68,13 @@ export interface SceneOptions {
 }
 
 const KM_PER_AU = 149_597_870.7;
+
+/**
+ * Minimum on-screen radius, in pixels. Without this, a true-to-scale Earth is
+ * ~0.01px from across the solar system and the scene looks empty. NASA hits the
+ * same wall and answers it by exaggerating a body's `extentsRadius`.
+ */
+const MIN_VISIBLE_PIXEL_RADIUS = 4;
 
 export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const { container, entities, orbits, startTime = 0, bodyColorFn } = options;
@@ -222,11 +232,32 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const local = computeLocal(body);
       const parentId = tree.get(body.entity.id)?.parentId ?? null;
       const parentWorld = parentId ? worldById.get(parentId) : undefined;
+
+      // Allocate a fresh vector per body per frame. Reusing `body.local` here
+      // would alias the entry stored in `worldById`, so the next frame would
+      // accumulate on top of the previous frame's already-summed value.
       const world = parentWorld
-        ? local.add(parentWorld)
-        : local;
+        ? new THREE.Vector3(local.x + parentWorld.x, local.y + parentWorld.y, local.z + parentWorld.z)
+        : new THREE.Vector3(local.x, local.y, local.z);
+
       worldById.set(body.entity.id, world);
       body.mesh.position.copy(world);
+
+      // Draw size: keep true kilometres, but never let a body fall below a few
+      // pixels. Only the rendered radius changes — position stays exact, so
+      // orbits and parenting are unaffected.
+      const rKm = body.entity.radius ?? body.entity.extentsRadius ?? 0;
+      if (rKm > 0) {
+        const dist = world.distanceTo(camera.position);
+        const maxDim = Math.max(container.clientWidth, container.clientHeight);
+        const px = pixelSpaceRadius(rKm, dist, maxDim);
+        if (px > 0 && px < MIN_VISIBLE_PIXEL_RADIUS) {
+          const scale = MIN_VISIBLE_PIXEL_RADIUS / px;
+          body.mesh.scale.setScalar(rKm * scale);
+        } else {
+          body.mesh.scale.setScalar(rKm);
+        }
+      }
     }
 
     // Rebuild orbit lines lazily for bodies that changed epoch.
@@ -266,6 +297,8 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   let dragging = false;
   let lastX = 0;
   let lastY = 0;
+  let pointerMoved = 0;
+  let pickCallback: ((id: string | null) => void) | null = null;
 
   function applyCamera(): void {
     const sinPhi = Math.sin(camPhi);
@@ -282,10 +315,12 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     dragging = true;
     lastX = e.clientX;
     lastY = e.clientY;
+    pointerMoved = 0;
     el.setPointerCapture(e.pointerId);
   };
   const onMove = (e: PointerEvent) => {
     if (!dragging) return;
+    pointerMoved += Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY);
     camTheta -= (e.clientX - lastX) * 0.005;
     camPhi = clamp(camPhi - (e.clientY - lastY) * 0.005, 0.06, Math.PI - 0.06);
     lastX = e.clientX;
@@ -294,16 +329,67 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const onUp = (e: PointerEvent) => {
     dragging = false;
     if (el.hasPointerCapture(e.pointerId)) el.releasePointerCapture(e.pointerId);
+    // Treat a press that barely moved as a click, matching how NASA's labels
+    // behave: dragging orbits, tapping selects.
+    if (pointerMoved < 6) pickAt(e.clientX, e.clientY);
   };
   const onWheel = (e: WheelEvent) => {
     e.preventDefault();
     camRadius = clamp(camRadius * (1 + Math.sign(e.deltaY) * 0.12), 1e2, 1e12);
   };
 
+  /**
+   * Pick the nearest body to a screen point. Screen-space picking (rather than
+   * raycasting) matches NASA's label quadtree and keeps tiny bodies selectable.
+   */
+  function pickAt(clientX: number, clientY: number): void {
+    const rect = el.getBoundingClientRect();
+    const px = clientX - rect.left;
+    const py = clientY - rect.top;
+    const maxDim = Math.max(rect.width, rect.height);
+
+    let best: string | null = null;
+    let bestScore = Number.POSITIVE_INFINITY;
+
+    for (const body of bodies.values()) {
+      const world = worldById.get(body.entity.id);
+      if (!world) continue;
+      const v = world.clone().project(camera);
+      if (v.z >= 1) continue;
+      const sx = (v.x * 0.5 + 0.5) * rect.width;
+      const sy = (-v.y * 0.5 + 0.5) * rect.height;
+      const drawnKm = body.mesh.scale.x;
+      const dist = world.distanceTo(camera.position);
+      const screenR = Math.max(8, pixelSpaceRadius(drawnKm, dist, maxDim));
+      const d = Math.hypot(sx - px, sy - py);
+      if (d <= screenR + 8 && d < bestScore) {
+        bestScore = d;
+        best = body.entity.id;
+      }
+    }
+    pickCallback?.(best);
+  }
+
   el.addEventListener('pointerdown', onDown);
   el.addEventListener('pointermove', onMove);
   el.addEventListener('pointerup', onUp);
   el.addEventListener('wheel', onWheel, { passive: false });
+
+  // Fallback for environments that emit only mouse events (some automation
+  // drivers and older browsers do not synthesise Pointer Events).
+  const onMouseDown = (e: MouseEvent) => { if (!dragging) onDown(e as unknown as PointerEvent); };
+  const onMouseUp = (e: MouseEvent) => {
+    if (dragging) {
+      dragging = false;
+      if (pointerMoved < 6) pickAt(e.clientX, e.clientY);
+    }
+  };
+  const onMouseMove = (e: MouseEvent) => { if (dragging) onMove(e as unknown as PointerEvent); };
+  if (typeof window !== 'undefined' && typeof window.PointerEvent === 'undefined') {
+    el.addEventListener('mousedown', onMouseDown);
+    el.addEventListener('mouseup', onMouseUp);
+    el.addEventListener('mousemove', onMouseMove);
+  }
 
   function projectLabels(): void {
     const rect = container.getBoundingClientRect();
@@ -357,6 +443,48 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   updatePositions();
   animate();
 
+  // Debug hook used by `tools/body-sizes.cjs` to audit on-screen sizes.
+  if (typeof window !== 'undefined') {
+    (window as unknown as Record<string, unknown>).__solarDebug = {
+      /** Programmatic pick in canvas-relative coordinates (for automation). */
+      pick(x: number, y: number) {
+        const rect = el.getBoundingClientRect();
+        pickAt(rect.left + x, rect.top + y);
+      },
+      screenPositions() {
+        const rect = container.getBoundingClientRect();
+        return [...bodies.values()].map((body) => {
+          const world = worldById.get(body.entity.id) ?? new THREE.Vector3();
+          const v = world.clone().project(camera);
+          return {
+            id: body.entity.id,
+            x: (v.x * 0.5 + 0.5) * rect.width,
+            y: (-v.y * 0.5 + 0.5) * rect.height,
+          };
+        });
+      },
+      report() {
+        const maxDim = Math.max(container.clientWidth, container.clientHeight);
+        const rows = [...bodies.values()]
+          .map((body) => {
+            const world = worldById.get(body.entity.id);
+            const dist = world ? world.distanceTo(camera.position) : NaN;
+            const rKm = body.entity.radius ?? body.entity.extentsRadius ?? 0;
+            const drawnKm = rKm > 0 ? body.mesh.scale.x : 0;
+            return {
+              id: body.entity.id,
+              rKm,
+              drawnKm,
+              px: drawnKm > 0 && Number.isFinite(dist) ? pixelSpaceRadius(drawnKm, dist, maxDim) : 0,
+              parent: tree.get(body.entity.id)?.parentId ?? null,
+            };
+          })
+          .sort((a, b) => b.px - a.px);
+        return { count: rows.length, camRadius, rows };
+      },
+    };
+  }
+
   return {
     bodies,
     setTime(t) {
@@ -381,6 +509,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const entity = entityById.get(id);
       const rKm = entity?.radius ?? entity?.extentsRadius ?? 5000;
       camRadius = Math.max(rKm * 6, 2e3);
+    },
+    onPick(callback) {
+      pickCallback = callback;
     },
     setTimeScale(days) {
       daysPerSecond = days;
@@ -407,6 +538,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       el.removeEventListener('pointermove', onMove);
       el.removeEventListener('pointerup', onUp);
       el.removeEventListener('wheel', onWheel);
+      el.removeEventListener('mousedown', onMouseDown);
+      el.removeEventListener('mouseup', onMouseUp);
+      el.removeEventListener('mousemove', onMouseMove);
       labelLayer.remove();
       for (const body of bodies.values()) {
         body.mesh.geometry.dispose();

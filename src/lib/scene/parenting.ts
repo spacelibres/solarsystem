@@ -67,10 +67,14 @@ export function buildTree(
   segmentsOf: (id: string) => ParentSegment[],
   time: number,
 ): Map<string, TreeNode> {
-  const nodes = new Map<string, TreeNode>();
-  for (const id of ids) nodes.set(id, { id, parentId: null, children: [] });
+  // Materialise the ids first: the argument may be a one-shot iterator such as
+  // `map.keys()`, and the list is traversed twice below.
+  const idList = [...ids];
 
-  for (const id of ids) {
+  const nodes = new Map<string, TreeNode>();
+  for (const id of idList) nodes.set(id, { id, parentId: null, children: [] });
+
+  for (const id of idList) {
     const parentId = parentAtTime(segmentsOf(id), time);
     const node = nodes.get(id)!;
     if (!parentId || !nodes.has(parentId) || parentId === id) continue;

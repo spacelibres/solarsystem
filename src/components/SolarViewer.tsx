@@ -153,6 +153,15 @@ export default function SolarViewer() {
     sceneRef.current?.focus(null);
   }, []);
 
+  // Clicking a body focuses it and opens its panel; clicking empty space clears.
+  useEffect(() => {
+    if (!scene) return;
+    scene.onPick((id) => {
+      setSelectedId(id);
+      scene.focus(id);
+    });
+  }, [scene]);
+
   const selected = selectedId ? CATALOG[selectedId] ?? null : null;
 
   return (

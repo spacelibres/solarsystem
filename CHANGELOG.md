@@ -3,6 +3,45 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.3 - 2026-10-15
+
+Make every body visible and selectable, and fix the parenting tree.
+
+### Added
+
+- **Click-to-focus.** Bodies are picked in screen space (matching NASA's label
+  quadtree rather than a raycast), so distant moons stay selectable. Selecting
+  opens the info panel, sets the breadcrumb, and flies the camera in.
+- **Minimum on-screen size** (`MIN_VISIBLE_PIXEL_RADIUS`): a true-to-scale Earth
+  is ~0.01px from across the system, so a body is drawn at least 4px wide.
+  Only the drawn radius grows — positions stay exact, so orbits are unaffected.
+  This is the same trade-off NASA makes with exaggerated `extentsRadius`.
+- `describeParents` renders the parenting table for the UI, collapsing the
+  "always" sentinel and describing multi-phase trajectories.
+- Info panel now shows system radius and the model file.
+- Mouse-event fallback for drivers that do not synthesise Pointer Events.
+
+### Fixed
+
+- **Parenting tree was never built.** `buildTree` walked its `ids` argument
+  twice, but that argument is a one-shot iterator (`Map.keys()`), so the second
+  pass saw nothing and no body was ever linked. All 42 bodies reported
+  `parent: null`. Materialising the list fixes it; a test now passes a
+  `Map.keys()` iterator to stop the regression recurring.
+- **World positions compounded every frame.** `updatePositions` added the parent
+  position into the same `Vector3` that was stored in `worldById`, so each frame
+  summed on top of the previous frame's total. Now a fresh vector is allocated,
+  keeping position exact.
+
+### Verified
+
+- `npm test` — 27/27 (adds the one-shot iterator case).
+- `npm run check` and `npm run build` clean.
+- Headless run: 42 bodies, hierarchy confirmed (`earth → sun`,
+  `callisto → jupiter`, `umbriel → uranus`), every body ≥ 4px, click on Jupiter
+  opens the panel titled "Jupiter", no exceptions, no failed requests, and
+  **0 requests to nasa.gov**.
+
 ## 0.2.2 - 2026-10-15
 
 Real scene graph: true distances, time-segmented parenting, and the starfield.

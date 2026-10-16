@@ -32,6 +32,19 @@ export function homeParent(entity: CatalogEntity): string | null {
   return name === '' ? null : name;
 }
 
+/**
+ * Format a parenting table for display, collapsing the "always" sentinel so raw
+ * epoch values never leak into the interface.
+ */
+export function describeParents(entity: CatalogEntity): string {
+  const names = [...new Set(entity.parents.map(([, name]) => name).filter(Boolean))];
+  if (!names.length) return '—';
+  if (entity.parents.length > 1) {
+    return `${names.join(' → ')} (${entity.parents.length} phases)`;
+  }
+  return names.join(', ');
+}
+
 /** Build sidebar groups: core bodies, then moons by planet, then dwarfs. */
 export function buildGroups(catalog: Record<string, CatalogEntity>): BodyGroup[] {
   const groups: BodyGroup[] = [];

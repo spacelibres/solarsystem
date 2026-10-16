@@ -1,6 +1,7 @@
 'use client';
 
 import type { CatalogEntity } from '../lib/nasa/catalog';
+import { describeParents } from '../lib/nasa/groups';
 import { bodyColor } from '../lib/theme/nasa-tokens';
 
 interface Props {
@@ -10,10 +11,9 @@ interface Props {
 
 /**
  * Information panel for the focused body.
- *
  * Mirrors NASA Eyes' `.content-panel-container`: a fixed left column with the
- * body name, its kind, and a small facts table. Values come straight from the
- * extracted catalog, so nothing here is invented.
+ * body name, its kind, and a facts table. Every value comes from the extracted
+ * catalog, so nothing here is invented.
  */
 export default function InfoPanel({ entity, onClose }: Props) {
   const open = entity !== null;
@@ -42,10 +42,16 @@ export default function InfoPanel({ entity, onClose }: Props) {
                   <dd>{formatKm(entity.radius)}</dd>
                 </>
               )}
+              {entity.systemRadius !== null && (
+                <>
+                  <dt>System</dt>
+                  <dd>{formatKm(entity.systemRadius)}</dd>
+                </>
+              )}
               {entity.parents.length > 0 && (
                 <>
                   <dt>Primary</dt>
-                  <dd>{entity.parents.join(', ')}</dd>
+                  <dd>{describeParents(entity)}</dd>
                 </>
               )}
               {entity.dynamo && (
@@ -56,6 +62,12 @@ export default function InfoPanel({ entity, onClose }: Props) {
               )}
               <dt>Textures</dt>
               <dd>{Object.keys(entity.textures).join(', ') || '—'}</dd>
+              {entity.modelUrl && (
+                <>
+                  <dt>Model</dt>
+                  <dd>{entity.modelUrl.replace(/^.*\//, '')}</dd>
+                </>
+              )}
             </dl>
           </div>
         </>

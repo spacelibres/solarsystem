@@ -80,6 +80,19 @@ describe('buildTree and worldPosition', () => {
     expect(tree.get('sun')!.parentId).toBeNull();
   });
 
+  it('accepts a one-shot iterator of ids', () => {
+    // `Map.keys()` can only be walked once; the builder must not rely on the
+    // iterable being replayable.
+    const map = new Map([
+      ['sun', 1],
+      ['earth', 2],
+      ['moon', 3],
+    ]);
+    const tree = buildTree(map.keys(), segmentsOf, 0);
+    expect(tree.get('earth')!.parentId).toBe('sun');
+    expect(tree.get('moon')!.parentId).toBe('earth');
+  });
+
   it('sums local positions up the chain', () => {
     const tree = buildTree(['sun', 'earth', 'moon'], segmentsOf, 0);
     const local = (id: string) => {
