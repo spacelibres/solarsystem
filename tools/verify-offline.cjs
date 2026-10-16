@@ -1,13 +1,15 @@
 /**
  * Boot the locally mirrored NASA Eyes app and report whether it runs offline.
  *
- * Serves `data/mirror/site/` over HTTP (a file:// origin cannot load the .dyn
- * and texture fetches), loads `apps/solar-system/index.html` in headless Chrome,
- * records every network request, and reports which ones still leave the machine.
+ * Loads `apps/solar-system/index.html` in headless Chrome, records every network
+ * request, and reports which ones still leave the machine. If nothing is already
+ * listening on the site port it serves `data/mirror/site/` itself; otherwise it
+ * uses the server that is already there (handy when you keep one running for
+ * manual inspection).
  *
  * Any request to a host other than our local server is a mirroring gap.
  *
- * Usage: node tools/verify-offline.cjs [--port 8099] [--seconds 40]
+ * Usage: node tools/verify-offline.cjs [--port 8099] [--seconds 40] [--external]
  */
 const fs = require('fs');
 const path = require('path');
@@ -23,7 +25,19 @@ const SITE_PORT = Number(args.port || 8099);
 const CDP_PORT = Number(args.cdp || 9385);
 const SECONDS = Number(args.seconds || 35);
 const ROOT = path.join(__dirname, '..', 'data', 'mirror', 'site');
-const PAGE = `http://localhost:${SITE_PORT}/apps/solar-system/index.html`;
+// `--external` boots against the real deployment instead of the mirror.
+const PAGE = args.external
+  ? 'https://eyes.nasa.gov/apps/solar-system/'
+  : `http://localhost:${SITE_PORT}/apps/solar-system/index.html`;
+
+/** Is something already serving that port? */
+function portInUse(port) {
+  return new Promise((res) => {
+    const rq = http.request({ host: '127.0.0.1', port, path: '/', method: 'HEAD' }, () => res(true));
+    rq.on('error', () => res(false));
+    rq.end();
+  });
+}
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -67,8 +81,10 @@ const getJSON = (p, m = 'GET') =>
   });
 
 (async () => {
-  const server = await serve();
-  console.log(`serving ${ROOT} on :${SITE_PORT}`);
+  const already = await portInUse(SITE_PORT);
+  const server = already ? null : await serve();
+  if (already) console.log(`using the server already on :${SITE_PORT}`);
+  else console.log(`serving ${ROOT} on :${SITE_PORT}`);
 
   const chrome = spawn('/usr/bin/google-chrome', [
     '--headless=new', '--disable-gpu', '--no-sandbox', '--no-first-run',
@@ -148,6 +164,6 @@ const getJSON = (p, m = 'GET') =>
   for (const e of [...new Set(errors)].slice(0, 15)) console.log('  ', e);
 
   chrome.kill();
-  server.close();
+  if (server) server.close();
   process.exit(0);
 })().catch((e) => { console.error('ERR', e.stack || e.message); process.exit(1); });

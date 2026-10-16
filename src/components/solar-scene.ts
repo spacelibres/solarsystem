@@ -24,6 +24,11 @@ import { ALWAYS, buildTree, parentAtTime, type TreeNode } from '../lib/scene/par
 import { pixelSpaceRadius } from '../lib/scene/projection';
 import { buildStarfield, parseStarfield } from '../lib/scene/starfield';
 import { buildSurface } from '../lib/scene/surface';
+import {
+  ATMOSPHERES,
+  buildAtmosphereGeometry,
+  buildAtmosphereMaterial,
+} from '../lib/scene/atmosphere';
 import { RING_SPECS, buildRings } from '../lib/scene/rings';
 import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-colors';
 import {
@@ -31,7 +36,7 @@ import {
   milkyWayVisible,
   projectSunOntoBackdrop,
 } from '../lib/scene/milky-way';
-import { starfieldUrl } from '../lib/nasa/assets';
+import { GALAXIES_URL, starfieldUrl } from '../lib/nasa/assets';
 import { LABEL, bodyIconName, labelWeight } from '../lib/theme/nasa-tokens';
 
 /** One loaded ephemeris: the points plus the parent they are relative to. */
@@ -125,14 +130,27 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const sunLight = new THREE.PointLight(0xfff4e0, 3.2, 0, 0);
   scene.add(sunLight);
 
-  // Starfield: NASA splits the sky into six magnitude layers; load them all.
+  // Starfield: NASA attaches **seven** layers to the Sun entity — the galaxies
+  // layer first, then six stellar magnitude layers (`stars.0` … `stars.5`).
+  // Verified live against the reference app:
+  //   sun :: … StarfieldComponent ×7 …
+  //   galaxies.0.bin, stars.0.bin, stars.1.bin, …, stars.5.bin
+  // Missing the galaxies layer leaves the sky without its distant galaxies.
+  const STAR_LAYERS: { url: string; renderOrder: number }[] = [
+    { url: GALAXIES_URL, renderOrder: -4 },
+    ...Array.from({ length: 6 }, (_, i) => ({
+      url: starfieldUrl(i),
+      renderOrder: -2,
+    })),
+  ];
   const starLayers: THREE.Points[] = [];
   void Promise.all(
-    [0, 1, 2, 3, 4, 5].map(async (layer) => {
+    STAR_LAYERS.map(async (layer) => {
       try {
-        const res = await fetch(starfieldUrl(layer));
+        const res = await fetch(layer.url);
         if (!res.ok) return;
         const points = buildStarfield([parseStarfield(await res.arrayBuffer())]);
+        points.renderOrder = layer.renderOrder;
         starLayers.push(points);
         scene.add(points);
       } catch {
@@ -176,6 +194,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   // Orbit lines keyed by body id; only the planets and the Moon have one.
   const orbitLines = new Map<string, THREE.Line>();
 
+  /** The Sun's glow sprite, which is pixel-sized and follows the Sun. */
+  let sunGlow: THREE.Sprite | null = null;
+
+  /**
+   * Atmosphere shells keyed by body id. These are separate scene objects (not
+   * children of the body mesh) because their vertex shader expands the sphere
+   * by `scaleHeight * 20` and pins `gl_Position.w`, so they need their own
+   * position and orientation each frame.
+   */
+  const atmosphereShells = new Map<string, THREE.Mesh>();
+
   for (const entity of entities) {
     const isSun = entity.id === 'sun';
     const rKm = entity.radius ?? entity.extentsRadius ?? 1000;
@@ -191,7 +220,11 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     if (isSun) {
       surfaceMaterial = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
     } else if (isCore) {
-      const built = buildSurface(entity, loader, 1024, sunDirection);
+      // NASA ships up to 4096 for the planets' colour, normal, specular, night
+      // and cloud maps (sizes: [16, 512, 4096]). Preferring 1024 left the
+      // surface visibly soft next to the reference, so ask for the top size and
+      // let `pickSize` fall back when a body does not have it.
+      const built = buildSurface(entity, loader, 4096, sunDirection);
       surfaceMaterial = built.surface;
       shellMaterial = built.shell;
     } else {
@@ -218,12 +251,36 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     mesh.frustumCulled = false;
     scene.add(mesh);
 
-    // Cloud/atmosphere shell: a slightly larger translucent sphere so the
-    // surface still shows through the gaps.
-    if (shellMaterial) {
-      const shell = new THREE.Mesh(new THREE.SphereGeometry(1.012, 64, 48), shellMaterial);
+    // Cloud/atmosphere shells.
+    //
+    // NASA attaches these separately and a body can have both:
+    //   - an AtmosphereComponent (exactly eight bodies — Sun, Venus, Earth,
+    //     Mars, Jupiter, Saturn, Uranus, Neptune), drawn with its scattering
+    //     shader at renderOrder -1; and
+    //   - a `decal` cloud texture, which Earth alone carries, drawn as its own
+    //     translucent shell.
+    // Dropping the cloud shell whenever an atmosphere exists would lose Earth's
+    // clouds, so the two are independent.
+    const atmosphere = ATMOSPHERES[entity.id];
+    if (atmosphere) {
+      const eq = entity.spheroid?.equatorialRadius ?? rKm;
+      const pol = entity.spheroid?.polarRadius ?? rKm;
+      const shell = new THREE.Mesh(
+        buildAtmosphereGeometry(),
+        buildAtmosphereMaterial(atmosphere, eq, pol),
+      );
+      shell.name = 'atmosphere';
+      // NASA renders it at renderOrder -1, i.e. before the body itself.
+      shell.renderOrder = -1;
       shell.frustumCulled = false;
-      mesh.add(shell);
+      shell.userData.baseRadius = rKm;
+      scene.add(shell);
+      atmosphereShells.set(entity.id, shell);
+    }
+    if (shellMaterial) {
+      const cloudShell = new THREE.Mesh(new THREE.SphereGeometry(1.012, 64, 48), shellMaterial);
+      cloudShell.frustumCulled = false;
+      mesh.add(cloudShell);
     }
 
     // Ring system, if this body has one. The rings are authored in kilometres
@@ -237,16 +294,24 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     }
 
     if (isSun) {
-      const glow = new THREE.Sprite(
+      // NASA's glow is a `SpriteComponent` on `sprites/sun_glow.png` with
+      //   _sizeUnits: "pixels", _transparent: true, _blending: "normal",
+      //   _billboard: true, _renderOrder: -2
+      // — note **normal** blending, not additive: the sprite already carries its
+      // own falloff. Verified live against the reference app.
+      sunGlow = new THREE.Sprite(
         new THREE.SpriteMaterial({
           map: loader.load(SPRITES.sunGlow),
           transparent: true,
           depthWrite: false,
-          blending: THREE.AdditiveBlending,
+          blending: THREE.NormalBlending,
         }),
       );
-      glow.scale.setScalar(rKm * 8);
-      scene.add(glow);
+      // Pixel-sized in NASA's units, so it is scaled in the frame loop from the
+      // current pixel-space radius rather than in kilometres.
+      sunGlow.renderOrder = -2;
+      sunGlow.frustumCulled = false;
+      scene.add(sunGlow);
     }
 
     // Orbit lines exist only for the eight planets and the Moon, with NASA's
@@ -377,6 +442,56 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         const rings = body.mesh.children.find((c) => c.name === 'rings');
         if (rings) rings.scale.setScalar(1 / body.mesh.scale.x);
       }
+    }
+
+    // Keep the Sun's glow on the Sun and at NASA's pixel size. The sprite is a
+    // separate scene object (it is not parented to the mesh), so both its
+    // position and its scale have to be set here.
+    if (sunGlow) {
+      const sunWorld = worldById.get('sun');
+      if (sunWorld) {
+        sunGlow.position.copy(sunWorld);
+        const maxDim = Math.max(container.clientWidth, container.clientHeight);
+        const sunRadius = bodies.get('sun')?.entity.radius ?? 695500;
+        const px = pixelSpaceRadius(sunRadius, sunWorld.distanceTo(camera.position), maxDim);
+        // NASA sizes this in pixels; scale so the sprite spans a few sun radii
+        // on screen while never collapsing to nothing at distance.
+        sunGlow.scale.setScalar(Math.max(24, px * 8));
+      }
+    }
+
+    // Drive each atmosphere shell: position it on its body, hand it the Sun as
+    // light 0, and give it the camera and orientation it needs to integrate.
+    for (const [id, shell] of atmosphereShells) {
+      const world = worldById.get(id);
+      const body = bodies.get(id);
+      if (!world || !body) continue;
+      const material = shell.material as THREE.RawShaderMaterial;
+      const u = material.uniforms;
+
+      shell.position.copy(world);
+      const scale = body.mesh.scale.x;
+      shell.scale.setScalar(scale);
+
+      // The shader works in the body's local frame, so the Sun and the camera
+      // are expressed relative to the body and rotated into that frame.
+      const sunWorld = worldById.get('sun') ?? new THREE.Vector3();
+      const toSun = new THREE.Vector3().subVectors(sunWorld, world);
+      const toCamera = new THREE.Vector3().subVectors(camera.position, world);
+      const invOrientation = body.mesh.quaternion.clone().invert();
+      toSun.applyQuaternion(invOrientation);
+      toCamera.applyQuaternion(invOrientation);
+
+      (u.lightPositions.value as THREE.Vector3[])[0].copy(toSun);
+      (u.lightColors.value as THREE.Vector3[])[0].set(1, 1, 1);
+      u.numLights.value = 1;
+      u.cameraPosition.value.copy(toCamera);
+      u.entityOrientation.value.set(
+        entityOrientation().x,
+        entityOrientation().y,
+        entityOrientation().z,
+        entityOrientation().w,
+      );
     }
   }
 
@@ -928,6 +1043,20 @@ function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
 }
+
+/**
+ * The body's spin orientation at the current time, for the atmosphere shader.
+ *
+ * NASA feeds `entity.getOrientation()` into `entityOrientation`. We have no
+ * orientation controller wired up yet, so the identity is returned — which is
+ * the honest answer and simply means the atmosphere is integrated in the
+ * unrotated body frame. When `.ori` controllers land, this becomes a lookup.
+ */
+function entityOrientation(): THREE.Quaternion {
+  return IDENTITY_QUATERNION;
+}
+
+const IDENTITY_QUATERNION = new THREE.Quaternion();
 
 /**
  * The solar system's position in the Galaxy, as NASA's charts present it.

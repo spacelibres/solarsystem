@@ -127,7 +127,16 @@ function buildNightBlendedMaterial(
 
 /**
  * A translucent cloud shell, a hair larger than the surface so it never
- * z-fights. Alpha comes from the decal map, so only the cloud pixels show.
+ * z-fights.
+ *
+ * Earth's `decal` map is `earth/cloud_$SIZE_$FACE.png`, a white cloud field on
+ * black. NASA removes it entirely when the content database's `clouds` flag is
+ * false, so its presence is the feature switch.
+ *
+ * The shell is lit by the same Sun and takes the cloud map as both colour and
+ * alpha, which is what makes the clouds read as bright white rather than as a
+ * grey wash: on a `MeshStandardMaterial` with `map` alone the blacks would be
+ * lit and become visible.
  */
 function buildCloudShell(
   loader: THREE.TextureLoader,
@@ -143,10 +152,12 @@ function buildCloudShell(
   return new THREE.MeshStandardMaterial({
     map,
     transparent: true,
-    opacity: 0.85,
+    // NASA's clouds are opaque where the map is white and invisible where it is
+    // black, so full opacity with the map as the alpha channel is the match.
+    opacity: 1,
+    alphaMap: map,
     depthWrite: false,
     roughness: 1,
     metalness: 0,
-    alphaMap: map,
   });
 }

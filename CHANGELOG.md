@@ -3,6 +3,68 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.11 - 2026-10-16
+
+A running offline clone of NASA Eyes, and the fixes it revealed.
+
+### Added
+
+- **The app runs offline as a reference oracle.** `tools/capture-site.cjs`
+  records every response body through the DevTools Protocol, so the whole
+  deployed viewer — `index.html`, `app.js`, `vendors.js`, `preload.js`,
+  `commons.js`, `config.js`, the three stylesheets and the fonts — is mirrored
+  under `data/mirror/site/`. Pointing `config.js` at the mirror and serving it on
+  port 8099 gives a fully working copy with **zero application errors**, which we
+  can now interrogate instead of guessing. See `docs/offline-mirror.md`.
+- **`tools/probe-app.cjs`**, which reads live state from that clone: scene
+  entities and their components, the live `LayerManager`, label DOM and computed
+  styles, and arbitrary expressions.
+- **`tools/capture-ref.cjs`**, to screenshot the reference for side-by-side
+  comparison.
+- **NASA's atmosphere shader, ported exactly** (`src/lib/scene/atmosphere.ts`).
+  The fragment program is a transcription of `AtmosphereComponent`'s GLSL: the
+  five-sample ray/sphere integration, exponential density falloff, day/night
+  `easeInOut` shaping, both sun-glare terms, the sunset blend and
+  `adjustOverbrightness`. The shell is drawn at `radius + scaleHeight * 20` on
+  NASA's 64 × 129 lat/lon grid with `gl_Position.w` pinned, and the eight bodies'
+  parameters are the ones measured from the running clone.
+- **`docs/ground-truth.md`**, recording what the clone reports: the boot scene is
+  45 entities (not 844 — bodies are added contextually), the exact component
+  table per entity, and every atmosphere parameter.
+- `tools/study-atmosphere-shader.cjs` and `tools/study-postcreate.cjs` to pull
+  shaders and `postCreateFunction` blocks out of the bundle verbatim.
+
+### Fixed
+
+- **The seventh starfield layer was missing.** `sun` carries seven
+  `StarfieldComponent`s — `galaxies.0.bin` plus `stars.0–5` — and we loaded only
+  the six stellar layers, leaving the sky without its galaxies. Both are now
+  loaded with NASA's render orders (galaxies at −4, stars at −2).
+- **Earth's clouds had disappeared.** The cloud shell was dropped whenever a body
+  also had an atmosphere, which is every planet with clouds; the two are
+  independent in NASA and now here. The shell also now takes the cloud map as its
+  alpha channel at full opacity, so the clouds read as white rather than grey.
+- **The Sun's glow was wrong, and stranded at the origin.** NASA uses *normal*
+  blending (not additive), pixel units and `renderOrder −2`, and the sprite must
+  follow the Sun; ours was added to the scene once and never repositioned.
+- **Mercury had an atmosphere it should not have.** NASA gives an atmosphere to
+  exactly eight bodies: Sun, Venus, Earth, Mars, Jupiter, Saturn, Uranus,
+  Neptune.
+- **Planetary surfaces were soft.** The preferred texture size was 1024; NASA
+  ships `[16, 512, 4096]` and the reference is visibly sharper at 4096.
+- **A vertex-indexing bug in the atmosphere sphere** left the last ~4,000 of
+  8,256 vertices at the origin, because the row stride used the row count instead
+  of the column count. Caught by the new geometry test.
+- `tools/verify-offline.cjs` now reuses a server that is already listening on the
+  port, instead of failing when one is kept running for inspection.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 96 tests across
+seven files. The reference clone boots with no application exceptions and no
+requests leaving the machine beyond two inert analytics hosts. Earth's render was
+compared directly against the reference at the same view.
+
 ## 0.2.10 - 2026-10-16
 
 The solar system's position in the Milky Way, and a way to read NASA's own code.
