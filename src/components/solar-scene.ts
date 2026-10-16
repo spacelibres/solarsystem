@@ -29,6 +29,8 @@ import {
   buildAtmosphereGeometry,
   buildAtmosphereMaterial,
 } from '../lib/scene/atmosphere';
+import { buildTrailGeometry, buildTrailMaterial } from '../lib/scene/trail-geometry';
+import { trailColorFor, trailLengthFor } from '../lib/scene/trails';
 import { RING_SPECS, buildRings } from '../lib/scene/rings';
 import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-colors';
 import {
@@ -60,6 +62,7 @@ export interface LayerVisibility {
   orbits?: boolean;
   labels?: boolean;
   stars?: boolean;
+  trails?: boolean;
 }
 
 export interface SolarSceneHandle {
@@ -131,26 +134,25 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   scene.add(sunLight);
 
   // Starfield: NASA attaches **seven** layers to the Sun entity — the galaxies
-  // layer first, then six stellar magnitude layers (`stars.0` … `stars.5`).
-  // Verified live against the reference app:
+  // layer first, then six stellar magnitude layers. Verified live against the
+  // reference app:
   //   sun :: … StarfieldComponent ×7 …
-  //   galaxies.0.bin, stars.0.bin, stars.1.bin, …, stars.5.bin
-  // Missing the galaxies layer leaves the sky without its distant galaxies.
-  const STAR_LAYERS: { url: string; renderOrder: number }[] = [
-    { url: GALAXIES_URL, renderOrder: -4 },
-    ...Array.from({ length: 6 }, (_, i) => ({
-      url: starfieldUrl(i),
-      renderOrder: -2,
-    })),
+  //   galaxies.0.bin, stars.0.bin, …, stars.5.bin
+  // All seven render at renderOrder -2, and the magnitude channel in the colour
+  // attribute does the sizing, so no per-layer tuning is needed.
+  const STAR_LAYERS = [
+    GALAXIES_URL,
+    ...[0, 1, 2, 3, 4, 5].map((i) => starfieldUrl(i)),
   ];
   const starLayers: THREE.Points[] = [];
   void Promise.all(
-    STAR_LAYERS.map(async (layer) => {
+    STAR_LAYERS.map(async (url) => {
       try {
-        const res = await fetch(layer.url);
+        const res = await fetch(url);
         if (!res.ok) return;
-        const points = buildStarfield([parseStarfield(await res.arrayBuffer())]);
-        points.renderOrder = layer.renderOrder;
+        const parsed = parseStarfield(await res.arrayBuffer());
+        const points = buildStarfield([parsed]);
+        points.name = `starfield:${url.split('/').pop()}`;
         starLayers.push(points);
         scene.add(points);
       } catch {
@@ -189,10 +191,21 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const sunDirection = new THREE.Vector3(0, 0, 1);
 
   // Layer visibility, driven by the layer panel.
-  const layers: Required<LayerVisibility> = { orbits: true, labels: true, stars: true };
+  const layers: Required<LayerVisibility> = {
+    orbits: true,
+    labels: true,
+    stars: true,
+    trails: true,
+  };
 
-  // Orbit lines keyed by body id; only the planets and the Moon have one.
+  /** Orbit lines keyed by body id; only the planets and the Moon have one. */
   const orbitLines = new Map<string, THREE.Line>();
+
+  /**
+   * Trail ribbons keyed by body id. These are the paths bodies sweep out
+   * backwards in time, and they cover everything the orbit lines do not.
+   */
+  const trails = new Map<string, THREE.Mesh>();
 
   /** The Sun's glow sprite, which is pixel-sized and follows the Sun. */
   let sunGlow: THREE.Sprite | null = null;
@@ -337,6 +350,24 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       orbitLine.visible = layers.orbits;
       scene.add(orbitLine);
       orbitLines.set(entity.id, orbitLine);
+    }
+
+    // Trails.
+    //
+    // Only the eight planets and the Moon get an orbit line; everyone else —
+    // every spacecraft, moon, asteroid and comet — gets a trail instead. A
+    // trail is the path swept backwards in time, so it needs an ephemeris and a
+    // parent to be drawn relative to; bodies without either get none.
+    let trail: THREE.Mesh | null = null;
+    if (!hasOrbitLine(entity.id) && entityOrbit) {
+      const material = buildTrailMaterial(trailColorFor(entity.id));
+      trail = new THREE.Mesh(new THREE.BufferGeometry(), material);
+      trail.frustumCulled = false;
+      trail.name = `trail:${entity.id}`;
+      trail.visible = layers.trails;
+      trail.renderOrder = -3;
+      scene.add(trail);
+      trails.set(entity.id, trail);
     }
 
     const label = makeLabel(labelLayer, entity);
@@ -491,6 +522,79 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         entityOrientation().y,
         entityOrientation().z,
         entityOrientation().w,
+      );
+    }
+
+    // Rebuild each trail from the body's own ephemeris.
+    //
+    // The path is sampled backwards from the current time over the body's trail
+    // length, in world space, so it follows the body through any parenting
+    // changes. NASA tessellates adaptively (4 new points per frame, resampling
+    // wherever the path bends by more than 3°); we sample on a fixed count,
+    // which is simpler and visually equivalent at these trail lengths.
+    updateTrails();
+  }
+
+  /** Rebuild every trail ribbon from the current simulation time. */
+  function updateTrails(): void {
+    if (!layers.trails) return;
+
+    for (const [id, trail] of trails) {
+      const body = bodies.get(id);
+      const world = worldById.get(id);
+      if (!body || !world) continue;
+
+      // Only bodies whose ephemeris reaches far enough back get a trail; a
+      // coverage gap means the path is unknown there, and drawing it anyway
+      // would fabricate motion.
+      const points = body.orbit?.points;
+      if (!points || points.length === 0) {
+        trail.visible = false;
+        continue;
+      }
+
+      const period =
+        (2 * Math.PI) / Math.abs(points[0].meanAngularMotion || 1e-12);
+      const length = trailLengthFor(id, period);
+      // A trail is a path through time, so its spatial extent depends on how
+      // fast the body moves: sample enough points that a fast body's ribbon
+      // still reads as a curve rather than a chord.
+      const SAMPLES = 96;
+      const startTime = simTime - length;
+
+      const origin = worldById.get(body.entity.id)!;
+      const parentId = tree.get(id)?.parentId ?? null;
+      const parentWorld = parentId ? worldById.get(parentId) : null;
+
+      const samples = [];
+      for (let i = 0; i <= SAMPLES; i++) {
+        const t = startTime + (i / SAMPLES) * length;
+        const p = orbPositionAt(nearestSample(points, t), t);
+        // Position relative to the parent, so the trail travels with the body
+        // when the parent moves.
+        const local = new THREE.Vector3(p.x, p.y, p.z);
+        const position = parentWorld
+          ? new THREE.Vector3().addVectors(local, parentWorld)
+          : local;
+        // Re-anchor the ribbon to the body's current world position so the
+        // head meets the body exactly; the ephemeris gives the shape.
+        samples.push({ position, time: t });
+      }
+
+      // Shift the whole ribbon so its head coincides with the body.
+      const head = samples[samples.length - 1];
+      const offset = new THREE.Vector3().subVectors(origin, head.position);
+      for (const s of samples) s.position.add(offset);
+
+      const geometry = buildTrailGeometry(samples);
+      trail.geometry.dispose();
+      trail.geometry = geometry;
+      trail.visible = true;
+
+      const material = trail.material as THREE.ShaderMaterial;
+      material.uniforms.viewportSize.value.set(
+        container.clientWidth,
+        container.clientHeight,
       );
     }
   }
@@ -685,10 +789,11 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       focusTarget.lerp(new THREE.Vector3(0, 0, 0), 0.08);
     }
 
-    // Stars stay pinned to the camera so they never grow into blobs as the
-    // camera crosses 15 orders of magnitude in scale. NASA does the same with a
-    // shader that pins stars to infinity.
-    for (const s of starLayers) s.position.copy(camera.position);
+    // The starfield is pinned to the sky inside its vertex shader (positions are
+    // normalised to a shell at a fixed distance), so it must NOT also follow the
+    // camera: translating the object would cancel the direction it computes.
+    // Leaving it at the origin means `modelViewMatrix` gives the true parallax
+    // vector, which is what the flux term needs.
 
     // Swap in the Milky Way once the camera is far outside the solar system,
     // matching NASA's `z-distance` visible interval on the galactic quad.
@@ -760,6 +865,32 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       /** Toggle the starfield, to isolate the backdrop (for automation). */
       toggleStars(on: boolean) {
         for (const s of starLayers) s.visible = on;
+      },
+      /** Inspect the loaded starfield layers (for automation). */
+      stars() {
+        return {
+          count: starLayers.length,
+          layers: starLayers.map((s) => ({
+            name: s.name,
+            visible: s.visible,
+            points: s.geometry.getAttribute('position')?.count ?? 0,
+            colorItemSize: s.geometry.getAttribute('color')?.itemSize ?? 0,
+            renderOrder: s.renderOrder,
+            particleSize: (s.material as THREE.ShaderMaterial).uniforms?.particleSize?.value,
+          })),
+        };
+      },
+      /** The raw three.js scene, for deep inspection (for automation). */
+      scene() {
+        return scene;
+      },
+      /** The renderer, so callers can read info.render (for automation). */
+      renderer() {
+        return renderer;
+      },
+      /** The camera (for automation). */
+      threeCamera() {
+        return camera;
       },
       /** Jump to the galactic scale, for automation. */
       setGalaxyZoom() {
@@ -900,6 +1031,7 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     setLayers(visibility) {
       Object.assign(layers, visibility);
       for (const line of orbitLines.values()) line.visible = layers.orbits;
+      for (const trail of trails.values()) trail.visible = layers.trails;
       for (const body of bodies.values()) {
         if (!layers.labels) body.label.style.opacity = '0';
       }
@@ -941,6 +1073,10 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       for (const line of orbitLines.values()) {
         line.geometry.dispose();
         (line.material as THREE.Material).dispose();
+      }
+      for (const trail of trails.values()) {
+        trail.geometry.dispose();
+        (trail.material as THREE.Material).dispose();
       }
       for (const s of starLayers) {
         s.geometry.dispose();

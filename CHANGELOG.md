@@ -3,6 +3,62 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.12 - 2026-10-16
+
+Trails, and a starfield that finally renders.
+
+### Added
+
+- **The trail system.** Almost everything in NASA Eyes — 833 entities — carries a
+  trail rather than an orbit line: the path swept *backwards in time*, which is
+  what gives a spacecraft its sense of motion. Only the eight planets and the Moon
+  get orbit lines, matching `TrailManager._orbitLineEntityNames`. Implemented in
+  `src/lib/scene/trails.ts` and `src/lib/scene/trail-geometry.ts`, as a
+  screen-space-width ribbon sampled from each body's own ephemeris.
+- **NASA's separate trail colour table.** Trail colours are *not* the orbit-line
+  colours, and several bodies differ sharply: Mercury's trail is grey while its
+  orbit line is purple; Uranus' trail is pale cyan while its orbit line is violet.
+  A test asserts the two tables stay distinct. The Galilean moons and Triton
+  inherit their planet's tint.
+- **Trail lengths from the entity table**, including Voyager 1's 946,080,000 s
+  (30 years); bodies without a declared length fall back to one orbital period,
+  clamped.
+- **A `Trails` switch** in the layer panel.
+- `tools/study-trails.cjs` to extract every `trail` block, `tools/probe-ours.cjs`
+  to interrogate our own running app the way `probe-app.cjs` does the reference,
+  and `tools/view-shot.cjs` to screenshot a named view.
+
+### Fixed
+
+- **The starfield never rendered.** Two independent faults, both diagnosed by
+  reading live WebGL state rather than by guessing:
+  - The ported star shader used GLSL3 syntax (`in`/`out`) while `ShaderMaterial`
+    defaults to GLSL1. The program still **linked cleanly** and the draw call was
+    issued, so nothing reported an error — but no pixels appeared.
+  - Star positions are real parallax coordinates, 4.16e13 to 3.09e20 km. Uploaded
+    raw as float32, `normalize()` loses the direction to rounding and the field
+    projects to NaN. This is the same precision wall the 1.2e18 km Milky Way quad
+    hit. Positions are now normalised on the CPU in float64 onto a fixed shell,
+    with the true distance carried in a separate attribute so the flux term keeps
+    near stars brighter than far ones.
+- **Star brightness and size now follow NASA's flux model** — `luminosity =
+  3.0128e28 · 10^(absMag/-2.5)`, `brightness = 2·log(1 + flux·1e4)`, point size
+  clamped to 5–50 px — with the absolute magnitude uploaded in the colour
+  attribute's alpha channel. Without it every star rendered flat and the sky
+  looked sparse.
+- **NaN-poisoned trail geometry.** Sampling an ephemeris outside its window can
+  extrapolate to NaN, and a single NaN vertex spoils the bounding sphere. Trails
+  now drop non-finite samples.
+- Removed a `computeBoundingSphere` NaN warning from the starfield by giving the
+  sky-pinned cloud an explicit empty sphere, and stopped pinning the star object
+  to the camera position, which cancelled the direction the shader needs.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 116 tests across
+nine files. The starfield and trails were confirmed by screenshot at the outer
+solar-system view and compared against the reference clone at the same view.
+
 ## 0.2.11 - 2026-10-16
 
 A running offline clone of NASA Eyes, and the fixes it revealed.

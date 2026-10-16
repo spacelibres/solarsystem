@@ -13,6 +13,7 @@ export interface LayerState {
   labels: boolean;
   stars: boolean;
   constellations: boolean;
+  trails: boolean;
 }
 
 interface SettingsRailProps extends Props {
@@ -23,6 +24,7 @@ interface SettingsRailProps extends Props {
 /** Layer toggles, mirroring the entries NASA exposes in its layer panel. */
 const LAYER_ITEMS: { key: keyof LayerState; label: string }[] = [
   { key: 'orbits', label: 'Orbit paths' },
+  { key: 'trails', label: 'Trails' },
   { key: 'labels', label: 'Labels' },
   { key: 'stars', label: 'Stars' },
   { key: 'constellations', label: 'Constellations' },

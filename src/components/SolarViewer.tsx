@@ -90,6 +90,7 @@ export default function SolarViewer() {
     labels: true,
     stars: true,
     constellations: true,
+    trails: true,
   });
 
   useEffect(() => {
@@ -204,6 +205,7 @@ export default function SolarViewer() {
       orbits: layers.orbits,
       labels: layers.labels,
       stars: layers.stars,
+      trails: layers.trails,
     });
   }, [layers, scene]);
 

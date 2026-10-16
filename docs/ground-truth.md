@@ -110,32 +110,58 @@ than a plain alpha shell.
 
 1. **Seventh starfield layer.** `sun` carries **seven** `StarfieldComponent`s, not
    six: `galaxies.0.bin` plus `stars.0–5`. We were loading only the six stellar
-   layers and missing the galaxy layer entirely. Now loaded, with NASA's render
-   orders (`galaxies` at -4, stars at -2).
+   layers and missing the galaxy layer entirely. All seven now load, at NASA's
+   `renderOrder -2`.
 2. **Sun glow.** Was additive and kilometre-scaled; NASA uses **normal**
    blending, pixel units, `renderOrder -2`, and it must follow the Sun (ours was
    added to the scene and never repositioned, so it sat at the origin).
 3. **Atmospheres.** Now a direct port of `AtmosphereComponent`'s real GLSL —
    see `src/lib/scene/atmosphere.ts` and `deobf/atmosphere.frag.glsl`. The shell
-   is drawn at `radius + scaleHeight * 20` on NASA's 64 × 129 lat/lon grid with
-   `gl_Position.w = viewPosition.y`, and the eight bodies' parameters are the
-   measured ones below. Mercury correctly has none.
-4. **Cloud shell.** Earth's `decal` map (`earth/cloud_$SIZE_$FACE.png`) was being
-   dropped whenever a body also had an atmosphere, which is every planet with
-   clouds. The two are independent in NASA and are now independent here.
+   is drawn at `radius + scaleHeight * 20` on NASA's 64 × 129 lat/lon grid, and
+   the eight bodies' parameters are the measured ones below. Mercury has none.
+4. **Cloud shell.** Earth's `decal` map was being dropped whenever a body also
+   had an atmosphere, which is every planet with clouds. The two are independent.
 5. **Surface resolution.** The preferred texture size was 1024; NASA ships
    `[16, 512, 4096]` and the reference is visibly sharper at 4096.
+6. **Trails.** Implemented. Everything without an orbit line gets a trail; the
+   colour table is separate from the orbit-line table and differs for several
+   bodies; `trail.length` and `trail.color` come from the entity table.
+7. **Starfield brightness and density.** See the dedicated section below — this
+   was a float32 precision failure, not a styling choice.
+
+### The starfield: a float32 wall, twice
+
+Two separate bugs, both from the same cause.
+
+**Wrong shader language.** The ported star shader used GLSL3 syntax (`in`/`out`)
+while `ShaderMaterial` defaults to GLSL1, where `attribute`/`varying` are
+required. The program still *linked* — three.js reported no error, no exception
+was thrown, and the draw call was issued — but nothing appeared. Only reading
+`gl.getProgramParameter(program, LINK_STATUS)` and checking the active attribute
+count made it obvious.
+
+**float32 cannot hold a star position.** The files store real parallax
+coordinates, 4.16e13 to 3.09e20 km. Uploaded raw, `normalize()` in the shader
+loses the direction entirely to rounding (7 significant digits against a 1e19
+magnitude) and the projection produces NaN, so the whole field vanishes. This is
+the same limit the 1.2e18 km Milky Way quad hit. The fix: normalise on the CPU in
+float64, place the directions on a fixed shell at `STAR_SHELL_KM = 1e12`, and
+carry the *true* distance in a separate attribute so the flux term stays physical
+— which is what keeps near stars brighter than far ones.
+
+`gl_Position.w = viewPosition.y` from NASA's shader is **not** used: it divides by
+a signed component, which clips half the sky and, with a far plane derived from
+the orbit radius, discards everything. The shell plus a normal perspective
+projection reproduces the same pinned-to-the-sky look without that fragility.
 
 ### Still open
 
-6. **Trails.** Spacecraft and small bodies get a `TrailComponent`, not an orbit
-   line. We have no trail system.
-7. **Comet tails.** Three `CometTailComponent`s per comet.
-8. **Mars' second spheroid** (the atmosphere shell is a separate spheroid).
+8. **Comet tails.** Three `CometTailComponent`s per comet.
 9. **The `camera` entity** and its `DynamicEnvironmentMapComponent`.
 10. **Body orientation.** `entityOrientation` in the scene currently returns the
-    identity because no `.ori` controller is loaded; the atmosphere shader is
-    therefore integrated in the unrotated frame.
+    identity because no `.ori` controller is loaded, so the atmosphere shader is
+    integrated in the unrotated frame.
+11. **Mars' second spheroid** (the atmosphere shell is a separate spheroid).
 
 ## Comparison method
 
