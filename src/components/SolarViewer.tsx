@@ -13,6 +13,7 @@ import InfoPanel from './InfoPanel';
 import TimeBar from './TimeBar';
 import FeaturedStories from './FeaturedStories';
 import SettingsRail, { type LayerState } from './SettingsRail';
+import TopNav from './TopNav';
 import SpacelibreLogo from './SpacelibreLogo';
 import { VERSION } from '../lib/version';
 import type { FeaturedStory } from '../lib/nasa/featured';
@@ -168,6 +169,13 @@ export default function SolarViewer() {
     sceneRef.current?.focus(null);
   }, []);
 
+  /** Focus a body by id (shared by search, stories and picking). */
+  const onSelectBody = useCallback((id: string) => {
+    if (!CATALOG[id]) return;
+    setSelectedId(id);
+    sceneRef.current?.focus(id);
+  }, []);
+
   /** A featured card focuses its target body and jumps to the story's date. */
   const onStory = useCallback((story: FeaturedStory) => {
     const scene = sceneRef.current;
@@ -216,7 +224,7 @@ export default function SolarViewer() {
           )}
         </div>
         <div className="ns-header__nav">
-          <span className="ns-header__chip">{loaded} bodies · local</span>
+          <TopNav catalog={CATALOG} onSelect={onSelectBody} />
         </div>
       </header>
 
@@ -244,7 +252,7 @@ export default function SolarViewer() {
 
       <TimeBar scene={scene} />
 
-      <span className="ns-version">v{VERSION}</span>
+      <span className="ns-version">v{VERSION} · {loaded} bodies</span>
     </div>
   );
 }

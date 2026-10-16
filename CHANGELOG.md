@@ -3,6 +3,35 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.5 - 2026-10-15
+
+Top navigation and the footer time readout, matched to the live page's boxes.
+
+### Added
+
+- **Top-right navigation** (`TopNav`), mirroring `.top-right-nav`: a search
+  magnifier that filters the catalog (12 results, Enter selects the first), a
+  Share button, and a Menu button opening an overlay panel.
+- Search results show each body's colour swatch and its group.
+
+### Changed
+
+- **Footer rebuilt to the measured geometry.** Reading the live page's element
+  boxes gives a 600px centred column: the date at the left, `REAL RATE` at 29px
+  in the middle, and the clock time at the right, all on one line above the
+  track; the 36px knob rides the slider; `⌄ TIME CONTROLS` sits beneath it; and
+  the `LIVE` badge is a separate bottom-left chip.
+- Date and time now read as NASA shows them: `Jan 12, 2026` and `05:38:24 AM`.
+- Footer gradient scrim spans the viewport width regardless of column width.
+- The build/version chip moved out of the header to a corner readout.
+
+### Verified
+
+- `npm test` (27/27), `npm run check` and `npm run build` clean.
+- Headless render: top nav, `REAL RATE`, date/clock split, LIVE badge and speed
+  row all present; no exceptions, no failed requests, **0 requests to
+  nasa.gov**.
+
 ## 0.2.4 - 2026-10-15
 
 Featured stories panel, NASA's real interface icons, layers and lighting.

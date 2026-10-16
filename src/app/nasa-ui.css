@@ -446,6 +446,223 @@ button {
 }
 
 /* ---------------------------------------------------------------------------
+   Top-right navigation: search / Share / Menu
+   Mirrors `.top-right-nav` (flex row, 1rem gap, height 45px)
+   --------------------------------------------------------------------------- */
+
+.ns-topnav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+.ns-topnav__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 40px;
+  padding: 0 0.6rem;
+  background: none;
+  border: 0;
+  border-radius: 0.375rem;
+  color: var(--nasa-gb-light);
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.32px;
+}
+
+.ns-topnav__btn img {
+  filter: invert(92%) sepia(6%) saturate(200%) hue-rotate(180deg);
+}
+
+.ns-topnav__btn:hover {
+  filter: brightness(1.25);
+}
+
+.ns-topnav__btn--icon {
+  padding: 0 6px;
+  opacity: 0.75;
+}
+
+.ns-topnav__btn--menu {
+  font-size: 1.1rem;
+}
+
+.ns-topnav__menu {
+  position: relative;
+}
+
+/* Search pop-over */
+.ns-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 0.375rem;
+  background: var(--nasa-gray-alpha);
+}
+
+.ns-search > img {
+  filter: invert(92%);
+  opacity: 0.7;
+}
+
+.ns-search__input {
+  width: 260px;
+  background: none;
+  border: 0;
+  outline: none;
+  color: #fff;
+  font: inherit;
+  font-size: var(--nasa-font-size-small);
+}
+
+.ns-search__input::placeholder {
+  color: var(--nasa-gb-text);
+}
+
+.ns-search__close {
+  background: none;
+  border: 0;
+  opacity: 0.6;
+  padding: 2px;
+}
+
+.ns-search__close img {
+  filter: invert(92%);
+}
+
+.ns-search__close:hover {
+  opacity: 1;
+}
+
+.ns-search__results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 4px 0;
+  list-style: none;
+  background: var(--nasa-bg-gradient);
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  max-height: 60vh;
+  overflow-y: auto;
+  z-index: 60;
+}
+
+.ns-search__result {
+  display: grid;
+  grid-template-columns: 14px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: 0;
+  color: var(--nasa-gb-light);
+  font-size: var(--nasa-font-size-small);
+  text-align: left;
+}
+
+.ns-search__result:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+}
+
+.ns-search__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid var(--nasa-gb-med);
+}
+
+.ns-search__kind {
+  font-size: var(--nasa-font-size-tiny);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--nasa-gb-text);
+}
+
+/* Menu overlay */
+.ns-menu__scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  border: 0;
+  z-index: 55;
+  cursor: default;
+}
+
+.ns-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  background: var(--nasa-bg-gradient);
+  border-radius: 3px;
+  border-top: 1px solid var(--nasa-gray-dark);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65);
+  z-index: 56;
+  padding-bottom: 10px;
+}
+
+.ns-menu__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--nasa-gray-dark);
+}
+
+.ns-menu__title {
+  font-size: var(--nasa-font-size-small);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+.ns-menu__close {
+  background: none;
+  border: 0;
+  opacity: 0.6;
+  padding: 2px;
+}
+
+.ns-menu__close img {
+  filter: invert(1);
+}
+
+.ns-menu__close:hover {
+  opacity: 1;
+}
+
+.ns-menu__list {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.ns-menu__link {
+  display: block;
+  padding: 10px 18px;
+  color: var(--nasa-gb-light);
+  font-size: var(--nasa-font-size-small);
+  text-decoration: none;
+  opacity: 0.75;
+}
+
+.ns-menu__link:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ---------------------------------------------------------------------------
    Time controls (foot): mirrors nav.c-menu-container + nav.time-controls
    --------------------------------------------------------------------------- */
 
@@ -461,14 +678,30 @@ button {
   gap: 4px;
 }
 
-/* Bottom gradient scrim, as NASA masks its footer. */
+/* Time controls: a 600px centred column with the date/rate/clock row above
+   the track, the knob riding the slider, and the toggle beneath. */
+.ns-time {
+  grid-area: foot;
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  width: 600px;
+  max-width: calc(100vw - 40px);
+  margin: 0 auto;
+  padding-bottom: var(--nasa-collapsible-bottom-margin);
+}
+
 .ns-time::after {
   content: '';
   position: absolute;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
   bottom: 0;
-  height: calc(var(--nasa-offset-up));
+  width: 100vw;
+  height: var(--nasa-offset-up);
   background-image: linear-gradient(to top, var(--nasa-bg-dark) 70%, var(--nasa-bg-med) 100%);
   -webkit-mask-image: linear-gradient(0deg, #fff 0, transparent);
   mask-image: linear-gradient(0deg, #fff 0, transparent);
@@ -476,50 +709,52 @@ button {
   z-index: -1;
 }
 
+/* date | rate | clock, all on one line above the track */
+.ns-time__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  width: 100%;
+  font-size: var(--nasa-font-size);
+  font-weight: 300;
+  text-transform: uppercase;
+}
+
+.ns-time__date {
+  justify-self: start;
+  font-family: var(--nasa-font-mono);
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
 .ns-time__rate {
+  justify-self: center;
   margin: 0;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
+  font-size: 29px;
+  font-weight: 300;
+  letter-spacing: -0.58px;
   text-transform: uppercase;
   color: var(--nasa-live);
   filter: drop-shadow(0 0 2px var(--nasa-live-alpha));
+  white-space: nowrap;
 }
 
-.ns-time__rate.is-paused {
+.ns-time.is-paused .ns-time__rate {
   color: var(--nasa-paused);
   filter: drop-shadow(0 0 2px var(--nasa-paused-alpha));
 }
 
-.ns-time__controls {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 80%;
-  max-width: 160px;
-}
-
-.ns-time__btn {
-  display: grid;
-  place-items: center;
-  width: 34px;
-  height: 34px;
-  padding: 0;
-  border: 0;
-  border-radius: 6px;
-  background: var(--nasa-bg-gradient);
+.ns-time__clock {
+  justify-self: end;
+  font-family: var(--nasa-font-mono);
   color: #fff;
-  font-size: 12px;
-  line-height: 1;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+  letter-spacing: 0.02em;
 }
 
-.ns-time__btn:hover {
-  filter: brightness(1.4);
-}
-
-.ns-time__btn:active {
-  box-shadow: inset 0 4px 4px rgba(0, 0, 0, 0.5);
+.ns-time__meridiem {
+  margin-left: 4px;
+  font-size: 0.75em;
+  opacity: 0.7;
 }
 
 /* Track + draggable knob, matching NASA's slider geometry. */
@@ -582,7 +817,7 @@ button {
   cursor: grab;
 }
 
-.ns-time__range.is-paused::-webkit-slider-thumb {
+.ns-time.is-paused .ns-time__range::-webkit-slider-thumb {
   background: radial-gradient(
     50% 50% at 50% 50%,
     var(--nasa-paused) 36.72%,
@@ -593,29 +828,53 @@ button {
   );
 }
 
-.ns-time__range::-moz-range-thumb {
+.ns-time.is-paused .ns-time__range::-moz-range-thumb {
   background: radial-gradient(50% 50% at 50% 50%, var(--nasa-paused) 36.72%, #262627 100%);
 }
 
-/* Date + speed readout */
-.ns-time__readout {
+/* "Time Controls" toggle, sitting under the knob. */
+.ns-time__toggle {
   display: flex;
   align-items: center;
-  gap: 14px;
-  font-size: var(--nasa-font-size-xsmall);
+  gap: 6px;
+  margin-top: 2px;
+  background: none;
+  border: 0;
+  color: var(--nasa-gray);
+  font-size: var(--nasa-font-size);
+  font-weight: 300;
+  letter-spacing: 0.32px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--nasa-gb-med);
 }
 
-.ns-time__date {
-  font-family: var(--nasa-font-mono);
-  color: var(--nasa-gb-light);
+.ns-time__toggle:hover {
+  color: #fff;
 }
 
 .ns-time__speeds {
   display: flex;
+  align-items: center;
   gap: 2px;
+  margin-top: 6px;
+}
+
+.ns-time__playbtn {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin-right: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: none;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.ns-time__playbtn:hover {
+  border-color: var(--nasa-live);
+  color: var(--nasa-live);
 }
 
 .ns-time__speed {
@@ -637,6 +896,46 @@ button {
 .ns-time__speed.is-active {
   color: #05070d;
   background: var(--nasa-live);
+}
+
+/* LIVE badge, bottom-left of the footer. */
+.ns-live {
+  grid-area: foot;
+  align-self: end;
+  justify-self: start;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 calc(var(--nasa-collapsible-bottom-margin) + 4px) 24px;
+  padding: 1px 7px;
+  border-radius: 2px;
+  background: var(--nasa-gray-alpha);
+  z-index: 21;
+}
+
+.ns-live__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--nasa-live);
+  box-shadow: 0 0 8px var(--nasa-live-alpha);
+}
+
+.ns-live__dot.is-paused {
+  background: var(--nasa-paused);
+  box-shadow: 0 0 8px var(--nasa-paused-alpha);
+}
+
+.ns-live__text {
+  font-size: var(--nasa-font-size-xsmall);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--nasa-live);
+}
+
+.ns-live:has(.is-paused) .ns-live__text {
+  color: var(--nasa-paused);
 }
 
 /* ---------------------------------------------------------------------------
