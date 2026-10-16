@@ -32,6 +32,7 @@ export interface ExplorerSnapshot {
   readonly frames: ReadonlyMap<string, EntityFrame>;
   readonly pending: readonly string[];
   readonly errors: Readonly<Record<string, string>>;
+  readonly unavailablePaths: readonly string[];
   readonly resources: ResourceStatistics;
   readonly generation: number;
 }
@@ -81,6 +82,7 @@ export class ExplorerRuntime {
       clock: this.clock.snapshot(), selectedId: this.selectedId, phase,
       frames: structuredClone(this.frames), pending: [...this.pending.keys()],
       errors: { ...Object.fromEntries([...this.failures].filter(([path]) => !this.suppressedFailures.has(path))), ...this.evaluationErrors },
+      unavailablePaths: [...this.unavailableIntervals.keys()].filter(path=>!this.suppressedFailures.has(path)),
       resources: { ...this.repository.snapshot() }, generation: this.generation,
     };
   }

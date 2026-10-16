@@ -65,3 +65,14 @@
 ## 仍待完成
 
 这次完成目录、系统与模型的首轮扩展，未宣称完整Eyes一比一。自定义控制器、地面LLA/夹地、机构关节、增量/时间偏移姿态、完整地形LOD、云/大气/遮影与后处理、原应用所有工具及故事仍需迁移。所有842项对象、所有日期、真实移动触控、context loss/restoration和长时GPU资源曲线尚未逐项通过。详细边界见 `display.md`、`controllers.md` 与 `models.md`。
+
+
+# 参考展示修正 · v0.2.37
+
+根因、源码公式、实际数据及画面对照见 [参考展示修正](reference-display.md)。本次不是目录数量更新：修正物理标记被标签位移、父级隐藏、轨道色值及当前状态重建、星表旋转、缺少五层星空/星座、近景遮挡和星历读数。
+
+实时两日期核对十个基本对象全部ready；直接对照TrailManager和VisibleInterval，独立审查未发现剩余阻塞问题。依赖按原锁文件重装退出0（本机耗时6分钟；现有6项高等级审计报告仍在，未自动升级）。`npm test` 39个Vitest文件385项、Node229项，共614项全部通过；`npm run check` 与 `npm run build` 退出0。792个源码契约身份匹配。
+
+生产版页面总览十个物理DOM标记可见（太阳、八行星、月球），未用移动文字伪装位置。Moon近景缩远后Earth仍可见，白色月轨围绕Earth；近景月面不再被星空/星座线或自身轨道覆盖。页面以1天/秒从2026-10-16播放至2026-10-24，月地距离从约404853km变为374057km，再返回实时；十个基本对象保持ready。最终生产页面错误/警告日志为空。
+
+生产截图：`artifacts/orbit-sky-production.png`、`artifacts/moon-ephemeris.png`、`artifacts/earth-moon-context-production.png`。原开发过程中HMR旧快照缺少新增字段的错误已修复并完整重载，未把开发历史日志当作生产无错误证据。

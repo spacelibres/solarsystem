@@ -3,6 +3,20 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.37 - 2026-10-17
+
+Correct the explorer's orbital context, Eyes application colors and celestial sky.
+
+- Keep Sun, planets, Moon and parent context visible across focus changes; anchor
+  physical markers independently of bounded, collision-aware text labels.
+- Reconstruct planetary/Moon orbits from current parent-relative position/velocity;
+  use Eyes TrailManager RGB, opacity and 1.2px width with its near-body fade.
+- Correct Pioneer-to-Three star quaternion ordering, load all seven stellar/galaxy
+  catalogs, restore flux sizing, and add the 88-constellation layer with labels.
+- Depth-test the sky behind physical bodies; show parent-relative J2000 ephemeris
+  readouts and distinguish date coverage notices from retryable failures.
+- Record live two-date hierarchy checks and source-backed display regressions.
+
 ## 0.2.36 - 2026-10-17
 
 Expand the independent explorer from six targets to source-derived planetary

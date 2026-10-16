@@ -240,6 +240,13 @@ describe('catalog runtime loading', () => {
 import { EphemerisRepositoryError } from '../src/solar/runtime/ephemeris-repository';
 describe('time-scoped no-data caching', () => {
   const unavailable = (min: number, max: number) => new EphemerisRepositoryError('no-data', 'outside coverage', undefined, { unavailableInterval: { min, max } });
+  it('distinguishes normal date coverage from retryable data failures without hiding diagnostics',async()=>{
+    const repository=new Repository();const runtime=new ExplorerRuntime({entities:[body('probe')],repository,timeEt:2});
+    repository.requests[0].reject(unavailable(-Infinity,10));await settle();
+    expect(runtime.snapshot()).toMatchObject({unavailablePaths:['probe/pos/def.dyn'],errors:{'probe/pos/def.dyn':'outside coverage'}});
+    runtime.retry();repository.requests[1].reject(new EphemerisRepositoryError('fetch-failed','offline'));await settle();
+    expect(runtime.snapshot()).toMatchObject({unavailablePaths:[],errors:{'probe/pos/def.dyn':'offline'}});
+  });
   it('retries another candidate when forward playback exits its known unavailable interval', async () => {
     const repository = new Repository();
     const runtime = new ExplorerRuntime({ entities: [body('probe', { phases: [{startEt:-100,parentId:null,positionPaths:['a/def.dyn','b/def.dyn']} ] })], repository, timeEt: 2 });

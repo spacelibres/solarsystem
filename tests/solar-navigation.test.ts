@@ -4,9 +4,9 @@ import { DEFAULT_SCENE } from '../src/solar/config/default-scene';
 const bodies=DEFAULT_SCENE.map(body=>({...body,groups:body.id==='sun'?['stars']:['earth','jupiter','saturn'].includes(body.id)?['planets']:body.id==='moon'?['earth','moons']:['spacecraft']}));
 describe('full scene navigation',()=>{
  it('includes planets in overview and moons in a planet system without pretending everything is visible',()=>{
-   expect(visibleSystemIds(bodies,'sun','overview')).toEqual(['sun','earth','jupiter','saturn']);
-   expect(visibleSystemIds(bodies,'earth','system')).toEqual(['sun','earth','moon']);
-   expect(visibleSystemIds(bodies,'moon','body')).toEqual(['sun','moon']);
+   expect(visibleSystemIds(bodies,'sun','overview')).toEqual(['sun','earth','moon','jupiter','saturn']);
+   expect(visibleSystemIds(bodies,'earth','system')).toEqual(['sun','earth','moon','jupiter','saturn']);
+   expect(visibleSystemIds(bodies,'moon','body')).toEqual(['sun','earth','moon','jupiter','saturn']);
  });
  it('searches labels and stable ids and filters spacecraft',()=>{
    expect(searchBodies(bodies,'VOYAGER','all').map(body=>body.id)).toEqual(['sc_voyager_1']);

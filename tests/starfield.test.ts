@@ -30,19 +30,13 @@ describe('starfield parsing', () => {
     expect(stars[0].color.g).toBeCloseTo(128 / 255, 5);
   });
 
-  it('rotates the ecliptic-J2000 position into J2000', () => {
-    // The reader applies NASA's hardcoded quaternion
-    // (0.9791532214288992, 0.2031230389823101, 0, 0), which is a 180° rotation
-    // about an axis in the XY plane. So the stored vector comes back rotated,
-    // not verbatim — length is preserved, the components are not.
-    const stars = parseStarfield(starRecord(0, 0, 255, 255, 255, 10, 20, 30));
-    const p = stars[0].position;
-    expect(p.length()).toBeCloseTo(Math.hypot(10, 20, 30), 3);
-    // The raw (10, -20, 30) is not what we get back.
-    expect(p.x).not.toBeCloseTo(10, 1);
-    expect(p.y).not.toBeCloseTo(-20, 1);
-    // z is mapped through unchanged by this particular 180° rotation.
-    expect(p.z).toBeCloseTo(-30, 3);
+  it('converts Pioneer wxyz to Three xyzw for the actual 23.439 degree obliquity', () => {
+    const p = parseStarfield(starRecord(0, 0, 255, 255, 255, 10, 20, 30))[0].position;
+    const angle = 2 * Math.atan2(.2031230389823101,.9791532214288992);
+    expect(p.x).toBeCloseTo(10,10);
+    expect(p.y).toBeCloseTo(-20*Math.cos(angle)-30*Math.sin(angle),10);
+    expect(p.z).toBeCloseTo(-20*Math.sin(angle)+30*Math.cos(angle),10);
+    expect(p.length()).toBeCloseTo(Math.hypot(10,20,30),10);
   });
 
   it('lists NASA´s seven layers, galaxies first', () => {
@@ -85,19 +79,11 @@ describe('starfield geometry', () => {
     expect(d.getX(0)).toBeCloseTo(Math.hypot(1e19, 2e19, 3e19), -14);
   });
 
-  it('flattens the cloud to infinity so the clip planes cannot cut it', () => {
+  it('retains the previous viewer shader contract without using it in the independent renderer', () => {
     const points = buildStarfield([parseStarfield(starRecord(0, 0, 255, 255, 255, 0, 0, 1))]);
     const shader = (points.material as unknown as { vertexShader: string }).vertexShader;
-
-    // NASA's line, and the reason the sky is never half-missing: overwriting `w`
-    // with the view-space vertical component makes the projection depend on a
-    // star's direction only, so a star behind the camera is not clipped.
     expect(shader).toContain('gl_Position.w = viewPosition.y');
-
-    // It must come AFTER the ordinary projection, or it would be overwritten.
-    expect(shader.indexOf('gl_Position = projectionMatrix')).toBeLessThan(
-      shader.indexOf('gl_Position.w = viewPosition.y'),
-    );
+    expect(shader.indexOf('gl_Position = projectionMatrix')).toBeLessThan(shader.indexOf('gl_Position.w = viewPosition.y'));
   });
 
   it('scales the shell as a float32 convenience, not a clipping workaround', () => {

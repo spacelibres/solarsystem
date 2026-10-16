@@ -19,9 +19,23 @@ export function searchBodies(bodies: readonly ExplorerBodyDefinition[], query: s
 }
 /** This is a visibility request; the runtime adds actual parent and attitude dependencies. */
 export function visibleSystemIds(bodies: readonly ExplorerBodyDefinition[], selectedId: string, mode: SceneMode): readonly string[] {
-    if (mode === 'overview')
-        return bodies.filter(body => body.id === 'sun' || body.groups?.includes('planets')).map(body => body.id);
-    if (mode === 'body')
-        return [...new Set(['sun', selectedId])];
-    return bodies.filter(body => body.id === 'sun' || body.id === selectedId || body.groups?.includes(selectedId) || body.phases.length === 1 && body.phases[0].parentId === selectedId).map(body => body.id);
+    const ids = new Set(bodies.filter(body => body.id === 'sun' || body.id === 'moon' || body.groups?.includes('planets')).map(body => body.id));
+    ids.add(selectedId);
+    // Keep physical surroundings when zooming out of a close view. The runtime
+    // already loads parents; visibility must not hide those resolved ancestors.
+    const pending = [selectedId], visited = new Set<string>();
+    while (pending.length) {
+        const id = pending.pop()!;
+        if (visited.has(id)) continue;
+        visited.add(id);
+        for (const phase of bodies.find(body => body.id === id)?.phases ?? []) {
+            if (phase.parentId && bodies.some(body => body.id === phase.parentId)) {
+                ids.add(phase.parentId); pending.push(phase.parentId);
+            }
+        }
+    }
+    if (mode !== 'overview') for (const body of bodies) {
+        if ((mode === 'system' || body.groups?.includes('moons')) && (body.groups?.includes(selectedId) || body.phases.length === 1 && body.phases[0].parentId === selectedId)) ids.add(body.id);
+    }
+    return bodies.filter(body => ids.has(body.id)).map(body => body.id);
 }

@@ -53,9 +53,11 @@ main {
 /* Screen-space navigation labels mark true positions without enlarging physical bodies. */
 .solar-scene-labels { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
 .solar-scene-label { position: absolute; top: 0; left: 0; pointer-events: auto; color: #d7e9f7; background: transparent; border: 0; padding: 3px 8px 3px 12px; font: 11px/1.4 Arial, sans-serif; text-shadow: 0 1px 4px #000; white-space: nowrap; cursor: pointer; }
-.solar-scene-label::before { content: ''; position: absolute; left: 3px; top: 9px; width: 3px; height: 3px; border-radius: 50%; background: currentColor; }
+.solar-body-marker { position: absolute; left: 0; top: 0; width: 3px; height: 3px; margin: -1.5px; border-radius: 50%; background: #fff; pointer-events: none; }
+.solar-body-marker[hidden] { display: none; }
 .solar-scene-label:hover, .solar-scene-label[data-selected='true'] { color: #fff0a6; }
 .solar-scene-label[hidden] { display: none; }
 
 .solar-scene-leader { position: absolute; left: 0; top: 0; height: 1px; background: rgba(190,220,240,.35); transform-origin: 0 0; pointer-events: none; }
 .solar-scene-leader[hidden] { display: none; }
+.solar-constellation-label { position: absolute; left: 0; top: 0; color: rgba(89,179,255,.75); font: 11px Arial,sans-serif; pointer-events: none; text-shadow: 0 1px 4px #000; }

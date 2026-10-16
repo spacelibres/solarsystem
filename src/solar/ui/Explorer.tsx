@@ -5,6 +5,7 @@ import { DEFAULT_PRESET, applyPaletteToDocument } from '../../lib/theme/palette'
 import { FULL_SCENE } from '../config/scene-catalog';
 import { searchBodies, visibleSystemIds, type SceneMode, type CatalogFilter } from './navigation';
 import { unixMillisecondsToEt } from '../domain/time';
+import { relativeEphemeris } from '../domain/observations';
 import { ExplorerRuntime, type ExplorerSnapshot } from '../runtime/explorer-runtime';
 import { createRenderWorld, type RenderDiagnostics, type RenderWorld } from '../render/render-world';
 import { etDateInput, formatEtUtc, utcInputToEt } from './format';
@@ -43,7 +44,7 @@ function readyCount(snapshot: ExplorerSnapshot | null): number {
     return snapshot ? [...snapshot.frames.values()].filter(frame => frame.status === 'ready').length : 0;
 }
 export default function Explorer() {
-    const layerState = useRef({ labels: true, orbits: true });
+    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false });
     const navigationState = useRef<{
         id: string;
         mode: SceneMode;
@@ -55,6 +56,8 @@ export default function Explorer() {
     const [resultLimit, setResultLimit] = useState(100);
     const [labelsVisible, setLabelsVisible] = useState(true);
     const [orbitsVisible, setOrbitsVisible] = useState(true);
+    const [starsVisible, setStarsVisible] = useState(true);
+    const [constellationsVisible, setConstellationsVisible] = useState(false);
     const mount = useRef<HTMLDivElement>(null);
     const runtimeRef = useRef<ExplorerRuntime | null>(null);
     const worldRef = useRef<RenderWorld | null>(null);
@@ -183,8 +186,13 @@ export default function Explorer() {
     const results = searchBodies(FULL_SCENE, query, filter);
     const selected = FULL_SCENE.find(body => body.id === snapshot?.selectedId);
     const selectedFrame = snapshot?.frames.get(snapshot.selectedId);
+    const parentId=selectedFrame?.parentId;
+    const parent=FULL_SCENE.find(body=>body.id===parentId);
+    const ephemeris=relativeEphemeris(selectedFrame,parentId?snapshot?.frames.get(parentId):undefined);
     const running = !!snapshot && snapshot.clock.mode !== 'paused';
     const errorEntries = Object.entries(snapshot?.errors ?? {});
+    const unavailablePaths=snapshot?.unavailablePaths??[];
+    const actionableErrors=errorEntries.filter(([path])=>!unavailablePaths.includes(path));
     const textureFailures = Object.keys(renderStats?.errors ?? {}).length;
     const modeText = snapshot?.clock.mode === 'live' ? 'LIVE' : running ? 'PLAYBACK' : 'PAUSED';
     const activeRate = snapshot?.clock.rate ?? 1;
@@ -221,24 +229,36 @@ export default function Explorer() {
           </nav>
           {results.length > resultLimit && <button className={styles.moreResults} onClick={() => setResultLimit(value => value + 100)}>显示更多（{resultLimit}/{results.length}）</button>}
           <p className={styles.resultCount}>{results.length} 项匹配 · 当前 {readyCount(snapshot)} 项数据就绪</p>
+          {!!unavailablePaths.length&&<p className={styles.resultCount}>{unavailablePaths.length} 条数据不覆盖当前时刻；详情见诊断。</p>}
           <div className={styles.bodyInfo}>
             <span className={styles.sectionLabel}>{selected?.groups?.includes('spacecraft') ? '航天器位置' : '天体信息'}</span>
             <p>{selected?.groups?.includes('spacecraft') ? selected?.model ? 'NASA 原始三维模型 · 真实星历位置' : '当前位置对象未提供可用模型' : selected ? `赤道半径 ${selected.radiusKm.toLocaleString('en-US')} km` : '正在载入目录…'}</p>
             {selected?.model && selectedFrame?.status === 'ready' && !selectedFrame.orientation && <p className={styles.secondary}>模型可查看；当前姿态未解析。</p>}
-            {selectedFrame?.status === 'ready' ? <p className={styles.secondary}>当前参考系：{selectedFrame.parentId ?? 'Sun-centered root'}</p> : selectedFrame?.status === 'unavailable' ? <p className={styles.secondary}>该时刻不可用：{selectedFrame.reason}</p> : null}
+            {selectedFrame?.status === 'ready' ? <p className={styles.secondary}>围绕天体：{parent?.label ?? '太阳系日心原点'}</p> : selectedFrame?.status === 'unavailable' ? <p className={styles.secondary}>该时刻不可用：{selectedFrame.reason}</p> : null}
+            {ephemeris&&parent&&<>
+              <p className={styles.secondary}>距 {parent.label}：{ephemeris.distanceKm.toLocaleString('en-US',{maximumFractionDigits:1})} km<br/>相对速度：{ephemeris.speedKmS.toFixed(3)} km/s</p>
+              <button onClick={()=>navigate(parent.id,'system')}>查看 {parent.label} 系统</button>
+              <details className={styles.ephemeris}><summary>星历数据 · J2000</summary>
+                <p>{formatEtUtc(snapshot!.clock.timeEt)}</p>
+                <p>参考体：{parent.label} · 单位：km、km/s</p>
+                <pre>{JSON.stringify({position:ephemeris.positionKm,velocity:ephemeris.velocityKmS},null,2)}</pre>
+              </details>
+            </>}
           </div>
           <div className={styles.sceneActions}>
             <button disabled={!selected} onClick={() => selected && navigate(selected.id, 'body')}>近距离查看</button>
             <button disabled={!selected} onClick={() => selected && navigate(selected.id, 'system')}>查看卫星系统</button>
             <label><input type="checkbox" checked={labelsVisible} onChange={event => { setLabelsVisible(event.target.checked); layerState.current.labels = event.target.checked; worldRef.current?.setLayers({ labels: event.target.checked }); }}/>名称标签</label>
             <label><input type="checkbox" checked={orbitsVisible} onChange={event => { setOrbitsVisible(event.target.checked); layerState.current.orbits = event.target.checked; worldRef.current?.setLayers({ orbits: event.target.checked }); }}/>轨道与轨迹</label>
+            <label><input type="checkbox" checked={starsVisible} onChange={event=>{setStarsVisible(event.target.checked);layerState.current.stars=event.target.checked;worldRef.current?.setLayers({stars:event.target.checked});}}/>恒星与星系</label>
+            <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>
           <div className={styles.hint}>拖动旋转 · 滚轮缩放<br />右键拖动平移</div>
         </aside>
 
         {(!snapshot || snapshot.phase === 'loading') && !fatal && (<div className={styles.loading} role="status">正在读取星历 <span>{snapshot?.pending.length ?? '…'} 项</span></div>)}
-        {(fatal || notice || errorEntries.length > 0 || textureFailures > 0) && (<div className={styles.errorPanel} role="alert">
-            <p>{fatal ?? notice ?? `${errorEntries.length ? `${errorEntries.length} 项星历` : ''}${errorEntries.length && textureFailures ? '、' : ''}${textureFailures ? `${textureFailures} 项影像` : ''}暂时不可用`}</p>
+        {(fatal || notice || actionableErrors.length > 0 || textureFailures > 0) && (<div className={styles.errorPanel} role="alert">
+            <p>{fatal ?? notice ?? `${actionableErrors.length ? `${actionableErrors.length} 项星历` : ''}${actionableErrors.length && textureFailures ? '、' : ''}${textureFailures ? `${textureFailures} 项影像` : ''}暂时不可用`}</p>
             {fatal ? <button onClick={() => { setFatal(null); setSnapshot(null); setAttempt(value => value + 1); }}>重新加载视图</button> : <button onClick={() => { if (textureFailures) {
             setSnapshot(null);
             setAttempt(value => value + 1);

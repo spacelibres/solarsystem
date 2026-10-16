@@ -1,14 +1,19 @@
 import * as THREE from 'three';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { parseStarfield } from '../../lib/scene/starfield';
-import { pickSize, starfieldUrl, textureUrl, SPRITES } from '../../lib/nasa/assets';
-import { DEFAULT_PRESET } from '../../lib/theme/palette';
+import { pickSize, starfieldUrl, textureUrl, SPRITES, GALAXIES_URL, CONSTELLATIONS_URL } from '../../lib/nasa/assets';
+import { eyesOrbitStyle, eyesOrbitFade } from '../config/eyes-display';
+import { parseConstellations } from '../domain/sky';
+import { createSkyStars } from './sky';
 import type { ExplorerBodyDefinition } from '../config/default-scene';
 import type { ExplorerSnapshot } from '../runtime/explorer-runtime';
 import { ResourcePool, type ResourceLease } from '../runtime/resource-pool';
 import { EphemerisRepository } from '../runtime/ephemeris-repository';
 import { activePhaseIndex } from '../domain/entities';
-import { orbitalBodyFactor, orbitPolyline, sampledPolyline } from '../domain/trajectories';
+import { orbitalBodyFactor, orbitPolyline, osculatingPolyline, sampledPolyline } from '../domain/trajectories';
 import type { OrbPoint } from '../../lib/dynamo/parse';
 import type { SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
@@ -39,6 +44,8 @@ export interface RenderWorld {
     setLayers(layers: {
         labels?: boolean;
         orbits?: boolean;
+        stars?: boolean;
+        constellations?: boolean;
     }): void;
     resize(): void;
     resetCamera(): void;
@@ -54,12 +61,14 @@ type BodyVisual = {
     modelRadius?: number;
     label: HTMLButtonElement;
     leader: HTMLSpanElement;
+    marker: HTMLSpanElement;
 };
 type Trail = {
-    line: THREE.Line;
+    line: Line2;
     parentId: string | null;
     phaseIndex: number;
     timeEt: number;
+    mu?: number;
 };
 /** Camera-relative rendering owns GPU resources; the simulation owns physical states. */
 export function createRenderWorld(container: HTMLElement, definitions: readonly ExplorerBodyDefinition[], options: RenderWorldOptions): RenderWorld {
@@ -83,7 +92,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         cleanup.push(() => { renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); });
         renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, options.pixelRatioLimit ?? 2));
         renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.setClearColor(DEFAULT_PRESET.colors.deep);
+        renderer.setClearColor(0x000000);
         renderer.domElement.setAttribute('aria-label', 'Interactive solar system');
         renderer.domElement.setAttribute('role', 'img');
         container.appendChild(renderer.domElement);
@@ -104,7 +113,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         cleanup.push(() => { pool.dispose(); models.dispose(); repository.dispose(); });
         const visuals = new Map<string, BodyVisual>(), trails = new Map<string, Trail>(), trailRequests = new Map<string, AbortController>();
         let mode: SceneMode = 'overview', visibleIds = new Set<string>(['sun', ...definitions.filter(body => body.groups?.includes('planets')).map(body => body.id)]);
-        let labelsEnabled = true, orbitsEnabled = true, framedKey = '', selectedId = '', viewGeneration = 0;
+        let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, framedKey = '', selectedId = '', viewGeneration = 0;
         const overlay = document.createElement('div');
         overlay.className = 'solar-scene-labels';
         container.appendChild(overlay);
@@ -143,6 +152,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             visual.group.removeFromParent();
             visual.label.remove();
             visual.leader.remove();
+            visual.marker.remove();
         };
         const clearTrail = (id: string) => { const trail = trails.get(id); if (trail) {
             trail.line.geometry.dispose();
@@ -179,7 +189,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             const leader = document.createElement('span');
             leader.className = 'solar-scene-leader';
             overlay.appendChild(leader);
-            const visual: BodyVisual = { group, label, leader, geometries: [], materials: [], textures: [] };
+            const marker=document.createElement('span');marker.className='solar-body-marker';marker.dataset.bodyId=definition.id;overlay.appendChild(marker);
+            const visual: BodyVisual = { group, label, leader, marker, geometries: [], materials: [], textures: [] };
             visuals.set(definition.id, visual);
             if (definition.model) {
                 // The mesh is acquired below only when focused or large enough to resolve.
@@ -223,6 +234,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 const material = new THREE.SpriteMaterial({ color: 0xffdca0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
                 visual.materials.push(material);
                 const glow = new THREE.Sprite(material);
+                glow.name = 'sun-pixel-glow';
                 glow.scale.setScalar(definition.radiusKm * 9);
                 group.add(glow);
                 attachTexture(visual, SPRITES.sunGlow, texture => { material.map = texture; material.needsUpdate = true; });
@@ -263,11 +275,14 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                             positions = sampledPolyline(window, phase.startEt, state.clock.timeEt);
                         if (disposed || controller.signal.aborted || generation !== viewGeneration || positions.length < 2)
                             return;
-                        const geometry = new THREE.BufferGeometry().setFromPoints(positions.map(point => new THREE.Vector3(point.x, point.y, point.z))), material = new THREE.LineBasicMaterial({ color: definition.groups?.includes('spacecraft') ? 0xf2d85c : 0x659ab5, transparent: true, opacity: .42, depthWrite: false });
-                        const line = new THREE.Line(geometry, material);
+                        const style = eyesOrbitStyle(definition.id);
+                        const geometry = new LineGeometry(); geometry.setPositions(positions.flatMap(point=>[point.x,point.y,point.z]));
+                        const material = new LineMaterial({ color: new THREE.Color().setRGB(style.rgba[0],style.rgba[1],style.rgba[2],THREE.SRGBColorSpace), linewidth: style.width, transparent: true, opacity: style.rgba[3], depthWrite: false });
+                        material.resolution.set(container.clientWidth,container.clientHeight);
+                        const line = new Line2(geometry, material);
                         line.frustumCulled = false;
                         scene.add(line);
-                        trails.set(definition.id, { line, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt });
+                        trails.set(definition.id, { line, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt, mu: window.header.pointType === 'orb' && (definition.groups?.includes('planets') || definition.id === 'moon') ? (window.header.gravitationalParameter1 ?? 1) + (window.header.gravitationalParameter2 ?? 0) : undefined });
                         return;
                     }
                     catch {
@@ -278,33 +293,55 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             })().finally(() => { if (trailRequests.get(definition.id) === controller)
                 trailRequests.delete(definition.id); });
         };
-        const sky = new THREE.Group();
-        scene.add(sky);
+        const sky = new THREE.Group(), constellationSky = new THREE.Group();
+        scene.add(sky, constellationSky);
         const skyGeometry: THREE.BufferGeometry[] = [], skyMaterials: THREE.Material[] = [];
-        cleanup.push(() => { for (const geometry of skyGeometry)
-            geometry.dispose(); for (const material of skyMaterials)
-            material.dispose(); });
-        for (const layer of [0, 1])
-            void fetch(starfieldUrl(layer), { signal: rootAbort.signal }).then(response => { if (!response.ok)
-                throw Error(`Starfield HTTP ${response.status}`); return response.arrayBuffer(); }).then(buffer => {
-                if (disposed)
-                    return;
-                if (buffer.byteLength < 4)
-                    throw Error('Truncated star header');
-                const count = new DataView(buffer).getInt32(0, true);
-                if (count < 0 || count > Math.floor((buffer.byteLength - 4) / 23))
-                    throw Error('Truncated star records');
-                const stars = parseStarfield(buffer), positions = new Float32Array(stars.length * 3), colors = new Float32Array(positions.length);
-                stars.forEach((star, index) => { positions.set(star.position.normalize().multiplyScalar(1e12).toArray(), index * 3); const intensity = Math.max(.12, Math.min(1, 10 ** (-.16 * star.magnitude))); colors.set([star.color.r * intensity, star.color.g * intensity, star.color.b * intensity], index * 3); });
-                const geometry = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(positions, 3)).setAttribute('color', new THREE.BufferAttribute(colors, 3)), material = new THREE.PointsMaterial({ size: layer === 0 ? 2 : 1.3, sizeAttenuation: false, vertexColors: true, depthTest: false, depthWrite: false });
-                const points = new THREE.Points(geometry, material);
-                points.frustumCulled = false;
-                points.renderOrder = -10;
-                sky.add(points);
-                skyGeometry.push(geometry);
-                skyMaterials.push(material);
-            }).catch(error => { if (!disposed)
-                errors[starfieldUrl(layer)] = String(error); });
+        const constellationLabels: {element:HTMLSpanElement;direction:THREE.Vector3}[] = [];
+        const starMaterials: THREE.ShaderMaterial[] = [];
+        cleanup.push(() => {
+            for (const geometry of skyGeometry) geometry.dispose();
+            for (const material of skyMaterials) material.dispose();
+            for (const label of constellationLabels) label.element.remove();
+        });
+        // Eyes attaches all six stellar catalogs and the galaxy catalog to Sun.
+        for (const url of [GALAXIES_URL, ...Array.from({length:6},(_,layer)=>starfieldUrl(layer))]) {
+            void fetch(url, {signal:rootAbort.signal}).then(response=>{
+                if (!response.ok) throw Error(`Starfield HTTP ${response.status}`);
+                return response.arrayBuffer();
+            }).then(buffer=>{
+                if(disposed) return;
+                if(buffer.byteLength<4) throw Error('Truncated star header');
+                const count=new DataView(buffer).getInt32(0,true);
+                if(count<0 || buffer.byteLength!==4+count*23) throw Error('Invalid star records');
+                const points=createSkyStars(parseStarfield(buffer));
+                sky.add(points);skyGeometry.push(points.geometry);skyMaterials.push(points.material);starMaterials.push(points.material);
+            }).catch(error=>{if(!disposed)errors[url]=String(error);});
+        }
+        let constellationsRequested=false;
+        const loadConstellations=()=>{
+            if(constellationsRequested) return;
+            constellationsRequested=true;
+            void fetch(CONSTELLATIONS_URL,{signal:rootAbort.signal}).then(response=>{
+                if(!response.ok)throw Error(`Constellations HTTP ${response.status}`);
+                return response.arrayBuffer();
+            }).then(buffer=>{
+                if(disposed)return;
+                const database=parseConstellations(buffer), positions:number[]=[];
+                for(const constellation of database){
+                    for(const index of constellation.segments){
+                        const direction=new THREE.Vector3().copy(constellation.stars[index]).normalize();positions.push(direction.x,direction.y,direction.z);
+                    }
+                    const element=document.createElement('span');element.className='solar-constellation-label';element.textContent=constellation.name;overlay.appendChild(element);
+                    constellationLabels.push({element,direction:new THREE.Vector3().copy(constellation.label).normalize()});
+                }
+                const geometry=new THREE.BufferGeometry().setAttribute('position',new THREE.Float32BufferAttribute(positions,3));
+                const material=new THREE.ShaderMaterial({transparent:true,depthTest:true,depthWrite:false,
+                    vertexShader:`void main(){vec3 direction=mat3(viewMatrix)*position;vec4 clip=projectionMatrix*vec4(direction,1.0);gl_Position=vec4(clip.xy,clip.w*.999998,clip.w);}`,
+                    fragmentShader:`void main(){gl_FragColor=vec4(.35,.7,1.0,.5);}`});
+                const lines=new THREE.LineSegments(geometry,material);lines.frustumCulled=false;lines.renderOrder=-1;constellationSky.add(lines);
+                skyGeometry.push(geometry);skyMaterials.push(material);
+            }).catch(error=>{if(!disposed){errors[CONSTELLATIONS_URL]=String(error);constellationsRequested=false;}});
+        };
         const resize = () => { if (disposed)
             return; camera.aspect = Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight); camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(Math.PI / 6) / Math.max(1, camera.aspect))); camera.updateProjectionMatrix(); renderer.setSize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight)); framedKey = ''; };
         const observer = new ResizeObserver(resize);
@@ -329,7 +366,11 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 destroyVisual(id); for (const id of new Set([...trails.keys(), ...trailRequests.keys()]))
                 clearTrail(id); for (const key of Object.keys(errors))
                 delete errors[key]; },
-            setLayers(layers) { labelsEnabled = layers.labels ?? labelsEnabled; orbitsEnabled = layers.orbits ?? orbitsEnabled; },
+            setLayers(layers) {
+                labelsEnabled=layers.labels??labelsEnabled;orbitsEnabled=layers.orbits??orbitsEnabled;
+                starsEnabled=layers.stars??starsEnabled;constellationsEnabled=layers.constellations??constellationsEnabled;
+                if(constellationsEnabled)loadConstellations();
+            },
             update(state) {
                 if (disposed)
                     return;
@@ -373,10 +414,13 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     visual.group.visible = !!show;
                     visual.label.hidden = true;
                     visual.leader.hidden = true;
+                    visual.marker.hidden = true;
                     if (show && ready && frame?.status === 'ready') {
                         applyFrameTransform(visual.group, frame.position, frame.orientation, focus.position);
                         if (definition.model && modelIsResolvable(definition.radiusKm, visual.group.position.distanceTo(camera.position), THREE.MathUtils.degToRad(camera.fov), container.clientHeight, definition.id === selectedId && mode === 'body'))
                             acquireModel(visual, definition);
+                        const glow=visual.group.getObjectByName('sun-pixel-glow');
+                        if(glow)glow.scale.setScalar(100*visual.group.position.distanceTo(camera.position)*2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/container.clientHeight);
                         ensureTrail(definition, state);
                     }
                 }
@@ -384,6 +428,28 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     const parent = trail.parentId ? state.frames.get(trail.parentId) : undefined;
                     const body = state.frames.get(id);
                     trail.line.visible = !!ready && orbitsEnabled && visibleIds.has(id) && body?.status === 'ready' && body.phaseIndex === trail.phaseIndex && (!trail.parentId || parent?.status === 'ready');
+                    trail.line.material.resolution.set(container.clientWidth,container.clientHeight);
+                    const definition=definitions.find(definition=>definition.id===id)!;
+                    const center=body?.status==='ready'&&ready?new THREE.Vector3(body.position.x-focus.position.x,body.position.y-focus.position.y,body.position.z-focus.position.z):undefined;
+                    const fade=trail.mu&&center?eyesOrbitFade(definition.radiusKm/center.distanceTo(camera.position)/Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)):1;
+                    trail.line.material.opacity=eyesOrbitStyle(id).rgba[3]*fade;
+                    trail.line.visible=trail.line.visible&&fade>0;
+                    if(trail.line.visible && trail.mu && body?.status==='ready') {
+                        const parentPosition=parent?.status==='ready'?parent.position:{x:0,y:0,z:0};
+                        const parentVelocity=parent?.status==='ready'?parent.velocity:{x:0,y:0,z:0};
+                        const position={x:body.position.x-parentPosition.x,y:body.position.y-parentPosition.y,z:body.position.z-parentPosition.z};
+                        const velocity={x:body.velocity.x-parentVelocity.x,y:body.velocity.y-parentVelocity.y,z:body.velocity.z-parentVelocity.z};
+                        const points=osculatingPolyline(position,velocity,trail.mu);
+                        if(points.length>1){
+                            const attribute=trail.line.geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute;
+                            if(attribute.count!==points.length-1)trail.line.geometry.setPositions(points.flatMap(point=>[point.x,point.y,point.z]));
+                            else{
+                                const data=attribute.data;
+                                for(let index=0;index<points.length-1;index++)data.array.set([points[index].x,points[index].y,points[index].z,points[index+1].x,points[index+1].y,points[index+1].z],index*6);
+                                data.needsUpdate=true;
+                            }
+                        }else trail.line.visible=false;
+                    }
                     if (ready && trail.line.visible)
                         trail.line.position.set((parent?.status === 'ready' ? parent.position.x : 0) - focus.position.x, (parent?.status === 'ready' ? parent.position.y : 0) - focus.position.y, (parent?.status === 'ready' ? parent.position.z : 0) - focus.position.z);
                 }
@@ -397,7 +463,24 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 }
                 controls.update();
                 camera.updateMatrixWorld();
-                sky.position.copy(camera.position);
+                sky.visible=starsEnabled;constellationSky.visible=constellationsEnabled;
+                const particleSize=Math.sqrt(Math.max(container.clientWidth,container.clientHeight)*renderer.getPixelRatio())/60;
+                for(const material of starMaterials)material.uniforms.particleSize.value=particleSize;
+                const inverseCamera=camera.quaternion.clone().invert();
+                for(const label of constellationLabels){
+                    const direction=label.direction.clone().applyQuaternion(inverseCamera);
+                    label.element.hidden=!constellationsEnabled||!labelsEnabled||direction.z>=0;
+                    if(label.element.hidden)continue;
+                    const projected=direction.applyMatrix4(camera.projectionMatrix);
+                    label.element.hidden=Math.abs(projected.x)>1||Math.abs(projected.y)>1;
+                    for(const [id,visual] of visuals){
+                        if(!visual.group.visible)continue;
+                        const radius=visual.modelRadius??definitions.find(body=>body.id===id)!.radiusKm;
+                        const center=visual.group.position.clone().sub(camera.position),along=center.dot(label.direction);
+                        if(along>0&&center.lengthSq()-along*along<radius*radius){label.element.hidden=true;break;}
+                    }
+                    label.element.style.transform=`translate(${(projected.x+1)*container.clientWidth/2}px,${(1-projected.y)*container.clientHeight/2}px)`;
+                }
                 renderer.render(scene, camera);
                 const occupied: {
                     x: number;
@@ -410,6 +493,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     if (projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1)
                         continue;
                     const x = (projected.x + 1) * container.clientWidth / 2, y = (1 - projected.y) * container.clientHeight / 2;
+                    visual.marker.hidden = false;
+                    visual.marker.style.transform=`translate(${x}px,${y}px)`;
                     const placed = placeScreenLabel(x, y, container.clientWidth, container.clientHeight, occupied);
                     if (!placed) continue;
                     visual.label.hidden = false;
@@ -418,7 +503,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     const dx = placed.x - x, dy = placed.y - y;
                     visual.leader.hidden = Math.hypot(dx, dy) < 2;
                     visual.leader.style.width = `${Math.hypot(dx, dy)}px`;
-                    visual.leader.style.transform = `translate(${x}px,${y + 9}px) rotate(${Math.atan2(dy, dx)}rad)`;
+                    visual.leader.style.transform = `translate(${x}px,${y}px) rotate(${Math.atan2(dy, dx)}rad)`;
                     occupied.push(placed);
                 }
             },

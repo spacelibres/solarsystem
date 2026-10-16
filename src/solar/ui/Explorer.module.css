@@ -139,3 +139,6 @@
 }
 
 .moreResults { width: 100%; margin-top: 8px; font-size: 11px !important; }
+.ephemeris { margin-top: 12px; font-size: 11px; color: var(--sl-muted); }
+.ephemeris summary { cursor: pointer; }
+.ephemeris pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 10px; }

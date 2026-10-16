@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "release": "0.2.36",
-  "basis": "v0.2.34 source-contract analysis plus the v0.2.36 package-version update; no new recovered-source behavioral acceptance",
+  "release": "0.2.37",
+  "basis": "v0.2.34 source-contract analysis plus the v0.2.37 package-version update; no new recovered-source behavioral acceptance",
   "meaning": "Source-contract coverage and file identity; not a declaration of full behavioral equivalence, original-name recovery or device/GPU acceptance.",
   "counts": {
     "boot-support": 26,
@@ -34,14 +34,14 @@
     "eyes/package-lock.json": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "ab9b6e9fd0b416d8ad2e232aa8127e3bf9dfc25538bb0fbb40c7097e54bc710f",
+      "sourceSha256": "85009f48f5dd6cf201cf2bfab4af6afd2eed3e9160e6abf081a45c9afe93775a",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
     "eyes/package.json": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "2fb33bcff24b673a3849422c8a9014958c57845ee12e5dccab9b6548668d1fcc",
+      "sourceSha256": "c125121e8095ef167fb64fac9904e61f984c778ca2cc5cc5850391a9cef61a1c",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
