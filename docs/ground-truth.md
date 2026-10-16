@@ -195,7 +195,26 @@ is right. The layer is **off** by default, matching `addLayer`.
 
 ### Still open
 
-8. **Comet tails.** Three `CometTailComponent`s per comet.
+8. **Comet tails — geometry done, shader not yet drawing.**
+   `src/lib/scene/comet-tail.ts` reproduces `CometTailComponent` faithfully:
+   three instances per comet (white dust at `starAccelerationMultiplier` 1,
+   blue-grey ion at 10, single-particle coma at 0), an instanced unit quad with
+   `originTime` / `originPosition` / `accelerationMultiplier`, NASA's vertex and
+   fragment GLSL including the `deltaTime^1.5` integration, the view-space stretch
+   and the `sqrt(1 - sqrt(deltaTime / timeLength))` fade, and the 40,000 km
+   near-field cull. Verified live: nine tails exist across three comets with the
+   right instance counts, the shader program links with all four attributes
+   active, `originPosition` carries the comet's heliocentric position, and the
+   computed model position is ~1.9e6 km — a visible streak.
+
+   **What is still wrong: nothing renders.** Since the program links and the
+   uniforms are right, the remaining suspects are the `gl_Position.w = viewPosition.y`
+   line NASA relies on (which we had to drop for the starfield, and which clips
+   half the quad here since `w` is a signed component) and the fact that the mesh
+   is placed at the world origin while `positionOfEntity` is only used for the
+   stretch direction. Next step: replace the `w` assignment with a normal
+   perspective projection and position the mesh at the comet, as was done for the
+   starfield.
 9. **The `camera` entity** and its `DynamicEnvironmentMapComponent`.
 10. **Body orientation.** `entityOrientation` in the scene returns the identity
     because no `.ori` controller is loaded, so the atmosphere shader integrates in

@@ -19,7 +19,7 @@ const getJSON=(p,m='GET')=>new Promise((res,rej)=>{const rq=http.request({host:'
    if(msg.id&&pending.has(msg.id)){pending.get(msg.id)(msg);pending.delete(msg.id)}});
  await send('Runtime.enable');await send('Page.enable');
  await send('Page.navigate',{url:'http://localhost:4310'});
- await sleep(22000);
+ await sleep(40000);
  const r=await send('Runtime.evaluate',{expression:expr,returnByValue:true});
  console.log('RESULT:', r.result?.result?.value);
  if(r.result?.exceptionDetails) console.log('EVAL EXC:', r.result.exceptionDetails.exception?.description?.split('\n')[0]);

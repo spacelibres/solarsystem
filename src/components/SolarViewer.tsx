@@ -34,6 +34,12 @@ const CORE_IDS = [
   'saturn',
   'uranus',
   'neptune',
+  // NASA's own boot scene contains the comet 3I/ATLAS plus the small bodies the
+  // Lucy and New Horizons stories use. Comets carry the three tail components,
+  // so without one loaded the tail system has nothing to draw.
+  'c_2025_n1',
+  '1p_halley',
+  '67p_churyumov_gerasimenko',
 ] as const;
 
 /** Bodies the featured cards reference, so those stories can fly to them. */

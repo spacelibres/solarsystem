@@ -32,6 +32,15 @@ import {
 } from '../lib/scene/atmosphere';
 import { buildTrailGeometry, buildTrailMaterial } from '../lib/scene/trail-geometry';
 import { trailColorFor, trailLengthFor } from '../lib/scene/trails';
+import {
+  COMET_TAIL_FADE_DISTANCE_KM,
+  COMET_TAIL_MIN_CAMERA_DISTANCE_KM,
+  buildCometTailGeometry,
+  buildCometTailMaterial,
+  cometTailsFor,
+  seedCometTail,
+  type CometTailParams,
+} from '../lib/scene/comet-tail';
 import { RING_SPECS, buildRings } from '../lib/scene/rings';
 import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-colors';
 import {
@@ -226,6 +235,11 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const bodies = new Map<string, SceneBody>();
   const entityById = new Map(entities.map((e) => [e.id, e]));
 
+  // Simulation clock. Declared before the registration loop because building a
+  // comet's tail seeds its particles across `simTime`, and reading it later in
+  // the file would be a temporal-dead-zone error.
+  let simTime = startTime;
+
   // --- Register bodies -------------------------------------------------------
   // Every body shares one Sun-direction vector, used by the night-lights
   // uniforms.
@@ -239,6 +253,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
    * backwards in time, and they cover everything the orbit lines do not.
    */
   const trails = new Map<string, THREE.Mesh>();
+
+  /** A comet's three tail meshes, keyed by body id. */
+  const cometTails = new Map<string, { mesh: THREE.Mesh; params: CometTailParams }[]>();
 
   /** The Sun's glow sprite, which is pixel-sized and follows the Sun. */
   let sunGlow: THREE.Sprite | null = null;
@@ -403,6 +420,29 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       trails.set(entity.id, trail);
     }
 
+    // Comet tails.
+    //
+    // A comet gets three `CometTailComponent`s: a white dust tail, a blue-grey
+    // ion tail pushed ten times harder by the star, and a single-particle coma.
+    // NASA adds them when the entity carries a `comet` flag; the three share the
+    // `sun` as their light source.
+    if (entity.category === 'Comet') {
+      const tails = cometTailsFor().map((params, index) => {
+        const geometry = buildCometTailGeometry(params.numberOfParticles);
+        // Spread the particles across the tail's history so it is fully formed
+        // on first view instead of growing in over `timeLength`.
+        seedCometTail(geometry, params.numberOfParticles, simTime, params.timeLength);
+        const material = buildCometTailMaterial(params);
+        const mesh = new THREE.Mesh(geometry, material);
+        mesh.name = `cometTail:${entity.id}:${index}`;
+        mesh.frustumCulled = false;
+        mesh.renderOrder = 2;
+        scene.add(mesh);
+        return { mesh, params };
+      });
+      cometTails.set(entity.id, tails);
+    }
+
     const label = makeLabel(labelLayer, entity);
     bodies.set(entity.id, {
       entity,
@@ -418,7 +458,6 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const tree: Map<string, TreeNode> = new Map();
   const worldById = new Map<string, THREE.Vector3>();
 
-  let simTime = startTime;
   let daysPerSecond = 1;
   /** Whether the Milky Way background is currently attached. */
   let milkyWayShown = false;
@@ -558,6 +597,8 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       );
     }
 
+    updateCometTails();
+
     // Rebuild each trail from the body's own ephemeris.
     //
     // The path is sampled backwards from the current time over the body's trail
@@ -629,6 +670,88 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         container.clientWidth,
         container.clientHeight,
       );
+    }
+  }
+
+  /**
+   * Drive every comet's three tails.
+   *
+   * NASA's shaders are static: the particles carry their birth time and position
+   * and the GPU integrates them, so each frame only needs the simulation clock,
+   * the comet's position relative to the Sun (which is the direction the tail
+   * points away from) and the camera distance for the near-field cull.
+   */
+  function updateCometTails(): void {
+    if (cometTails.size === 0) return;
+    const sunWorld = worldById.get('sun');
+    const maxDim = Math.max(container.clientWidth, container.clientHeight);
+
+    for (const [id, tails] of cometTails) {
+      const world = worldById.get(id);
+      const body = bodies.get(id);
+      if (!world || !body || !sunWorld) continue;
+
+      const cameraDistance = world.distanceTo(camera.position);
+      // NASA hides the tail inside 40,000 km and fades it in over the next
+      // 400,000, so you never see the particles when close to the comet.
+      const fade = Math.min(
+        1,
+        Math.max(0, (cameraDistance - COMET_TAIL_MIN_CAMERA_DISTANCE_KM) / COMET_TAIL_FADE_DISTANCE_KM),
+      );
+      const visible = fade > 0 && layers.trails;
+
+      for (const { mesh, params } of tails) {
+        mesh.visible = visible;
+        if (!visible) continue;
+
+        const material = mesh.material as THREE.RawShaderMaterial;
+        const u = material.uniforms;
+        u.time.value = simTime;
+        // The tail accelerates along `normalize(originPosition)`, so the origin
+        // is where the particle was born — relative to the Sun, not the origin.
+        u.positionOfEntity.value.subVectors(world, sunWorld);
+        u.positionInCamera.value.copy(world).sub(camera.position);
+        // The Sun is a near-blackbody; NASA passes its absolute magnitude.
+        u.starAbsoluteMagnitude.value = 0;
+        u.color.value.w = params.color[3] * fade;
+
+        // Seed any particles that have aged out or not yet been born, which is
+        // what keeps the tail populated as time advances.
+        //
+        // `originPosition` is the particle's birth position *relative to the
+        // star*, and the shader accelerates along `normalize(originPosition)`
+        // divided by `dot(originPosition, originPosition)`. Leaving it zero makes
+        // that a 0/0, so it is rewritten every frame from the comet's current
+        // heliocentric position — a particle born a few hours ago is still
+        // effectively at the comet.
+        const geometry = mesh.geometry as THREE.InstancedBufferGeometry;
+        const originTime = geometry.getAttribute('originTime') as THREE.InstancedBufferAttribute;
+        const originPosition = geometry.getAttribute('originPosition') as THREE.InstancedBufferAttribute;
+        const originRelative = new THREE.Vector3().subVectors(world, sunWorld);
+        for (let i = 0; i < params.numberOfParticles; i++) {
+          const born = originTime.array[i];
+          if (born === 0 || born > simTime || simTime - born > params.timeLength) {
+            originTime.array[i] = simTime;
+          }
+          originPosition.array[i * 3] = originRelative.x;
+          originPosition.array[i * 3 + 1] = originRelative.y;
+          originPosition.array[i * 3 + 2] = originRelative.z;
+        }
+        originTime.needsUpdate = true;
+        originPosition.needsUpdate = true;
+
+        // Keep the mesh at the world origin: the shader positions particles
+        // from `originPosition`, in the frame the Sun sits at.
+        mesh.position.set(0, 0, 0);
+
+        // The size of this body's contribution to the near-plane decision.
+        mesh.userData.cameraDistance = cameraDistance;
+        mesh.userData.pixelExtent = pixelSpaceRadius(
+          body.entity.radius ?? 1,
+          cameraDistance,
+          maxDim,
+        );
+      }
     }
   }
 
@@ -1128,6 +1251,12 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       for (const trail of trails.values()) {
         trail.geometry.dispose();
         (trail.material as THREE.Material).dispose();
+      }
+      for (const tails of cometTails.values()) {
+        for (const { mesh } of tails) {
+          mesh.geometry.dispose();
+          (mesh.material as THREE.Material).dispose();
+        }
       }
       for (const s of starLayers) {
         s.geometry.dispose();

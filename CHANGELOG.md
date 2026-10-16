@@ -3,6 +3,58 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.15 - 2026-10-16
+
+Comet tails: NASA's three-component construction, from the de-obfuscated source.
+
+### Added
+
+- **`src/lib/scene/comet-tail.ts`**, transcribing `CometTailComponent` and the
+  three components `Entity.register` adds whenever an entity carries a `comet`
+  flag:
+  - **dust** — white `(1,1,1,1)`, `starAccelerationMultiplier` 1, 200 particles,
+    600,000 s;
+  - **ion** — blue-grey `(.214,.235,.371,.5)`, acceleration ×10, length exactly
+    half the dust tail's;
+  - **coma** — a single particle at `(1,1,1,10)`, acceleration 0, alpha 10 on
+    purpose.
+- **The real tail shader**, including the inverse-square push away from the star
+  (`acceleration = starAccel · mult · normalize(originPosition) · 5e7 ·
+  2.51188643151^(20 − absMag) / dot(originPosition, originPosition)`), the
+  `deltaTime^1.5` integration that makes a tail lengthen as the comet approaches,
+  the view-space quad stretch, the `sqrt(1 − sqrt(deltaTime / timeLength))` fade,
+  and the 40,000 km near-field cull with its 400,000 km fade-in.
+- Comets joined the boot set (`c_2025_n1`, `1p_halley`,
+  `67p_churyumov_gerasimenko`), matching NASA's own boot scene which contains
+  3I/ATLAS. Without one loaded the tail system has nothing to draw.
+
+### Fixed
+
+- **A temporal-dead-zone crash.** Seeding a comet's particles reads the
+  simulation clock, which was declared *after* the body-registration loop. Reading
+  it there threw and aborted scene construction — the canvas appeared but
+  `__solarDebug` never registered, so the whole scene was dead. `simTime` is now
+  declared before the loop.
+- **`originPosition` was left at zero**, making the shader's
+  `normalize(originPosition)` a 0/0 and the tail invisible. It is now stamped with
+  the comet's heliocentric position both at seed time and every frame.
+
+### Known limitation
+
+- The tail **geometry, uniforms and program are verified correct** — nine tails
+  exist across three comets with the right instance counts, the shader links with
+  all four attributes active, and the computed model position is ~1.9e6 km — but
+  the tails still do not render. NASA's `gl_Position.w = viewPosition.y` assigns a
+  signed component to `w`, which clips half the quad; the same line had to be
+  dropped for the starfield. Replacing it with a normal perspective projection is
+  the next step, and is recorded in `docs/ground-truth.md`.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 141 tests across
+eleven files. The three-component construction, seeding, material uniforms and
+cull distances are covered by tests.
+
 ## 0.2.14 - 2026-10-16
 
 NASA's de-obfuscated scene rules applied, and the constellation layer built.
