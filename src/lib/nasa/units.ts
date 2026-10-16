@@ -72,15 +72,110 @@ export const J2000_UNIX_MS = Date.UTC(2000, 0, 1, 12, 0, 0);
 export const UNIX_TO_ET_OFFSET = 946_727_957.816;
 
 /**
- * Format a distance the way NASA's readout does: light years above one ly,
- * then billion/million/thousand kilometres, then metres below 1 km.
+ * The unit systems NASA's readout can be in. Names are its own two sentinels.
  */
-export function formatDistance(km: number): string {
-  const abs = Math.abs(km);
-  if (abs >= LIGHT_YEAR_KM) return `${(km / LIGHT_YEAR_KM).toFixed(2)} light years`;
-  if (abs >= 1e9) return `${(km / 1e9).toFixed(2)} billion km`;
-  if (abs >= 1e6) return `${(km / 1e6).toFixed(2)} million km`;
-  if (abs >= 1e3) return `${(km / 1e3).toFixed(2)} thousand km`;
-  if (abs < 1) return `${(km * CONVERSIONS.kmToM).toFixed(1)} m`;
-  return `${km.toFixed(1)} km`;
+export type UnitSystem = 'metric' | 'imperial';
+
+/**
+ * The result of NASA's distance formatter, field for field.
+ *
+ * `DistanceManager._getDistanceParams` returns exactly this shape, and the
+ * distance panel renders `prefix + value` with `scale` and `unit` as separate
+ * spans. `dps` is the decimal places the panel should use.
+ */
+export interface DistanceParams {
+  /** Leading marker, `"~ "` for sub-kilometre values, otherwise empty. */
+  prefix: string;
+  /** The scaled magnitude, already at 4 significant digits. */
+  value: number;
+  /** `"thousand" | "million" | "billion"`, empty when not applicable. */
+  scale: string;
+  /** `"light years" | "km" | "mi" | "m" | "ft"`. */
+  unit: string;
+  /** Decimal places the readout uses: 2 or 1. */
+  dps: number;
+  /** The original kilometre value. */
+  actualDistanceValue: number;
+}
+
+/**
+ * Format a distance exactly as NASA's `DistanceManager._getDistanceParams` does.
+ *
+ * Transcribed from the bundle:
+ *
+ *   const imperial = this._currentUnitSystem === Imperial;
+ *   const lightYear = 9460730472580.8;
+ *   let c = imperial ? t * kmToMi : t;
+ *   c = Math.max(0, c);
+ *   let h = c, prefix = '', scale = '', unit = imperial ? 'mi' : 'km';
+ *   const actual = c;
+ *   if (t >= lightYear)      { h = t / lightYear; unit = 'light years'; }
+ *   else if (c >= 1e9)       { h = c / 1e9; scale = 'billion'; }
+ *   else if (c >= 1e6)       { h = c / 1e6; scale = 'million'; }
+ *   else if (c >= 1e3)       { h = c / 1e3; scale = 'thousand'; }
+ *   else if (c < 1)          { prefix = '~ '; h = imperial ? c * miToFt : c * kmToM;
+ *                              unit = imperial ? 'ft' : 'm'; }
+ *   const parts = h.toPrecision(4).split('.');
+ *   return { prefix, value: h, scale, unit,
+ *            dps: parts.length > 1 && parts[1].length > 1 ? 2 : 1,
+ *            actualDistanceValue: actual };
+ *
+ * Two details worth keeping: the light-year test uses the **raw** `t` while
+ * every other test uses the clamped `c`, and `dps` comes from splitting
+ * `toPrecision(4)` rather than from any fixed rounding.
+ */
+export function getDistanceParams(
+  km: number,
+  system: UnitSystem = 'metric',
+): DistanceParams {
+  const imperial = system === 'imperial';
+  const t = km;
+  let c = imperial ? t * CONVERSIONS.kmToMi : t;
+  c = Math.max(0, c);
+
+  let value = c;
+  let prefix = '';
+  let scale = '';
+  let unit = imperial ? 'mi' : 'km';
+  const actualDistanceValue = c;
+
+  if (t >= LIGHT_YEAR_KM) {
+    value = t / LIGHT_YEAR_KM;
+    unit = 'light years';
+  } else if (c >= 1e9) {
+    value = c / 1e9;
+    scale = 'billion';
+  } else if (c >= 1e6) {
+    value = c / 1e6;
+    scale = 'million';
+  } else if (c >= 1e3) {
+    value = c / 1e3;
+    scale = 'thousand';
+  } else if (c < 1) {
+    prefix = '~ ';
+    value = imperial ? c * CONVERSIONS.miToFt : c * CONVERSIONS.kmToM;
+    unit = imperial ? 'ft' : 'm';
+  }
+
+  const parts = value.toPrecision(4).split('.');
+  return {
+    prefix,
+    value,
+    scale,
+    unit,
+    dps: parts.length > 1 && parts[1].length > 1 ? 2 : 1,
+    actualDistanceValue,
+  };
+}
+
+/**
+ * Format a distance the way NASA's readout does.
+ *
+ * Thin wrapper over {@link getDistanceParams} that joins the spans into one
+ * string, e.g. `"1.50 million km"` or `"26.03 thousand km"`.
+ */
+export function formatDistance(km: number, system: UnitSystem = 'metric'): string {
+  const p = getDistanceParams(km, system);
+  const num = p.value.toFixed(p.dps);
+  return `${p.prefix}${num}${p.scale ? ' ' + p.scale : ''} ${p.unit}`;
 }

@@ -29,9 +29,10 @@ import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-col
 import {
   loadMilkyWayTexture,
   milkyWayVisible,
+  projectSunOntoBackdrop,
 } from '../lib/scene/milky-way';
 import { starfieldUrl } from '../lib/nasa/assets';
-import { LABEL, bodyIconName } from '../lib/theme/nasa-tokens';
+import { LABEL, bodyIconName, labelWeight } from '../lib/theme/nasa-tokens';
 
 /** One loaded ephemeris: the points plus the parent they are relative to. */
 export interface LoadedOrbit {
@@ -151,6 +152,15 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const milkyWayTexture = loadMilkyWayTexture({ textureUrl: SPRITES.milkyWay, loader });
   const milkyWayBackground = new THREE.Color(0x000000);
   scene.background = milkyWayBackground;
+
+  // The solar system's position in the Galaxy.
+  //
+  // NASA marks this with the `sun` entity's ordinary body label, anchored
+  // left-at-position (`alignment = (0, 0.5)`), uppercased by CSS. There is no
+  // dedicated marker object. We reproduce it here, placed at the solar system's
+  // position on the Milky Way sprite, which is where the international charts
+  // mark it — 7.98 kpc from the centre, not at it.
+  const galacticSunLabel = makeGalacticSunLabel(labelLayer);
 
   const bodies = new Map<string, SceneBody>();
   const entityById = new Map(entities.map((e) => [e.id, e]));
@@ -503,11 +513,16 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     el.addEventListener('mousemove', onMouseMove);
   }
 
-  function projectLabels(): void {
+  function projectLabels(suppress: HTMLDivElement | null, suppressOn: boolean): void {
     const rect = container.getBoundingClientRect();
     const placed: { x: number; y: number }[] = [];
+    // NASA resolves label overlaps by a fixed per-category weight
+    // (`LabelManager._weightMap`), highest first: stars and galaxies survive,
+    // barycentres are always sacrificed. Radius alone is not the rule.
     const order = [...bodies.values()].sort(
-      (a, b) => (b.entity.radius ?? 0) - (a.entity.radius ?? 0),
+      (a, b) =>
+        labelWeight(b.entity.id, b.entity.category ?? '', b.entity.subcategory ?? '') -
+        labelWeight(a.entity.id, a.entity.category ?? '', a.entity.subcategory ?? ''),
     );
 
     for (const body of order) {
@@ -519,7 +534,10 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       const x = (v.x * 0.5 + 0.5) * rect.width;
       const y = (-v.y * 0.5 + 0.5) * rect.height;
       const collides = placed.some((p) => Math.abs(p.x - x) < 70 && Math.abs(p.y - y) < 15);
-      const show = layers.labels && inFrame && !collides;
+      // The galactic view swaps the Sun's own label for the marker showing the
+      // solar system's position on the Milky Way sprite.
+      const swappedOut = suppressOn && body.label === suppress;
+      const show = layers.labels && inFrame && !collides && !swappedOut;
       if (show) placed.push({ x, y });
       const s = body.label.style;
       // The label's left edge sits at the body's projected position; the icon
@@ -565,8 +583,22 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       scene.background = galactic ? milkyWayTexture : milkyWayBackground;
     }
 
+    // At galactic scale the Sun's ordinary label is meaningless — the Sun is a
+    // sub-pixel point — so it is replaced by a label marking the solar system's
+    // position on the Milky Way sprite. This is the "SUN" the international
+    // charts carry, and it is deliberately *not* at the centre: the solar system
+    // is 7.98 kpc out along the galactic-centre line.
+    const rect = container.getBoundingClientRect();
+    const sunLabelVisible = galactic && layers.labels;
+    const bodySunLabel = bodies.get('sun')?.label;
+    updateGalacticSunLabel(
+      galacticSunLabel,
+      sunLabelVisible,
+      sunLabelVisible ? projectSunOntoBackdrop(rect.width, rect.height) : null,
+    );
+
     applyCamera();
-    projectLabels();
+    projectLabels(bodySunLabel ?? null, sunLabelVisible);
     renderer.render(scene, camera);
   }
 
@@ -593,6 +625,17 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
           cameraRadius: camRadius,
           cameraNear: camera.near,
           cameraFar: camera.far,
+          /** The solar system's marked position, as NASA's charts show it. */
+          sunLabel: {
+            text: galacticSunLabel.textContent,
+            opacity: galacticSunLabel.style.opacity,
+            transform: galacticSunLabel.style.transform,
+            screen: (() => {
+              const r = container.getBoundingClientRect();
+              const p = projectSunOntoBackdrop(r.width, r.height);
+              return { x: Math.round(p.x), y: Math.round(p.y), u: p.u, v: p.v };
+            })(),
+          },
           render: {
             calls: renderer.info.render.calls,
             triangles: renderer.info.render.triangles,
@@ -848,7 +891,7 @@ function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
   const iconOffsetX = isSpacecraft ? LABEL.iconOffsetXSpacecraft : LABEL.iconOffsetX;
 
   const icon = document.createElement('img');
-  icon.src = `/icons/icon-${bodyIconName(entity.id, entity.groups)}.svg`;
+  icon.src = `/icons/icon-${bodyIconName(entity.id, entity.category ?? '')}.svg`;
   icon.alt = '';
   icon.draggable = false;
   icon.style.cssText = [
@@ -884,6 +927,67 @@ function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
+}
+
+/**
+ * The solar system's position in the Galaxy, as NASA's charts present it.
+ *
+ * NASA draws no dedicated marker: the visible "SUN" is the `sun` entity's own
+ * `.pioneer-label-div`, uppercased by CSS. It carries the Sun's font metrics
+ * (18px / 600 / 5.4px tracking / white at 0.75) and nothing else — no icon, no
+ * glow, no dot. We build the same label here, then place it at the solar
+ * system's position on the Milky Way sprite (see `projectSunOntoBackdrop`),
+ * which is what makes it readable at galactic scale.
+ */
+function makeGalacticSunLabel(layer: HTMLElement): HTMLDivElement {
+  const el = document.createElement('div');
+  el.style.cssText = [
+    'position:absolute',
+    'left:0',
+    'top:0',
+    'pointer-events:none',
+    'white-space:nowrap',
+    'opacity:0',
+    'transition:opacity 250ms ease-out',
+  ].join(';');
+
+  const text = document.createElement('span');
+  text.textContent = 'SUN';
+  text.style.cssText = [
+    'font-family:var(--nasa-font, Metropolis, sans-serif)',
+    `font-size:${LABEL.fontSizeSun}px`,
+    `font-weight:${LABEL.weight}`,
+    `letter-spacing:${LABEL.letterSpacingSun}`,
+    'text-transform:uppercase',
+    `color:${LABEL.color}`,
+    `opacity:${LABEL.opacity}`,
+    'white-space:nowrap',
+  ].join(';');
+  el.appendChild(text);
+  layer.appendChild(el);
+  return el;
+}
+
+/**
+ * Place the galactic Sun label.
+ *
+ * NASA's `DivComponent` uses `alignment = (0, 0.5)`: the text's **left edge**
+ * sits at the body's projected screen position, vertically centred, so the text
+ * extends to the right. The position is the solar system's place on the Milky
+ * Way sprite — 7.98 kpc out along the galactic-centre line, on the sprite's
+ * −X axis, i.e. ~29.5% across the texture.
+ */
+function updateGalacticSunLabel(
+  label: HTMLDivElement,
+  visible: boolean,
+  projected: { x: number; y: number } | null = null,
+): void {
+  if (!visible || !projected) {
+    label.style.opacity = '0';
+    return;
+  }
+  label.style.transform = `translate(${Math.round(projected.x)}px, ${Math.round(projected.y)}px) translateY(-50%)`;
+  label.style.opacity = '1';
 }
 
 export { ALWAYS, parentAtTime };

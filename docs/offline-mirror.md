@@ -1,0 +1,147 @@
+# Local mirror and de-obfuscation
+
+How to get a **complete, runnable, offline copy** of NASA Eyes on the Solar
+System, and how to turn its minified bundle back into something readable.
+
+Nothing produced here is committed: it is NASA's code and NASA's data. The
+mirror and the de-obfuscated output both live under ignored paths
+(`data/mirror/`, `deobf/`). What *is* committed is the tooling and our own
+notes, so the process is repeatable.
+
+## 1. Capture the app shell
+
+The deployed site is a plain script bundle, not a framework app: `index.html`
+plus five JS files and three CSS files, all resolved through `config.js`.
+
+```bash
+node tools/capture-site.cjs --seconds 45
+```
+
+This drives headless Chrome, records every response body through the DevTools
+Protocol, and writes them under `data/mirror/site/` preserving URL paths:
+
+```
+data/mirror/site/apps/solar-system/index.html
+data/mirror/site/apps/solar-system/app.js       1.74 MB   the app
+data/mirror/site/apps/solar-system/vendors.js   2.53 MB   three.js etc.
+data/mirror/site/apps/solar-system/preload.js   133 KB    content database
+data/mirror/site/apps/solar-system/commons.js
+data/mirror/site/apps/solar-system/config.js
+data/mirror/site/apps/solar-system/{app,vendors,preload}.css
+```
+
+## 2. Complete the asset mirror
+
+The scene streams textures, models and ephemerides at runtime. Two manifests
+drive that:
+
+```bash
+# texts/models/textures referenced by the bundle
+node tools/build-manifest.cjs
+
+# every numbered .dyn window segment (105,940 of them)
+node tools/expand-segments.cjs
+
+# fetch whatever is not present yet — resumable, safe to re-run
+node tools/download-mirror.cjs --concurrency 32 --retry 3
+```
+
+Segment files are named by the index header's `digits` field (usually 3), so
+`.../orb/def.dyn` enumerates `000.dyn … 385.dyn`. The app requests only the
+window covering the current epoch, which is why a partial mirror appears to work
+until you scrub the time slider.
+
+## 3. Make it run offline
+
+`config.js` is the only place the asset roots are defined:
+
+```js
+config = { staticAssetsUrl: '/assets/static', dynamicAssetsUrl: '/assets/dynamic' }
+```
+
+Point it at the mirror and expose the mirrored trees at those paths:
+
+```bash
+ln -s ../../static  data/mirror/site/assets/static
+ln -s ../../dynamic data/mirror/site/assets/dynamic
+```
+
+Note the depth: the link lives in `data/mirror/site/assets/`, so `../../static`
+resolves to `data/mirror/static`. Getting this wrong makes every texture 404.
+
+Then verify:
+
+```bash
+node tools/verify-offline.cjs --seconds 30
+```
+
+It serves the mirror, boots the app, and reports (a) whether a canvas and
+`window.app` appeared, and (b) **every request that left the machine**. The only
+acceptable external hosts are analytics (`dap.digitalgov.gov`,
+`www.googletagmanager.com`), which are inert.
+
+## 4. De-obfuscate
+
+```bash
+node tools/deobfuscate.cjs beautify   # -> deobf/app.beautified.js
+node tools/deobfuscate.cjs classes    # -> deobf/classes/<ClassName>.js
+node tools/deobfuscate.cjs symbols    # -> deobf/symbols.json
+node tools/recover-names.cjs          # -> deobf/recovered-names.{json,md}
+```
+
+`beautify` parses with acorn and re-indents **only at statement boundaries**,
+so promises and long expressions stay on one line instead of exploding. The
+output is verified to still parse, i.e. it is a formatting change and nothing
+else. The single-line 1.74 MB bundle becomes ~19,000 readable lines.
+
+### Recovering names
+
+A minifier mangles *bindings* but cannot mangle:
+
+- **property names** — resolved at runtime. 1,994 `this.*` names survive, of
+  which the `_`-prefixed ones (`_timeInfo`, `_ignoreDistance`,
+  `_distanceThreshold`, …) are NASA's own fields.
+- **string literals** — asset paths, category names, DOM class names (6,001 of them).
+- **exported class names** — 261 survive.
+
+`recover-names.cjs` walks the AST and, for every mangled one- or two-character
+identifier, records the *known* names it is used alongside:
+
+```
+t = new Vector3()          -> t is a Vector3
+this._layerManager = t     -> t is the layer manager
+t.getComponent(...)        -> t is an Entity
+t instanceof TrailComponent -> t is a TrailComponent
+t.radius                   -> t is a body-like object
+```
+
+Candidates are ranked by evidence count, weighted toward actual class names. The
+result is an inference backed by citations, not a guess — each entry in
+`recovered-names.md` lists how many times the evidence occurred.
+
+### Two pitfalls hit while building this
+
+- **Dangling `else` after a `for`.** Writing
+  `if (Array.isArray(v)) for (const c of v) if (c…) walk(c); else if (…) walk(v);`
+  binds the `else` to the inner `if` and the AST walk stops after two nodes —
+  silently, with no error. Always brace these.
+- **`acorn` is already present** as a transitive dependency, so no new
+  dependency is needed for parsing. Use `require('acorn')` in a `.cjs` tool.
+
+## Capture status
+
+A complete mirror is ~1.2 GB and ~108,000 files, and the segment download runs
+for a long time. It is resumable, so the loop is simply:
+
+```bash
+node tools/download-mirror.cjs --concurrency 32 --retry 3   # re-run until 0 fail
+node tools/verify-offline.cjs --seconds 30                  # confirm no external deps
+```
+
+Expected steady state: **0 external requests** except the two analytics hosts,
+and no `Failed to download` exceptions. Each unresolved `NNN.dyn` in the verify
+output names a segment the downloader has not reached yet, not a broken link.
+
+Known-benign failures in `tools/out/download-failures.txt`: the `wasm/draco/`
+and `wasm/ktx2/` entries are *directories*, which the server answers with 403.
+Their contents are listed individually in the manifest and download normally.

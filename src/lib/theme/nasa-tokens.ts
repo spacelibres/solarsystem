@@ -165,15 +165,100 @@ export const LABEL = {
   topDefault: -4,
 } as const;
 
-/** Icon sprite name for a body, matching NASA's `icon-circle-<id>` set. */
-export function bodyIconName(id: string, groups: string[] = []): string {
-  const known = [
-    'sun', 'mercury', 'venus', 'earth', 'mars',
-    'jupiter', 'saturn', 'uranus', 'neptune',
-  ];
-  if (known.includes(id)) return `circle-${id}`;
-  if (groups.includes('moons')) return 'circle-white-small';
-  return 'circle-white-small';
+/**
+ * Icon sprite for a body, by `category`, from `LabelManager._iconMap`.
+ *
+ * Transcribed verbatim from NASA's `LabelManager` constructor:
+ *
+ *   Universe: "no-icon", Galaxy: "no-icon", Star: "no-icon",
+ *   Barycenter: "icon-circle-white-small", "Landing site": "icon-hexagon",
+ *   Moon: "icon-circle-white-small", Asteroid: "icon-circle-white-small",
+ *   "Dwarf Planet": "icon-circle-white-small", Comet: "icon-circle-white-small",
+ *   Spacecraft: "icon-hexagon", Planet: "icon-circle-" (the body id is appended),
+ *   Default: "icon-circle-white-small"
+ */
+export const LABEL_ICON_MAP: Record<string, string> = {
+  Universe: 'no-icon',
+  Galaxy: 'no-icon',
+  Star: 'no-icon',
+  Barycenter: 'circle-white-small',
+  'Landing site': 'hexagon',
+  Moon: 'circle-white-small',
+  Asteroid: 'circle-white-small',
+  'Dwarf Planet': 'circle-white-small',
+  Comet: 'circle-white-small',
+  Spacecraft: 'hexagon',
+  Planet: 'circle-',
+  Default: 'circle-white-small',
+};
+
+/**
+ * Label collision priority, from `LabelManager._weightMap`.
+ *
+ * Higher wins when two labels overlap. Read verbatim from NASA's constructor;
+ * note that a barycentre (0) is always sacrificed and stars/galaxies (100)
+ * always survive.
+ */
+export const LABEL_WEIGHT_MAP: Record<string, number> = {
+  Universe: 100,
+  Galaxy: 100,
+  Star: 100,
+  Barycenter: 0,
+  'Landing site': 5,
+  Constellation: 10,
+  Asteroid: 15,
+  Comet: 15,
+  Moon: 25,
+  'Dwarf Planet': 28,
+  Spacecraft: 30,
+  Planet: 50,
+};
+
+/** Every label outside the 5% centre square competes; inside it, priority wins. */
+export const LABEL_FOCUS_SIZE = 0.05;
+
+/**
+ * Icon sprite name for a body, resolving `LabelManager._iconMap`.
+ *
+ * `Planet` icons are `icon-circle-<id>`; everything else is a fixed sprite. The
+ * category is the content database's, falling back to `Default`.
+ */
+export function bodyIconName(id: string, category: string = ''): string {
+  const mapped = LABEL_ICON_MAP[category] ?? LABEL_ICON_MAP.Default;
+  if (mapped === 'circle-') return `circle-${id}`;
+  return mapped;
+}
+
+/**
+ * Label collision weight for a body.
+ *
+ * Constellation labels are special-cased by id prefix in NASA's
+ * `getDefaultWeight`, because they have no entity of their own until loaded.
+ */
+export function labelWeight(id: string, category: string = '', subcategory: string = ''): number {
+  if (id.startsWith('constellation_')) return LABEL_WEIGHT_MAP.Constellation;
+  // A major moon has no weight of its own; NASA keys it on the Moon category.
+  return LABEL_WEIGHT_MAP[subcategory] ?? LABEL_WEIGHT_MAP[category] ?? 0;
+}
+
+/**
+ * Which layer a body belongs to, following `LayerManager.getEntityLayer`.
+ *
+ * Subcategory is consulted first, then category: an `Orbiter` lands in the
+ * `orbiters` layer rather than `spacecraft`, and a `Major Moon` in `majorMoons`
+ * rather than anywhere category-level.
+ */
+export function layerForEntity(
+  category: string | null,
+  subcategory: string | null,
+  layers: readonly { id: string; categories: readonly string[] }[],
+): string | null {
+  const find = (needle: string | null): string | null => {
+    if (!needle) return null;
+    const hit = layers.find((l) => l.categories.includes(needle));
+    return hit ? hit.id : null;
+  };
+  return find(subcategory) ?? find(category);
 }
 
 /** Constellation labels: monospace, wide tracking, with a glow. */

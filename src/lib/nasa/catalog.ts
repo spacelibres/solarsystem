@@ -24,6 +24,24 @@ export interface CatalogEntity {
   id: string;
   label: string;
   groups: string[];
+  /**
+   * Content category from NASA's content database, e.g. `"Planet"`, `"Moon"`,
+   * `"Spacecraft"`. `null` for frame entities and spacecraft sub-parts that have
+   * no content entry.
+   */
+  category: string | null;
+  /**
+   * Content subcategory, e.g. `"Major Moon"`, `"Orbiter"`, `"Gas Giant"`.
+   * Resolved **before** `category` when choosing a layer, matching NASA's
+   * `LayerManager.getEntityLayer`.
+   */
+  subcategory: string | null;
+  /** Preferred display name, when NASA overrides the entity label. */
+  displayName: string | null;
+  /** IAU name, which NASA prefers for some bodies. */
+  iauName: string | null;
+  /** Search keywords from the content database. */
+  keywords: string[];
   /** Nominal body radius in km (null for spacecraft). */
   radius: number | null;
   /** Visual radius of this body's whole sub-system, in km. */

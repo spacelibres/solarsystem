@@ -11,6 +11,7 @@ import {
   TIME_MIN_SECONDS,
   UNIX_TO_ET_OFFSET,
   formatDistance,
+  getDistanceParams,
 } from '../src/lib/nasa/units';
 
 describe('astronomical constants', () => {
@@ -64,5 +65,59 @@ describe('formatDistance', () => {
 
   it('reports Earth´s mean radius above the thousand-kilometre threshold', () => {
     expect(formatDistance(6378.137)).toBe('6.38 thousand km');
+  });
+});
+
+describe('getDistanceParams (NASA´s formatter, field for field)', () => {
+  it('returns the scale word as a separate field', () => {
+    const p = getDistanceParams(2.5e6);
+    expect(p.value).toBeCloseTo(2.5, 6);
+    expect(p.scale).toBe('million');
+    expect(p.unit).toBe('km');
+    expect(p.prefix).toBe('');
+  });
+
+  it('marks sub-kilometre values with a ~ prefix and switches to metres', () => {
+    const p = getDistanceParams(0.5);
+    expect(p.prefix).toBe('~ ');
+    expect(p.unit).toBe('m');
+    expect(p.value).toBeCloseTo(500, 6);
+    // 9460730472580.8 km is one light year; above it the unit becomes ly.
+    expect(getDistanceParams(LIGHT_YEAR_KM).unit).toBe('light years');
+  });
+
+  it('uses the raw value for the light-year test, not the clamped one', () => {
+    // A negative distance clamps to 0 for the km branches but the ly test still
+    // sees the original value; this mirrors NASA's exact branch order.
+    const p = getDistanceParams(-1);
+    expect(p.actualDistanceValue).toBe(0);
+    expect(p.unit).toBe('m');
+  });
+
+  it('derives dps from toPrecision(4), giving 1 or 2', () => {
+    // 100 -> "100.0" -> dps 1 ; 12 -> "12.00" -> dps 2
+    expect(getDistanceParams(100e3).dps).toBe(1);
+    expect(getDistanceParams(1200).dps).toBe(2);
+  });
+
+  it('switches to imperial miles and feet', () => {
+    // Note the order: NASA converts to miles (or feet) *first*, then applies the
+    // thousand/million/billion thresholds to the converted value. So 1500 km is
+    // 932 mi — below the thousand threshold — and carries no scale word.
+    const mi = getDistanceParams(1500, 'imperial');
+    expect(mi.unit).toBe('mi');
+    expect(mi.value).toBeCloseTo(1500 * 0.621371, 6);
+    expect(mi.scale).toBe('');
+    // A million kilometres is ~621,371 mi, which is past the threshold.
+    expect(getDistanceParams(1e6, 'imperial').scale).toBe('thousand');
+    const ft = getDistanceParams(0.5, 'imperial');
+    expect(ft.unit).toBe('ft');
+    expect(ft.prefix).toBe('~ ');
+  });
+
+  it('keeps NASA´s conversion table', () => {
+    // kmToMi .621371 and miToFt 5280, so a kilometre is 3280.84 ft.
+    const p = getDistanceParams(1, 'imperial');
+    expect(p.value).toBeCloseTo(3280.84, 2);
   });
 });

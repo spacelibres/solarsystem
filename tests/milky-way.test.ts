@@ -1,13 +1,18 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  GALAXY_SPIN_AXIS_KM,
+  GALAXY_SPIN_RATE,
   MILKY_WAY_MIN_Z_DISTANCE_KM,
   MILKY_WAY_RADIUS_KM,
   MILKY_WAY_SPRITE_KM,
   MILKY_WAY_SYSTEM_RADIUS_KM,
   SUN_SYSTEM_RADIUS_KM,
   galacticOrientation,
+  galaxySpinAngle,
   milkyWayVisible,
+  projectSunOntoBackdrop,
+  sunGalacticOffset,
 } from '../src/lib/scene/milky-way';
 
 const AXIS = {
@@ -69,6 +74,56 @@ describe('galactic orientation', () => {
     const cy = y[2] * z[0] - y[0] * z[2];
     const cz = y[0] * z[1] - y[1] * z[0];
     expect(Math.hypot(cx - x[0], cy - x[1], cz - x[2])).toBeLessThan(1e-6);
+  });
+});
+
+describe('the galaxy spin', () => {
+  it('uses the north galactic pole as its axis', () => {
+    // NASA's literal is the NGP row of the IAU galactic matrix.
+    expect(Math.hypot(GALAXY_SPIN_AXIS_KM.x, GALAXY_SPIN_AXIS_KM.y, GALAXY_SPIN_AXIS_KM.z)).toBeCloseTo(1, 9);
+    expect(GALAXY_SPIN_AXIS_KM.x).toBeCloseTo(-0.8676661356982597, 12);
+    expect(GALAXY_SPIN_AXIS_KM.z).toBeCloseTo(0.45598379452940485, 12);
+  });
+
+  it('turns at the same rate as the Sun orbits the centre', () => {
+    // NASA reuses the Sun's mean motion for the galaxy's spin.
+    expect(GALAXY_SPIN_RATE).toBe(-2_192_686e-23);
+    expect(galaxySpinAngle(0)).toBeCloseTo(0, 12);
+    expect(galaxySpinAngle(1e16)).toBeCloseTo(-0.2192686, 7);
+  });
+});
+
+describe('the Sun offset in the galaxy', () => {
+  it('lies on the sprite -X axis, pointing away from the centre', () => {
+    const offset = sunGalacticOffset();
+    // Length is the galactocentric distance. At 2.46e17 km the float64 ulp is
+    // ~32 km, so compare relatively rather than absolutely.
+    expect(offset.length() / 246237071e9).toBeCloseTo(1, 15);
+    // ...and it is anti-parallel to the sprite's +X (galactic centre) axis.
+    const centre = rotate(galacticOrientation(), AXIS.x);
+    const dot = (offset.x * centre[0] + offset.y * centre[1] + offset.z * centre[2]) / offset.length();
+    expect(dot).toBeCloseTo(-1, 9);
+  });
+});
+
+describe('the Sun on the backdrop', () => {
+  it('maps to the sprite UV, not the centre', () => {
+    // A 2D scene.background is a screen-aligned fullscreen quad, so the sprite
+    // centre lands at the viewport centre and the Sun sits at its fixed UV.
+    const p = projectSunOntoBackdrop(1000, 600);
+    expect(p.u).toBeCloseTo(0.2948, 4);
+    expect(p.v).toBe(0.5);
+    expect(p.x).toBeCloseTo(294.8, 0);
+    expect(p.y).toBeCloseTo(300, 0);
+    // The Sun is left of the galactic centre, which is the whole point.
+    expect(p.x).toBeLessThan(500);
+  });
+
+  it('scales with the viewport', () => {
+    const wide = projectSunOntoBackdrop(1600, 900);
+    const narrow = projectSunOntoBackdrop(800, 450);
+    expect(wide.x).toBeCloseTo(2 * narrow.x, 6);
+    expect(wide.y).toBeCloseTo(2 * narrow.y, 6);
   });
 });
 

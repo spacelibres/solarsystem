@@ -3,6 +3,88 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.10 - 2026-10-16
+
+The solar system's position in the Milky Way, and a way to read NASA's own code.
+
+### Added
+
+- **A unified astronomy framework** (`src/lib/nasa/astronomy.ts`), the single
+  place where "where are we" is defined. It holds the IAU 1958 galactic reference
+  directions (pole lon 192.85948120833°, lat 27.12825119444°; centre lon
+  266.40499625°, lat -28.93617241667°), the Jupiter-centric constants NASA ships,
+  the unit definitions, and `equatorialToGalactic` built from those two vectors. A
+  test asserts the derived frame agrees with the sprite orientation NASA builds.
+- **The Sun's marked position in the galaxy.** The solar system is 7.98 kpc
+  (26,027 ly) from the galactic centre at l = 0°, b = 0°, which lands on
+  **column 302, row 512** of NASA's 1024×1024 `milky_way.png` — 210 px left of
+  centre. The galactic view now carries NASA's own `SUN` label (18px, weight 600,
+  5.4px tracking, white at 0.75, left-anchored) at that position, replacing the
+  Sun's ordinary body label, which is meaningless at galactic scale. Verified by
+  screenshot: the marker is stable across camera poses and sits left of the
+  galactic centre, as the international charts show.
+- **NASA's galaxy spin** (`galaxySpinAngle`), from the `milky_way` entity's
+  `SpinController`: axis `(-0.8676661356982597, -0.19807638974470915,
+  0.45598379452940485)` — the north-galactic-pole row of the IAU matrix — at
+  rate `-2192686e-23`.
+- **NASA's authoritative layer taxonomy**, transcribed from all 18 `addLayer`
+  calls in `LayerManager`: names, groups, sublayers and default visibility. This
+  replaces an earlier approximation that was missing `trails`, `icons`, `ui` and
+  `satelliteGroup`, and had the Spacecraft sublayer structure wrong.
+- **`layerForEntity`**, reproducing `LayerManager.getEntityLayer`: subcategory is
+  resolved **before** category, so Juno (Spacecraft/Orbiter) belongs to the
+  orbiters layer and a Major Moon to majorMoons.
+- **NASA's label icon and collision-weight tables**, from `LabelManager._iconMap`
+  and `_weightMap`. Label overlap is now resolved by NASA's real priority
+  (Star/Galaxy 100, Planet 50, Spacecraft 30, Moon 25, Asteroid/Comet 15,
+  Constellations 10, Landing site 5, Barycenter 0) instead of by body radius,
+  which was not the rule.
+- **`getDistanceParams`**, a field-for-field reproduction of NASA's
+  `DistanceManager._getDistanceParams` including its imperial branch, its `"~ "`
+  prefix below one kilometre, and its `dps` derived from `toPrecision(4)`.
+- **The content database.** NASA keeps two tables, not one: the entity table
+  (`Entity.register`, physical data) and the content database
+  (`PreloadManager._entityInfo`, own `category`/`subcategory`/`displayName`/
+  `iauName`/`keywords`). Only the second carries categories. Extracted, merged
+  into the catalog, and now typed on `CatalogEntity`.
+- **Study tooling** so this work is repeatable: `tools/study-bundle.cjs` (index
+  and read any of the 261 classes), `tools/study-layers.cjs`,
+  `tools/study-distance-units.cjs`, `tools/study-content-db.cjs`,
+  `tools/capture-site.cjs` (mirror the whole app), `tools/verify-offline.cjs`
+  (prove it runs with no external requests), `tools/deobfuscate.cjs` and
+  `tools/recover-names.cjs`.
+- `docs/nasa-eyes-architecture.md` and `docs/offline-mirror.md`, recording what
+  was learned and how to reproduce it.
+
+### Fixed
+
+- **`SUN_POSITION.galactocentricKpc` returned parsecs.** The field divided by the
+  parsec but was named in kiloparsecs, so it read 7980 instead of 7.98. Caught by
+  the new tests, and a `galactocentricParsec` field added alongside it.
+- **The Milky Way marker was placed at the galactic centre.** It is now placed at
+  the solar system's actual position, 7.98 kpc out along the galactic-centre line.
+
+### Notes
+
+- The catalog now carries `category`, `subcategory`, `displayName`, `iauName` and
+  `keywords` for 719 of its 844 entities; the remainder are frame entities and
+  spacecraft sub-parts that have no content entry, which is NASA's own split.
+- NASA models the Sun as lying exactly in the galactic plane (b = 0). That is the
+  plane international charts draw; physically the Sun sits ~10–25 pc above the
+  mid-plane, so its true latitude is about b ≈ +0.1°. The code notes this rather
+  than claiming a precision it does not have.
+- The widely repeated claim that the IAU recommends R₀ = 8.2 kpc is not accurate:
+  the IAU has never adopted R₀ by resolution. 8.2 kpc is the conventional round
+  number; the measured value is 8.178 ± 0.013 ± 0.022 kpc (GRAVITY 2019). NASA
+  uses 7.98 kpc and we follow NASA.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 86 tests across
+six files. The galactic view was additionally confirmed by screenshot, and the
+captured NASA app was confirmed to boot offline with no requests leaving the
+machine except the two inert analytics hosts.
+
 ## 0.2.9 - 2026-10-15
 
 The Milky Way backdrop, and the Sun's galactic orbit.

@@ -12,13 +12,28 @@
  *   occlusionRadius overrides for occlusion tests
  *   spheroid      equatorial/polar radii and the planetographic flag
  *
- * Usage: node tools/extract-catalog.cjs <app.js> <out.json>
+ * Usage: node tools/extract-catalog.cjs <app.js> <out.json> [entity-info.json]
+ *
+ * When the third argument (NASA's content database, extracted by
+ * `study-content-db.cjs`) is supplied, each entity is enriched with the
+ * presentation fields that only exist there:
+ *
+ *   category, subcategory, displayName, iauName, keywords, searchable
+ *
+ * Those drive the label icon, the label collision weight and which layer a body
+ * belongs to, so they are not optional decoration.
  */
 const fs = require('fs');
 const path = require('path');
 
-const [, , appPath = '/tmp/js_app.js', outPath = 'src/data/catalog.json'] = process.argv;
+const [, , appPath = '/tmp/js_app.js', outPath = 'src/data/catalog.json', infoPath] = process.argv;
 const src = fs.readFileSync(appPath, 'utf8');
+
+/** NASA's content database: id -> {category, subcategory, displayName, ...}. */
+let contentInfo = {};
+if (infoPath && fs.existsSync(infoPath)) {
+  contentInfo = JSON.parse(fs.readFileSync(infoPath, 'utf8'));
+}
 
 /** Collect every `X.register({ ... })` object body. */
 function findRegisterBlocks(source) {
@@ -160,10 +175,23 @@ function parseEntry(id, literal) {
   const modelM = literal.match(/model:\{url:"([^"]+)"/);
   const modelUrl = modelM ? modelM[1] : null;
 
+  // Presentation fields from NASA's content database, when available.
+  const info = contentInfo[id] || {};
+
   return {
     id,
     label,
     groups,
+    /** Content category, e.g. "Planet", "Moon", "Spacecraft". */
+    category: info.category ?? null,
+    /** Content subcategory, e.g. "Major Moon", "Orbiter"; wins over category. */
+    subcategory: info.subcategory ?? null,
+    /** Preferred display name, when NASA overrides the entity label. */
+    displayName: info.displayName ?? null,
+    /** IAU name, which NASA prefers for some bodies. */
+    iauName: info.iauName ?? null,
+    /** Search keywords from the content database. */
+    keywords: info.keywords ?? [],
     radius,
     systemRadius,
     extentsRadius,
@@ -202,4 +230,9 @@ console.log(`segmented parents (multi-phase): ${segmented}`);
 console.log(`with dynamo: ${all.filter((e) => e.dynamo).length}`);
 console.log(`with model: ${withModel}`);
 console.log(`with textures: ${all.filter((e) => Object.keys(e.textures).length).length}`);
+if (infoPath) {
+  const cats = {};
+  for (const e of all) cats[e.category ?? '(none)'] = (cats[e.category ?? '(none)'] || 0) + 1;
+  console.log('category coverage:', JSON.stringify(cats));
+}
 console.log('wrote', outPath);
