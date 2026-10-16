@@ -104,7 +104,11 @@ staticUrls.add(`${STATIC}/stars/constellations.bin`);
 
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 const cleanStatic = [...staticUrls]
-  .filter((u) => !/[$]\{/.test(u) && !u.endsWith('/maps/'))
+  // Drop template placeholders and directory URLs. NASA answers a directory
+  // path with 403, so each one becomes a permanent "failure" in every download
+  // run; `/maps/` was handled specially and `wasm/draco/`, `wasm/ktx2/` were
+  // not, leaving two unfixable entries in the failure list.
+  .filter((u) => !/[$]\{/.test(u) && !u.endsWith('/'))
   .sort();
 const cleanDynamic = [...dynamicUrls].filter((u) => !/[$]\{/.test(u)).sort();
 fs.writeFileSync(

@@ -3,6 +3,39 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.22 - 2026-10-16
+
+An off-by-one in the segment expander was asking NASA for files that do not
+exist.
+
+### Fixed
+
+- **`expand-segments.cjs` generated one phantom URL per controller.** The dynamo
+  index header's count is two more than the highest segment index, so the valid
+  windows are `0 … count-2`; the tool emitted `0 … count-1`. NASA answers the
+  extra index with **403**, so a full mirror reported 676 failures — 674 of them
+  these phantoms — none of which could ever succeed. Measured, not assumed:
+  `moon/earth/orb` has count 386 and files `000–384`, while `385.dyn` is 403;
+  `amalthea/jupiter/orb` has count 220 and files `000–218`, while `219.dyn` is
+  403. The manifest's 674 phantom entries were removed.
+- **The expander no longer reads every file in the mirror.** It treated any
+  `.dyn` as a possible index, so on a complete mirror it read 105k files at once
+  and exhausted the heap. Only `def.dyn` is an index; skipping the numbered
+  siblings makes it finish in seconds.
+- **Directory URLs no longer count as failures.** The manifest builder dropped
+  `*/maps/` but not `static/wasm/draco/` or `static/wasm/ktx2/`; NASA 403s a
+  directory listing, so those two were permanent entries in every failure list.
+- Shared the index parsing and URL generation in `tools/lib/segments.cjs` so the
+  count rule is stated once, with its evidence, and is covered by tests.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 170 tests
+across fifteen files. On the host, a full download run went from **676 failures
+to 2**, then to **0** after the directory URLs were filtered and the manifest
+cleaned; `new dynamic URLs: 0` confirms the fixed expander introduces no phantom
+entries.
+
 ## 0.2.21 - 2026-10-16
 
 Make the auto-deploy resilient to its own interruption.
