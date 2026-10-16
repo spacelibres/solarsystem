@@ -6,11 +6,17 @@ import {
   LABEL_ICON_MAP,
   LABEL_WEIGHT_MAP,
   bodyIconName,
+  bodyIconUrl,
   labelWeight,
   layerForEntity,
 } from '../src/lib/theme/nasa-tokens';
 
 describe('label icons (LabelManager._iconMap)', () => {
+  it('does not request an image for the no-icon sentinel', () => {
+    expect(bodyIconUrl('sun', 'Star')).toBeNull();
+    expect(bodyIconUrl('milky_way', 'Galaxy')).toBeNull();
+    expect(bodyIconUrl('earth', 'Planet')).toBe('/icons/icon-circle-earth.svg');
+  });
   it('gives planets their own icon and everything else a fixed one', () => {
     expect(bodyIconName('earth', 'Planet')).toBe('circle-earth');
     expect(bodyIconName('jupiter', 'Planet')).toBe('circle-jupiter');

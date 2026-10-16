@@ -27,7 +27,8 @@ function makeProject(withMirror: 'absent' | 'empty' | 'populated'): string {
 
 describe('in-tree mirror guard', () => {
   it('finds a populated mirror', () => {
-    expect(findInTreeMirror(makeProject('populated'))).toContain('data/mirror');
+    const project = makeProject('populated');
+    expect(findInTreeMirror(project)).toBe(join(project, 'data', 'mirror'));
   });
 
   it('ignores a missing mirror', () => {

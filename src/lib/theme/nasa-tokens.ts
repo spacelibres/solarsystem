@@ -229,6 +229,11 @@ export function bodyIconName(id: string, category: string = ''): string {
   return mapped;
 }
 
+export function bodyIconUrl(id: string, category: string = ''): string | null {
+  const name = bodyIconName(id, category);
+  return name === 'no-icon' ? null : `/icons/icon-${name}.svg`;
+}
+
 /**
  * Label collision weight for a body.
  *

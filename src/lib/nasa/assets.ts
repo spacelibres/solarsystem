@@ -1,19 +1,14 @@
 /**
  * Asset URL builders.
  *
- * Every path points at the local mirror served by the `/nasa/[...path]` route,
- * not at NASA. The mirror is produced by `tools/download-mirror.cjs`; the app
- * never reaches the network at runtime.
- *
- * Mirror layout (mirrors NASA's URL structure):
- *   static   <prefix>/static/...    e.g. /nasa/static/maps/earth/color_512_0.png
- *   dynamic  <prefix>/dynamic/...   e.g. /nasa/dynamic/dynamo/earth/sun/orb/def.dyn
+ * NASA's verified public endpoints permit cross-origin browser requests. Keep
+ * the runtime independent of an optional, locally downloaded asset directory.
  */
 
-export const MIRROR_URL_PREFIX = '/nasa';
+export const NASA_ASSETS_URL = 'https://eyes.nasa.gov/assets';
 
-export const STATIC_ASSETS_URL = `${MIRROR_URL_PREFIX}/static`;
-export const DYNAMIC_ASSETS_URL = `${MIRROR_URL_PREFIX}/dynamic`;
+export const STATIC_ASSETS_URL = `${NASA_ASSETS_URL}/static`;
+export const DYNAMIC_ASSETS_URL = `${NASA_ASSETS_URL}/dynamic`;
 
 /**
  * Build a texture URL from a catalog entry's `{url, sizes}` descriptor.

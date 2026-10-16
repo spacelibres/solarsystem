@@ -3,6 +3,33 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.27 - 2026-10-16
+
+Restore the viewer on checkouts without a local NASA asset library.
+
+### Fixed
+
+- Resolve ephemerides, maps, sprites and sky data against NASA's verified public
+  runtime origin instead of the absent local `/nasa` mirror. No asset library
+  download is required for normal startup.
+- Require all eight planetary ephemerides before reporting the scene as ready.
+  Failed startup now shows an actionable error and a retry control that clears
+  failed loader cache entries. Bound individual ephemeris fetches to 20 seconds.
+- Do not render an image for NASA's `no-icon` sentinel, which previously produced
+  a broken image next to the Sun label.
+- Launch npm's JavaScript entry directly when versioning on Windows; make the
+  build-guard test compare native paths instead of assuming forward slashes.
+
+### Verification
+
+- Regression coverage for direct asset URLs, required planetary data, no-icon
+  labels, native build paths and synchronized release metadata.
+- The in-app browser loaded 48 orbital controllers from the public origin,
+  displayed orbit paths and constellations, and rendered Earth's texture after
+  search selection. Pause and story-panel collapse were exercised visibly.
+- `npm ci`, all 225 tests, typecheck, lint and production build passed. Independent
+  code review reported no actionable findings.
+
 ## 0.2.26 - 2026-10-16
 
 Make the de-obfuscated NASA source complete and trustworthy, and correct a

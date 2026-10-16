@@ -22,7 +22,7 @@ export interface LoadedDynamo {
 const cache = new Map<string, Promise<LoadedDynamo>>();
 
 async function fetchBuffer(url: string): Promise<ArrayBuffer> {
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(20_000) });
   if (!res.ok) throw new Error(`dynamo fetch failed (${res.status}) for ${url}`);
   return res.arrayBuffer();
 }

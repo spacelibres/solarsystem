@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import catalogData from '../data/catalog.json';
 import type { CatalogEntity } from '../lib/nasa/catalog';
-import { loadDynamo } from '../lib/dynamo/loader';
+import { loadDynamo, clearDynamoCache } from '../lib/dynamo/loader';
+import { requireCoreEphemerides } from '../lib/nasa/readiness';
 import { createSolarScene, type SolarSceneHandle, type LoadedOrbit } from './solar-scene';
 import { DEFAULT_PRESET, applyPaletteToDocument, isDarkSurface } from '../lib/theme/palette';
 import useFavicon from './useFavicon';
@@ -92,6 +93,7 @@ export default function SolarViewer() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(0);
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [layers, setLayers] = useState<LayerState>({
     orbits: true,
     labels: true,
@@ -147,6 +149,7 @@ export default function SolarViewer() {
         const loadedIds = new Set(
           results.filter((r): r is readonly [string, LoadedOrbit] => r !== null).map((r) => r[0]),
         );
+        requireCoreEphemerides(loadedIds);
         const renderable = entities.filter((e) => e.id === 'sun' || loadedIds.has(e.id));
         const orbitEntries = results.filter(
           (r): r is readonly [string, LoadedOrbit] => r !== null,
@@ -180,7 +183,7 @@ export default function SolarViewer() {
       sceneRef.current = null;
       setScene(null);
     };
-  }, []);
+  }, [loadAttempt]);
 
   const onClosePanel = useCallback(() => {
     setSelectedId(null);
@@ -265,7 +268,17 @@ export default function SolarViewer() {
 
         {status !== 'ready' && (
           <div className="ns-overlay">
-            {status === 'loading' ? 'Loading local ephemerides…' : `Failed to load: ${error}`}
+            {status === 'loading' ? 'Loading NASA ephemerides…' : (
+              <div role="alert">
+                <p>{error}</p>
+                <button type="button" onClick={() => {
+                  clearDynamoCache();
+                  setError(null);
+                  setStatus('loading');
+                  setLoadAttempt((attempt) => attempt + 1);
+                }}>Retry loading</button>
+              </div>
+            )}
           </div>
         )}
       </section>

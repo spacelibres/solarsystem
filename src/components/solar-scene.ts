@@ -59,7 +59,7 @@ import {
   projectSunOntoBackdrop,
 } from '../lib/scene/milky-way';
 import { CONSTELLATIONS_URL, GALAXIES_URL, starfieldUrl } from '../lib/nasa/assets';
-import { LABEL, bodyIconName, labelWeight } from '../lib/theme/nasa-tokens';
+import { LABEL, bodyIconUrl, labelWeight } from '../lib/theme/nasa-tokens';
 
 /** One loaded ephemeris: the points plus the parent they are relative to. */
 export interface LoadedOrbit {
@@ -1392,7 +1392,8 @@ function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
   const iconOffsetX = isSpacecraft ? LABEL.iconOffsetXSpacecraft : LABEL.iconOffsetX;
 
   const icon = document.createElement('img');
-  icon.src = `/icons/icon-${bodyIconName(entity.id, entity.category ?? '')}.svg`;
+  const iconUrl = bodyIconUrl(entity.id, entity.category ?? '');
+  if (iconUrl) icon.src = iconUrl;
   icon.alt = '';
   icon.draggable = false;
   icon.style.cssText = [
@@ -1420,7 +1421,7 @@ function makeLabel(layer: HTMLElement, entity: CatalogEntity): HTMLDivElement {
     'white-space:nowrap',
   ].join(';');
 
-  el.appendChild(icon);
+  if (iconUrl) el.appendChild(icon);
   el.appendChild(text);
   layer.appendChild(el);
   return el;

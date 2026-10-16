@@ -13,9 +13,8 @@ library, presented with the [spacelibre visual standard](../spacelibre-vi).
   ephemeris format, covering the `orb`, `pos`, `lin`, `ori` and `quat` point
   types, the little-endian header, the gravitational-parameter block, and
   multi-segment index files.
-- **A local asset mirror**: every referenced NASA asset (~1,914 files) is
-  downloaded once by `tools/download-mirror.cjs` and served from `data/mirror/`
-  by the `/nasa/[...path]` route. **No runtime requests to NASA.**
+- **Runtime NASA assets**: ephemerides, planetary maps and sky data are requested
+  directly from NASA's verified public asset URLs. No local mirror is required.
 - **A catalog of 844 NASA bodies** (`src/data/catalog.json`), extracted directly
   from NASA's own bundle by `tools/extract-catalog.cjs` — radii, parents,
   dynamo controllers and texture maps.
@@ -29,17 +28,14 @@ library, presented with the [spacelibre visual standard](../spacelibre-vi).
 
 ## Getting the assets
 
-The bytes are **not** in this repository — only the scripts that fetch them.
-After cloning:
+Run with an internet connection. The browser loads exact catalog paths under
+`https://eyes.nasa.gov/assets/`; verified endpoints permit cross-origin requests.
+Only small attributed test fixtures are committed. Bulk-download tooling is not
+part of normal setup. The existing `/nasa` route remains for legacy local setups,
+but the viewer does not depend on it.
 
-```bash
-node tools/build-manifest.cjs /path/to/nasa-app.js   # regenerate the inventory
-node tools/download-mirror.cjs                       # fetch into data/mirror/
-```
-
-The mirror is git-ignored (see `.gitignore`); the library is not redistributed
-here. If a request 404s at runtime, the missing path is printed — re-run the
-downloader.
+The viewer requires all eight planets before reporting success. A failed orbit
+request shows a retry action instead of silently displaying a Sun-only scene.
 
 ## The `.dyn` format
 
@@ -71,20 +67,17 @@ an exact multiple of the stride before trusting a file.
 
 ## Data endpoints
 
-The app uses the mirror, laid out to match NASA's URL structure:
+Paths resolve against `https://eyes.nasa.gov/assets`:
 
 ```
-mirror    data/mirror/static/...        served at /nasa/static/...
-mirror    data/mirror/dynamic/...       served at /nasa/dynamic/...
-
-ephemeris   /nasa/dynamic/dynamo/<entity>/<ref>/<kind>/def.dyn
-textures    /nasa/static/maps/<body>/<map>_<size>_<face>.png   (size 4..4096, face 0..5)
-starfield   /nasa/static/stars/stars.<0..5>.bin
-sprites     /nasa/static/sprites/<name>.png
+ephemeris   /assets/dynamic/dynamo/<entity>/<ref>/<kind>/def.dyn
+textures    /assets/static/maps/<body>/<map>_<size>_<face>.png   (size 4..4096, face 0..5)
+starfield   /assets/static/stars/stars.<0..5>.bin
+sprites     /assets/static/sprites/<name>.png
 ```
 
-These paths mirror `https://eyes.nasa.gov/assets/...`, so the same layout works
-against either the mirror or the live site by changing one prefix.
+Resource paths are source-derived; verify real NASA responses before changing
+their construction.
 
 ## Development
 

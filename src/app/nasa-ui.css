@@ -1106,6 +1106,23 @@ button {
   z-index: 30;
 }
 
+.ns-overlay [role="alert"] {
+  max-width: min(480px, 80vw);
+  padding: 24px;
+  background: var(--nasa-panel-bg);
+  border: 1px solid var(--nasa-gb-divider);
+  text-align: center;
+  line-height: 1.5;
+  pointer-events: auto;
+}
+.ns-overlay button {
+  padding: 10px 16px;
+  color: var(--nasa-white);
+  background: var(--sl-deep);
+  border: 1px solid var(--sl-primary-on-dark);
+  border-radius: 4px;
+}
+
 .ns-version {
   position: fixed;
   right: 10px;
