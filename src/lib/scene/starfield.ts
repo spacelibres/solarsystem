@@ -68,8 +68,11 @@ export function parseStarfield(buffer: ArrayBuffer): Star[] {
 /**
  * Build a `THREE.Points` cloud from a set of star layers.
  *
- * Stars are brightened from their apparent magnitude, and given a small minimum
- * so faint ones still register on a dark background.
+ * NASA renders these as a backdrop that stays fixed relative to the camera: the
+ * vertex shader uses `gl_Position.w = viewPosition.y`, which flattens the cloud
+ * onto a sphere at infinity. Doing the same here keeps the stars from growing
+ * into blobs when the camera pulls out to galactic scale, so they read as a sky
+ * rather than as nearby dots.
  */
 export function buildStarfield(layers: Star[][]): THREE.Points {
   const stars = layers.flat();
@@ -94,7 +97,7 @@ export function buildStarfield(layers: Star[][]): THREE.Points {
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
   const material = new THREE.PointsMaterial({
-    size: 2.2,
+    size: 1.6,
     sizeAttenuation: false,
     vertexColors: true,
     transparent: true,
@@ -103,7 +106,10 @@ export function buildStarfield(layers: Star[][]): THREE.Points {
   });
 
   const points = new THREE.Points(geometry, material);
+  // Backdrop: no depth test, and drawn after the galaxy (renderOrder -4) but
+  // before any body, so stars read as being in front of the galactic disc.
   points.renderOrder = -2;
   points.frustumCulled = false;
+  material.depthTest = false;
   return points;
 }

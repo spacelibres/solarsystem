@@ -3,6 +3,53 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.9 - 2026-10-15
+
+The Milky Way backdrop, and the Sun's galactic orbit.
+
+### Added
+
+- **Milky Way rendering** (`src/lib/scene/milky-way.ts`), using NASA's own
+  `sprites/milky_way.png`. The backdrop fades in only beyond NASA's
+  `z-distance` visible interval of 1.2e16 km, so the solar system view is
+  unchanged and the galaxy appears only when the camera pulls far out.
+- **Galactic orientation** derived exactly as NASA does it, from two reference
+  vectors — the north galactic pole at lon 192.85948120833°, lat 27.12825119444°
+  and the galactic centre at lon 266.40499625°, lat -28.93617241667°. Verified
+  against NASA's own orientation literal: the derived quaternion matches
+  component-for-component.
+- **The Sun's galactic orbit** (`src/lib/scene/galactic-orbit.ts`), from the
+  `sun` entity's `orbitalElements` controller: semi-major axis 246,237,071e9 km,
+  eccentricity 0, mean angular motion -2,192,686e-23 rad/s, and the same
+  orientation quaternion. The radius works out to **26,027 light years**, which
+  matches the accepted distance from the Sun to the galactic centre.
+- `tools/galaxy-shot.cjs` and `tools/sample-png.cjs` to capture the galactic
+  view and verify by sampling rendered pixels.
+
+### Fixed
+
+- **The Milky Way quad never rendered.** A 1.2e18 km quad cannot be placed in
+  world space: its vertices quantise to ~1e18-km steps in the float32 view
+  transform and it vanishes silently, with `visible: true`, the texture loaded
+  and the draw call issued. NASA's logarithmic depth pipeline exists for exactly
+  this reason. The backdrop is now attached as the renderer background, which
+  bypasses the depth test entirely and reproduces the same image, and
+  `logarithmicDepthBuffer` is enabled as NASA has it.
+- **Camera near/far are now derived per frame** (0.05× and 100× the orbit
+  radius) instead of being fixed. A 23-order-of-magnitude near/far ratio
+  destroys depth precision across the scale range.
+- The Sun's galactic orientation literal is `(w, x, y, z)`, matching the `.dyn`
+  convention; it had been passed to Three.js in the wrong component order.
+
+### Verified
+
+- `npm test` — 41/41 (dynamo 14, scene 14, units 7, milky way 6), including the
+  three galactic-orientation assertions (X→galactic centre, Z→north galactic
+  pole, right-handed basis) and the 26,027-light-year radius.
+- `npm run check` and `npm run build` clean.
+- Pixel sampling of a rendered capture at 1.8e18 km: 71% of the frame is lit and
+  the galactic core, arms and dust lanes are visible.
+
 ## 0.2.8 - 2026-10-15
 
 Fix the orientation quaternion order: every planet sat on the wrong orbit plane.

@@ -26,6 +26,10 @@ import { buildStarfield, parseStarfield } from '../lib/scene/starfield';
 import { buildSurface } from '../lib/scene/surface';
 import { RING_SPECS, buildRings } from '../lib/scene/rings';
 import { ORBIT_SEGMENTS, hasOrbitLine, orbitColor } from '../lib/scene/orbit-colors';
+import {
+  loadMilkyWayTexture,
+  milkyWayVisible,
+} from '../lib/scene/milky-way';
 import { starfieldUrl } from '../lib/nasa/assets';
 import { LABEL, bodyIconName } from '../lib/theme/nasa-tokens';
 
@@ -88,7 +92,14 @@ const MIN_VISIBLE_PIXEL_RADIUS = 4;
 export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const { container, entities, orbits, startTime = 0, bodyColorFn } = options;
 
-  const renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
+  const renderer = new THREE.WebGLRenderer({
+    antialias: true,
+    // NASA spans 1e-5 km (a lander) to 5e23 km (the observable universe) with a
+    // logarithmic depth buffer. It is also what keeps the 1.2e18 km Milky Way
+    // quad representable: at that magnitude a plain float32 view transform
+    // quantises its vertices to ~1e18-km steps and the quad vanishes entirely.
+    logarithmicDepthBuffer: true,
+  });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(container.clientWidth, container.clientHeight);
   renderer.setClearColor(0x000000, 1);
@@ -100,7 +111,11 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
     42,
     container.clientWidth / container.clientHeight,
     1e-4,
-    1e14,
+    // NASA uses a logarithmic depth buffer rather than near/far planes, which
+    // is how it spans 1e-5 km to 5e23 km. The far plane is sized to admit the
+    // Milky Way sprite at its framing distance without losing precision for the
+    // planets, which sit 9 orders of magnitude closer.
+    2e19,
   );
   camera.position.set(0, 8e8, 1.6e9);
   camera.lookAt(0, 0, 0);
@@ -129,6 +144,13 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   const labelLayer = document.createElement('div');
   labelLayer.style.cssText = 'position:absolute;inset:0;pointer-events:none;overflow:hidden';
   container.appendChild(labelLayer);
+
+  // Milky Way: the same texture NASA uses, attached as the renderer background
+  // rather than as a 1.2e18 km quad, which float32 cannot represent far from
+  // the origin. It fades in at galactic distances only.
+  const milkyWayTexture = loadMilkyWayTexture({ textureUrl: SPRITES.milkyWay, loader });
+  const milkyWayBackground = new THREE.Color(0x000000);
+  scene.background = milkyWayBackground;
 
   const bodies = new Map<string, SceneBody>();
   const entityById = new Map(entities.map((e) => [e.id, e]));
@@ -259,6 +281,8 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
 
   let simTime = startTime;
   let daysPerSecond = 1;
+  /** Whether the Milky Way background is currently attached. */
+  let milkyWayShown = false;
 
   /** Rebuild the parenting tree only when a segment boundary is crossed. */
   let treeEpoch = Number.NaN;
@@ -377,6 +401,23 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       focusTarget.z + camRadius * sinPhi * Math.cos(camTheta),
     );
     camera.lookAt(focusTarget);
+
+    // NASA derives near/mid planes from the camera's distance to the parent
+    // body (0.1x, floored at 1e-5 km) rather than using a fixed pair. Without
+    // this, a near/far ratio spanning 23 orders of magnitude destroys depth
+    // precision and the Milky Way quad disappears behind the far plane.
+    const near = Math.max(1e-5, camRadius * 0.05);
+    const far = camRadius * 100;
+    if (camera.near !== near || camera.far !== far) {
+      camera.near = near;
+      camera.far = far;
+      camera.updateProjectionMatrix();
+    }
+
+    // `lookAt` only sets the quaternion; the world matrix everyone else
+    // projects against is stale until this runs. The renderer refreshes it
+    // later, but label projection and diagnostics happen before then.
+    camera.updateMatrixWorld();
   }
 
   const el = renderer.domElement;
@@ -404,7 +445,9 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
   };
   const onWheel = (e: WheelEvent) => {
     e.preventDefault();
-    camRadius = clamp(camRadius * (1 + Math.sign(e.deltaY) * 0.12), 1e2, 1e12);
+    // Upper bound is NASA's `_defaultMaxDistance` (2e18 km), which is what lets
+    // the camera pull out far enough to reach the Milky Way backdrop.
+    camRadius = clamp(camRadius * (1 + Math.sign(e.deltaY) * 0.12), 1e2, 2e18);
   };
 
   /**
@@ -509,6 +552,19 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       focusTarget.lerp(new THREE.Vector3(0, 0, 0), 0.08);
     }
 
+    // Stars stay pinned to the camera so they never grow into blobs as the
+    // camera crosses 15 orders of magnitude in scale. NASA does the same with a
+    // shader that pins stars to infinity.
+    for (const s of starLayers) s.position.copy(camera.position);
+
+    // Swap in the Milky Way once the camera is far outside the solar system,
+    // matching NASA's `z-distance` visible interval on the galactic quad.
+    const galactic = milkyWayVisible(camRadius);
+    if (galactic !== milkyWayShown) {
+      milkyWayShown = galactic;
+      scene.background = galactic ? milkyWayTexture : milkyWayBackground;
+    }
+
     applyCamera();
     projectLabels();
     renderer.render(scene, camera);
@@ -524,6 +580,34 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
       pick(x: number, y: number) {
         const rect = el.getBoundingClientRect();
         pickAt(rect.left + x, rect.top + y);
+      },
+      /** Inspect the Milky Way backdrop (for automation). */
+      milkyWay() {
+        return {
+          shown: milkyWayShown,
+          backgroundIsTexture: scene.background === milkyWayTexture,
+          hasImage: Boolean(milkyWayTexture.image),
+          image: milkyWayTexture.image
+            ? `${(milkyWayTexture.image as { width?: number }).width}x${(milkyWayTexture.image as { height?: number }).height}`
+            : null,
+          cameraRadius: camRadius,
+          cameraNear: camera.near,
+          cameraFar: camera.far,
+          render: {
+            calls: renderer.info.render.calls,
+            triangles: renderer.info.render.triangles,
+          },
+        };
+      },
+      /** Toggle the starfield, to isolate the backdrop (for automation). */
+      toggleStars(on: boolean) {
+        for (const s of starLayers) s.visible = on;
+      },
+      /** Jump to the galactic scale, for automation. */
+      setGalaxyZoom() {
+        focusedId = null;
+        focusTarget.set(0, 0, 0);
+        camRadius = 1.8e18;
       },
       /** Focus a body by id without going through the DOM (for automation). */
       focus(id: string | null) {
@@ -545,10 +629,24 @@ export function createSolarScene(options: SceneOptions): SolarSceneHandle {
         return {
           focusedId,
           camRadius,
+          milkyWayVisible: milkyWayShown,
           camera: [camera.position.x, camera.position.y, camera.position.z],
           focusTarget: [focusTarget.x, focusTarget.y, focusTarget.z],
           bodyWorld: w ? [w.x, w.y, w.z] : null,
         };
+      },
+      /**
+       * Jump the camera to a named scale, for automation.
+       *   inner   NASA's `goToSystem("inner_solar_system")` distance, 7e8 km
+       *   outer   NASA's `goToSystem("outer_solar_system")` distance, 1e10 km
+       *   galaxy  1.8e18 km, which frames the whole 1.2e18 km sprite
+       */
+      setZoom(preset: string) {
+        focusedId = null;
+        focusTarget.set(0, 0, 0);
+        if (preset === 'inner') camRadius = 7e8;
+        else if (preset === 'outer') camRadius = 1e10;
+        else if (preset === 'galaxy') camRadius = 1.8e18;
       },
       /** Inspect a body's mesh hierarchy (for automation). */
       inspect(id: string) {
