@@ -52,7 +52,7 @@ the new source-controlled system. Remaining contracts are documented for
 [vendor dependencies](docs/eyes-analysis/remaining-vendor-contracts.md),
 [UI/data/styles](docs/eyes-analysis/remaining-ui-data-contracts.md), and
 [boot/runtime/build](docs/eyes-analysis/remaining-boot-runtime-contracts.md).
-The independent entry is an implementation goal; the current default remains Eyes.
+The independent [controllable foundation](docs/solar-system/README.md) is available at `/explorer`; the current default remains Eyes. The foundation is an initial six-target slice, not full Solar System parity.
 
 The recovery accounts for 1,087 original modules, with 733 native ESM modules,
 55 HTML template files, JSON data and ordinary third-party CommonJS modules.

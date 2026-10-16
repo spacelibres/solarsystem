@@ -3,6 +3,22 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.35 - 2026-10-16
+
+Add the independent controllable Solar System foundation at `/explorer`.
+
+- Own TypeScript clock, all five ephemeris evaluators, phase/parent frame graph,
+  generation-safe runtime, abortable shared leases and bounded segment cache.
+- Render six-face NASA planetary textures through official Three.js, with a
+  camera-relative world, field-of-view framing, picking and explicit cleanup.
+- Add six source-mapped targets, UTC/time controls, live/playback/pause, visible
+  failures/retry, diagnostics and an opt-in typed debug interface.
+- Accept only byte-identical terminal dyn padding found in the real Voyager 1
+  controller; preserve rejection of conflicting/interior duplicates.
+- Document source/config/API contracts and remaining parity work. Voyager is a
+  position marker; models, advanced surfaces, full catalog and Eyes tools follow.
+- Permit the local loopback dev hostname required by the installed Next version.
+
 ## 0.2.34 - 2026-10-16
 
 Document the remaining source contracts and approved independent Next/Three rebuild.
