@@ -15,7 +15,7 @@ It is idempotent — re-run it to update, rebuild and reload.
 | service user | `solarsystem` (system account, no login shell) |
 | checkout | `/srv/solarsystem` |
 | app service | `solarsystem.service`, listening on `127.0.0.1:4310` |
-| webhook listener | `solarsystem-webhook.service`, on `0.0.0.0:9100` |
+| webhook listener | `solarsystem-webhook.service`, on `127.0.0.1:9100` (loopback only) |
 | updater | `/usr/local/bin/solarsystem-update` |
 | Caddy site | `/etc/caddy/sites/solarsystem.caddy` |
 
@@ -27,6 +27,13 @@ Defaults are overridable by environment: `APP_DOMAIN`, `APP_USER`, `APP_DIR`,
 **Port 4310, not 3000.** The host already runs another Next.js app on 3000
 (`tile2.spacexway.com`), and the viewer binds `127.0.0.1` so it is only reachable
 through Caddy.
+
+**The webhook binds loopback and is reached through Caddy.** It listens on
+`127.0.0.1:9100` and Caddy proxies `https://<domain>/hooks/deploy` to it, so
+port 9100 is **never exposed to the internet**. The listener shells out to the
+updater, so keeping it off the network is a second line of defence behind the
+HMAC signature check. Do not bind it to a public interface: the endpoint is
+`https://solarsystem.spacelibre.cn/hooks/deploy`, and nothing else.
 
 **Caddy is added to, never rewritten.** The script writes a new file under
 `/etc/caddy/sites/` and appends a single `import sites/*.caddy` line to the
@@ -63,17 +70,21 @@ trip the OOM killer. The branch push is what deploys.
 
 1. Note the secret you passed to `--secret`.
 2. GitHub → repository → **Settings → Webhooks → Add webhook**:
-   - **Payload URL** `http://176.122.171.38:9100/hooks/deploy`
+   - **Payload URL** `https://solarsystem.spacelibre.cn/hooks/deploy`
    - **Content type** `application/json`
-   - **Secret** the same value
+   - **Secret** the same value — set it when creating the hook, and re-send it on
+     any later edit. A `PATCH` that omits `secret` leaves the stored value in
+     place, but if the hook was created without one every delivery fails with
+     `401 bad signature`, which looks identical to a wrong secret.
+   - **Enable SSL verification** (leave it on; the certificate is a real
+     Let's Encrypt one)
    - **Events** *Just the push event*
 3. The first delivery is a `ping`; the listener replies `pong` and logs it.
 
 Every push to `main` then redeploys. Pushes to any other branch, and tag pushes
 (the same commit as the branch push), are acknowledged with `204` and ignored so a
 single push cannot start two builds. The listener verifies GitHub's HMAC-SHA256
-signature in constant time and rejects anything unsigned, so the open port is not
-a way in.
+signature in constant time and rejects anything unsigned.
 
 Verify a delivery arrived:
 
@@ -109,6 +120,22 @@ enabled regardless.
 `node tools/download-mirror.cjs --out /srv/solarsystem-mirror` as the
 `solarsystem` user; it resumes where it left off.
 
+**A webhook delivery returns 401.** The signature did not match. Check that the
+secret on the hook equals `WEBHOOK_SECRET` in
+`/etc/systemd/system/solarsystem-webhook.service`, and remember that GitHub stores
+the secret separately from the URL — editing the hook without re-sending the
+secret can leave a hook that was created without one. Send a signed delivery
+by hand to isolate which side is wrong:
+
+```bash
+WEBHOOK_SECRET=... node tools/probe-webhook.cjs \
+  https://solarsystem.spacelibre.cn/hooks/deploy refs/heads/x push
+```
+
+**Port 9100 should not answer from outside.** Confirm with
+`ss -lntp | grep 9100` on the host — it must show `127.0.0.1:9100`, never
+`0.0.0.0:9100`.
+
 **DNS.** `solarsystem.spacelibre.cn` must resolve to the host before Caddy can
 issue a certificate. Caddy retries automatically once it does.
 
@@ -119,7 +146,7 @@ issue a certificate. Caddy retries automatically once it does.
 | URL | https://solarsystem.spacelibre.cn |
 | host | 176.122.171.38, Ubuntu 26.04, 3 vCPU, 2 GB RAM + 1 GB swap |
 | app port | `127.0.0.1:4310` (Caddy fronts it) |
-| webhook | `http://176.122.171.38:9100/hooks/deploy` |
+| webhook | `https://solarsystem.spacelibre.cn/hooks/deploy` (Caddy → `127.0.0.1:9100`) |
 | certificate | Let's Encrypt, issued automatically by Caddy |
 
 The host was already serving another Next.js app on port 3000 for

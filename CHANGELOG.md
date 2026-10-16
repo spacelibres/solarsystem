@@ -3,6 +3,39 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.24 - 2026-10-16
+
+Stop exposing the webhook's port to the internet.
+
+### Changed
+
+- **The webhook now binds `127.0.0.1` instead of `0.0.0.0`.** Port 9100 was
+  listening on every interface and answered a request from outside the host, so
+  the deploy endpoint was reachable at `http://176.122.171.38:9100/hooks/deploy`
+  over plain HTTP — no TLS, and the updater runs with `sudo`. It is now
+  loopback-only, and Caddy proxies `https://solarsystem.spacelibre.cn/hooks/deploy`
+  to it, so the endpoint is HTTPS and the port is closed to the network. The
+  listener also warns at startup if it is pointed at a non-loopback address.
+- The Caddy site block routes `/hooks/deploy` to the listener ahead of the
+  catch-all app proxy; `deploy/deploy.sh` writes it and `deploy/solarsystem.caddy`
+  records the live file.
+- `tools/probe-webhook.cjs` sends a signed delivery through a URL so the hook can
+  be tested without involving GitHub.
+
+### Fixed
+
+- Documentation and the deploy script's closing instructions pointed at the old
+  `http://<ip>:9100` endpoint; they now name the HTTPS URL, and note that
+  `ss -lntp | grep 9100` must show `127.0.0.1:9100` rather than `0.0.0.0:9100`.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 170 tests
+across fifteen files. On the host: `ss -lntp` shows `127.0.0.1:9100`; a connection
+to `176.122.171.38:9100` from outside now fails; a signed delivery to
+`https://solarsystem.spacelibre.cn/hooks/deploy` is accepted (`204`), an unsigned
+one is rejected (`401`), and GitHub's own ping returns `200 OK`.
+
 ## 0.2.23 - 2026-10-16
 
 Document the dynamo index count rule, with the measurements behind it.

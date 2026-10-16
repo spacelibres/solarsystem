@@ -1,0 +1,26 @@
+# Managed by deploy/deploy.sh — do not edit by hand.
+solarsystem.spacelibre.cn {
+	encode zstd gzip
+
+	# GitHub's delivery for auto-deploy. Caddy terminates TLS and forwards to the
+	# listener on loopback, so the listener never has to be exposed to the
+	# internet. The signature check still runs, and this route is matched before
+	# the catch-all below.
+	handle /hooks/deploy* {
+		reverse_proxy 127.0.0.1:9100
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:4310
+	}
+
+	# NASA's textures, models and ephemerides are immutable, so let browsers and
+	# Caddy keep them for a year instead of revalidating every load.
+	@immutable path /nasa/*
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+	}
+}

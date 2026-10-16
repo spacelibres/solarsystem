@@ -24,6 +24,8 @@
 #   APP_USER       default solarsystem
 #   APP_DIR        default /srv/solarsystem
 #   APP_PORT       default 4310
+#   WEBHOOK_PORT   default 9100 (bound to loopback; Caddy proxies to it)
+#   WEBHOOK_PATH   default /hooks/deploy
 #   MIRROR_DIR     default /srv/solarsystem-mirror (kept out of the build tree)
 #   REPO_URL       default https://github.com/spacelibres/solarsystem.git
 #   WEBHOOK_SECRET secret shared with GitHub; required for the webhook
@@ -33,6 +35,8 @@ APP_DOMAIN="${APP_DOMAIN:-solarsystem.spacelibre.cn}"
 APP_USER="${APP_USER:-solarsystem}"
 APP_DIR="${APP_DIR:-/srv/solarsystem}"
 APP_PORT="${APP_PORT:-4310}"
+WEBHOOK_PORT="${WEBHOOK_PORT:-9100}"
+WEBHOOK_PATH="${WEBHOOK_PATH:-/hooks/deploy}"
 MIRROR_DIR="${MIRROR_DIR:-/srv/solarsystem-mirror}"
 REPO_URL="${REPO_URL:-https://github.com/spacelibres/solarsystem.git}"
 BRANCH="main"
@@ -198,7 +202,18 @@ else
 # Managed by deploy/deploy.sh — do not edit by hand.
 $APP_DOMAIN {
 	encode zstd gzip
-	reverse_proxy 127.0.0.1:$APP_PORT
+
+	# GitHub's delivery for auto-deploy. Caddy terminates TLS and forwards to the
+	# listener on loopback, so the listener never has to be exposed to the
+	# internet. The signature check still runs, and this route is matched before
+	# the catch-all below.
+	handle $WEBHOOK_PATH* {
+		reverse_proxy 127.0.0.1:$WEBHOOK_PORT
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:$APP_PORT
+	}
 
 	# NASA's textures, models and ephemerides are immutable, so let browsers and
 	# Caddy keep them for a year instead of revalidating every load.
@@ -246,7 +261,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=root
-Environment=WEBHOOK_PORT=9100
+Environment=WEBHOOK_PORT=$WEBHOOK_PORT
+Environment=WEBHOOK_HOST=127.0.0.1
 Environment=WEBHOOK_SECRET=$WEBHOOK_SECRET
 Environment=WEBHOOK_UPDATE_CMD=/usr/local/bin/solarsystem-update
 Environment=WEBHOOK_BRANCH=$BRANCH
@@ -277,17 +293,21 @@ cat <<SUMMARY
   Webhook (GitHub -> auto redeploy)
 
     service     systemctl status solarsystem-webhook
-    endpoint    http://$(hostname -I | awk '{print $1}'):9100/hooks/deploy
+    bound to    127.0.0.1:$WEBHOOK_PORT (loopback only; not reachable from outside)
+    endpoint    https://$APP_DOMAIN$WEBHOOK_PATH   (Caddy terminates TLS)
     update      /usr/local/bin/solarsystem-update
 
   Next steps
 
     1. Point DNS: $APP_DOMAIN -> $(hostname -I | awk '{print $1}')
     2. In GitHub: Settings -> Webhooks -> Add webhook
-         Payload URL   http://<this-ip>:9100/hooks/deploy
+         Payload URL   https://$APP_DOMAIN$WEBHOOK_PATH
          Content type  application/json
          Secret        the value of WEBHOOK_SECRET
+         SSL verify    enabled
          Events        Just the push event
+       Re-send the secret whenever the hook is edited: a hook stored without
+       one returns 401 bad signature on every delivery.
     3. Verify Caddy picked up the site:  caddy validate --config /etc/caddy/Caddyfile
 
 SUMMARY

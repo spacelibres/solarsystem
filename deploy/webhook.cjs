@@ -11,13 +11,20 @@
  *
  * Environment (set by the systemd unit):
  *   WEBHOOK_PORT    port to listen on    (default 9100)
+ *   WEBHOOK_HOST    address to bind      (default 127.0.0.1 — loopback only)
  *   WEBHOOK_SECRET  shared secret        (required; unsigned deliveries rejected)
+ *
+ * The listener binds loopback and is reached only through Caddy at
+ * `https://<domain>/hooks/deploy`. Do not bind it to a public interface: it
+ * shells out to the updater, and keeping it off the network is a second line of
+ * defence behind the HMAC signature check.
  */
 const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const http = require('node:http');
 
 const PORT = Number(process.env.WEBHOOK_PORT || 9100);
+const HOST = process.env.WEBHOOK_HOST || '127.0.0.1';
 const SECRET = process.env.WEBHOOK_SECRET || '';
 const PATHNAME = process.env.WEBHOOK_PATH || '/hooks/deploy';
 const UPDATE_CMD = process.env.WEBHOOK_UPDATE_CMD || '/usr/local/bin/solarsystem-update';
@@ -28,6 +35,11 @@ const log = (...args) => console.log('[webhook]', ...args);
 if (!SECRET) {
   log('WEBHOOK_SECRET is empty — every delivery will be rejected with 401.');
   log('Set it in /etc/systemd/system/solarsystem-webhook.service and restart.');
+}
+
+if (HOST !== '127.0.0.1' && HOST !== '::1' && HOST !== 'localhost') {
+  log(`WARNING: binding ${HOST}, which is not loopback. This listener should`);
+  log('only ever be reachable through Caddy; see deploy/deploy.sh.');
 }
 
 /** Constant-time comparison, so a signature cannot be guessed byte by byte. */
@@ -153,8 +165,8 @@ const server = http.createServer((req, res) => {
   req.on('error', (err) => log('request error:', err.message));
 });
 
-server.listen(PORT, '0.0.0.0', () => {
-  log(`listening on 0.0.0.0:${PORT}${PATHNAME}`);
+server.listen(PORT, HOST, () => {
+  log(`listening on ${HOST}:${PORT}${PATHNAME}`);
 });
 
 process.on('SIGTERM', () => {
