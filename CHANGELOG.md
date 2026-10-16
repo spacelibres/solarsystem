@@ -3,6 +3,36 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.10 - 2026-10-16
+
+Establish the runtime asset and ephemeris-loading foundation for Solar System parity.
+
+### Changed
+
+- Resolve NASA catalog assets directly against the verified NASA origin; remove
+  the local mirror serving route and filesystem reader. Update setup instructions
+  and preserve existing downloaded data without relying on it.
+- Cache controller indexes separately from segment payloads, using actual segment
+  URLs instead of calendar buckets. Select the new segment at exact boundaries,
+  validate requested sample coverage, and report unavailable dates explicitly.
+- Bound settled controller and segment caches, deduplicate in-flight requests,
+  limit concurrent fetches to six and allow retry after failed requests.
+- Repair direct Windows execution of the release version script by invoking
+  npm's JavaScript entry with Node.
+- Record the approved Solar System-first design, initial implementation plan and
+  observed reference parity gaps. Correct the README's quaternion field order.
+
+### Verification
+
+- Regression tests cover runtime URLs, segment selection and gaps, coverage,
+  retries, concurrent deduplication, cache bounds, clearing in-flight requests,
+  network concurrency and release-version synchronization.
+- Browser fetches from the local production page read Earth orbit and texture
+  responses directly from NASA; a real Ganymede index/segment request confirmed
+  the existing segment URL and binary record sizing.
+- `npm ci`, all 62 tests, typecheck, lint and production build passed.
+  Viewer date-jump refresh and complete NASA UI parity remain subsequent work.
+
 ## 0.2.9 - 2026-10-15
 
 The Milky Way backdrop, and the Sun's galactic orbit.

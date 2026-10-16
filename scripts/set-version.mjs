@@ -40,8 +40,12 @@ if (cmp(target, current) <= 0) {
   process.exit(1);
 }
 
-// package.json + package-lock.json
-execFileSync('npm', ['version', target, '--no-git-tag-version', '--allow-same-version'], {
+// Windows cannot exec a .cmd shim directly. Launch npm's JS entry with Node.
+const npmCli = process.env.npm_execpath ||
+  (process.platform === 'win32' ? join(dirname(process.execPath), 'node_modules/npm/bin/npm-cli.js') : null);
+execFileSync(npmCli ? process.execPath : 'npm', [
+  ...(npmCli ? [npmCli] : []), 'version', target, '--no-git-tag-version', '--allow-same-version',
+], {
   cwd: root,
   stdio: 'inherit',
 });

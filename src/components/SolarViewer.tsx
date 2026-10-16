@@ -245,7 +245,7 @@ export default function SolarViewer() {
 
         {status !== 'ready' && (
           <div className="ns-overlay">
-            {status === 'loading' ? 'Loading local ephemerides…' : `Failed to load: ${error}`}
+            {status === 'loading' ? 'Loading NASA ephemerides…' : `Failed to load: ${error}`}
           </div>
         )}
       </section>

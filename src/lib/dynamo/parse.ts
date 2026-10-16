@@ -18,11 +18,11 @@
  *   others : empty
  *
  * ### Point record layout (bytes; all f64)
- *   orb    : time, semiMajorAxis, eccentricity, meanAngularMotion, meanAnomalyAtEpoch, qx, qy, qz, qw   → 9 × 8 = 72
+ *   orb    : time, semiMajorAxis, eccentricity, meanAngularMotion, meanAnomalyAtEpoch, qw, qx, qy, qz   → 9 × 8 = 72
  *   pos    : time, px, py, pz, vx, vy, vz                                                                → 7 × 8 = 56
  *   lin    : time, px, py, pz                                                                            → 4 × 8 = 32
- *   ori    : time, qx, qy, qz, qw, wx, wy, wz                                                            → 8 × 8 = 64
- *   quat   : time, qx, qy, qz, qw                                                                        → 5 × 8 = 40
+ *   ori    : time, qw, qx, qy, qz, wx, wy, wz                                                            → 8 × 8 = 64
+ *   quat   : time, qw, qx, qy, qz                                                                        → 5 × 8 = 40
  *
  * The `orb` stride of 72 bytes was confirmed by exact file-length accounting
  * across 10+ live assets (Earth, Mercury, Jupiter, Mars, Europa Clipper, Juice,

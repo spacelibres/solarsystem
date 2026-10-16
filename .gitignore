@@ -10,6 +10,7 @@ data/mirror/
 
 # Local artifacts and scratch
 artifacts/
+.playwright-cli/
 *.tsbuildinfo
 *.log
 npm-debug.log*
