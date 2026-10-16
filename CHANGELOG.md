@@ -3,6 +3,40 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.13 - 2026-10-16
+
+All nine binary assets decoded to readable text.
+
+### Added
+
+- **`tools/decode-bins.cjs`**, which decodes every `.bin` in the mirror into a
+  readable text file under `deobf/bin/`:
+  - the six `stars.<n>.bin` layers and `galaxies.0.bin` become a 43,878-row table
+    of magnitude, absolute magnitude, hex colour and J2000 position;
+  - `constellations.bin` becomes all 88 IAU constellations with their star
+    positions and line segments;
+  - `voyager_heliosphere.bin` becomes a buffer-view summary with statistics.
+
+### Notes
+
+- These files are **data, not compiled code**. None carries a container or code
+  signature — no zip/gzip, no JVM `CAFEBABE`, Mach-O, ELF or WASM magic — so the
+  work is decoding rather than decompilation, and no decompiler applies. The
+  formats were already documented by the readers in `src/lib/scene/starfield.ts`
+  and the scene; this tool applies them and writes the result out.
+- `morluto/rea` targets native binaries, JVM bytecode, .NET assemblies, Android
+  APKs and Electron apps. None of those is present here, so it has nothing to act
+  on. The obfuscated JavaScript was handled separately by `tools/deobfuscate.cjs`,
+  which is a beautify-and-rename problem solved with an AST walk.
+- The constellation decoder consumes all 10,952 bytes exactly and yields the 88
+  expected names, which is the check that the record layout is correct.
+
+### Verified
+
+`npm ci && npm test && npm run check && npm run build` all pass — 116 tests across
+nine files. Every decoded file was spot-checked, and the star byte counts match
+`4 + count × 23` exactly for all seven layers.
+
 ## 0.2.12 - 2026-10-16
 
 Trails, and a starfield that finally renders.

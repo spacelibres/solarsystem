@@ -80,7 +80,39 @@ It serves the mirror, boots the app, and reports (a) whether a canvas and
 acceptable external hosts are analytics (`dap.digitalgov.gov`,
 `www.googletagmanager.com`), which are inert.
 
-## 4. De-obfuscate
+## 4. Binary assets are data, not code
+
+The mirror holds **nine** `.bin` files. None is compiled or obfuscated: they carry
+no container or code signature (no zip/gzip, no JVM `CAFEBABE`, Mach-O, ELF or
+WASM magic). They are raw data with the formats already documented in the
+readers, so the task is *decoding*, not decompilation:
+
+| file | format | leading bytes |
+|---|---|---|
+| `stars.0–5.bin` | `i32 count` + `count × 23`-byte star records | `cb13 0000` = 5067 |
+| `galaxies.0.bin` | the same star-record layout | `bb04 0000` = 1211 |
+| `constellations.bin` | `u8 len + name, u8 RGBA, u8 n, n×3 f32, u8 2·segs, segs` | `06 "Aquila"` |
+| `voyager_heliosphere.bin` | headerless glTF buffer view, float32 triples | (no header) |
+
+```bash
+node tools/decode-bins.cjs          # -> deobf/bin/*.txt, one per input
+node tools/decode-bins.cjs stars    # filter by path substring
+```
+
+This dumps all 43,878 stars and 1,211 galaxies as a table, all 88 constellations
+with their star positions and line segments, and a summary of the heliosphere
+buffer. The constellation decoder round-trips exactly — it consumes all 10,952
+bytes and yields the 88 IAU names, which is the check that the record layout is
+right.
+
+**On decompilers.** `morluto/rea` is an MCP-based reverse-engineering toolkit for
+native binaries (via Hopper/Ghidra/IDA), JVM bytecode, .NET assemblies, Android
+APKs and Electron apps. None of those formats is present here, so it has nothing
+to act on: there is no compiled artifact in this project to decompile. The
+obfuscated JavaScript *was* handled — see the next section — and that was a
+beautify-and-rename problem, solved with an AST walk rather than a decompiler.
+
+## 5. De-obfuscate
 
 ```bash
 node tools/deobfuscate.cjs beautify   # -> deobf/app.beautified.js
