@@ -72,7 +72,12 @@ export class ExplorerRuntime {
 
   constructor(options: ExplorerRuntimeOptions) {
     this.clock = new SimulationClock(options.timeEt);
-    this.entities = structuredClone(options.entities ?? DEFAULT_SCENE);
+    // Eyes initializes epochless SpinController at scene creation. Keep the same
+    // phase origin while solving absolute frames for pause, reverse and seeking.
+    this.entities = structuredClone(options.entities ?? DEFAULT_SCENE).map(entity => ({
+      ...entity, controllers: entity.controllers?.map(controller => controller.type === 'spin' && controller.referenceTime === undefined
+        ? { ...controller, referenceTime: options.timeEt } : controller),
+    }));
     if (this.entities.length === 0) throw new Error('Explorer requires at least one entity');
     // Validate phases and IDs before accepting ownership or launching requests.
     resolveEntityFrames(this.entities, new Map(), options.timeEt);

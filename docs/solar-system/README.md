@@ -74,3 +74,5 @@ explorer.resetCamera();
 
 - [Complete articulation inventory](articulation-inventory.md)
 - [Joint hierarchy and mesh audit](joint-mesh-audit.md)
+
+- [Whole-craft spin and THEMIS regression](whole-craft-spin.md)

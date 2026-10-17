@@ -46,8 +46,8 @@ function plan(controller: SourceController): SourceControllerPlan | undefined {
     }
     if (controller.type === 'rotateByEntityOrientation')
         return { type: 'rotateByEntityOrientation', targetId: typeof controller.entityForOrientation === 'string' ? controller.entityForOrientation : undefined, rotatingPosition: typeof controller.rotatingPosition === 'boolean' ? controller.rotatingPosition : undefined, rotatingOrientation: typeof controller.rotatingOrientation === 'boolean' ? controller.rotatingOrientation : undefined, coverage };
-    if (controller.type === 'spin' && typeof controller.relativeToTime === 'number' && typeof controller.periodInHours === 'number' && vector(controller.axis))
-        return { type: 'spin', axis: vector(controller.axis)!, rate: 2 * Math.PI / (controller.periodInHours * 3600), referenceTime: typeof controller.relativeToTime === 'number' ? controller.relativeToTime : 0, axisRelativeToEntity: controller.axisInFrameSpace !== false, coverage };
+    if (controller.type === 'spin' && typeof controller.periodInHours === 'number' && vector(controller.axis))
+        return { type: 'spin', axis: vector(controller.axis)!, rate: 2 * Math.PI / (controller.periodInHours * 3600), referenceTime: typeof controller.relativeToTime === 'number' ? controller.relativeToTime : undefined, axisRelativeToEntity: controller.axisInFrameSpace !== false, coverage };
     return { type: 'unsupported', sourceType: controller.type ?? 'custom', coverage };
 }
 function model(entry: CatalogEntry): ModelDescriptor | undefined {

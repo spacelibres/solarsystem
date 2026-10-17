@@ -11,10 +11,10 @@ describe('full source scene configuration',()=>{
   expect(FULL_SCENE.find(body=>body.id==='sc_lucy')?.phases.find(phase=>phase.startEt===872642047)?.parentId).toBe('sun');
   expect(FULL_SCENE.find(body=>body.id==='sc_lucy')?.phases.find(phase=>phase.startEt>872642047)?.parentId).toBe('15094_polymele');
  });
- it('keeps unsupported history spin explicit and covered fixed positions out of static fallback',()=>{
+ it('retains valid spin rates and keeps covered fixed positions out of static fallback',()=>{
   const impactor=FULL_SCENE.find(body=>body.id==='sc_deep_impact_impactor')!;
   expect(impactor.staticPosition).toBeUndefined();
-  for(const body of FULL_SCENE)for(const controller of body.controllers??[])if(controller.type==='spin')expect(controller.referenceTime).not.toBeUndefined();
+  for(const body of FULL_SCENE)for(const controller of body.controllers??[])if(controller.type==='spin'){expect(Number.isFinite(controller.rate)).toBe(true);if(controller.referenceTime!==undefined)expect(Number.isFinite(controller.referenceTime)).toBe(true);}
  });
  it('uses parent path candidates and source coverage instead of pairing arrays by index',()=>{
   const juno=FULL_SCENE.find(body=>body.id==='sc_juno')!;

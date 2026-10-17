@@ -176,3 +176,19 @@ COWVR_top_spin active 且角度增长。RapidScat 在当前ET正确 outside-cove
 这是完整显式关节配置和算法对照，加上实际任务时刻的可见网格验证；没有宣称已经
 逐个航天器、每个日期、所有GPU组合完成画面等价验收。旧层级审计的空几何限制
 和原始source数据缺口见joint-mesh-audit.md与model-animation.md。
+
+
+## v0.2.43 THEMIS整星自旋（2026-10-17）
+
+用户指定Eyes THEMIS A后核查发现：此前部件关节覆盖没有检查整星自旋，
+转换器错误要求relativeToTime，丢弃122个缺省历元配置。已保留全部129个源spin
+并在runtime初始化时为缺省历元建立相位起点，显式源历元保持原值。
+旧测试对referenceTime必填的断言随真实源规则修正；新增全目录保留检查与运行时
+THEMIS正放/暂停/倒放回归，修复前两项均失败，修复后通过。
+
+`npm ci`、完整495项Vitest（54文件）和229项Node、`npm run check`、清单校验、
+生产构建全部通过。真实NASA模型在LIVE1秒/秒下本体与天线方向明显变化，
+10.86秒间隔的姿态最短差角与2.99988秒周期预测差约1.62e-6弧度；暂停姿态不变。
+截图themis-spin-a-v43.png与themis-spin-b-v43.png；保留新生产页面为实时THEMIS A。
+错误/警告控制台为空。其他任务26条时刻无覆盖仍明确显示，不混同于本次自旋修复。
+详见whole-craft-spin.md。

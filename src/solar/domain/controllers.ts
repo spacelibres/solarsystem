@@ -31,7 +31,7 @@ export type SourceControllerPlan = Coverage & ({
     readonly type: 'spin';
     readonly axis: Vec3;
     readonly rate: number;
-    readonly referenceTime: number;
+    readonly referenceTime?: number;
     readonly referenceAngle?: number;
     readonly axisRelativeToEntity?: boolean;
 } | {
@@ -116,7 +116,7 @@ export function applySourceControllers(plans: readonly SourceControllerPlan[] | 
             continue;
         }
         if (plan.type === 'spin') {
-            const q = axisAngle(plan.axis, plan.rate * (timeEt - plan.referenceTime) - (plan.referenceAngle ?? 0));
+            const q = axisAngle(plan.axis, plan.rate * (timeEt - (plan.referenceTime ?? 0)) - (plan.referenceAngle ?? 0));
             const initial = state.orientation ?? identity;
             state = { ...state, orientation: normalize(plan.axisRelativeToEntity !== false ? multiplyOrientation(initial, q) : multiplyOrientation(q, initial)) };
             continue;

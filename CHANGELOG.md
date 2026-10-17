@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.43 - 2026-10-17
+
+Restore whole-craft rotation for THEMIS and other source spin controllers that
+omit an optional reference epoch. Preserve all129 declared spin configurations,
+anchor epochless phase to runtime creation, and verify playback, pause and reverse.
+Include whole-craft spins in the spacecraft animation inventory.
+
 ## 0.2.42 - 2026-10-17
 
 Match recovered joint alignment arithmetic and operation order, verified by
