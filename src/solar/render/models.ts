@@ -37,12 +37,17 @@ export function modelDecoderPaths() {
     const root = '/eyes/decoders/1225db209857fe97/';
     return { draco: root + 'draco/', ktx2: root + 'ktx2/' };
 }
+/** GLTFLoader stores clips beside the scene, so retaining only .scene loses articulation. */
+export function retainModelAnimations(gltf: { scene: THREE.Group; animations: THREE.AnimationClip[] }): THREE.Group {
+    gltf.scene.animations = gltf.animations;
+    return gltf.scene;
+}
 function officialLoader(renderer: THREE.WebGLRenderer): ModelLoaderPort {
     const paths = modelDecoderPaths();
     const draco = new DRACOLoader().setDecoderPath(paths.draco).setWorkerLimit(2);
     const ktx = new KTX2Loader().setTranscoderPath(paths.ktx2).setWorkerLimit(2).detectSupport(renderer);
     const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx).setMeshoptDecoder(MeshoptDecoder);
-    return { load: async (url) => (await loader.loadAsync(url)).scene, dispose: () => { draco.dispose(); ktx.dispose(); } };
+    return { load: async (url) => retainModelAnimations(await loader.loadAsync(url)), dispose: () => { draco.dispose(); ktx.dispose(); } };
 }
 function destroy(group: THREE.Group) {
     const geometries = new Set<THREE.BufferGeometry>();
@@ -103,6 +108,7 @@ function transform(scene: THREE.Group, descriptor: ModelDescriptor) {
     if (descriptor.translate)
         group.position.copy(descriptor.translate);
     group.add(scene);
+    group.animations = scene.animations;
     return group;
 }
 type Entry = {

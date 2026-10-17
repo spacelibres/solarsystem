@@ -128,7 +128,9 @@ export function applySourceControllers(plans: readonly SourceControllerPlan[] | 
             state = { ...state, orientation: undefined };
             continue;
         }
-        let q = multiplyOrientation(fromTo(primary, target), initial);
+        // An unconstrained primary keeps its parent basis; cross(a,a) is zero even
+        // when roundoff makes dot(a,a) slightly below one.
+        let q = plan.primary.type === 'none' ? initial : multiplyOrientation(fromTo(primary, target), initial);
         if (plan.secondary && plan.secondary.type !== 'none') {
             const secondaryTarget = axisTarget(plan.secondary, primary);
             if (!secondaryTarget) {

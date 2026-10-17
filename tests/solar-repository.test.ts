@@ -86,16 +86,74 @@ describe('source-derived dynamo repository', () => {
     repository.dispose();
   });
 
-  it('still rejects conflicting interior and terminal duplicates', async () => {
-    const conflicting = leaf([0, 10, 10], 'pos');
-    new DataView(conflicting).setFloat64(5 + 2 * 56 + 8, 999, true);
-    const interior = leaf([0, 10, 10, 20]);
-    new DataView(interior).setFloat64(5 + 2 * 32 + 8, 999, true);
-    for (const bytes of [root(interior), root(conflicting, 2, 'pos')]) {
-      const { repository } = fixtureRepository({ [path]: bytes });
-      await expect(repository.load(path, 5)).rejects.toMatchObject({ code: 'invalid-data' });
-      repository.dispose();
+  it('selects positive source intervals around conflicting records without merging the discontinuity', async () => {
+    const bytes = root(leaf([0, 10, 10, 20]));
+    new DataView(bytes).setFloat64(7 + 5 + 2 * 32 + 8, 999, true);
+    const { repository } = fixtureRepository({ [path]: bytes });
+    const raw = parseDyn(bytes).points;
+    for (const time of [5, 10, 15]) {
+      const window = await repository.load(path, time);
+      expect(window.points).toEqual(sourcePair(raw, time));
+      expect(evaluateEphemeris(window, time).status).toBe('ready');
     }
+    repository.dispose();
+  });
+
+  it.each([
+    ['sc_biosentinel/sun/orb/def.dyn', 'sc_biosentinel-orb.dyn'],
+    ['sc_europa_clipper/sun/def.dyn', 'sc_europa_clipper-orb.dyn'],
+    ['sc_juice/sun/def.dyn', 'sc_juice-orb.dyn'],
+    ['sc_osiris_rex/sun/4/orb/def.dyn', 'sc_osiris_rex-orb.dyn'],
+    ['sc_stereo_ahead/sun/orb/def.dyn', 'sc_stereo_ahead-orb.dyn'],
+  ])('loads current valid source pair despite future duplicate records in %s', async (assetPath, name) => {
+    const bytes = Uint8Array.from(readFileSync(new URL(`./fixtures/${name}`, import.meta.url))).buffer;
+    const { repository } = fixtureRepository({ [assetPath]: bytes });
+    const time = 845470301;
+    const window = await repository.load(assetPath, time);
+    expect(window.points).toEqual(sourcePair(parseDyn(bytes).points, time));
+    expect(evaluateEphemeris(window, time)).toMatchObject({ status: 'ready', kind: 'position' });
+    expect(window.interval.min).toBeLessThanOrEqual(time);
+    expect(window.interval.max).toBeGreaterThanOrEqual(time);
+    repository.dispose();
+  });
+
+  it('keeps STEREO discontinuity sides source-exact during repeated seeks', async () => {
+    const bytes = Uint8Array.from(readFileSync(new URL('./fixtures/sc_stereo_ahead-orb.dyn', import.meta.url))).buffer;
+    const raw = parseDyn(bytes).points;
+    const { repository } = fixtureRepository({ [path]: bytes });
+    const boundary = 914928062.138937;
+    for (const time of [boundary - 1, boundary, boundary + 1, 845470301, boundary]) {
+      const window = await repository.load(path, time);
+      expect(window.points).toEqual(sourcePair(raw, time));
+      expect(evaluateEphemeris(window, time).status).toBe('ready');
+      expect(window.interval.min).toBeLessThanOrEqual(time);
+      expect(window.interval.max).toBeGreaterThanOrEqual(time);
+    }
+    repository.dispose();
+  });
+
+  it('still rejects a source-selected zero-duration terminal pair', async () => {
+    const bytes = Uint8Array.from(readFileSync(new URL('./fixtures/sc_biosentinel-orb.dyn', import.meta.url))).buffer;
+    const { repository } = fixtureRepository({ [path]: bytes });
+    const terminal = parseDyn(bytes).points.at(-1)!.time;
+    await expect(repository.load(path, terminal)).rejects.toMatchObject({ code: 'invalid-data', message: 'Source selected a nonpositive sample interval' });
+    await expect(repository.load(path, terminal + 1)).rejects.toMatchObject({ code: 'no-data' });
+    repository.dispose();
+  });
+
+  it('preserves Lucy repeated index boundary numbering and chooses the positive right interval', async () => {
+    const bytes = Uint8Array.from(readFileSync(new URL('./fixtures/sc_lucy-quat.dyn', import.meta.url))).buffer;
+    const assetPath = 'sc_lucy/quat/def.dyn';
+    const boundary = 699237092.6664922;
+    const { repository, fetchBuffer } = fixtureRepository({
+      [assetPath]: bytes,
+      'sc_lucy/quat/012.dyn': leaf([boundary, 699316984.8598069], 'quat'),
+      'sc_lucy/quat/125.dyn': leaf([834024717.3970213, 868769570.4573452], 'quat'),
+    });
+    expect((await repository.load(assetPath, boundary)).source.segment).toBe('012');
+    expect((await repository.load(assetPath, 845470301)).source.segment).toBe('125');
+    expect(fetchBuffer.mock.calls.some(call => call[0].endsWith('/011.dyn'))).toBe(false);
+    repository.dispose();
   });
 
   it('coalesces the verified byte-identical Venus interior record without changing either positive interval', async () => {
@@ -226,7 +284,7 @@ describe('source-derived dynamo repository', () => {
   });
 
   it.each([
-    root(index([0, 0, 10])), root(index([10, 0])), root(new Bytes().byte(0).integer(-1).buffer()),
+    root(index([10, 0])), root(new Bytes().byte(0).integer(-1).buffer()),
     root(new Bytes().byte(0).integer(20).double(1).buffer()), root(index([0, Infinity])),
     root(leaf([0, 0])), root(leaf([0, NaN])), root(leaf([0, 1])).slice(0, -1),
     root(index([0, 10, 5, 15], 1), 1), root(new Bytes().byte(2).integer(0).buffer()),

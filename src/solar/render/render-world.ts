@@ -17,6 +17,8 @@ import type { OrbPoint } from '../../lib/dynamo/parse';
 import { configuredTrailLength, sampleTrailHistory } from '../domain/trails';
 import { TrailRibbon } from './trail-ribbon';
 import { createSunGlow, setSunGlowTexture } from './sun-glow';
+import { createModelAnimator, type ModelAnimationDiagnostic } from '../domain/model-animation';
+import { updateModelJoints } from './model-joints';
 import { RollingTrail } from '../domain/rolling-trail';
 import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
@@ -33,6 +35,7 @@ export interface RenderWorldOptions {
     readonly onSelect: (id: string) => void;
 }
 export interface RenderDiagnostics {
+    readonly modelAnimations: Readonly<Record<string, { animations: readonly ModelAnimationDiagnostic[]; joints: ReturnType<typeof updateModelJoints> }>>;
     readonly orbitGeometryUpdates: number;
     readonly trailGaps: Readonly<Record<string,string>>;
     readonly drawCalls: number;
@@ -66,6 +69,9 @@ type BodyVisual = {
     textures: ResourceLease<THREE.Texture>[];
     model?: ModelLease;
     modelRadius?: number;
+    modelRoot?: THREE.Group;
+    animator?: ReturnType<typeof createModelAnimator>;
+    jointState?: ReturnType<typeof updateModelJoints>;
     label: HTMLButtonElement;
     leader: HTMLSpanElement;
     marker: HTMLSpanElement;
@@ -174,6 +180,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 return;
             visuals.delete(id);
             if(hoveredId===id)hoveredId='';
+            visual.animator?.dispose();
             visual.model?.release();
             for (const lease of visual.textures)
                 lease.release();
@@ -195,6 +202,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         cleanup.push(() => { for (const id of [...visuals.keys()])
             destroyVisual(id); for (const id of new Set([...trails.keys(), ...trailRequests.keys()]))
             clearTrail(id); });
+        let latestTimeEt = 0, previousAnimationTime = performance.now();
         const acquireModel = (visual: BodyVisual, definition: ExplorerBodyDefinition) => {
             if (!definition.model || visual.model)
                 return;
@@ -204,6 +212,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 model.traverse(object => { object.userData.entityId = definition.id; });
                 visual.modelRadius = modelExtentRadius(model);
                 visual.group.add(model);
+                visual.modelRoot = model;
+                visual.animator = createModelAnimator(model, definition.modelAnimations ?? [], latestTimeEt);
                 if (definition.id === selectedId && mode === 'body') framedKey = '';
             } }).catch(error => { if (!disposed && visuals.get(definition.id) === visual)
                 errors[definition.model!.url] = String(error); });
@@ -431,6 +441,9 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 if(constellationsEnabled)loadConstellations();
             },
             update(state) {
+                latestTimeEt = state.clock.timeEt;
+                const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);
+                previousAnimationTime = animationTime;
                 if (disposed)
                     return;
                 selectedId = state.selectedId;
@@ -478,6 +491,10 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                         applyFrameTransform(visual.group, frame.position, frame.orientation, focus.position);
                         if (definition.model && modelIsResolvable(definition.radiusKm, visual.group.position.distanceTo(camera.position), THREE.MathUtils.degToRad(camera.fov), viewportHeight, definition.id === selectedId && mode === 'body'))
                             acquireModel(visual, definition);
+                        if (visual.modelRoot) {
+                            visual.jointState = updateModelJoints(visual.modelRoot, definition.jointControllers ?? [], frame, state.frames, state.clock.timeEt);
+                            visual.animator?.update({timeEt:state.clock.timeEt, deltaSeconds:animationDelta, orientation:frame.orientation ?? undefined});
+                        }
                         const glow=visual.group.getObjectByName('sun-pixel-glow');
                         if(glow)glow.scale.setScalar(100*visual.group.position.distanceTo(camera.position)*2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight);
                         ensureTrail(definition, state);
@@ -592,7 +609,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     occupied.push(placed);
                 }
             },
-            snapshot() { return { orbitGeometryUpdates, trailGaps: {...trailGaps}, drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, textureResources: pool.snapshot(), models: models.snapshot(), errors: { ...errors } }; },
+            snapshot() { return { modelAnimations:Object.fromEntries([...visuals].filter(([,visual])=>visual.animator).map(([id,visual])=>[id,{animations:visual.animator!.diagnostics(),joints:visual.jointState??{applied:0,missing:[],unavailable:[]}}])), orbitGeometryUpdates, trailGaps: {...trailGaps}, drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, textureResources: pool.snapshot(), models: models.snapshot(), errors: { ...errors } }; },
         };
     }
     catch (error) {

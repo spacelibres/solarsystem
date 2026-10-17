@@ -293,6 +293,7 @@ export default function Explorer() {
               <dt>影像缓存</dt><dd>{((renderStats?.textureResources.bytes ?? 0) / 1048576).toFixed(1)} MiB</dd>
             </dl>
             {selectedFrame?.status === 'ready' && <pre>{JSON.stringify({ parent: selectedFrame.parentId, positionKm: selectedFrame.position, orientation: selectedFrame.orientation }, null, 2)}</pre>}
+            {renderStats?.modelAnimations[selected?.id ?? ''] && <pre>{JSON.stringify(renderStats.modelAnimations[selected!.id], null, 2)}</pre>}
             {errorEntries.map(([path, message]) => <p key={path} className={styles.debugError}>{path}: {message}</p>)}
             {Object.entries(renderStats?.trailGaps??{}).map(([id,gap])=><p key={id}>{id}: trail {gap}</p>)}
             {Object.entries(renderStats?.errors ?? {}).map(([url, message]) => <p key={url} className={styles.debugError}>{message}</p>)}

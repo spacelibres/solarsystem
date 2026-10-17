@@ -129,3 +129,23 @@ Node 源码契约测试，0 失败。最后增加的时长区间缓存回归先�
 `npm run check`、`npm run build` 全部通过。
 生产包连续两次刷新检查初始加载画面，均无黄色矩形；加载完成后圆形光晕正常。
 截图 `artifacts/sun-startup-v40.png`；浏览器 error/warn 为空。
+
+
+## v0.2.41 星历与模型关节（2026-10-17）
+
+`npm ci`、完整测试（51 文件/443 项 Vitest + 229 项 Node）、
+`npm run check`、`npm run solar:catalog:check`、`npm run build` 均通过。
+模型关节主轴 none 在祖先旋转浮点误差下产生 NaN 的问题先由新测试复现，
+修复后再次通过全套测试、检查和生产构建。最终静态检查单独再次成功。
+
+生产太阳系总览在 ET845470723 附近为 ready，原六项解析错误及重试提示消失；
+仍有4条真实姿态时刻无覆盖，不伪造姿态。截图 `artifacts/ephemeris-ready-v41.png`。
+GPM 实际 glTF 绑定 GPM_antenna，角度从11.0296增加至31.0661；暂停后两次读取
+均为31.066076489786095；倒放后降至-1.19799，恢复60秒/秒正放继续增加。
+截图 `artifacts/gpm-animation-v41.png`。使用源端192度/秒及实时钳制。
+
+最终 ISS 生产模型10组太阳翼关节全部 applied，无 missing/unavailable；
+COWVR_top_spin active 且角度增长。RapidScat 在当前ET正确 outside-coverage，
+没有强迫过期设备旋转。截图 `artifacts/iss-joints-v41.png`。
+浏览器 error/warn 为空；其他任务的无覆盖提示与跨参考体拖尾缺口仍显式记录。
+未宣称任意自定义回调或所有对象全部实现；见新分析文档的范围说明。

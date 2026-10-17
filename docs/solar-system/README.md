@@ -68,3 +68,6 @@ explorer.resetCamera();
 
 - [Satellite visibility, source trails and zoom performance](satellite-visibility-and-trails.md)
 - [Continuous trails, close-up precision and source styling](continuous-trails.md)
+
+- [Spacecraft ephemeris failures](ephemeris-failures.md)
+- [Model articulation](model-animation.md)

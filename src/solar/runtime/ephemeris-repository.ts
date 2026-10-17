@@ -84,7 +84,7 @@ function decode(buffer: ArrayBuffer, inherited: DynHeader | undefined, name: str
     const rawPoints = parseDynSegment(block, header.pointType);
     const points: DynPoint[] = [];
     const stride = POINT_STRIDE[header.pointType];
-    let hasBackstep = false;
+    let needsSourceSelection = false;
     for (let i = 0; i < rawPoints.length; i++) {
       const point = rawPoints[i];
       if (!finiteTree(point)) invalid('Samples must contain only finite values');
@@ -92,19 +92,20 @@ function decode(buffer: ArrayBuffer, inherited: DynHeader | undefined, name: str
         const offset = 5 + i * stride;
         const identical = block.subarray(offset, offset + stride)
           .every((byte, index) => byte === block[offset - stride + index]);
-        if (!identical) invalid('Conflicting samples at the same time');
-        // Verified Venus interior and Voyager terminal repeats carry no new interval.
+        if (!identical) needsSourceSelection = true;
+        // Equal timestamps add no positive interval to the coverage summary;
+        // conflicting values remain in rawPoints for source-compatible selection.
         continue;
       }
-      if (i > 0 && point.time < rawPoints[i - 1].time) hasBackstep = true;
+      if (i > 0 && point.time < rawPoints[i - 1].time) needsSourceSelection = true;
       points.push(point);
     }
     if (rawPoints.length > 1 && (points.length < 2 || points[0].time >= points[points.length - 1].time)) {
       invalid('Samples do not define positive coverage');
     }
-    // Mars contains overlapping historical spans. Keep its original indices for
-    // source-compatible pair lookup; never sort or interpolate across the backstep.
-    return { header, points, children: [], sourcePoints: hasBackstep ? rawPoints : undefined };
+    // Overlapping spans and conflicting equal-ET records require original indices.
+    // Select and validate the queried source pair without merging discontinuities.
+    return { header, points, children: [], sourcePoints: needsSourceSelection ? rawPoints : undefined };
   }
   const count = reader.readInt32();
   const stride = header.version === 1 ? 16 : 8;
@@ -115,7 +116,7 @@ function decode(buffer: ArrayBuffer, inherited: DynHeader | undefined, name: str
   let previousEnd = -Infinity;
   for (let i = 0; i < count; i++) {
     const min = reader.readFloat64();
-    if (!Number.isFinite(min) || min <= previousStart) invalid('Index times must be finite and strictly increasing');
+    if (!Number.isFinite(min) || min < previousStart || (header.version === 1 && min === previousStart)) invalid('Index times must be finite and nondecreasing (strict for v1)');
     const max = header.version === 1 ? reader.readFloat64() : min;
     if (!Number.isFinite(max) || max < min || (header.version === 1 && min < previousEnd)) invalid('Invalid or overlapping index intervals');
     const padded = String(i).padStart(header.numberOfDigits, '0');

@@ -1,3 +1,5 @@
+import type { SourceModelAnimationPlan } from '../domain/model-animation';
+import type { SourceControllerPlan } from '../domain/controllers';
 import type { ModelDescriptor } from '../render/models';
 import type { EntityDefinition } from '../domain/entities';
 import type { SourceTrailOptions } from '../domain/trails';
@@ -14,6 +16,8 @@ export interface ExplorerBodyDefinition extends EntityDefinition {
     readonly sourceSubcategory?: string;
     readonly systemRadiusKm?: number;
     readonly model?: ModelDescriptor;
+    readonly modelAnimations?: readonly SourceModelAnimationPlan[];
+    readonly jointControllers?: readonly { readonly joint:string; readonly controller:SourceControllerPlan }[];
     readonly diagnostics?: readonly string[];
     readonly texture?: {
         readonly url: string;

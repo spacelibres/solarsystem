@@ -1,4 +1,5 @@
 import sourceCatalog from './catalog.generated.json';
+import type { SourceModelAnimationPlan } from '../domain/model-animation';
 import type { CatalogEntry, SourceController, SourceTime, StaticValue } from './catalog-types';
 import type { ExplorerBodyDefinition } from './default-scene';
 import type { EntityPhase } from '../domain/entities';
@@ -21,6 +22,8 @@ function axis(value: StaticValue | undefined): SourceAlignAxis | undefined {
 }
 function plan(controller: SourceController): SourceControllerPlan | undefined {
     const coverage = controller.coverage ? [time(controller.coverage[0]), time(controller.coverage[1])] as const : undefined;
+    if (controller.joint)
+        return;
     if (controller.type === 'dynamo')
         return controller.url && isAttitude(controller.url) ? { type: 'dynamoOrientation', coverage } : undefined;
     if (controller.type === 'coverage')
@@ -89,7 +92,7 @@ function sortedParents(entry: CatalogEntry): [
     return result;
 }
 function definition(entry: CatalogEntry): ExplorerBodyDefinition {
-    const dynamics = entry.controllers.filter(controller => controller.type === 'dynamo' && controller.url);
+    const dynamics = entry.controllers.filter(controller => controller.type === 'dynamo' && controller.url && !controller.joint);
     const positionControllers = dynamics.filter(controller => !isAttitude(controller.url!));
     const orientations = dynamics.filter(controller => isAttitude(controller.url!)).map(controller => `${controller.url}/def.dyn`);
     const phases: EntityPhase[] = sortedParents(entry).map(([start, parentId]) => {
@@ -109,6 +112,11 @@ function definition(entry: CatalogEntry): ExplorerBodyDefinition {
         sourceCategory: entry.sourceCategory, sourceSubcategory: entry.sourceSubcategory,
         radiusKm: entry.spheroid?.equatorialRadius ?? entry.extentsRadius ?? entry.radius ?? .00001, polarRadiusKm: entry.spheroid?.polarRadius, planetographic: entry.spheroid?.planetographic,
         systemRadiusKm: entry.systemRadius, kind: mesh ? 'model' : entry.spheroid ? 'spheroid' : 'marker', model: mesh, texture, phases,
+        modelAnimations: entry.modelAnimations?.flatMap(value => {
+            const direction = vector(value.axis);
+            return value.type === 'spin' && typeof value.joint === 'string' && direction && typeof value.rate === 'number' ? [{ ...value, type:'spin', joint:value.joint, axis:direction, rate:value.rate, coverage:Array.isArray(value.coverage) ? [time(value.coverage[0] as SourceTime), time(value.coverage[1] as SourceTime)] : undefined } as SourceModelAnimationPlan] : [];
+        }),
+        jointControllers: entry.controllers.flatMap(controller => { const joint = controller.joint; if(typeof joint !== 'string')return []; const value=plan({...controller,joint:undefined});return value ? [{joint,controller:value}] : []; }),
         trail: entry.trail ? sourceTrail(entry.trail) : undefined,
         staticPosition: fixed ? vector(fixed.position) : undefined,
         allowUnknownOrientation: !!mesh,

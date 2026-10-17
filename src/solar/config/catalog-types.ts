@@ -38,6 +38,7 @@ export interface CatalogEntry {
   occlusionRadius?: number;
   parents: [SourceTime, string][];
   controllers: SourceController[];
+  modelAnimations?: StaticObject[];
   spheroid?: { equatorialRadius: number; polarRadius: number; planetographic?: boolean };
   spheroidLOD?: StaticObject;
   model?: SourceModel;

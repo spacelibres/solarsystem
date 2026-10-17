@@ -48,7 +48,7 @@ function compileCatalog(root = ROOT) {
         return result;
       }
       const name = member(node);
-      const constants = { 'Number.NEGATIVE_INFINITY': '-Infinity', 'Number.POSITIVE_INFINITY': 'Infinity', 'Math.PI': Math.PI, 'Pioneer.Vector3.Zero': [0,0,0], 'Pioneer.Vector3.One': [1,1,1], 'Pioneer.Vector3.XAxis': [1,0,0], 'Pioneer.Vector3.YAxis': [0,1,0], 'Pioneer.Vector3.ZAxis': [0,0,1], 'Pioneer.Vector3.XAxisNeg': [-1,0,0], 'Pioneer.Vector3.YAxisNeg': [0,-1,0], 'Pioneer.Vector3.ZAxisNeg': [0,0,-1], 'Pioneer.Quaternion.Identity': [1,0,0,0] };
+      const constants = { 'Number.NEGATIVE_INFINITY': '-Infinity', 'Number.POSITIVE_INFINITY': 'Infinity', 'Math.PI': Math.PI, 'Pioneer.MathUtils.TwoPi': 2 * Math.PI, 'Pioneer.Vector3.Zero': [0,0,0], 'Pioneer.Vector3.One': [1,1,1], 'Pioneer.Vector3.XAxis': [1,0,0], 'Pioneer.Vector3.YAxis': [0,1,0], 'Pioneer.Vector3.ZAxis': [0,0,1], 'Pioneer.Vector3.XAxisNeg': [-1,0,0], 'Pioneer.Vector3.YAxisNeg': [0,-1,0], 'Pioneer.Vector3.ZAxisNeg': [0,0,-1], 'Pioneer.Quaternion.Identity': [1,0,0,0] };
       if (Object.hasOwn(constants, name)) return constants[name];
       if (node.type === 'Identifier') {
         if (name === 'undefined') return { $undefined: true };
@@ -67,6 +67,7 @@ function compileCatalog(root = ROOT) {
         }
         if (node.operator === '+' && typeof left === 'string' && typeof right === 'string') return left + right;
       }
+      if (node.type === 'CallExpression' && member(node.callee) === 'Pioneer.MathUtils.degToRad') { const value = evaluate(node.arguments[0]); if (typeof value === 'number') return value * Math.PI / 180; }
       if (node.type === 'CallExpression' && ['Math.sqrt', 'Math.sin', 'Math.cos', 'Math.abs', 'Math.pow'].includes(member(node.callee))) {
         const args = node.arguments.map(evaluate);
         if (args.every(value => typeof value === 'number')) return Math[member(node.callee).slice(5)](...args);
@@ -86,8 +87,28 @@ function compileCatalog(root = ROOT) {
         if (prop.type !== 'ObjectProperty') { diagnostics.push({ file, line: prop.loc.start.line, reason: 'non-static registration member' }); continue; }
         const id = prop.key.name ?? prop.key.value;
         const raw = evaluate(prop.value);
+        // Recognize only direct, literal SpinController setup calls; never execute callbacks.
+        const animations = [];
+        const callback = prop.value.properties?.find(item => item.key?.name === 'postCreateFunction')?.value;
+        const spins = new Map();
+        for (const statement of callback?.body?.body ?? []) {
+          if (statement.type === 'VariableDeclaration') for (const declaration of statement.declarations) {
+            const init = declaration.init;
+            if (declaration.id.type === 'Identifier' && init?.type === 'CallExpression' && init.callee?.property?.name === 'addController' && member(init.arguments[0]) === 'Pioneer.SpinController') spins.set(declaration.id.name, { type: 'spin', axis: [0,0,1], rate: 0 });
+          }
+          const call = statement.expression;
+          if (call?.type !== 'CallExpression' || call.callee?.type !== 'MemberExpression') continue;
+          const spin = spins.get(call.callee.object?.name);
+          if (!spin) continue;
+          const fields = { setJoint:'joint', setRate:'rate', setReferenceTime:'referenceTime', setReferenceAngle:'referenceAngle', setClampedToRealTime:'clampedToRealTime', setUsingRealTime:'usingRealTime', setRotatingPosition:'rotatingPosition' };
+          const method = call.callee.property.name;
+          if (fields[method]) spin[fields[method]] = evaluate(call.arguments[0]);
+          if (method === 'setAxis') { spin.axis = evaluate(call.arguments[0]); spin.axisRelativeToEntity = evaluate(call.arguments[1]); }
+          if (method === 'setCoverage' && call.arguments[0]?.type === 'NewExpression' && member(call.arguments[0].callee) === 'Pioneer.Interval') spin.coverage = call.arguments[0].arguments.map(evaluate);
+        }
+        for (const spin of spins.values()) if (typeof spin.joint === 'string' && typeof spin.rate === 'number' && Array.isArray(spin.axis)) animations.push(spin);
         const classification = metadata[id];
-        entries.push({ id, ...raw, ...(typeof classification?.category === 'string' ? { sourceCategory: classification.category } : {}), ...(typeof classification?.subcategory === 'string' ? { sourceSubcategory: classification.subcategory } : {}), groups: raw.groups ?? [], parents: raw.parents ?? [], controllers: raw.controllers ?? [], raw, provenance: { file, line: prop.loc.start.line, column: prop.loc.start.column + 1 }, diagnostics: localDiagnostics });
+        entries.push({ id, ...raw, ...(animations.length ? { modelAnimations: animations } : {}), ...(typeof classification?.category === 'string' ? { sourceCategory: classification.category } : {}), ...(typeof classification?.subcategory === 'string' ? { sourceSubcategory: classification.subcategory } : {}), groups: raw.groups ?? [], parents: raw.parents ?? [], controllers: raw.controllers ?? [], raw, provenance: { file, line: prop.loc.start.line, column: prop.loc.start.column + 1 }, diagnostics: localDiagnostics });
       }
     } });
   }

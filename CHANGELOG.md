@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.41 - 2026-10-17
+
+Load valid spacecraft ephemeris intervals around conflicting equal-time records,
+and preserve Lucy's repeated index boundaries and original child numbering.
+Retain glTF clips, apply source model joint alignment, and extract literal
+post-creation spin controllers without executing recovered callbacks. Drive
+articulation from signed simulation time with source real-time clamps, expose
+joint diagnostics, and keep unavailable data explicit.
+
 ## 0.2.40 - 2026-10-17
 
 Prevent the Sun glow from flashing as a bright yellow square on refresh.

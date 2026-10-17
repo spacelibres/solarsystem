@@ -202,6 +202,7 @@ export class ExplorerRuntime {
       const phase = entity.phases[activePhaseIndex(entity.phases, timeEt)];
       if (phase?.parentId) include(phase.parentId);
       for (const target of controllerDependencies(entity.controllers, phase?.parentId ?? null, timeEt)) include(target);
+      for (const joint of entity.jointControllers ?? []) for (const target of controllerDependencies([joint.controller], phase?.parentId ?? null, timeEt)) include(target);
     };
     for (const id of this.activeIds ?? byId.keys()) include(id);
     this.requiredIds = required;
