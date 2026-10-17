@@ -7,7 +7,7 @@
 #   2. creates the service user and the app directory
 #   3. clones or fast-forwards the repository
 #   4. builds the Next.js production bundle
-#   5. mirrors NASA's assets locally (optional — see MIRROR below)
+#   5. uses NASA assets at their runtime URLs (no library download)
 #   6. installs a systemd unit so the app restarts on boot
 #   7. writes a Caddy site block and reloads Caddy
 #   8. installs a webhook listener so a GitHub push can redeploy
@@ -28,7 +28,7 @@
 #   WEBHOOK_PATH   default /hooks/deploy
 #   MIRROR_DIR     default /srv/solarsystem-mirror (kept out of the build tree)
 #   REPO_URL       default https://github.com/spacelibres/solarsystem.git
-#   WEBHOOK_SECRET secret shared with GitHub; required for the webhook
+#   WEBHOOK_SECRET optional shared secret; reuse existing or generate on first install
 set -euo pipefail
 
 APP_DOMAIN="${APP_DOMAIN:-solarsystem.spacelibre.cn}"
@@ -40,12 +40,13 @@ WEBHOOK_PATH="${WEBHOOK_PATH:-/hooks/deploy}"
 MIRROR_DIR="${MIRROR_DIR:-/srv/solarsystem-mirror}"
 REPO_URL="${REPO_URL:-https://github.com/spacelibres/solarsystem.git}"
 BRANCH="main"
-SKIP_MIRROR=0
 WEBHOOK_SECRET="${WEBHOOK_SECRET:-}"
+WEBHOOK_ENV_FILE=/etc/solarsystem/webhook.env
+INSTALLER_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 
 while [ $# -gt 0 ]; do
   case "$1" in
-    --skip-mirror) SKIP_MIRROR=1 ;;
+    --skip-mirror) : ;;
     --branch) BRANCH="$2"; shift ;;
     --domain) APP_DOMAIN="$2"; shift ;;
     --port) APP_PORT="$2"; shift ;;
@@ -62,14 +63,39 @@ die()  { printf '\033[1;31m error\033[0m %s\n' "$*" >&2; exit 1; }
 
 [ "$(id -u)" -eq 0 ] || die "run as root (sudo $0)"
 
+# Keep an existing GitHub signature contract when an operator reruns the installer.
+if [ -z "$WEBHOOK_SECRET" ] && [ -f "$WEBHOOK_ENV_FILE" ]; then
+  WEBHOOK_SECRET="$(sed -n 's/^WEBHOOK_SECRET=//p' "$WEBHOOK_ENV_FILE" | head -1)"
+fi
+if [ -z "$WEBHOOK_SECRET" ] && [ -f /etc/systemd/system/solarsystem-webhook.service ]; then
+  WEBHOOK_SECRET="$(sed -n 's/^Environment=WEBHOOK_SECRET=//p' /etc/systemd/system/solarsystem-webhook.service | head -1)"
+fi
+if [ -z "$WEBHOOK_SECRET" ]; then
+  WEBHOOK_SECRET="$(od -An -N32 -tx1 /dev/urandom | tr -d ' \n')"
+  log "generated a webhook secret; it will be stored in $WEBHOOK_ENV_FILE"
+fi
+case "$WEBHOOK_SECRET" in *[!a-zA-Z0-9_-]*) die "WEBHOOK_SECRET must contain only letters, digits, underscore or hyphen" ;; esac
+
+mkdir -p /var/lock
+exec 9>/var/lock/solarsystem-update.lock
+flock -n 9 || die "another install or webhook update is running; try again when it finishes"
+export NODE_OPTIONS="${NODE_OPTIONS:---max-old-space-size=1536}"
+export NEXT_TELEMETRY_DISABLED=1
+
 # --- 1. system packages ------------------------------------------------------
 
 log "installing system packages"
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq
-apt-get install -y -qq curl git ca-certificates gnupg rsync >/dev/null
+apt-get install -y -qq curl git ca-certificates gnupg rsync sudo util-linux >/dev/null
 
-if ! command -v node >/dev/null 2>&1; then
+if ! command -v caddy >/dev/null 2>&1; then
+  log "installing Caddy from the system package repository"
+  apt-get install -y -qq caddy >/dev/null
+fi
+command -v caddy >/dev/null 2>&1 || die "Caddy installation failed"
+
+if ! command -v node >/dev/null 2>&1 || [ "$(node -p 'Number(process.versions.node.split(".")[0])')" -lt 22 ]; then
   log "installing Node.js 22"
   curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
   apt-get install -y -qq nodejs >/dev/null
@@ -90,6 +116,7 @@ chown "$APP_USER:$APP_USER" "$APP_DIR"
 # --- 3. clone or update ------------------------------------------------------
 
 if [ -d "$APP_DIR/.git" ]; then
+  [ -z "$(sudo -u "$APP_USER" git -C "$APP_DIR" status --porcelain --untracked-files=no)" ] || die "checkout has local source changes; preserve them before deploying"
   log "updating existing checkout"
   sudo -u "$APP_USER" git -C "$APP_DIR" fetch --prune origin
   sudo -u "$APP_USER" git -C "$APP_DIR" checkout "$BRANCH"
@@ -102,39 +129,34 @@ fi
 VERSION="$(cat "$APP_DIR/VERSION" 2>/dev/null || echo unknown)"
 log "checked out version $VERSION"
 
+# Keep legacy data without letting Next's build traverse it inside the checkout.
+MIRROR_SRC="$APP_DIR/data/mirror"
+if [ -L "$MIRROR_SRC" ]; then
+  log "removing the in-tree mirror link; its external target is retained"
+  rm -- "$MIRROR_SRC"
+elif [ -d "$MIRROR_SRC" ]; then
+  [ ! -e "$MIRROR_DIR" ] || die "$MIRROR_DIR already exists; cannot safely move the in-tree mirror"
+  [ "$(realpath -m "$MIRROR_DIR")" != "$(realpath -m "$APP_DIR")" ] || die "mirror target must be outside the checkout"
+  case "$(realpath -m "$MIRROR_DIR")/" in "$(realpath -m "$APP_DIR")/"*) die "mirror target must be outside the checkout" ;; esac
+  log "moving legacy mirror outside the checkout to $MIRROR_DIR"
+  mkdir -p "$(dirname "$MIRROR_DIR")"
+  mv -- "$MIRROR_SRC" "$MIRROR_DIR"
+fi
+
 # --- 4. build ---------------------------------------------------------------
 
 log "installing npm dependencies"
-sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm ci --no-audit --no-fund"
+sudo -u "$APP_USER" env NODE_OPTIONS="$NODE_OPTIONS" NEXT_TELEMETRY_DISABLED=1 bash -lc "cd '$APP_DIR' && npm ci --no-audit --no-fund"
+
+log "running tests and source checks"
+sudo -u "$APP_USER" env NODE_OPTIONS="$NODE_OPTIONS" NEXT_TELEMETRY_DISABLED=1 bash -lc "cd '$APP_DIR' && npm test && npm run check"
 
 log "building production bundle"
-sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run build"
+sudo -u "$APP_USER" env NODE_OPTIONS="$NODE_OPTIONS" NEXT_TELEMETRY_DISABLED=1 bash -lc "cd '$APP_DIR' && npm run build"
 
-# --- 5. NASA asset mirror ----------------------------------------------------
-#
-# The app serves NASA's textures, models and ephemerides from the mirror, which
-# is git-ignored (it is NASA's data, not ours). On a fresh host it has to be
-# fetched once. It is ~1.6 GB across 90k+ files, so this is the slow step and is
-# skipped when a mirror is already present.
-#
-# It lives OUTSIDE the project tree on purpose: Next's build walks the project
-# directory, and scanning that many files made the build exceed this host's
-# memory and get OOM-killed. The service reads it via MIRROR_ROOT instead.
-
-if [ "$SKIP_MIRROR" -eq 0 ]; then
-  if [ -d "$MIRROR_DIR/static/maps" ]; then
-    log "NASA mirror already present, skipping (use a fresh clone to refetch)"
-  else
-    log "building the asset manifest"
-    sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/build-manifest.cjs" || warn "manifest build failed"
-    sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/expand-segments.cjs" || warn "segment expansion failed"
-    log "downloading NASA assets (this takes a while — ~1.6 GB)"
-    sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && node tools/download-mirror.cjs --out '$MIRROR_DIR' --concurrency 24 --retry 3" \
-      || warn "some assets failed; re-run this script to resume"
-  fi
-else
-  log "skipping mirror (--skip-mirror)"
-fi
+# --- 5. Runtime assets -------------------------------------------------------
+# Existing out-of-tree mirrors are left alone; normal operation references NASA.
+log "using NASA runtime URLs; no asset library is downloaded"
 
 # --- 6. systemd unit ---------------------------------------------------------
 
@@ -158,7 +180,7 @@ Environment=HOSTNAME=127.0.0.1
 # 90k+ files (that scan is what exhausted this host's memory).
 Environment=MIRROR_ROOT=$MIRROR_DIR
 Environment=NODE_OPTIONS=--max-old-space-size=1536
-ExecStart=$(command -v npm) run start
+ExecStart=$(command -v npm) run start -- --hostname 127.0.0.1
 Restart=always
 RestartSec=5
 # The mirror is large but only read; keep the browser-facing process unprivileged.
@@ -194,9 +216,21 @@ CADDYFILE=/etc/caddy/Caddyfile
 SITE_FILE=/etc/caddy/sites/solarsystem.caddy
 
 if ! command -v caddy >/dev/null 2>&1; then
-  warn "caddy not found; skipping the site block. Install it, then re-run."
+  die "Caddy is required"
 else
   log "writing Caddy site block for $APP_DOMAIN"
+  BACKUP_DIR="/var/backups/solarsystem/$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  install -d -m 0700 "$BACKUP_DIR"
+  if [ -f "$CADDYFILE" ]; then cp -a "$CADDYFILE" "$BACKUP_DIR/Caddyfile"; fi
+  if [ -f "$SITE_FILE" ]; then cp -a "$SITE_FILE" "$BACKUP_DIR/solarsystem.caddy"; fi
+  restore_caddy_config() {
+    if [ -f "$BACKUP_DIR/Caddyfile" ]; then cp -a "$BACKUP_DIR/Caddyfile" "$CADDYFILE"; fi
+    if [ -f "$BACKUP_DIR/solarsystem.caddy" ]; then
+      cp -a "$BACKUP_DIR/solarsystem.caddy" "$SITE_FILE"
+    else
+      rm -f "$SITE_FILE"
+    fi
+  }
   mkdir -p "$(dirname "$SITE_FILE")"
   cat > "$SITE_FILE" <<CADDY
 # Managed by deploy/deploy.sh — do not edit by hand.
@@ -233,13 +267,22 @@ CADDY
     printf '\n# Added by deploy/deploy.sh\nimport sites/*.caddy\n' >> "$CADDYFILE"
   fi
 
+  systemctl enable caddy >/dev/null
   log "validating Caddy configuration"
-  if caddy validate --config "$CADDYFILE" >/dev/null 2>&1; then
-    systemctl reload caddy 2>/dev/null || systemctl restart caddy
-    log "caddy reloaded"
-  else
-    warn "caddy validate failed; not reloading. Run: caddy validate --config $CADDYFILE"
+  if ! caddy validate --config "$CADDYFILE" > "$BACKUP_DIR/validation.log" 2>&1; then
+    restore_caddy_config
+    die "Caddy validation failed; configuration restored. See $BACKUP_DIR/validation.log"
   fi
+  if systemctl is-active --quiet caddy; then
+    if ! systemctl reload caddy; then
+      restore_caddy_config
+      die "Caddy reload failed; previous files restored and existing service left running"
+    fi
+  elif ! systemctl start caddy; then
+    restore_caddy_config
+    die "Caddy start failed; previous files restored"
+  fi
+  log "caddy configuration applied"
 fi
 
 # --- 8. webhook --------------------------------------------------------------
@@ -249,8 +292,13 @@ fi
 # supplied we still install the listener but refuse unsigned calls.
 
 log "installing the webhook listener and updater"
-install -m 0755 "$(dirname "$0")/webhook.cjs" /usr/local/bin/solarsystem-webhook
-install -m 0755 "$(dirname "$0")/update.sh" /usr/local/bin/solarsystem-update
+install -m 0755 "$INSTALLER_DIR/webhook.cjs" /usr/local/bin/solarsystem-webhook
+install -m 0755 "$INSTALLER_DIR/update.sh" /usr/local/bin/solarsystem-update
+install -m 0755 "$INSTALLER_DIR/check.sh" /usr/local/bin/solarsystem-check
+
+install -d -m 0700 /etc/solarsystem
+(umask 077; printf 'WEBHOOK_SECRET=%s\n' "$WEBHOOK_SECRET" > "$WEBHOOK_ENV_FILE")
+chmod 0600 "$WEBHOOK_ENV_FILE"
 
 cat > /etc/systemd/system/solarsystem-webhook.service <<UNIT
 [Unit]
@@ -263,9 +311,15 @@ Type=simple
 User=root
 Environment=WEBHOOK_PORT=$WEBHOOK_PORT
 Environment=WEBHOOK_HOST=127.0.0.1
-Environment=WEBHOOK_SECRET=$WEBHOOK_SECRET
+Environment=WEBHOOK_PATH=$WEBHOOK_PATH
+EnvironmentFile=$WEBHOOK_ENV_FILE
 Environment=WEBHOOK_UPDATE_CMD=/usr/local/bin/solarsystem-update
 Environment=WEBHOOK_BRANCH=$BRANCH
+Environment=APP_BRANCH=$BRANCH
+Environment=APP_DIR=$APP_DIR
+Environment=APP_USER=$APP_USER
+Environment=APP_PORT=$APP_PORT
+Environment=MIRROR_DIR=$MIRROR_DIR
 ExecStart=$(command -v node) /usr/local/bin/solarsystem-webhook
 Restart=always
 RestartSec=5

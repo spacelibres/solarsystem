@@ -66,46 +66,18 @@ sudo -u "$APP_USER" git reset --hard -q "origin/$APP_BRANCH"
 NEW_VERSION="$(cat VERSION 2>/dev/null || echo unknown)"
 log "building version $NEW_VERSION"
 
-# The NASA asset mirror is ~1.6 GB across 214k files. Turbopack resolves its
-# path at build time and globs whatever it points at, so with the mirror inside
-# the project the build walks the whole thing, exceeds this host's 2 GB and is
-# killed mid-build. Nothing in the build needs it — it is read at runtime via
-# MIRROR_ROOT — so move it out of the tree for the build and put it back
-# afterwards, whatever the outcome. `npm run build` also refuses to run with the
-# mirror in place, so this has to happen before the build.
+# Legacy mirrors must stay outside the checkout across both install and updates.
+# Keeping them there also preserves the service's MIRROR_ROOT after a rebuild.
 MIRROR_SRC="$APP_DIR/data/mirror"
-MIRROR_PARK="$MIRROR_DIR"
-moved_mirror=0
-
-restore_mirror() {
-  local status=$?
-  if [ "$moved_mirror" = 1 ] && [ -d "$MIRROR_PARK" ]; then
-    log "restoring the asset mirror"
-    rm -rf "$MIRROR_SRC"
-    mkdir -p "$(dirname "$MIRROR_SRC")"
-    mv "$MIRROR_PARK" "$MIRROR_SRC"
-  fi
-  return $status
-}
-trap restore_mirror EXIT
-
-# A previous run that was killed between the park and the restore can leave the
-# mirror outside the tree. Recover it rather than treating the park path as
-# disposable: deleting it below would destroy 200k files that took hours to
-# fetch.
-if [ ! -d "$MIRROR_SRC" ] && [ -d "$MIRROR_PARK" ]; then
-  log "found the asset mirror parked from an earlier run; restoring it first"
-  mkdir -p "$(dirname "$MIRROR_SRC")"
-  mv "$MIRROR_PARK" "$MIRROR_SRC"
-fi
-
-if [ -d "$MIRROR_SRC" ]; then
-  log "parking the asset mirror outside the build tree"
-  if [ -e "$MIRROR_PARK" ]; then
-    die "$MIRROR_PARK already exists; move it away so the mirror can be parked there"
-  fi
-  mv "$MIRROR_SRC" "$MIRROR_PARK"
-  moved_mirror=1
+if [ -L "$MIRROR_SRC" ]; then
+  log "removing in-tree mirror link; external target retained"
+  rm -- "$MIRROR_SRC"
+elif [ -d "$MIRROR_SRC" ]; then
+  [ ! -e "$MIRROR_DIR" ] || die "$MIRROR_DIR already exists; refusing to overwrite mirror data"
+  case "$(realpath -m "$MIRROR_DIR")/" in "$(realpath -m "$APP_DIR")/"*) die "mirror target must be outside the checkout" ;; esac
+  mkdir -p "$(dirname "$MIRROR_DIR")"
+  log "moving legacy mirror outside the checkout"
+  mv -- "$MIRROR_SRC" "$MIRROR_DIR"
 fi
 
 log "installing dependencies"
@@ -119,17 +91,12 @@ if ! sudo -u "$APP_USER" bash -lc "cd '$APP_DIR' && npm run check"; then
   die "TYPE/LINT CHECK FAILED — leaving the running build in place"
 fi
 
-log "building (serialised, mirror parked)"
+log "building (serialised, mirror outside checkout)"
 if ! sudo -u "$APP_USER" env NODE_OPTIONS="$NODE_OPTIONS" NEXT_TELEMETRY_DISABLED=1 \
      bash -lc "cd '$APP_DIR' && npm run build"; then
   log "BUILD FAILED — leaving the running build in place"
   exit 1
 fi
-
-# The service reads the mirror from MIRROR_ROOT, so it must be back in place —
-# and the running app keeps serving from the same path — before the restart.
-restore_mirror
-moved_mirror=0
 
 log "restarting the service"
 systemctl restart solarsystem

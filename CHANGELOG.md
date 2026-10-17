@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.48 - 2026-10-17
+
+Add a bootstrap installer and live HTTPS/webhook diagnostics for Ubuntu VPS
+hosts. Install missing Caddy, retain other sites and existing signature secrets,
+validate and back up Caddy configuration, and bind Next.js to loopback. Serialize
+installs with webhook updates, run release checks, and stop downloading a NASA
+asset library. Store the webhook secret in a root-only environment file.
+Keep legacy mirrors external across webhook updates and retain the running Caddy
+process if a configuration reload fails.
+
 ## 0.2.47 - 2026-10-17
 
 Prepare the recovered application and pinned decoder dependencies before npm
