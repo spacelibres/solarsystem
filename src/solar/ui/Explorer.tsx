@@ -69,6 +69,7 @@ export default function Explorer() {
     const [notice, setNotice] = useState<string | null>(null);
     const [attempt, setAttempt] = useState(0);
     const [showDebug, setShowDebug] = useState(false);
+    const [showCatalog, setShowCatalog] = useState(true);
     const [dateDraft, setDateDraft] = useState('');
     useEffect(() => {
         const container = mount.current;
@@ -212,6 +213,7 @@ export default function Explorer() {
         <div className={styles.mobileBrand}><SpacelibreLogo orientation="icon" width={48} ink="white"/></div>
         <div className={styles.title}><span>SOLAR SYSTEM</span><h1>{sceneMode === 'overview' ? 'Solar System' : selected?.label ?? 'Explore space'}</h1></div>
         <nav className={styles.headerActions} aria-label="视图控制">
+          <button aria-expanded={showCatalog} onClick={() => setShowCatalog(value => !value)}>目录</button>
           <button onClick={() => navigate('sun', 'overview')} disabled={!snapshot}>太阳系总览</button>
           <button onClick={() => worldRef.current?.resetCamera()} disabled={!snapshot || !!fatal}>重置视角</button>
           <button aria-pressed={showDebug} onClick={() => setShowDebug(value => !value)}>诊断</button>
@@ -221,7 +223,7 @@ export default function Explorer() {
 
       <section className={styles.workspace} aria-label="太阳系视图">
         <div ref={mount} className={styles.viewport}/>
-        <aside className={styles.sidebar}>
+        <aside className={styles.sidebar} hidden={!showCatalog} aria-label="探索目录">
           <div className={styles.sectionLabel}>探索目录 <span>{FULL_SCENE.length} 个对象</span></div>
           <input className={styles.search} aria-label="搜索天体或航天器" placeholder="搜索行星、卫星、航天器…" value={query} onChange={event => { setQuery(event.target.value); setResultLimit(100); if (event.target.value.trim())
         setFilter('all'); }}/>
@@ -319,7 +321,6 @@ export default function Explorer() {
             <button type="submit" disabled={!snapshot || !!fatal}>转到</button>
           </form>
         </div>
-        <p className={styles.attribution}>数据与影像：<a href="https://eyes.nasa.gov/apps/solar-system" target="_blank" rel="noreferrer">NASA / JPL-Caltech</a> · 独立实现，非 NASA 官方产品</p>
       </footer>
     </main>);
 }

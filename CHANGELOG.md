@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.45 - 2026-10-17
+
+Expand the explorer canvas to the entire viewport. Float transparent navigation,
+catalog, diagnostics and compact time controls over it; allow unused HUD space
+to pass camera gestures through. Add a catalog toggle and remove the requested
+on-screen attribution sentence while preserving README provenance.
+
 ## 0.2.44 - 2026-10-17
 
 Use Eyes' outward parent-relative initial spacecraft view so Earth-orbiting

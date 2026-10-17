@@ -204,3 +204,14 @@ Three OrbitControls缓存up基础，改为重置取景时重新绑定并清除�
 orientation=(0,0,0,1)，浏览器error/warn为空。截图ixpe-earth-view-v44.png。
 当前地球背景呈平面深蓝，尚未对齐原版地球着色与景深；未宣称所有姿态视觉等价。
 镜头边界与后续差异见spacecraft-camera.md。
+
+## v0.2.45 全屏透明浮层（2026-10-17）
+
+依照用户明确要求移除界面底部来源句，README来源说明保持；上下栏不再占布局行。
+生产浏览器实测canvas边界为(0,0,1280,720)，与主视图尺寸相同；header、aside、
+footer的computed background均为rgba(0,0,0,0)。目录收起/恢复、天体选择、暂停、
+场景拖动可用。目录clientWidth=scrollWidth=210，无横向溢出；浏览器error/warn为空。
+截图artifacts/transparent-hud-v45.png。小屏使用原有横向目录并保留滚动与控件换行，
+本次未单独执行移动设备截图验收。
+完整npm ci、499项Vitest和229项Node测试通过；最终CSS调整后再次check及生产build
+通过。布局规则与归属文案变更依据记录在transparent-hud.md。

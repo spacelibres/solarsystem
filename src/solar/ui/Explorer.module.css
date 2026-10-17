@@ -1,14 +1,14 @@
 .app {
   height: 100dvh;
-  min-height: 560px;
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
   background: var(--sl-deep);
   color: var(--sl-surface);
   font-family: Arial, 'Microsoft YaHei', sans-serif;
   color-scheme: dark;
 }
-.header { display: flex; align-items: center; gap: 24px; padding: 4px 24px; border-bottom: 1px solid color-mix(in srgb, var(--sl-line) 18%, transparent); }
+.header { position: absolute; inset: 8px 16px auto; z-index: 3; pointer-events: none; display: flex; align-items: center; gap: 24px; padding: 0; background: transparent; }
 .mobileBrand { display: none; }
 .title { margin-right: auto; min-width: 0; }
 .title > span { font-size: 10px; letter-spacing: .22em; opacity: .75; }
@@ -17,7 +17,7 @@
 .app button, .app select, .app input { font: inherit; }
 .app button, .app select, .app input[type='datetime-local'], .headerActions a {
   border: 1px solid color-mix(in srgb, var(--sl-line) 28%, transparent);
-  background: color-mix(in srgb, var(--sl-surface) 6%, var(--sl-deep));
+  background: transparent;
   color: var(--sl-surface);
   border-radius: 4px;
   padding: 9px 12px;
@@ -26,18 +26,18 @@
   text-decoration: none;
 }
 .app button:not(:disabled), .app select, .app input { cursor: pointer; }
-.app button:hover:not(:disabled), .headerActions a:hover { border-color: var(--sl-primary-on-dark); background: color-mix(in srgb, var(--sl-primary) 18%, var(--sl-deep)); }
+.app button:hover:not(:disabled), .headerActions a:hover { border-color: var(--sl-primary-on-dark); background: transparent; }
 .app button:focus-visible, .app input:focus-visible, .app select:focus-visible, .app a:focus-visible { outline: 2px solid var(--sl-primary-on-dark); outline-offset: 3px; }
 .app button:disabled { opacity: .5; }
-.workspace { position: relative; min-height: 0; overflow: hidden; }
+.workspace { position: absolute; inset: 0; overflow: hidden; }
 .viewport { position: absolute; inset: 0; }
 .viewport canvas { display: block; touch-action: none; }
-.sidebar { position: absolute; left: 24px; top: 24px; width: 240px; padding: 18px; background: color-mix(in srgb, var(--sl-deep) 89%, transparent); border: 1px solid color-mix(in srgb, var(--sl-line) 16%, transparent); border-radius: 6px; backdrop-filter: blur(12px); }
+.sidebar { position: absolute; left: 24px; top: 88px; width: 220px; padding: 0; background: transparent; border: 0; pointer-events: none; }
 .sectionLabel { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .08em; opacity: .8; }
 .sectionLabel > span { font-variant-numeric: tabular-nums; }
-.targets { display: grid; gap: 5px; margin: 16px -8px 0; }
+.targets { display: grid; gap: 5px; margin: 16px 0 0; }
 .targets button { display: flex; align-items: center; gap: 10px; text-align: left; border: 1px solid transparent; background: transparent; }
-.targets button[aria-pressed='true'] { background: color-mix(in srgb, var(--sl-primary) 20%, var(--sl-deep)); border-color: color-mix(in srgb, var(--sl-primary-on-dark) 65%, transparent); }
+.targets button[aria-pressed='true'] { background: transparent; border-color: color-mix(in srgb, var(--sl-primary-on-dark) 65%, transparent); }
 .targets small { margin-left: auto; font-size: 10px; opacity: .75; }
 .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sl-muted); flex: none; }
 .ready { background: var(--sl-accent); }
@@ -45,19 +45,19 @@
 .bodyInfo p { font-size: 12px; line-height: 1.7; margin: 12px 0 0; }
 .secondary { opacity: .78; overflow-wrap: anywhere; }
 .hint { margin-top: 22px; font-size: 11px; opacity: .75; line-height: 1.8; }
-.loading { position: absolute; left: 50%; top: 24px; transform: translateX(-50%); padding: 9px 16px; border-radius: 24px; background: color-mix(in srgb, var(--sl-deep) 88%, transparent); font-size: 12px; }
+.loading { position: absolute; pointer-events: none; left: 50%; top: 88px; transform: translateX(-50%); padding: 9px 16px; border-radius: 24px; background: transparent; font-size: 12px; }
 .loading span { color: var(--sl-primary-on-dark); margin-left: 12px; }
-.errorPanel { position: absolute; left: 50%; bottom: 20px; transform: translateX(-50%); max-width: min(500px, 90%); padding: 12px 16px; border: 1px solid var(--sl-warning); background: var(--sl-deep); border-radius: 6px; display: flex; align-items: center; gap: 16px; }
+.errorPanel { position: absolute; left: 50%; bottom: 136px; transform: translateX(-50%); max-width: min(500px, 90%); padding: 12px 16px; border: 1px solid var(--sl-warning); background: transparent; border-radius: 6px; display: flex; align-items: center; gap: 16px; }
 .errorPanel p { margin: 0; font-size: 12px; overflow-wrap: anywhere; }
 .errorPanel button { flex: none; }
-.debug { position: absolute; right: 24px; top: 24px; width: 300px; max-height: calc(100% - 48px); overflow: auto; padding: 18px; background: color-mix(in srgb, var(--sl-deep) 94%, transparent); border: 1px solid color-mix(in srgb, var(--sl-line) 28%, transparent); border-radius: 6px; }
+.debug { position: absolute; right: 24px; top: 88px; width: 280px; max-height: calc(100% - 224px); overflow: auto; padding: 8px; background: transparent; border: 1px solid color-mix(in srgb, var(--sl-line) 28%, transparent); border-radius: 6px; }
 .debug h2 { font-size: 14px; font-weight: 400; margin: 0 0 18px; }
 .debug dl { display: grid; grid-template-columns: 1fr auto; gap: 10px; font-size: 11px; }
 .debug dt { opacity: .78; }
 .debug dd { margin: 0; font-family: Consolas, monospace; }
 .debug pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 10px/1.6 Consolas, monospace; border-top: 1px solid color-mix(in srgb, var(--sl-line) 20%, transparent); padding-top: 12px; }
 .debugError { font-size: 11px; overflow-wrap: anywhere; line-height: 1.5; }
-.footer { position: relative; padding: 12px 24px 10px; border-top: 1px solid color-mix(in srgb, var(--sl-line) 18%, transparent); background: color-mix(in srgb, var(--sl-deep) 95%, var(--sl-primary)); }
+.footer { position: absolute; z-index: 3; bottom: 12px; left: 50%; transform: translateX(-50%); width: min(760px, calc(100% - 32px)); padding: 0; border: 0; background: transparent; pointer-events: none; }
 .clockLine { display: flex; align-items: center; justify-content: center; gap: 20px; font-size: 14px; font-variant-numeric: tabular-nums; }
 .mode { font-size: 10px; letter-spacing: .1em; }
 .live { color: var(--sl-accent); }
@@ -66,16 +66,14 @@
 .controls { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 8px; }
 .dateForm { display: flex; align-items: center; gap: 8px; margin-left: 12px; }
 .dateForm label { font-size: 11px; opacity: .8; }
-.attribution { text-align: center; font-size: 10px; margin: 12px 0 0; opacity: .75; line-height: 1.6; }
-.attribution a { color: inherit; }
 @media (max-width: 900px) {
   .header { gap: 12px; padding-inline: 12px; }
   .headerActions a { display: none; }
-  .sidebar { left: 16px; top: 16px; width: 205px; padding: 14px; }
+  .sidebar { left: 16px; top: 88px; width: 205px; padding: 0; }
   .debug { right: 16px; width: 280px; }
 }
 @media (max-width: 700px) {
-  .app { min-height: 520px; }
+  .app { min-height: 0; }
   .desktopBrand { display: none; }
   .mobileBrand { display: block; }
   .title h1 { font-size: 17px; }
@@ -83,12 +81,12 @@
   .header { gap: 6px; }
   .headerActions { gap: 5px; }
   .headerActions button { padding: 8px; font-size: 11px; }
-  .sidebar { left: 12px; right: 12px; top: 10px; width: auto; padding: 0; background: none; border: 0; backdrop-filter: none; }
+  .sidebar { left: 12px; right: 12px; top: 80px; width: auto; padding: 0; background: none; border: 0; backdrop-filter: none; }
   .sectionLabel, .bodyInfo, .hint { display: none; }
   .targets { display: flex; overflow-x: auto; gap: 5px; margin: 0; padding-bottom: 8px; }
-  .targets button { background: color-mix(in srgb, var(--sl-deep) 86%, transparent); white-space: nowrap; padding: 8px 10px; font-size: 11px; }
+  .targets button { background: transparent; white-space: nowrap; padding: 8px 10px; font-size: 11px; }
   .targets small { display: none; }
-  .loading { top: 58px; white-space: nowrap; }
+  .loading { top: 200px; white-space: nowrap; }
   .debug { top: 58px; right: 12px; width: min(300px, calc(100% - 24px)); max-height: calc(100% - 70px); }
   .footer { padding: 10px 12px 8px; }
   .clockLine { gap: 10px; font-size: 11px; flex-wrap: wrap; }
@@ -97,19 +95,17 @@
   .controls button, .controls select { padding: 8px 10px; font-size: 11px; }
   .dateForm { margin: 2px 0 0; width: 100%; justify-content: center; }
   .app input[type='datetime-local'] { padding: 7px 5px; font-size: 11px; min-width: 0; }
-  .attribution { font-size: 9px; margin-top: 8px; }
 }
 @media (max-height: 600px) {
   .app { min-height: 0; }
   .header { padding-block: 0; }
   .bodyInfo, .hint { display: none; }
   .footer { padding-block: 6px; }
-  .attribution { margin-top: 5px; }
 }
 
 .search { width: 100%; margin-top: 16px; min-width: 0; cursor: text !important; }
 .category { width: 100%; margin-top: 8px; }
-.targets { max-height: 230px; overflow-y: auto; }
+.targets { max-height: 160px; overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--sl-muted) transparent; }
 .resultCount { font-size: 10px; opacity: .65; margin: 12px 0 0; }
 .bodyInfo { margin-top: 12px; padding-top: 12px; }
 .bodyInfo p { margin-top: 8px; }
@@ -117,28 +113,46 @@
 .sceneActions button { padding: 7px 4px; font-size: 11px; }
 .sceneActions label { display: flex; align-items: center; gap: 4px; font-size: 11px; margin-top: 6px; }
 .hint { margin-top: 12px; }
-.sidebar { max-height: calc(100% - 48px); overflow-y: auto; }
+.sidebar { max-height: calc(100% - 224px); overflow-y: auto; overflow-x: hidden; scrollbar-width: thin; scrollbar-color: var(--sl-muted) transparent; }
 @media (max-width: 700px) {
-  .search { width: calc(57% - 4px); margin: 0 4px 6px 0; padding: 7px !important; font-size: 11px !important; background: var(--sl-deep) !important; }
+  .search { width: calc(57% - 4px); margin: 0 4px 6px 0; padding: 7px !important; font-size: 11px !important; background: transparent !important; }
   .category { width: 42%; margin: 0 0 6px; padding: 7px !important; font-size: 11px !important; }
   .targets { max-height: 50px; }
   .resultCount, .sceneActions { display: none; }
-  .sidebar { max-height: 112px; overflow: hidden; }
-  .loading, .debug { top: 112px; }
+  .sidebar { max-height: 112px; overflow-y: auto; }
+  .loading, .debug { top: 212px; }
 }
 
 .app .viewport :global(.solar-scene-label) { background: transparent; border: 0; padding: 3px 8px 3px 12px; font-size: 11px; }
 .app .viewport :global(.solar-scene-label:hover) { background: transparent; border: 0; }
 
 @media (max-width: 700px) {
-  .sceneActions { display: flex; align-items: center; gap: 4px; margin-top: 4px; }
+  .sceneActions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
   .sceneActions button { flex: 1; font-size: 10px; padding: 6px 4px; white-space: nowrap; }
   .sceneActions label { font-size: 10px; margin: 0; white-space: nowrap; }
   .sidebar { max-height: 160px; }
-  .loading, .debug { top: 160px; }
+  .loading, .debug { top: 240px; }
 }
 
 .moreResults { width: 100%; margin-top: 8px; font-size: 11px !important; }
 .ephemeris { margin-top: 12px; font-size: 11px; color: var(--sl-muted); }
 .ephemeris summary { cursor: pointer; }
 .ephemeris pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 10px; }
+
+/* Empty HUD space passes gestures to the full-window canvas. */
+.headerActions, .sidebar input, .sidebar select, .targets, .bodyInfo button,
+.moreResults, .sceneActions, .ephemeris, .footer button, .footer select,
+.footer input, .footer label { pointer-events: auto; }
+.sidebar[hidden] { display: none; }
+.header, .sidebar, .footer, .debug, .loading, .errorPanel {
+  text-shadow: 0 1px 3px var(--sl-deep), 0 0 8px var(--sl-deep);
+}
+.app input[type='text'], .search { background: transparent; color: var(--sl-surface); border: 1px solid color-mix(in srgb, var(--sl-line) 28%, transparent); border-radius: 4px; padding: 8px; }
+.app option { background: var(--sl-deep); color: var(--sl-surface); }
+@media (max-width: 700px) {
+  .targets { overflow-x: auto; overflow-y: hidden; }
+  .header { inset-inline: 12px; padding: 0; flex-wrap: wrap; }
+  .headerActions { margin-left: auto; }
+  .footer { bottom: 8px; padding: 0; }
+  .debug { max-height: max(120px, calc(100% - 390px)); }
+}
