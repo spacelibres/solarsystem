@@ -65,3 +65,5 @@ explorer.resetCamera();
 所有分析索引见 [Eyes 分析](../eyes-analysis/README.md)，其中“静态契约已记录”和“行为已验证”是不同的证据等级；不能据此声称所有原始命名或 NASA 未公开仓库已经恢复。
 
 轨道配色、父级可见性、完整星空与星座的修正证据见 [参考展示修正](reference-display.md)。
+
+- [Satellite visibility, source trails and zoom performance](satellite-visibility-and-trails.md)

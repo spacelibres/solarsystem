@@ -1,5 +1,6 @@
 import type { ModelDescriptor } from '../render/models';
 import type { EntityDefinition } from '../domain/entities';
+import type { SourceTrailOptions } from '../domain/trails';
 export interface ExplorerBodyDefinition extends EntityDefinition {
     readonly label: string;
     readonly radiusKm: number;
@@ -7,6 +8,7 @@ export interface ExplorerBodyDefinition extends EntityDefinition {
     readonly planetographic?: boolean;
     readonly kind: 'star' | 'spheroid' | 'marker' | 'model';
     readonly groups?: readonly string[];
+    readonly trail?: SourceTrailOptions;
     readonly category?: string;
     readonly systemRadiusKm?: number;
     readonly model?: ModelDescriptor;

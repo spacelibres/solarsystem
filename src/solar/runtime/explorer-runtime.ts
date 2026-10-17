@@ -36,6 +36,12 @@ export interface ExplorerSnapshot {
   readonly resources: ResourceStatistics;
   readonly generation: number;
 }
+type DeepReadonly<T> = T extends object ? { readonly [K in keyof T]: DeepReadonly<T[K]> } : T;
+export interface ExplorerRenderFrame {
+  readonly clock: ClockSnapshot;
+  readonly selectedId: string;
+  readonly frames: ReadonlyMap<string, DeepReadonly<EntityFrame>>;
+}
 interface PendingLoad {
   readonly controller: AbortController;
   readonly generation: number;
@@ -49,6 +55,7 @@ export class ExplorerRuntime {
   private readonly clock: SimulationClock;
   private readonly repository: EphemerisRepositoryPort;
   private readonly entities: readonly ExplorerBodyDefinition[];
+  private readonly entitiesById: ReadonlyMap<string, ExplorerBodyDefinition>;
   private readonly windows = new Map<string, EphemerisWindow>();
   private readonly pending = new Map<string, PendingLoad>();
   private readonly failures = new Map<string, string>();
@@ -69,6 +76,7 @@ export class ExplorerRuntime {
     if (this.entities.length === 0) throw new Error('Explorer requires at least one entity');
     // Validate phases and IDs before accepting ownership or launching requests.
     resolveEntityFrames(this.entities, new Map(), options.timeEt);
+    this.entitiesById = new Map(this.entities.map(entity => [entity.id, entity]));
     this.selectedId = this.entities.some(entity => entity.id === 'earth') ? 'earth' : this.entities[0].id;
     this.activeIds = options.activeIds ? this.validateIds(options.activeIds) : undefined;
     this.repository = options.repository ?? new EphemerisRepository();
@@ -88,10 +96,22 @@ export class ExplorerRuntime {
   }
 
   tick(realSeconds: number, unixMilliseconds?: number): ExplorerSnapshot {
-    this.assertActive();
-    this.clock.advance(realSeconds, unixMilliseconds);
-    this.reconcile();
+    this.tickForRender(realSeconds, unixMilliseconds);
     return this.snapshot();
+  }
+
+  /** Borrow immutable frame data for trusted render consumers; use snapshot() for detached data. */
+  renderFrame(): ExplorerRenderFrame {
+    this.assertActive();
+    return { clock: this.clock.snapshot(), selectedId: this.selectedId, frames: this.frames };
+  }
+
+  tickForRender(realSeconds: number, unixMilliseconds?: number): ExplorerRenderFrame {
+    this.assertActive();
+    const previousTime = this.clock.snapshot().timeEt;
+    const clock = this.clock.advance(realSeconds, unixMilliseconds);
+    if (clock.timeEt !== previousTime) this.reconcile();
+    return this.renderFrame();
   }
 
   seek(timeEt: number): void {
@@ -115,18 +135,21 @@ export class ExplorerRuntime {
 
   select(id: string): void {
     this.assertActive();
-    if (!this.entities.some(entity => entity.id === id)) throw new Error(`Unknown entity: ${id}`);
+    if (!this.entitiesById.has(id)) throw new Error(`Unknown entity: ${id}`);
     this.selectedId = id;
     this.notify();
   }
 
   setActive(ids: readonly string[]): void {
     this.assertActive();
-    this.activeIds = this.validateIds(ids); this.invalidate(); this.reconcile();
+    const next = this.validateIds(ids);
+    const current = this.activeIds ?? this.entitiesById;
+    if (next.size === current.size && [...next].every(id => current.has(id))) return;
+    this.activeIds = next; this.invalidate(); this.reconcile();
   }
 
   private validateIds(ids: readonly string[]): Set<string> {
-    for (const id of ids) if (!this.entities.some(entity => entity.id === id)) throw new Error(`Unknown entity: ${id}`);
+    for (const id of ids) if (!this.entitiesById.has(id)) throw new Error(`Unknown entity: ${id}`);
     return new Set(ids);
   }
 
@@ -170,7 +193,7 @@ export class ExplorerRuntime {
   private reconcile(): void {
     if (this.disposed) return;
     const timeEt = this.clock.snapshot().timeEt;
-    const byId = new Map(this.entities.map(entity => [entity.id, entity]));
+    const byId = this.entitiesById;
     const required = new Set<string>();
     const include = (id: string): void => {
       if (required.has(id)) return;

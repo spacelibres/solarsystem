@@ -9,13 +9,17 @@ import { eyesOrbitStyle, eyesOrbitFade } from '../config/eyes-display';
 import { parseConstellations } from '../domain/sky';
 import { createSkyStars } from './sky';
 import type { ExplorerBodyDefinition } from '../config/default-scene';
-import type { ExplorerSnapshot } from '../runtime/explorer-runtime';
+import type { ExplorerRenderFrame } from '../runtime/explorer-runtime';
+import type { Vec3 } from '../../lib/dynamo/math';
+import { orbitGeometryNeedsUpdate } from './orbit-cache';
 import { ResourcePool, type ResourceLease } from '../runtime/resource-pool';
 import { EphemerisRepository } from '../runtime/ephemeris-repository';
 import { activePhaseIndex } from '../domain/entities';
 import { orbitalBodyFactor, orbitPolyline, osculatingPolyline, sampledPolyline } from '../domain/trajectories';
 import type { OrbPoint } from '../../lib/dynamo/parse';
-import type { SceneMode } from '../ui/navigation';
+import { sampleTrailHistory } from '../domain/trails';
+import { createTrailMaterial, setTrailProgress, setTrailHover } from './trail-material';
+import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
 import { applyFrameTransform } from './frame';
 import { placeScreenLabel } from './labels';
@@ -30,6 +34,8 @@ export interface RenderWorldOptions {
     readonly onSelect: (id: string) => void;
 }
 export interface RenderDiagnostics {
+    readonly orbitGeometryUpdates: number;
+    readonly trailGaps: Readonly<Record<string,string>>;
     readonly drawCalls: number;
     readonly triangles: number;
     readonly geometries: number;
@@ -39,7 +45,9 @@ export interface RenderDiagnostics {
     readonly errors: Readonly<Record<string, string>>;
 }
 export interface RenderWorld {
-    update(snapshot: ExplorerSnapshot): void;
+    update(snapshot: ExplorerRenderFrame): void;
+    expandedSystems(snapshot: ExplorerRenderFrame): readonly string[];
+    setVisible(ids: readonly string[]): void;
     setView(mode: SceneMode, visibleIds: readonly string[]): void;
     setLayers(layers: {
         labels?: boolean;
@@ -69,6 +77,9 @@ type Trail = {
     phaseIndex: number;
     timeEt: number;
     mu?: number;
+    geometryPosition?: Vec3;
+    refreshSeconds: number;
+    history: boolean;
 };
 /** Camera-relative rendering owns GPU resources; the simulation owns physical states. */
 export function createRenderWorld(container: HTMLElement, definitions: readonly ExplorerBodyDefinition[], options: RenderWorldOptions): RenderWorld {
@@ -78,6 +89,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         throw new RangeError('maxTextureBytes must be finite and nonnegative');
     if (!Number.isSafeInteger(options.textureSize ?? 512) || (options.textureSize ?? 512) < 1)
         throw new RangeError('textureSize must be a positive integer');
+    let viewportWidth=container.clientWidth, viewportHeight=container.clientHeight;
+    const byId = new Map(definitions.map(body => [body.id, body]));
     let disposed = false;
     const cleanup: (() => void)[] = [];
     const dispose = () => { if (disposed)
@@ -107,17 +120,30 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         scene.add(new THREE.AmbientLight(0xffffff, .3), new THREE.HemisphereLight(0xc5d9ff, 0x494958, .7), sunlight, sunTarget);
         const rootAbort = new AbortController();
         cleanup.push(() => rootAbort.abort());
-        const errors: Record<string, string> = {};
+        const errors: Record<string, string> = {}, trailGaps: Record<string,string> = {};
+        const trailAttempts = new Map<string,{timeEt:number;phaseIndex:number;wallTime:number}>();
         const pool = new ResourcePool<THREE.Texture>({ maxConcurrent: 4, maxBytes: options.maxTextureBytes ?? 64 * 1048576, sizeOf: texture => { const image = texture.image as ImageBitmap; return image.width * image.height * 4 * 4 / 3; }, dispose: texture => { texture.dispose(); (texture.image as ImageBitmap).close(); } });
         const models = createModelLibrary(renderer), repository = new EphemerisRepository({ maxConcurrent: 3, maxBytes: 4 * 1048576 });
         cleanup.push(() => { pool.dispose(); models.dispose(); repository.dispose(); });
         const visuals = new Map<string, BodyVisual>(), trails = new Map<string, Trail>(), trailRequests = new Map<string, AbortController>();
+        let orbitGeometryUpdates = 0;
         let mode: SceneMode = 'overview', visibleIds = new Set<string>(['sun', ...definitions.filter(body => body.groups?.includes('planets')).map(body => body.id)]);
-        let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, framedKey = '', selectedId = '', viewGeneration = 0;
+        let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, framedKey = '', selectedId = '', hoveredId = '', viewGeneration = 0;
         const overlay = document.createElement('div');
         overlay.className = 'solar-scene-labels';
         container.appendChild(overlay);
         cleanup.push(() => overlay.remove());
+        // Labels are canvas siblings; relay wheel input without capturing their clicks.
+        const onLabelWheel = (event: WheelEvent) => {
+            event.preventDefault();
+            renderer.domElement.dispatchEvent(new WheelEvent('wheel', {
+                deltaX:event.deltaX,deltaY:event.deltaY,deltaZ:event.deltaZ,deltaMode:event.deltaMode,
+                ctrlKey:event.ctrlKey,metaKey:event.metaKey,shiftKey:event.shiftKey,altKey:event.altKey,
+                clientX:event.clientX,clientY:event.clientY,bubbles:true,cancelable:true,
+            }));
+        };
+        overlay.addEventListener('wheel',onLabelWheel,{passive:false});
+        cleanup.push(()=>overlay.removeEventListener('wheel',onLabelWheel));
         const loadTexture = async (url: string, signal: AbortSignal) => {
             const response = await fetch(url, { signal });
             if (!response.ok)
@@ -142,6 +168,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             if (!visual)
                 return;
             visuals.delete(id);
+            if(hoveredId===id)hoveredId='';
             visual.model?.release();
             for (const lease of visual.textures)
                 lease.release();
@@ -154,12 +181,12 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             visual.leader.remove();
             visual.marker.remove();
         };
-        const clearTrail = (id: string) => { const trail = trails.get(id); if (trail) {
+        const clearTrail = (id: string, cancel = true) => { const trail = trails.get(id); if (trail) {
             trail.line.geometry.dispose();
             (trail.line.material as THREE.Material).dispose();
             trail.line.removeFromParent();
             trails.delete(id);
-        } trailRequests.get(id)?.abort(); trailRequests.delete(id); };
+        } if(cancel){trailRequests.get(id)?.abort(); trailRequests.delete(id);trailAttempts.delete(id);delete trailGaps[id];} };
         cleanup.push(() => { for (const id of [...visuals.keys()])
             destroyVisual(id); for (const id of new Set([...trails.keys(), ...trailRequests.keys()]))
             clearTrail(id); });
@@ -185,6 +212,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             label.textContent = definition.label;
             label.title = definition.label;
             label.onclick = () => options.onSelect(definition.id);
+            label.onpointerenter = () => {hoveredId=definition.id;};
+            label.onpointerleave = () => {if(hoveredId===definition.id)hoveredId='';};
             overlay.appendChild(label);
             const leader = document.createElement('span');
             leader.className = 'solar-scene-leader';
@@ -241,30 +270,42 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             }
             return visual;
         };
-        const ensureTrail = (definition: ExplorerBodyDefinition, state: ExplorerSnapshot) => {
+        const ensureTrail = (definition: ExplorerBodyDefinition, state: ExplorerRenderFrame) => {
             if (!orbitsEnabled || definition.id === 'sun' || trailRequests.has(definition.id))
                 return;
             const frame = state.frames.get(definition.id);
             if (frame?.status !== 'ready')
                 return;
             const old = trails.get(definition.id);
-            if (old && old.phaseIndex === frame.phaseIndex && Math.abs(old.timeEt - state.clock.timeEt) < 86400)
+            if (old && old.phaseIndex === frame.phaseIndex && Math.abs(old.timeEt - state.clock.timeEt) < old.refreshSeconds)
                 return;
+            const attempt=trailAttempts.get(definition.id);
+            if(attempt?.phaseIndex===frame.phaseIndex && (performance.now()-attempt.wallTime<1000 || !old&&Math.abs(attempt.timeEt-state.clock.timeEt)<30))return;
             const phase = definition.phases[activePhaseIndex(definition.phases, state.clock.timeEt)];
             if (!phase)
                 return;
             const paths = phase.positionPaths ?? (phase.positionPath ? [phase.positionPath] : []);
             if (!paths.length)
                 return;
-            clearTrail(definition.id);
             const controller = new AbortController(), generation = viewGeneration;
             trailRequests.set(definition.id, controller);
+            trailAttempts.set(definition.id,{timeEt:state.clock.timeEt,phaseIndex:frame.phaseIndex,wallTime:performance.now()});
             void (async () => {
                 for (const path of paths) {
                     try {
                         const window = await repository.load(path, state.clock.timeEt, controller.signal);
                         let positions;
-                        if (window.header.pointType === 'orb') {
+                        let refreshSeconds = 86400;
+                        const history = !(definition.groups?.includes('planets') || definition.id === 'moon');
+                        if (history) {
+                            const sampled = await sampleTrailHistory({ path, now: state.clock.timeEt, phaseStart: phase.startEt, parentId: frame.parentId, options: definition.trail, body: phase.body, signal: controller.signal, load: repository.load.bind(repository) });
+                            positions = sampled.samples.map(sample => sample.position);
+                            refreshSeconds = Math.max(.25, (sampled.end-sampled.requestedStart)/240);
+                            if(disposed || controller.signal.aborted || generation!==viewGeneration)return;
+                            if(sampled.gaps.length)trailGaps[definition.id]=sampled.gaps.map(gap=>gap.reason).join(', ');
+                            else delete trailGaps[definition.id];
+                        }
+                        else if (window.header.pointType === 'orb') {
                             const points = window.points as readonly OrbPoint[];
                             const nearest = points.reduce((best, point) => Math.abs(point.time - state.clock.timeEt) < Math.abs(best.time - state.clock.timeEt) ? point : best);
                             positions = nearest.eccentricity < 1 ? orbitPolyline(nearest) : sampledPolyline(window, Math.max(phase.startEt, state.clock.timeEt - 31557600), state.clock.timeEt);
@@ -273,16 +314,21 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                         }
                         else
                             positions = sampledPolyline(window, phase.startEt, state.clock.timeEt);
-                        if (disposed || controller.signal.aborted || generation !== viewGeneration || positions.length < 2)
-                            return;
+                        if (disposed || controller.signal.aborted || generation !== viewGeneration) return;
+                        if (positions.length < 2) continue;
                         const style = eyesOrbitStyle(definition.id);
                         const geometry = new LineGeometry(); geometry.setPositions(positions.flatMap(point=>[point.x,point.y,point.z]));
-                        const material = new LineMaterial({ color: new THREE.Color().setRGB(style.rgba[0],style.rgba[1],style.rgba[2],THREE.SRGBColorSpace), linewidth: style.width, transparent: true, opacity: style.rgba[3], depthWrite: false });
-                        material.resolution.set(container.clientWidth,container.clientHeight);
+                        const material = history ? createTrailMaterial() : new LineMaterial({ linewidth: style.width, transparent: true, opacity: style.rgba[3], depthWrite: false });
+                        const color = history && definition.trail?.color ? definition.trail.color : style.rgba;
+                        material.color.setRGB(color[0],color[1],color[2],THREE.SRGBColorSpace);
+                        material.opacity=color[3];
+                        if(history)setTrailProgress(geometry,positions.length);
+                        material.resolution.set(viewportWidth,viewportHeight);
                         const line = new Line2(geometry, material);
                         line.frustumCulled = false;
+                        clearTrail(definition.id,false);
                         scene.add(line);
-                        trails.set(definition.id, { line, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt, mu: window.header.pointType === 'orb' && (definition.groups?.includes('planets') || definition.id === 'moon') ? (window.header.gravitationalParameter1 ?? 1) + (window.header.gravitationalParameter2 ?? 0) : undefined });
+                        trails.set(definition.id, { line, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt, refreshSeconds, history, mu: window.header.pointType === 'orb' && (definition.groups?.includes('planets') || definition.id === 'moon') ? (window.header.gravitationalParameter1 ?? 1) + (window.header.gravitationalParameter2 ?? 0) : undefined });
                         return;
                     }
                     catch {
@@ -343,7 +389,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             }).catch(error=>{if(!disposed){errors[CONSTELLATIONS_URL]=String(error);constellationsRequested=false;}});
         };
         const resize = () => { if (disposed)
-            return; camera.aspect = Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight); camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(Math.PI / 6) / Math.max(1, camera.aspect))); camera.updateProjectionMatrix(); renderer.setSize(Math.max(1, container.clientWidth), Math.max(1, container.clientHeight)); framedKey = ''; };
+            return; viewportWidth=container.clientWidth;viewportHeight=container.clientHeight;camera.aspect = Math.max(1, viewportWidth) / Math.max(1, viewportHeight); camera.fov = THREE.MathUtils.radToDeg(2 * Math.atan(Math.tan(Math.PI / 6) / Math.max(1, camera.aspect))); camera.updateProjectionMatrix(); renderer.setSize(Math.max(1, viewportWidth), Math.max(1, viewportHeight)); framedKey = ''; };
         const observer = new ResizeObserver(resize);
         cleanup.push(() => observer.disconnect());
         observer.observe(container);
@@ -362,6 +408,24 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         cleanup.push(() => { renderer.domElement.removeEventListener('pointerdown', onDown); renderer.domElement.removeEventListener('pointerup', onUp); });
         return {
             resize, dispose, resetCamera() { framedKey = ''; },
+            expandedSystems(state) {
+                const focus = state.frames.get(state.selectedId);
+                if (focus?.status !== 'ready') return [];
+                const expanded: string[] = [];
+                for (const [id, frame] of state.frames) {
+                    if (frame.status !== 'ready') continue;
+                    const body = byId.get(id);
+                    if (!body) continue;
+                    const distance = Math.hypot(frame.position.x-focus.position.x-camera.position.x, frame.position.y-focus.position.y-camera.position.y, frame.position.z-focus.position.z-camera.position.z);
+                    if (projectedSystemVisible(body.radiusKm, body.systemRadiusKm, distance, THREE.MathUtils.degToRad(camera.fov), viewportHeight)) expanded.push(id);
+                }
+                return expanded;
+            },
+            setVisible(ids) {
+                visibleIds = new Set(ids);
+                for (const id of visuals.keys()) if (!visibleIds.has(id)) destroyVisual(id);
+                for (const id of new Set([...trails.keys(), ...trailRequests.keys()])) if (!visibleIds.has(id)) clearTrail(id);
+            },
             setView(nextMode, ids) { mode = nextMode; visibleIds = new Set(ids); viewGeneration++; framedKey = ''; for (const id of [...visuals.keys()])
                 destroyVisual(id); for (const id of new Set([...trails.keys(), ...trailRequests.keys()]))
                 clearTrail(id); for (const key of Object.keys(errors))
@@ -378,7 +442,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 const focus = state.frames.get(selectedId), ready = focus?.status === 'ready';
                 const key = `${selectedId}:${mode}`;
                 if (ready && framedKey !== key) {
-                    const definition = definitions.find(body => body.id === selectedId);
+                    const definition = byId.get(selectedId);
                     let radius = Math.max(definition?.radiusKm ?? 6378, visuals.get(selectedId)?.modelRadius ?? 0);
                     if (mode === 'overview')
                         radius = 6e9;
@@ -417,10 +481,10 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     visual.marker.hidden = true;
                     if (show && ready && frame?.status === 'ready') {
                         applyFrameTransform(visual.group, frame.position, frame.orientation, focus.position);
-                        if (definition.model && modelIsResolvable(definition.radiusKm, visual.group.position.distanceTo(camera.position), THREE.MathUtils.degToRad(camera.fov), container.clientHeight, definition.id === selectedId && mode === 'body'))
+                        if (definition.model && modelIsResolvable(definition.radiusKm, visual.group.position.distanceTo(camera.position), THREE.MathUtils.degToRad(camera.fov), viewportHeight, definition.id === selectedId && mode === 'body'))
                             acquireModel(visual, definition);
                         const glow=visual.group.getObjectByName('sun-pixel-glow');
-                        if(glow)glow.scale.setScalar(100*visual.group.position.distanceTo(camera.position)*2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/container.clientHeight);
+                        if(glow)glow.scale.setScalar(100*visual.group.position.distanceTo(camera.position)*2*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight);
                         ensureTrail(definition, state);
                     }
                 }
@@ -428,27 +492,43 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     const parent = trail.parentId ? state.frames.get(trail.parentId) : undefined;
                     const body = state.frames.get(id);
                     trail.line.visible = !!ready && orbitsEnabled && visibleIds.has(id) && body?.status === 'ready' && body.phaseIndex === trail.phaseIndex && (!trail.parentId || parent?.status === 'ready');
-                    trail.line.material.resolution.set(container.clientWidth,container.clientHeight);
-                    const definition=definitions.find(definition=>definition.id===id)!;
+                    trail.line.material.resolution.set(viewportWidth,viewportHeight);
+                    const definition=byId.get(id)!;
                     const center=body?.status==='ready'&&ready?new THREE.Vector3(body.position.x-focus.position.x,body.position.y-focus.position.y,body.position.z-focus.position.z):undefined;
                     const fade=trail.mu&&center?eyesOrbitFade(definition.radiusKm/center.distanceTo(camera.position)/Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)):1;
-                    trail.line.material.opacity=eyesOrbitStyle(id).rgba[3]*fade;
+                    if(trail.history) {
+                        setTrailHover(trail.line.material,id===hoveredId,definition.trail?.color?.[3]??.35);
+                        if(body?.status==='ready') {
+                            const data=(trail.line.geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute).data;
+                            const offset=data.array.length-3;
+                            data.array[offset]=body.position.x-(parent?.status==='ready'?parent.position.x:0);
+                            data.array[offset+1]=body.position.y-(parent?.status==='ready'?parent.position.y:0);
+                            data.array[offset+2]=body.position.z-(parent?.status==='ready'?parent.position.z:0);
+                            data.needsUpdate=true;
+                        }
+                    } else {trail.line.material.opacity=(id===hoveredId?1:eyesOrbitStyle(id).rgba[3])*fade;trail.line.material.linewidth=id===hoveredId?2:1.2;}
                     trail.line.visible=trail.line.visible&&fade>0;
                     if(trail.line.visible && trail.mu && body?.status==='ready') {
                         const parentPosition=parent?.status==='ready'?parent.position:{x:0,y:0,z:0};
                         const parentVelocity=parent?.status==='ready'?parent.velocity:{x:0,y:0,z:0};
                         const position={x:body.position.x-parentPosition.x,y:body.position.y-parentPosition.y,z:body.position.z-parentPosition.z};
                         const velocity={x:body.velocity.x-parentVelocity.x,y:body.velocity.y-parentVelocity.y,z:body.velocity.z-parentVelocity.z};
-                        const points=osculatingPolyline(position,velocity,trail.mu);
-                        if(points.length>1){
+                        const kmPerPixel=2*(center?.distanceTo(camera.position)??0)*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight;
+                        const points=orbitGeometryNeedsUpdate(trail.geometryPosition,position,kmPerPixel)?osculatingPolyline(position,velocity,trail.mu):undefined;
+                        if(points && points.length>1){
+                            trail.geometryPosition=position; orbitGeometryUpdates++;
                             const attribute=trail.line.geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute;
                             if(attribute.count!==points.length-1)trail.line.geometry.setPositions(points.flatMap(point=>[point.x,point.y,point.z]));
                             else{
                                 const data=attribute.data;
-                                for(let index=0;index<points.length-1;index++)data.array.set([points[index].x,points[index].y,points[index].z,points[index+1].x,points[index+1].y,points[index+1].z],index*6);
+                                for(let index=0;index<points.length-1;index++){
+                                    const offset=index*6, a=points[index], b=points[index+1];
+                                    data.array[offset]=a.x;data.array[offset+1]=a.y;data.array[offset+2]=a.z;
+                                    data.array[offset+3]=b.x;data.array[offset+4]=b.y;data.array[offset+5]=b.z;
+                                }
                                 data.needsUpdate=true;
                             }
-                        }else trail.line.visible=false;
+                        }else if(points) trail.line.visible=false;
                     }
                     if (ready && trail.line.visible)
                         trail.line.position.set((parent?.status === 'ready' ? parent.position.x : 0) - focus.position.x, (parent?.status === 'ready' ? parent.position.y : 0) - focus.position.y, (parent?.status === 'ready' ? parent.position.z : 0) - focus.position.z);
@@ -464,7 +544,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 controls.update();
                 camera.updateMatrixWorld();
                 sky.visible=starsEnabled;constellationSky.visible=constellationsEnabled;
-                const particleSize=Math.sqrt(Math.max(container.clientWidth,container.clientHeight)*renderer.getPixelRatio())/60;
+                const particleSize=Math.sqrt(Math.max(viewportWidth,viewportHeight)*renderer.getPixelRatio())/60;
                 for(const material of starMaterials)material.uniforms.particleSize.value=particleSize;
                 const inverseCamera=camera.quaternion.clone().invert();
                 for(const label of constellationLabels){
@@ -475,11 +555,11 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     label.element.hidden=Math.abs(projected.x)>1||Math.abs(projected.y)>1;
                     for(const [id,visual] of visuals){
                         if(!visual.group.visible)continue;
-                        const radius=visual.modelRadius??definitions.find(body=>body.id===id)!.radiusKm;
+                        const radius=visual.modelRadius??byId.get(id)!.radiusKm;
                         const center=visual.group.position.clone().sub(camera.position),along=center.dot(label.direction);
                         if(along>0&&center.lengthSq()-along*along<radius*radius){label.element.hidden=true;break;}
                     }
-                    label.element.style.transform=`translate(${(projected.x+1)*container.clientWidth/2}px,${(1-projected.y)*container.clientHeight/2}px)`;
+                    label.element.style.transform=`translate(${(projected.x+1)*viewportWidth/2}px,${(1-projected.y)*viewportHeight/2}px)`;
                 }
                 renderer.render(scene, camera);
                 const occupied: {
@@ -492,10 +572,10 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     const projected = visual.group.position.clone().project(camera);
                     if (projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1)
                         continue;
-                    const x = (projected.x + 1) * container.clientWidth / 2, y = (1 - projected.y) * container.clientHeight / 2;
+                    const x = (projected.x + 1) * viewportWidth / 2, y = (1 - projected.y) * viewportHeight / 2;
                     visual.marker.hidden = false;
                     visual.marker.style.transform=`translate(${x}px,${y}px)`;
-                    const placed = placeScreenLabel(x, y, container.clientWidth, container.clientHeight, occupied);
+                    const placed = placeScreenLabel(x, y, viewportWidth, viewportHeight, occupied);
                     if (!placed) continue;
                     visual.label.hidden = false;
                     visual.label.style.transform = `translate(${placed.x}px,${placed.y}px)`;
@@ -507,7 +587,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     occupied.push(placed);
                 }
             },
-            snapshot() { return { drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, textureResources: pool.snapshot(), models: models.snapshot(), errors: { ...errors } }; },
+            snapshot() { return { orbitGeometryUpdates, trailGaps: {...trailGaps}, drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, textureResources: pool.snapshot(), models: models.snapshot(), errors: { ...errors } }; },
         };
     }
     catch (error) {

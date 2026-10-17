@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import SpacelibreLogo from '../../components/SpacelibreLogo';
 import { DEFAULT_PRESET, applyPaletteToDocument } from '../../lib/theme/palette';
 import { FULL_SCENE } from '../config/scene-catalog';
@@ -63,6 +63,7 @@ export default function Explorer() {
     const worldRef = useRef<RenderWorld | null>(null);
     const [snapshot, setSnapshot] = useState<ExplorerSnapshot | null>(null);
     const [renderStats, setRenderStats] = useState<RenderDiagnostics | null>(null);
+    const [timing,setTiming]=useState({fps:0,cpuMs:0});
     const [fatal, setFatal] = useState<string | null>(null);
     const [notice, setNotice] = useState<string | null>(null);
     const [attempt, setAttempt] = useState(0);
@@ -82,6 +83,7 @@ export default function Explorer() {
         let previous = performance.now();
         let previousUi = -Infinity;
         let initializedDate = false;
+        let timingStart=previous, timingFrames=0, timingCpu=0;
         try {
             runtime = new ExplorerRuntime({ entities: FULL_SCENE, activeIds: visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode), timeEt: unixMillisecondsToEt(Date.now()) });
             const current = runtime;
@@ -91,7 +93,7 @@ export default function Explorer() {
             const view = world;
             view.setLayers(layerState.current);
             view.setView(navigationState.current.mode, visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode));
-            navigateRef.current = (id, mode) => { navigationState.current = { id, mode }; const visible = visibleSystemIds(FULL_SCENE, id, mode); current.setActive(visible); current.select(id); view.setView(mode, visible); setSceneMode(mode); setSnapshot(current.snapshot()); };
+            navigateRef.current = (id, mode) => { navigationState.current = { id, mode }; const visible = visibleSystemIds(FULL_SCENE, id, mode,current.renderFrame().clock.timeEt); current.setActive(visible); current.select(id); view.setView(mode, visible); setSceneMode(mode); setSnapshot(current.snapshot()); };
             runtimeRef.current = runtime;
             worldRef.current = world;
             const refresh = () => {
@@ -122,11 +124,17 @@ export default function Explorer() {
                 if (disposed)
                     return;
                 try {
-                    const state = manual ? current.snapshot() : current.tick(Math.min(.1, Math.max(0, (now - previous) / 1000)), Date.now());
+                    const cpuStart=performance.now();
+                    const state = manual ? current.renderFrame() : current.tickForRender(Math.min(.1, Math.max(0, (now - previous) / 1000)), Date.now());
                     previous = now;
                     view.update(state);
+                    timingFrames++;timingCpu+=performance.now()-cpuStart;
+                    if(now-timingStart>=1000){setTiming({fps:1000*timingFrames/(now-timingStart),cpuMs:timingCpu/timingFrames});timingStart=now;timingFrames=0;timingCpu=0;}
                     if (now - previousUi >= 250) {
-                        setSnapshot(state);
+                        const nav=navigationState.current;
+                        const visible=visibleSystemIds(FULL_SCENE,nav.id,nav.mode,state.clock.timeEt,view.expandedSystems(state));
+                        current.setActive(visible); view.setVisible(visible);
+                        setSnapshot(current.snapshot());
                         setRenderStats(view.snapshot());
                         if (!initializedDate) {
                             setDateDraft(etDateInput(state.clock.timeEt));
@@ -183,7 +191,7 @@ export default function Explorer() {
     catch (error) {
         setNotice(String(error));
     } };
-    const results = searchBodies(FULL_SCENE, query, filter);
+    const results = useMemo(()=>searchBodies(FULL_SCENE, query, filter),[query,filter]);
     const selected = FULL_SCENE.find(body => body.id === snapshot?.selectedId);
     const selectedFrame = snapshot?.frames.get(snapshot.selectedId);
     const parentId=selectedFrame?.parentId;
@@ -275,12 +283,15 @@ export default function Explorer() {
               <dt>数据请求 / 排队</dt><dd>{snapshot?.resources.active ?? 0} / {snapshot?.resources.queued ?? 0}</dd>
               <dt>数据缓存</dt><dd>{((snapshot?.resources.bytes ?? 0) / 1048576).toFixed(2)} MiB</dd>
               <dt>绘制 / 三角形</dt><dd>{renderStats?.drawCalls ?? 0} / {renderStats?.triangles.toLocaleString('en-US') ?? 0}</dd>
+              <dt>FPS / CPU ms</dt><dd>{timing.fps.toFixed(1)} / {timing.cpuMs.toFixed(2)}</dd>
+              <dt>Orbit geometry updates</dt><dd>{renderStats?.orbitGeometryUpdates ?? 0}</dd>
               <dt>GPU 几何 / 纹理</dt><dd>{renderStats?.geometries ?? 0} / {renderStats?.textures ?? 0}</dd>
               <dt>模型已加载 / 下载 / 排队</dt><dd>{renderStats?.models.active ?? 0} / {renderStats?.models.pending ?? 0} / {renderStats?.models.queued ?? 0}</dd>
               <dt>影像缓存</dt><dd>{((renderStats?.textureResources.bytes ?? 0) / 1048576).toFixed(1)} MiB</dd>
             </dl>
             {selectedFrame?.status === 'ready' && <pre>{JSON.stringify({ parent: selectedFrame.parentId, positionKm: selectedFrame.position, orientation: selectedFrame.orientation }, null, 2)}</pre>}
             {errorEntries.map(([path, message]) => <p key={path} className={styles.debugError}>{path}: {message}</p>)}
+            {Object.entries(renderStats?.trailGaps??{}).map(([id,gap])=><p key={id}>{id}: trail {gap}</p>)}
             {Object.entries(renderStats?.errors ?? {}).map(([url, message]) => <p key={url} className={styles.debugError}>{message}</p>)}
           </aside>)}
       </section>

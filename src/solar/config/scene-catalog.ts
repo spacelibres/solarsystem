@@ -5,6 +5,7 @@ import type { EntityPhase } from '../domain/entities';
 import type { SourceAlignAxis, SourceControllerPlan } from '../domain/controllers';
 import type { ModelDescriptor } from '../render/models';
 import type { Quat, Vec3 } from '../../lib/dynamo/math';
+import type { SourceTrailOptions } from '../domain/trails';
 const entries = sourceCatalog.entries as unknown as CatalogEntry[];
 const vector = (value: StaticValue | undefined): Vec3 | undefined => Array.isArray(value) && value.length === 3 && value.every(item => typeof item === 'number') ? { x: value[0] as number, y: value[1] as number, z: value[2] as number } : undefined;
 const quaternion = (value: StaticValue | undefined): Quat | undefined => Array.isArray(value) && value.length === 4 && value.every(item => typeof item === 'number') ? { w: value[0] as number, x: value[1] as number, y: value[2] as number, z: value[3] as number } : undefined;
@@ -107,12 +108,23 @@ function definition(entry: CatalogEntry): ExplorerBodyDefinition {
         id: entry.id, label: entry.label ?? entry.id, groups: entry.groups, category: entry.groups.includes('spacecraft') ? 'Spacecraft' : entry.groups.includes('moons') ? 'Moon' : entry.groups.includes('planets') ? 'Planet' : 'Other',
         radiusKm: entry.spheroid?.equatorialRadius ?? entry.extentsRadius ?? entry.radius ?? .00001, polarRadiusKm: entry.spheroid?.polarRadius, planetographic: entry.spheroid?.planetographic,
         systemRadiusKm: entry.systemRadius, kind: mesh ? 'model' : entry.spheroid ? 'spheroid' : 'marker', model: mesh, texture, phases,
+        trail: entry.trail ? sourceTrail(entry.trail) : undefined,
         staticPosition: fixed ? vector(fixed.position) : undefined,
         allowUnknownOrientation: !!mesh,
         controllers: entry.controllers.flatMap(controller => { const value = plan(controller); const result: SourceControllerPlan[] = value ? [value] : []; if (controller.type === 'fixed' && typeof controller.relativeToEntity === 'string')
             result.push({ type: 'rotateByEntityOrientation', targetId: controller.relativeToEntity, coverage: controller.coverage ? [time(controller.coverage[0]), time(controller.coverage[1])] : undefined }); return result; }),
         source: `${entry.provenance.file}:${entry.provenance.line}`,
         diagnostics: entry.diagnostics.map(diagnostic => diagnostic.reason),
+    };
+}
+function sourceTrail(value: NonNullable<CatalogEntry['trail']>): SourceTrailOptions {
+    const color = value.color;
+    return {
+        length: typeof value.length === 'number' ? value.length : undefined,
+        color: Array.isArray(color) && color.length === 4 && color.every(item => typeof item === 'number') ? color as [number, number, number, number] : undefined,
+        relativeTo: typeof value.relativeTo === 'string' ? value.relativeTo : undefined,
+        relativeToOrientation: value.relativeToOrientation === true,
+        lengthCoverages: Array.isArray(value.lengthCoverages) ? value.lengthCoverages.flatMap(item => Array.isArray(item) && item.length === 3 && item.every(part => typeof part === 'number') ? [item as [number, number, number]] : []) : undefined,
     };
 }
 export const FULL_SCENE: readonly ExplorerBodyDefinition[] = entries.filter(entry => !['sun', 'milky_way', 'observable_universe'].includes(entry.id)).map(definition);

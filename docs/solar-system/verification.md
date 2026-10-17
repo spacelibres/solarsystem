@@ -76,3 +76,25 @@
 生产版页面总览十个物理DOM标记可见（太阳、八行星、月球），未用移动文字伪装位置。Moon近景缩远后Earth仍可见，白色月轨围绕Earth；近景月面不再被星空/星座线或自身轨道覆盖。页面以1天/秒从2026-10-16播放至2026-10-24，月地距离从约404853km变为374057km，再返回实时；十个基本对象保持ready。最终生产页面错误/警告日志为空。
 
 生产截图：`artifacts/orbit-sky-production.png`、`artifacts/moon-ephemeris.png`、`artifacts/earth-moon-context-production.png`。原开发过程中HMR旧快照缺少新增字段的错误已修复并完整重载，未把开发历史日志当作生产无错误证据。
+
+## 卫星显隐、轨迹和缩放性能 · v0.2.38
+
+依据和边界见 [卫星显示、轨迹与性能](satellite-visibility-and-trails.md)。
+`npm ci`、`npm test`（43 个 Vitest 文件 406 项 + Node 229 项，共 635 项）、
+`npm run check`、`npm run build`、目录复现检查均退出 0。
+
+实际 NASA 叶数据验证 ISS 5573 秒、Hubble 5748.5 秒历史窗口，Phobos 自动
+周期约 27575.145 秒、Io 约 152981.079 秒；各自当前端点精确、覆盖连续。
+回归测试包含稀疏采样跨多个连续叶、真实缺口、请求预算和取消，不把未探测的叶
+误报为缺口；实际已安装 Three.js shader 的宽度和透明度替换点也已验证。
+
+生产页面连续缩放和暂停缩放保持轨道几何计数 9；最终地球卫星暂停近景为
+142–143 FPS，实时近景约 115 FPS。截图 `artifacts/satellite-performance-production.png`。
+帧率为本机观察值，不是所有设备保证。记录正常缺少日期覆盖与解析失败，不隐瞒
+TESS 和部分深空任务尚未接受的分段/姿态数据。
+
+最终生产版确认鼠标停在 Sun 名称上滚轮仍改变视角尺度，随后点击 Jupiter
+场景标签可切换木星近景；标签转交滚轮没有破坏点击选择。木星系统缩放后
+Io、Europa、Ganymede、Callisto 的真实轨迹可见；截图
+`artifacts/jupiter-satellite-trails-production.png`。页面控制台错误/警告为空，
+但界面诊断仍明确列出未接受的数据，二者不可混淆。

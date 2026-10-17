@@ -3,6 +3,22 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.38 - 2026-10-17
+
+Restore scale-dependent satellite systems and source-backed tapered trails.
+
+- Activate current-parent moons and spacecraft as their system reaches Eyes' 20px
+  projection threshold; preserve the camera and existing resources during zoom.
+- Sample real contiguous dynamo history with source durations, adaptive 3-degree
+  velocity refinement, bounded traversal, tapered width/alpha and hover styling.
+- Keep closed osculating lines for planets/Moon; reuse subpixel-stable geometry,
+  borrow readonly render frames and skip paused evaluation instead of cloning
+  the full catalog each animation frame.
+- Cache viewport dimensions to avoid label layout thrashing; allow wheel zoom
+  over labels while preserving label clicks.
+- Add FPS/CPU and geometry diagnostics, real Earth/Jupiter satellite checks,
+  trajectory/shader regression tests and implementation documentation.
+
 ## 0.2.37 - 2026-10-17
 
 Correct the explorer's orbital context, Eyes application colors and celestial sky.
