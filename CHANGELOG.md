@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.47 - 2026-10-17
+
+Prepare the recovered application and pinned decoder dependencies before npm
+test. Clean GitHub runners and deployment checkouts no longer depend on ignored
+public/eyes output left by a previous local build. Keep decoder publication
+assertions, deployment scripts and webhook settings unchanged.
+
 ## 0.2.46 - 2026-10-17
 
 Integrate the published main-branch starfield repair with the independent

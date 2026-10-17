@@ -215,3 +215,13 @@ footer的computed background均为rgba(0,0,0,0)。目录收起/恢复、天体�
 本次未单独执行移动设备截图验收。
 完整npm ci、499项Vitest和229项Node测试通过；最终CSS调整后再次check及生产build
 通过。布局规则与归属文案变更依据记录在transparent-hud.md。
+
+## v0.2.47 干净检出测试与全面同步（2026-10-17）
+
+v0.2.46在GitHub verify/release失败，根因为solar-models测试读取被gitignore排除的
+public/eyes/decoders输出，本机过去build留下该目录掩盖了前置条件。
+停服务并移走实际发布解码器目录后，独立测试以同一ENOENT失败（7通过/1失败）。
+新增npm pretest执行eyes:build，重新准备固定哈希校验的解码器与应用输出，保留
+测试文件存在性断言；不修改CI、部署脚本及webhook配置。
+从解码器输出缺失状态开始，npm ci、npm test（499 Vitest+229 Node）、check、build
+全部通过。GitHub后续运行结果应从对应提交的Actions查看，本条记录只声明本地验证。
