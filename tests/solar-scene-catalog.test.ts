@@ -25,3 +25,10 @@ describe('full source scene configuration',()=>{
   expect(earth.positionPaths).toEqual(['sc_juno/earth/launch/orb/def.dyn','sc_juno/earth/flyby/orb/def.dyn']);
  });
 });
+it('matches verified source reference-body folder aliases without mixing frames', () => {
+ const osiris=FULL_SCENE.find(body=>body.id==='sc_osiris_rex')!;
+ const phase=osiris.phases.filter(phase=>phase.startEt<=656501483.184).at(-1)!;
+ expect(phase.parentId).toBe('101955_bennu');
+ expect(phase.positionPaths).toContain('sc_osiris_rex/bennu/pos/def.dyn');
+ expect(phase.positionPaths?.every(path=>path.split('/')[1]==='bennu')).toBe(true);
+});

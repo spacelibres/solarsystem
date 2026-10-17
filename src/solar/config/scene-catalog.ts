@@ -11,6 +11,12 @@ const entries = sourceCatalog.entries as unknown as CatalogEntry[];
 const vector = (value: StaticValue | undefined): Vec3 | undefined => Array.isArray(value) && value.length === 3 && value.every(item => typeof item === 'number') ? { x: value[0] as number, y: value[1] as number, z: value[2] as number } : undefined;
 const quaternion = (value: StaticValue | undefined): Quat | undefined => Array.isArray(value) && value.length === 4 && value.every(item => typeof item === 'number') ? { w: value[0] as number, x: value[1] as number, y: value[2] as number, z: value[3] as number } : undefined;
 const time = (value: SourceTime): number => value === '-Infinity' ? -1e18 : value === 'Infinity' ? 1e18 : value;
+// Recovered entity IDs and NASA reference-frame folders differ for these bodies.
+const sourceFrameFolders: Readonly<Record<string, string>> = {
+    '101955_bennu': 'bennu', '99942_apophis': 'apophis', '4_vesta': 'vesta',
+    '1_ceres': 'ceres', '134340_pluto': 'pluto', '486958_arrokoth': 'mu69',
+    '617_patroclus_barycenter': '617_patroclus', 'sc_galileo': 'galileo',
+};
 const isAttitude = (url: string) => /(?:^|\/)(?:ori|quat)(?:\/|$)/.test(url);
 function axis(value: StaticValue | undefined): SourceAlignAxis | undefined {
     if (!value || typeof value !== 'object' || Array.isArray(value))
@@ -22,7 +28,7 @@ function axis(value: StaticValue | undefined): SourceAlignAxis | undefined {
 }
 function plan(controller: SourceController): SourceControllerPlan | undefined {
     const coverage = controller.coverage ? [time(controller.coverage[0]), time(controller.coverage[1])] as const : undefined;
-    if (controller.joint)
+    if (controller.joint || controller.modelAnimation === true)
         return;
     if (controller.type === 'dynamo')
         return controller.url && isAttitude(controller.url) ? { type: 'dynamoOrientation', coverage } : undefined;
@@ -97,7 +103,7 @@ function definition(entry: CatalogEntry): ExplorerBodyDefinition {
     const orientations = dynamics.filter(controller => isAttitude(controller.url!)).map(controller => `${controller.url}/def.dyn`);
     const phases: EntityPhase[] = sortedParents(entry).map(([start, parentId]) => {
         // Select candidates by declared reference body, then let real binary coverage resolve repeated-parent phases.
-        const matching = positionControllers.filter(controller => controller.url!.split('/')[1] === parentId);
+        const matching = positionControllers.filter(controller => controller.url!.split('/')[1] === (sourceFrameFolders[parentId] ?? parentId));
         const candidates = matching.length ? matching : positionControllers.filter(controller => entry.parents.length === 1 || controller.url!.split('/').length === 1);
         const barycenter = candidates.find(controller => controller.parentIsBarycenter !== undefined);
         return { startEt: time(start), parentId: parentId || null, positionPaths: candidates.map(controller => `${controller.url}/def.dyn`), orientationPaths: orientations, body: barycenter ? 1 : undefined };
@@ -113,6 +119,10 @@ function definition(entry: CatalogEntry): ExplorerBodyDefinition {
         radiusKm: entry.spheroid?.equatorialRadius ?? entry.extentsRadius ?? entry.radius ?? .00001, polarRadiusKm: entry.spheroid?.polarRadius, planetographic: entry.spheroid?.planetographic,
         systemRadiusKm: entry.systemRadius, kind: mesh ? 'model' : entry.spheroid ? 'spheroid' : 'marker', model: mesh, texture, phases,
         modelAnimations: entry.modelAnimations?.flatMap(value => {
+            if (typeof value.joint === 'string') {
+                if ((value.type === 'rotation' || value.type === 'visibility') && Array.isArray(value.keyframes)) return [value as unknown as SourceModelAnimationPlan];
+                if (value.type === 'visibility-interval' && Array.isArray(value.interval)) return [{...value, interval:[time(value.interval[0] as SourceTime), time(value.interval[1] as SourceTime)]} as unknown as SourceModelAnimationPlan];
+            }
             const direction = vector(value.axis);
             return value.type === 'spin' && typeof value.joint === 'string' && direction && typeof value.rate === 'number' ? [{ ...value, type:'spin', joint:value.joint, axis:direction, rate:value.rate, coverage:Array.isArray(value.coverage) ? [time(value.coverage[0] as SourceTime), time(value.coverage[1] as SourceTime)] : undefined } as SourceModelAnimationPlan] : [];
         }),

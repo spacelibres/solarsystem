@@ -149,3 +149,30 @@ COWVR_top_spin active 且角度增长。RapidScat 在当前ET正确 outside-cove
 没有强迫过期设备旋转。截图 `artifacts/iss-joints-v41.png`。
 浏览器 error/warn 为空；其他任务的无覆盖提示与跨参考体拖尾缺口仍显式记录。
 未宣称任意自定义回调或所有对象全部实现；见新分析文档的范围说明。
+
+
+## v0.2.42 全量关节控制对照（2026-10-17）
+
+本版先确认 v0.2.41 的范围缺口：缺少OSIRIS/Stardust关键帧及部件显示控制；
+关节 primary-none/secondary 算法与原源码不完全一致；OSIRIS Bennu阶段的父体
+编号和目录别名未匹配，导致任务时刻对象不可见。没有把active/applied当成画面验收。
+
+完整目录221航天器，其中20项声明关节或部件显示控制：25align、10spin、
+10rotation、3visibility、17visibility-interval，共65项。逐项清单可重新生成和校验。
+原版CPU控制器与我们求解器的对照覆盖全部25个对齐配置的多组模型/祖先/实体旋转，
+以及原Animation helper的全部10组旋转和3组显示关键帧前后、中点、反向顺序。
+
+最终 `npm ci`、`npm test`（53文件/493项Vitest+229项Node）、`npm run check`、
+`npm run solar:catalog:check`、清单校验、生产构建通过。一次并行测试中的目录重现
+测试超过既有5秒限制，未提高限制；复跑完整测试通过。追加原helper对照测试后再次
+执行完整测试和检查成功，部署代码未再修改。
+
+最终生产包真实NASA模型：OSIRIS在UTC2020-10-20 21:30:14/21:34:14两时刻均为ready，
+父体Bennu、姿态和位置已解析；相机位置未变，太阳翼网格明显改变。基座角从
+-1.219857156变为0，左右俯仰轴到+/-0.663225116；两次截图均由实际浏览器保存：
+`artifacts/osiris-gimbal-before-v42.png`、`artifacts/osiris-gimbal-after-v42.png`。
+浏览器error/warn为空，仍有NewHorizons的2条当前任务时间姿态覆盖缺口明确显示。
+
+这是完整显式关节配置和算法对照，加上实际任务时刻的可见网格验证；没有宣称已经
+逐个航天器、每个日期、所有GPU组合完成画面等价验收。旧层级审计的空几何限制
+和原始source数据缺口见joint-mesh-audit.md与model-animation.md。

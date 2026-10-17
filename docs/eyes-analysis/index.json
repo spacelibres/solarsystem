@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "77b09a8a2a3d2f8cd126eb53f8876388bfa2ee65664615ac9e5a832237800663",
+      "sha256": "129819242b08afcd13ca4a623d853248096d10f8c8a4d7511adbf50698bc338c",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "68c83382f8bb0e08f24a5b8a32ea7e45855134c96be5241ccf17d6d3e0833110",
+      "sha256": "30bcd401bcce9ce93f0301a666789a1dc6d0fbeb8d0d221c5c318380dcb1f063",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,

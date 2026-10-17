@@ -17,6 +17,9 @@ export type SourceModelAnimationPlan = Coverage & ({
     readonly referenceTime?: number;
     readonly referenceAngle?: number;
     readonly rotatingPosition?: boolean;
+} | { readonly type: 'rotation'; readonly joint: string; readonly axis: 'x' | 'y' | 'z'; readonly keyframes: readonly (readonly [number, number])[];
+} | { readonly type: 'visibility'; readonly joint: string; readonly initialVisible: boolean; readonly keyframes: readonly (readonly [number, boolean])[];
+} | { readonly type: 'visibility-interval'; readonly joint: string; readonly interval: readonly [number, number]; readonly visibleInside: boolean;
 } | {
     readonly type: 'clip';
     readonly joint: string;
@@ -28,10 +31,11 @@ export type SourceModelAnimationPlan = Coverage & ({
 });
 export interface ModelAnimationDiagnostic {
     readonly joint: string;
-    readonly type: 'spin' | 'clip';
+    readonly type: SourceModelAnimationPlan['type'];
     readonly status: 'active' | 'outside-coverage' | 'missing-joint' | 'missing-clip';
     readonly angle?: number;
     readonly clipTime?: number;
+    readonly visible?: boolean;
 }
 export interface ModelAnimationFrame {
     readonly timeEt: number;
@@ -59,11 +63,24 @@ export function createModelAnimator(root: Object3D, plans: readonly SourceModelA
                     state.status = 'missing-joint';
                     continue;
                 }
-                if (plan.coverage && (frame.timeEt < plan.coverage[0] || frame.timeEt > plan.coverage[1])) {
+                if (plan.coverage && (frame.timeEt < plan.coverage[0] || frame.timeEt >= plan.coverage[1])) {
                     state.status = 'outside-coverage';
                     continue;
                 }
-                if (plan.type === 'clip') {
+                if (plan.type === 'rotation' || plan.type === 'visibility') {
+                    const keys = [...plan.keyframes].sort((a, b) => a[0] - b[0]);
+                    const insertion = keys.findIndex(key => key[0] >= frame.timeEt);
+                    const index = insertion < 0 ? keys.length : insertion;
+                    if (plan.type === 'visibility') joint.visible = index === 0 ? plan.initialVisible : Boolean(keys[index - 1][1]);
+                    else if (keys.length) {
+                        const left = keys[Math.max(0, index - 1)], right = keys[Math.min(keys.length - 1, index)];
+                        const fraction = left === right ? 0 : (frame.timeEt - left[0]) / (right[0] - left[0]);
+                        joint.rotation[plan.axis] = Number(left[1]) + (Number(right[1]) - Number(left[1])) * fraction;
+                        state.angle = joint.rotation[plan.axis];
+                    }
+                }
+                else if (plan.type === 'visibility-interval') joint.visible = (frame.timeEt >= plan.interval[0] && frame.timeEt < plan.interval[1]) === plan.visibleInside;
+                else if (plan.type === 'clip') {
                     const clip = root.animations.find(clip => clip.name === plan.animation);
                     if (!state.mixer || !clip) {
                         state.status = 'missing-clip';
@@ -93,7 +110,7 @@ export function createModelAnimator(root: Object3D, plans: readonly SourceModelA
                 state.status = 'active';
             }
         },
-        diagnostics(): readonly ModelAnimationDiagnostic[] { return states.map(state => ({ joint: state.plan.joint, type: state.plan.type, status: state.status, angle: state.angle, clipTime: state.clipTime })); },
+        diagnostics(): readonly ModelAnimationDiagnostic[] { return states.map(state => ({ joint: state.plan.joint, type: state.plan.type, status: state.status, angle: state.angle, clipTime: state.clipTime, visible: state.joint?.visible })); },
         dispose() { for (const state of states) {
             state.mixer?.stopAllAction();
             if (state.joint)

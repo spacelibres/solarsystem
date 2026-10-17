@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.42 - 2026-10-17
+
+Match recovered joint alignment arithmetic and operation order, verified by
+executing original CPU controller methods over every catalog joint plan.
+Restore all declared keyed model rotations and model visibility schedules,
+including OSIRIS-REx sampling arm/gimbals and Stardust collection mechanisms.
+Generate a complete spacecraft articulation inventory without executing callbacks.
+
 ## 0.2.41 - 2026-10-17
 
 Load valid spacecraft ephemeris intervals around conflicting equal-time records,

@@ -61279,6 +61279,17 @@
         "expression": "entity => {\n      const spray = entity.addComponent(Pioneer.ParticleSprayComponent);\n      spray.setNumberOfParticles(50);\n      spray.setSizeOfParticles(3e-4);\n      spray.setSpeedOfParticles(.01);\n      spray.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));\n      spray.setSpread(-3);\n      spray.setParticleSpacingRandom(false);\n      spray.setLength(.002);\n      spray.setOriginOffset(new Pioneer.Vector3(0, 29e-5, .0033));\n      spray.setDirection(Pioneer.Vector3.ZAxis);\n      spray.setEnabled(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "modelAnimations": [
+        {
+          "type": "visibility-interval",
+          "joint": "huygens_probe",
+          "interval": [
+            157212064.184,
+            "Infinity"
+          ],
+          "visibleInside": false
+        }
+      ],
       "sourceCategory": "Spacecraft",
       "sourceSubcategory": "Orbiter",
       "raw": {
@@ -70340,6 +70351,51 @@
           "joint": "COWVR_top_spin",
           "axisRelativeToEntity": true,
           "clampedToRealTime": true
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Ecostress",
+          "interval": [
+            584127348,
+            "Infinity"
+          ],
+          "visibleInside": true
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "EMIT",
+          "interval": [
+            711345507,
+            "Infinity"
+          ],
+          "visibleInside": true
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "OCO3",
+          "interval": [
+            610718469,
+            "Infinity"
+          ],
+          "visibleInside": true
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "45_RapidScat",
+          "interval": [
+            465418867,
+            575406069
+          ],
+          "visibleInside": true
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "COWVR_TEMPEST",
+          "interval": [
+            693360069,
+            "Infinity"
+          ],
+          "visibleInside": true
         }
       ],
       "sourceCategory": "Spacecraft",
@@ -75886,6 +75942,26 @@
           }
         }
       ],
+      "modelAnimations": [
+        {
+          "type": "visibility-interval",
+          "joint": "solar_panels",
+          "interval": [
+            666952458,
+            666953086.614
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "frame_etc",
+          "interval": [
+            666952458,
+            666953086.614
+          ],
+          "visibleInside": false
+        }
+      ],
       "sourceCategory": "Spacecraft",
       "sourceSubcategory": "Rover",
       "raw": {
@@ -79118,6 +79194,26 @@
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (null !== model) {\n          model.setHiddenObject(\"solar_panels\", false);\n          model.setHiddenObject(\"frame_etc\", false);\n        }\n      }",
             "reason": "executable callback preserved; never executed"
           }
+        }
+      ],
+      "modelAnimations": [
+        {
+          "type": "visibility-interval",
+          "joint": "solar_panels",
+          "interval": [
+            397501758,
+            397502386.832
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "frame_etc",
+          "interval": [
+            397501758,
+            397502386.832
+          ],
+          "visibleInside": false
         }
       ],
       "sourceCategory": "Spacecraft",
@@ -82602,7 +82698,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"Tagsam_housing_cover\", true, [[593036911, false]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82610,7 +82707,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Tagsam_rod_bottom\", \"z\", [[595442726, 0], [595442906, -2.51758508612], [595443086, -2.51758508612], [595443266, 0], [656489486, 0], [656489846, -3.71758508612], [656502896, -3.71758508612], [656503076, 0], [657366686, 0], [657367046, -2.73771997401], [657367406, 0]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82618,7 +82716,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Tagsam_rod_top\", \"z\", [[593728111, 0], [593728113, .15], [595442726, .15], [595442906, 2.73247002363], [595443086, 2.73247002363], [595443266, .15], [656489486, .15], [656489846, 3.73247002363], [656502896, 3.73247002363], [656503076, .15], [657366686, .15], [657366866, 1.16136826422], [657367046, .509601235], [657367226, 1.16136826422], [657367406, .15]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82626,7 +82725,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"tagsam_head\", \"z\", [[595442906, 0], [595442996, 1.57079632679], [595443086, 1.57079632679], [656489486, 0], [656489576, 1.57079632679], [656502806, 1.57079632679], [656502896, 0], [657366686, 0], [657367046, 1.01463145268]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82634,7 +82734,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"tagsam_head\", true, [[657367046, false]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82642,7 +82743,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Base_Right\", \"z\", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82650,7 +82752,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Base_Left\", \"z\", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82658,7 +82761,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Pivot_Right\", \"x\", [[656501603, 0], [656501723, 38 * Math.PI / 180], [656503242, 38 * Math.PI / 180], [656503362, 0]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82666,7 +82770,8 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Pivot_Left\", \"x\", [[656501603, 0], [656501723, -38 * Math.PI / 180], [656503242, -38 * Math.PI / 180], [656503362, 0]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
         },
         {
           "type": "custom",
@@ -82674,7 +82779,296 @@
             "$unsupported": "ArrowFunctionExpression",
             "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"heatshield\", true, [[748824183.985732, false]]);\n      }",
             "reason": "executable callback preserved; never executed"
-          }
+          },
+          "modelAnimation": true
+        }
+      ],
+      "modelAnimations": [
+        {
+          "type": "visibility",
+          "joint": "Tagsam_housing_cover",
+          "initialVisible": true,
+          "keyframes": [
+            [
+              593036911,
+              false
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Tagsam_rod_bottom",
+          "axis": "z",
+          "keyframes": [
+            [
+              595442726,
+              0
+            ],
+            [
+              595442906,
+              -2.51758508612
+            ],
+            [
+              595443086,
+              -2.51758508612
+            ],
+            [
+              595443266,
+              0
+            ],
+            [
+              656489486,
+              0
+            ],
+            [
+              656489846,
+              -3.71758508612
+            ],
+            [
+              656502896,
+              -3.71758508612
+            ],
+            [
+              656503076,
+              0
+            ],
+            [
+              657366686,
+              0
+            ],
+            [
+              657367046,
+              -2.73771997401
+            ],
+            [
+              657367406,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Tagsam_rod_top",
+          "axis": "z",
+          "keyframes": [
+            [
+              593728111,
+              0
+            ],
+            [
+              593728113,
+              0.15
+            ],
+            [
+              595442726,
+              0.15
+            ],
+            [
+              595442906,
+              2.73247002363
+            ],
+            [
+              595443086,
+              2.73247002363
+            ],
+            [
+              595443266,
+              0.15
+            ],
+            [
+              656489486,
+              0.15
+            ],
+            [
+              656489846,
+              3.73247002363
+            ],
+            [
+              656502896,
+              3.73247002363
+            ],
+            [
+              656503076,
+              0.15
+            ],
+            [
+              657366686,
+              0.15
+            ],
+            [
+              657366866,
+              1.16136826422
+            ],
+            [
+              657367046,
+              0.509601235
+            ],
+            [
+              657367226,
+              1.16136826422
+            ],
+            [
+              657367406,
+              0.15
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "tagsam_head",
+          "axis": "z",
+          "keyframes": [
+            [
+              595442906,
+              0
+            ],
+            [
+              595442996,
+              1.57079632679
+            ],
+            [
+              595443086,
+              1.57079632679
+            ],
+            [
+              656489486,
+              0
+            ],
+            [
+              656489576,
+              1.57079632679
+            ],
+            [
+              656502806,
+              1.57079632679
+            ],
+            [
+              656502896,
+              0
+            ],
+            [
+              657366686,
+              0
+            ],
+            [
+              657367046,
+              1.01463145268
+            ]
+          ]
+        },
+        {
+          "type": "visibility",
+          "joint": "tagsam_head",
+          "initialVisible": true,
+          "keyframes": [
+            [
+              657367046,
+              false
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Gimbal_Base_Right",
+          "axis": "z",
+          "keyframes": [
+            [
+              656501483,
+              -1.2217304763960306
+            ],
+            [
+              656501603,
+              0
+            ],
+            [
+              656503242,
+              0
+            ],
+            [
+              656503602,
+              -1.2217304763960306
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Gimbal_Base_Left",
+          "axis": "z",
+          "keyframes": [
+            [
+              656501483,
+              -1.2217304763960306
+            ],
+            [
+              656501603,
+              0
+            ],
+            [
+              656503242,
+              0
+            ],
+            [
+              656503602,
+              -1.2217304763960306
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Gimbal_Pivot_Right",
+          "axis": "x",
+          "keyframes": [
+            [
+              656501603,
+              0
+            ],
+            [
+              656501723,
+              0.6632251157578452
+            ],
+            [
+              656503242,
+              0.6632251157578452
+            ],
+            [
+              656503362,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Gimbal_Pivot_Left",
+          "axis": "x",
+          "keyframes": [
+            [
+              656501603,
+              0
+            ],
+            [
+              656501723,
+              -0.6632251157578452
+            ],
+            [
+              656503242,
+              -0.6632251157578452
+            ],
+            [
+              656503362,
+              0
+            ]
+          ]
+        },
+        {
+          "type": "visibility",
+          "joint": "heatshield",
+          "initialVisible": true,
+          "keyframes": [
+            [
+              748824183.985732,
+              false
+            ]
+          ]
         }
       ],
       "sourceCategory": "Spacecraft",
@@ -82855,7 +83249,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"Tagsam_housing_cover\", true, [[593036911, false]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82863,7 +83258,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Tagsam_rod_bottom\", \"z\", [[595442726, 0], [595442906, -2.51758508612], [595443086, -2.51758508612], [595443266, 0], [656489486, 0], [656489846, -3.71758508612], [656502896, -3.71758508612], [656503076, 0], [657366686, 0], [657367046, -2.73771997401], [657367406, 0]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82871,7 +83267,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Tagsam_rod_top\", \"z\", [[593728111, 0], [593728113, .15], [595442726, .15], [595442906, 2.73247002363], [595443086, 2.73247002363], [595443266, .15], [656489486, .15], [656489846, 3.73247002363], [656502896, 3.73247002363], [656503076, .15], [657366686, .15], [657366866, 1.16136826422], [657367046, .509601235], [657367226, 1.16136826422], [657367406, .15]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82879,7 +83276,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"tagsam_head\", \"z\", [[595442906, 0], [595442996, 1.57079632679], [595443086, 1.57079632679], [656489486, 0], [656489576, 1.57079632679], [656502806, 1.57079632679], [656502896, 0], [657366686, 0], [657367046, 1.01463145268]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82887,7 +83285,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"tagsam_head\", true, [[657367046, false]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82895,7 +83294,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Base_Right\", \"z\", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82903,7 +83303,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Base_Left\", \"z\", [[656501483, -70 * Math.PI / 180], [656501603, 0], [656503242, 0], [656503602, -70 * Math.PI / 180]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82911,7 +83312,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Pivot_Right\", \"x\", [[656501603, 0], [656501723, 38 * Math.PI / 180], [656503242, 38 * Math.PI / 180], [656503362, 0]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82919,7 +83321,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeJointRotationAnimation(model, \"Gimbal_Pivot_Left\", \"x\", [[656501603, 0], [656501723, -38 * Math.PI / 180], [656503242, -38 * Math.PI / 180], [656503362, 0]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           },
           {
             "type": "custom",
@@ -82927,7 +83330,8 @@
               "$unsupported": "ArrowFunctionExpression",
               "expression": "entity => {\n        const model = entity.getComponent(Pioneer.ModelComponent);\n        if (!model) throw new Error();\n        return Animation.Animation.makeSubobjectVisibleAnimation(model, \"heatshield\", true, [[748824183.985732, false]]);\n      }",
               "reason": "executable callback preserved; never executed"
-            }
+            },
+            "modelAnimation": true
           }
         ]
       },
@@ -86175,6 +86579,17 @@
           }
         }
       ],
+      "modelAnimations": [
+        {
+          "type": "visibility-interval",
+          "joint": "Philae",
+          "interval": [
+            469053367.183,
+            "Infinity"
+          ],
+          "visibleInside": false
+        }
+      ],
       "sourceCategory": "Spacecraft",
       "sourceSubcategory": "Orbiter",
       "raw": {
@@ -88043,6 +88458,227 @@
         "expression": "entity => {\n      const model = entity.getComponent(Pioneer.ModelComponent);\n      if (model) {\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_capsule\", \"x\", createCollectionKeyframes(1.481785, 0, 600));\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_Sample_Collection1\", \"x\", createCollectionKeyframes(-Math.PI, 610, 300));\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_Sample_Collection2\", \"x\", createCollectionKeyframes(-Math.PI, 920, 300));\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "modelAnimations": [
+        {
+          "type": "rotation",
+          "joint": "Stardust_capsule",
+          "axis": "x",
+          "keyframes": [
+            [
+              4449664,
+              1.481785
+            ],
+            [
+              4450264,
+              0
+            ],
+            [
+              10410664,
+              0
+            ],
+            [
+              10411264,
+              1.481785
+            ],
+            [
+              81864064,
+              1.481785
+            ],
+            [
+              81864664,
+              0
+            ],
+            [
+              92663464,
+              0
+            ],
+            [
+              92664064,
+              1.481785
+            ],
+            [
+              125496064,
+              1.481785
+            ],
+            [
+              125496664,
+              0
+            ],
+            [
+              126363064,
+              0
+            ],
+            [
+              126363664,
+              1.481785
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Stardust_Sample_Collection1",
+          "axis": "x",
+          "keyframes": [
+            [
+              4450274,
+              -3.141592653589793
+            ],
+            [
+              4450574,
+              0
+            ],
+            [
+              10410354,
+              0
+            ],
+            [
+              10410654,
+              -3.141592653589793
+            ],
+            [
+              81864674,
+              -3.141592653589793
+            ],
+            [
+              81864974,
+              0
+            ],
+            [
+              92663154,
+              0
+            ],
+            [
+              92663454,
+              -3.141592653589793
+            ],
+            [
+              125496674,
+              -3.141592653589793
+            ],
+            [
+              125496974,
+              0
+            ],
+            [
+              126362754,
+              0
+            ],
+            [
+              126363054,
+              -3.141592653589793
+            ]
+          ]
+        },
+        {
+          "type": "rotation",
+          "joint": "Stardust_Sample_Collection2",
+          "axis": "x",
+          "keyframes": [
+            [
+              4450584,
+              -3.141592653589793
+            ],
+            [
+              4450884,
+              0
+            ],
+            [
+              10410044,
+              0
+            ],
+            [
+              10410344,
+              -3.141592653589793
+            ],
+            [
+              81864984,
+              -3.141592653589793
+            ],
+            [
+              81865284,
+              0
+            ],
+            [
+              92662844,
+              0
+            ],
+            [
+              92663144,
+              -3.141592653589793
+            ],
+            [
+              125496984,
+              -3.141592653589793
+            ],
+            [
+              125497284,
+              0
+            ],
+            [
+              126362444,
+              0
+            ],
+            [
+              126362744,
+              -3.141592653589793
+            ]
+          ]
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_capsule",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_tex_01_c",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_tex_02_c",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_tex_03_c",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_tex_02_c2",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        },
+        {
+          "type": "visibility-interval",
+          "joint": "Stardust_Sample_Collection1",
+          "interval": [
+            190576690.7833838,
+            "Infinity"
+          ],
+          "visibleInside": false
+        }
+      ],
       "sourceCategory": "Spacecraft",
       "sourceSubcategory": "Flyby",
       "raw": {

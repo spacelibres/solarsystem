@@ -1,30 +1,81 @@
-# Model articulation
+# Source model animation
 
-The independent renderer keeps spacecraft body attitude and named model joints separate. `ExplorerBodyDefinition.jointControllers` contains the source declarative joint align controllers; `modelAnimations` contains literal post-creation spin setup recovered by the static catalog compiler. The compiler reads the AST and never executes callback code.
+`tools/compile-solar-catalog.cjs` parses the recovered entity registrations with Babel. It never imports or executes recovered modules. The generated catalog retains source callbacks as diagnostic text and separately extracts the supported model operations. Only recognized animation callbacks are excluded from whole-craft attitude controllers.
 
-`createModelAnimator(modelRoot, plans, initialTimeEt)` binds named Three.js objects once per model lease. Call `update({timeEt, deltaSeconds, orientation})` after body/joint alignment. `orientation` is the spacecraft source-frame quaternion; `deltaSeconds` is elapsed real seconds. Dispose when releasing the model. A replacement model requires a fresh animator. Copy the glTF loader's clips into `modelRoot.animations`.
+The manifest contains 40 model operations on 15 entities: 10 joint spins, 10 keyed Euler rotations, 3 keyed visibility schedules, and 17 interval visibility operations. The five microwave radiometer spins belong to TROPICS 01, 03, 05, 06 and 07.
 
-## Source semantics
+Keyed rotations reproduce `eyes/src/engine/core/Animation.js`: stable ascending ET keys, linear interpolation of the named Euler component in radians, and first/last value clamping. They do not interpolate quaternions or add a generic spin. Equal-time keys retain source order: the first value wins at exact equality and the last wins immediately afterwards.
 
-- `eyes/src/engine/controllers/SpinController.js`: absent a reference epoch, rotation uses the signed difference between current and previous simulation ET. `setClampedToRealTime(true)` limits that difference to plus/minus the real frame delta. Pausing ET therefore freezes these joints; fast playback stays visually bounded and reverse playback reverses them. `setUsingRealTime(true)` instead uses real delta regardless of ET. A joint rotation left-multiplies its current local quaternion; optional rotating-position applies the same rotation to its local position. Frame-space axes are transformed by inverse spacecraft attitude before applying to the joint.
-- GPM antenna: negative Y, 192 degrees/second, clamped real-time. SMAP arm: positive Y, 87.6 degrees/second. ISS RapidScat: positive Z, 108 degrees/second, ending at ET 524890952; COWVR top: positive Y, 180 degrees/second. CYGNSS radiometers use their literal source rates. These are source configurations, not an invented universal spacecraft spin.
-- A reference epoch, if explicitly supplied, follows the recovered controller's absolute elapsed calculation followed by joint premultiplication. No extracted callback currently uses it.
-- `ModelAnimateController.js`: a named clip and named joint use simulation ET clamped to the supplied interval. Clip time is `duration * fraction * (firstTrack.times.length - 1) / firstTrack.times.length`. Three.js `AnimationMixer.setTime` supports reverse seeking and paused ET. No catalog registration currently configures this controller, so embedded clips never autoplay merely because they exist.
+Keyed visibility uses the source strict-less insertion rule. A key at ET t takes effect only after t. Interval visibility instead follows `Interval.contains`, including its start and excluding its end. Reverse time seeks reevaluate the keyed schedules and visibility directly.
 
-Diagnostics expose each plan's joint, type, status (`active`, `outside-coverage`, `missing-joint`, `missing-clip`), accumulated spin angle, and clip time. Missing targets never rotate the model root as a fallback.
+OSIRIS-REx supplies seven keyed rotations and three keyed visibility schedules. Stardust supplies three keyed rotations from `createCollectionKeyframes`; its single return-array AST is interpreted with literal numeric arguments rather than executing the helper. ISS supplies five `showSubObjectDuringInterval` calls. Coverage enter/exit pairs supply the remaining twelve interval visibility operations for Cassini, Mars 2020, Mars Science Laboratory, Rosetta and Stardust; the static Stardust part-name loop expands to six objects.
 
-The extractor intentionally recognizes only direct literal `entity.addController(Pioneer.SpinController)` declarations and direct setup calls in post-create callbacks. Other callback behavior remains preserved as source diagnostics: visibility intervals, nested runtime changes, and custom procedural controllers are not silently executed or claimed as implemented. No NASA assets are mirrored or embedded.
+The runtime binds each operation to its exact named glTF object. Missing names and clips remain explicit diagnostics. Separate joint alignment controllers are described by `jointControllers`; they are never applied to the whole-craft attitude. Source meshes and textures remain NASA runtime URLs.
 
-Validation: `npx vitest run tests/solar-model-animation.test.ts tests/solar-scene-catalog.test.ts`; `node tools/compile-solar-catalog.cjs --check`.
+Verification: `npx vitest run tests/solar-model-animation.test.ts tests/solar-catalog.test.ts tests/solar-scene-catalog.test.ts`, `node tools/compile-solar-catalog.cjs --check`, and `npx tsc --noEmit`.
 
 
-## Renderer integration
+## Exact alignment and spin semantics
 
-The model lease wrapper retains `gltf.animations`; a per-lease animator is disposed
-before the model resources are released. `updateModelJoints` composes spacecraft
-attitude with model-root rotation and joint ancestors, solves source alignment in
-world space, then converts the result back to the joint local quaternion. ISS
-solar arrays therefore track the actual Sun direction without rotating the whole
-spacecraft as a substitute. Joint alignment dependencies are included in runtime
-activation. Diagnostics report applied joints, missing names and unavailable targets.
-Unit tests cover target changes through rotated ancestors and missing-target behavior.
+`model-joints.ts` now follows recovered `AlignController._getOrientation` and
+`_getAxis`, including source quaternion multiplication order, q*v*conjugate(q)
+vector rotation, projected acos secondary angles and final normalization. The
+previous optimized unit-quaternion formulas were not equivalent during intermediate
+primary-none calculations. Parent basis is craft attitude * model rotation * joint
+ancestors; the solved world orientation is converted back into joint-local space.
+The wrapper introduced by our loader has identity rotation; its glTF scene child
+holds the source model rotation. Coverage excludes its ending ET.
+
+`solar-joint-source.test.ts` executes the recovered CPU methods on every catalog
+joint align plan under nine changing craft/model/ancestor configurations, rather
+than comparing only against hand-written expected angles. Spin comparison covers
+both axis reference frames, signed ET differences, real-time clamping and local
+position rotation. Model release disposes its mixers before GPU resources.
+
+Absent a reference epoch, SpinController integrates signed ET differences. Source
+`clampedToRealTime` limits that delta to elapsed real seconds; paused simulation
+therefore stops these scanners, while reverse playback reverses them. The separate
+`usingRealTime` option continues with real seconds even if simulation time pauses.
+Do not replace either with a universal automatic spacecraft spin.
+
+Named glTF clip support retains GLTFLoader animations and uses the recovered
+ModelAnimateController ET-to-clip mapping, including the first track sample-count
+correction. The checked-in entity registrations do not call setAnimation; embedded
+clips are therefore not automatically played just because a file contains them.
+
+The [complete spacecraft inventory](articulation-inventory.md) is deterministic
+and can be checked with `node tools/audit-solar-articulation.cjs --check`.
+
+
+## Mission-frame aliases required for historical articulation
+
+The mission phase parent is an entity ID, not necessarily its dynamo folder.
+`scene-catalog.ts` maps eight verified source aliases only when matching already
+registered controller URLs: 101955_bennu/bennu, 99942_apophis/apophis,
+4_vesta/vesta, 1_ceres/ceres, 134340_pluto/pluto, 486958_arrokoth/mu69,
+617_patroclus_barycenter/617_patroclus and sc_galileo/galileo. No asset URL is
+invented and unrelated reference frames are not merged as a fallback.
+
+Without this correction OSIRIS at ET656501483.184 was missing-local and invisible,
+so model diagnostic state from an earlier visible date could not prove animation
+at the requested time. The exact NASA `sc_osiris_rex/bennu/pos/def.dyn` response
+loads segment153 with interval [656487034.2922817,666935167.3910428]; the phase
+selection regression first failed and then passed with the corrected mapping.
+
+
+`solar-keyed-source.test.ts` additionally executes the original Animation helper,
+original Sort, and original MathUtils for all ten keyed rotations and three keyed
+visibility schedules. It compares each real source key, both sides of the key,
+all interval midpoints and reverse traversal against the production animator.
+
+## Production picture validation
+
+At UTC2020-10-20 21:30:14 (ET656501483.184) and 21:34:14
+(ET656501723.184), OSIRIS-REx has valid measured body attitude and a Bennu-relative
+position. With an unchanged camera, the actual decoded NASA model visibly changes
+its solar-array gimbals. Base angles change from -1.219857156 to0 radians; right
+and left pivot angles reach +0.663225116 and -0.663225116 radians respectively.
+Captured pictures: `artifacts/osiris-gimbal-before-v42.png` and
+`artifacts/osiris-gimbal-after-v42.png`. This validates those visible meshes;
+the all-spacecraft declaration inventory and CPU differentials cover the wider
+configuration surface, not every object/date/GPU image combination.

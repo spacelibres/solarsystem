@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.41",
+  "version": "0.2.42",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",

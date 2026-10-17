@@ -34,6 +34,7 @@ function compileCatalog(root = ROOT) {
       localDiagnostics.push({ file, line: node.loc.start.line, column: node.loc.start.column + 1, reason, expression: result.expression });
       return result;
     }
+    let parameters = new Map();
     function evaluate(node) {
       if (!node) return { $undefined: true };
       if (['StringLiteral', 'NumericLiteral', 'BooleanLiteral'].includes(node.type)) return node.value;
@@ -51,6 +52,7 @@ function compileCatalog(root = ROOT) {
       const constants = { 'Number.NEGATIVE_INFINITY': '-Infinity', 'Number.POSITIVE_INFINITY': 'Infinity', 'Math.PI': Math.PI, 'Pioneer.MathUtils.TwoPi': 2 * Math.PI, 'Pioneer.Vector3.Zero': [0,0,0], 'Pioneer.Vector3.One': [1,1,1], 'Pioneer.Vector3.XAxis': [1,0,0], 'Pioneer.Vector3.YAxis': [0,1,0], 'Pioneer.Vector3.ZAxis': [0,0,1], 'Pioneer.Vector3.XAxisNeg': [-1,0,0], 'Pioneer.Vector3.YAxisNeg': [0,-1,0], 'Pioneer.Vector3.ZAxisNeg': [0,0,-1], 'Pioneer.Quaternion.Identity': [1,0,0,0] };
       if (Object.hasOwn(constants, name)) return constants[name];
       if (node.type === 'Identifier') {
+        if (parameters.has(name)) return parameters.get(name);
         if (name === 'undefined') return { $undefined: true };
         if (bindings.has(name) && !active.has(name)) { active.add(name); const result = evaluate(bindings.get(name)); active.delete(name); return result; }
       }
@@ -66,6 +68,15 @@ function compileCatalog(root = ROOT) {
           if (operations[node.operator]) return operations[node.operator]();
         }
         if (node.operator === '+' && typeof left === 'string' && typeof right === 'string') return left + right;
+      }
+      if (node.type === 'CallExpression' && node.callee.type === 'Identifier') {
+        // Whitelist the recovered pure return-array helper; interpret its AST, never execute JS.
+        const helper = ast.program.body.find(item => item.type === 'FunctionDeclaration' && item.id.name === node.callee.name);
+        if (helper?.id.name === 'createCollectionKeyframes' && helper.body.body.length === 1 && helper.body.body[0].type === 'ReturnStatement' && helper.body.body[0].argument.type === 'ArrayExpression') {
+          const args = node.arguments.map(evaluate), previous = parameters;
+          parameters = new Map(helper.params.map((param, index) => [param.name, args[index]]));
+          const value = evaluate(helper.body.body[0].argument); parameters = previous; return value;
+        }
       }
       if (node.type === 'CallExpression' && member(node.callee) === 'Pioneer.MathUtils.degToRad') { const value = evaluate(node.arguments[0]); if (typeof value === 'number') return value * Math.PI / 180; }
       if (node.type === 'CallExpression' && ['Math.sqrt', 'Math.sin', 'Math.cos', 'Math.abs', 'Math.pow'].includes(member(node.callee))) {
@@ -107,6 +118,47 @@ function compileCatalog(root = ROOT) {
           if (method === 'setCoverage' && call.arguments[0]?.type === 'NewExpression' && member(call.arguments[0].callee) === 'Pioneer.Interval') spin.coverage = call.arguments[0].arguments.map(evaluate);
         }
         for (const spin of spins.values()) if (typeof spin.joint === 'string' && typeof spin.rate === 'number' && Array.isArray(spin.axis)) animations.push(spin);
+        function walk(node, visit) {
+          if (!node || typeof node !== 'object') return;
+          if (node.type) visit(node);
+          for (const [key, value] of Object.entries(node)) if (!['loc','start','end'].includes(key)) {
+            if (Array.isArray(value)) for (const item of value) walk(item, visit);
+            else if (value && typeof value === 'object') walk(value, visit);
+          }
+        }
+        const controllerNodes = prop.value.properties?.find(item => item.key?.name === 'controllers')?.value?.elements ?? [];
+        walk(prop.value, node => {
+          if (node.type !== 'CallExpression') return;
+          const method = member(node.callee);
+          if (method === 'Animation.Animation.makeJointRotationAnimation' || method === 'Animation.Animation.makeSubobjectVisibleAnimation') {
+            const joint = evaluate(node.arguments[1]), third = evaluate(node.arguments[2]), keyframes = evaluate(node.arguments[3]);
+            if (typeof joint === 'string' && Array.isArray(keyframes) && keyframes.length && keyframes.every(key => Array.isArray(key) && typeof key[0] === 'number' && typeof key[1] === (method.endsWith('RotationAnimation') ? 'number' : 'boolean'))) {
+              animations.push(method.endsWith('RotationAnimation') ? {type:'rotation', joint, axis:third, keyframes} : {type:'visibility', joint, initialVisible:third, keyframes});
+              const controllerIndex = controllerNodes.findIndex(controller => node.start >= controller.start && node.end <= controller.end);
+              if (controllerIndex >= 0) raw.controllers[controllerIndex].modelAnimation = true;
+            }
+          }
+          if (method === 'EntityUtils.EntityUtils.showSubObjectDuringInterval') animations.push({type:'visibility-interval', joint:evaluate(node.arguments[1]), interval:node.arguments.slice(2,4).map(evaluate), visibleInside:true});
+        });
+        for (let index = 0; index < controllerNodes.length; index++) {
+          const controller = controllerNodes[index], data = raw.controllers[index];
+          if (data.type !== 'coverage' || !Array.isArray(data.coverage)) continue;
+          const enter = controller.properties.find(item => item.key?.name === 'enter')?.value;
+          const exit = controller.properties.find(item => item.key?.name === 'exit')?.value;
+          const collect = callback => {
+            const result = new Map();
+            walk(callback, node => {
+              if (node.type !== 'CallExpression' || node.callee?.property?.name !== 'setHiddenObject') return;
+              let names;
+              if (node.arguments[0].type === 'StringLiteral') names = [evaluate(node.arguments[0])];
+              else { const loops=[]; walk(callback, candidate => {if(candidate.type === 'ForOfStatement' && node.start >= candidate.body.start && node.end <= candidate.body.end) loops.push(candidate);}); names = loops.length ? evaluate(loops[0].right) : []; }
+              const hidden = evaluate(node.arguments[1]);
+              if (Array.isArray(names) && typeof hidden === 'boolean') for (const name of names) if (typeof name === 'string') result.set(name, hidden);
+            }); return result;
+          };
+          const exits = collect(exit);
+          for (const [joint, hidden] of collect(enter)) if (exits.get(joint) === !hidden) animations.push({type:'visibility-interval', joint, interval:data.coverage, visibleInside:!hidden});
+        }
         const classification = metadata[id];
         entries.push({ id, ...raw, ...(animations.length ? { modelAnimations: animations } : {}), ...(typeof classification?.category === 'string' ? { sourceCategory: classification.category } : {}), ...(typeof classification?.subcategory === 'string' ? { sourceSubcategory: classification.subcategory } : {}), groups: raw.groups ?? [], parents: raw.parents ?? [], controllers: raw.controllers ?? [], raw, provenance: { file, line: prop.loc.start.line, column: prop.loc.start.column + 1 }, diagnostics: localDiagnostics });
       }

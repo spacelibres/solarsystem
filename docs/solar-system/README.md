@@ -71,3 +71,6 @@ explorer.resetCamera();
 
 - [Spacecraft ephemeris failures](ephemeris-failures.md)
 - [Model articulation](model-animation.md)
+
+- [Complete articulation inventory](articulation-inventory.md)
+- [Joint hierarchy and mesh audit](joint-mesh-audit.md)

@@ -45,3 +45,10 @@ it('preserves a none primary axis under floating point ancestor rotation while t
     expect(state).toEqual({ applied: 1, missing: [], unavailable: [] });
     expect(joint.quaternion.toArray().every(Number.isFinite)).toBe(true);
 });
+
+it('does not update a joint at the excluded end of its source coverage', () => {
+ const root=new THREE.Group(), joint=new THREE.Group();joint.name='panel';root.add(joint);
+ const controller={type:'align' as const,coverage:[0,1] as const,primary:{type:'point' as const,axis:{x:1,y:0,z:0},targetId:'sun'}};
+ expect(updateModelJoints(root,[{joint:'panel',controller}],frame('craft',0,0),new Map([['sun',frame('sun',0,10)]]),1).applied).toBe(0);
+ expect(joint.quaternion.w).toBe(1);
+});
