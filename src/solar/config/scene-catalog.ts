@@ -106,6 +106,7 @@ function definition(entry: CatalogEntry): ExplorerBodyDefinition {
     const fixed = entry.controllers.find(controller => controller.type === 'fixed' && !controller.coverage && vector(controller.position));
     return {
         id: entry.id, label: entry.label ?? entry.id, groups: entry.groups, category: entry.groups.includes('spacecraft') ? 'Spacecraft' : entry.groups.includes('moons') ? 'Moon' : entry.groups.includes('planets') ? 'Planet' : 'Other',
+        sourceCategory: entry.sourceCategory, sourceSubcategory: entry.sourceSubcategory,
         radiusKm: entry.spheroid?.equatorialRadius ?? entry.extentsRadius ?? entry.radius ?? .00001, polarRadiusKm: entry.spheroid?.polarRadius, planetographic: entry.spheroid?.planetographic,
         systemRadiusKm: entry.systemRadius, kind: mesh ? 'model' : entry.spheroid ? 'spheroid' : 'marker', model: mesh, texture, phases,
         trail: entry.trail ? sourceTrail(entry.trail) : undefined,
@@ -124,7 +125,11 @@ function sourceTrail(value: NonNullable<CatalogEntry['trail']>): SourceTrailOpti
         color: Array.isArray(color) && color.length === 4 && color.every(item => typeof item === 'number') ? color as [number, number, number, number] : undefined,
         relativeTo: typeof value.relativeTo === 'string' ? value.relativeTo : undefined,
         relativeToOrientation: value.relativeToOrientation === true,
-        lengthCoverages: Array.isArray(value.lengthCoverages) ? value.lengthCoverages.flatMap(item => Array.isArray(item) && item.length === 3 && item.every(part => typeof part === 'number') ? [item as [number, number, number]] : []) : undefined,
+        lengthCoverages: Array.isArray(value.lengthCoverages) ? value.lengthCoverages.flatMap(item => {
+            if (!Array.isArray(item) || item.length !== 3 || typeof item[0] !== 'number') return [];
+            const isTime = (part: StaticValue): part is SourceTime => typeof part === 'number' || part === '-Infinity' || part === 'Infinity';
+            return isTime(item[1]) && isTime(item[2]) ? [[item[0], time(item[1]), time(item[2])] as [number, number, number]] : [];
+        }) : undefined,
     };
 }
 export const FULL_SCENE: readonly ExplorerBodyDefinition[] = entries.filter(entry => !['sun', 'milky_way', 'observable_universe'].includes(entry.id)).map(definition);

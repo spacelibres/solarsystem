@@ -98,3 +98,18 @@ TESS 和部分深空任务尚未接受的分段/姿态数据。
 Io、Europa、Ganymede、Callisto 的真实轨迹可见；截图
 `artifacts/jupiter-satellite-trails-production.png`。页面控制台错误/警告为空，
 但界面诊断仍明确列出未接受的数据，二者不可混淆。
+
+
+## v0.2.39 连续拖尾修正（2026-10-17）
+
+`npm ci`、`npm test`、`npm run check`、`npm run solar:catalog:check`、
+`npm run build` 均成功。最终测试为 47 文件/425 项 Vitest 测试及 229 项
+Node 源码契约测试，0 失败。最后增加的时长区间缓存回归先失败、实现后通过，
+随后重新执行全部测试、检查和生产构建。
+
+生产页面验证 Earth 卫星曲线、ISS 模型近景、60 秒/秒播放及连续缩放，
+再暂停观察轨道弧段；小型天然卫星开关可切换并保持 ISS 选择。
+浏览器控制台 error/warn 为空。截图：`artifacts/iss-continuous-trails-v39.png`。
+界面仍报告 7 项星历暂时不可用及 29 条当前时刻无覆盖；这些不被空控制台掩盖。
+未重新测量生产 FPS，不沿用 v0.2.38 的帧率作为本版结果。
+实现原因、真实 ISS 数值检验与未完成边界见 [连续拖尾分析](continuous-trails.md)。

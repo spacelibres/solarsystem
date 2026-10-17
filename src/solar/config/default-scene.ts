@@ -10,6 +10,8 @@ export interface ExplorerBodyDefinition extends EntityDefinition {
     readonly groups?: readonly string[];
     readonly trail?: SourceTrailOptions;
     readonly category?: string;
+    readonly sourceCategory?: string;
+    readonly sourceSubcategory?: string;
     readonly systemRadiusKm?: number;
     readonly model?: ModelDescriptor;
     readonly diagnostics?: readonly string[];

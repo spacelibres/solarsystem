@@ -11,6 +11,8 @@ function member(node) {
 }
 function compileCatalog(root = ROOT) {
   const entries = [], diagnostics = [];
+  const metadataPath = path.join(root, 'eyes/src/data/EntityCatalog.json');
+  const metadata = fs.existsSync(metadataPath) ? JSON.parse(fs.readFileSync(metadataPath, 'utf8')) : {};
   const directory = path.join(root, 'eyes/src/engine/core');
   for (const filename of fs.readdirSync(directory).filter(name => name.endsWith('.js')).sort()) {
     const source = fs.readFileSync(path.join(directory, filename), 'utf8');
@@ -84,7 +86,8 @@ function compileCatalog(root = ROOT) {
         if (prop.type !== 'ObjectProperty') { diagnostics.push({ file, line: prop.loc.start.line, reason: 'non-static registration member' }); continue; }
         const id = prop.key.name ?? prop.key.value;
         const raw = evaluate(prop.value);
-        entries.push({ id, ...raw, groups: raw.groups ?? [], parents: raw.parents ?? [], controllers: raw.controllers ?? [], raw, provenance: { file, line: prop.loc.start.line, column: prop.loc.start.column + 1 }, diagnostics: localDiagnostics });
+        const classification = metadata[id];
+        entries.push({ id, ...raw, ...(typeof classification?.category === 'string' ? { sourceCategory: classification.category } : {}), ...(typeof classification?.subcategory === 'string' ? { sourceSubcategory: classification.subcategory } : {}), groups: raw.groups ?? [], parents: raw.parents ?? [], controllers: raw.controllers ?? [], raw, provenance: { file, line: prop.loc.start.line, column: prop.loc.start.column + 1 }, diagnostics: localDiagnostics });
       }
     } });
   }

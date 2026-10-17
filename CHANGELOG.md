@@ -3,6 +3,23 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.39 - 2026-10-17
+
+Correct dotted, polygonal and periodically jumping satellite trails.
+
+- Replace overlapping segment caps with shared continuous ribbon joins, including
+  closed planetary/Moon orbits; preserve nominal width with pixel coverage AA.
+- Keep absolute-time history knots, evaluate exact moving endpoints and refine
+  visible curves from real ephemeris to a quarter-pixel target instead of
+  periodically replacing the entire historical path.
+- Rebase positions in float64 before GPU upload; reuse bounded buffers and
+  upload only their active range to stabilize spacecraft close-ups.
+- Restore the application's white/.35 ordinary trail override, its close-camera
+  fade, unbounded duration coverages and half-open interval boundaries.
+- Restore the source default minor-moon layer visibility, with an explicit
+  toggle and source-classified metadata while retaining every catalog target.
+- Document source evidence, regression coverage and remaining limitations.
+
 ## 0.2.38 - 2026-10-17
 
 Restore scale-dependent satellite systems and source-backed tapered trails.

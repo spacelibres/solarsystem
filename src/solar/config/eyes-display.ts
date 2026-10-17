@@ -15,3 +15,7 @@ export function eyesOrbitStyle(id: string, hovered = false): { rgba: readonly [n
 export function eyesOrbitFade(normalRadius:number):number {
   return Math.max(0,Math.min(1,(1-normalRadius/.02)/.5+1));
 }
+/** TrailComponent also fades when the camera approaches the trail's own body. */
+export function eyesTrailFade(normalRadius:number, relativeDistance:number):number {
+  return eyesOrbitFade(normalRadius)*Math.max(0,Math.min(1,1000*relativeDistance));
+}

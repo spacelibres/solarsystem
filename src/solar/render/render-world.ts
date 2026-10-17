@@ -1,11 +1,8 @@
 import * as THREE from 'three';
-import { Line2 } from 'three/addons/lines/Line2.js';
-import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
-import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { parseStarfield } from '../../lib/scene/starfield';
 import { pickSize, starfieldUrl, textureUrl, SPRITES, GALAXIES_URL, CONSTELLATIONS_URL } from '../../lib/nasa/assets';
-import { eyesOrbitStyle, eyesOrbitFade } from '../config/eyes-display';
+import { eyesOrbitStyle, eyesOrbitFade, eyesTrailFade } from '../config/eyes-display';
 import { parseConstellations } from '../domain/sky';
 import { createSkyStars } from './sky';
 import type { ExplorerBodyDefinition } from '../config/default-scene';
@@ -17,8 +14,9 @@ import { EphemerisRepository } from '../runtime/ephemeris-repository';
 import { activePhaseIndex } from '../domain/entities';
 import { orbitalBodyFactor, orbitPolyline, osculatingPolyline, sampledPolyline } from '../domain/trajectories';
 import type { OrbPoint } from '../../lib/dynamo/parse';
-import { sampleTrailHistory } from '../domain/trails';
-import { createTrailMaterial, setTrailProgress, setTrailHover } from './trail-material';
+import { configuredTrailLength, sampleTrailHistory } from '../domain/trails';
+import { TrailRibbon } from './trail-ribbon';
+import { RollingTrail } from '../domain/rolling-trail';
 import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
 import { applyFrameTransform } from './frame';
@@ -72,13 +70,19 @@ type BodyVisual = {
     marker: HTMLSpanElement;
 };
 type Trail = {
-    line: Line2;
+    line: TrailRibbon;
     parentId: string | null;
     phaseIndex: number;
     timeEt: number;
+    lengthKey?: number;
     mu?: number;
     geometryPosition?: Vec3;
-    refreshSeconds: number;
+    rolling?: RollingTrail;
+    positions?: readonly Vec3[];
+    geometryOrigin?: Vec3;
+    sampleEt?: number;
+    projectionKey?: string;
+    projected?: WeakMap<Vec3,{x:number;y:number;visible:boolean}>;
     history: boolean;
 };
 /** Camera-relative rendering owns GPU resources; the simulation owns physical states. */
@@ -277,8 +281,8 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             if (frame?.status !== 'ready')
                 return;
             const old = trails.get(definition.id);
-            if (old && old.phaseIndex === frame.phaseIndex && Math.abs(old.timeEt - state.clock.timeEt) < old.refreshSeconds)
-                return;
+            const lengthKey = configuredTrailLength(definition.trail, state.clock.timeEt);
+            if (old && old.lengthKey === lengthKey && old.phaseIndex === frame.phaseIndex && (old.history ? !old.rolling?.needsRefresh(state.clock.timeEt) : Math.abs(old.timeEt-state.clock.timeEt)<86400)) return;
             const attempt=trailAttempts.get(definition.id);
             if(attempt?.phaseIndex===frame.phaseIndex && (performance.now()-attempt.wallTime<1000 || !old&&Math.abs(attempt.timeEt-state.clock.timeEt)<30))return;
             const phase = definition.phases[activePhaseIndex(definition.phases, state.clock.timeEt)];
@@ -295,12 +299,12 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     try {
                         const window = await repository.load(path, state.clock.timeEt, controller.signal);
                         let positions;
-                        let refreshSeconds = 86400;
+                        let rolling: RollingTrail | undefined;
                         const history = !(definition.groups?.includes('planets') || definition.id === 'moon');
                         if (history) {
                             const sampled = await sampleTrailHistory({ path, now: state.clock.timeEt, phaseStart: phase.startEt, parentId: frame.parentId, options: definition.trail, body: phase.body, signal: controller.signal, load: repository.load.bind(repository) });
                             positions = sampled.samples.map(sample => sample.position);
-                            refreshSeconds = Math.max(.25, (sampled.end-sampled.requestedStart)/240);
+                            rolling = new RollingTrail(sampled);
                             if(disposed || controller.signal.aborted || generation!==viewGeneration)return;
                             if(sampled.gaps.length)trailGaps[definition.id]=sampled.gaps.map(gap=>gap.reason).join(', ');
                             else delete trailGaps[definition.id];
@@ -316,19 +320,11 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                             positions = sampledPolyline(window, phase.startEt, state.clock.timeEt);
                         if (disposed || controller.signal.aborted || generation !== viewGeneration) return;
                         if (positions.length < 2) continue;
-                        const style = eyesOrbitStyle(definition.id);
-                        const geometry = new LineGeometry(); geometry.setPositions(positions.flatMap(point=>[point.x,point.y,point.z]));
-                        const material = history ? createTrailMaterial() : new LineMaterial({ linewidth: style.width, transparent: true, opacity: style.rgba[3], depthWrite: false });
-                        const color = history && definition.trail?.color ? definition.trail.color : style.rgba;
-                        material.color.setRGB(color[0],color[1],color[2],THREE.SRGBColorSpace);
-                        material.opacity=color[3];
-                        if(history)setTrailProgress(geometry,positions.length);
-                        material.resolution.set(viewportWidth,viewportHeight);
-                        const line = new Line2(geometry, material);
-                        line.frustumCulled = false;
+                        const line = new TrailRibbon();
+                        line.setResolution(viewportWidth,viewportHeight);
                         clearTrail(definition.id,false);
                         scene.add(line);
-                        trails.set(definition.id, { line, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt, refreshSeconds, history, mu: window.header.pointType === 'orb' && (definition.groups?.includes('planets') || definition.id === 'moon') ? (window.header.gravitationalParameter1 ?? 1) + (window.header.gravitationalParameter2 ?? 0) : undefined });
+                        trails.set(definition.id, { line, positions:history?undefined:positions, rolling, parentId: frame.parentId, phaseIndex: frame.phaseIndex, timeEt: state.clock.timeEt, lengthKey, history, mu: window.header.pointType === 'orb' && !history ? (window.header.gravitationalParameter1 ?? 1) + (window.header.gravitationalParameter2 ?? 0) : undefined });
                         return;
                     }
                     catch {
@@ -488,50 +484,61 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                         ensureTrail(definition, state);
                     }
                 }
+                // Project and subtract in float64 before sending local ribbon vertices to the GPU.
+                controls.update();
+                camera.updateMatrixWorld();
+                const projectionKey=camera.matrixWorld.elements.join(',')+camera.projectionMatrix.elements.join(',')+viewportWidth+':'+viewportHeight;
+                const projectedTrailPoint=new THREE.Vector3();
                 for (const [id, trail] of trails) {
-                    const parent = trail.parentId ? state.frames.get(trail.parentId) : undefined;
-                    const body = state.frames.get(id);
-                    trail.line.visible = !!ready && orbitsEnabled && visibleIds.has(id) && body?.status === 'ready' && body.phaseIndex === trail.phaseIndex && (!trail.parentId || parent?.status === 'ready');
-                    trail.line.material.resolution.set(viewportWidth,viewportHeight);
+                    const parent=trail.parentId?state.frames.get(trail.parentId):undefined, body=state.frames.get(id);
+                    trail.line.visible=!!ready&&orbitsEnabled&&visibleIds.has(id)&&body?.status==='ready'&&body.phaseIndex===trail.phaseIndex&&(!trail.parentId||parent?.status==='ready');
+                    if(!trail.line.visible||!ready||body?.status!=='ready')continue;
+                    const parentPosition=parent?.status==='ready'?parent.position:{x:0,y:0,z:0};
+                    const parentVelocity=parent?.status==='ready'?parent.velocity:{x:0,y:0,z:0};
+                    const position={x:body.position.x-parentPosition.x,y:body.position.y-parentPosition.y,z:body.position.z-parentPosition.z};
+                    const velocity={x:body.velocity.x-parentVelocity.x,y:body.velocity.y-parentVelocity.y,z:body.velocity.z-parentVelocity.z};
+                    const origin={x:focus.position.x-parentPosition.x,y:focus.position.y-parentPosition.y,z:focus.position.z-parentPosition.z};
                     const definition=byId.get(id)!;
-                    const center=body?.status==='ready'&&ready?new THREE.Vector3(body.position.x-focus.position.x,body.position.y-focus.position.y,body.position.z-focus.position.z):undefined;
-                    const fade=trail.mu&&center?eyesOrbitFade(definition.radiusKm/center.distanceTo(camera.position)/Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)):1;
+                    const distance=Math.hypot(position.x-origin.x-camera.position.x,position.y-origin.y-camera.position.y,position.z-origin.z-camera.position.z);
+                    const normalRadius=(visuals.get(id)?.modelRadius??definition.radiusKm)/Math.max(distance,Number.MIN_VALUE)/Math.tan(THREE.MathUtils.degToRad(camera.fov)/2);
+                    const fade=trail.history?eyesTrailFade(normalRadius,distance/Math.max(Math.hypot(position.x,position.y,position.z),Number.MIN_VALUE)):eyesOrbitFade(normalRadius);
+                    trail.line.visible=fade>0;
+                    if(!trail.line.visible)continue;
+                    trail.line.setResolution(viewportWidth,viewportHeight);
                     if(trail.history) {
-                        setTrailHover(trail.line.material,id===hoveredId,definition.trail?.color?.[3]??.35);
-                        if(body?.status==='ready') {
-                            const data=(trail.line.geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute).data;
-                            const offset=data.array.length-3;
-                            data.array[offset]=body.position.x-(parent?.status==='ready'?parent.position.x:0);
-                            data.array[offset+1]=body.position.y-(parent?.status==='ready'?parent.position.y:0);
-                            data.array[offset+2]=body.position.z-(parent?.status==='ready'?parent.position.z:0);
-                            data.needsUpdate=true;
+                        trail.line.setStyle(0xffffff,.35,id===hoveredId);
+                        trail.line.material.uniforms.alphaMultiplier.value*=fade;
+                        const oldOrigin=trail.geometryOrigin;
+                        const projectionChanged=trail.projectionKey!==projectionKey||!oldOrigin||oldOrigin.x!==origin.x||oldOrigin.y!==origin.y||oldOrigin.z!==origin.z;
+                        if(!projectionChanged&&trail.sampleEt===state.clock.timeEt)continue;
+                        if(projectionChanged||!trail.projected)trail.projected=new WeakMap();
+                        const projectedCache=trail.projected;
+                        const points=trail.rolling?.sample(state.clock.timeEt,{time:state.clock.timeEt,position,velocity},point=>{
+                            const cached=projectedCache.get(point);
+                            if(cached)return cached;
+                            projectedTrailPoint.set(point.x-origin.x,point.y-origin.y,point.z-origin.z).project(camera);
+                            const result={x:(projectedTrailPoint.x+1)*viewportWidth/2,y:(1-projectedTrailPoint.y)*viewportHeight/2,visible:projectedTrailPoint.z>=-1&&projectedTrailPoint.z<=1&&Math.abs(projectedTrailPoint.x)<=1.1&&Math.abs(projectedTrailPoint.y)<=1.1};
+                            projectedCache.set(point,result);return result;
+                        });
+                        if(!points||points.length<2){trail.line.visible=false;continue;}
+                        // BaseApp initializes all ordinary trails through TrailManager's white .35 override.
+                        trail.line.update(points,false,origin);
+                        trail.sampleEt=state.clock.timeEt;trail.projectionKey=projectionKey;trail.geometryOrigin=origin;
+                    } else {
+                        const style=eyesOrbitStyle(id,id===hoveredId);
+                        trail.line.setOrbitStyle(new THREE.Color().setRGB(style.rgba[0],style.rgba[1],style.rgba[2],THREE.SRGBColorSpace),style.rgba[3]*fade,style.width);
+                        const kmPerPixel=2*distance*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight;
+                        let changed=false;
+                        if(trail.mu&&orbitGeometryNeedsUpdate(trail.geometryPosition,position,kmPerPixel)) {
+                            trail.positions=osculatingPolyline(position,velocity,trail.mu);
+                            trail.geometryPosition=position;orbitGeometryUpdates++;changed=true;
                         }
-                    } else {trail.line.material.opacity=(id===hoveredId?1:eyesOrbitStyle(id).rgba[3])*fade;trail.line.material.linewidth=id===hoveredId?2:1.2;}
-                    trail.line.visible=trail.line.visible&&fade>0;
-                    if(trail.line.visible && trail.mu && body?.status==='ready') {
-                        const parentPosition=parent?.status==='ready'?parent.position:{x:0,y:0,z:0};
-                        const parentVelocity=parent?.status==='ready'?parent.velocity:{x:0,y:0,z:0};
-                        const position={x:body.position.x-parentPosition.x,y:body.position.y-parentPosition.y,z:body.position.z-parentPosition.z};
-                        const velocity={x:body.velocity.x-parentVelocity.x,y:body.velocity.y-parentVelocity.y,z:body.velocity.z-parentVelocity.z};
-                        const kmPerPixel=2*(center?.distanceTo(camera.position)??0)*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight;
-                        const points=orbitGeometryNeedsUpdate(trail.geometryPosition,position,kmPerPixel)?osculatingPolyline(position,velocity,trail.mu):undefined;
-                        if(points && points.length>1){
-                            trail.geometryPosition=position; orbitGeometryUpdates++;
-                            const attribute=trail.line.geometry.getAttribute('instanceStart') as THREE.InterleavedBufferAttribute;
-                            if(attribute.count!==points.length-1)trail.line.geometry.setPositions(points.flatMap(point=>[point.x,point.y,point.z]));
-                            else{
-                                const data=attribute.data;
-                                for(let index=0;index<points.length-1;index++){
-                                    const offset=index*6, a=points[index], b=points[index+1];
-                                    data.array[offset]=a.x;data.array[offset+1]=a.y;data.array[offset+2]=a.z;
-                                    data.array[offset+3]=b.x;data.array[offset+4]=b.y;data.array[offset+5]=b.z;
-                                }
-                                data.needsUpdate=true;
-                            }
-                        }else if(points) trail.line.visible=false;
+                        if(!trail.positions||trail.positions.length<2){trail.line.visible=false;continue;}
+                        const oldOrigin=trail.geometryOrigin;
+                        if(changed||!oldOrigin||origin.x!==oldOrigin.x||origin.y!==oldOrigin.y||origin.z!==oldOrigin.z){
+                            trail.line.update(trail.positions,true,origin);trail.geometryOrigin=origin;
+                        }
                     }
-                    if (ready && trail.line.visible)
-                        trail.line.position.set((parent?.status === 'ready' ? parent.position.x : 0) - focus.position.x, (parent?.status === 'ready' ? parent.position.y : 0) - focus.position.y, (parent?.status === 'ready' ? parent.position.z : 0) - focus.position.z);
                 }
                 if (ready) {
                     const sun = state.frames.get('sun');
@@ -541,7 +548,6 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                             sunlight.position.set(0, -1e8, 1e8);
                     }
                 }
-                controls.update();
                 camera.updateMatrixWorld();
                 sky.visible=starsEnabled;constellationSky.visible=constellationsEnabled;
                 const particleSize=Math.sqrt(Math.max(viewportWidth,viewportHeight)*renderer.getPixelRatio())/60;

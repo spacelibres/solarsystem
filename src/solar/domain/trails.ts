@@ -7,8 +7,14 @@ export interface SourceTrailOptions {
     readonly relativeToOrientation?: boolean;
     readonly lengthCoverages?: readonly (readonly [number, number, number])[];
 }
+/** Source duration overrides use half-open ephemeris intervals. */
+export function configuredTrailLength(options: SourceTrailOptions | undefined, time: number): number | undefined {
+    return options?.lengthCoverages?.find(([, start, end]) => start <= time && time < end)?.[0] ?? options?.length;
+}
 export interface TrailSample { readonly time: number; readonly position: Vec3; readonly velocity: Vec3; }
 export interface TrailHistory {
+    readonly windows?: readonly EphemerisWindow[];
+    readonly body?: 1 | 2;
     readonly samples: readonly TrailSample[];
     readonly requestedStart: number;
     readonly end: number;
@@ -56,8 +62,7 @@ export async function sampleTrailHistory(request: TrailHistoryRequest): Promise<
     if (!Number.isSafeInteger(leafBudget) || leafBudget < 1 || leafBudget > 16384) throw new RangeError('Invalid trail leaf budget');
     signal?.throwIfAborted();
     const current = await request.load(path, now, signal);
-    const override = options?.lengthCoverages?.find(([,start,end]) => start <= now && now <= end);
-    const duration = override?.[0] ?? options?.length ?? sourceTrailDuration(current, now, body);
+    const duration = configuredTrailLength(options, now) ?? sourceTrailDuration(current, now, body);
     const requestedStart = now-duration;
     const gaps: TrailHistory['gaps'][number][] = [];
     if (!Number.isFinite(duration) || duration <= 0) return { samples: [], requestedStart, end: now, gaps: [{min: now,max: now,reason:'coverage'}] };
@@ -130,5 +135,5 @@ export async function sampleTrailHistory(request: TrailHistoryRequest): Promise<
             attempts++;
         }
     }
-    return {samples,requestedStart,end:now,gaps};
+    return {samples,requestedStart,end:now,gaps,windows,body};
 }

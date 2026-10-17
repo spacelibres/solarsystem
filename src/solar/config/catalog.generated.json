@@ -43,6 +43,8 @@
           "url": "101955_bennu/ori"
         }
       ],
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "B-Type Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -124,6 +126,7 @@
           "url": "103p_hartley_2/ori"
         }
       ],
+      "sourceCategory": "Comet",
       "raw": {
         "groups": [
           "comets"
@@ -200,6 +203,7 @@
           "periodInHours": 445.732
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -287,6 +291,7 @@
           "periodInHours": 3.891
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -401,6 +406,7 @@
           }
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets",
@@ -513,6 +519,8 @@
         "expression": "entity => {\n      const label = entity.getComponent(Pioneer.DivComponent);\n      if (label) {\n        label.setVisibleInterval(Pioneer.VisibleInterval.AlwaysVisible);\n      }\n      entity.setCanOcclude(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Dwarf Planet",
+      "sourceSubcategory": "Barycenter",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -611,6 +619,7 @@
           ]
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets",
@@ -722,6 +731,7 @@
           }
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets",
@@ -841,6 +851,7 @@
           ]
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets",
@@ -941,6 +952,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -1028,6 +1040,7 @@
           "periodInHours": 5.8607
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -1109,6 +1122,7 @@
           ]
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -1196,6 +1210,7 @@
           "periodInHours": 2.2726
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -1289,6 +1304,7 @@
           "periodInHours": 5.224
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -1377,6 +1393,7 @@
           "url": "162173_ryugu/ori"
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -1466,6 +1483,8 @@
           "url": "16_psyche/ori"
         }
       ],
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "M-Type Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -1560,6 +1579,7 @@
           "periodInHours": 3.065
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -1653,6 +1673,7 @@
           "periodInHours": 5.22
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -2656,6 +2677,8 @@
           ]
         }
       ],
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Jupiter-Family Comet",
       "raw": {
         "groups": [
           "comets"
@@ -2750,6 +2773,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets"
@@ -2845,6 +2869,7 @@
           "periodInHours": 8.1
         }
       ],
+      "sourceCategory": "Comet",
       "raw": {
         "groups": [
           "comets"
@@ -2933,6 +2958,8 @@
           "axisInFrameSpace": false
         }
       ],
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Short-Period Comet",
       "raw": {
         "groups": [
           "comets"
@@ -6938,6 +6965,7 @@
           "periodInHours": 14.904
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7030,6 +7058,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7123,6 +7152,7 @@
           "periodInHours": 2.384
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7216,6 +7246,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7308,6 +7339,7 @@
           "periodInHours": 5.385
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7394,6 +7426,7 @@
           "periodInHours": 13.45
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -7480,6 +7513,7 @@
           "periodInHours": 8.1655
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7818,6 +7852,7 @@
           "periodInHours": 3.35
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -7925,6 +7960,7 @@
           "relativeToTime": 0
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8032,6 +8068,7 @@
           "periodInHours": 12.132
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8124,6 +8161,7 @@
           "periodInHours": 417.7
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8215,6 +8253,7 @@
           "periodInHours": 6.049
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8306,6 +8345,7 @@
           "periodInHours": 7.8132
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8398,6 +8438,7 @@
           "periodInHours": 2.3581
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8491,6 +8532,7 @@
           "periodInHours": 3.604
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8584,6 +8626,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8671,6 +8714,7 @@
           "periodInHours": 8.711
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -8849,6 +8893,7 @@
           "periodInHours": 2.6556
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -8941,6 +8986,7 @@
           "periodInHours": 7.21
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9033,6 +9079,7 @@
           "periodInHours": 3.5736
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9126,6 +9173,7 @@
           "periodInHours": 176
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9219,6 +9267,7 @@
           "periodInHours": 3.5595
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9301,6 +9350,8 @@
           "url": "433_eros/ori"
         }
       ],
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "S-Type Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9383,6 +9434,7 @@
           "periodInHours": 56.48
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9476,6 +9528,7 @@
           "periodInHours": 67.5
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9569,6 +9622,7 @@
           "periodInHours": 4.095
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9682,6 +9736,8 @@
         "expression": "entity => {\n      const spinController = entity.getController(Pioneer.SpinController);\n      if (null !== spinController) {\n        spinController.setReferenceAngle(0);\n        spinController.setReferenceTime(599590968);\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "Kuiper Belt Object",
       "raw": {
         "groups": [
           "TNOs"
@@ -9802,6 +9858,8 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "Protoplanet",
       "raw": {
         "groups": [
           "asteroids",
@@ -9894,6 +9952,7 @@
           "periodInHours": 12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -9981,6 +10040,7 @@
           ]
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -10062,6 +10122,7 @@
           "periodInHours": 15.12
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids"
@@ -10170,6 +10231,7 @@
           }
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -10279,6 +10341,8 @@
         "expression": "entity => {\n      entity.setCanOcclude(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Asteroid",
+      "sourceSubcategory": "Barycenter",
       "raw": {
         "groups": [
           "asteroids"
@@ -10375,6 +10439,7 @@
           "periodInHours": 3.5558
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -10468,6 +10533,7 @@
           "periodInHours": 6.026
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -10574,6 +10640,7 @@
           "relativeToTime": 0
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -10783,6 +10850,8 @@
         "expression": "entity => {\n      entity.setOrientation(new Pioneer.Quaternion(.26732846830704055, .017948528101847026, .22012096235022358, .9379552773483394));\n      EntityUtils.EntityUtils.addGeyser(entity, 1, 1, 100, 1, 1, [1, -.25, 1.2], [0, 0, 1]);\n      EntityUtils.EntityUtils.addGeyser(entity, 2, .5, 100, 1, 1, [-1.2, -.25, .6], [.2, -.5, 1]);\n      EntityUtils.EntityUtils.addGeyser(entity, 1, .07, 100, 1, 10, [-1.2, .1, .6], [.2, -.5, 1]);\n      EntityUtils.EntityUtils.addGeyser(entity, 1, 1, 100, 1, 1, [-.8, .75, 1], [.2, .5, 1]);\n      EntityUtils.EntityUtils.addGeyser(entity, 1, .5, 100, 1, 1, [-.8, .35, -1], [.2, .25, -1]);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Short-Period Comet",
       "raw": {
         "groups": [
           "comets"
@@ -10894,6 +10963,7 @@
           "periodInHours": 13.894
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -11014,6 +11084,8 @@
           ]
         }
       ],
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Short-Period Comet",
       "raw": {
         "groups": [
           "comets"
@@ -11133,6 +11205,7 @@
           "periodInHours": 10.273
         }
       ],
+      "sourceCategory": "Dwarf Planet",
       "raw": {
         "groups": [
           "dwarf planets",
@@ -11219,6 +11292,7 @@
           "periodInHours": 7.042
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -11305,6 +11379,7 @@
           "periodInHours": 226.4
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -11392,6 +11467,7 @@
           "periodInHours": 30.4
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "asteroids",
@@ -11474,6 +11550,8 @@
           "url": "9p_tempel_1/ori"
         }
       ],
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Jupiter-Family Comet",
       "raw": {
         "groups": [
           "comets"
@@ -11567,6 +11645,8 @@
           "url": "adrastea/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -11676,6 +11756,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -11789,6 +11871,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -11902,6 +11986,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -12015,6 +12101,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -12124,6 +12212,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -12229,6 +12319,8 @@
           "url": "amalthea/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -12338,6 +12430,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -12447,6 +12541,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -12556,6 +12652,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -12669,6 +12767,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -12782,6 +12882,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -12897,6 +12999,8 @@
           "url": "ariel/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -13007,6 +13111,8 @@
           "url": "atlas/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -13115,6 +13221,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -13228,6 +13336,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -13337,6 +13447,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -13441,6 +13553,8 @@
           "url": "belinda/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -13549,6 +13663,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -13662,6 +13778,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -13770,6 +13888,8 @@
           "url": "bianca/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -13868,6 +13988,8 @@
           "periodInHours": 11.766666666
         }
       ],
+      "sourceCategory": "Comet",
+      "sourceSubcategory": "Long-Period Comet",
       "raw": {
         "groups": [
           "comets"
@@ -13964,6 +14086,7 @@
           ]
         }
       ],
+      "sourceCategory": "Comet",
       "raw": {
         "groups": [
           "comets"
@@ -14063,6 +14186,7 @@
           ]
         }
       ],
+      "sourceCategory": "Comet",
       "raw": {
         "groups": [
           "comets"
@@ -14436,6 +14560,7 @@
           "periodInHours": 16.16
         }
       ],
+      "sourceCategory": "Comet",
       "raw": {
         "groups": [
           "comets"
@@ -14539,6 +14664,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -14652,6 +14779,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -14772,6 +14901,8 @@
           "url": "callisto/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -14887,6 +15018,8 @@
           "url": "calypso/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -14995,6 +15128,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -15107,6 +15242,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -15219,6 +15356,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -15343,6 +15482,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -15462,6 +15603,8 @@
           "url": "cordelia/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -15565,6 +15708,8 @@
           "url": "cressida/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -15673,6 +15818,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -15786,6 +15933,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -15915,6 +16064,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "243_ida",
@@ -16044,6 +16195,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -16155,6 +16308,8 @@
           "url": "deimos/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "mars",
@@ -16261,6 +16416,8 @@
           "url": "desdemona/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -16363,6 +16520,8 @@
           "url": "despina/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -16466,6 +16625,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -16576,6 +16737,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "65803_didymos",
@@ -16694,6 +16857,8 @@
           "url": "dione/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -16815,6 +16980,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "136199_eris",
@@ -16971,6 +17138,8 @@
         "expression": "(entity, options) => {\n      if (options && false === options.clouds) {\n        const surface = entity.getComponent(Pioneer.SpheroidLODComponent);\n        if (!surface) return;\n        surface.setTexture(\"decal\", \"\");\n      }\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(8);\n      atmosphere.setDensity(.0015);\n      atmosphere.setColor(new Pioneer.Color(214.5 / 255, 267 / 255, 1.5));\n      atmosphere.setSunBrightness(2);\n      atmosphere.setSunsetColor(new Pioneer.Color(1, .5, 0));\n      atmosphere.setSunsetIntensity(1.2);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Terrestrial",
       "raw": {
         "groups": [
           "planets"
@@ -17127,6 +17296,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -17232,6 +17403,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -17341,6 +17514,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -17463,6 +17638,8 @@
         "expression": "entity => {\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [-20.16, .8 * -69.23, .8 * -240.99], [-.0999, -.2747, -.9563]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [-49.384, .8 * -24.61, .8 * -243.08], [-.2449, -.0976, -.9646]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [.8 * -35.82, -37.496, -196], [-.1421, -.1859, -.9722]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [21.259, .7 * -17.54, -174.685], [.1205, -.0696, -.9902]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [0, 1.54, -176.393], [0, .0087, -.9999]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [-21.658, 21.658, -173.719], [-.1227, .1227, -.9848]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [32.193, .7 * -34.55, .7 * -245.35], [.1824, -.1371, -.9736]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [-46.719, .68 * .9, -221.931], [-.2059, .0026, -.9785]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [.9 * -31.81, -12.024, -224.667], [-.1262, -.053, -.9905]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [.9 * -5.49, -26.793, -225.162], [-.0217, -.1181, -.9927]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [14.886, -42.39, -222.309], [.0656, -.1869, -.9801]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [-13.176, 48.112, -195.328], [-.0653, .2386, -.9689]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [51.52 * .8, 19.176, .8 * -245.51], [.2044, .0951, -.9742]);\n      EntityUtils.EntityUtils.addGeyser(entity, 100, .1, 20, .002, 4, [22.504, 33.52 * .8, -198.536], [.1116, .133, -.9848]);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -17588,6 +17765,8 @@
           "url": "epimetheus/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -17696,6 +17875,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -17809,6 +17990,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -17918,6 +18101,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18027,6 +18212,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18140,6 +18327,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18249,6 +18438,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18358,6 +18549,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18479,6 +18672,8 @@
           "url": "europa/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18600,6 +18795,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -18713,6 +18910,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -18826,6 +19025,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -18939,6 +19140,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -19052,6 +19255,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -19165,6 +19370,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -19272,6 +19479,8 @@
           "url": "galatea/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -19386,6 +19595,8 @@
           "url": "ganymede/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -19502,6 +19713,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -19607,6 +19820,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -19716,6 +19931,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -19825,6 +20042,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -19930,6 +20149,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -20038,6 +20259,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -20150,6 +20373,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -20263,6 +20488,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -20376,6 +20603,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -20484,6 +20713,8 @@
           "url": "helene/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -20592,6 +20823,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -20705,6 +20938,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -20818,6 +21053,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -20939,6 +21176,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "136108_haumea",
@@ -21060,6 +21299,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -21172,6 +21413,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -21277,6 +21520,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -21380,6 +21625,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -21490,6 +21737,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -21607,6 +21856,8 @@
           "url": "iapetus/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -21724,6 +21975,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -21845,6 +22098,8 @@
           "url": "io/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -21966,6 +22221,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -22079,6 +22336,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -22247,6 +22506,8 @@
           "url": "janus/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -22355,6 +22616,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -22463,6 +22726,8 @@
           "url": "juliet/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -22593,6 +22858,8 @@
         "expression": "entity => {\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(200);\n      atmosphere.setDensity(5e-5);\n      atmosphere.setColor(new Pioneer.Color(234 / 255, 202 / 255, 170 / 255));\n      atmosphere.setSunBrightness(.25);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Gas Giant",
       "raw": {
         "groups": [
           "planets"
@@ -22739,6 +23006,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -22844,6 +23113,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -22949,6 +23220,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23054,6 +23327,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23159,6 +23434,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23264,6 +23541,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23369,6 +23648,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23474,6 +23755,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23579,6 +23862,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23684,6 +23969,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23789,6 +24076,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23894,6 +24183,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -23999,6 +24290,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24104,6 +24397,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24209,6 +24504,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24318,6 +24615,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24431,6 +24730,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24544,6 +24845,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -24657,6 +24960,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -24763,6 +25068,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -24869,6 +25176,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -24982,6 +25291,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -25087,6 +25398,7 @@
           }
         }
       ],
+      "sourceCategory": "Lagrange Point",
       "raw": {
         "groups": [
           "lagrange_points"
@@ -25167,6 +25479,7 @@
           ]
         }
       ],
+      "sourceCategory": "Lagrange Point",
       "raw": {
         "groups": [
           "lagrange_points"
@@ -25230,6 +25543,7 @@
           ]
         }
       ],
+      "sourceCategory": "Lagrange Point",
       "raw": {
         "groups": [
           "lagrange_points"
@@ -25293,6 +25607,7 @@
           ]
         }
       ],
+      "sourceCategory": "Lagrange Point",
       "raw": {
         "groups": [
           "lagrange_points"
@@ -25380,6 +25695,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -25486,6 +25803,8 @@
           "url": "larissa/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -25593,6 +25912,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -25706,6 +26027,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -25819,6 +26142,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -25932,6 +26257,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -26045,6 +26372,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -26166,6 +26495,8 @@
         "expression": "entity => {\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(10.8);\n      atmosphere.setDensity(.001);\n      atmosphere.setColor(new Pioneer.Color(225 / 255, 178 / 255, 112 / 255));\n      atmosphere.setSunBrightness(.8);\n      atmosphere.setSunsetColor(new Pioneer.Color(10 / 255, 75 / 255, 140 / 255));\n      atmosphere.setSunsetIntensity(1);\n      const graphicSpheroid = entity.addComponent(Pioneer.SpheroidComponent, \"aero\");\n      graphicSpheroid.setEquatorialRadius(3396.19);\n      graphicSpheroid.setPolarRadius(3376.2);\n      graphicSpheroid.setPlanetographic(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Terrestrial",
       "raw": {
         "groups": [
           "planets"
@@ -26295,6 +26626,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -26419,6 +26752,7 @@
           }
         }
       ],
+      "sourceCategory": "Asteroid",
       "raw": {
         "groups": [
           "617_patroclus_barycenter",
@@ -26542,6 +26876,8 @@
           "url": "mercury/ori"
         }
       ],
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Terrestrial",
       "raw": {
         "groups": [
           "planets"
@@ -26654,6 +26990,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -26763,6 +27101,8 @@
           "url": "metis/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -26854,6 +27194,7 @@
         "expression": "(entity, options) => {\n      entity.setCanOcclude(false);\n      const fixedController = entity.getController(Pioneer.FixedController);\n      if (!fixedController) return;\n      const vector3 = new Pioneer.Vector3();\n      const poleRightAscension = 192.85948120833 * Math.PI / 180;\n      const poleDeclination = 27.12825119444 * Math.PI / 180;\n      vector3.x = Math.cos(poleRightAscension) * Math.cos(poleDeclination);\n      vector3.y = Math.sin(poleRightAscension) * Math.cos(poleDeclination);\n      vector3.z = Math.sin(poleDeclination);\n      const galacticCenter = new Pioneer.Vector3();\n      const centerRightAscension = 266.40499625 * Math.PI / 180;\n      const centerDeclination = -28.93617241667 * Math.PI / 180;\n      galacticCenter.x = Math.cos(centerRightAscension) * Math.cos(centerDeclination);\n      galacticCenter.y = Math.sin(centerRightAscension) * Math.cos(centerDeclination);\n      galacticCenter.z = Math.sin(centerDeclination);\n      const quaternion = new Pioneer.Quaternion();\n      quaternion.setFromAxes(galacticCenter, void 0, vector3);\n      fixedController.setOrientation(quaternion);\n      if (options && true === options.milkyWaySprite) {\n        const sprite = entity.addComponent(Pioneer.SpriteComponent);\n        sprite.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/milky_way.png\");\n        sprite.setSize(new Pioneer.Vector2(12e17, 12e17));\n        sprite.setTransparent(true);\n        sprite.setBlending(\"normal\");\n        sprite.setVisibleInterval(new Pioneer.VisibleInterval(12e15, Number.POSITIVE_INFINITY, \"z-distance\"));\n      }\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setAxis(new Pioneer.Vector3(-.8676661356982597, -.19807638974470915, .45598379452940485), false);\n      spinController.setRate(-2192686e-23);\n      spinController.setReferenceAngle(0);\n      spinController.setReferenceTime(0);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Galaxy",
       "raw": {
         "groups": [
           "stars"
@@ -26952,6 +27293,8 @@
           "url": "mimas/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -27062,6 +27405,8 @@
           "url": "miranda/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -27177,6 +27522,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -27292,6 +27639,8 @@
           "url": "moon/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "earth",
@@ -27407,6 +27756,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -27514,6 +27865,8 @@
           "url": "naiad/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -27629,6 +27982,8 @@
           }
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "136108_haumea",
@@ -27750,6 +28105,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -27873,6 +28230,8 @@
         "expression": "entity => {\n      const rings = entity.addComponent(Pioneer.RingsComponent);\n      rings.setInnerRadius(40900);\n      rings.setOuterRadius(62964);\n      rings.setTopTextureUrl(\"$STATIC_ASSETS_URL/sprites/neptune_rings.png\");\n      rings.setBottomTextureUrl(\"$STATIC_ASSETS_URL/sprites/neptune_rings.png\");\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(200);\n      atmosphere.setDensity(5e-5);\n      atmosphere.setColor(new Pioneer.Color(138 / 255, 160 / 255, 1));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Ice Giant",
       "raw": {
         "groups": [
           "planets"
@@ -28003,6 +28362,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -28114,6 +28475,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -28219,6 +28582,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -28327,6 +28692,8 @@
           "url": "oberon/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -28419,6 +28786,7 @@
         "expression": "entity => {\n      entity.setCanOcclude(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Universe",
       "raw": {
         "groups": [
           "stars"
@@ -28512,6 +28880,8 @@
           "url": "ophelia/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -28620,6 +28990,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -28733,6 +29105,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -28846,6 +29220,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -28954,6 +29330,8 @@
           "url": "pan/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -29058,6 +29436,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -29162,6 +29542,8 @@
           "url": "pandora/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -29270,6 +29652,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -29383,6 +29767,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -29496,6 +29882,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -29605,6 +29993,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -29715,6 +30105,8 @@
           "url": "phobos/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "mars",
@@ -29816,6 +30208,8 @@
           "url": "phoebe/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -29916,6 +30310,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -30024,6 +30420,8 @@
           "url": "portia/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -30132,6 +30530,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -30240,6 +30640,8 @@
           "url": "prometheus/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -30348,6 +30750,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -30452,6 +30856,8 @@
           "url": "proteus/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -30555,6 +30961,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -30662,6 +31070,8 @@
           "url": "puck/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -30774,6 +31184,8 @@
           "url": "rhea/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -30886,6 +31298,8 @@
           "url": "rosalind/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -30976,6 +31390,7 @@
           ]
         }
       ],
+      "sourceCategory": "Building",
       "raw": {
         "groups": [
           "comparison"
@@ -31070,6 +31485,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -31178,6 +31595,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31283,6 +31702,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31388,6 +31809,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31493,6 +31916,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31598,6 +32023,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31703,6 +32130,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31808,6 +32237,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -31913,6 +32344,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -32018,6 +32451,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32123,6 +32558,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32228,6 +32665,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32333,6 +32772,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32438,6 +32879,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32543,6 +32986,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32648,6 +33093,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32753,6 +33200,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32858,6 +33307,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -32963,6 +33414,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33070,6 +33523,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33179,6 +33634,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33288,6 +33745,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33397,6 +33856,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33506,6 +33967,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33615,6 +34078,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33724,6 +34189,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33833,6 +34300,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -33942,6 +34411,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34051,6 +34522,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34160,6 +34633,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34269,6 +34744,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34378,6 +34855,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34487,6 +34966,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34593,6 +35074,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34696,6 +35179,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34799,6 +35284,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -34902,6 +35389,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35005,6 +35494,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35108,6 +35599,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35211,6 +35704,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35314,6 +35809,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35418,6 +35915,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35525,6 +36024,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35634,6 +36135,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35740,6 +36243,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35843,6 +36348,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -35947,6 +36454,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36054,6 +36563,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36163,6 +36674,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36272,6 +36785,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36381,6 +36896,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36490,6 +37007,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36599,6 +37118,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36708,6 +37229,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36817,6 +37340,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -36926,6 +37451,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37035,6 +37562,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37144,6 +37673,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37250,6 +37781,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37353,6 +37886,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37456,6 +37991,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37559,6 +38096,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37662,6 +38201,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37765,6 +38306,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37868,6 +38411,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -37971,6 +38516,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38074,6 +38621,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38178,6 +38727,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38281,6 +38832,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38383,6 +38936,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38486,6 +39041,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38590,6 +39147,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38695,6 +39254,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38798,6 +39359,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -38899,6 +39462,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -39000,6 +39565,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -39101,6 +39668,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -39202,6 +39771,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -39314,6 +39885,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -39428,6 +40001,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -39532,6 +40107,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -39635,6 +40212,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -39739,6 +40318,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -39844,6 +40425,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -39953,6 +40536,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40066,6 +40651,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40175,6 +40762,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40280,6 +40869,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40385,6 +40976,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40489,6 +41082,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -40593,6 +41188,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -40700,6 +41297,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -40809,6 +41408,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -40918,6 +41519,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41027,6 +41630,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41136,6 +41741,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41245,6 +41852,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41354,6 +41963,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41459,6 +42070,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41560,6 +42173,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41661,6 +42276,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41762,6 +42379,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41863,6 +42482,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -41964,6 +42585,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42066,6 +42689,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42169,6 +42794,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42272,6 +42899,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42375,6 +43004,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42478,6 +43109,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42581,6 +43214,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42684,6 +43319,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42787,6 +43424,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42889,6 +43528,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -42991,6 +43632,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43094,6 +43737,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43197,6 +43842,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43300,6 +43947,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43403,6 +44052,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43506,6 +44157,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43609,6 +44262,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43712,6 +44367,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43815,6 +44472,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -43918,6 +44577,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44020,6 +44681,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44122,6 +44785,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44225,6 +44890,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44328,6 +44995,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44431,6 +45100,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44534,6 +45205,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44636,6 +45309,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44737,6 +45412,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44838,6 +45515,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -44939,6 +45618,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45040,6 +45721,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45141,6 +45824,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45242,6 +45927,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45344,6 +46031,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45447,6 +46136,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45550,6 +46241,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45653,6 +46346,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45756,6 +46451,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45859,6 +46556,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -45962,6 +46661,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46065,6 +46766,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46168,6 +46871,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46270,6 +46975,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46372,6 +47079,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46475,6 +47184,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46578,6 +47289,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46681,6 +47394,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46784,6 +47499,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46887,6 +47604,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -46990,6 +47709,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47093,6 +47814,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47196,6 +47919,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47299,6 +48024,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47401,6 +48128,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47503,6 +48232,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47606,6 +48337,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47709,6 +48442,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47812,6 +48547,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -47915,6 +48652,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48018,6 +48757,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48121,6 +48862,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48224,6 +48967,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48327,6 +49072,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48430,6 +49177,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48536,6 +49285,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48642,6 +49393,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48745,6 +49498,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48848,6 +49603,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -48951,6 +49708,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49054,6 +49813,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49157,6 +49918,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49260,6 +50023,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49363,6 +50128,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49466,6 +50233,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49569,6 +50338,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49671,6 +50442,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49772,6 +50545,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49873,6 +50648,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -49974,6 +50751,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -50075,6 +50854,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -50178,6 +50959,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50283,6 +51066,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50388,6 +51173,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50493,6 +51280,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50598,6 +51387,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50703,6 +51494,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -50811,6 +51604,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -50919,6 +51714,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -51024,6 +51821,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -51129,6 +51928,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -51233,6 +52034,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51336,6 +52139,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51439,6 +52244,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51542,6 +52349,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51645,6 +52454,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51748,6 +52559,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51851,6 +52664,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -51954,6 +52769,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52057,6 +52874,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52160,6 +52979,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52263,6 +53084,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52366,6 +53189,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52469,6 +53294,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52572,6 +53399,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52675,6 +53504,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52778,6 +53609,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52881,6 +53714,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -52984,6 +53819,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53087,6 +53924,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53190,6 +54029,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53293,6 +54134,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53396,6 +54239,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53499,6 +54344,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53602,6 +54449,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53705,6 +54554,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53808,6 +54659,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -53911,6 +54764,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54014,6 +54869,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54117,6 +54974,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54220,6 +55079,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54323,6 +55184,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54426,6 +55289,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54529,6 +55394,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54632,6 +55499,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54735,6 +55604,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54838,6 +55709,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -54941,6 +55814,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55044,6 +55919,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55147,6 +56024,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55250,6 +56129,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55353,6 +56234,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55456,6 +56339,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55559,6 +56444,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55662,6 +56549,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55765,6 +56654,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55868,6 +56759,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -55971,6 +56864,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56074,6 +56969,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56177,6 +57074,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56280,6 +57179,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56383,6 +57284,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56486,6 +57389,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56589,6 +57494,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56692,6 +57599,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56795,6 +57704,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -56898,6 +57809,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57001,6 +57914,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57104,6 +58019,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57207,6 +58124,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57310,6 +58229,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57413,6 +58334,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57516,6 +58439,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57619,6 +58544,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -57727,6 +58654,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -57835,6 +58764,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -57943,6 +58874,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -58055,6 +58988,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -58182,6 +59117,8 @@
         "expression": "entity => {\n      const rings = entity.addComponent(Pioneer.RingsComponent);\n      rings.setInnerRadius(74270.580913);\n      rings.setOuterRadius(140478.924731);\n      rings.setTopTextureUrl(\"$STATIC_ASSETS_URL/sprites/saturn_rings_top.png\");\n      rings.setBottomTextureUrl(\"$STATIC_ASSETS_URL/sprites/saturn_rings_bottom.png\");\n      rings.setShadowEntities([\"iapetus\", \"dione\", \"rhea\", \"tethys\", \"titan\", \"mimas\", \"enceladus\"]);\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(200);\n      atmosphere.setDensity(5e-5);\n      atmosphere.setColor(new Pioneer.Color(234 / 255, 202 / 255, 151 / 255));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Gas Giant",
       "raw": {
         "groups": [
           "planets"
@@ -58314,6 +59251,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -58419,6 +59358,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -58524,6 +59465,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -58705,6 +59648,8 @@
           "periodInHours": 0.0033
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -58819,6 +59764,8 @@
           "periodInHours": 0.00238
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -58935,6 +59882,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -59129,6 +60078,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -59250,6 +60201,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -59382,6 +60335,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -59575,6 +60530,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -59708,6 +60665,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -59924,6 +60883,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -60069,6 +61030,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -60316,6 +61279,8 @@
         "expression": "entity => {\n      const spray = entity.addComponent(Pioneer.ParticleSprayComponent);\n      spray.setNumberOfParticles(50);\n      spray.setSizeOfParticles(3e-4);\n      spray.setSpeedOfParticles(.01);\n      spray.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));\n      spray.setSpread(-3);\n      spray.setParticleSpacingRandom(false);\n      spray.setLength(.002);\n      spray.setOriginOffset(new Pioneer.Vector3(0, 29e-5, .0033));\n      spray.setDirection(Pioneer.Vector3.ZAxis);\n      spray.setEnabled(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "saturn",
@@ -60574,6 +61539,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -60797,6 +61764,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -60963,6 +61932,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61078,6 +62049,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61193,6 +62166,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61308,6 +62283,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61419,6 +62396,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61529,6 +62508,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61638,6 +62619,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61747,6 +62730,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61856,6 +62841,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -61965,6 +62952,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -62078,6 +63067,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -62191,6 +63182,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -62300,6 +63293,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -62470,6 +63465,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -62698,6 +63695,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Impactor",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -62927,6 +63926,8 @@
           "url": "sc_dawn/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -63186,6 +64187,8 @@
           "url": "sc_deep_impact/quat"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -63427,6 +64430,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Impactor",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -63568,6 +64573,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "small body sites",
@@ -63724,6 +64730,8 @@
           "url": "sc_deep_space_1/quat"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -63893,6 +64901,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -64013,6 +65023,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -64155,6 +65167,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -64305,6 +65319,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -64434,6 +65450,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -64602,6 +65620,8 @@
           "url": "sc_europa_clipper/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "jupiter",
@@ -64775,6 +65795,8 @@
           "periodInHours": 0.000022
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -65309,6 +66331,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController, \"rotorSpin\");\n      spinController.setJoint(\"spinning_section\");\n      spinController.setRate(6 * Math.PI / 60);\n      spinController.setAxis(Pioneer.Vector3.YAxisNeg, true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "jupiter",
@@ -65588,6 +66612,8 @@
         "expression": "entity => {\n      const model = entity.getComponent(Pioneer.ModelComponent);\n      if (!model) return;\n      model.setTranslation(new Pioneer.Vector3(0, 0, -.001));\n      const translationController = entity.addController(Pioneer.TranslateController);\n      translationController.setTranslation(new Pioneer.Vector3(-16e-6, 24e-6, 7e-4));\n      translationController.setRelativeToOrientation(true);\n      translationController.setCoverage(new Pioneer.Interval(-321964226.73959994, -128353980));\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(-321964226.73959994, -141114537.48322043));\n      const fixedController = entity.addController(Pioneer.FixedController);\n      fixedController.setOrientation(new Pioneer.Quaternion(.40004226980201746, .3894033591393042, -.7928008139628516, .24453645053961984));\n      fixedController.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setReferenceAngle(0);\n      spinController.setReferenceTime(-141114537.48322043);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setRate(20.8 * Math.PI / 60);\n      spinController.setCoverage(new Pioneer.Interval(-141114537.48322043, Number.POSITIVE_INFINITY));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Lander",
       "raw": {
         "groups": [
           "jupiter",
@@ -65826,6 +66852,8 @@
           "relativeToTime": 0
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66243,6 +67271,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"GPM_antenna\");\n      spinController.setRate(Pioneer.MathUtils.degToRad(192));\n      spinController.setAxis(Pioneer.Vector3.YAxisNeg, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66388,6 +67418,8 @@
         "expression": "entity => {\n      const microwave = entity.addComponent(Pioneer.ConnectedSpriteComponent, \"microwave\");\n      microwave.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/sine_wave.png\");\n      microwave.setEntity1(\"sc_grace_1\");\n      microwave.setEntity1Offset(new Pioneer.Vector3(0, -.00165, 0));\n      microwave.setEntity2(\"sc_grace_2\");\n      microwave.setEntity2Offset(new Pioneer.Vector3(0, -.00165, 0));\n      microwave.setWidths(5e-4, 5e-4);\n      microwave.setColorMultiplier(new Pioneer.Color(.5, 1, 1));\n      microwave.setTextureRepeat(true);\n      microwave.setTextureStretch(4);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66539,6 +67571,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66671,6 +67705,8 @@
         "expression": "entity => {\n      const microwave = entity.addComponent(Pioneer.ConnectedSpriteComponent, \"microwave\");\n      microwave.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/sine_wave.png\");\n      microwave.setEntity1(\"sc_grace_fo1\");\n      microwave.setEntity1Offset(new Pioneer.Vector3(0, 0, -.00165));\n      microwave.setEntity2(\"sc_grace_fo2\");\n      microwave.setEntity2Offset(new Pioneer.Vector3(0, 0, -.00165));\n      microwave.setWidths(5e-4, 5e-4);\n      microwave.setColorMultiplier(new Pioneer.Color(.5, 1, 1));\n      microwave.setTextureRepeat(true);\n      microwave.setTextureStretch(4);\n      const firstLaser = entity.addComponent(Pioneer.ConnectedSpriteComponent, \"laser1\");\n      firstLaser.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/line.png\");\n      firstLaser.setEntity1(\"sc_grace_fo1\");\n      firstLaser.setEntity1Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));\n      firstLaser.setEntity2(\"sc_grace_fo2\");\n      firstLaser.setEntity2Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));\n      firstLaser.setWidths(2e-5, 2e-5);\n      firstLaser.setColorMultiplier(new Pioneer.Color(1, .24, .64));\n      firstLaser.setTextureRepeat(false);\n      const secondLaser = entity.addComponent(Pioneer.ConnectedSpriteComponent, \"laser2\");\n      secondLaser.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/line.png\");\n      secondLaser.setEntity1(\"sc_grace_fo1\");\n      secondLaser.setEntity1Offset(new Pioneer.Vector3(-3e-4, 15e-5, -.00165));\n      secondLaser.setEntity2(\"sc_grace_fo2\");\n      secondLaser.setEntity2Offset(new Pioneer.Vector3(3e-4, 15e-5, -.00165));\n      secondLaser.setWidths(2e-5, 2e-5);\n      secondLaser.setColorMultiplier(new Pioneer.Color(1, .24, .64));\n      secondLaser.setTextureRepeat(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66814,6 +67850,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -66937,6 +67975,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -67072,6 +68112,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -67195,6 +68237,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -67307,6 +68351,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -67487,6 +68533,8 @@
         "expression": "entity => {\n      const model = entity.getComponent(Pioneer.ModelComponent);\n      if (model) {\n        model.setTranslation(new Pioneer.Vector3(.0013, 0, -.0011));\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Lander",
       "raw": {
         "groups": [
           "saturn",
@@ -67902,6 +68950,8 @@
           "periodInHours": 0.00416
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -68013,6 +69063,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -68128,6 +69180,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -68242,6 +69296,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -68466,6 +69522,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Lander",
       "raw": {
         "groups": [
           "mars",
@@ -68895,6 +69953,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -69225,6 +70285,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"RapidScat_dish\");\n      spinController.setRate(Pioneer.MathUtils.degToRad(108));\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n      spinController.setCoverage(new Pioneer.Interval(Number.NEGATIVE_INFINITY, 524890952));\n      const cowvrSpinController = entity.addController(Pioneer.SpinController);\n      cowvrSpinController.setJoint(\"COWVR_top_spin\");\n      cowvrSpinController.setRate(Pioneer.MathUtils.degToRad(180));\n      cowvrSpinController.setAxis(Pioneer.Vector3.YAxis, true);\n      cowvrSpinController.setClampedToRealTime(true);\n      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, \"Ecostress\", 584127348, Number.POSITIVE_INFINITY);\n      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, \"EMIT\", 711345507, Number.POSITIVE_INFINITY);\n      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, \"OCO3\", 610718469, Number.POSITIVE_INFINITY);\n      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, \"45_RapidScat\", 465418867, 575406069);\n      EntityUtils.EntityUtils.showSubObjectDuringInterval(entity, \"COWVR_TEMPEST\", 693360069, Number.POSITIVE_INFINITY);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -69547,6 +70609,7 @@
         "expression": "entity => {\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(693360069, Number.POSITIVE_INFINITY));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Instrument",
       "raw": {
         "groups": [
           "instrument",
@@ -69642,6 +70705,7 @@
         "expression": "entity => {\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(584127348, Number.POSITIVE_INFINITY));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Instrument",
       "raw": {
         "groups": [
           "instrument",
@@ -69737,6 +70801,7 @@
         "expression": "entity => {\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(711345507, Number.POSITIVE_INFINITY));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Instrument",
       "raw": {
         "groups": [
           "instrument",
@@ -69832,6 +70897,7 @@
         "expression": "entity => {\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(610718469, Number.POSITIVE_INFINITY));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Instrument",
       "raw": {
         "groups": [
           "instrument",
@@ -69931,6 +70997,7 @@
         "expression": "entity => {\n      entity.addController(Pioneer.RotateByEntityOrientationController).setCoverage(new Pioneer.Interval(465418867.184, 575406069.184));\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Instrument",
       "raw": {
         "groups": [
           "instrument",
@@ -70031,6 +71098,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -70135,6 +71204,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -70254,6 +71325,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -70369,6 +71442,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -70565,6 +71640,8 @@
           "url": "sc_juice/quat"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "jupiter",
@@ -70915,6 +71992,8 @@
         "expression": "entity => {\n      const pointingController = entity.addController(KeyframePointingController.KeyframePointingController);\n      pointingController.setKeyframes(junoPointingKeyframes);\n      pointingController.setDirection(Pioneer.Vector3.ZAxis);\n      pointingController.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));\n      const keyframeSpinController = entity.addController(KeyframeSpinController.KeyframeSpinController);\n      keyframeSpinController.setKeyframes(junoSpinKeyframes);\n      keyframeSpinController.setAxis(Pioneer.Vector3.ZAxis);\n      keyframeSpinController.setCoverage(new Pioneer.Interval(365836752.1832, 521025625));\n      keyframeSpinController.setStartingAngle(-.96);\n      const spray = entity.addComponent(Pioneer.ParticleSprayComponent);\n      spray.setNumberOfParticles(100);\n      spray.setSizeOfParticles(3e-4);\n      spray.setSpeedOfParticles(.01);\n      spray.setColorOfParticles(new Pioneer.Color(1, .75, 0, .25));\n      spray.setSpread(-3);\n      spray.setParticleSpacingRandom(false);\n      spray.setLength(.003);\n      spray.setOriginOffset(new Pioneer.Vector3(0, 0, -.0017));\n      spray.setDirection(Pioneer.Vector3.ZAxisNeg);\n      spray.setEnabled(false);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "jupiter",
@@ -71252,6 +72331,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -71414,6 +72495,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -71551,6 +72634,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -72073,6 +73158,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -72188,6 +73275,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -72299,6 +73388,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -72431,6 +73522,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -72905,6 +73998,8 @@
           "url": "sc_lucy/quat"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -73220,6 +74315,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -73349,6 +74446,8 @@
           "periodInHours": 0.008333
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -73498,6 +74597,8 @@
           "url": "sc_lunar_reconnaissance_orbiter/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -73814,6 +74915,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "venus",
@@ -74038,6 +75141,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -74239,6 +75344,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -74413,6 +75520,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -74720,6 +75829,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Rover",
       "raw": {
         "groups": [
           "mars",
@@ -75086,6 +76197,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mars",
@@ -75496,6 +76608,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Rover",
       "raw": {
         "groups": [
           "mars",
@@ -75840,6 +76954,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mars",
@@ -76135,6 +77250,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Rover",
       "raw": {
         "groups": [
           "mars",
@@ -76479,6 +77596,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mars",
@@ -76607,6 +77725,8 @@
           "url": "sc_mars_express/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -76784,6 +77904,8 @@
           "url": "sc_mars_global_surveyor/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -76963,6 +78085,8 @@
           "url": "sc_mars_odyssey/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -77619,6 +78743,8 @@
           "url": "sc_mars_reconnaissance_orbiter/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -77937,6 +79063,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Rover",
       "raw": {
         "groups": [
           "mars",
@@ -78287,6 +79415,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mars",
@@ -78408,6 +79537,8 @@
           "url": "sc_maven/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -78546,6 +79677,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -78790,6 +79923,8 @@
           "url": "sc_messenger/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mercury",
@@ -79007,6 +80142,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mercury",
@@ -79091,6 +80227,8 @@
           "periodInHours": 0.00556
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -79178,6 +80316,8 @@
           "periodInHours": 0.00556
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -79265,6 +80405,8 @@
           "periodInHours": 0.00556
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -79352,6 +80494,8 @@
           "periodInHours": 0.00556
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -79545,6 +80689,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -79828,6 +80974,8 @@
           "url": "sc_neo_surveyor/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -79996,6 +81144,8 @@
           "url": "sc_new_horizons/ori/2"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -80167,6 +81317,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -81038,6 +82190,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -81153,6 +82307,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -81464,6 +82620,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -81900,6 +83058,8 @@
         "expression": "entity => {\n      const model = entity.getComponent(Pioneer.ModelComponent);\n      if (model) {\n        model.setTranslation(new Pioneer.Vector3(0, 0, -.0012));\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -82082,6 +83242,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -82204,6 +83366,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -82408,6 +83572,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Lander",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -82712,6 +83878,8 @@
         "expression": "entity => {\n      entity.addParentChangedCallback((entity, previousParent, nextParent) => {\n        if (null !== nextParent) {\n          const parentName = nextParent.getName();\n          const trail = entity.getComponent(Pioneer.TrailComponent);\n          if (trail) {\n            if (\"sc_phoenix_landing_site\" === parentName) {\n              trail.setRelativeToEntity(\"mars\");\n              trail.setRelativeToEntityOrientation(true);\n            } else {\n              trail.setRelativeToEntity(\"\");\n              trail.setRelativeToEntityOrientation(false);\n            }\n          }\n        }\n      });\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Lander",
       "raw": {
         "groups": [
           "mars",
@@ -82910,6 +84078,7 @@
           ]
         }
       ],
+      "sourceCategory": "Landing site",
       "raw": {
         "groups": [
           "mars",
@@ -83038,6 +84207,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "sun",
@@ -83228,6 +84399,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "sun",
@@ -83391,6 +84564,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -83508,6 +84683,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -83623,6 +84800,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -83823,6 +85002,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -84025,6 +85206,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -84223,6 +85406,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -84420,6 +85605,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -84537,6 +85724,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -84662,6 +85851,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -84927,6 +86118,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -85283,6 +86476,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -85469,6 +86664,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -85580,6 +86777,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -85691,6 +86890,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -85807,6 +87008,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"arm_etc\");\n      spinController.setRate(Pioneer.MathUtils.degToRad(87.6));\n      spinController.setAxis(Pioneer.Vector3.YAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -86032,6 +87235,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -86151,6 +87356,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -86274,6 +87481,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -86391,6 +87600,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -86520,6 +87731,8 @@
           "url": "sc_spitzer/quat"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -86759,6 +87972,8 @@
         "expression": "entity => {\n      const model = entity.getComponent(Pioneer.ModelComponent);\n      if (model) {\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_capsule\", \"x\", createCollectionKeyframes(1.481785, 0, 600));\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_Sample_Collection1\", \"x\", createCollectionKeyframes(-Math.PI, 610, 300));\n        Animation.Animation.makeJointRotationAnimation(model, \"Stardust_Sample_Collection2\", \"x\", createCollectionKeyframes(-Math.PI, 920, 300));\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -87050,6 +88265,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "small body spacecraft",
@@ -87238,6 +88455,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -87353,6 +88572,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -87468,6 +88689,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -87583,6 +88806,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -87709,6 +88934,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -87850,6 +89077,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -88716,6 +89945,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -88900,6 +90131,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89012,6 +90245,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89125,6 +90360,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89238,6 +90475,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89351,6 +90590,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89464,6 +90705,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89577,6 +90820,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89690,6 +90935,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89803,6 +91050,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -89916,6 +91165,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90029,6 +91280,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90143,6 +91396,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90256,6 +91511,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90356,6 +91613,8 @@
           ]
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90456,6 +91715,8 @@
           "periodInHours": 0.0008333
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -90593,6 +91854,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -90771,6 +92034,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "moon",
@@ -90923,6 +92188,8 @@
           "periodInHours": 0.0008333
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -91034,6 +92301,8 @@
           "periodInHours": 0.0008333
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -91300,6 +92569,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "mars",
@@ -91508,6 +92779,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -91666,6 +92939,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"microwave_radiometer\");\n      spinController.setRate(Math.PI);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -91849,6 +93124,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"microwave_radiometer\");\n      spinController.setRate(Math.PI);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -92032,6 +93309,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"microwave_radiometer\");\n      spinController.setRate(Math.PI);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -92215,6 +93494,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"microwave_radiometer\");\n      spinController.setRate(Math.PI);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -92398,6 +93679,8 @@
         "expression": "entity => {\n      const spinController = entity.addController(Pioneer.SpinController);\n      spinController.setJoint(\"microwave_radiometer\");\n      spinController.setRate(Math.PI);\n      spinController.setAxis(Pioneer.Vector3.ZAxis, true);\n      spinController.setClampedToRealTime(true);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -92664,6 +93947,8 @@
           "periodInHours": 0.0033
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "sun",
@@ -93385,6 +94670,8 @@
           "url": "sc_voyager_1/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "jupiter",
@@ -93666,6 +94953,8 @@
           "url": "sc_voyager_2/ori"
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Flyby",
       "raw": {
         "groups": [
           "jupiter",
@@ -93884,6 +95173,8 @@
           }
         }
       ],
+      "sourceCategory": "Spacecraft",
+      "sourceSubcategory": "Orbiter",
       "raw": {
         "groups": [
           "earth",
@@ -94176,6 +95467,7 @@
           ]
         }
       ],
+      "sourceCategory": "Vehicle",
       "raw": {
         "groups": [
           "comparison"
@@ -94250,6 +95542,7 @@
           ]
         }
       ],
+      "sourceCategory": "Human",
       "raw": {
         "groups": [
           "comparison"
@@ -94342,6 +95635,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -94455,6 +95750,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -94568,6 +95865,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -94681,6 +95980,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -94794,6 +96095,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -94903,6 +96206,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -95012,6 +96317,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -95125,6 +96432,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -95231,6 +96540,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "134340_pluto",
@@ -95347,6 +96658,8 @@
         "expression": "(entity, options) => {\n      entity.addComponent(Pioneer.LightSourceComponent).setAbsoluteMagnitude(4.83);\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setEmissivity(1);\n      atmosphere.setScaleHeight(2e5);\n      atmosphere.setDensity(8e-7);\n      atmosphere.setColor(new Pioneer.Color(1, 1, 64 / 255));\n      const glow = entity.addComponent(Pioneer.SpriteComponent);\n      glow.setBillboard(true);\n      glow.setTextureUrl(\"$STATIC_ASSETS_URL/sprites/sun_glow.png\");\n      glow.setSize(new Pioneer.Vector2(100, 100));\n      glow.setSizeUnits(\"pixels\");\n      glow.setTransparent(true);\n      glow.setColorMultiplier(new Pioneer.Color(1, 1, .5));\n      glow.setRenderOrder(-2);\n      if (void 0 !== options && true === options.skybox) {\n        entity.addComponent(Pioneer.SkyboxComponent).setTextureUrl(`$STATIC_ASSETS_URL/env_maps/starmap_${options.skyboxResolution ?? 2048}.jpg`);\n      }\n      if (void 0 === options || true === options.skybox && true === options.starfield || false !== options.starfield) {\n        entity.addComponent(Pioneer.StarfieldComponent).setUrl(\"$STATIC_ASSETS_URL/stars/galaxies.0.bin\");\n        const starfieldSize = options?.starfieldSize;\n        for (let starfieldIndex = 0; starfieldIndex < 6; starfieldIndex++) {\n          const starfield = entity.addComponent(Pioneer.StarfieldComponent);\n          starfield.setUrl(`$STATIC_ASSETS_URL/stars/stars.${starfieldIndex}.bin`);\n          if (void 0 !== starfieldSize) {\n            starfield.setParticleSize(starfieldSize);\n          }\n        }\n      }\n      if (void 0 !== options && true === options.heliosphere) {\n        const heliosphere = entity.addComponent(Pioneer.ModelComponent);\n        heliosphere.setUrl(\"$STATIC_ASSETS_URL/models/heliosphere/voyager_heliosphere.gltf\");\n        heliosphere.setScale(new Pioneer.Vector3(201e6, 19e7, 19e7));\n        heliosphere.setForceLoaded(true);\n        const latLonAlt = new Pioneer.LatLonAlt(0, -105 * Math.PI / 180, 0);\n        const vector3 = new Pioneer.Vector3();\n        Pioneer.Geometry.getXYZFromLLAOnSphere(vector3, latLonAlt, 1);\n        vector3.rotate(SceneHelpers.SceneHelpers.getEclipJ2000ToJ2000Rotation(), vector3);\n        vector3.normalize(vector3);\n        const quaternion = new Pioneer.Quaternion();\n        quaternion.setFromVectorFromTo(new Pioneer.Vector3(.9937396508197329, .11171728072160429, .0008692392338424033), vector3);\n        heliosphere.setRotation(quaternion);\n      }\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Star",
+      "sourceSubcategory": "Yellow Dwarf Star",
       "raw": {
         "groups": [
           "stars"
@@ -95478,6 +96791,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -95591,6 +96906,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -95704,6 +97021,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -95817,6 +97136,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -95930,6 +97251,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -96043,6 +97366,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -96151,6 +97476,8 @@
           "url": "telesto/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -96263,6 +97590,8 @@
           "url": "tethys/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -96374,6 +97703,8 @@
           "url": "thalassa/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -96477,6 +97808,8 @@
           "url": "thebe/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -96586,6 +97919,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -96698,6 +98033,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -96806,6 +98143,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -96915,6 +98254,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -97028,6 +98369,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -97150,6 +98493,8 @@
         "expression": "entity => {\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(75);\n      atmosphere.setDensity(5e-4);\n      atmosphere.setColor(new Pioneer.Color(179 / 255, 145 / 255, 53 / 255));\n      atmosphere.setSunsetColor(new Pioneer.Color(0, 71 / 255, .8));\n      atmosphere.setSunsetIntensity(.5);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "saturn",
@@ -97282,6 +98627,8 @@
           "url": "titania/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -97397,6 +98744,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -97513,6 +98862,8 @@
           "url": "triton/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "neptune",
@@ -97631,6 +98982,8 @@
           "url": "umbriel/ori"
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Major Moon",
       "raw": {
         "groups": [
           "uranus",
@@ -97756,6 +99109,8 @@
         "expression": "entity => {\n      const rings = entity.addComponent(Pioneer.RingsComponent);\n      rings.setInnerRadius(26840);\n      rings.setOuterRadius(103e3);\n      rings.setTopTextureUrl(\"$STATIC_ASSETS_URL/sprites/uranus_rings.png\");\n      rings.setBottomTextureUrl(\"$STATIC_ASSETS_URL/sprites/uranus_rings.png\");\n      rings.setShadowEntities([\"miranda\", \"ariel\", \"umbriel\", \"titania\", \"oberon\"]);\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(200);\n      atmosphere.setDensity(5e-5);\n      atmosphere.setColor(new Pioneer.Color(147 / 255, 183 / 255, 201 / 255));\n      atmosphere.setSunsetColor(new Pioneer.Color(164 / 255, 168 / 255, .4));\n      atmosphere.setSunsetIntensity(1);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Ice Giant",
       "raw": {
         "groups": [
           "planets"
@@ -97882,6 +99237,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "jupiter",
@@ -97993,6 +99350,8 @@
         "expression": "entity => {\n      const atmosphere = entity.addComponent(Pioneer.AtmosphereComponent);\n      atmosphere.setScaleHeight(15);\n      atmosphere.setDensity(.001);\n      atmosphere.setColor(new Pioneer.Color(213 / 255, 160 / 255, 94 / 255));\n      atmosphere.setSunBrightness(.25);\n    }",
         "reason": "executable callback preserved; never executed"
       },
+      "sourceCategory": "Planet",
+      "sourceSubcategory": "Terrestrial",
       "raw": {
         "groups": [
           "planets"
@@ -98117,6 +99476,8 @@
           ]
         }
       ],
+      "sourceCategory": "Moon",
+      "sourceSubcategory": "Minor Moon",
       "raw": {
         "groups": [
           "saturn",

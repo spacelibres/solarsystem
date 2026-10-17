@@ -29,6 +29,8 @@ export interface SourceModel {
 export interface CatalogEntry {
   id: string;
   label?: string;
+  sourceCategory?: string;
+  sourceSubcategory?: string;
   groups: string[];
   radius?: number;
   systemRadius?: number;

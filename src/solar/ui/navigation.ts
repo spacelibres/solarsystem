@@ -19,7 +19,7 @@ export function searchBodies(bodies: readonly ExplorerBodyDefinition[], query: s
     return matches.sort((a, b) => rank(a) - rank(b));
 }
 /** This is a visibility request; the runtime adds actual parent and attitude dependencies. */
-export function visibleSystemIds(bodies: readonly ExplorerBodyDefinition[], selectedId: string, mode: SceneMode, timeEt = Number.MAX_VALUE, expandedParentIds: readonly string[] = []): readonly string[] {
+export function visibleSystemIds(bodies: readonly ExplorerBodyDefinition[], selectedId: string, mode: SceneMode, timeEt = Number.MAX_VALUE, expandedParentIds: readonly string[] = [], includeMinorMoons = false): readonly string[] {
     const byId = new Map(bodies.map(body => [body.id, body]));
     const parentOf = (body: ExplorerBodyDefinition): string | null => body.phases[activePhaseIndex(body.phases, timeEt)]?.parentId ?? null;
     const ids = new Set(bodies.filter(body => body.id === 'sun' || body.id === 'moon' || body.groups?.includes('planets')).map(body => body.id));
@@ -27,6 +27,7 @@ export function visibleSystemIds(bodies: readonly ExplorerBodyDefinition[], sele
     const expanded = new Set(expandedParentIds);
     if (mode !== 'overview') expanded.add(selectedId);
     for (const body of bodies) {
+        if (!includeMinorMoons && body.sourceSubcategory === 'Minor Moon') continue;
         const parentId = parentOf(body);
         if (parentId === 'sun' && !body.groups?.some(group => ['planets','spacecraft'].includes(group))) continue;
         // BaseApp disables the small-body layers initially; explicit focus remains visible.

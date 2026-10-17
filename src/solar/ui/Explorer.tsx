@@ -44,7 +44,7 @@ function readyCount(snapshot: ExplorerSnapshot | null): number {
     return snapshot ? [...snapshot.frames.values()].filter(frame => frame.status === 'ready').length : 0;
 }
 export default function Explorer() {
-    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false });
+    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false });
     const navigationState = useRef<{
         id: string;
         mode: SceneMode;
@@ -56,6 +56,7 @@ export default function Explorer() {
     const [resultLimit, setResultLimit] = useState(100);
     const [labelsVisible, setLabelsVisible] = useState(true);
     const [orbitsVisible, setOrbitsVisible] = useState(true);
+    const [minorMoonsVisible, setMinorMoonsVisible] = useState(false);
     const [starsVisible, setStarsVisible] = useState(true);
     const [constellationsVisible, setConstellationsVisible] = useState(false);
     const mount = useRef<HTMLDivElement>(null);
@@ -85,15 +86,16 @@ export default function Explorer() {
         let initializedDate = false;
         let timingStart=previous, timingFrames=0, timingCpu=0;
         try {
-            runtime = new ExplorerRuntime({ entities: FULL_SCENE, activeIds: visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode), timeEt: unixMillisecondsToEt(Date.now()) });
+            const initialTime=unixMillisecondsToEt(Date.now());
+            runtime = new ExplorerRuntime({ entities: FULL_SCENE, activeIds: visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode, initialTime, [], layerState.current.minorMoons), timeEt: initialTime });
             const current = runtime;
             runtime.select(navigationState.current.id);
             runtime.live(Date.now());
             world = createRenderWorld(container, FULL_SCENE, { onSelect: id => navigateRef.current?.(id, 'body') });
             const view = world;
             view.setLayers(layerState.current);
-            view.setView(navigationState.current.mode, visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode));
-            navigateRef.current = (id, mode) => { navigationState.current = { id, mode }; const visible = visibleSystemIds(FULL_SCENE, id, mode,current.renderFrame().clock.timeEt); current.setActive(visible); current.select(id); view.setView(mode, visible); setSceneMode(mode); setSnapshot(current.snapshot()); };
+            view.setView(navigationState.current.mode, visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode, initialTime, [], layerState.current.minorMoons));
+            navigateRef.current = (id, mode) => { navigationState.current = { id, mode }; const visible = visibleSystemIds(FULL_SCENE, id, mode,current.renderFrame().clock.timeEt, [], layerState.current.minorMoons); current.setActive(visible); current.select(id); view.setView(mode, visible); setSceneMode(mode); setSnapshot(current.snapshot()); };
             runtimeRef.current = runtime;
             worldRef.current = world;
             const refresh = () => {
@@ -132,7 +134,7 @@ export default function Explorer() {
                     if(now-timingStart>=1000){setTiming({fps:1000*timingFrames/(now-timingStart),cpuMs:timingCpu/timingFrames});timingStart=now;timingFrames=0;timingCpu=0;}
                     if (now - previousUi >= 250) {
                         const nav=navigationState.current;
-                        const visible=visibleSystemIds(FULL_SCENE,nav.id,nav.mode,state.clock.timeEt,view.expandedSystems(state));
+                        const visible=visibleSystemIds(FULL_SCENE,nav.id,nav.mode,state.clock.timeEt,view.expandedSystems(state),layerState.current.minorMoons);
                         current.setActive(visible); view.setVisible(visible);
                         setSnapshot(current.snapshot());
                         setRenderStats(view.snapshot());
@@ -258,6 +260,7 @@ export default function Explorer() {
             <button disabled={!selected} onClick={() => selected && navigate(selected.id, 'system')}>查看卫星系统</button>
             <label><input type="checkbox" checked={labelsVisible} onChange={event => { setLabelsVisible(event.target.checked); layerState.current.labels = event.target.checked; worldRef.current?.setLayers({ labels: event.target.checked }); }}/>名称标签</label>
             <label><input type="checkbox" checked={orbitsVisible} onChange={event => { setOrbitsVisible(event.target.checked); layerState.current.orbits = event.target.checked; worldRef.current?.setLayers({ orbits: event.target.checked }); }}/>轨道与轨迹</label>
+            <label><input type="checkbox" checked={minorMoonsVisible} onChange={event => { setMinorMoonsVisible(event.target.checked); layerState.current.minorMoons = event.target.checked; const nav = navigationState.current; const current = runtimeRef.current; const view = worldRef.current; if (current && view) { const state = current.renderFrame(); const visible = visibleSystemIds(FULL_SCENE, nav.id, nav.mode, state.clock.timeEt, view.expandedSystems(state), event.target.checked); current.setActive(visible); view.setVisible(visible); } }}/>小型天然卫星</label>
             <label><input type="checkbox" checked={starsVisible} onChange={event=>{setStarsVisible(event.target.checked);layerState.current.stars=event.target.checked;worldRef.current?.setLayers({stars:event.target.checked});}}/>恒星与星系</label>
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>

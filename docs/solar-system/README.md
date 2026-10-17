@@ -67,3 +67,4 @@ explorer.resetCamera();
 轨道配色、父级可见性、完整星空与星座的修正证据见 [参考展示修正](reference-display.md)。
 
 - [Satellite visibility, source trails and zoom performance](satellite-visibility-and-trails.md)
+- [Continuous trails, close-up precision and source styling](continuous-trails.md)
