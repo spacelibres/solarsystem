@@ -8,7 +8,7 @@ componentDefinitions = [{
   name: "breadcrumb",
   options: {
     params: {
-      title: "Eyes on the Solar System"
+      title: "Solar System"
     }
   }
 }, {

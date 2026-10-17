@@ -26,13 +26,14 @@
   transform: translateX(-50%) translateY(-50%);
 }
 #loading-screen-logo {
-  background-image: url(https://eyes.nasa.gov/apps/solar-system/assets/default/svg/nasa_logo.svg);
+  background-image: url(./brand/horizontal-white.svg);
   background-repeat: no-repeat;
-  background-size: contain;
-  height: 110px;
+  background-position: center;
+  background-size: calc(100% - 36px) auto;
+  height: 108px;
   opacity: .7;
   top: 15%;
-  width: 110px;
+  width: 356px;
 }
 #loading-screen-text {
   font-size: 22px;
@@ -95,8 +96,8 @@
 }
 @media only screen and (max-width: 960px) {
   #loading-screen-logo {
-    height: 90px;
-    width: 90px;
+    height: 92px;
+    width: min(320px, 85vw);
   }
   #loading-screen-text {
     font-size: 18px;
@@ -104,14 +105,14 @@
 }
 @media only screen and (max-width: 660px) {
   #loading-screen-logo {
-    height: 80px;
-    width: 80px;
+    height: 92px;
+    width: min(320px, 85vw);
   }
 }
 @media only screen and (max-height: 550px) {
   #loading-screen-logo {
-    height: 70px;
-    width: 70px;
+    height: 92px;
+    width: min(320px, 85vw);
   }
 }
 #embed-overlay {

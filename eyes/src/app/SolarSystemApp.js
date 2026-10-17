@@ -76,8 +76,8 @@ class SolarSystemApp extends Eyes.BaseApp {
     const entityDatabase = contentManager.getEntityList();
     this.getManager("search").setDatabase(entityDatabase);
     const titleOptions = {
-      prefix: "Eyes on the Solar System",
-      suffix: "NASA/JPL",
+      prefix: "Solar System",
+      suffix: "spacelibre",
       parseFn: ({
         url: url,
         params: params,

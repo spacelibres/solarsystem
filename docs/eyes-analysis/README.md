@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1105 个文件、1032 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21753 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1116 个文件、1032 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21753 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -544,8 +544,19 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/scripts/dev-next.mjs](#file-eyes-scripts-dev-next-mjs) — 启动 Eyes 监听构建与 Next 开发子进程；信号退出时释放监听器
 - [eyes/scripts/serve.mjs](#file-eyes-scripts-serve-mjs) — 提供独立工程 HTTP 开发服务器及 MIME/路径限制，伴随源码监听构建
 - [eyes/shell/app.css](#file-eyes-shell-app-css) — 从应用 bundle 提取的实际业务界面 CSS
+- [eyes/shell/brand/apple-touch-icon.png](#file-eyes-shell-brand-apple-touch-icon-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/favicon-16.png](#file-eyes-shell-brand-favicon-16-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/favicon-32.png](#file-eyes-shell-brand-favicon-32-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/favicon.svg](#file-eyes-shell-brand-favicon-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/horizontal-white.svg](#file-eyes-shell-brand-horizontal-white-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/icon-192.png](#file-eyes-shell-brand-icon-192-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/icon-512.png](#file-eyes-shell-brand-icon-512-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/icon-black.svg](#file-eyes-shell-brand-icon-black-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/icon-white.svg](#file-eyes-shell-brand-icon-white-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/sources.json](#file-eyes-shell-brand-sources-json) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/index.html](#file-eyes-shell-index-html) — 应用宿主 DOM、配置及启动脚本；保持 NASA 原界面容器
 - [eyes/shell/preload.css](#file-eyes-shell-preload-css) — 从预加载 bundle 提取的加载/嵌入界面 CSS
+- [eyes/shell/site.webmanifest](#file-eyes-shell-site-webmanifest) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/vendors.css](#file-eyes-shell-vendors-css) — 第三方组件的实际 CSS；不是 styles 中的空 JS 占位
 - [eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js) — 在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度
 - [eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js) — 装配太阳系应用的路由、管理器、组件配置和启动实例
@@ -1772,6 +1783,78 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 实际源码验收状态：`not-semantically-accepted`；
 
+<a id="file-eyes-shell-brand-apple-touch-icon-png"></a>
+### `eyes/shell/brand/apple-touch-icon.png`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/apple-touch-icon.png)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-favicon-16-png"></a>
+### `eyes/shell/brand/favicon-16.png`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/favicon-16.png)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-favicon-32-png"></a>
+### `eyes/shell/brand/favicon-32.png`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/favicon-32.png)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-favicon-svg"></a>
+### `eyes/shell/brand/favicon.svg`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/favicon.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-horizontal-white-svg"></a>
+### `eyes/shell/brand/horizontal-white.svg`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/horizontal-white.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-icon-192-png"></a>
+### `eyes/shell/brand/icon-192.png`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/icon-192.png)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-icon-512-png"></a>
+### `eyes/shell/brand/icon-512.png`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/icon-512.png)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-icon-black-svg"></a>
+### `eyes/shell/brand/icon-black.svg`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/icon-black.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-icon-white-svg"></a>
+### `eyes/shell/brand/icon-white.svg`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/icon-white.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-brand-sources-json"></a>
+### `eyes/shell/brand/sources.json`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/brand/sources.json)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+数据类型 `array`；顶层条目 9；字段 —。原始数据保留，不手工猜测字段单位。
+
 <a id="file-eyes-shell-index-html"></a>
 ### `eyes/shell/index.html`
 
@@ -1787,6 +1870,13 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 从预加载 bundle 提取的加载/嵌入界面 CSS。[源码](../../eyes/shell/preload.css)。证据等级：observed。
 
 实际源码验收状态：`not-semantically-accepted`；
+
+<a id="file-eyes-shell-site-webmanifest"></a>
+### `eyes/shell/site.webmanifest`
+
+Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md。[源码](../../eyes/shell/site.webmanifest)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
 
 <a id="file-eyes-shell-vendors-css"></a>
 ### `eyes/shell/vendors.css`
@@ -1898,7 +1988,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 非 class 函数（包括模块内回调）：`postCreationFunction(app, comparisonComponent)` @107；`postCreationFunction(app, searchComponent)` @119；`anonymous()` @120；`postCreationFunction(app, searchComponent)` @141；`anonymous()` @142；`onSearchFocus(searchComponent)` @163；`onReset(searchComponent)` @167；`onSearchFocus(searchComponent)` @194；`onReset(searchComponent)` @198；`onSearchFocus(searchComponent)` @228。
 
-模块求值副作用（源码表达式）：`componentDefinitions=[{type:"Breadcrumb",name:"breadcrumb",options:{params:{title:"Eyes on the Solar System"}}},{type:"Clock",name:"clock",hasPlaceholder:false},{type:"Clock",name:"storyClock",hasPlaceholder:true},{type:`。
+模块求值副作用（源码表达式）：`componentDefinitions=[{type:"Breadcrumb",name:"breadcrumb",options:{params:{title:"Solar System"}}},{type:"Clock",name:"clock",hasPlaceholder:false},{type:"Clock",name:"storyClock",hasPlaceholder:true},{type:"Clock",name`。
 
 <a id="file-eyes-src-app-config-settings-js"></a>
 ### `eyes/src/app/config/settings.js`

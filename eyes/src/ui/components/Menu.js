@@ -12,7 +12,7 @@ class Menu extends Eyes.BaseComponent {
       menuClass: "",
       menuText: "",
       titleText: "",
-      brandingText: "EYES ON THE SOLAR SYSTEM",
+      brandingText: "Solar System",
       currentInfo: null,
       ...options
     });

@@ -1,3 +1,4 @@
+const {originalBrandingContract}=require('./lib/branding-contract.cjs');
 const fs=require('node:fs'),assert=require('node:assert/strict'),test=require('node:test'),p=require('@babel/parser'),tr=require('@babel/traverse').default,g=require('@babel/generator').default,crypto=require('node:crypto');
 function canonical(source){const ast=p.parse(source,{sourceType:'module'});let index=0;const bindings=[];tr(ast,{Scope(path){for(const binding of Object.values(path.scope.bindings))if(!bindings.includes(binding))bindings.push(binding);}});for(const b of bindings)b.scope.rename(b.identifier.name,'semanticBinding'+index++);return crypto.createHash('sha256').update(g(ast,{comments:false,compact:true}).code).digest('hex');}
 const baseline={
@@ -132,7 +133,7 @@ Object.assign(baseline,{
   "eyes/src/engine/managers/TrajectoryManager.js": "662a09d824431159b091ec9879884afe8082fcd59a03984d796eb06500d47d5e",
   "eyes/src/engine/managers/WMTSManager.js": "dfffec808f85ed010c49d4f73387a3971a9b9eadf510fa3bfbf0692a46f8941d"
 });
-for(const [file,hash] of Object.entries(baseline))test(file+' preserves binding-normalized executable AST and has readable bindings',()=>{const source=fs.readFileSync(file,'utf8');assert.equal(canonical(source),hash);const ast=p.parse(source,{sourceType:'module'});const short=[];tr(ast,{Scope(path){for(const b of Object.values(path.scope.bindings))if((b.identifier.name.length<=2&&!['id','to'].includes(b.identifier.name))||/^[A-Za-z_$]\d+$/.test(b.identifier.name))short.push(b.identifier.name+':'+b.identifier.loc.start.line)}});assert.deepEqual(short,[]);assert.ok(!source.includes('@eyes-analysis'));});
+for(const [file,hash] of Object.entries(baseline))test(file+' preserves binding-normalized executable AST and has readable bindings',()=>{const source=fs.readFileSync(file,'utf8');assert.equal(canonical(originalBrandingContract(file,source)),hash);const ast=p.parse(source,{sourceType:'module'});const short=[];tr(ast,{Scope(path){for(const b of Object.values(path.scope.bindings))if((b.identifier.name.length<=2&&!['id','to'].includes(b.identifier.name))||/^[A-Za-z_$]\d+$/.test(b.identifier.name))short.push(b.identifier.name+':'+b.identifier.loc.start.line)}});assert.deepEqual(short,[]);assert.ok(!source.includes('@eyes-analysis'));});
 
 function loadClass(file, className, dependencies) {
   const ast = p.parse(fs.readFileSync(file, 'utf8'), { sourceType: 'module' });

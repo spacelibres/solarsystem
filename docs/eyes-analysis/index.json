@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1105,
+    "files": 1116,
     "javascript": 1032,
     "classes": 552,
     "methods": 5514,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "2ddd1e763c5e8f4dced26ce3a545684fb15a711bf15f367aefb4bc8269dd131a",
+      "sha256": "f8f54a7fd00033028d66cd77706da8414468a5a75e3991761485a30a4c638049",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "2b4fef5a9e639163cdba0a647f0eb61fdea795378fec7adf0d8378bcc569deb3",
+      "sha256": "4d85e3c5039d362fb7b1f5ec2d593b1b7fa1f39ae009894ddf9d746b214bca35",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1261,8 +1261,8 @@
     },
     {
       "file": "eyes/shell/app.css",
-      "bytes": 258354,
-      "sha256": "5b6130a77c33f0e6052c5f12def444c703218ff95176e4c4baac5f4b0434c41b",
+      "bytes": 258643,
+      "sha256": "b1662442c813a0454748ab43a1f7bef4e3f5ccaf840d49f1910fc1271366c7ed",
       "purpose": "从应用 bundle 提取的实际业务界面 CSS",
       "confidence": "observed",
       "origin": null,
@@ -1274,9 +1274,144 @@
       "dependents": []
     },
     {
+      "file": "eyes/shell/brand/apple-touch-icon.png",
+      "bytes": 8124,
+      "sha256": "7321cd1307279520e577b8ec2a7181ea431b777e1a0a8870b89e16ba71d948fd",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/favicon-16.png",
+      "bytes": 698,
+      "sha256": "c28856df5009b1970c0cd75cb6adcf87557071adaeb0f7034107b514754243fd",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/favicon-32.png",
+      "bytes": 1395,
+      "sha256": "f342923ef954464e56758ffc74f9214c1ea7e692851ffb041ecf6b44dff78714",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/favicon.svg",
+      "bytes": 1700,
+      "sha256": "de8026e93f32bbc47e2bd64e0fbd18629843964836cf7d131aad4c3b569d3ba7",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/horizontal-white.svg",
+      "bytes": 4346,
+      "sha256": "32c21bb11f3795cbc16f63c0a692ead60605165bd94595ef97cce42175c4237d",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/icon-192.png",
+      "bytes": 8659,
+      "sha256": "d8781a317558c26257e362198576abd43806f08fd1de516b6ef11b87e33e810d",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/icon-512.png",
+      "bytes": 26273,
+      "sha256": "aef7833be48bb38a5c486b97be2e648977a1f953b1345b10e40d38664013930c",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/icon-black.svg",
+      "bytes": 1729,
+      "sha256": "6b8508987299cc390556af90d90003eee42e55d51359f9815f705e4cd586f844",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/icon-white.svg",
+      "bytes": 1729,
+      "sha256": "55dc7c228edd8890c43269f0f5350d2ae383740f9d0dea40dfe6930dc7c221b0",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/brand/sources.json",
+      "bytes": 1930,
+      "sha256": "46ec3743f9ef4d34b9ddf976ebd9737c6bb92988193f9ba6cbc3365a924aa83e",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "data": {
+        "kind": "array",
+        "entries": 9,
+        "keys": []
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
       "file": "eyes/shell/index.html",
-      "bytes": 3212,
-      "sha256": "92f568856f2be65dc21da380f9f0e87619883e6f8d0cceb385f2fd71ec013fc9",
+      "bytes": 2664,
+      "sha256": "70ba370fca7a82cf59cecec2b81dd9d1f2ac34c62b82c0bd77c6aeab62442773",
       "purpose": "应用宿主 DOM、配置及启动脚本；保持 NASA 原界面容器",
       "confidence": "observed",
       "origin": null,
@@ -1297,14 +1432,27 @@
     },
     {
       "file": "eyes/shell/preload.css",
-      "bytes": 6022,
-      "sha256": "3fee0d5285f26dc662cd49278b7db7d82dc545aa8cea590a0fd0348c7c32e913",
+      "bytes": 6060,
+      "sha256": "51902d0380c472fbfbaf9b980d6b9c473e7423fe4828592a604ff2eac054a40c",
       "purpose": "从预加载 bundle 提取的加载/嵌入界面 CSS",
       "confidence": "observed",
       "origin": null,
       "semanticReview": {
         "status": "not-semantically-accepted",
         "evidence": []
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/shell/site.webmanifest",
+      "bytes": 484,
+      "sha256": "10644bf15626027cc479b752ecf208a49a2b41fc02f1593f05bb50fb123412c1",
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
       },
       "dependencies": [],
       "dependents": []
@@ -1964,8 +2112,8 @@
     },
     {
       "file": "eyes/src/app/SolarSystemApp.js",
-      "bytes": 7840,
-      "sha256": "6c07894026cec8fce1a36b12f9bcc469913552641c55fa463dd71ca00351aa77",
+      "bytes": 7830,
+      "sha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b",
       "purpose": "装配太阳系应用的路由、管理器、组件配置和启动实例",
       "confidence": "observed",
       "origin": {
@@ -2000,7 +2148,7 @@
           "docs/eyes-analysis/application-semantic-changes.md",
           "tools/semantic-application.node-check.cjs"
         ],
-        "sourceSha256": "6c07894026cec8fce1a36b12f9bcc469913552641c55fa463dd71ca00351aa77"
+        "sourceSha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b"
       },
       "imports": [
         {
@@ -2349,8 +2497,8 @@
                 "trajectory",
                 "content",
                 "search",
-                "Eyes on the Solar System",
-                "NASA/JPL",
+                "Solar System",
+                "spacelibre",
                 "router",
                 "/story",
                 "slide_",
@@ -2523,7 +2671,7 @@
         "SolarSystemApp.setAppClass()"
       ],
       "shortBindingCount": 0,
-      "semanticHash": "2c406a8e921ab11763c5f14365f880af8e22aaccdfd48add7fc504103f2eb3d4",
+      "semanticHash": "61f79addc1c32ea31e93334b0090da459a1bcebadf20192ca000262fb91230fe",
       "dependencies": [
         "eyes/src/framework/eyes/index.js",
         "eyes/src/styles/index.js",
@@ -2545,8 +2693,8 @@
     },
     {
       "file": "eyes/src/app/config/components.js",
-      "bytes": 6035,
-      "sha256": "c187930f7c7ecd043bc66c81529a7f6be31ac9a903a4fc0cc52b3fd758bd728f",
+      "bytes": 6023,
+      "sha256": "459ead01d630c610479d2fc91c45fe6f57869a2cc597c756f0e6325505b18068",
       "purpose": "组件名称、类型、实例选项及 postCreationFunction 配置",
       "confidence": "observed",
       "origin": {
@@ -2568,7 +2716,7 @@
         "evidence": [
           "tools/semantic-config.node-check.cjs"
         ],
-        "sourceSha256": "c187930f7c7ecd043bc66c81529a7f6be31ac9a903a4fc0cc52b3fd758bd728f"
+        "sourceSha256": "459ead01d630c610479d2fc91c45fe6f57869a2cc597c756f0e6325505b18068"
       },
       "imports": [
         {
@@ -2706,10 +2854,10 @@
       ],
       "shortBindings": [],
       "topLevelEffects": [
-        "componentDefinitions=[{type:\"Breadcrumb\",name:\"breadcrumb\",options:{params:{title:\"Eyes on the Solar System\"}}},{type:\"Clock\",name:\"clock\",hasPlaceholder:false},{type:\"Clock\",name:\"storyClock\",hasPlaceholder:true},{type:"
+        "componentDefinitions=[{type:\"Breadcrumb\",name:\"breadcrumb\",options:{params:{title:\"Solar System\"}}},{type:\"Clock\",name:\"clock\",hasPlaceholder:false},{type:\"Clock\",name:\"storyClock\",hasPlaceholder:true},{type:\"Clock\",name"
       ],
       "shortBindingCount": 0,
-      "semanticHash": "a3317d9873dfbdc32a038a76948bfe64470bf1ac25911f113fe5829f8f7cd04e",
+      "semanticHash": "232222b53831e546eb81d5ff78c0b05f1daef7f5b8634f9bb1fb6f79324a4d5d",
       "dependencies": [
         "eyes/src/framework/eyes/index.js",
         "eyes/src/app/config/settings.js"
@@ -161262,8 +161410,8 @@
     },
     {
       "file": "eyes/src/ui/components/Menu.js",
-      "bytes": 19164,
-      "sha256": "30e972eb9670a26a55db516a7b70d52423dfb9f9013818e6642dba0e2cd82fef",
+      "bytes": 19152,
+      "sha256": "8c68b3c8c30b98876865634acf3866903caf0c251d5a4cd3d6c1a215c544b8ad",
       "purpose": "主菜单、搜索和导航入口",
       "confidence": "observed",
       "origin": {
@@ -161290,7 +161438,7 @@
           "docs/eyes-analysis/application-semantic-changes.md",
           "tools/semantic-application.node-check.cjs"
         ],
-        "sourceSha256": "30e972eb9670a26a55db516a7b70d52423dfb9f9013818e6642dba0e2cd82fef"
+        "sourceSha256": "8c68b3c8c30b98876865634acf3866903caf0c251d5a4cd3d6c1a215c544b8ad"
       },
       "imports": [
         {
@@ -161388,7 +161536,7 @@
               "managers": [],
               "components": [],
               "literals": [
-                "EYES ON THE SOLAR SYSTEM",
+                "Solar System",
                 "stories",
                 "planets",
                 "asteroids",
@@ -162123,7 +162271,7 @@
         "Menu.html=getMenuTemplate()"
       ],
       "shortBindingCount": 0,
-      "semanticHash": "34b91a35a1a0448e10ab61ee439bf475b72041496e5c570fac69d5eba2a5c8f6",
+      "semanticHash": "5519e13f8615aa926894516ba14b2bd7feb541d757a671cd8f57e4c62ded6538",
       "dependencies": [
         "eyes/src/vendor/modules/Unidentified989.cjs",
         "eyes/src/framework/eyes/index.js",
@@ -174298,8 +174446,8 @@
     },
     {
       "file": "eyes/src/ui/templates/BreadcrumbTemplate.html",
-      "bytes": 244,
-      "sha256": "19308a1f83bc19c15045eb49e2698f72ca33f86b62d0861e8f9d953c3c07a16b",
+      "bytes": 275,
+      "sha256": "bb3c7a762a9bfeccf0a51a79937b4dffca5d07c104cc13c3a09407a173d69bb0",
       "purpose": "BreadcrumbTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值",
       "confidence": "observed",
       "origin": {
@@ -175653,8 +175801,8 @@
     },
     {
       "file": "eyes/src/ui/templates/MenuTemplate.html",
-      "bytes": 806,
-      "sha256": "b99580aa18bd1b432e15625087b60f16db9dd1749deeb00f60297741ed030e17",
+      "bytes": 837,
+      "sha256": "043dc6a979ccd31987ebc1947bb7043a969becea4ab71343cc90ac7a32c233fc",
       "purpose": "MenuTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值",
       "confidence": "observed",
       "origin": {

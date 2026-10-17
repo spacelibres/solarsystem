@@ -8,7 +8,8 @@
     "Comment-only removal of generated boilerplate is not semantic acceptance.",
     "Three matching coverage and unmatched methods are recorded separately; no exact unpublished original source claim.",
     "ThreeJsHelper intentionally fixes Points/Line disposal and recursive/batch propagation of GL context; untouched methods remain pinned separately.",
-    "Three declaration-identity proof now handles nested same-name functions; corrected original/current alpha is documented, rather than blindly accepting a new expected hash."
+    "Three declaration-identity proof now handles nested same-name functions; corrected original/current alpha is documented, rather than blindly accepting a new expected hash.",
+    "v0.2.49 replaces four presentation branding literals. tools/lib/branding-contract.cjs restores only those exact literals for original executable baseline comparisons; see docs/eyes-branding.md."
   ],
   "files": {
     "eyes/README.md": {
@@ -85,14 +86,14 @@
         "docs/eyes-analysis/application-semantic-changes.md",
         "tools/semantic-application.node-check.cjs"
       ],
-      "sourceSha256": "6c07894026cec8fce1a36b12f9bcc469913552641c55fa463dd71ca00351aa77"
+      "sourceSha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b"
     },
     "eyes/src/app/config/components.js": {
       "status": "verified-semantic-refactor",
       "evidence": [
         "tools/semantic-config.node-check.cjs"
       ],
-      "sourceSha256": "c187930f7c7ecd043bc66c81529a7f6be31ac9a903a4fc0cc52b3fd758bd728f"
+      "sourceSha256": "459ead01d630c610479d2fc91c45fe6f57869a2cc597c756f0e6325505b18068"
     },
     "eyes/src/app/config/settings.js": {
       "status": "verified-semantic-refactor",
@@ -2868,7 +2869,7 @@
         "docs/eyes-analysis/application-semantic-changes.md",
         "tools/semantic-application.node-check.cjs"
       ],
-      "sourceSha256": "30e972eb9670a26a55db516a7b70d52423dfb9f9013818e6642dba0e2cd82fef"
+      "sourceSha256": "8c68b3c8c30b98876865634acf3866903caf0c251d5a4cd3d6c1a215c544b8ad"
     },
     "eyes/src/ui/components/MobileExpandButton.js": {
       "status": "verified-semantic-refactor",

@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.49 - 2026-10-17
+
+Replace recovered Eyes loading, navigation and menu logos with official
+spacelibre VI SVG masters. Package official favicon, Apple and install icons
+locally, add a standalone web manifest, and use spacelibre page titles.
+Preserve monochrome marks, NASA data attribution and executable source contracts.
+
 ## 0.2.48 - 2026-10-17
 
 Add a bootstrap installer and live HTTPS/webhook diagnostics for Ubuntu VPS

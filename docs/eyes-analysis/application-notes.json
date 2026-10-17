@@ -47591,6 +47591,50 @@
           "line": 38
         }
       ]
+    },
+    "eyes/shell/brand/apple-touch-icon.png": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/favicon-16.png": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/favicon-32.png": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/favicon.svg": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/horizontal-white.svg": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/icon-192.png": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/icon-512.png": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/icon-black.svg": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/icon-white.svg": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/brand/sources.json": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
+    },
+    "eyes/shell/site.webmanifest": {
+      "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
+      "confidence": "verified-source"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

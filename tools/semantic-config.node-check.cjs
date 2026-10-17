@@ -1,3 +1,4 @@
+const {originalBrandingContract}=require('./lib/branding-contract.cjs');
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
 const parser=require('@babel/parser'),generate=require('@babel/generator').default;
 const {analyzeJavaScript}=require('./lib/eyes-analysis.cjs');
@@ -29,4 +30,4 @@ test('configuration callbacks expose semantic parameter names rather than compre
  for(const name of ['components','settings','views']){const file='eyes/src/app/config/'+name+'.js';assert.deepEqual(analyzeJavaScript(fs.readFileSync(file,'utf8'),file).shortBindings,[],name);}
 });
 const baselines={components:'79e368b54b693ae8f7ccee61f7833551fdc5e78e361e1551ec563bfa519e326d',settings:'e8d618f29a06989bb527774adaeedc0e3ad4b2b06b4a03b20e757946d0e4fc86',views:'96cfa87c3e09f9c5545d3706f7d37bd05fea4f05962c13af4d15c054d6077a46'};
-for(const [name,hash]of Object.entries(baselines))test(name+' retains the original binding-normalized execution',()=>assert.equal(bindingHash(fs.readFileSync('eyes/src/app/config/'+name+'.js','utf8')),hash));
+for(const [name,hash]of Object.entries(baselines))test(name+' retains the original binding-normalized execution',()=>assert.equal(bindingHash(originalBrandingContract('eyes/src/app/config/'+name+'.js',fs.readFileSync('eyes/src/app/config/'+name+'.js','utf8'))),hash));

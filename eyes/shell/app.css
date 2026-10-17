@@ -4242,10 +4242,24 @@ body.offset-right #static-ui > div.follow-reframe {
 :root {
   --customIconLabelMargin:50%;
 }
-.icon-nasa-logo {
-  background-image: url(https://eyes.nasa.gov/apps/solar-system/assets/default/svg/nasa_logo.svg);
-  height: 45px;
-  width: 45px;
+.spacelibre-logo {
+  background-image: url(./brand/horizontal-white.svg);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  display: inline-block;
+  flex-shrink: 0;
+  height: 53.333px;
+  width: 240px;
+  margin: 14px;
+}
+@media only screen and (max-width: 660px) {
+  .spacelibre-logo {
+    background-image: url(./brand/icon-white.svg);
+    height: 48px;
+    width: 48px;
+    margin: 12px;
+  }
 }
 .icon-crosshair {
   background-image: url(https://eyes.nasa.gov/apps/solar-system/assets/default/svg/crosshair.svg);
@@ -6561,7 +6575,7 @@ nav.clock-shortcut {
     margin-left: .5em;
   }
   .mega-menu .menu-header .app-title,
-  .mega-menu .menu-header .icon-nasa-logo {
+  .mega-menu .menu-header .spacelibre-logo {
     opacity: .7;
     transition: opacity .1s ease-in-out;
   }
@@ -6654,7 +6668,7 @@ nav.clock-shortcut {
 @media (pointer: fine) and (hover: hover) {
   .mega-menu .a-to-z .menu-content .entry-label:hover,
   .mega-menu .branding:hover .app-title,
-  .mega-menu .branding:hover .icon-nasa-logo,
+  .mega-menu .branding:hover .spacelibre-logo,
   .mega-menu .link-container:hover {
     opacity: 1;
   }

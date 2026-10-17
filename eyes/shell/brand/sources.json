@@ -1,0 +1,47 @@
+[
+  {
+    "file": "horizontal-white.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/01-logos/horizontal-white.svg",
+    "sha256": "32c21bb11f3795cbc16f63c0a692ead60605165bd94595ef97cce42175c4237d"
+  },
+  {
+    "file": "icon-white.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/01-logos/icon-white.svg",
+    "sha256": "55dc7c228edd8890c43269f0f5350d2ae383740f9d0dea40dfe6930dc7c221b0"
+  },
+  {
+    "file": "icon-black.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/01-logos/icon-black.svg",
+    "sha256": "6b8508987299cc390556af90d90003eee42e55d51359f9815f705e4cd586f844"
+  },
+  {
+    "file": "favicon.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/favicon.svg",
+    "sha256": "de8026e93f32bbc47e2bd64e0fbd18629843964836cf7d131aad4c3b569d3ba7"
+  },
+  {
+    "file": "favicon-16.png",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/favicon-16.png",
+    "sha256": "e4cc4bf119d93aa40fe1a8c0d0888d42de061695ae13c957f0a0a4849a054b3e"
+  },
+  {
+    "file": "favicon-32.png",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/favicon-32.png",
+    "sha256": "cbdf813b6d43a5ecfa7765b891be53c1b7149b2455b84310c65efeae56095c2a"
+  },
+  {
+    "file": "apple-touch-icon.png",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/apple-touch-icon.png",
+    "sha256": "3790a0d9a12273e5dcabf178a64ce65b38056a496366850a42b78210618b6da3"
+  },
+  {
+    "file": "icon-192.png",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/icon-192.png",
+    "sha256": "efd0c996319271609c2e0c836a01297c8a2172fb5edc7d843bef606ecd5e9fb5"
+  },
+  {
+    "file": "icon-512.png",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/icon-512.png",
+    "sha256": "67c6197e6b0732e4336e6f32688c60f47f1d94ca08a0aa72283ea6a5f18b7ea1"
+  }
+]
