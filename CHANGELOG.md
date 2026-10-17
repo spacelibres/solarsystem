@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.46 - 2026-10-17
+
+Integrate the published main-branch starfield repair with the independent
+explorer and recovered Eyes updates through 0.2.45. Preserve the corrected
+Pioneer-to-Three quaternion ordering and remove signed-Y clip-W from the legacy
+viewer shader. Preserve deployment workflows and webhook configuration.
+
 ## 0.2.45 - 2026-10-17
 
 Expand the explorer canvas to the entire viewport. Float transparent navigation,

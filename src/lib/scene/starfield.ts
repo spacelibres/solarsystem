@@ -3,7 +3,7 @@
  * J2000 to equatorial J2000; Pioneer wxyz must become Three xyzw.
  *
  * parseStarfield is shared. buildStarfield below retains the old +Y camera
- * shader for the previous viewer; /explorer uses src/solar/render/sky.ts,
+ * shader for the previous viewer with standard Three projection; /explorer uses src/solar/render/sky.ts,
  * which implements standard Three -Z projection, flux and entity occlusion.
  */
 import * as THREE from 'three';
@@ -86,7 +86,7 @@ void main() {
   float brightness = 2.0 * log(1.0 + flux * 1e4);
 
   gl_Position = projectionMatrix * viewPosition;
-  gl_Position.w = viewPosition.y;
+  // Use standard Three projection; signed view-space Y clips valid stars.
   fColor = color;
 
   fColor.a = clamp(brightness * particleSize, 0.05, 1.0);
