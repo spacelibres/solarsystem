@@ -3,6 +3,12 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.40 - 2026-10-17
+
+Prevent the Sun glow from flashing as a bright yellow square on refresh.
+Keep the additive sprite hidden until its alpha texture is ready; failed loads
+leave it hidden. Add loading/ready lifecycle regressions.
+
 ## 0.2.39 - 2026-10-17
 
 Correct dotted, polygonal and periodically jumping satellite trails.

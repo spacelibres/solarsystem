@@ -16,6 +16,7 @@ import { orbitalBodyFactor, orbitPolyline, osculatingPolyline, sampledPolyline }
 import type { OrbPoint } from '../../lib/dynamo/parse';
 import { configuredTrailLength, sampleTrailHistory } from '../domain/trails';
 import { TrailRibbon } from './trail-ribbon';
+import { createSunGlow, setSunGlowTexture } from './sun-glow';
 import { RollingTrail } from '../domain/rolling-trail';
 import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
@@ -264,13 +265,11 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 }
             }
             if (definition.id === 'sun') {
-                const material = new THREE.SpriteMaterial({ color: 0xffdca0, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false });
-                visual.materials.push(material);
-                const glow = new THREE.Sprite(material);
-                glow.name = 'sun-pixel-glow';
+                const glow = createSunGlow();
+                visual.materials.push(glow.material);
                 glow.scale.setScalar(definition.radiusKm * 9);
                 group.add(glow);
-                attachTexture(visual, SPRITES.sunGlow, texture => { material.map = texture; material.needsUpdate = true; });
+                attachTexture(visual, SPRITES.sunGlow, texture => setSunGlowTexture(glow, texture));
             }
             return visual;
         };
