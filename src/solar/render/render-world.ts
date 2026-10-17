@@ -24,7 +24,7 @@ import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
 import { applyFrameTransform } from './frame';
 import { placeScreenLabel } from './labels';
-import { cameraFitDistance, modelIsResolvable } from './camera';
+import { cameraFitDistance, modelIsResolvable, spacecraftCameraBasis } from './camera';
 import { createSpheroidFace } from './spheroid';
 import { createRingGeometry, PLANET_RINGS } from './rings';
 import { createModelLibrary, type ModelLease } from './models';
@@ -122,7 +122,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         container.appendChild(renderer.domElement);
         const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(45, 1, .000001, 1e15);
         camera.up.set(0, 0, 1);
-        const controls = new OrbitControls(camera, renderer.domElement);
+        let controls = new OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = .09;
         cleanup.push(() => controls.dispose());
@@ -463,13 +463,26 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     }
                     controls.target.set(0, 0, 0);
                     const sun = state.frames.get('sun');
-                    if (mode === 'body' && sun?.status === 'ready' && selectedId !== 'sun') {
+                    camera.up.set(0, 0, 1);
+                    const parent = focus.parentId ? state.frames.get(focus.parentId) : undefined;
+                    if (mode === 'body' && definition?.groups?.includes('spacecraft') && parent?.status === 'ready') {
+                        const basis = spacecraftCameraBasis({ x: focus.position.x - parent.position.x, y: focus.position.y - parent.position.y, z: focus.position.z - parent.position.z }, parent.id === 'sun' ? null : parent.orientation, focus.orientation);
+                        camera.position.set(basis.offset.x, basis.offset.y, basis.offset.z);
+                        camera.up.set(basis.up.x, basis.up.y, basis.up.z);
+                    }
+                    else if (mode === 'body' && sun?.status === 'ready' && selectedId !== 'sun') {
                         camera.position.set(sun.position.x - focus.position.x, sun.position.y - focus.position.y, sun.position.z - focus.position.z).normalize();
                         camera.position.z += .3;
                     }
                     else
                         camera.position.set(.65, -1, .8);
                     camera.position.normalize().multiplyScalar(cameraFitDistance(Math.max(.00001, radius), THREE.MathUtils.degToRad(camera.fov), camera.aspect));
+                    // OrbitControls caches its up basis at construction, and retains damping
+                    // from the previous target. Rebind after setting the source camera basis.
+                    controls.dispose();
+                    controls = new OrbitControls(camera, renderer.domElement);
+                    controls.enableDamping = true;
+                    controls.dampingFactor = .09;
                     controls.minDistance = Math.max(.000001, (definition?.radiusKm ?? 1) * 1.03);
                     controls.maxDistance = 1e14;
                     camera.near = Math.max(.000001, Math.min(radius * .0005, 1000));

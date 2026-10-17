@@ -192,3 +192,15 @@ THEMIS正放/暂停/倒放回归，修复前两项均失败，修复后通过。
 截图themis-spin-a-v43.png与themis-spin-b-v43.png；保留新生产页面为实时THEMIS A。
 错误/警告控制台为空。其他任务26条时刻无覆盖仍明确显示，不混同于本次自旋修复。
 详见whole-craft-spin.md。
+
+## v0.2.44 IXPE初始取景（2026-10-17）
+
+对照CameraScripts.goToSpacecraft确认源相机采用父相对径向外侧位置、父北轴为上。
+IXPE源控制器为dynamo位置加fixed单位姿态；修复的是共用相机初始化，保留本体姿态。
+Three OrbitControls缓存up基础，改为重置取景时重新绑定并清除旧阻尼。
+新增4项回归（首次3项缺少实现失败，然后通过），完整499项Vitest/55文件和
+229项Node通过；npm ci、npm run check、npm run build全部通过。
+新生产页面IXPE的地球标签位于模型背景中心，不再朝星空；诊断parent=earth、
+orientation=(0,0,0,1)，浏览器error/warn为空。截图ixpe-earth-view-v44.png。
+当前地球背景呈平面深蓝，尚未对齐原版地球着色与景深；未宣称所有姿态视觉等价。
+镜头边界与后续差异见spacecraft-camera.md。

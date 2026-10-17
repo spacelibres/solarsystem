@@ -3,6 +3,13 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.44 - 2026-10-17
+
+Use Eyes' outward parent-relative initial spacecraft view so Earth-orbiting
+spacecraft open against Earth. Preserve parent north for camera roll and reset
+OrbitControls' cached up basis and residual damping on target framing.
+IXPE retains the source fixed identity body attitude.
+
 ## 0.2.43 - 2026-10-17
 
 Restore whole-craft rotation for THEMIS and other source spin controllers that
