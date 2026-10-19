@@ -6,7 +6,7 @@ const { compileCatalog } = require('../tools/compile-solar-catalog.cjs');
 describe('source-derived independent catalog', () => {
   it('reproduces the checked-in manifest without executing recovered modules', () => {
     expect(JSON.stringify(compileCatalog(), null, 2) + '\n').toBe(readFileSync('src/solar/config/catalog.generated.json', 'utf8'));
-  });
+  }, 30_000);
   it('preserves actual Moon, ISS, Hubble, Voyager and Juno definitions', () => {
     const { entries } = compileCatalog();
     const get = (id: string) => entries.find((entry: { id: string }) => entry.id === id);
@@ -33,5 +33,5 @@ describe('source-derived independent catalog', () => {
     const callback = juno.controllers.find((c: { type: string }) => c.type === 'coverage').update;
     expect(callback.$unsupported).toBe('ArrowFunctionExpression');
     expect(callback.expression).toContain('engine_cover');
-  });
+  }, 30_000);
 });

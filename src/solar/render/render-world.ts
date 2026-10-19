@@ -62,7 +62,7 @@ export interface RenderWorld {
         constellations?: boolean;
         starlink?: boolean;
     }): void;
-    setStarlinkSelection(number: number | null): void;
+    setStarlinkSelection(numbers: readonly number[]): void;
     resize(): void;
     resetCamera(): void;
     snapshot(): RenderDiagnostics;
@@ -453,7 +453,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 starlinkEnabled=layers.starlink??starlinkEnabled;starlink?.setVisible(starlinkEnabled);
                 if(constellationsEnabled)loadConstellations();
             },
-            setStarlinkSelection(number) { starlink?.setSelected(number); },
+            setStarlinkSelection(numbers) { starlink?.setSelection(numbers); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;
                 const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);

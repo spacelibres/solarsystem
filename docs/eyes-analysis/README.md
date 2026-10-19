@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1150 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1151 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -575,6 +575,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/data/Unidentified775.json](#file-eyes-src-data-Unidentified775-json) — 按 Planet/Moon/Spacecraft 等类别列出的精选搜索实体 id
 - [eyes/src/data/Unidentified916.json](#file-eyes-src-data-Unidentified916-json) — 第二份 Moment Timezone 打包时区数据库，版本 2021a
 - [eyes/src/data/ViewInfo.json](#file-eyes-src-data-ViewInfo-json) — 视图类、名称及启用组件列表的声明式映射
+- [eyes/src/data/starlink-launch-dates.json](#file-eyes-src-data-starlink-launch-dates-json) — Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推算的日期），用于 Explorer 的发射日期筛选。
 - [eyes/src/data/starlink-orbits.json](#file-eyes-src-data-starlink-orbits-json) — Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��
 - [eyes/src/engine/components/AnnulusComponent.js](#file-eyes-src-engine-components-AnnulusComponent-js) — 生成可调整内外半径的平面环带网格，按实体姿态定位并通过颜色透明度淡出。
 - [eyes/src/engine/components/AtmosphereComponent.js](#file-eyes-src-engine-components-AtmosphereComponent-js) — 依赖同实体 SpheroidComponent 的半径，以自定义散射材质渲染大气壳；同步密度、日落色和光源。
@@ -2253,6 +2254,17 @@ Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/d
 直接引用者：[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)。
 
 数据类型 `array`；顶层条目 8；字段 —。原始数据保留，不手工猜测字段单位。
+
+<a id="file-eyes-src-data-starlink-launch-dates-json"></a>
+### `eyes/src/data/starlink-launch-dates.json`
+
+Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推算的日期），用于 Explorer 的发射日期筛选。。[源码](../../eyes/src/data/starlink-launch-dates.json)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；browser verification。
+
+数据类型 `object`；顶层条目 5；字段 `generatedAt`、`source`、`credit`、`count`、`satellites`。原始数据保留，不手工猜测字段单位。
 
 <a id="file-eyes-src-data-starlink-orbits-json"></a>
 ### `eyes/src/data/starlink-orbits.json`

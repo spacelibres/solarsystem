@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 257 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 258 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -128,6 +128,12 @@ Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/d
 视图类、名称及启用组件列表的声明式映射。[源码](../../eyes/src/data/ViewInfo.json)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-data-ViewInfo-json)
+
+## `eyes/src/data/starlink-launch-dates.json`
+
+Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推算的日期），用于 Explorer 的发射日期筛选。。[源码](../../eyes/src/data/starlink-launch-dates.json)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-data-starlink-launch-dates-json)
 
 ## `eyes/src/data/starlink-orbits.json`
 

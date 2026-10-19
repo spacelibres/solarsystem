@@ -1,10 +1,10 @@
 /**
  * GPU-light Starlink constellation layer.
  *
- * All markers share one Points draw and all display orbits share one
- * LineSegments draw, so a ten-thousand-satellite layer stays cheap. The layer is
- * positioned at Earth each frame by the render world; coordinates remain
- * Earth-centred inertial kilometres from the catalogue generator.
+ * All satellites share one Points draw. A selection merges every chosen orbit
+ * ring into one LineSegments draw; the first dozen selections additionally load
+ * their generation-specific GLB model. The layer is positioned at Earth each
+ * frame; coordinates remain Earth-centred inertial kilometres.
  */
 
 import * as THREE from 'three';
@@ -24,10 +24,14 @@ export interface StarlinkLayer {
   readonly group: THREE.Group;
   readonly count: number;
   setVisible(visible: boolean): void;
+  setSelection(numbers: readonly number[]): void;
   setSelected(number: number | null): void;
   update(timeEt: number, earthPosition: Vec3, focusPosition: Vec3): void;
   dispose(): void;
 }
+
+const MAX_SELECTED_MODELS = 12;
+const SELECTED_ORBIT_SEGMENTS = 64;
 
 export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkLayer {
   const group = new THREE.Group();
@@ -60,15 +64,14 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   group.add(points);
 
   let lastPointTime = Number.NEGATIVE_INFINITY;
-  let selectedLine: THREE.LineLoop | null = null;
-  let selectedGeometry: THREE.BufferGeometry | null = null;
-  let selectedMaterial: THREE.LineBasicMaterial | null = null;
   const byNumber = new Map(valid.map(entry => [entry.orbit.n, entry]));
   const modelLoader = new GLTFLoader();
   const modelCache = new Map<number, Promise<THREE.Group>>();
-  let selectedNumber: number | null = null;
-  let selectedModel: THREE.Group | null = null;
-  let modelToken = 0;
+  let selectedNumbers: readonly number[] = [];
+  let selectedOrbitLine: THREE.LineSegments | null = null;
+  const selectedModels = new Map<number, THREE.Group>();
+  let selectionToken = 0;
+
   const modelForGeneration = (generation: 1 | 2 | 3) => {
     let pending = modelCache.get(generation);
     if (!pending) {
@@ -78,50 +81,68 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
     return pending;
   };
 
+  const clearSelection = () => {
+    if (selectedOrbitLine) {
+      selectedOrbitLine.removeFromParent();
+      selectedOrbitLine.geometry.dispose();
+      (selectedOrbitLine.material as THREE.Material).dispose();
+      selectedOrbitLine = null;
+    }
+    for (const model of selectedModels.values()) model.removeFromParent();
+    selectedModels.clear();
+  };
+
   const layer: StarlinkLayer = {
     group,
     count: valid.length,
     setVisible(visible: boolean) {
       group.visible = visible;
     },
+    setSelection(numbers: readonly number[]) {
+      const unique = [...new Set(numbers)].filter(number => byNumber.has(number));
+      selectionToken += 1;
+      const token = selectionToken;
+      clearSelection();
+      selectedNumbers = unique;
+      if (unique.length > 0) {
+        const positions = new Float32Array(unique.length * SELECTED_ORBIT_SEGMENTS * 2 * 3);
+        let offset = 0;
+        for (const number of unique) {
+          const entry = byNumber.get(number);
+          if (!entry) continue;
+          const ring = starlinkOrbitRing(entry.elements, SELECTED_ORBIT_SEGMENTS);
+          for (let segment = 0; segment < SELECTED_ORBIT_SEGMENTS; segment += 1) {
+            const next = (segment + 1) % SELECTED_ORBIT_SEGMENTS;
+            for (const vertex of [segment, next]) {
+              positions[offset++] = ring[vertex * 3];
+              positions[offset++] = ring[vertex * 3 + 1];
+              positions[offset++] = ring[vertex * 3 + 2];
+            }
+          }
+        }
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions.subarray(0, offset), 3));
+        const material = new THREE.LineBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.65, depthWrite: false });
+        selectedOrbitLine = new THREE.LineSegments(geometry, material);
+        selectedOrbitLine.frustumCulled = false;
+        group.add(selectedOrbitLine);
+      }
+      unique.slice(0, MAX_SELECTED_MODELS).forEach(number => {
+        const entry = byNumber.get(number);
+        if (!entry) return;
+        const generation = entry.orbit.g ?? starlinkGeneration(number);
+        void modelForGeneration(generation).then(scene => {
+          if (token !== selectionToken || !selectedNumbers.includes(number)) return;
+          const model = scene.clone(true);
+          model.scale.setScalar(35);
+          model.name = `starlink-model-gen${generation}-${number}`;
+          selectedModels.set(number, model);
+          group.add(model);
+        }).catch(error => console.warn('Starlink model unavailable:', error));
+      });
+    },
     setSelected(number: number | null) {
-      if (selectedLine) {
-        group.remove(selectedLine);
-        selectedGeometry?.dispose();
-        selectedMaterial?.dispose();
-        selectedLine = null;
-        selectedGeometry = null;
-        selectedMaterial = null;
-      }
-      selectedNumber = number;
-      const token = ++modelToken;
-      if (selectedModel) {
-        selectedModel.removeFromParent();
-        selectedModel = null;
-      }
-      if (number === null) return;
-      const entry = byNumber.get(number);
-      if (!entry) return;
-      const generation = entry.orbit.g ?? starlinkGeneration(number);
-      void modelForGeneration(generation).then(scene => {
-        if (token !== modelToken || selectedNumber !== number) return;
-        const model = scene.clone(true);
-        // The generated model is authored in metres; show it as a compact
-        // selected-satellite marker rather than pretending to be physical scale.
-        model.scale.setScalar(35);
-        model.name = `starlink-model-gen${generation}`;
-        selectedModel = model;
-        group.add(model);
-      }).catch(error => console.warn('Starlink model unavailable:', error));
-      const ring = starlinkOrbitRing(entry.elements, 128);
-      const geometry = new THREE.BufferGeometry();
-      geometry.setAttribute('position', new THREE.BufferAttribute(ring, 3));
-      const material = new THREE.LineBasicMaterial({ color: 0x7fe3ff, transparent: true, opacity: 0.95, depthWrite: false });
-      selectedLine = new THREE.LineLoop(geometry, material);
-      selectedLine.frustumCulled = false;
-      selectedGeometry = geometry;
-      selectedMaterial = material;
-      group.add(selectedLine);
+      layer.setSelection(number === null ? [] : [number]);
     },
     update(timeEt: number, earthPosition: Vec3, focusPosition: Vec3) {
       group.position.set(earthPosition.x - focusPosition.x, earthPosition.y - focusPosition.y, earthPosition.z - focusPosition.z);
@@ -137,21 +158,19 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
         array[index * 3 + 2] = position.z;
       }
       attribute.needsUpdate = true;
-      if (selectedModel && selectedNumber !== null) {
-        const entry = byNumber.get(selectedNumber);
-        if (entry) {
-          const satellite = starlinkPosition(entry.elements, timeEt);
-          selectedModel.position.set(satellite.x, satellite.y, satellite.z);
-        }
+      for (const [number, model] of selectedModels) {
+        const entry = byNumber.get(number);
+        if (!entry) continue;
+        const satellite = starlinkPosition(entry.elements, timeEt);
+        model.position.set(satellite.x, satellite.y, satellite.z);
       }
     },
     dispose() {
+      selectionToken += 1;
+      clearSelection();
       group.removeFromParent();
       pointGeometry.dispose();
       pointMaterial.dispose();
-      selectedGeometry?.dispose();
-      selectedMaterial?.dispose();
-      selectedModel?.removeFromParent();
     },
   };
   layer.setVisible(false);

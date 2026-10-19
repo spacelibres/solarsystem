@@ -8,9 +8,10 @@ import { unixMillisecondsToEt } from '../domain/time';
 import { relativeEphemeris } from '../domain/observations';
 import { ExplorerRuntime, type ExplorerSnapshot } from '../runtime/explorer-runtime';
 import { createRenderWorld, type RenderDiagnostics, type RenderWorld } from '../render/render-world';
+import StarlinkPicker from './StarlinkPicker';
 import { etDateInput, formatEtUtc, utcInputToEt } from './format';
 import starlinkData from '../../data/starlink-orbits.json';
-import { starlinkGeneration, type StarlinkOrbit } from '../domain/starlink';
+import type { StarlinkOrbit } from '../domain/starlink';
 import styles from './Explorer.module.css';
 export interface ExplorerDebugApi {
     snapshot(): {
@@ -63,8 +64,8 @@ export default function Explorer() {
     const [starsVisible, setStarsVisible] = useState(true);
     const [constellationsVisible, setConstellationsVisible] = useState(false);
     const [starlinkVisible, setStarlinkVisible] = useState(true);
-    const [starlinkNumber, setStarlinkNumber] = useState('');
-    const [selectedStarlink, setSelectedStarlink] = useState<number | null>(null);
+    const [starlinkPickerOpen, setStarlinkPickerOpen] = useState(false);
+    const [selectedStarlinks, setSelectedStarlinks] = useState<number[]>([]);
     const mount = useRef<HTMLDivElement>(null);
     const runtimeRef = useRef<ExplorerRuntime | null>(null);
     const worldRef = useRef<RenderWorld | null>(null);
@@ -176,20 +177,17 @@ export default function Explorer() {
             worldRef.current = null;
         };
     }, [attempt]);
-    const loadStarlink = () => {
-        const match = /(\d+)/.exec(starlinkNumber);
-        const number = match ? Number(match[1]) : NaN;
-        if (!Number.isFinite(number) || !STARLINK.satellites.some(satellite => satellite.n === number)) {
-            setNotice('未找到该 Starlink 编号；请输入 STARLINK-34567 形式的公开编号。');
-            return;
-        }
-        setSelectedStarlink(number);
+    const applyStarlinkSelection = (numbers: number[]) => {
+        setSelectedStarlinks(numbers);
         setStarlinkVisible(true);
         layerState.current.starlink = true;
         worldRef.current?.setLayers({ starlink: true });
-        worldRef.current?.setStarlinkSelection(number);
-        navigate('earth', 'body');
-        setNotice(`已高亮 STARLINK-${number}（Gen${starlinkGeneration(number)} 3D 模型）的显示轨道，目录共 ${STARLINK.count.toLocaleString('zh-CN')} 颗。`);
+        worldRef.current?.setStarlinkSelection(numbers);
+        setStarlinkPickerOpen(false);
+        if (numbers.length > 0) navigate('earth', 'body');
+        setNotice(numbers.length === 0
+            ? '已清空 Starlink 选择。'
+            : `已选择 ${numbers.length.toLocaleString('zh-CN')} 颗 Starlink 卫星；轨道已高亮，前 12 颗显示对应代级 3D 模型。`);
     };
     const perform = (action: (runtime: ExplorerRuntime) => void) => {
         const runtime = runtimeRef.current;
@@ -288,14 +286,22 @@ export default function Explorer() {
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>
           <div className={styles.starlinkControls}>
-            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')}){selectedStarlink !== null ? ` · STARLINK-${selectedStarlink} · Gen${starlinkGeneration(selectedStarlink)}` : ''}</label>
-            <div className={styles.starlinkPicker}>
-              <input type="text" value={starlinkNumber} placeholder="STARLINK-34567" aria-label="Starlink 编号" onChange={event => setStarlinkNumber(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') loadStarlink(); }} />
-              <button onClick={loadStarlink}>定位轨道</button>
-            </div>
+            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')})</label>
+            <button className={styles.starlinkPickerButton} aria-label="starlink-picker" onClick={() => setStarlinkPickerOpen(true)}>
+              选择卫星{selectedStarlinks.length > 0 ? `（已选 ${selectedStarlinks.length.toLocaleString('zh-CN')}）` : ''}
+            </button>
+            {selectedStarlinks.length > 0 && <span className={styles.starlinkSelectionHint}>多选 · 可按代级和发射日期筛选</span>}
           </div>
           <div className={styles.hint}>拖动旋转 · 滚轮缩放<br />右键拖动平移</div>
         </aside>
+        {starlinkPickerOpen && (
+          <StarlinkPicker
+            orbits={STARLINK.satellites}
+            selected={selectedStarlinks}
+            onClose={() => setStarlinkPickerOpen(false)}
+            onApply={applyStarlinkSelection}
+          />
+        )}
 
         {(!snapshot || snapshot.phase === 'loading') && !fatal && (<div className={styles.loading} role="status">正在读取星历 <span>{snapshot?.pending.length ?? '…'} 项</span></div>)}
         {(fatal || notice || actionableErrors.length > 0 || textureFailures > 0) && (<div className={styles.errorPanel} role="alert">

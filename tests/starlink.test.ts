@@ -82,6 +82,12 @@ describe('Starlink catalogue', () => {
       expect(elementsFromState(satellite as unknown as StarlinkOrbit)).not.toBeNull();
     }
     expect(catalog.satellites.some(satellite => satellite.n === 34567)).toBe(true);
+    const sample = catalog.satellites.find(satellite => satellite.n === 34567);
+    expect(sample?.d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(sample?.d).toBe('2025-07-16');
+    for (const satellite of catalog.satellites) {
+      expect(satellite.d).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
   });
 });
 

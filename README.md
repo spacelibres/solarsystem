@@ -20,8 +20,8 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - [HTML templates](eyes/src/ui/templates/), [engine](eyes/src/engine/), [shared Eyes framework](eyes/src/framework/eyes/)
 - [Starlink constellation layer](docs/starlink.md): all 11,151 public Starlink
   satellites in the recovered Eyes Earth view and the Explorer point shell, with
-  `STARLINK-34567`-style number lookup, a highlighted display orbit, and three
-  generation-specific model libraries (Gen1 / Gen2 / Gen3).
+  a multi-select picker (search, Gen1/Gen2/Gen3, launch year/month/day), highlighted
+  display orbits, and three generation-specific model libraries.
 - [Multi-language display layer](docs/i18n.md): 23 languages (English,
   Simplified/Traditional Chinese, Japanese, Korean, French, German, Spanish,
   Brazilian Portuguese, Russian, Italian, Dutch, Polish, Turkish, Vietnamese,

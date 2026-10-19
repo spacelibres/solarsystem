@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1150,
+    "files": 1151,
     "javascript": 1060,
     "classes": 552,
     "methods": 5514,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "769e9126df6c4c295b2041db8ff4e37e15074bb697c38ff85862610f57c1a57d",
+      "sha256": "0c5a793bc6d6ec74b66ef54bedd0cded8b2531d884a733b3aff01eb0d84e35f1",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "803cf2dbacc64045dc0cf61422018df851137c034d9110807765ede4a10e9d33",
+      "sha256": "bed86e094c16a558cd4cd1d263587229ef29e9c07b95aa414e7e5e59d81129ec",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -4941,9 +4941,33 @@
       ]
     },
     {
+      "file": "eyes/src/data/starlink-launch-dates.json",
+      "bytes": 605159,
+      "sha256": "9990062db4c4ae236b34d9f294c10b8a7869f45a6ba052083bc0abcd43f37c01",
+      "purpose": "Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推算的日期），用于 Explorer 的发射日期筛选。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "data": {
+        "kind": "object",
+        "entries": 5,
+        "keys": [
+          "generatedAt",
+          "source",
+          "credit",
+          "count",
+          "satellites"
+        ]
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
       "file": "eyes/src/data/starlink-orbits.json",
-      "bytes": 1880301,
-      "sha256": "f61a5d8e41952a300905ae562d098aeadd95931f66277380657cd1031e63790a",
+      "bytes": 2253274,
+      "sha256": "b5ecbb13407f495bc3f44aae4bbe90ca3ec8fdfb050e10c95858baff77c5b0d1",
       "purpose": "Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��",
       "confidence": "observed",
       "origin": null,

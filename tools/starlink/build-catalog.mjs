@@ -27,6 +27,7 @@ const FILE_URL = number => `https://api.starlink.com/public-files/ephemerides/ST
 const CACHE = path.join(ROOT, '.cache/starlink');
 const OUT = path.join(ROOT, 'src/data/starlink-orbits.json');
 const EYES_OUT = path.join(ROOT, 'eyes/src/data/starlink-orbits.json');
+const LAUNCH_DATES = path.join(ROOT, 'src/data/starlink-launch-dates.json');
 const PUBLIC_OUT = path.join(ROOT, 'public/eyes/data/starlink-orbits.json');
 
 const args = process.argv.slice(2);
@@ -136,6 +137,13 @@ async function main() {
   const selected = LIMIT ? numbers.slice(0, LIMIT) : numbers;
   console.error(`manifest: ${numbers.length} satellites; fetching ${selected.length} header windows with concurrency ${CONCURRENCY}`);
 
+  let launchDates = new Map();
+  try {
+    const launchData = JSON.parse(await readFile(LAUNCH_DATES, 'utf8'));
+    launchDates = new Map((launchData.satellites || []).map(entry => [entry.n, entry]));
+  } catch {
+    console.error('launch-date map unavailable; catalogue will omit launch dates');
+  }
   const satellites = [];
   let cursor = 0;
   let completed = 0;
@@ -147,7 +155,14 @@ async function main() {
       try {
         const text = await fetchWindow(number);
         const parsed = parseOcm(text, number);
-        if (parsed) satellites.push(parsed);
+        if (parsed) {
+          const launch = launchDates.get(parsed.n);
+          if (launch) {
+            parsed.d = launch.date;
+            parsed.lt = launch.tag;
+          }
+          satellites.push(parsed);
+        }
         else failures += 1;
       } catch (error) {
         failures += 1;
@@ -162,6 +177,21 @@ async function main() {
   }
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   satellites.sort((a, b) => a.n - b.n);
+  // GCAT's public snapshot can lag the newest launches. Starlink numbers are
+  // assigned in launch order, so use the nearest dated neighbour as a clearly
+  // marked inferred date instead of dropping the satellite from date filters.
+  const dated = satellites.filter(satellite => satellite.d);
+  for (const satellite of satellites) {
+    if (satellite.d || dated.length === 0) continue;
+    let nearest = dated[0];
+    for (const candidate of dated) {
+      if (Math.abs(candidate.n - satellite.n) < Math.abs(nearest.n - satellite.n)) nearest = candidate;
+      if (candidate.n > satellite.n) break;
+    }
+    satellite.d = nearest.d;
+    satellite.lt = nearest.lt;
+    satellite.di = true;
+  }
   const payload = {
     generatedAt: new Date().toISOString(),
     source: 'https://api.starlink.com/public-files/ephemerides/',

@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.56 - 2026-10-19
+
+Replace the single Starlink number input with a multi-select satellite picker in
+the Explorer: search by number, filter by Gen1/Gen2/Gen3, and filter by launch
+year, month and day. Selected rows highlight every chosen orbit in one merged
+line draw, and the first twelve selections load their generation model. Launch
+dates are merged from Jonathan McDowell's GCAT SATCAT (CC-BY); 499 newest
+satellites without a GCAT date are marked as inferred from the nearest numbered
+neighbour. The catalogue now carries d, lt and di alongside g.
+
 ## 0.2.55 - 2026-10-19
 
 Add three generation-specific Starlink model libraries. The generator at

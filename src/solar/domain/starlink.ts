@@ -32,6 +32,12 @@ export interface StarlinkOrbit {
   readonly e: number;
   /** Display model generation; absent in older catalogues. */
   readonly g?: StarlinkGeneration;
+  /** Launch date, YYYY-MM-DD. */
+  readonly d?: string;
+  /** GCAT launch tag, e.g. 2025-150. */
+  readonly lt?: string;
+  /** Launch date inferred from the nearest numbered neighbour. */
+  readonly di?: boolean;
   readonly p: readonly [number, number, number];
   readonly v: readonly [number, number, number];
 }
