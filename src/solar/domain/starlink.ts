@@ -10,11 +10,28 @@
 import type { Vec3 } from '../../lib/dynamo/math';
 import { unixMillisecondsToEt } from './time';
 
+export type StarlinkGeneration = 1 | 2 | 3;
+
+/** Public numbering bands used for the display model family. */
+export function starlinkGeneration(number: number): StarlinkGeneration {
+  if (number >= 40000) return 3;
+  if (number >= 30000) return 2;
+  return 1;
+}
+
+export const STARLINK_MODEL_URLS: Readonly<Record<StarlinkGeneration, string>> = {
+  1: '/eyes/models/starlink/starlink-gen1.glb',
+  2: '/eyes/models/starlink/starlink-gen2.glb',
+  3: '/eyes/models/starlink/starlink-gen3.glb',
+};
+
 export interface StarlinkOrbit {
   readonly n: number;
   readonly name: string;
   /** Epoch as Unix seconds. */
   readonly e: number;
+  /** Display model generation; absent in older catalogues. */
+  readonly g?: StarlinkGeneration;
   readonly p: readonly [number, number, number];
   readonly v: readonly [number, number, number];
 }

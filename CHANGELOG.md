@@ -3,6 +3,19 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.55 - 2026-10-19
+
+Add three generation-specific Starlink model libraries. The generator at
+	ools/starlink/build-models.mjs creates clean-room Gen1, Gen2 and Gen3 GLBs
+from primitive geometry (MIT, no third-party mesh copied), publishes them through
+the Eyes build, and records the public-number bands in the catalogue as g.
+The Explorer loads the matching model for a selected STARLINK-<number> and
+labels its generation; the Eyes Earth view places one model sample per
+generation alongside the existing 11,151-point constellation. Models are
+deliberately oversized display markers so they remain visible at planetary
+scale, and the generation bands are documented as a display convention rather
+than an official SpaceX taxonomy.
+
 ## 0.2.54 - 2026-10-19
 
 Fix the German language freeze on the Eyes home screen. The DOM translation

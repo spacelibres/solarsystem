@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1146 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1150 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -839,6 +839,10 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/i18n/locales/zh-TW.js](#file-eyes-src-i18n-locales-zh-TW-js) — 繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/switcher.js](#file-eyes-src-i18n-switcher-js) — 设置区左上角注入的语言选择按钮与对话框；语言名保持本语言书写并标记 data-i18n-ignore，选择后持久化并带 lang 参数重载。
 - [eyes/src/main.js](#file-eyes-src-main-js) — 启动入口：先加载 preload，再初始化应用依赖图
+- [eyes/src/models/starlink/manifest.json](#file-eyes-src-models-starlink-manifest-json) — Starlink Gen1/Gen2/Gen3 模型库清单：编号带、GLB 文件、许可证与来源说明。
+- [eyes/src/models/starlink/starlink-gen1.glb](#file-eyes-src-models-starlink-starlink-gen1-glb) — Gen1（v1.0/v1.5）干净房低模，供 Eyes 采样展示与 Explorer 选中卫星使用。
+- [eyes/src/models/starlink/starlink-gen2.glb](#file-eyes-src-models-starlink-starlink-gen2-glb) — Gen2（v2 Mini）干净房低模，双太阳翼。
+- [eyes/src/models/starlink/starlink-gen3.glb](#file-eyes-src-models-starlink-starlink-gen3-glb) — Gen3（V3）干净房低模，Starship 级包络。
 - [eyes/src/runtime/decoder-paths.js](#file-eyes-src-runtime-decoder-paths-js) — 按 decoder manifest revision 构造解码器资源绝对 URL
 - [eyes/src/runtime/interop.cjs](#file-eyes-src-runtime-interop-cjs) — 兼容 CommonJS/ESModule 默认导出访问器
 - [eyes/src/styles/extracted/AppUtilsStyles.js](#file-eyes-src-styles-extracted-AppUtilsStyles-js) — 恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出
@@ -1757,13 +1761,13 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 当前导出：`buildEyes` ← `buildEyes`。
 
-非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @8；`copyShell()` @12；`publishOutput()` @13；`anonymous(result)` @31；`anonymous()` @39；`anonymous()` @41。
+非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @8；`copyShell()` @12；`publishOutput()` @13；`anonymous(result)` @33；`anonymous()` @41；`anonymous()` @43。
 
 <details><summary>短名称作用域与使用证据（1 项）</summary>
 
 | 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
 | --- | --- | --- |
-| `cp` / `module@1:0` | module / 4 | `cp(path.join(project,'shell'),dist,{recursive:true})`、`cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))`、`cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})`、`cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})` |
+| `cp` / `module@1:0` | module / 5 | `cp(path.join(project,'shell'),dist,{recursive:true})`、`cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))`、`cp(path.join(project,'src/models/starlink'),path.join(dist,'models/starlink'),{recursive:true})`、`cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})`、`cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})` |
 
 </details>
 
@@ -2023,7 +2027,7 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 当前导出：`attachStarlinkLayer` ← `attachStarlinkLayer`。
 
-非 class 函数（包括模块内回调）：`attachStarlinkLayer(scene)` @13：Add the public Starlink constellation to the recovered Eyes Earth entity. OrbitalParticlesComponent projects each particle from a Pioneer OrbitalElements record on every frame, so 11k satellites stay on one instanced draw without creating 11k Eyes entities or labels.；`anonymous()` @28。
+非 class 函数（包括模块内回调）：`attachStarlinkLayer(scene)` @13：Add the public Starlink constellation to the recovered Eyes Earth entity. OrbitalParticlesComponent projects each particle from a Pioneer OrbitalElements record on every frame, so 11k satellites stay on one instanced draw without creating 11k Eyes entities or labels.；`anonymous()` @28；`anonymous(satellite)` @52。
 
 <a id="file-eyes-src-app-config-components-js"></a>
 ### `eyes/src/app/config/components.js`
@@ -11935,6 +11939,44 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 语义依据：imports: ./app/PreloadManager.js, ./styles/extracted/PreloadStyles.js, ./styles/extracted/VendorStyles.js, ./app/SolarSystemApp.js。
 
 直接依赖：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js)、[eyes/src/styles/extracted/PreloadStyles.js](#file-eyes-src-styles-extracted-PreloadStyles-js)、[eyes/src/styles/extracted/VendorStyles.js](#file-eyes-src-styles-extracted-VendorStyles-js)、[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)。
+
+<a id="file-eyes-src-models-starlink-manifest-json"></a>
+### `eyes/src/models/starlink/manifest.json`
+
+Starlink Gen1/Gen2/Gen3 模型库清单：编号带、GLB 文件、许可证与来源说明。。[源码](../../eyes/src/models/starlink/manifest.json)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；browser verification。
+
+数据类型 `object`；顶层条目 4；字段 `schemaVersion`、`license`、`origin`、`generations`。原始数据保留，不手工猜测字段单位。
+
+<a id="file-eyes-src-models-starlink-starlink-gen1-glb"></a>
+### `eyes/src/models/starlink/starlink-gen1.glb`
+
+Gen1（v1.0/v1.5）干净房低模，供 Eyes 采样展示与 Explorer 选中卫星使用。。[源码](../../eyes/src/models/starlink/starlink-gen1.glb)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；browser verification。
+
+<a id="file-eyes-src-models-starlink-starlink-gen2-glb"></a>
+### `eyes/src/models/starlink/starlink-gen2.glb`
+
+Gen2（v2 Mini）干净房低模，双太阳翼。。[源码](../../eyes/src/models/starlink/starlink-gen2.glb)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；browser verification。
+
+<a id="file-eyes-src-models-starlink-starlink-gen3-glb"></a>
+### `eyes/src/models/starlink/starlink-gen3.glb`
+
+Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/models/starlink/starlink-gen3.glb)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；browser verification。
 
 <a id="file-eyes-src-runtime-decoder-paths-js"></a>
 ### `eyes/src/runtime/decoder-paths.js`

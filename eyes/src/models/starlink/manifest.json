@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "license": "MIT",
+  "origin": "spacelibre clean-room primitive geometry; no third-party mesh or texture is included",
+  "generations": [
+    {
+      "generation": 1,
+      "label": "Starlink Gen1 (v1.0 / v1.5)",
+      "numberRange": "0-29999",
+      "file": "starlink-gen1.glb",
+      "description": "Compact bus, one deployable solar wing, single phased-array face."
+    },
+    {
+      "generation": 2,
+      "label": "Starlink Gen2 (v2 Mini)",
+      "numberRange": "30000-39999",
+      "file": "starlink-gen2.glb",
+      "description": "Larger bus, two deployable solar wings, denser phased array and laser terminal."
+    },
+    {
+      "generation": 3,
+      "label": "Starlink Gen3 (V3)",
+      "numberRange": "40000+",
+      "file": "starlink-gen3.glb",
+      "description": "Starship-class envelope, two very large solar wings and expanded antenna bay."
+    }
+  ]
+}

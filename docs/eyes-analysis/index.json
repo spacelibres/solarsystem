@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1146,
+    "files": 1150,
     "javascript": 1060,
     "classes": 552,
     "methods": 5514,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "0989068dfdd581a8e7e0db5a41f69c3ac56c0b264eeabf36219854b7f012daaa",
+      "sha256": "769e9126df6c4c295b2041db8ff4e37e15074bb697c38ff85862610f57c1a57d",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "738baee6b1c4aca35a37c779628c95ddb840bbefb85fb3a63b3cfefe70efd9c5",
+      "sha256": "803cf2dbacc64045dc0cf61422018df851137c034d9110807765ede4a10e9d33",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -737,8 +737,8 @@
     },
     {
       "file": "eyes/scripts/build.mjs",
-      "bytes": 2206,
-      "sha256": "5905b5cf887a5542574b0e5be01d26cc0e235a56140075f5751daad7ba1d7928",
+      "bytes": 2385,
+      "sha256": "b1bde901e380d54bc1e9f4d545b33214aeccb69d8d0d5cea1710e30bb51e14cf",
       "purpose": "从可编辑 src 编译 ESM/CJS/HTML，校验解码器并发布 dist/public；正常构建不运行恢复",
       "confidence": "observed",
       "origin": null,
@@ -836,7 +836,7 @@
           "name": "buildEyes",
           "documentation": "",
           "line": 8,
-          "endLine": 44,
+          "endLine": 46,
           "async": true,
           "params": [
             "{watch=false,publish=false}={}"
@@ -854,15 +854,15 @@
           "name": "publishOutput",
           "documentation": "",
           "line": 13,
-          "endLine": 19,
+          "endLine": 21,
           "async": true,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 31,
-          "endLine": 31,
+          "line": 33,
+          "endLine": 33,
           "async": true,
           "params": [
             "result"
@@ -871,16 +871,16 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 39,
-          "endLine": 42,
+          "line": 41,
+          "endLine": 44,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 41,
-          "endLine": 41,
+          "line": 43,
+          "endLine": 43,
           "async": false,
           "params": []
         }
@@ -891,11 +891,12 @@
           "kind": "module",
           "line": 3,
           "scope": "module@1:0",
-          "references": 4,
+          "references": 5,
           "constant": true,
           "uses": [
             "cp(path.join(project,'shell'),dist,{recursive:true})",
             "cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))",
+            "cp(path.join(project,'src/models/starlink'),path.join(dist,'models/starlink'),{recursive:true})",
             "cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})",
             "cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})"
           ],
@@ -904,7 +905,7 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 1,
-      "semanticHash": "0ce91a98fbc3095a0c5a76009fafc75c4ee12989062d926afd9442f791bad201",
+      "semanticHash": "5dbfd50b00220308d6ac9fc3a1c94e60d179bc74d97a92ab78ba86a2f3c9bf25",
       "dependencies": [
         "eyes/scripts/decoder-cache.mjs"
       ],
@@ -2720,8 +2721,8 @@
     },
     {
       "file": "eyes/src/app/StarlinkLayer.js",
-      "bytes": 2135,
-      "sha256": "b0b0a78c385c80bc26f59f6baaf8a22c064fd403f2a9d28b9010c60d747002da",
+      "bytes": 4050,
+      "sha256": "f1af5087836c1b17ad202c27a912b047263271ba696104b1eec0087dbda9631f",
       "purpose": "加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。",
       "confidence": "observed",
       "origin": null,
@@ -2755,7 +2756,7 @@
           "name": "attachStarlinkLayer",
           "documentation": "Add the public Starlink constellation to the recovered Eyes Earth entity.\n\nOrbitalParticlesComponent projects each particle from a Pioneer\nOrbitalElements record on every frame, so 11k satellites stay on one\ninstanced draw without creating 11k Eyes entities or labels.",
           "line": 13,
-          "endLine": 52,
+          "endLine": 88,
           "async": true,
           "params": [
             "scene"
@@ -2768,12 +2769,22 @@
           "endLine": 45,
           "async": true,
           "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 52,
+          "endLine": 52,
+          "async": false,
+          "params": [
+            "satellite"
+          ]
         }
       ],
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "3f39dc1c198076ab0483700c08a94e6b8c2da70f23f53e9163093875255a7afc",
+      "semanticHash": "1ea0f90930ca76573a1b86f414df49f160b723a65bc4fd86ff4f406637594c55",
       "dependencies": [
         "eyes/src/engine/pioneer/index.js"
       ],
@@ -4931,8 +4942,8 @@
     },
     {
       "file": "eyes/src/data/starlink-orbits.json",
-      "bytes": 1813395,
-      "sha256": "468b834c2359d85a53505badf549c92eced518f44f30a4485665de9be64d6512",
+      "bytes": 1880301,
+      "sha256": "f61a5d8e41952a300905ae562d098aeadd95931f66277380657cd1031e63790a",
       "purpose": "Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��",
       "confidence": "observed",
       "origin": null,
@@ -135021,6 +135032,68 @@
         "eyes/src/styles/extracted/VendorStyles.js",
         "eyes/src/app/SolarSystemApp.js"
       ],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/models/starlink/manifest.json",
+      "bytes": 898,
+      "sha256": "23c043333aa64d07920b6571e196ce15aacf7fcd8ee36d8545b0e71b6aa45707",
+      "purpose": "Starlink Gen1/Gen2/Gen3 模型库清单：编号带、GLB 文件、许可证与来源说明。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "data": {
+        "kind": "object",
+        "entries": 4,
+        "keys": [
+          "schemaVersion",
+          "license",
+          "origin",
+          "generations"
+        ]
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/models/starlink/starlink-gen1.glb",
+      "bytes": 51148,
+      "sha256": "c82eb5edabcb8d2b158fa74e8d27def79459575a84f15e924334d607530276a4",
+      "purpose": "Gen1（v1.0/v1.5）干净房低模，供 Eyes 采样展示与 Explorer 选中卫星使用。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/models/starlink/starlink-gen2.glb",
+      "bytes": 61380,
+      "sha256": "ab110f5adbc1037f8098f862d298e1d74bf9451b5a5e75d4a3eb41fe9d7dc7cc",
+      "purpose": "Gen2（v2 Mini）干净房低模，双太阳翼。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/models/starlink/starlink-gen3.glb",
+      "bytes": 62052,
+      "sha256": "a383edb15beaaa373ecffe64ea2c0ad324005051001bae60820a0686d36583d5",
+      "purpose": "Gen3（V3）干净房低模，Starship 级包络。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
       "dependents": []
     },
     {

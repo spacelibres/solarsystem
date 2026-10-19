@@ -44,6 +44,42 @@ export async function attachStarlinkLayer(scene) {
       return { orbitalElements, colors, scales };
     });
     component.setForceLoaded(true);
+
+    // One display model per generation, placed at the first satellite in that
+    // numbering band. The full constellation stays a particle cloud; these
+    // samples make the three model libraries visible at Earth close-up.
+    for (const generation of [1, 2, 3]) {
+      const sample = catalogue.satellites.find(satellite => (satellite.g ?? (satellite.n >= 40000 ? 3 : satellite.n >= 30000 ? 2 : 1)) === generation);
+      if (!sample) continue;
+      const modelEntity = scene.addEntity(`starlink_model_gen${generation}`);
+      modelEntity.setParent(earth);
+      modelEntity.setPosition(new Pioneer.Vector3(0, 0, 0));
+      modelEntity.setOrientation(Pioneer.Quaternion.Identity);
+      modelEntity.setOcclusionRadius(0);
+      modelEntity.setExtentsRadius(0.1);
+      const model = modelEntity.addComponent(Pioneer.ModelComponent, `starlink_model_${generation}`);
+      model.setUrl(`models/starlink/starlink-gen${generation}.glb`);
+      // Model geometry is authored in metres; 35 yields a ~100 km display
+      // marker at Earth close-up, not a physical-scale satellite.
+      model.setScale(35);
+      model.setForceLoaded(true);
+      const elements = new Pioneer.OrbitalElements();
+      elements.setFromPositionAndVelocity(
+        new Pioneer.Vector3(sample.p[0], sample.p[1], sample.p[2]),
+        new Pioneer.Vector3(sample.v[0], sample.v[1], sample.v[2]),
+        Pioneer.TimeUtils.unixToEt(sample.e),
+        EARTH_GM_KM3_S2,
+      );
+      const controller = modelEntity.addController(Pioneer.OrbitalElementsController);
+      controller.addOrbitalElements(Pioneer.TimeUtils.unixToEt(sample.e), {
+        eccentricity: elements.eccentricity,
+        semiMajorAxis: elements.semiMajorAxis,
+        meanAngularMotion: elements.meanAngularMotion,
+        meanAnomalyAtEpoch: elements.meanAnomalyAtEpoch,
+        epoch: elements.epoch,
+        orientation: elements.orientation,
+      });
+    }
     return entity;
   } catch (error) {
     console.warn('Starlink layer unavailable:', error);

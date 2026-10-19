@@ -8,8 +8,17 @@
  */
 
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { Vec3 } from '../../lib/dynamo/math';
-import { elementsFromState, starlinkOrbitRing, starlinkPosition, type StarlinkElements, type StarlinkOrbit } from '../domain/starlink';
+import {
+  STARLINK_MODEL_URLS,
+  elementsFromState,
+  starlinkGeneration,
+  starlinkOrbitRing,
+  starlinkPosition,
+  type StarlinkElements,
+  type StarlinkOrbit,
+} from '../domain/starlink';
 
 export interface StarlinkLayer {
   readonly group: THREE.Group;
@@ -29,20 +38,8 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
     if (elements) valid.push({ orbit, elements });
   }
 
-  const segments = 48;
   const pointPositions = new Float32Array(valid.length * 3);
-  const linePositions = new Float32Array(valid.length * segments * 2 * 3);
-  let lineOffset = 0;
-  valid.forEach(({ orbit, elements }, index) => {
-    const ring = starlinkOrbitRing(elements, segments);
-    for (let segment = 0; segment < segments; segment += 1) {
-      const next = (segment + 1) % segments;
-      for (const vertex of [segment, next]) {
-        linePositions[lineOffset++] = ring[vertex * 3];
-        linePositions[lineOffset++] = ring[vertex * 3 + 1];
-        linePositions[lineOffset++] = ring[vertex * 3 + 2];
-      }
-    }
+  valid.forEach(({ orbit }, index) => {
     pointPositions[index * 3] = orbit.p[0];
     pointPositions[index * 3 + 1] = orbit.p[1];
     pointPositions[index * 3 + 2] = orbit.p[2];
@@ -67,6 +64,19 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   let selectedGeometry: THREE.BufferGeometry | null = null;
   let selectedMaterial: THREE.LineBasicMaterial | null = null;
   const byNumber = new Map(valid.map(entry => [entry.orbit.n, entry]));
+  const modelLoader = new GLTFLoader();
+  const modelCache = new Map<number, Promise<THREE.Group>>();
+  let selectedNumber: number | null = null;
+  let selectedModel: THREE.Group | null = null;
+  let modelToken = 0;
+  const modelForGeneration = (generation: 1 | 2 | 3) => {
+    let pending = modelCache.get(generation);
+    if (!pending) {
+      pending = modelLoader.loadAsync(STARLINK_MODEL_URLS[generation]).then(gltf => gltf.scene);
+      modelCache.set(generation, pending);
+    }
+    return pending;
+  };
 
   const layer: StarlinkLayer = {
     group,
@@ -83,9 +93,26 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
         selectedGeometry = null;
         selectedMaterial = null;
       }
+      selectedNumber = number;
+      const token = ++modelToken;
+      if (selectedModel) {
+        selectedModel.removeFromParent();
+        selectedModel = null;
+      }
       if (number === null) return;
       const entry = byNumber.get(number);
       if (!entry) return;
+      const generation = entry.orbit.g ?? starlinkGeneration(number);
+      void modelForGeneration(generation).then(scene => {
+        if (token !== modelToken || selectedNumber !== number) return;
+        const model = scene.clone(true);
+        // The generated model is authored in metres; show it as a compact
+        // selected-satellite marker rather than pretending to be physical scale.
+        model.scale.setScalar(35);
+        model.name = `starlink-model-gen${generation}`;
+        selectedModel = model;
+        group.add(model);
+      }).catch(error => console.warn('Starlink model unavailable:', error));
       const ring = starlinkOrbitRing(entry.elements, 128);
       const geometry = new THREE.BufferGeometry();
       geometry.setAttribute('position', new THREE.BufferAttribute(ring, 3));
@@ -110,6 +137,13 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
         array[index * 3 + 2] = position.z;
       }
       attribute.needsUpdate = true;
+      if (selectedModel && selectedNumber !== null) {
+        const entry = byNumber.get(selectedNumber);
+        if (entry) {
+          const satellite = starlinkPosition(entry.elements, timeEt);
+          selectedModel.position.set(satellite.x, satellite.y, satellite.z);
+        }
+      }
     },
     dispose() {
       group.removeFromParent();
@@ -117,6 +151,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
       pointMaterial.dispose();
       selectedGeometry?.dispose();
       selectedMaterial?.dispose();
+      selectedModel?.removeFromParent();
     },
   };
   layer.setVisible(false);

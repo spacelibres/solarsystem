@@ -3,12 +3,14 @@ import { describe, expect, it } from 'vitest';
 import {
   EARTH_MU_KM3_S2,
   elementsFromState,
+  starlinkGeneration,
   starlinkOrbitRing,
   starlinkPeriodMinutes,
   starlinkPosition,
   type StarlinkOrbit,
 } from '../src/solar/domain/starlink';
 import catalog from '../src/data/starlink-orbits.json';
+import { readFileSync } from 'node:fs';
 
 /** First public state from STARLINK-1008, rotated from ITRF2000 to inertial. */
 const SAMPLE: StarlinkOrbit = {
@@ -80,5 +82,30 @@ describe('Starlink catalogue', () => {
       expect(elementsFromState(satellite as unknown as StarlinkOrbit)).not.toBeNull();
     }
     expect(catalog.satellites.some(satellite => satellite.n === 34567)).toBe(true);
+  });
+});
+
+describe('Starlink generation model libraries', () => {
+  it('maps public numbering bands to the three model libraries', () => {
+    expect(starlinkGeneration(1008)).toBe(1);
+    expect(starlinkGeneration(29999)).toBe(1);
+    expect(starlinkGeneration(30000)).toBe(2);
+    expect(starlinkGeneration(39999)).toBe(2);
+    expect(starlinkGeneration(40000)).toBe(3);
+    expect(starlinkGeneration(40103)).toBe(3);
+  });
+
+  it('ships a GLB for each generation', () => {
+    for (const generation of [1, 2, 3]) {
+      const file = readFileSync(`eyes/src/models/starlink/starlink-gen${generation}.glb`);
+      expect(file.subarray(0, 4).toString('ascii')).toBe('glTF');
+      expect(file.byteLength).toBeGreaterThan(10_000);
+    }
+  });
+
+  it('resolves every catalogued satellite to a generation with a model', () => {
+    for (const satellite of catalog.satellites.slice(0, 500)) {
+      expect([1, 2, 3]).toContain(satellite.g ?? starlinkGeneration(satellite.n));
+    }
   });
 });

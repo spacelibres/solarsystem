@@ -10,7 +10,7 @@ import { ExplorerRuntime, type ExplorerSnapshot } from '../runtime/explorer-runt
 import { createRenderWorld, type RenderDiagnostics, type RenderWorld } from '../render/render-world';
 import { etDateInput, formatEtUtc, utcInputToEt } from './format';
 import starlinkData from '../../data/starlink-orbits.json';
-import type { StarlinkOrbit } from '../domain/starlink';
+import { starlinkGeneration, type StarlinkOrbit } from '../domain/starlink';
 import styles from './Explorer.module.css';
 export interface ExplorerDebugApi {
     snapshot(): {
@@ -189,7 +189,7 @@ export default function Explorer() {
         worldRef.current?.setLayers({ starlink: true });
         worldRef.current?.setStarlinkSelection(number);
         navigate('earth', 'body');
-        setNotice(`已高亮 STARLINK-${number} 的显示轨道（目录共 ${STARLINK.count.toLocaleString('zh-CN')} 颗）。`);
+        setNotice(`已高亮 STARLINK-${number}（Gen${starlinkGeneration(number)} 3D 模型）的显示轨道，目录共 ${STARLINK.count.toLocaleString('zh-CN')} 颗。`);
     };
     const perform = (action: (runtime: ExplorerRuntime) => void) => {
         const runtime = runtimeRef.current;
@@ -288,7 +288,7 @@ export default function Explorer() {
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>
           <div className={styles.starlinkControls}>
-            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')}){selectedStarlink !== null ? ` · STARLINK-${selectedStarlink}` : ''}</label>
+            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')}){selectedStarlink !== null ? ` · STARLINK-${selectedStarlink} · Gen${starlinkGeneration(selectedStarlink)}` : ''}</label>
             <div className={styles.starlinkPicker}>
               <input type="text" value={starlinkNumber} placeholder="STARLINK-34567" aria-label="Starlink 编号" onChange={event => setStarlinkNumber(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') loadStarlink(); }} />
               <button onClick={loadStarlink}>定位轨道</button>

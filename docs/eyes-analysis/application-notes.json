@@ -47966,6 +47966,54 @@
       "notes": [],
       "renames": [],
       "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/models/starlink/manifest.json": {
+      "purpose": "Starlink Gen1/Gen2/Gen3 模型库清单：编号带、GLB 文件、许可证与来源说明。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "browser verification"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/models/starlink/starlink-gen1.glb": {
+      "purpose": "Gen1（v1.0/v1.5）干净房低模，供 Eyes 采样展示与 Explorer 选中卫星使用。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "browser verification"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/models/starlink/starlink-gen2.glb": {
+      "purpose": "Gen2（v2 Mini）干净房低模，双太阳翼。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "browser verification"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/models/starlink/starlink-gen3.glb": {
+      "purpose": "Gen3（V3）干净房低模，Starship 级包络。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "browser verification"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

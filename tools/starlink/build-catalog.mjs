@@ -87,8 +87,10 @@ function parseOcm(text, fallbackNumber) {
   const velocity = values.slice(3, 6);
   const isEarthFixed = (frameMatch?.[1] || '').toUpperCase().includes('ITRF') || (frameMatch?.[1] || '').toUpperCase().includes('ECEF');
   const [p, v] = isEarthFixed ? ecefToEci(epoch / 1000, position, velocity) : [position, velocity];
+  const number = Number(fallbackNumber);
   return {
-    n: Number(fallbackNumber),
+    n: number,
+    g: number >= 40000 ? 3 : number >= 30000 ? 2 : 1,
     name: nameMatch?.[1] || `STARLINK-${fallbackNumber}`,
     e: Math.round(epoch / 1000),
     p,

@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 253 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 257 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -314,6 +314,30 @@ Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ�
 启动入口：先加载 preload，再初始化应用依赖图。[源码](../../eyes/src/main.js)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-main-js)
+
+## `eyes/src/models/starlink/manifest.json`
+
+Starlink Gen1/Gen2/Gen3 模型库清单：编号带、GLB 文件、许可证与来源说明。。[源码](../../eyes/src/models/starlink/manifest.json)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-models-starlink-manifest-json)
+
+## `eyes/src/models/starlink/starlink-gen1.glb`
+
+Gen1（v1.0/v1.5）干净房低模，供 Eyes 采样展示与 Explorer 选中卫星使用。。[源码](../../eyes/src/models/starlink/starlink-gen1.glb)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-models-starlink-starlink-gen1-glb)
+
+## `eyes/src/models/starlink/starlink-gen2.glb`
+
+Gen2（v2 Mini）干净房低模，双太阳翼。。[源码](../../eyes/src/models/starlink/starlink-gen2.glb)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-models-starlink-starlink-gen2-glb)
+
+## `eyes/src/models/starlink/starlink-gen3.glb`
+
+Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/models/starlink/starlink-gen3.glb)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-models-starlink-starlink-gen3-glb)
 
 ## `eyes/src/runtime/decoder-paths.js`
 
