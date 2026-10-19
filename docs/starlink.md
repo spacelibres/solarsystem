@@ -78,6 +78,15 @@ ode tools/starlink/build-dyn.mjs writes three generation samples under
   dynamo controllers/downloads would be prohibitive. Selected satellites and the
   three generation samples use the shared .dyn format.
 
+### Explorer selected tracks
+
+The Explorer has the same .dyn path: selecting a Starlink satellite requests
+/api/starlink-dyn?n=<number>, parses the returned dynamo v2 file with the
+shared reader, and updates a NASA-style TrailRibbon orbit. The first 12
+selections also load their generation model, positioned by interpolating the
+same dynamo samples. Up to 60 selections get exact tracks; larger sets keep the
+point cloud and a catalogue-derived fallback ring.
+
 ## Satellite picker and filters
 
 The Explorer sidebar's **选择卫星** button opens a multi-select picker rather than

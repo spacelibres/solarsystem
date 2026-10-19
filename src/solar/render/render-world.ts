@@ -464,7 +464,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 const focus = state.frames.get(selectedId), ready = focus?.status === 'ready';
                 if (starlink && starlinkEnabled && ready) {
                     const earth = state.frames.get('earth');
-                    if (earth?.status === 'ready') starlink.update(state.clock.timeEt, earth.position, focus.position);
+                    if (earth?.status === 'ready') { starlink.setViewport(viewportWidth, viewportHeight); starlink.update(state.clock.timeEt, earth.position, focus.position); }
                 }
                 const key = `${selectedId}:${mode}`;
                 if (ready && framedKey !== key) {

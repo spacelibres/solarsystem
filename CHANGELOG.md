@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.62 - 2026-10-19
+
+Bring the same dynamo pipeline to the Explorer. Selected Starlink satellites now
+request a generated .dyn from /api/starlink-dyn, parse it with the shared
+dynamo reader, and draw their orbit with the same TrailRibbon used by NASA
+bodies instead of the old flat line. The selected models interpolate their
+position from the dynamo samples. Up to 60 selections load exact tracks; the
+all-satellite overview remains a single point cloud for performance.
+
 ## 0.2.61 - 2026-10-19
 
 Convert Starlink sample orbits to the recovered Eyes dynamo (pos .dyn)

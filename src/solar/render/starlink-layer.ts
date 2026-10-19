@@ -1,15 +1,17 @@
 /**
  * GPU-light Starlink constellation layer.
  *
- * All satellites share one Points draw. A selection merges every chosen orbit
- * ring into one LineSegments draw; the first dozen selections additionally load
- * their generation-specific GLB model. The layer is positioned at Earth each
- * frame; coordinates remain Earth-centred inertial kilometres.
+ * All satellites share one Points draw. Selected satellites get NASA-style
+ * fading TrailRibbon orbits; the first dozen also load a generation model.
+ * Detailed selected tracks come from the dynamo API when available, falling back
+ * to the compact catalogue. The layer is anchored to Earth each frame.
  */
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import type { Vec3 } from '../../lib/dynamo/math';
+import { parseDyn, type PosPoint } from '../../lib/dynamo/parse';
+import { TrailRibbon } from './trail-ribbon';
 import {
   STARLINK_MODEL_URLS,
   elementsFromState,
@@ -26,12 +28,40 @@ export interface StarlinkLayer {
   setVisible(visible: boolean): void;
   setSelection(numbers: readonly number[]): void;
   setSelected(number: number | null): void;
+  setViewport(width: number, height: number): void;
   update(timeEt: number, earthPosition: Vec3, focusPosition: Vec3): void;
   dispose(): void;
 }
 
 const MAX_SELECTED_MODELS = 12;
-const SELECTED_ORBIT_SEGMENTS = 64;
+const MAX_DYN_TRACKS = 60;
+const ORBIT_SEGMENTS = 128;
+
+type Track = {
+  ribbon: TrailRibbon;
+  dyn: PosPoint[] | null;
+};
+
+function interpolate(points: readonly PosPoint[], time: number) {
+  if (points.length === 0) return null;
+  if (time <= points[0].time) return points[0].position;
+  if (time >= points[points.length - 1].time) return points[points.length - 1].position;
+  let low = 0;
+  let high = points.length - 1;
+  while (high - low > 1) {
+    const middle = (low + high) >> 1;
+    if (points[middle].time <= time) low = middle;
+    else high = middle;
+  }
+  const before = points[low];
+  const after = points[high];
+  const f = (time - before.time) / (after.time - before.time);
+  return {
+    x: before.position.x + (after.position.x - before.position.x) * f,
+    y: before.position.y + (after.position.y - before.position.y) * f,
+    z: before.position.z + (after.position.z - before.position.z) * f,
+  };
+}
 
 export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkLayer {
   const group = new THREE.Group();
@@ -48,7 +78,6 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
     pointPositions[index * 3 + 1] = orbit.p[1];
     pointPositions[index * 3 + 2] = orbit.p[2];
   });
-
   const pointGeometry = new THREE.BufferGeometry();
   pointGeometry.setAttribute('position', new THREE.BufferAttribute(pointPositions, 3));
   const pointMaterial = new THREE.PointsMaterial({
@@ -65,15 +94,14 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   group.add(points);
 
   let lastPointTime = Number.NEGATIVE_INFINITY;
-  const panelNormal = new THREE.Vector3(0, 0, 1);
-  const sunDirection = new THREE.Vector3();
   const byNumber = new Map(valid.map(entry => [entry.orbit.n, entry]));
   const modelLoader = new GLTFLoader();
   const modelCache = new Map<number, Promise<THREE.Group>>();
+  const tracks = new Map<number, Track>();
+  const models = new Map<number, THREE.Group>();
   let selectedNumbers: readonly number[] = [];
-  let selectedOrbitLine: THREE.LineSegments | null = null;
-  const selectedModels = new Map<number, THREE.Group>();
   let selectionToken = 0;
+  let viewport = { width: 1440, height: 900 };
 
   const modelForGeneration = (generation: 1 | 2 | 3) => {
     let pending = modelCache.get(generation);
@@ -85,14 +113,44 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   };
 
   const clearSelection = () => {
-    if (selectedOrbitLine) {
-      selectedOrbitLine.removeFromParent();
-      selectedOrbitLine.geometry.dispose();
-      (selectedOrbitLine.material as THREE.Material).dispose();
-      selectedOrbitLine = null;
+    for (const track of tracks.values()) {
+      track.ribbon.removeFromParent();
+      track.ribbon.geometry.dispose();
+      (track.ribbon.material as THREE.Material).dispose();
     }
-    for (const model of selectedModels.values()) model.removeFromParent();
-    selectedModels.clear();
+    tracks.clear();
+    for (const model of models.values()) model.removeFromParent();
+    models.clear();
+  };
+
+  const makeTrack = (number: number, entry: { orbit: StarlinkOrbit; elements: StarlinkElements }, index: number, token: number) => {
+    const ribbon = new TrailRibbon(256);
+    ribbon.setResolution(viewport.width, viewport.height);
+    ribbon.setOrbitStyle(index === 0 ? 0x7fe3ff : 0xffd166, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+    ribbon.raycast = () => {};
+    const ring = starlinkOrbitRing(entry.elements, ORBIT_SEGMENTS).reduce<Vec3[]>((list, _, offset, array) => {
+      if (offset % 3 === 0) list.push({ x: array[offset], y: array[offset + 1], z: array[offset + 2] });
+      return list;
+    }, []);
+    ribbon.update(ring, true);
+    group.add(ribbon);
+    const track: Track = { ribbon, dyn: null };
+    tracks.set(number, track);
+
+    if (index < MAX_DYN_TRACKS) {
+      void fetch(`/api/starlink-dyn?n=${number}`)
+        .then(response => response.ok ? response.arrayBuffer() : Promise.reject(new Error(`HTTP ${response.status}`)))
+        .then(buffer => {
+          if (token !== selectionToken || !selectedNumbers.includes(number)) return;
+          const parsed = parseDyn(buffer);
+          const points = parsed.points.filter((point): point is PosPoint => point.kind === 'pos');
+          if (points.length < 2) return;
+          track.dyn = points;
+          ribbon.update(points.map(point => point.position), true);
+          ribbon.setOrbitStyle(index === 0 ? 0x7fe3ff : 0xffd166, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+        })
+        .catch(error => console.warn(`Starlink ${number} dynamo trail unavailable:`, error));
+    }
   };
 
   const layer: StarlinkLayer = {
@@ -101,38 +159,21 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
     setVisible(visible: boolean) {
       group.visible = visible;
     },
+    setViewport(width: number, height: number) {
+      viewport = { width: Math.max(1, width), height: Math.max(1, height) };
+      for (const track of tracks.values()) track.ribbon.setResolution(viewport.width, viewport.height);
+    },
     setSelection(numbers: readonly number[]) {
       const unique = [...new Set(numbers)].filter(number => byNumber.has(number));
       selectionToken += 1;
       const token = selectionToken;
       clearSelection();
       selectedNumbers = unique;
-      if (unique.length > 0) {
-        const positions = new Float32Array(unique.length * SELECTED_ORBIT_SEGMENTS * 2 * 3);
-        let offset = 0;
-        for (const number of unique) {
-          const entry = byNumber.get(number);
-          if (!entry) continue;
-          const ring = starlinkOrbitRing(entry.elements, SELECTED_ORBIT_SEGMENTS);
-          for (let segment = 0; segment < SELECTED_ORBIT_SEGMENTS; segment += 1) {
-            const next = (segment + 1) % SELECTED_ORBIT_SEGMENTS;
-            for (const vertex of [segment, next]) {
-              positions[offset++] = ring[vertex * 3];
-              positions[offset++] = ring[vertex * 3 + 1];
-              positions[offset++] = ring[vertex * 3 + 2];
-            }
-          }
-        }
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions.subarray(0, offset), 3));
-        const material = new THREE.LineBasicMaterial({ color: 0xffd166, transparent: true, opacity: 0.65, depthWrite: false });
-        selectedOrbitLine = new THREE.LineSegments(geometry, material);
-        selectedOrbitLine.frustumCulled = false;
-        group.add(selectedOrbitLine);
-      }
-      unique.slice(0, MAX_SELECTED_MODELS).forEach(number => {
+      unique.forEach((number, index) => {
         const entry = byNumber.get(number);
         if (!entry) return;
+        makeTrack(number, entry, index, token);
+        if (index >= MAX_SELECTED_MODELS) return;
         const generation = entry.orbit.g ?? starlinkGeneration(number);
         void modelForGeneration(generation).then(scene => {
           if (token !== selectionToken || !selectedNumbers.includes(number)) return;
@@ -140,7 +181,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
           model.scale.setScalar(35);
           model.name = `starlink-model-gen${generation}-${number}`;
           model.traverse(object => { object.raycast = () => {}; });
-          selectedModels.set(number, model);
+          models.set(number, model);
           group.add(model);
         }).catch(error => console.warn('Starlink model unavailable:', error));
       });
@@ -162,15 +203,12 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
         array[index * 3 + 2] = position.z;
       }
       attribute.needsUpdate = true;
-      for (const [number, model] of selectedModels) {
+      for (const [number, model] of models) {
         const entry = byNumber.get(number);
         if (!entry) continue;
-        const satellite = starlinkPosition(entry.elements, timeEt);
+        const dynPosition = tracks.get(number)?.dyn ? interpolate(tracks.get(number)!.dyn!, timeEt) : null;
+        const satellite = dynPosition ?? starlinkPosition(entry.elements, timeEt);
         model.position.set(satellite.x, satellite.y, satellite.z);
-        // Solar wings are the XY planes of the generated model; point their
-        // +Z normal at the Sun so the panels track the light source.
-        sunDirection.set(-(earthPosition.x + satellite.x), -(earthPosition.y + satellite.y), -(earthPosition.z + satellite.z)).normalize();
-        if (sunDirection.lengthSq() > 0) model.quaternion.setFromUnitVectors(panelNormal, sunDirection);
       }
     },
     dispose() {
