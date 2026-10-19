@@ -99,7 +99,7 @@ function splitWhitespace(text) {
 }
 
 function translateCore(core, depth) {
-  if (!core) return null;
+  if (!core || depth > 8) return null;
   // Templates often keep source indentation inside a text node; collapse the
   // lookup form so "Show\n  More" still finds the catalogue entry.
   const lookup = core.replace(/\s+/g, ' ');
@@ -281,7 +281,7 @@ export function localizeElement(root) {
   if (!enabled || !root) return;
   if (root.nodeType === Node.TEXT_NODE) {
     const translated = translateText(root.nodeValue);
-    if (translated !== null) root.nodeValue = translated;
+    if (translated !== null && translated !== root.nodeValue) root.nodeValue = translated;
     return;
   }
   if (!(root instanceof Element)) return;
@@ -300,7 +300,7 @@ export function localizeDocument(root = document.body) {
   if (!enabled || !root) return;
   if (root.nodeType === Node.TEXT_NODE) {
     const translated = translateText(root.nodeValue);
-    if (translated !== null) root.nodeValue = translated;
+    if (translated !== null && translated !== root.nodeValue) root.nodeValue = translated;
     return;
   }
   if (!(root instanceof Element)) return;
@@ -319,7 +319,7 @@ export function localizeDocument(root = document.body) {
   while (node) {
     if (node.nodeType === Node.TEXT_NODE) {
       const translated = translateText(node.nodeValue);
-      if (translated !== null) node.nodeValue = translated;
+      if (translated !== null && translated !== node.nodeValue) node.nodeValue = translated;
     } else if (node instanceof Element && node.hasAttribute(HTML_ATTRIBUTE)) {
       localizeHtmlBlock(node);
     } else if (node instanceof Element) {

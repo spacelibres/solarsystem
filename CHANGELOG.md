@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.54 - 2026-10-19
+
+Fix the German language freeze on the Eyes home screen. The DOM translation
+observer wrote translated text even when the result was identical to the current
+node value (Orbiters/Landers fall back to singular German Orbiter/Lander),
+which retriggered its own character-data mutation and blocked the main thread.
+Text nodes are now only written when the value actually changes, with a German
+identity-fallback regression test. Verified the home route stays responsive in
+German, French, Chinese, Japanese, Arabic and Hindi.
+
 ## 0.2.53 - 2026-10-19
 
 Show the same 11,151-satellite Starlink catalogue in the recovered Eyes

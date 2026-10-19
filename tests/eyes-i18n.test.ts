@@ -193,6 +193,16 @@ describe('display translation engine', () => {
     expect(translateText('unchanged sentence')).toBeNull();
   });
 
+  it('keeps German plural fallbacks identity so the DOM observer does not loop', () => {
+    configure(getLocale('de')!, english);
+    // "Orbiters"/"Landers" fall back to their singular German translations.
+    // The observer must not rewrite a text node with the same value again.
+    expect(translateText('Orbiters')).toBe('Orbiter');
+    expect(translateText('Orbiter')).toBe('Orbiter');
+    expect(translateText('Landers')).toBe('Lander');
+    expect(translateText('Lander')).toBe('Lander');
+  });
+
   it('uses entity-gated patterns and recursively translates captures', () => {
     configure(synthetic(), english);
     expect(translateText('Earth compared to Mars')).toBe('Earth-localized versus Mars-localized');

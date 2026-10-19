@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "e6a801aa36522d33eba494bc2eaa985c54cf7e921fe151990c99320ed0aae8bc",
+      "sha256": "0989068dfdd581a8e7e0db5a41f69c3ac56c0b264eeabf36219854b7f012daaa",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "1e9f49c2780aa6e868e2fc765b9504a1f2fdf40d5fe435685f37ff247b2d8594",
+      "sha256": "738baee6b1c4aca35a37c779628c95ddb840bbefb85fb3a63b3cfefe70efd9c5",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -132671,8 +132671,8 @@
     },
     {
       "file": "eyes/src/i18n/core.js",
-      "bytes": 14783,
-      "sha256": "99cfd03a3d019a926401c18d1b823c78cdaf2ea1c9aeaa57f7c9cf5b03b53210",
+      "bytes": 14895,
+      "sha256": "9de4b14b59c5326c9a9b3f10efc5599ad2dad36decd8cbd0ff988fd8a84e02b2",
       "purpose": "显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。",
       "confidence": "observed",
       "origin": null,
@@ -133054,7 +133054,7 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 2,
-      "semanticHash": "22fb05b32add2919e986f9986ce545cc024cef67578ab5b4a3bcf2cd0960a4af",
+      "semanticHash": "3fd4b9eb1d4a25398fa91b857dfd3e67a8d5c50b784d3da960080549028db8fd",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/install.js",
