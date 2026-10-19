@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.60 - 2026-10-19
+
+Remove the white flash when selecting Earth in the Explorer. Earth's spheroid
+face used a white material until remote texture tiles arrived; it now starts from
+a dark Earth-blue fallback, so clicks no longer produce a white globe. Earth's
+name label is also exempted from body occlusion so it stays clickable at the
+overview distance, while satellite labels behind Earth remain hidden. Combined
+with the unpickable Starlink display objects in 0.2.59, clicking Earth selects
+the planet instead of flashing and clearing the selection.
+
 ## 0.2.59 - 2026-10-19
 
 Prevent the Starlink display layer from interfering with scene selection. In

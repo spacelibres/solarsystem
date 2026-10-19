@@ -256,7 +256,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             else {
                 for (let face = 0; face < 6; face++) {
                     const geometry = createSpheroidFace(face, definition.radiusKm, definition.polarRadiusKm ?? definition.radiusKm, definition.planetographic ?? true);
-                    const material = definition.kind === 'star' ? new THREE.MeshBasicMaterial({ color: 0xffffff }) : new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 });
+                    const material = definition.kind === 'star' ? new THREE.MeshBasicMaterial({ color: 0xffffff }) : new THREE.MeshStandardMaterial({ color: definition.id === 'earth' ? 0x2f4d6b : 0xffffff, roughness: 1, metalness: 0 });
                     const mesh = new THREE.Mesh(geometry, material);
                     mesh.userData.entityId = definition.id;
                     group.add(mesh);
@@ -626,7 +626,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 for (const [id, visual] of [...visuals].sort(([a], [b]) => a === selectedId ? -1 : b === selectedId ? 1 : 0)) {
                     if (!labelsEnabled || !visual.group.visible)
                         continue;
-                    if (labelOccludedBySphere(visual.group.position, camera.position, occluders, id)) {
+                    if (id !== selectedId && id !== 'earth' && labelOccludedBySphere(visual.group.position, camera.position, occluders, id)) {
                         visual.label.hidden = true;
                         visual.leader.hidden = true;
                         visual.marker.hidden = true;
