@@ -1,0 +1,161 @@
+/* spacelibre locale layer: language picker plus typography and generated-content
+   adaptations. Loaded after the recovered app styles so it only overrides what
+   translation needs. */
+
+/* CSS-generated labels cannot be reached by the DOM translator, so the runtime
+   writes the active locale into these custom properties. */
+.tutorial-carousel .swiper-button-prev:after,
+.panel-content .swiper-button-prev:after {
+  content: var(--i18n-previous, "Previous");
+}
+.tutorial-carousel .swiper-button-next:after,
+.panel-content .swiper-button-next:after {
+  content: var(--i18n-next, "Next");
+}
+#static-ui > div.follow-reframe:after {
+  content: var(--i18n-reframing, "Re-framing follow camera");
+}
+
+.spacelibre-lang-trigger {
+  align-items: center;
+  background: rgba(0, 0, 0, .55);
+  border: 1px solid var(--grayDark, #4a4a55);
+  border-radius: 2px;
+  color: var(--white, #fff);
+  cursor: pointer;
+  display: flex;
+  font-family: Metropolis, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  height: 30px;
+  justify-content: center;
+  letter-spacing: .04em;
+  margin: 0;
+  outline: 0;
+  padding: 0 4px;
+  pointer-events: auto;
+  width: 30px;
+}
+.spacelibre-lang-trigger:hover,
+.spacelibre-lang-trigger:focus-visible {
+  border-color: var(--white, #fff);
+  color: var(--white, #fff);
+}
+.settings.horizontal .spacelibre-lang-trigger {
+  margin-left: 2px;
+}
+.settings .spacelibre-lang-trigger .spacelibre-lang-code {
+  opacity: 1;
+}
+
+.spacelibre-lang-panel {
+  background: rgba(4, 10, 20, .96);
+  border: 1px solid var(--grayDark, #4a4a55);
+  border-radius: 4px;
+  bottom: 118px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+  color: var(--white, #fff);
+  display: flex;
+  flex-direction: column;
+  max-height: min(66vh, 620px);
+  min-width: 250px;
+  padding: 16px 16px 12px;
+  position: fixed;
+  right: 56px;
+  z-index: 10050;
+}
+.spacelibre-lang-title {
+  font-family: Metropolis, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  margin: 0 24px 10px 4px;
+  text-transform: uppercase;
+}
+.spacelibre-lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+.spacelibre-lang-option {
+  align-items: baseline;
+  background: transparent;
+  border: 0;
+  border-radius: 3px;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  padding: 8px 10px;
+  text-align: left;
+  width: 100%;
+}
+.spacelibre-lang-option:hover,
+.spacelibre-lang-option:focus-visible {
+  background: rgba(255, 255, 255, .1);
+}
+.spacelibre-lang-option.active {
+  background: rgba(62, 99, 221, .28);
+}
+.spacelibre-lang-native {
+  font-family: Metropolis, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+.spacelibre-lang-english {
+  color: var(--gray, #95959d);
+  font-family: Metropolis, sans-serif;
+  font-size: 10px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.spacelibre-lang-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+/* CJK text needs a fallback that Metropolis does not provide; icon fonts are
+   excluded so the original icon glyphs keep rendering. */
+html:lang(zh-CN) body :not(.icon):not([class^="icon"]):not([class*=" icon"]),
+html:lang(zh-TW) body :not(.icon):not([class^="icon"]):not([class*=" icon"]),
+html:lang(ja) body :not(.icon):not([class^="icon"]):not([class*=" icon"]),
+html:lang(ko) body :not(.icon):not([class^="icon"]):not([class*=" icon"]) {
+  font-family: Metropolis, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", "Noto Sans JP", "Noto Sans KR", sans-serif;
+}
+html:lang(zh-CN) .tutorial-carousel .swiper-button-prev:after,
+html:lang(zh-CN) .tutorial-carousel .swiper-button-next:after,
+html:lang(zh-TW) .tutorial-carousel .swiper-button-prev:after,
+html:lang(zh-TW) .tutorial-carousel .swiper-button-next:after,
+html:lang(ja) .tutorial-carousel .swiper-button-prev:after,
+html:lang(ja) .tutorial-carousel .swiper-button-next:after,
+html:lang(ko) .tutorial-carousel .swiper-button-prev:after,
+html:lang(ko) .tutorial-carousel .swiper-button-next:after {
+  font-family: Metropolis, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+}
+
+/* Longer Germanic and Cyrillic labels need a little more room and looser
+   line-height inside the compact control clusters. */
+html[data-locale="de"] .settings .lighting-option .title,
+html[data-locale="ru"] .settings .lighting-option .title {
+  font-size: 9px;
+  letter-spacing: 0;
+  line-height: 1.15;
+}
+html[data-locale="de"] .menu-btn,
+html[data-locale="ru"] .menu-btn,
+html[data-locale="pt-BR"] .menu-btn {
+  letter-spacing: 0;
+}
+
+@media (max-width: 900px) {
+  .spacelibre-lang-panel {
+    bottom: 92px;
+    left: 16px;
+    max-height: 60vh;
+    min-width: 0;
+    right: 16px;
+  }
+}

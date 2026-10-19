@@ -21,6 +21,9 @@ const config = [
       'eyes/src/**',
       'eyes/dist/**',
       'eyes/.cache/**',
+      // Scratch translation/chunk staging used by the i18n authoring tools.
+      '.tmp-*',
+      '.tmp-*/**',
     ],
   },
 ];

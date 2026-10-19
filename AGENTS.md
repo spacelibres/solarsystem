@@ -37,6 +37,7 @@ in `(v<version>)`, then create and push an annotated tag `v<version>`.
 
 ```
 eyes/              Editable recovered NASA application (native ESM/CJS/templates)
+eyes/src/i18n/     display-language catalogues and DOM translation layer
 src/app/           Next.js host pages (default redirects to eyes output)
 src/components/    scene + UI components
 src/lib/dynamo/    the .dyn parser, loader and orbit geometry

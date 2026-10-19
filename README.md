@@ -18,6 +18,10 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - [Application entry](eyes/src/app/SolarSystemApp.js)
 - [Component layout](eyes/src/app/config/components.js), [views](eyes/src/app/config/views.js), [settings](eyes/src/app/config/settings.js)
 - [HTML templates](eyes/src/ui/templates/), [engine](eyes/src/engine/), [shared Eyes framework](eyes/src/framework/eyes/)
+- [Multi-language display layer](docs/i18n.md): English, Simplified/Traditional
+  Chinese, Japanese, Korean, French, German, Spanish, Brazilian Portuguese and
+  Russian; follows the browser language and switches from the settings cluster
+  (`?lang=<code>` also works).
 - `npm run eyes:build`: compile and publish the editable source to the local host.
 - `npm run eyes:check`: audit source syntax and import resolution.
 - `cd eyes && npm ci && npm run dev`: independent source project on port 3002.

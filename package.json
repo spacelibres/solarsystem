@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.49",
+  "version": "0.2.50",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",
@@ -15,7 +15,7 @@
     "pretest": "npm run eyes:build",
     "test": "vitest run && node --test --test-concurrency=2 tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs tools/semantic-*.node-check.cjs",
     "test:watch": "vitest",
-    "check": "npm run typecheck && npm run lint && npm run eyes:check && npm run eyes:analyze:check",
+    "check": "npm run typecheck && npm run lint && npm run eyes:check && npm run eyes:analyze:check && npm run i18n:check",
     "mirror:park": "node scripts/park-mirror.mjs park",
     "mirror:restore": "node scripts/park-mirror.mjs restore",
     "eyes:recover": "node tools/recover-native-eyes.cjs",
@@ -25,6 +25,9 @@
     "decoders:cache": "node eyes/scripts/decoder-cache.mjs",
     "eyes:analyze": "node tools/analyze-eyes.cjs build",
     "eyes:analyze:check": "node tools/analyze-eyes.cjs check",
+    "i18n:apply": "node tools/i18n-apply.mjs",
+    "i18n:check": "node tools/i18n-audit.mjs --strict",
+    "i18n:browser": "node tools/i18n-browser-audit.mjs",
     "solar:catalog": "node tools/compile-solar-catalog.cjs",
     "solar:catalog:check": "node tools/compile-solar-catalog.cjs --check"
   },

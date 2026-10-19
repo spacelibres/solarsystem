@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 224 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 238 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -134,6 +134,90 @@ Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/d
 公共导出适配层，将已恢复模块按应用接口重新导出。[源码](../../eyes/src/framework/eyes/public-api.js)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-framework-eyes-public-api-js)
+
+## `eyes/src/i18n/core.js`
+
+显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。。[源码](../../eyes/src/i18n/core.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-core-js)
+
+## `eyes/src/i18n/index.js`
+
+支持语言的注册表、URL/存储/浏览器语言协商与区域标签归一化；只做纯数据解析，不接入 DOM。。[源码](../../eyes/src/i18n/index.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-index-js)
+
+## `eyes/src/i18n/install.js`
+
+在应用图求值前启用语言层：moment 本地化、AppUtils HTML 助手包装、标题/时间格式补丁、数字与日期 Intl 默认区域、搜索关键词本地化、MutationObserver 与语言选择器挂载。。[源码](../../eyes/src/i18n/install.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-install-js)
+
+## `eyes/src/i18n/locales/de.js`
+
+德语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/de.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-de-js)
+
+## `eyes/src/i18n/locales/en.js`
+
+英文源目录：界面消息、动态模式、实体与别名、类别/子类别、单位、入门 HTML 区块与站点描述；其他语言文件保持同构。。[源码](../../eyes/src/i18n/locales/en.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-en-js)
+
+## `eyes/src/i18n/locales/es.js`
+
+西班牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/es.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-es-js)
+
+## `eyes/src/i18n/locales/fr.js`
+
+法语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/fr.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-fr-js)
+
+## `eyes/src/i18n/locales/ja.js`
+
+日语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/ja.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-ja-js)
+
+## `eyes/src/i18n/locales/ko.js`
+
+韩语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/ko.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-ko-js)
+
+## `eyes/src/i18n/locales/pt-BR.js`
+
+巴西葡萄牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/pt-BR.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-pt-BR-js)
+
+## `eyes/src/i18n/locales/ru.js`
+
+俄语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/ru.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-ru-js)
+
+## `eyes/src/i18n/locales/zh-CN.js`
+
+简体中文翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/zh-CN.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-zh-CN-js)
+
+## `eyes/src/i18n/locales/zh-TW.js`
+
+繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/zh-TW.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-locales-zh-TW-js)
+
+## `eyes/src/i18n/switcher.js`
+
+设置区左上角注入的语言选择按钮与对话框；语言名保持本语言书写并标记 data-i18n-ignore，选择后持久化并带 lang 参数重载。。[源码](../../eyes/src/i18n/switcher.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-i18n-switcher-js)
 
 ## `eyes/src/main.js`
 

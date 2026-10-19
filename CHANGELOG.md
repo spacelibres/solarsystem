@@ -3,6 +3,30 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.50 - 2026-10-19
+
+Add an adaptive multi-language display layer to the recovered Eyes app:
+Simplified and Traditional Chinese, Japanese, Korean, French, German, Spanish,
+Brazilian Portuguese and Russian alongside English. The active language follows
+`?lang=` (URL or hash query), stored choice and browser languages, and the new
+settings-cluster language picker persists and reloads the current route in the
+chosen language.
+
+Translate all locally shipped display text without editing recovered component
+modules: templates, menus, search, tooltips and accessibility labels, settings
+and share/embed options, layer and time controls, clock, distance/telescope
+panels, stories and local catalogs, onboarding HTML, loading/embed, kiosk and
+tutorial strings. Localize dates, 24-hour clocks, numbers, document metadata and
+CSS-generated labels; add localized entity names and search keywords, CJK font
+fallbacks and long-label layout adaptations. NASA runtime descriptions, featured
+events and other network-served content remain in their source language.
+
+Add translation source catalogues with apply/audit tooling, a Playwright browser
+audit harness and an i18n test suite. Verified with `npm ci`, `npm test`
+(515 Vitest tests plus 229 Node checks), `npm run check` and `npm run build`;
+en/zh-CN/zh-TW/ja/ko/fr/es/pt-BR/ru passed the browser audit, with German page
+loading verified separately after a host GPU screenshot timeout.
+
 ## 0.2.49 - 2026-10-17
 
 Replace recovered Eyes loading, navigation and menu logos with official

@@ -2,11 +2,11 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1116,
-    "javascript": 1032,
+    "files": 1131,
+    "javascript": 1046,
     "classes": 552,
     "methods": 5514,
-    "shortBindings": 21753,
+    "shortBindings": 21762,
     "templates": 56
   },
   "cycles": [
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "f8f54a7fd00033028d66cd77706da8414468a5a75e3991761485a30a4c638049",
+      "sha256": "eebcf6847792d4f4553ba8bcfd6eae08410f1049231035d41e879e934b080ebe",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "4d85e3c5039d362fb7b1f5ec2d593b1b7fa1f39ae009894ddf9d746b214bca35",
+      "sha256": "296752b788b64f4620203600ee6df754914b846ffff1fd32112cbe807afbd469",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1409,9 +1409,22 @@
       "dependents": []
     },
     {
+      "file": "eyes/shell/i18n.css",
+      "bytes": 4781,
+      "sha256": "10fac31a91e9872370949ae65d3b91fe82c11ac925f7d3311cb1e0f213deb099",
+      "purpose": "语言层的补充样式：语言选择器、CJK 字体回退、德/俄长标签排版与 CSS 生成文案的本地化变量覆盖。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
       "file": "eyes/shell/index.html",
-      "bytes": 2664,
-      "sha256": "70ba370fca7a82cf59cecec2b81dd9d1f2ac34c62b82c0bd77c6aeab62442773",
+      "bytes": 2725,
+      "sha256": "a6da0f225906fe1bbd41d8ebc2e2b423319fde3a9e33cac6b68f444569abc538",
       "purpose": "应用宿主 DOM、配置及启动脚本；保持 NASA 原界面容器",
       "confidence": "observed",
       "origin": null,
@@ -4579,7 +4592,8 @@
       "dependencies": [],
       "dependents": [
         "eyes/src/app/PreloadManager.js",
-        "eyes/src/engine/core/BaseApp.js"
+        "eyes/src/engine/core/BaseApp.js",
+        "eyes/src/i18n/install.js"
       ]
     },
     {
@@ -131591,6 +131605,7 @@
         "eyes/src/engine/managers/SelectionManager-925.js",
         "eyes/src/engine/managers/TimeManager-922.js",
         "eyes/src/engine/managers/TrajectoryManager.js",
+        "eyes/src/i18n/install.js",
         "eyes/src/ui/components/CameraViewBlock.js",
         "eyes/src/ui/components/CollapsibleMenu.js",
         "eyes/src/ui/components/CollapsibleMenuItem.js",
@@ -132552,9 +132567,1601 @@
       ]
     },
     {
+      "file": "eyes/src/i18n/core.js",
+      "bytes": 14021,
+      "sha256": "bd9f78076cdb6cb548491f31deaffc652db9cd9ef69ebde0dc7fa5e03d120cd1",
+      "purpose": "显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "configure",
+          "local": "configure",
+          "line": 75
+        },
+        {
+          "exported": "getLocaleModule",
+          "local": "getLocaleModule",
+          "line": 83
+        },
+        {
+          "exported": "getEnglishModule",
+          "local": "getEnglishModule",
+          "line": 87
+        },
+        {
+          "exported": "isEnabled",
+          "local": "isEnabled",
+          "line": 91
+        },
+        {
+          "exported": "translateText",
+          "local": "translateText",
+          "line": 167
+        },
+        {
+          "exported": "translateTitle",
+          "local": "translateTitle",
+          "line": 176
+        },
+        {
+          "exported": "translateHtml",
+          "local": "translateHtml",
+          "line": 202
+        },
+        {
+          "exported": "localizeAttributes",
+          "local": "localizeAttributes",
+          "line": 224
+        },
+        {
+          "exported": "localizeElement",
+          "local": "localizeElement",
+          "line": 266
+        },
+        {
+          "exported": "localizeDocument",
+          "local": "localizeDocument",
+          "line": 285
+        },
+        {
+          "exported": "translateLocaleMetadata",
+          "local": "translateLocaleMetadata",
+          "line": 318
+        },
+        {
+          "exported": "currentMessages",
+          "local": "currentMessages",
+          "line": 338
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "compilePattern",
+          "documentation": "",
+          "line": 22,
+          "endLine": 25,
+          "async": false,
+          "params": [
+            "pattern"
+          ]
+        },
+        {
+          "name": "addMessages",
+          "documentation": "",
+          "line": 27,
+          "endLine": 32,
+          "async": false,
+          "params": [
+            "target",
+            "source"
+          ]
+        },
+        {
+          "name": "buildDictionary",
+          "documentation": "",
+          "line": 34,
+          "endLine": 73,
+          "async": false,
+          "params": [
+            "locale",
+            "english"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 71,
+          "endLine": 71,
+          "async": false,
+          "params": [
+            "pattern"
+          ]
+        },
+        {
+          "name": "configure",
+          "documentation": "",
+          "line": 75,
+          "endLine": 81,
+          "async": false,
+          "params": [
+            "locale",
+            "english"
+          ]
+        },
+        {
+          "name": "getLocaleModule",
+          "documentation": "",
+          "line": 83,
+          "endLine": 85,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "getEnglishModule",
+          "documentation": "",
+          "line": 87,
+          "endLine": 89,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "isEnabled",
+          "documentation": "",
+          "line": 91,
+          "endLine": 93,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "splitWhitespace",
+          "documentation": "Preserve surrounding whitespace so inline fragments keep their spacing.",
+          "line": 96,
+          "endLine": 99,
+          "async": false,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "translateCore",
+          "documentation": "",
+          "line": 101,
+          "endLine": 139,
+          "async": false,
+          "params": [
+            "core",
+            "depth"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 124,
+          "endLine": 124,
+          "async": false,
+          "params": [
+            "groupIndex"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 128,
+          "endLine": 132,
+          "async": false,
+          "params": [
+            "_",
+            "groupIndex"
+          ]
+        },
+        {
+          "name": "translateMeasurement",
+          "documentation": "Numbers and units are formatted by the app, so only the unit vocabulary moves.",
+          "line": 142,
+          "endLine": 165,
+          "async": false,
+          "params": [
+            "core"
+          ]
+        },
+        {
+          "name": "translateUnit",
+          "documentation": "",
+          "line": 144,
+          "endLine": 144,
+          "async": false,
+          "params": [
+            "unit"
+          ]
+        },
+        {
+          "name": "translateText",
+          "documentation": "",
+          "line": 167,
+          "endLine": 173,
+          "async": false,
+          "params": [
+            "text",
+            "depth=0"
+          ]
+        },
+        {
+          "name": "translateTitle",
+          "documentation": "Document titles join a localized prefix, current title and brand.",
+          "line": 176,
+          "endLine": 200,
+          "async": false,
+          "params": [
+            "title"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 198,
+          "endLine": 198,
+          "async": false,
+          "params": [
+            "part"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 198,
+          "endLine": 198,
+          "async": false,
+          "params": [
+            "section"
+          ]
+        },
+        {
+          "name": "translateHtml",
+          "documentation": "",
+          "line": 202,
+          "endLine": 205,
+          "async": false,
+          "params": [
+            "htmlKey"
+          ]
+        },
+        {
+          "name": "refreshTippy",
+          "documentation": "",
+          "line": 207,
+          "endLine": 212,
+          "async": false,
+          "params": [
+            "element",
+            "content"
+          ]
+        },
+        {
+          "name": "translateStyleVariable",
+          "documentation": "",
+          "line": 214,
+          "endLine": 222,
+          "async": false,
+          "params": [
+            "element",
+            "name"
+          ]
+        },
+        {
+          "name": "localizeAttributes",
+          "documentation": "",
+          "line": 224,
+          "endLine": 243,
+          "async": false,
+          "params": [
+            "element"
+          ]
+        },
+        {
+          "name": "localizeHtmlBlock",
+          "documentation": "",
+          "line": 245,
+          "endLine": 251,
+          "async": false,
+          "params": [
+            "element"
+          ]
+        },
+        {
+          "name": "localizeCategorizedText",
+          "documentation": "",
+          "line": 253,
+          "endLine": 264,
+          "async": false,
+          "params": [
+            "element"
+          ]
+        },
+        {
+          "name": "localizeElement",
+          "documentation": "",
+          "line": 266,
+          "endLine": 283,
+          "async": false,
+          "params": [
+            "root"
+          ]
+        },
+        {
+          "name": "localizeDocument",
+          "documentation": "",
+          "line": 285,
+          "endLine": 316,
+          "async": false,
+          "params": [
+            "root=document.body"
+          ]
+        },
+        {
+          "name": "translateLocaleMetadata",
+          "documentation": "",
+          "line": 318,
+          "endLine": 336,
+          "async": false,
+          "params": [
+            "locale"
+          ]
+        },
+        {
+          "name": "currentMessages",
+          "documentation": "",
+          "line": 338,
+          "endLine": 340,
+          "async": false,
+          "params": []
+        }
+      ],
+      "shortBindings": [
+        {
+          "name": "id",
+          "kind": "const",
+          "line": 60,
+          "scope": "module@60:2",
+          "references": 3,
+          "constant": true,
+          "uses": [
+            "locale.entities?.[id]",
+            "english.entityAliases?.[id]",
+            "english.entityAliases[id]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "_",
+          "kind": "param",
+          "line": 128,
+          "scope": "callback@128:40",
+          "references": 0,
+          "constant": true,
+          "uses": [],
+          "candidates": []
+        }
+      ],
+      "topLevelEffects": [],
+      "shortBindingCount": 2,
+      "semanticHash": "394b1fa22ba73697f8e1f8e78ce93f399b8400e238db9e6961f652fb8c6d57a9",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/install.js",
+        "eyes/src/i18n/switcher.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/index.js",
+      "bytes": 3051,
+      "sha256": "d36e35d048723411bd1a7f3b829de1c5e60f5efd716254e4ac1686201a88adc5",
+      "purpose": "支持语言的注册表、URL/存储/浏览器语言协商与区域标签归一化；只做纯数据解析，不接入 DOM。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "./locales/en.js",
+          "kind": "import",
+          "line": 3,
+          "bindings": [
+            {
+              "local": "en",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/zh-CN.js",
+          "kind": "import",
+          "line": 4,
+          "bindings": [
+            {
+              "local": "zhCN",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/zh-TW.js",
+          "kind": "import",
+          "line": 5,
+          "bindings": [
+            {
+              "local": "zhTW",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/ja.js",
+          "kind": "import",
+          "line": 6,
+          "bindings": [
+            {
+              "local": "ja",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/ko.js",
+          "kind": "import",
+          "line": 7,
+          "bindings": [
+            {
+              "local": "ko",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/fr.js",
+          "kind": "import",
+          "line": 8,
+          "bindings": [
+            {
+              "local": "fr",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/de.js",
+          "kind": "import",
+          "line": 9,
+          "bindings": [
+            {
+              "local": "de",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/es.js",
+          "kind": "import",
+          "line": 10,
+          "bindings": [
+            {
+              "local": "es",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/pt-BR.js",
+          "kind": "import",
+          "line": 11,
+          "bindings": [
+            {
+              "local": "ptBR",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/ru.js",
+          "kind": "import",
+          "line": 12,
+          "bindings": [
+            {
+              "local": "ru",
+              "imported": "default"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "exported": "ENGLISH",
+          "local": "ENGLISH",
+          "line": 14
+        },
+        {
+          "exported": "LOCALES",
+          "local": "LOCALES",
+          "line": 15
+        },
+        {
+          "exported": "normalizeLocaleCode",
+          "local": "normalizeLocaleCode",
+          "line": 30
+        },
+        {
+          "exported": "getLocale",
+          "local": "getLocale",
+          "line": 43
+        },
+        {
+          "exported": "supportedLocaleCodes",
+          "local": "supportedLocaleCodes",
+          "line": 48
+        },
+        {
+          "exported": "detectLocale",
+          "local": "detectLocale",
+          "line": 59
+        }
+      ],
+      "aliases": {
+        "ENGLISH": "en"
+      },
+      "classes": [],
+      "functions": [
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 17,
+          "endLine": 17,
+          "async": false,
+          "params": [
+            "locale"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 18,
+          "endLine": 18,
+          "async": false,
+          "params": [
+            "locale"
+          ]
+        },
+        {
+          "name": "normalizeLocaleCode",
+          "documentation": "",
+          "line": 30,
+          "endLine": 41,
+          "async": false,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "getLocale",
+          "documentation": "",
+          "line": 43,
+          "endLine": 46,
+          "async": false,
+          "params": [
+            "code"
+          ]
+        },
+        {
+          "name": "supportedLocaleCodes",
+          "documentation": "",
+          "line": 48,
+          "endLine": 50,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 49,
+          "endLine": 49,
+          "async": false,
+          "params": [
+            "locale"
+          ]
+        },
+        {
+          "name": "localeFromQuery",
+          "documentation": "",
+          "line": 52,
+          "endLine": 56,
+          "async": false,
+          "params": [
+            "search"
+          ]
+        },
+        {
+          "name": "detectLocale",
+          "documentation": "URL (both real search and the hash query) wins, then storage, then browser.",
+          "line": 59,
+          "endLine": 76,
+          "async": false,
+          "params": [
+            "storageKey='spacelibre.locale'"
+          ]
+        }
+      ],
+      "shortBindings": [
+        {
+          "name": "en",
+          "kind": "module",
+          "line": 3,
+          "scope": "module@1:0",
+          "references": 2,
+          "constant": true,
+          "uses": [
+            "ENGLISH=en",
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "ja",
+          "kind": "module",
+          "line": 6,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "ko",
+          "kind": "module",
+          "line": 7,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "fr",
+          "kind": "module",
+          "line": 8,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "de",
+          "kind": "module",
+          "line": 9,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "es",
+          "kind": "module",
+          "line": 10,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "ru",
+          "kind": "module",
+          "line": 12,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+          ],
+          "candidates": []
+        }
+      ],
+      "topLevelEffects": [],
+      "shortBindingCount": 7,
+      "semanticHash": "a3b2a84b8c9ca56787286499d7a6921b32d9c5f801c7cad57e0510faf1bcdea9",
+      "dependencies": [
+        "eyes/src/i18n/locales/en.js",
+        "eyes/src/i18n/locales/zh-CN.js",
+        "eyes/src/i18n/locales/zh-TW.js",
+        "eyes/src/i18n/locales/ja.js",
+        "eyes/src/i18n/locales/ko.js",
+        "eyes/src/i18n/locales/fr.js",
+        "eyes/src/i18n/locales/de.js",
+        "eyes/src/i18n/locales/es.js",
+        "eyes/src/i18n/locales/pt-BR.js",
+        "eyes/src/i18n/locales/ru.js"
+      ],
+      "dependents": [
+        "eyes/src/i18n/install.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/install.js",
+      "bytes": 7629,
+      "sha256": "7548683a243210cadb421fee666c5e28d4f95659fe41015d8ff9dccff417d760",
+      "purpose": "在应用图求值前启用语言层：moment 本地化、AppUtils HTML 助手包装、标题/时间格式补丁、数字与日期 Intl 默认区域、搜索关键词本地化、MutationObserver 与语言选择器挂载。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "../framework/eyes/index.js",
+          "kind": "import",
+          "line": 7,
+          "bindings": [
+            {
+              "local": "Eyes",
+              "imported": "*"
+            }
+          ]
+        },
+        {
+          "source": "../vendor/modules/FollowName.cjs",
+          "kind": "import",
+          "line": 8,
+          "bindings": [
+            {
+              "local": "FollowName",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "../vendor/modules/MomentSecondary.cjs",
+          "kind": "import",
+          "line": 9,
+          "bindings": [
+            {
+              "local": "MomentSecondary",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "../data/EntityCatalog.json",
+          "kind": "import",
+          "line": 10,
+          "bindings": [
+            {
+              "local": "EntityCatalog",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./index.js",
+          "kind": "import",
+          "line": 11,
+          "bindings": [
+            {
+              "local": "ENGLISH",
+              "imported": "ENGLISH"
+            },
+            {
+              "local": "LOCALES",
+              "imported": "LOCALES"
+            },
+            {
+              "local": "detectLocale",
+              "imported": "detectLocale"
+            },
+            {
+              "local": "getLocale",
+              "imported": "getLocale"
+            }
+          ]
+        },
+        {
+          "source": "./core.js",
+          "kind": "import",
+          "line": 12,
+          "bindings": [
+            {
+              "local": "configure",
+              "imported": "configure"
+            },
+            {
+              "local": "currentMessages",
+              "imported": "currentMessages"
+            },
+            {
+              "local": "isEnabled",
+              "imported": "isEnabled"
+            },
+            {
+              "local": "localizeAttributes",
+              "imported": "localizeAttributes"
+            },
+            {
+              "local": "localizeDocument",
+              "imported": "localizeDocument"
+            },
+            {
+              "local": "localizeElement",
+              "imported": "localizeElement"
+            },
+            {
+              "local": "translateLocaleMetadata",
+              "imported": "translateLocaleMetadata"
+            },
+            {
+              "local": "translateText",
+              "imported": "translateText"
+            },
+            {
+              "local": "translateTitle",
+              "imported": "translateTitle"
+            }
+          ]
+        },
+        {
+          "source": "./switcher.js",
+          "kind": "import",
+          "line": 23,
+          "bindings": [
+            {
+              "local": "mountLanguageSwitcher",
+              "imported": "mountLanguageSwitcher"
+            }
+          ]
+        }
+      ],
+      "exports": [],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "applyMomentLocale",
+          "documentation": "",
+          "line": 32,
+          "endLine": 39,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "appendLocalizedSearchKeywords",
+          "documentation": "",
+          "line": 41,
+          "endLine": 50,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "localizeHtmlResult",
+          "documentation": "",
+          "line": 52,
+          "endLine": 59,
+          "async": false,
+          "params": [
+            "result"
+          ]
+        },
+        {
+          "name": "patchHtmlHelpers",
+          "documentation": "",
+          "line": 61,
+          "endLine": 70,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "patchedHtmlHelper",
+          "documentation": "",
+          "line": 66,
+          "endLine": 68,
+          "async": false,
+          "params": [
+            "...args"
+          ]
+        },
+        {
+          "name": "patchDocumentTitle",
+          "documentation": "",
+          "line": 72,
+          "endLine": 82,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "patchedUpdateTitle",
+          "documentation": "",
+          "line": 76,
+          "endLine": 81,
+          "async": false,
+          "params": [
+            "routeInfo"
+          ]
+        },
+        {
+          "name": "patchTimeFormats",
+          "documentation": "",
+          "line": 84,
+          "endLine": 97,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "patchedGetDateFormat",
+          "documentation": "",
+          "line": 89,
+          "endLine": 96,
+          "async": false,
+          "params": [
+            "formatName",
+            "formatGroup"
+          ]
+        },
+        {
+          "name": "patchLocaleFormatting",
+          "documentation": "",
+          "line": 99,
+          "endLine": 114,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "patchedNumberToLocale",
+          "documentation": "",
+          "line": 103,
+          "endLine": 105,
+          "async": false,
+          "params": [
+            "selectedLocales",
+            "options"
+          ]
+        },
+        {
+          "name": "patchedDateToLocale",
+          "documentation": "",
+          "line": 107,
+          "endLine": 109,
+          "async": false,
+          "params": [
+            "selectedLocales",
+            "options"
+          ]
+        },
+        {
+          "name": "patchedDateOnlyToLocale",
+          "documentation": "",
+          "line": 111,
+          "endLine": 113,
+          "async": false,
+          "params": [
+            "selectedLocales",
+            "options"
+          ]
+        },
+        {
+          "name": "patchClockLimitMessage",
+          "documentation": "",
+          "line": 116,
+          "endLine": 132,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "patchedSetLimitMessage",
+          "documentation": "",
+          "line": 120,
+          "endLine": 131,
+          "async": false,
+          "params": [
+            "limitDirection",
+            "customMessage"
+          ]
+        },
+        {
+          "name": "translateDocumentTitle",
+          "documentation": "",
+          "line": 134,
+          "endLine": 137,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "installObserver",
+          "documentation": "",
+          "line": 139,
+          "endLine": 162,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 141,
+          "endLine": 154,
+          "async": false,
+          "params": [
+            "records"
+          ]
+        },
+        {
+          "name": "changeLocale",
+          "documentation": "",
+          "line": 164,
+          "endLine": 170,
+          "async": false,
+          "params": [
+            "nextCode"
+          ]
+        },
+        {
+          "name": "exposeDebugApi",
+          "documentation": "",
+          "line": 172,
+          "endLine": 181,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 176,
+          "endLine": 176,
+          "async": false,
+          "params": [
+            "entry"
+          ]
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [
+        "configure(locale,ENGLISH)",
+        "applyMomentLocale()",
+        "appendLocalizedSearchKeywords()",
+        "patchHtmlHelpers()",
+        "patchDocumentTitle()",
+        "patchTimeFormats()",
+        "patchClockLimitMessage()",
+        "patchLocaleFormatting()",
+        "translateLocaleMetadata(locale)",
+        "translateDocumentTitle()",
+        "document.documentElement.dataset.locale=locale.code",
+        "localizeDocument(document.body)",
+        "installObserver()",
+        "mountLanguageSwitcher({locales:LOCALES,activeLocale:locale,onSelect:changeLocale})",
+        "exposeDebugApi()"
+      ],
+      "shortBindingCount": 0,
+      "semanticHash": "06e8c6ab7ee6e3a3af11c356a50f15aa01e0dde4eecab007c7098102ee696222",
+      "dependencies": [
+        "eyes/src/framework/eyes/index.js",
+        "eyes/src/vendor/modules/FollowName.cjs",
+        "eyes/src/vendor/modules/MomentSecondary.cjs",
+        "eyes/src/data/EntityCatalog.json",
+        "eyes/src/i18n/index.js",
+        "eyes/src/i18n/core.js",
+        "eyes/src/i18n/switcher.js"
+      ],
+      "dependents": [
+        "eyes/src/main.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/de.js",
+      "bytes": 71955,
+      "sha256": "b3c7cf62dec733c57c7623d9d0b7da389cf3704540106a3f4cdec4bb643999fd",
+      "purpose": "德语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"de\",\"name\":\"Deutsch\",\"shortName\":\"DE\",\"englishName\":\"German\",\"intl\":\"de-DE\",\"moment\":\"de\",\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "8ae3eaac4593c3ea6021063686c295b236ca7403f70a4ea726a7175a09b5a3f8",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/en.js",
+      "bytes": 64513,
+      "sha256": "f1a6a4249eb20443aacfd8cbafaa2fad00913da8708557850c3cdd83c56e642d",
+      "purpose": "英文源目录：界面消息、动态模式、实体与别名、类别/子类别、单位、入门 HTML 区块与站点描述；其他语言文件保持同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{code:'en',name:'English',shortName:\"EN\",englishName:'English',intl:'en-US',moment:'en',dateFormats:",
+          "line": 8
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "b5b2b2dcba875a866184b04724b3e66ec92ae95573a104f5b66d68d9715ad576",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/es.js",
+      "bytes": 72320,
+      "sha256": "e90c74572a3abd862c204414766eec6f4c9d36e4d5633333a7407019c7c19a8b",
+      "purpose": "西班牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"es\",\"name\":\"Español\",\"shortName\":\"ES\",\"englishName\":\"Spanish\",\"intl\":\"es-ES\",\"moment\":\"es\",",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "f7434686c608bc0f127965694613740105f4f03c9305a0fd825d0f01cb283452",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/fr.js",
+      "bytes": 73492,
+      "sha256": "f651fe6cfd3c19e6baebafa676edbf547314e269c17471966ad6335f00258a36",
+      "purpose": "法语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"fr\",\"name\":\"Français\",\"shortName\":\"FR\",\"englishName\":\"French\",\"intl\":\"fr-FR\",\"moment\":\"fr\",",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "00a82ef5a20e827a9e230fb8bc2019aa90f24bdcf0c945a3a470a38ac5840ec8",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/ja.js",
+      "bytes": 76363,
+      "sha256": "9a64ed8e8de84e455b1723da5ff03e57d4b89ce2397b4ffba35e1bbad296c255",
+      "purpose": "日语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"ja\",\"name\":\"日本語\",\"shortName\":\"日\",\"englishName\":\"Japanese\",\"intl\":\"ja-JP\",\"moment\":\"ja\",\"dat",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "3fdfedf50cd81281bd9ea71ca4e7f9b97762add69e8a6a7011f83bbea1b1b8fa",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/ko.js",
+      "bytes": 72538,
+      "sha256": "c968bee1487d347132d6f9e9f2136b69fa8c68b72002ff53435988b7547c7693",
+      "purpose": "韩语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"ko\",\"name\":\"한국어\",\"shortName\":\"한\",\"englishName\":\"Korean\",\"intl\":\"ko-KR\",\"moment\":\"ko\",\"dateF",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "47863a95e13dbf1360629082f5fc85a33f260444bbd71454db69cfb5713eb8c1",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/pt-BR.js",
+      "bytes": 71310,
+      "sha256": "eca2f52fd24b6ee016a95b62c947f10806bd1ef581f59183d392bf5fff65f3ff",
+      "purpose": "巴西葡萄牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"pt-BR\",\"name\":\"Português (Brasil)\",\"shortName\":\"PT\",\"englishName\":\"Portuguese (Brazil)\",\"in",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "cd73fb9903369036c01d5dde276c49f6373f42b17370916ca27f92c458dd0a68",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/ru.js",
+      "bytes": 91765,
+      "sha256": "ef66d571251a75cce975d057257305dee5812de88de36e3253de5afa375c7772",
+      "purpose": "俄语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"ru\",\"name\":\"Русский\",\"shortName\":\"RU\",\"englishName\":\"Russian\",\"intl\":\"ru-RU\",\"moment\":\"ru\",",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "28c497dbfc38f843dc48474c662f4b1cb3552aa958051770ead3eb57c4d663f7",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/zh-CN.js",
+      "bytes": 65735,
+      "sha256": "e42060ed2bacaa786d7fa2ded677b239a866a46e0c3cb970d60e4741f0017e23",
+      "purpose": "简体中文翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"zh-CN\",\"name\":\"简体中文\",\"shortName\":\"中\",\"englishName\":\"Chinese (Simplified)\",\"intl\":\"zh-CN\",\"m",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "db0eab24fb2225441ebbe4d931d9216ed6942abf51cf7383bf6aa9065ac30566",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/zh-TW.js",
+      "bytes": 65795,
+      "sha256": "f0e4985255c1d780b80b4dd53a6deac2b0a3c129b178366e1f7cd427ac0ba835",
+      "purpose": "繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"zh-TW\",\"name\":\"繁體中文\",\"shortName\":\"繁\",\"englishName\":\"Chinese (Traditional)\",\"intl\":\"zh-TW\",\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "766493c685a46b3c9b14c25dda4b060d381ea25b7e6154e70a5c1fbe9489513d",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/switcher.js",
+      "bytes": 4842,
+      "sha256": "6b49c4ed0d846ee8d70bae01d8e62f623a12ffc101ced9a52bd11a30a6b07a71",
+      "purpose": "设置区左上角注入的语言选择按钮与对话框；语言名保持本语言书写并标记 data-i18n-ignore，选择后持久化并带 lang 参数重载。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "./core.js",
+          "kind": "import",
+          "line": 7,
+          "bindings": [
+            {
+              "local": "translateText",
+              "imported": "translateText"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "exported": "mountLanguageSwitcher",
+          "local": "mountLanguageSwitcher",
+          "line": 81
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "localizeLabel",
+          "documentation": "",
+          "line": 11,
+          "endLine": 13,
+          "async": false,
+          "params": [
+            "key",
+            "fallback"
+          ]
+        },
+        {
+          "name": "buildTrigger",
+          "documentation": "",
+          "line": 15,
+          "endLine": 35,
+          "async": false,
+          "params": [
+            "activeLocale",
+            "onOpen"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 29,
+          "endLine": 33,
+          "async": false,
+          "params": [
+            "event"
+          ]
+        },
+        {
+          "name": "buildPanel",
+          "documentation": "",
+          "line": 37,
+          "endLine": 79,
+          "async": false,
+          "params": [
+            "locales",
+            "activeCode",
+            "onSelect",
+            "onClose"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 66,
+          "endLine": 66,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 77,
+          "endLine": 77,
+          "async": false,
+          "params": [
+            "event"
+          ]
+        },
+        {
+          "name": "mountLanguageSwitcher",
+          "documentation": "",
+          "line": 81,
+          "endLine": 133,
+          "async": false,
+          "params": [
+            "{locales,activeLocale,onSelect}"
+          ]
+        },
+        {
+          "name": "closePanel",
+          "documentation": "",
+          "line": 86,
+          "endLine": 92,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "openPanel",
+          "documentation": "",
+          "line": 94,
+          "endLine": 104,
+          "async": false,
+          "params": [
+            "button"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 97,
+          "endLine": 100,
+          "async": false,
+          "params": [
+            "code"
+          ]
+        },
+        {
+          "name": "attach",
+          "documentation": "",
+          "line": 106,
+          "endLine": 112,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 115,
+          "endLine": 118,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 121,
+          "endLine": 123,
+          "async": false,
+          "params": [
+            "event"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 124,
+          "endLine": 126,
+          "async": false,
+          "params": [
+            "event"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 127,
+          "endLine": 127,
+          "async": false,
+          "params": []
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "8a664bcc97f0b0b37af1c1a4230efc42f32d691b159ca49dc146b4ad04e805b5",
+      "dependencies": [
+        "eyes/src/i18n/core.js"
+      ],
+      "dependents": [
+        "eyes/src/i18n/install.js"
+      ]
+    },
+    {
       "file": "eyes/src/main.js",
-      "bytes": 227,
-      "sha256": "749c108ef23faac2df09c29f28800784a5fbc197a57e9fd2ba5318aa6953cd97",
+      "bytes": 334,
+      "sha256": "7e767d8edeca135d74198a6e7275bf861f848b4dac2404656e674e8f5772cdcb",
       "purpose": "启动入口：先加载 preload，再初始化应用依赖图",
       "confidence": "observed",
       "origin": null,
@@ -132564,27 +134171,33 @@
       },
       "imports": [
         {
-          "source": "./app/PreloadManager.js",
+          "source": "./i18n/install.js",
           "kind": "import",
           "line": 2,
           "bindings": []
         },
         {
-          "source": "./styles/extracted/PreloadStyles.js",
-          "kind": "import",
-          "line": 3,
-          "bindings": []
-        },
-        {
-          "source": "./styles/extracted/VendorStyles.js",
+          "source": "./app/PreloadManager.js",
           "kind": "import",
           "line": 4,
           "bindings": []
         },
         {
-          "source": "./app/SolarSystemApp.js",
+          "source": "./styles/extracted/PreloadStyles.js",
           "kind": "import",
           "line": 5,
+          "bindings": []
+        },
+        {
+          "source": "./styles/extracted/VendorStyles.js",
+          "kind": "import",
+          "line": 6,
+          "bindings": []
+        },
+        {
+          "source": "./app/SolarSystemApp.js",
+          "kind": "import",
+          "line": 7,
           "bindings": []
         }
       ],
@@ -132595,8 +134208,9 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "81815b6320ffc0e99da675b84b60a5cff0c7a5403054097850c4e0ca2a1b75e7",
+      "semanticHash": "0f7026efee10304f689fe27e6797da6f07f0f0876781bb57760cdc1f3f21ae28",
       "dependencies": [
+        "eyes/src/i18n/install.js",
         "eyes/src/app/PreloadManager.js",
         "eyes/src/styles/extracted/PreloadStyles.js",
         "eyes/src/styles/extracted/VendorStyles.js",
@@ -175585,8 +177199,8 @@
     },
     {
       "file": "eyes/src/ui/templates/InfoPanelTemplate.html",
-      "bytes": 5370,
-      "sha256": "d4c53b79ae1eea5b6a639fe37bb8494fceb24f0fb6fe537e1abb0ea4ad92e2ad",
+      "bytes": 5816,
+      "sha256": "8c84293549eb37763bd4d18ca2489c940991dd3e4ba09d17b966d16ff34d24ad",
       "purpose": "InfoPanelTemplate 静态 DOM 模板；为配套组件提供节点、事件入口和状态插值",
       "confidence": "observed",
       "origin": {
@@ -202217,6 +203831,7 @@
         "eyes/src/engine/managers/ContentManager.js",
         "eyes/src/engine/managers/SceneManager.js",
         "eyes/src/engine/managers/TimeManager-728.js",
+        "eyes/src/i18n/install.js",
         "eyes/src/ui/components/Clock.js",
         "eyes/src/ui/components/ClockShortcut.js",
         "eyes/src/ui/views/BaseView.js"
@@ -265517,6 +267132,7 @@
         "eyes/src/engine/core/MomentLocalesSecondary.cjs"
       ],
       "dependents": [
+        "eyes/src/i18n/install.js",
         "eyes/src/ui/components/EventsTimeline.js",
         "eyes/src/vendor/modules/Unidentified778.cjs",
         "eyes/src/vendor/moment/secondary/locale/af.cjs",

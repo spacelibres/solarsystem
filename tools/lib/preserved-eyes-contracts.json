@@ -11,7 +11,7 @@
   "eyes/src/engine/solar-system/public-api.js": "08cf377d74a933c8b520c42ba7c75cea1fa4c2f4794d7341131be173f0f3232d",
   "eyes/src/framework/eyes/index.js": "74f31303baa65d6aa9f3a85976392e8e34733618e5292213069c6af5dc5bbb56",
   "eyes/src/framework/eyes/public-api.js": "752909d137294260785b5dfaaf57915dfdf9eac2aa828e29b8acd5ad7027a8ed",
-  "eyes/src/main.js": "81815b6320ffc0e99da675b84b60a5cff0c7a5403054097850c4e0ca2a1b75e7",
+  "eyes/src/main.js": "0f7026efee10304f689fe27e6797da6f07f0f0876781bb57760cdc1f3f21ae28",
   "eyes/src/runtime/decoder-paths.js": "48cf78413d77daf08c51954478769ed379c03771a74e77925359b87ca465ef84",
   "eyes/src/runtime/interop.cjs": "1e50dc327704b453324f3a0541fe3afca209ffcce0069bd3c0fbfd75cf54f8fb",
   "eyes/src/styles/extracted/AppUtilsStyles.js": "92c60ffa1a0b4870c023c936e79295749e24d4472f4143f7852143acee370e88",
