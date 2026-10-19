@@ -12,6 +12,8 @@ export async function buildEyes({ watch = false, publish = false } = {}) {
   const copyShell = async () => cp(path.join(project, 'shell'), dist, { recursive: true });
   const publishOutput = async () => {
     await copyShell();
+    await mkdir(path.join(dist, 'data'), { recursive: true });
+    await cp(path.join(project, 'src/data/starlink-orbits.json'), path.join(dist, 'data/starlink-orbits.json'));
     await cp(cache.root, path.join(dist, 'decoders', cache.revision), { recursive: true });
     if (publish) await cp(dist, path.resolve(project, '../public/eyes'), { recursive: true });
   };

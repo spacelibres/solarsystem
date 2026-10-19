@@ -288,7 +288,7 @@ export default function Explorer() {
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>
           <div className={styles.starlinkControls}>
-            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')})</label>
+            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')}){selectedStarlink !== null ? ` · STARLINK-${selectedStarlink}` : ''}</label>
             <div className={styles.starlinkPicker}>
               <input type="text" value={starlinkNumber} placeholder="STARLINK-34567" aria-label="Starlink 编号" onChange={event => setStarlinkNumber(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') loadStarlink(); }} />
               <button onClick={loadStarlink}>定位轨道</button>

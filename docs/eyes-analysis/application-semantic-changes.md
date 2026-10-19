@@ -5753,3 +5753,7 @@ WMTS 元数据先验证日期图层与样例瓦片 HEAD，再创建/配置组件
 - `TrailManager.js`: `65e4ae837f3956abc34685870e458158cc07f01c4b404ab05f20c35b0f68f306`
 - `TrajectoryManager.js`: `662a09d824431159b091ec9879884afe8082fcd59a03984d796eb06500d47d5e`
 - `WMTSManager.js`: `dfffec808f85ed010c49d4f73387a3971a9b9eadf510fa3bfbf0692a46f8941d`
+
+## Starlink Earth layer (v0.2.53)
+
+`SolarSystemApp.setUpScene` now awaits `attachStarlinkLayer(this.scene)` after the scene loads. The hook is additive: the recovered app initialization, route table, managers and components are unchanged. The new `eyes/src/app/StarlinkLayer.js` loads the compact public catalogue and creates one `starlink_constellation` entity under Earth using Pioneer's `OrbitalParticlesComponent`; no per-satellite entity or label is introduced. Browser verification loads `#/earth`, fetches `data/starlink-orbits.json` (HTTP 200), reports 11,151 instances and renders the particle shell.

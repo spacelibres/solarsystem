@@ -33,6 +33,19 @@ starlink:build -- --out ...` writes elsewhere for experiments.
 
 ## Runtime display
 
+### Recovered Eyes app
+
+The default Eyes app also loads the same catalogue. Its
+[`eyes/src/app/StarlinkLayer.js`](../eyes/src/app/StarlinkLayer.js) creates one
+`starlink_constellation` entity parented to Earth and adds Pioneer's
+`OrbitalParticlesComponent`. All 11,151 satellites are projected from
+`Pioneer.OrbitalElements` into a single instanced particle draw, so no per-satellite
+Eyes entity or label is created. The layer appears in the Earth close-up view and
+uses the public copy at `public/eyes/data/starlink-orbits.json`; the build tool
+writes both that copy and `src/data/starlink-orbits.json`.
+
+### Explorer
+
 - Every valid epoch state is propagated with a two-body Kepler solver in
   [`src/solar/domain/starlink.ts`](../src/solar/domain/starlink.ts).
 - [`src/solar/render/starlink-layer.ts`](../src/solar/render/starlink-layer.ts)

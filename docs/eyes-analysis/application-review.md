@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 251 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 253 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -36,14 +36,20 @@
 
 装配太阳系应用的路由、管理器、组件配置和启动实例；继承 Eyes.BaseApp。父类 `Eyes.BaseApp`。
 
-- `constructor()` [源码:16](../../eyes/src/app/SolarSystemApp.js#L16)：当前操作：写入 _componentInfo、_sceneInfo、_timeInfo、_viewClasses、_viewInfo；返回 无显式返回。
-- `init()` [源码:26](../../eyes/src/app/SolarSystemApp.js#L26)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `setUpRoutes()` [源码:33](../../eyes/src/app/SolarSystemApp.js#L33)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `setUpScene()` [源码:63](../../eyes/src/app/SolarSystemApp.js#L63)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `setUpManagers()` [源码:68](../../eyes/src/app/SolarSystemApp.js#L68)：标题解析器读取路由参数而不修改路由；故事、子对象、事件及比较对象各有独立的标题优先级。Autoplay 管理器必须等待初始化后才能交给应用使用。
-- `setUpComponents()` [源码:148](../../eyes/src/app/SolarSystemApp.js#L148)：图层面板负责执行开关操作，保持管理器状态与 NASA 原界面的按钮状态同步；这里只确定启动时的显隐集合。
-- `getVersion()` [源码:173](../../eyes/src/app/SolarSystemApp.js#L173)：当前操作：写入 无直接字段写入；返回 SolarSystemPublicApi.AppVersion。
-- `getVersions()` [源码:176](../../eyes/src/app/SolarSystemApp.js#L176)：当前操作：写入 无直接字段写入；返回 {pioneer:this.getPioneerVersion(),eyes:this.getEyesVersion(),app:this.getVersion()}。
+- `constructor()` [源码:17](../../eyes/src/app/SolarSystemApp.js#L17)：当前操作：写入 _componentInfo、_sceneInfo、_timeInfo、_viewClasses、_viewInfo；返回 无显式返回。
+- `init()` [源码:27](../../eyes/src/app/SolarSystemApp.js#L27)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpRoutes()` [源码:34](../../eyes/src/app/SolarSystemApp.js#L34)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpScene()` [源码:64](../../eyes/src/app/SolarSystemApp.js#L64)：当前操作：写入 无直接字段写入；返回 无显式返回。
+- `setUpManagers()` [源码:70](../../eyes/src/app/SolarSystemApp.js#L70)：标题解析器读取路由参数而不修改路由；故事、子对象、事件及比较对象各有独立的标题优先级。Autoplay 管理器必须等待初始化后才能交给应用使用。
+- `setUpComponents()` [源码:150](../../eyes/src/app/SolarSystemApp.js#L150)：图层面板负责执行开关操作，保持管理器状态与 NASA 原界面的按钮状态同步；这里只确定启动时的显隐集合。
+- `getVersion()` [源码:175](../../eyes/src/app/SolarSystemApp.js#L175)：当前操作：写入 无直接字段写入；返回 SolarSystemPublicApi.AppVersion。
+- `getVersions()` [源码:178](../../eyes/src/app/SolarSystemApp.js#L178)：当前操作：写入 无直接字段写入；返回 {pioneer:this.getPioneerVersion(),eyes:this.getEyesVersion(),app:this.getVersion()}。
+
+## `eyes/src/app/StarlinkLayer.js`
+
+加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。。[源码](../../eyes/src/app/StarlinkLayer.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-app-StarlinkLayer-js)
 
 ## `eyes/src/app/config/components.js`
 
@@ -122,6 +128,12 @@ Moment Timezone 打包时区数据库，版本 2021a。[源码](../../eyes/src/d
 视图类、名称及启用组件列表的声明式映射。[源码](../../eyes/src/data/ViewInfo.json)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-data-ViewInfo-json)
+
+## `eyes/src/data/starlink-orbits.json`
+
+Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��。[源码](../../eyes/src/data/starlink-orbits.json)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-data-starlink-orbits-json)
 
 ## `eyes/src/framework/eyes/index.js`
 

@@ -2,7 +2,7 @@ const {originalBrandingContract}=require('./lib/branding-contract.cjs');
 const fs=require('node:fs'),assert=require('node:assert/strict'),test=require('node:test'),p=require('@babel/parser'),tr=require('@babel/traverse').default,g=require('@babel/generator').default,crypto=require('node:crypto');
 function canonical(source){const ast=p.parse(source,{sourceType:'module'});let index=0;const bindings=[];tr(ast,{Scope(path){for(const binding of Object.values(path.scope.bindings))if(!bindings.includes(binding))bindings.push(binding);}});for(const b of bindings)b.scope.rename(b.identifier.name,'semanticBinding'+index++);return crypto.createHash('sha256').update(g(ast,{comments:false,compact:true}).code).digest('hex');}
 const baseline={
-  "eyes/src/app/SolarSystemApp.js": "4d102028d1b679d4305a392f422c3d3db8f20d98a7c303f51440711145a70a8c",
+  "eyes/src/app/SolarSystemApp.js": "6e7b8b369c3cb2af0d39361fd148bbb41b74aef3c62d6392b5237184ea2a01ff",
   "eyes/src/ui/components/BaseComponent.js": "d517494c78928e4365a715f195e7ac185b03ea94e26d3d29b14b20889de37c51",
   "eyes/src/ui/views/BaseView.js": "308d11bb656bb5460dbc2579ee3cc94dc394b8f814e0964edeb2dccaf7fde939",
   "eyes/src/ui/views/CompareView.js": "a59752b5168e74a7d48532d33229fec099e748ac7ef190819645f2f7378f0f5d",

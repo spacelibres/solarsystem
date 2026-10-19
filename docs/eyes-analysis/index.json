@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1144,
-    "javascript": 1059,
+    "files": 1146,
+    "javascript": 1060,
     "classes": 552,
     "methods": 5514,
     "shortBindings": 21775,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "a6732b2240038403182c2814a4bdd18404f8d565a6bbf541fdb53eb81cf72c72",
+      "sha256": "e6a801aa36522d33eba494bc2eaa985c54cf7e921fe151990c99320ed0aae8bc",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "9c4e844966147d25e6c1eda49691a08248d6dcaf00befc5b8f42dfef1331e925",
+      "sha256": "1e9f49c2780aa6e868e2fc765b9504a1f2fdf40d5fe435685f37ff247b2d8594",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -737,8 +737,8 @@
     },
     {
       "file": "eyes/scripts/build.mjs",
-      "bytes": 2030,
-      "sha256": "5b1cb8db25265a881e3af0ab9812267233c79adcd0c6b074ee3bb5f044749b6e",
+      "bytes": 2206,
+      "sha256": "5905b5cf887a5542574b0e5be01d26cc0e235a56140075f5751daad7ba1d7928",
       "purpose": "从可编辑 src 编译 ESM/CJS/HTML，校验解码器并发布 dist/public；正常构建不运行恢复",
       "confidence": "observed",
       "origin": null,
@@ -836,7 +836,7 @@
           "name": "buildEyes",
           "documentation": "",
           "line": 8,
-          "endLine": 42,
+          "endLine": 44,
           "async": true,
           "params": [
             "{watch=false,publish=false}={}"
@@ -854,15 +854,15 @@
           "name": "publishOutput",
           "documentation": "",
           "line": 13,
-          "endLine": 17,
+          "endLine": 19,
           "async": true,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 29,
-          "endLine": 29,
+          "line": 31,
+          "endLine": 31,
           "async": true,
           "params": [
             "result"
@@ -871,16 +871,16 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 37,
-          "endLine": 40,
+          "line": 39,
+          "endLine": 42,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 39,
-          "endLine": 39,
+          "line": 41,
+          "endLine": 41,
           "async": false,
           "params": []
         }
@@ -891,10 +891,11 @@
           "kind": "module",
           "line": 3,
           "scope": "module@1:0",
-          "references": 3,
+          "references": 4,
           "constant": true,
           "uses": [
             "cp(path.join(project,'shell'),dist,{recursive:true})",
+            "cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))",
             "cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})",
             "cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})"
           ],
@@ -903,7 +904,7 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 1,
-      "semanticHash": "b75f15cc906f4c39dd241fb334c43b2a5cc2660e3d8d6d7acdd5ba356d3586bb",
+      "semanticHash": "0ce91a98fbc3095a0c5a76009fafc75c4ee12989062d926afd9442f791bad201",
       "dependencies": [
         "eyes/scripts/decoder-cache.mjs"
       ],
@@ -2125,8 +2126,8 @@
     },
     {
       "file": "eyes/src/app/SolarSystemApp.js",
-      "bytes": 7830,
-      "sha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b",
+      "bytes": 7931,
+      "sha256": "7817e457a5d0b3d1922ccaf704dcce54525602365b00023f2645cc24270e1504",
       "purpose": "装配太阳系应用的路由、管理器、组件配置和启动实例",
       "confidence": "observed",
       "origin": {
@@ -2161,7 +2162,7 @@
           "docs/eyes-analysis/application-semantic-changes.md",
           "tools/semantic-application.node-check.cjs"
         ],
-        "sourceSha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b"
+        "sourceSha256": "7817e457a5d0b3d1922ccaf704dcce54525602365b00023f2645cc24270e1504"
       },
       "imports": [
         {
@@ -2290,13 +2291,24 @@
               "imported": "*"
             }
           ]
+        },
+        {
+          "source": "./StarlinkLayer.js",
+          "kind": "import",
+          "line": 14,
+          "bindings": [
+            {
+              "local": "attachStarlinkLayer",
+              "imported": "attachStarlinkLayer"
+            }
+          ]
         }
       ],
       "exports": [
         {
           "exported": "SolarSystemApp",
           "local": "SolarSystemApp",
-          "line": 186
+          "line": 188
         }
       ],
       "aliases": {},
@@ -2306,8 +2318,8 @@
           "binding": "SolarSystemApp",
           "documentation": "",
           "ordinal": 1,
-          "line": 15,
-          "endLine": 183,
+          "line": 16,
+          "endLine": 185,
           "extends": "Eyes.BaseApp",
           "methods": [
             {
@@ -2317,8 +2329,8 @@
               "static": false,
               "async": false,
               "generator": false,
-              "line": 16,
-              "endLine": 25,
+              "line": 17,
+              "endLine": 26,
               "params": [],
               "reads": [],
               "writes": [
@@ -2347,8 +2359,8 @@
               "static": false,
               "async": true,
               "generator": false,
-              "line": 26,
-              "endLine": 32,
+              "line": 27,
+              "endLine": 33,
               "params": [],
               "reads": [
                 "getComponent",
@@ -2384,8 +2396,8 @@
               "static": false,
               "async": false,
               "generator": false,
-              "line": 33,
-              "endLine": 62,
+              "line": 34,
+              "endLine": 63,
               "params": [],
               "reads": [
                 "getManager",
@@ -2433,8 +2445,8 @@
               "static": false,
               "async": true,
               "generator": false,
-              "line": 63,
-              "endLine": 66,
+              "line": 64,
+              "endLine": 68,
               "params": [],
               "reads": [
                 "scene",
@@ -2442,6 +2454,7 @@
               ],
               "writes": [],
               "calls": [
+                "attachStarlinkLayer",
                 "super.setUpScene",
                 "this.scene.getLoadedPromise"
               ],
@@ -2452,7 +2465,7 @@
               "literals": [],
               "branches": 0,
               "loops": 0,
-              "awaits": 2
+              "awaits": 3
             },
             {
               "name": "setUpManagers",
@@ -2461,8 +2474,8 @@
               "static": false,
               "async": true,
               "generator": false,
-              "line": 68,
-              "endLine": 146,
+              "line": 70,
+              "endLine": 148,
               "params": [],
               "reads": [
                 "addManager",
@@ -2541,8 +2554,8 @@
               "static": false,
               "async": true,
               "generator": false,
-              "line": 148,
-              "endLine": 172,
+              "line": 150,
+              "endLine": 174,
               "params": [],
               "reads": [
                 "getComponent",
@@ -2606,8 +2619,8 @@
               "static": false,
               "async": false,
               "generator": false,
-              "line": 173,
-              "endLine": 175,
+              "line": 175,
+              "endLine": 177,
               "params": [],
               "reads": [],
               "writes": [],
@@ -2630,8 +2643,8 @@
               "static": false,
               "async": false,
               "generator": false,
-              "line": 176,
-              "endLine": 182,
+              "line": 178,
+              "endLine": 184,
               "params": [],
               "reads": [
                 "getEyesVersion",
@@ -2672,8 +2685,8 @@
         {
           "name": "getSolarSystemAppTemplate",
           "documentation": "",
-          "line": 14,
-          "endLine": 14,
+          "line": 15,
+          "endLine": 15,
           "async": false,
           "params": []
         }
@@ -2684,7 +2697,7 @@
         "SolarSystemApp.setAppClass()"
       ],
       "shortBindingCount": 0,
-      "semanticHash": "61f79addc1c32ea31e93334b0090da459a1bcebadf20192ca000262fb91230fe",
+      "semanticHash": "4f7f06cd955c6989ddeed1aed6159e9eb9d6c69b3fc4301b758bb9f09e720b88",
       "dependencies": [
         "eyes/src/framework/eyes/index.js",
         "eyes/src/styles/index.js",
@@ -2697,11 +2710,75 @@
         "eyes/src/ui/templates/SolarSystemAppTemplate.html",
         "eyes/src/app/public-api.js",
         "eyes/src/engine/solar-system/public-api.js",
-        "eyes/src/app/PreloadManager.js"
+        "eyes/src/app/PreloadManager.js",
+        "eyes/src/app/StarlinkLayer.js"
       ],
       "dependents": [
         "eyes/src/app/public-api.js",
         "eyes/src/main.js"
+      ]
+    },
+    {
+      "file": "eyes/src/app/StarlinkLayer.js",
+      "bytes": 2135,
+      "sha256": "b0b0a78c385c80bc26f59f6baaf8a22c064fd403f2a9d28b9010c60d747002da",
+      "purpose": "加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "../engine/pioneer/index.js",
+          "kind": "import",
+          "line": 1,
+          "bindings": [
+            {
+              "local": "Pioneer",
+              "imported": "*"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "exported": "attachStarlinkLayer",
+          "local": "attachStarlinkLayer",
+          "line": 13
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "attachStarlinkLayer",
+          "documentation": "Add the public Starlink constellation to the recovered Eyes Earth entity.\n\nOrbitalParticlesComponent projects each particle from a Pioneer\nOrbitalElements record on every frame, so 11k satellites stay on one\ninstanced draw without creating 11k Eyes entities or labels.",
+          "line": 13,
+          "endLine": 52,
+          "async": true,
+          "params": [
+            "scene"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 28,
+          "endLine": 45,
+          "async": true,
+          "params": []
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "3f39dc1c198076ab0483700c08a94e6b8c2da70f23f53e9163093875255a7afc",
+      "dependencies": [
+        "eyes/src/engine/pioneer/index.js"
+      ],
+      "dependents": [
+        "eyes/src/app/SolarSystemApp.js"
       ]
     },
     {
@@ -4851,6 +4928,31 @@
       "dependents": [
         "eyes/src/app/SolarSystemApp.js"
       ]
+    },
+    {
+      "file": "eyes/src/data/starlink-orbits.json",
+      "bytes": 1813395,
+      "sha256": "468b834c2359d85a53505badf549c92eced518f44f30a4485665de9be64d6512",
+      "purpose": "Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "data": {
+        "kind": "object",
+        "entries": 6,
+        "keys": [
+          "generatedAt",
+          "source",
+          "manifestSha256",
+          "count",
+          "manifestCount",
+          "satellites"
+        ]
+      },
+      "dependencies": [],
+      "dependents": []
     },
     {
       "file": "eyes/src/engine/components/AnnulusComponent.js",
@@ -128727,6 +128829,7 @@
         "eyes/src/engine/pioneer/public-api.js"
       ],
       "dependents": [
+        "eyes/src/app/StarlinkLayer.js",
         "eyes/src/engine/components/AnnulusComponent.js",
         "eyes/src/engine/components/ConstellationsComponent.js",
         "eyes/src/engine/components/DiscGridComponent.js",

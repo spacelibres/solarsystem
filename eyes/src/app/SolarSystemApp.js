@@ -11,6 +11,7 @@ import SolarSystemAppTemplate from "../ui/templates/SolarSystemAppTemplate.html"
 import * as SolarSystemPublicApi from "./public-api.js";
 import * as SolarSystemSceneExports from "../engine/solar-system/public-api.js";
 import * as PreloadManager from "./PreloadManager.js";
+import { attachStarlinkLayer } from "./StarlinkLayer.js";
 var getSolarSystemAppTemplate = () => SolarSystemAppTemplate;
 class SolarSystemApp extends Eyes.BaseApp {
   constructor() {
@@ -63,6 +64,7 @@ class SolarSystemApp extends Eyes.BaseApp {
   async setUpScene() {
     await super.setUpScene();
     await this.scene.getLoadedPromise();
+    await attachStarlinkLayer(this.scene);
   }
   // 标题解析器读取路由参数而不修改路由；故事、子对象、事件及比较对象各有独立的标题优先级。Autoplay 管理器必须等待初始化后才能交给应用使用。
   async setUpManagers() {

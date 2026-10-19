@@ -87,7 +87,7 @@
         "docs/eyes-analysis/application-semantic-changes.md",
         "tools/semantic-application.node-check.cjs"
       ],
-      "sourceSha256": "1df2fdd6939122c27b2fdc89015d9a0b242ac806293d3a871f89c76ca778b87b"
+      "sourceSha256": "7817e457a5d0b3d1922ccaf704dcce54525602365b00023f2645cc24270e1504"
     },
     "eyes/src/app/config/components.js": {
       "status": "verified-semantic-refactor",

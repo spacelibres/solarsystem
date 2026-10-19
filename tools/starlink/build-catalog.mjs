@@ -17,7 +17,7 @@
 
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -26,6 +26,8 @@ const MANIFEST_URL = 'https://api.starlink.com/public-files/ephemerides/MANIFEST
 const FILE_URL = number => `https://api.starlink.com/public-files/ephemerides/STARLINK-${number}.txt`;
 const CACHE = path.join(ROOT, '.cache/starlink');
 const OUT = path.join(ROOT, 'src/data/starlink-orbits.json');
+const EYES_OUT = path.join(ROOT, 'eyes/src/data/starlink-orbits.json');
+const PUBLIC_OUT = path.join(ROOT, 'public/eyes/data/starlink-orbits.json');
 
 const args = process.argv.slice(2);
 const option = (name, fallback = null) => {
@@ -167,6 +169,14 @@ async function main() {
     satellites,
   };
   await writeFile(OUT_FILE, JSON.stringify(payload) + '\n', 'utf8');
+  // The recovered Eyes app fetches the same catalogue from public/; keep both
+  // copies identical so a refresh updates Explorer and Eyes together.
+  if (path.resolve(OUT_FILE) === path.resolve(OUT)) {
+    await mkdir(path.dirname(EYES_OUT), { recursive: true });
+    await copyFile(OUT_FILE, EYES_OUT);
+    await mkdir(path.dirname(PUBLIC_OUT), { recursive: true });
+    await copyFile(OUT_FILE, PUBLIC_OUT);
+  }
   console.log(`wrote ${OUT_FILE}: ${satellites.length}/${selected.length} satellites, ${failures} failures, ${(Date.now() - started) / 1000 | 0}s`);
 }
 

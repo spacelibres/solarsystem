@@ -3,6 +3,18 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.53 - 2026-10-19
+
+Show the same 11,151-satellite Starlink catalogue in the recovered Eyes
+application, not only the Explorer. A new `eyes/src/app/StarlinkLayer.js` parents
+one `starlink_constellation` entity to Earth and feeds all epoch states into
+Pioneer's `OrbitalParticlesComponent`, so the constellation renders as one
+instanced particle draw in the Earth close-up view without creating thousands of
+Eyes entities or labels. The generated catalogue is published to
+`public/eyes/data/starlink-orbits.json` by the refresh tool alongside the
+Explorer copy, and the Eyes semantic-analysis hash and notes cover the new
+module.
+
 ## 0.2.52 - 2026-10-19
 
 Add the public Starlink constellation to the Explorer's Earth view. The new
