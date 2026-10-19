@@ -159,6 +159,17 @@ export function resolveLogoRoles(svg: string, palette: PaletteRoles): string {
 }
 
 /**
+ * REVERSE is a two-ink dark-surface master: `#2997ff` is the primary orbit and
+ * `#edf4ff` is the light wordmark/planet. Rebind both so a palette change reaches
+ * the mark instead of leaving a fixed blue logo on every theme.
+ */
+function resolvePrecoloredInk(svg: string, palette: PaletteRoles): string {
+  return svg
+    .replace(/#2997ff/gi, palette.primaryOnDark)
+    .replace(/#edf4ff/gi, palette.surface);
+}
+
+/**
  * Fetch a master and return a URL the browser can render with roles resolved.
  *
  * Monochrome ink returns the master path directly, so the common case costs no
@@ -170,14 +181,14 @@ export async function resolveLogoUrl(
   palette: PaletteRoles,
 ): Promise<string> {
   const path = logoPath(orientation, ink);
-  // Monochrome and REVERSE masters are already final inks; only PRIMARY is
-  // rewritten against the active palette.
-  if (isMonochromeInk(ink) || isPrecoloredInk(ink)) return path;
+  // Monochrome masters are final inks; PRIMARY and REVERSE are recoloured.
+  if (isMonochromeInk(ink)) return path;
 
   const response = await fetch(path);
   if (!response.ok) return path;
 
-  const resolved = resolveLogoRoles(await response.text(), palette);
+  const source = await response.text();
+  const resolved = isPrecoloredInk(ink) ? resolvePrecoloredInk(source, palette) : resolveLogoRoles(source, palette);
   return URL.createObjectURL(new Blob([resolved], { type: 'image/svg+xml' }));
 }
 

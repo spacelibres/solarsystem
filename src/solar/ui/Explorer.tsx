@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import SpacelibreLogo from '../../components/SpacelibreLogo';
-import { DEFAULT_PRESET, applyPaletteToDocument } from '../../lib/theme/palette';
+import { DEFAULT_PRESET, PRESETS, applyPaletteToDocument } from '../../lib/theme/palette';
 import { FULL_SCENE } from '../config/scene-catalog';
 import { searchBodies, visibleSystemIds, type SceneMode, type CatalogFilter } from './navigation';
 import { unixMillisecondsToEt } from '../domain/time';
@@ -36,6 +36,14 @@ declare global {
     }
 }
 const STARLINK = starlinkData as unknown as { count: number; manifestCount?: number; satellites: StarlinkOrbit[] };
+const PALETTE_LABELS: Record<string, string> = {
+    '01-electric-orbit': '01 电光轨道',
+    '02-aurora-jump': '02 极光跃迁',
+    '03-nebula-spectrum': '03 星云光谱',
+    '04-solar-storm': '04 太阳风暴',
+    '05-deep-space-oasis': '05 深空绿洲',
+    '06-acid-future': '06 酸性未来',
+};
 const MIN_DATE = '1949-12-31T00:00:00';
 const MAX_DATE = '2049-12-31T00:00:00';
 const MIN_ET = utcInputToEt(MIN_DATE);
@@ -78,11 +86,27 @@ export default function Explorer() {
     const [showDebug, setShowDebug] = useState(false);
     const [showCatalog, setShowCatalog] = useState(true);
     const [dateDraft, setDateDraft] = useState('');
+    const [paletteName, setPaletteName] = useState(DEFAULT_PRESET.name);
+    const palette = PRESETS.find(preset => preset.name === paletteName) ?? DEFAULT_PRESET;
+    useEffect(() => {
+        let stored = DEFAULT_PRESET.name;
+        try { stored = window.localStorage.getItem('spacelibre.palette') || stored; } catch { /* optional */ }
+        const initial = PRESETS.find(preset => preset.name === stored) ?? DEFAULT_PRESET;
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setPaletteName(initial.name);
+        applyPaletteToDocument(initial);
+    }, []);
+
+    useEffect(() => {
+        applyPaletteToDocument(palette);
+        try { window.localStorage.setItem('spacelibre.palette', palette.name); } catch { /* optional */ }
+        worldRef.current?.setPalette({ deep: palette.colors.deep, primary: palette.colors.primaryOnDark, accent: palette.colors.accent });
+    }, [palette]);
+
     useEffect(() => {
         const container = mount.current;
         if (!container)
             return;
-        applyPaletteToDocument(DEFAULT_PRESET);
         let runtime: ExplorerRuntime | null = null;
         let world: RenderWorld | null = null;
         let frame = 0;
@@ -229,9 +253,15 @@ export default function Explorer() {
     return (<main className={styles.app}>
       <header className={styles.header}>
         <div className={styles.desktopBrand}><SpacelibreLogo width={240} ink="reverse"/></div>
-        <div className={styles.mobileBrand}><SpacelibreLogo orientation="icon" width={48} ink="white"/></div>
+        <div className={styles.mobileBrand}><SpacelibreLogo orientation="icon" width={48} ink="reverse"/></div>
         <div className={styles.title}><span>SOLAR SYSTEM</span><h1>{sceneMode === 'overview' ? 'Solar System' : selected?.label ?? 'Explore space'}</h1></div>
         <nav className={styles.headerActions} aria-label="视图控制">
+          <label className={styles.palettePicker}>
+            <span>配色</span>
+            <select aria-label="VI 配色" value={paletteName} onChange={event => setPaletteName(event.target.value)}>
+              {PRESETS.map(preset => <option key={preset.name} value={preset.name}>{PALETTE_LABELS[preset.name] ?? preset.name}</option>)}
+            </select>
+          </label>
           <button aria-expanded={showCatalog} onClick={() => setShowCatalog(value => !value)}>目录</button>
           <button onClick={() => navigate('sun', 'overview')} disabled={!snapshot}>太阳系总览</button>
           <button onClick={() => worldRef.current?.resetCamera()} disabled={!snapshot || !!fatal}>重置视角</button>

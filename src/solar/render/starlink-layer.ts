@@ -35,6 +35,7 @@ export interface StarlinkLayer {
   setSelection(numbers: readonly number[]): void;
   setSelected(number: number | null): void;
   setViewport(width: number, height: number): void;
+  setColors(colors: StarlinkColors): void;
   update(timeEt: number, earthPosition: Vec3, focusPosition: Vec3): void;
   dispose(): void;
 }
@@ -46,6 +47,7 @@ const ORBIT_SEGMENTS = 128;
 type Track = {
   ribbon: TrailRibbon;
   dyn: PosPoint[] | null;
+  index: number;
 };
 
 function interpolate(points: readonly PosPoint[], time: number) {
@@ -113,6 +115,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: St
   let selectedNumbers: readonly number[] = [];
   let selectionToken = 0;
   let viewport = { width: 1440, height: 900 };
+  let currentColors = colors;
 
   const modelForGeneration = (generation: 1 | 2 | 3) => {
     let pending = modelCache.get(generation);
@@ -137,7 +140,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: St
   const makeTrack = (number: number, entry: { orbit: StarlinkOrbit; elements: StarlinkElements }, index: number, token: number) => {
     const ribbon = new TrailRibbon(256);
     ribbon.setResolution(viewport.width, viewport.height);
-    ribbon.setOrbitStyle(index === 0 ? colors.primary : colors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+    ribbon.setOrbitStyle(index === 0 ? currentColors.primary : currentColors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
     ribbon.raycast = () => {};
     const ring = starlinkOrbitRing(entry.elements, ORBIT_SEGMENTS).reduce<Vec3[]>((list, _, offset, array) => {
       if (offset % 3 === 0) list.push({ x: array[offset], y: array[offset + 1], z: array[offset + 2] });
@@ -145,7 +148,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: St
     }, []);
     ribbon.update(ring, true);
     group.add(ribbon);
-    const track: Track = { ribbon, dyn: null };
+    const track: Track = { ribbon, dyn: null, index };
     tracks.set(number, track);
 
     if (index < MAX_DYN_TRACKS) {
@@ -158,7 +161,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: St
           if (points.length < 2) return;
           track.dyn = points;
           ribbon.update(points.map(point => point.position), true);
-          ribbon.setOrbitStyle(index === 0 ? colors.primary : colors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+          ribbon.setOrbitStyle(index === 0 ? currentColors.primary : currentColors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
         })
         .catch(error => console.warn(`Starlink ${number} dynamo trail unavailable:`, error));
     }
@@ -169,6 +172,13 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: St
     count: valid.length,
     setVisible(visible: boolean) {
       group.visible = visible;
+    },
+    setColors(next: StarlinkColors) {
+      currentColors = next;
+      pointMaterial.color.set(next.primary);
+      for (const track of tracks.values()) {
+        track.ribbon.setOrbitStyle(track.index === 0 ? next.primary : next.accent, track.index === 0 ? 0.8 : 0.55, track.index === 0 ? 1.4 : 0.9);
+      }
     },
     setViewport(width: number, height: number) {
       viewport = { width: Math.max(1, width), height: Math.max(1, height) };

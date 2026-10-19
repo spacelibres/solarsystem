@@ -63,6 +63,7 @@ export interface RenderWorld {
         starlink?: boolean;
     }): void;
     setStarlinkSelection(numbers: readonly number[]): void;
+    setPalette(colors: { deep: string; primary: string; accent: string }): void;
     resize(): void;
     resetCamera(): void;
     snapshot(): RenderDiagnostics;
@@ -460,6 +461,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 if(constellationsEnabled)loadConstellations();
             },
             setStarlinkSelection(numbers) { starlink?.setSelection(numbers); },
+            setPalette(colors) { renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;
                 const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);

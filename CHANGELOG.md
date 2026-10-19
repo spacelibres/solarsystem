@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.64 - 2026-10-19
+
+Add the missing VI palette selector to the Explorer: all six approved schemes
+(electric-orbit, aurora-jump, nebula-spectrum, solar-storm, deep-space-oasis,
+acid-future) are selectable, persisted in localStorage, and applied to the whole
+surface. The REVERSE logo now follows the selected primary/surface instead of
+staying fixed blue, native control accents and Starlink track colors update, and
+the renderer clear color follows the palette deep role.
+
 ## 0.2.63 - 2026-10-19
 
 Sync the visual identity with vi.spacelibre.cn 1.5.34: ship the fifteen approved

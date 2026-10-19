@@ -62,6 +62,11 @@ a **defect**, not a design choice. The planet must be bound, not literal.
 
 ## 4. Colour is generated, never hand-picked
 
+The Explorer exposes all six approved presets in a visible 配色 selector and
+persists the choice. Switching it updates the CSS roles, the REVERSE logo, native
+control accents, Starlink tracks and the renderer clear colour together.
+
+
 - 16 roles: `primary`, `secondary`, `accent`, `deep`, `surface`, `ink`, `card`,
   `muted`, `line`, `success`, `warning`, `danger`, `primaryOnLight`,
   `primaryOnDark`, `planetOnLight`, `planetOnDark`.
