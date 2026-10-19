@@ -145,6 +145,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         cleanup.push(() => { pool.dispose(); models.dispose(); repository.dispose(); });
         const visuals = new Map<string, BodyVisual>(), trails = new Map<string, Trail>(), trailRequests = new Map<string, AbortController>();
         let orbitGeometryUpdates = 0;
+        let orbitPrimary = getComputedStyle(document.documentElement).getPropertyValue('--sl-primary-on-dark').trim() || '#007bff';
         let mode: SceneMode = 'overview', visibleIds = new Set<string>(['sun', ...definitions.filter(body => body.groups?.includes('planets')).map(body => body.id)]);
         let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, starlinkEnabled = options.starlinkVisible ?? false, framedKey = '', selectedId = '', hoveredId = '', viewGeneration = 0;
         const overlay = document.createElement('div');
@@ -461,7 +462,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 if(constellationsEnabled)loadConstellations();
             },
             setStarlinkSelection(numbers) { starlink?.setSelection(numbers); },
-            setPalette(colors) { renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
+            setPalette(colors) { orbitPrimary = colors.primary; renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;
                 const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);
@@ -580,7 +581,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                         trail.line.update(points,false,origin);
                         trail.sampleEt=state.clock.timeEt;trail.projectionKey=projectionKey;trail.geometryOrigin=origin;
                     } else {
-                        const style=eyesOrbitStyle(id,id===hoveredId);
+                        const style=eyesOrbitStyle(id,id===hoveredId,orbitPrimary);
                         trail.line.setOrbitStyle(new THREE.Color().setRGB(style.rgba[0],style.rgba[1],style.rgba[2],THREE.SRGBColorSpace),style.rgba[3]*fade,style.width);
                         const kmPerPixel=2*distance*Math.tan(THREE.MathUtils.degToRad(camera.fov)/2)/viewportHeight;
                         let changed=false;

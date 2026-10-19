@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.65 - 2026-10-19
+
+Make the selected VI palette reach the remaining scene strokes. Planet orbit
+lines now take the active primary instead of their per-body NASA fallback, so the
+six schemes recolour the entire Explorer rather than only the chrome, logo and
+Starlink tracks. The original per-body colours remain the no-palette fallback
+used by tests and NASA-only rendering.
+
 ## 0.2.64 - 2026-10-19
 
 Add the missing VI palette selector to the Explorer: all six approved schemes
