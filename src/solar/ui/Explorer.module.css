@@ -397,3 +397,11 @@
   .starlinkDialog footer { align-items: flex-start; flex-direction: column; }
   .starlinkDialog footer span { display: none; }
 }
+
+
+/* Native controls follow the active VI primary, never the browser default. */
+.app input[type='checkbox'],
+.app input[type='radio'],
+.app input[type='range'] {
+  accent-color: var(--sl-primary-on-dark);
+}

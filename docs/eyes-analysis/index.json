@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1154,
+    "files": 1156,
     "javascript": 1060,
     "classes": 552,
     "methods": 5514,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "19ae39d9ef1dc8194f64364d4c10c06493bded5095479583d686b86391a3ac85",
+      "sha256": "de2df6a6b603ac07652baadcbb51483d5d4725b866f18f4e21258504ada5777c",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "6fa306d837706aa54165b2f2fe4f8f293d7755a16a6149b01380793bd1f80db1",
+      "sha256": "a1c36e3fd1f7aca7650ef343fbfe969e3bd8d0b3ecfdb6f9edb6d5858e705c39",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1264,8 +1264,8 @@
     },
     {
       "file": "eyes/shell/app.css",
-      "bytes": 258643,
-      "sha256": "b1662442c813a0454748ab43a1f7bef4e3f5ccaf840d49f1910fc1271366c7ed",
+      "bytes": 258647,
+      "sha256": "ce9361b2fc1893bd98064a4307facb41faa3cc7c12cd66b25d22b5228b778e33",
       "purpose": "从应用 bundle 提取的实际业务界面 CSS",
       "confidence": "observed",
       "origin": null,
@@ -1329,6 +1329,19 @@
       "dependents": []
     },
     {
+      "file": "eyes/shell/brand/horizontal-reverse.svg",
+      "bytes": 4317,
+      "sha256": "2bc36b06dd70e442c99544997b969e7596dbf0cda0c001d89ffbe083fb0f02b8",
+      "purpose": "VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
       "file": "eyes/shell/brand/horizontal-white.svg",
       "bytes": 4346,
       "sha256": "32c21bb11f3795cbc16f63c0a692ead60605165bd94595ef97cce42175c4237d",
@@ -1381,6 +1394,19 @@
       "dependents": []
     },
     {
+      "file": "eyes/shell/brand/icon-reverse.svg",
+      "bytes": 1700,
+      "sha256": "53b4de2422653d55ceebb5047dd919d5c439933ea59f8c204419c8e9839c26c5",
+      "purpose": "VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
       "file": "eyes/shell/brand/icon-white.svg",
       "bytes": 1729,
       "sha256": "55dc7c228edd8890c43269f0f5350d2ae383740f9d0dea40dfe6930dc7c221b0",
@@ -1395,8 +1421,8 @@
     },
     {
       "file": "eyes/shell/brand/sources.json",
-      "bytes": 1930,
-      "sha256": "46ec3743f9ef4d34b9ddf976ebd9737c6bb92988193f9ba6cbc3365a924aa83e",
+      "bytes": 2380,
+      "sha256": "8bf738fdf49926d315af27e99966f9eb8cb1eb88c44e5f4bc12a601117c313d0",
       "purpose": "Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md",
       "confidence": "verified-source",
       "origin": null,
@@ -1405,7 +1431,7 @@
       },
       "data": {
         "kind": "array",
-        "entries": 9,
+        "entries": 11,
         "keys": []
       },
       "dependencies": [],

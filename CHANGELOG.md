@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.63 - 2026-10-19
+
+Sync the visual identity with vi.spacelibre.cn 1.5.34: ship the fifteen approved
+logo masters including the REVERSE dark-background versions, use REVERSE in the
+Explorer and Eyes dark chrome, bind native control accents to the VI primary, and
+derive Starlink orbit colors from the active palette instead of literal cyan and
+yellow. Tests now cover the five inks per orientation and the REVERSE default.
+
 ## 0.2.62 - 2026-10-19
 
 Bring the same dynamo pipeline to the Explorer. Selected Starlink satellites now

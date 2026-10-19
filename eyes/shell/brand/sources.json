@@ -43,5 +43,15 @@
     "file": "icon-512.png",
     "source": "https://raw.githubusercontent.com/spacelibres/vi/main/icons/icon-512.png",
     "sha256": "67c6197e6b0732e4336e6f32688c60f47f1d94ca08a0aa72283ea6a5f18b7ea1"
+  },
+  {
+    "file": "horizontal-reverse.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/01-logos/horizontal-reverse.svg",
+    "sha256": "2bc36b06dd70e442c99544997b969e7596dbf0cda0c001d89ffbe083fb0f02b8"
+  },
+  {
+    "file": "icon-reverse.svg",
+    "source": "https://raw.githubusercontent.com/spacelibres/vi/main/01-logos/icon-reverse.svg",
+    "sha256": "53b4de2422653d55ceebb5047dd919d5c439933ea59f8c204419c8e9839c26c5"
   }
 ]

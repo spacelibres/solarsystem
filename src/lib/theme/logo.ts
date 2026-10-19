@@ -37,9 +37,9 @@ export const MIN_DISPLAY_WIDTH: Record<LogoOrientation, number> = {
 
 /** How the standard's REVERSE swatch maps onto an orientation. */
 const REVERSE_INK: Record<LogoOrientation, LogoInk> = {
-  horizontal: 'white',
-  stacked: 'white',
-  icon: 'white',
+  horizontal: 'reverse',
+  stacked: 'reverse',
+  icon: 'reverse',
 };
 
 export function logoInkFor(orientation: LogoOrientation, ink?: LogoInk): LogoInk {
@@ -48,7 +48,12 @@ export function logoInkFor(orientation: LogoOrientation, ink?: LogoInk): LogoInk
 
 /** Whether a master is monochrome and therefore keeps a single fixed ink. */
 export function isMonochromeInk(ink: LogoInk): boolean {
-  return ink !== 'primary';
+  return ink === 'black' || ink === 'white' || ink === 'navy';
+}
+
+/** REVERSE is a pre-coloured dark-surface master; it is not a single ink. */
+export function isPrecoloredInk(ink: LogoInk): boolean {
+  return ink === 'reverse';
 }
 
 /** Public path of an approved master. */

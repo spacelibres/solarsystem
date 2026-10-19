@@ -4243,7 +4243,7 @@ body.offset-right #static-ui > div.follow-reframe {
   --customIconLabelMargin:50%;
 }
 .spacelibre-logo {
-  background-image: url(./brand/horizontal-white.svg);
+  background-image: url(./brand/horizontal-reverse.svg);
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
@@ -4255,7 +4255,7 @@ body.offset-right #static-ui > div.follow-reframe {
 }
 @media only screen and (max-width: 660px) {
   .spacelibre-logo {
-    background-image: url(./brand/icon-white.svg);
+    background-image: url(./brand/icon-reverse.svg);
     height: 48px;
     width: 48px;
     margin: 12px;

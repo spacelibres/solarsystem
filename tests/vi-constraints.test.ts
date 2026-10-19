@@ -26,14 +26,14 @@ import {
 
 const BRAND_DIR = join(process.cwd(), 'public', 'brand');
 const ORIENTATIONS: LogoOrientation[] = ['horizontal', 'stacked', 'icon'];
-const INKS: LogoInk[] = ['primary', 'navy', 'white', 'black'];
+const INKS: LogoInk[] = ['primary', 'reverse', 'navy', 'white', 'black'];
 
 function master(orientation: LogoOrientation, ink: LogoInk): string {
   return readFileSync(join(BRAND_DIR, `${orientation}-${ink}.svg`), 'utf8');
 }
 
 describe('logo masters are present and canonically named', () => {
-  it('ships all four inks for each orientation', () => {
+  it('ships all five inks for each orientation', () => {
     const files = readdirSync(BRAND_DIR).filter((f) => f.endsWith('.svg'));
     for (const orientation of ORIENTATIONS) {
       for (const ink of INKS) {
@@ -46,7 +46,7 @@ describe('logo masters are present and canonically named', () => {
     // `horizontal-white.svg` is canonical; `horizontal-light.svg` or similar
     // would be a parallel copy that can drift from the approved geometry.
     for (const orientation of ORIENTATIONS) {
-      for (const ink of ['light', 'dark', 'reverse', 'mono'] as const) {
+      for (const ink of ['light', 'dark', 'mono'] as const) {
         const stray = `${orientation}-${ink}.svg`;
         expect(readdirSync(BRAND_DIR), `${stray} is not an approved master name`).not.toContain(
           stray,
@@ -134,11 +134,12 @@ describe('monochrome takes precedence', () => {
     }
   });
 
-  it('treats only `primary` as full colour', () => {
+  it('treats primary and reverse as non-monochrome', () => {
     for (const ink of ['black', 'navy', 'white'] as const) {
       expect(isMonochromeInk(ink)).toBe(true);
     }
     expect(isMonochromeInk('primary')).toBe(false);
+    expect(isMonochromeInk('reverse')).toBe(false);
   });
 });
 
@@ -174,7 +175,7 @@ describe('size rules', () => {
 
   it('defaults to REVERSE ink, which is the mark for a dark surface', () => {
     for (const orientation of ORIENTATIONS) {
-      expect(logoInkFor(orientation)).toBe('white');
+      expect(logoInkFor(orientation)).toBe('reverse');
     }
   });
 

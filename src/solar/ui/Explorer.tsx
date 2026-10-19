@@ -228,7 +228,7 @@ export default function Explorer() {
     const activeRate = snapshot?.clock.rate ?? 1;
     return (<main className={styles.app}>
       <header className={styles.header}>
-        <div className={styles.desktopBrand}><SpacelibreLogo width={240} ink="white"/></div>
+        <div className={styles.desktopBrand}><SpacelibreLogo width={240} ink="reverse"/></div>
         <div className={styles.mobileBrand}><SpacelibreLogo orientation="icon" width={48} ink="white"/></div>
         <div className={styles.title}><span>SOLAR SYSTEM</span><h1>{sceneMode === 'overview' ? 'Solar System' : selected?.label ?? 'Explore space'}</h1></div>
         <nav className={styles.headerActions} aria-label="视图控制">

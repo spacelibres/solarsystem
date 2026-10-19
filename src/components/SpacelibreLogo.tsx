@@ -33,6 +33,7 @@ import {
 } from '../lib/theme/logo';
 import { resolveLogoUrl } from '../lib/theme/logo-roles';
 import { usePalette } from '../lib/theme/usePalette';
+import { isMonochromeInk } from '../lib/theme/logo';
 
 interface Props {
   /** `horizontal` for navigation, `stacked` for covers, `icon` for compact space. */
@@ -47,7 +48,7 @@ interface Props {
 
 export default function SpacelibreLogo({
   orientation = 'horizontal',
-  ink = 'white',
+  ink = 'reverse',
   width,
   alt = 'spacelibre',
   className,
@@ -108,7 +109,7 @@ export default function SpacelibreLogo({
       data-logo-orientation={orientation}
       data-logo-ink={ink}
       // Full-colour marks omit this so the palette can recolour them.
-      {...(ink === 'primary' ? {} : { 'data-color-mode': 'monochrome' })}
+      {...(isMonochromeInk(ink) ? { 'data-color-mode': 'monochrome' } : {})}
     />
   );
 }

@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1154 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1156 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -548,10 +548,12 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/shell/brand/favicon-16.png](#file-eyes-shell-brand-favicon-16-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/favicon-32.png](#file-eyes-shell-brand-favicon-32-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/favicon.svg](#file-eyes-shell-brand-favicon-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/horizontal-reverse.svg](#file-eyes-shell-brand-horizontal-reverse-svg) — VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。
 - [eyes/shell/brand/horizontal-white.svg](#file-eyes-shell-brand-horizontal-white-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/icon-192.png](#file-eyes-shell-brand-icon-192-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/icon-512.png](#file-eyes-shell-brand-icon-512-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/icon-black.svg](#file-eyes-shell-brand-icon-black-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/brand/icon-reverse.svg](#file-eyes-shell-brand-icon-reverse-svg) — VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。
 - [eyes/shell/brand/icon-white.svg](#file-eyes-shell-brand-icon-white-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/sources.json](#file-eyes-shell-brand-sources-json) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/i18n.css](#file-eyes-shell-i18n-css) — 语言层的补充样式：语言选择器、CJK 字体回退、德/俄长标签排版与 CSS 生成文案的本地化变量覆盖。
@@ -1849,6 +1851,15 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
 
+<a id="file-eyes-shell-brand-horizontal-reverse-svg"></a>
+### `eyes/shell/brand/horizontal-reverse.svg`
+
+VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。。[源码](../../eyes/shell/brand/horizontal-reverse.svg)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：VI master comparison。
+
 <a id="file-eyes-shell-brand-horizontal-white-svg"></a>
 ### `eyes/shell/brand/horizontal-white.svg`
 
@@ -1877,6 +1888,15 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
 
+<a id="file-eyes-shell-brand-icon-reverse-svg"></a>
+### `eyes/shell/brand/icon-reverse.svg`
+
+VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。。[源码](../../eyes/shell/brand/icon-reverse.svg)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：VI master comparison。
+
 <a id="file-eyes-shell-brand-icon-white-svg"></a>
 ### `eyes/shell/brand/icon-white.svg`
 
@@ -1891,7 +1911,7 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
 
-数据类型 `array`；顶层条目 9；字段 —。原始数据保留，不手工猜测字段单位。
+数据类型 `array`；顶层条目 11；字段 —。原始数据保留，不手工猜测字段单位。
 
 <a id="file-eyes-shell-i18n-css"></a>
 ### `eyes/shell/i18n.css`

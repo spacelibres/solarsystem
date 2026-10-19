@@ -350,7 +350,13 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             })().finally(() => { if (trailRequests.get(definition.id) === controller)
                 trailRequests.delete(definition.id); });
         };
-        const starlink = options.starlink?.length ? createStarlinkLayer(options.starlink) : null;
+        const paletteStyle = getComputedStyle(document.documentElement);
+        const starlinkColors = {
+            primary: paletteStyle.getPropertyValue('--sl-primary-on-dark').trim() || '#007bff',
+            secondary: paletteStyle.getPropertyValue('--sl-secondary').trim() || '#ff3733',
+            accent: paletteStyle.getPropertyValue('--sl-accent').trim() || '#f4f764',
+        };
+        const starlink = options.starlink?.length ? createStarlinkLayer(options.starlink, starlinkColors) : null;
         if (starlink) {
             scene.add(starlink.group);
             starlink.setVisible(starlinkEnabled);

@@ -22,6 +22,12 @@ import {
   type StarlinkOrbit,
 } from '../domain/starlink';
 
+export interface StarlinkColors {
+  readonly primary: string;
+  readonly secondary: string;
+  readonly accent: string;
+}
+
 export interface StarlinkLayer {
   readonly group: THREE.Group;
   readonly count: number;
@@ -63,7 +69,12 @@ function interpolate(points: readonly PosPoint[], time: number) {
   };
 }
 
-export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkLayer {
+export function createStarlinkLayer(orbits: readonly StarlinkOrbit[], colors: StarlinkColors = {
+  primary: '#007bff',
+  secondary: '#ff3733',
+  accent: '#f4f764',
+}): StarlinkLayer {
+  const primary = new THREE.Color(colors.primary);
   const group = new THREE.Group();
   group.name = 'starlink-constellation';
   const valid: { orbit: StarlinkOrbit; elements: StarlinkElements }[] = [];
@@ -81,7 +92,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   const pointGeometry = new THREE.BufferGeometry();
   pointGeometry.setAttribute('position', new THREE.BufferAttribute(pointPositions, 3));
   const pointMaterial = new THREE.PointsMaterial({
-    color: 0x9ccfff,
+    color: primary,
     size: 1.2,
     sizeAttenuation: false,
     transparent: true,
@@ -126,7 +137,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   const makeTrack = (number: number, entry: { orbit: StarlinkOrbit; elements: StarlinkElements }, index: number, token: number) => {
     const ribbon = new TrailRibbon(256);
     ribbon.setResolution(viewport.width, viewport.height);
-    ribbon.setOrbitStyle(index === 0 ? 0x7fe3ff : 0xffd166, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+    ribbon.setOrbitStyle(index === 0 ? colors.primary : colors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
     ribbon.raycast = () => {};
     const ring = starlinkOrbitRing(entry.elements, ORBIT_SEGMENTS).reduce<Vec3[]>((list, _, offset, array) => {
       if (offset % 3 === 0) list.push({ x: array[offset], y: array[offset + 1], z: array[offset + 2] });
@@ -147,7 +158,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
           if (points.length < 2) return;
           track.dyn = points;
           ribbon.update(points.map(point => point.position), true);
-          ribbon.setOrbitStyle(index === 0 ? 0x7fe3ff : 0xffd166, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
+          ribbon.setOrbitStyle(index === 0 ? colors.primary : colors.accent, index === 0 ? 0.8 : 0.55, index === 0 ? 1.4 : 0.9);
         })
         .catch(error => console.warn(`Starlink ${number} dynamo trail unavailable:`, error));
     }

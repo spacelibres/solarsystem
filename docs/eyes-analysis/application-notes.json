@@ -48062,6 +48062,28 @@
       "notes": [],
       "renames": [],
       "analysisLevel": "structural-source-review"
+    },
+    "eyes/shell/brand/horizontal-reverse.svg": {
+      "purpose": "VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。",
+      "confidence": "observed",
+      "evidence": [
+        "VI master comparison"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/shell/brand/icon-reverse.svg": {
+      "purpose": "VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。",
+      "confidence": "observed",
+      "evidence": [
+        "VI master comparison"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

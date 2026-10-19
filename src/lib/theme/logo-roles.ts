@@ -24,7 +24,7 @@
  * safest thing here.
  */
 
-import { isMonochromeInk, logoPath, type LogoInk, type LogoOrientation } from './logo';
+import { isMonochromeInk, isPrecoloredInk, logoPath, type LogoInk, type LogoOrientation } from './logo';
 import type { PaletteRoles } from './palette';
 
 /** Paint attributes that may carry a role, and the data attribute naming it. */
@@ -170,7 +170,9 @@ export async function resolveLogoUrl(
   palette: PaletteRoles,
 ): Promise<string> {
   const path = logoPath(orientation, ink);
-  if (isMonochromeInk(ink)) return path;
+  // Monochrome and REVERSE masters are already final inks; only PRIMARY is
+  // rewritten against the active palette.
+  if (isMonochromeInk(ink) || isPrecoloredInk(ink)) return path;
 
   const response = await fetch(path);
   if (!response.ok) return path;
