@@ -10,9 +10,25 @@ import de from './locales/de.js';
 import es from './locales/es.js';
 import ptBR from './locales/pt-BR.js';
 import ru from './locales/ru.js';
+import it from './locales/it.js';
+import nl from './locales/nl.js';
+import pl from './locales/pl.js';
+import tr from './locales/tr.js';
+import vi from './locales/vi.js';
+import id from './locales/id.js';
+import uk from './locales/uk.js';
+import cs from './locales/cs.js';
+import sv from './locales/sv.js';
+import ro from './locales/ro.js';
+import el from './locales/el.js';
+import hi from './locales/hi.js';
+import ar from './locales/ar.js';
 
 export const ENGLISH = en;
-export const LOCALES = [en, zhCN, zhTW, ja, ko, fr, de, es, ptBR, ru];
+export const LOCALES = [
+  en, zhCN, zhTW, ja, ko, fr, de, es, ptBR, ru,
+  it, nl, pl, tr, vi, id, uk, cs, sv, ro, el, hi, ar
+];
 
 const byCode = new Map(LOCALES.map(locale => [locale.code, locale]));
 const byLowerCaseCode = new Map(LOCALES.map(locale => [locale.code.toLowerCase(), locale]));
@@ -24,7 +40,13 @@ const ALIASES = new Map([
   ['zh-hant', 'zh-TW'], ['zh-hant-tw', 'zh-TW'], ['zh-hk', 'zh-TW'], ['zh-mo', 'zh-TW'],
   ['ja-jp', 'ja'], ['ko-kr', 'ko'], ['fr-fr', 'fr'], ['fr-ca', 'fr'], ['fr-be', 'fr'],
   ['de-de', 'de'], ['de-at', 'de'], ['de-ch', 'de'], ['es-es', 'es'], ['es-mx', 'es'], ['es-419', 'es'],
-  ['pt', 'pt-BR'], ['pt-br', 'pt-BR'], ['pt-pt', 'pt-BR'], ['ru-ru', 'ru'], ['en-us', 'en'], ['en-gb', 'en']
+  ['pt', 'pt-BR'], ['pt-br', 'pt-BR'], ['pt-pt', 'pt-BR'], ['ru-ru', 'ru'], ['en-us', 'en'], ['en-gb', 'en'],
+  ['it-it', 'it'], ['it-ch', 'it'], ['nl-nl', 'nl'], ['nl-be', 'nl'], ['pl-pl', 'pl'],
+  ['tr-tr', 'tr'], ['vi-vn', 'vi'], ['id-id', 'id'], ['in-id', 'id'], ['uk-ua', 'uk'],
+  ['cs-cz', 'cs'], ['sv-se', 'sv'], ['ro-ro', 'ro'], ['el-gr', 'el'], ['hi-in', 'hi'],
+  ['ar-sa', 'ar'], ['ar-eg', 'ar'], ['ar-ae', 'ar'], ['ar-ma', 'ar'], ['ar-dz', 'ar'], ['ar-tn', 'ar'],
+  ['ar-kw', 'ar'], ['ar-ly', 'ar'], ['ar-iq', 'ar'], ['ar-jo', 'ar'], ['ar-lb', 'ar'], ['ar-sy', 'ar'],
+  ['ar-ye', 'ar'], ['ar-om', 'ar'], ['ar-qa', 'ar'], ['ar-bh', 'ar']
 ]);
 
 export function normalizeLocaleCode(value) {
@@ -37,7 +59,9 @@ export function normalizeLocaleCode(value) {
   if (alias) return alias;
   const base = trimmed.split('-')[0];
   const baseAlias = ALIASES.get(base);
-  return baseAlias || null;
+  if (baseAlias) return baseAlias;
+  const baseCatalogue = byLowerCaseCode.get(base);
+  return baseCatalogue ? baseCatalogue.code : null;
 }
 
 export function getLocale(code) {

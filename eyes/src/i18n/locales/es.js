@@ -23,6 +23,7 @@ export default {
     }
   },
   "messages": {
+    "celestial bodies": "cuerpos celestes",
     "View": "Ver",
     "telescope": "telescopio",
     "loading...": "cargando...",
@@ -514,17 +515,13 @@ export default {
       "re": "^See the relative size of (.+) compared to other (.+)$",
       "to": "Compara el tamaño de $1 con el de otros $2",
       "entityGroups": [
-        1,
-        2
+        1
       ]
     },
     {
       "id": "featureOf",
       "re": "^Feature of (.+)$",
-      "to": "Característica de $1",
-      "entityGroups": [
-        1
-      ]
+      "to": "Característica de $1"
     },
     {
       "id": "genericModel",
@@ -1378,5 +1375,6 @@ export default {
   "meta": {
     "titlePrefix": "Solar System",
     "description": "Explora el mundo en 3D del Sistema Solar. Descubre misiones pasadas y futuras."
-  }
+  },
+  "dir": "ltr"
 };

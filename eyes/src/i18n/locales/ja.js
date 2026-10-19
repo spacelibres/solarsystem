@@ -23,6 +23,7 @@ export default {
     }
   },
   "messages": {
+    "celestial bodies": "天体",
     "View": "表示",
     "telescope": "望遠鏡",
     "loading...": "読み込み中...",
@@ -514,17 +515,13 @@ export default {
       "re": "^See the relative size of (.+) compared to other (.+)$",
       "to": "$1と他の$2の大きさを比較",
       "entityGroups": [
-        1,
-        2
+        1
       ]
     },
     {
       "id": "featureOf",
       "re": "^Feature of (.+)$",
-      "to": "$1の特徴",
-      "entityGroups": [
-        1
-      ]
+      "to": "$1の特徴"
     },
     {
       "id": "genericModel",
@@ -1378,5 +1375,6 @@ export default {
   "meta": {
     "titlePrefix": "Solar System",
     "description": "太陽系の3D世界を探索しましょう。過去と未来のミッションについて学べます。"
-  }
+  },
+  "dir": "ltr"
 };

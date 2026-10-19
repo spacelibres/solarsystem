@@ -47800,6 +47800,149 @@
       "notes": [],
       "renames": [],
       "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/it.js": {
+      "purpose": "意大利语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/nl.js": {
+      "purpose": "荷兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/pl.js": {
+      "purpose": "波兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/tr.js": {
+      "purpose": "土耳其语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/vi.js": {
+      "purpose": "越南语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/id.js": {
+      "purpose": "印度尼西亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/uk.js": {
+      "purpose": "乌克兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/cs.js": {
+      "purpose": "捷克语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/sv.js": {
+      "purpose": "瑞典语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/ro.js": {
+      "purpose": "罗马尼亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/el.js": {
+      "purpose": "希腊语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/hi.js": {
+      "purpose": "印地语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/i18n/locales/ar.js": {
+      "purpose": "阿拉伯语（RTL）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "evidence": [
+        "source review"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

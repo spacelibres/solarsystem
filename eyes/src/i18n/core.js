@@ -106,6 +106,20 @@ function translateCore(core, depth) {
   const exact = dictionary.messages[core] ?? dictionary.messages[lookup];
   if (typeof exact === 'string' && exact !== core && exact !== lookup) return exact;
 
+  // Generated captions wrap entity names ("the Moon", "celestial bodies.");
+  // translate the stem and keep the wrapper so article-less languages can use
+  // the localized name without leaking the English article.
+  const article = /^(?:the|The) ([\s\S]+)$/.exec(lookup);
+  if (article) {
+    const translated = translateCore(article[1], depth + 1);
+    if (translated !== null) return translated;
+  }
+  const trailingPunctuation = /^([\s\S]*?)([.!?,;:]+)$/.exec(lookup);
+  if (trailingPunctuation && trailingPunctuation[1]) {
+    const translated = translateCore(trailingPunctuation[1], depth + 1);
+    if (translated !== null) return `${translated}${trailingPunctuation[2]}`;
+  }
+
   // A few generated sentences embed the singular category ("Trail", "Label")
   // or a lowercase plural ("planets"); derive them from the catalogue's
   // capitalized/plural forms instead of duplicating every inflection as a key.
@@ -318,7 +332,8 @@ export function localizeDocument(root = document.body) {
 export function translateLocaleMetadata(locale) {
   if (!locale) return;
   document.documentElement.lang = locale.code;
-  document.documentElement.dir = 'ltr';
+  document.documentElement.dir = locale.dir || 'ltr';
+  document.documentElement.dataset.dir = locale.dir || 'ltr';
   const description = locale.meta?.description;
   if (description) {
     for (const selector of ['meta[name="description"]', 'meta[property="og:description"]']) {

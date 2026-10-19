@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1131 个文件、1046 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21762 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1144 个文件、1059 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -812,14 +812,27 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/i18n/core.js](#file-eyes-src-i18n-core-js) — 显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。
 - [eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js) — 支持语言的注册表、URL/存储/浏览器语言协商与区域标签归一化；只做纯数据解析，不接入 DOM。
 - [eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js) — 在应用图求值前启用语言层：moment 本地化、AppUtils HTML 助手包装、标题/时间格式补丁、数字与日期 Intl 默认区域、搜索关键词本地化、MutationObserver 与语言选择器挂载。
+- [eyes/src/i18n/locales/ar.js](#file-eyes-src-i18n-locales-ar-js) — 阿拉伯语（RTL）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/cs.js](#file-eyes-src-i18n-locales-cs-js) — 捷克语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/de.js](#file-eyes-src-i18n-locales-de-js) — 德语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/el.js](#file-eyes-src-i18n-locales-el-js) — 希腊语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/en.js](#file-eyes-src-i18n-locales-en-js) — 英文源目录：界面消息、动态模式、实体与别名、类别/子类别、单位、入门 HTML 区块与站点描述；其他语言文件保持同构。
 - [eyes/src/i18n/locales/es.js](#file-eyes-src-i18n-locales-es-js) — 西班牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/fr.js](#file-eyes-src-i18n-locales-fr-js) — 法语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/hi.js](#file-eyes-src-i18n-locales-hi-js) — 印地语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/id.js](#file-eyes-src-i18n-locales-id-js) — 印度尼西亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/it.js](#file-eyes-src-i18n-locales-it-js) — 意大利语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/ja.js](#file-eyes-src-i18n-locales-ja-js) — 日语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/ko.js](#file-eyes-src-i18n-locales-ko-js) — 韩语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/nl.js](#file-eyes-src-i18n-locales-nl-js) — 荷兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/pl.js](#file-eyes-src-i18n-locales-pl-js) — 波兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/pt-BR.js](#file-eyes-src-i18n-locales-pt-BR-js) — 巴西葡萄牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/ro.js](#file-eyes-src-i18n-locales-ro-js) — 罗马尼亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/ru.js](#file-eyes-src-i18n-locales-ru-js) — 俄语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/sv.js](#file-eyes-src-i18n-locales-sv-js) — 瑞典语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/tr.js](#file-eyes-src-i18n-locales-tr-js) — 土耳其语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/uk.js](#file-eyes-src-i18n-locales-uk-js) — 乌克兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
+- [eyes/src/i18n/locales/vi.js](#file-eyes-src-i18n-locales-vi-js) — 越南语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/zh-CN.js](#file-eyes-src-i18n-locales-zh-CN-js) — 简体中文翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/locales/zh-TW.js](#file-eyes-src-i18n-locales-zh-TW-js) — 繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。
 - [eyes/src/i18n/switcher.js](#file-eyes-src-i18n-switcher-js) — 设置区左上角注入的语言选择按钮与对话框；语言名保持本语言书写并标记 data-i18n-ignore，选择后持久化并带 lang 参数重载。
@@ -11494,14 +11507,14 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 当前导出：`configure` ← `configure`；`getLocaleModule` ← `getLocaleModule`；`getEnglishModule` ← `getEnglishModule`；`isEnabled` ← `isEnabled`；`translateText` ← `translateText`；`translateTitle` ← `translateTitle`；`translateHtml` ← `translateHtml`；`localizeAttributes` ← `localizeAttributes`；`localizeElement` ← `localizeElement`；`localizeDocument` ← `localizeDocument`；`translateLocaleMetadata` ← `translateLocaleMetadata`；`currentMessages` ← `currentMessages`。
 
-非 class 函数（包括模块内回调）：`compilePattern(pattern)` @22；`addMessages(target, source)` @27；`buildDictionary(locale, english)` @34；`anonymous(pattern)` @71；`configure(locale, english)` @75；`getLocaleModule()` @83；`getEnglishModule()` @87；`isEnabled()` @91；`splitWhitespace(text)` @96：Preserve surrounding whitespace so inline fragments keep their spacing.；`translateCore(core, depth)` @101；`anonymous(groupIndex)` @124；`anonymous(_, groupIndex)` @128；`translateMeasurement(core)` @142：Numbers and units are formatted by the app, so only the unit vocabulary moves.；`translateUnit(unit)` @144；`translateText(text, depth=0)` @167；`translateTitle(title)` @176：Document titles join a localized prefix, current title and brand.；`anonymous(part)` @198；`anonymous(section)` @198；`translateHtml(htmlKey)` @202；`refreshTippy(element, content)` @207；`translateStyleVariable(element, name)` @214；`localizeAttributes(element)` @224；`localizeHtmlBlock(element)` @245；`localizeCategorizedText(element)` @253；`localizeElement(root)` @266；`localizeDocument(root=document.body)` @285；`translateLocaleMetadata(locale)` @318；`currentMessages()` @338。
+非 class 函数（包括模块内回调）：`compilePattern(pattern)` @22；`addMessages(target, source)` @27；`buildDictionary(locale, english)` @34；`anonymous(pattern)` @71；`configure(locale, english)` @75；`getLocaleModule()` @83；`getEnglishModule()` @87；`isEnabled()` @91；`splitWhitespace(text)` @96：Preserve surrounding whitespace so inline fragments keep their spacing.；`translateCore(core, depth)` @101；`anonymous(groupIndex)` @138；`anonymous(_, groupIndex)` @142；`translateMeasurement(core)` @156：Numbers and units are formatted by the app, so only the unit vocabulary moves.；`translateUnit(unit)` @158；`translateText(text, depth=0)` @181；`translateTitle(title)` @190：Document titles join a localized prefix, current title and brand.；`anonymous(part)` @212；`anonymous(section)` @212；`translateHtml(htmlKey)` @216；`refreshTippy(element, content)` @221；`translateStyleVariable(element, name)` @228；`localizeAttributes(element)` @238；`localizeHtmlBlock(element)` @259；`localizeCategorizedText(element)` @267；`localizeElement(root)` @280；`localizeDocument(root=document.body)` @299；`translateLocaleMetadata(locale)` @332；`currentMessages()` @353。
 
 <details><summary>短名称作用域与使用证据（2 项）</summary>
 
 | 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
 | --- | --- | --- |
 | `id` / `module@60:2` | const / 3 | `locale.entities?.[id]`、`english.entityAliases?.[id]`、`english.entityAliases[id]` |
-| `_` / `callback@128:40` | param / 0 | — |
+| `_` / `callback@142:40` | param / 0 | — |
 
 </details>
 
@@ -11514,25 +11527,38 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 语义依据：source review。
 
-直接依赖：[eyes/src/i18n/locales/en.js](#file-eyes-src-i18n-locales-en-js)、[eyes/src/i18n/locales/zh-CN.js](#file-eyes-src-i18n-locales-zh-CN-js)、[eyes/src/i18n/locales/zh-TW.js](#file-eyes-src-i18n-locales-zh-TW-js)、[eyes/src/i18n/locales/ja.js](#file-eyes-src-i18n-locales-ja-js)、[eyes/src/i18n/locales/ko.js](#file-eyes-src-i18n-locales-ko-js)、[eyes/src/i18n/locales/fr.js](#file-eyes-src-i18n-locales-fr-js)、[eyes/src/i18n/locales/de.js](#file-eyes-src-i18n-locales-de-js)、[eyes/src/i18n/locales/es.js](#file-eyes-src-i18n-locales-es-js)、[eyes/src/i18n/locales/pt-BR.js](#file-eyes-src-i18n-locales-pt-BR-js)、[eyes/src/i18n/locales/ru.js](#file-eyes-src-i18n-locales-ru-js)。
+直接依赖：[eyes/src/i18n/locales/en.js](#file-eyes-src-i18n-locales-en-js)、[eyes/src/i18n/locales/zh-CN.js](#file-eyes-src-i18n-locales-zh-CN-js)、[eyes/src/i18n/locales/zh-TW.js](#file-eyes-src-i18n-locales-zh-TW-js)、[eyes/src/i18n/locales/ja.js](#file-eyes-src-i18n-locales-ja-js)、[eyes/src/i18n/locales/ko.js](#file-eyes-src-i18n-locales-ko-js)、[eyes/src/i18n/locales/fr.js](#file-eyes-src-i18n-locales-fr-js)、[eyes/src/i18n/locales/de.js](#file-eyes-src-i18n-locales-de-js)、[eyes/src/i18n/locales/es.js](#file-eyes-src-i18n-locales-es-js)、[eyes/src/i18n/locales/pt-BR.js](#file-eyes-src-i18n-locales-pt-BR-js)、[eyes/src/i18n/locales/ru.js](#file-eyes-src-i18n-locales-ru-js)、[eyes/src/i18n/locales/it.js](#file-eyes-src-i18n-locales-it-js)、[eyes/src/i18n/locales/nl.js](#file-eyes-src-i18n-locales-nl-js)、[eyes/src/i18n/locales/pl.js](#file-eyes-src-i18n-locales-pl-js)、[eyes/src/i18n/locales/tr.js](#file-eyes-src-i18n-locales-tr-js)、[eyes/src/i18n/locales/vi.js](#file-eyes-src-i18n-locales-vi-js)、[eyes/src/i18n/locales/id.js](#file-eyes-src-i18n-locales-id-js)、[eyes/src/i18n/locales/uk.js](#file-eyes-src-i18n-locales-uk-js)、[eyes/src/i18n/locales/cs.js](#file-eyes-src-i18n-locales-cs-js)、[eyes/src/i18n/locales/sv.js](#file-eyes-src-i18n-locales-sv-js)、[eyes/src/i18n/locales/ro.js](#file-eyes-src-i18n-locales-ro-js)、[eyes/src/i18n/locales/el.js](#file-eyes-src-i18n-locales-el-js)、[eyes/src/i18n/locales/hi.js](#file-eyes-src-i18n-locales-hi-js)、[eyes/src/i18n/locales/ar.js](#file-eyes-src-i18n-locales-ar-js)。
 
 直接引用者：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)。
 
 当前导出：`ENGLISH` ← `ENGLISH`；`LOCALES` ← `LOCALES`；`normalizeLocaleCode` ← `normalizeLocaleCode`；`getLocale` ← `getLocale`；`supportedLocaleCodes` ← `supportedLocaleCodes`；`detectLocale` ← `detectLocale`。
 
-非 class 函数（包括模块内回调）：`anonymous(locale)` @17；`anonymous(locale)` @18；`normalizeLocaleCode(value)` @30；`getLocale(code)` @43；`supportedLocaleCodes()` @48；`anonymous(locale)` @49；`localeFromQuery(search)` @52；`detectLocale(storageKey='spacelibre.locale')` @59：URL (both real search and the hash query) wins, then storage, then browser.。
+非 class 函数（包括模块内回调）：`anonymous(locale)` @33；`anonymous(locale)` @34；`normalizeLocaleCode(value)` @52；`getLocale(code)` @67；`supportedLocaleCodes()` @72；`anonymous(locale)` @73；`localeFromQuery(search)` @76；`detectLocale(storageKey='spacelibre.locale')` @83：URL (both real search and the hash query) wins, then storage, then browser.。
 
-<details><summary>短名称作用域与使用证据（7 项）</summary>
+<details><summary>短名称作用域与使用证据（20 项）</summary>
 
 | 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
 | --- | --- | --- |
-| `en` / `module@1:0` | module / 2 | `ENGLISH=en`、`[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `ja` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `ko` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `fr` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `de` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `es` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
-| `ru` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]` |
+| `en` / `module@1:0` | module / 2 | `ENGLISH=en`、`[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `ja` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `ko` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `fr` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `de` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `es` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `ru` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `it` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `nl` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `pl` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `tr` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `vi` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `id` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `uk` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `cs` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `sv` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `ro` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `el` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `hi` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
+| `ar` / `module@1:0` | module / 1 | `[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]` |
 
 </details>
 
@@ -11553,6 +11579,32 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 模块求值副作用（源码表达式）：`configure(locale,ENGLISH)`、`applyMomentLocale()`、`appendLocalizedSearchKeywords()`、`patchHtmlHelpers()`、`patchDocumentTitle()`、`patchTimeFormats()`、`patchClockLimitMessage()`、`patchLocaleFormatting()`、`translateLocaleMetadata(locale)`、`translateDocumentTitle()`、`document.documentElement.dataset.locale=locale.code`、`localizeDocument(document.body)`、`installObserver()`、`mountLanguageSwitcher({locales:LOCALES,activeLocale:locale,onSelect:changeLocale})`、`exposeDebugApi()`。
 
+<a id="file-eyes-src-i18n-locales-ar-js"></a>
+### `eyes/src/i18n/locales/ar.js`
+
+阿拉伯语（RTL）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/ar.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"ar","name":"العربية","shortName":"AR","englishName":"Arabic","intl":"ar-SA","moment":"ar","`。
+
+<a id="file-eyes-src-i18n-locales-cs-js"></a>
+### `eyes/src/i18n/locales/cs.js`
+
+捷克语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/cs.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"cs","name":"Čeština","shortName":"CS","englishName":"Czech","intl":"cs-CZ","moment":"cs","d`。
+
 <a id="file-eyes-src-i18n-locales-de-js"></a>
 ### `eyes/src/i18n/locales/de.js`
 
@@ -11565,6 +11617,19 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
 
 当前导出：`default` ← `{"code":"de","name":"Deutsch","shortName":"DE","englishName":"German","intl":"de-DE","moment":"de","`。
+
+<a id="file-eyes-src-i18n-locales-el-js"></a>
+### `eyes/src/i18n/locales/el.js`
+
+希腊语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/el.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"el","name":"Ελληνικά","shortName":"EL","englishName":"Greek","intl":"el-GR","moment":"el","`。
 
 <a id="file-eyes-src-i18n-locales-en-js"></a>
 ### `eyes/src/i18n/locales/en.js`
@@ -11605,6 +11670,45 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 当前导出：`default` ← `{"code":"fr","name":"Français","shortName":"FR","englishName":"French","intl":"fr-FR","moment":"fr",`。
 
+<a id="file-eyes-src-i18n-locales-hi-js"></a>
+### `eyes/src/i18n/locales/hi.js`
+
+印地语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/hi.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"hi","name":"हिन्दी","shortName":"HI","englishName":"Hindi","intl":"hi-IN","moment":"hi","da`。
+
+<a id="file-eyes-src-i18n-locales-id-js"></a>
+### `eyes/src/i18n/locales/id.js`
+
+印度尼西亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/id.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"id","name":"Bahasa Indonesia","shortName":"ID","englishName":"Indonesian","intl":"id-ID","m`。
+
+<a id="file-eyes-src-i18n-locales-it-js"></a>
+### `eyes/src/i18n/locales/it.js`
+
+意大利语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/it.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"it","name":"Italiano","shortName":"IT","englishName":"Italian","intl":"it-IT","moment":"it"`。
+
 <a id="file-eyes-src-i18n-locales-ja-js"></a>
 ### `eyes/src/i18n/locales/ja.js`
 
@@ -11631,6 +11735,32 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 当前导出：`default` ← `{"code":"ko","name":"한국어","shortName":"한","englishName":"Korean","intl":"ko-KR","moment":"ko","dateF`。
 
+<a id="file-eyes-src-i18n-locales-nl-js"></a>
+### `eyes/src/i18n/locales/nl.js`
+
+荷兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/nl.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"nl","name":"Nederlands","shortName":"NL","englishName":"Dutch","intl":"nl-NL","moment":"nl"`。
+
+<a id="file-eyes-src-i18n-locales-pl-js"></a>
+### `eyes/src/i18n/locales/pl.js`
+
+波兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/pl.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"pl","name":"Polski","shortName":"PL","englishName":"Polish","intl":"pl-PL","moment":"pl","d`。
+
 <a id="file-eyes-src-i18n-locales-pt-BR-js"></a>
 ### `eyes/src/i18n/locales/pt-BR.js`
 
@@ -11644,6 +11774,19 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 当前导出：`default` ← `{"code":"pt-BR","name":"Português (Brasil)","shortName":"PT","englishName":"Portuguese (Brazil)","in`。
 
+<a id="file-eyes-src-i18n-locales-ro-js"></a>
+### `eyes/src/i18n/locales/ro.js`
+
+罗马尼亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/ro.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"ro","name":"Română","shortName":"RO","englishName":"Romanian","intl":"ro-RO","moment":"ro",`。
+
 <a id="file-eyes-src-i18n-locales-ru-js"></a>
 ### `eyes/src/i18n/locales/ru.js`
 
@@ -11656,6 +11799,58 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
 
 当前导出：`default` ← `{"code":"ru","name":"Русский","shortName":"RU","englishName":"Russian","intl":"ru-RU","moment":"ru",`。
+
+<a id="file-eyes-src-i18n-locales-sv-js"></a>
+### `eyes/src/i18n/locales/sv.js`
+
+瑞典语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/sv.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"sv","name":"Svenska","shortName":"SV","englishName":"Swedish","intl":"sv-SE","moment":"sv",`。
+
+<a id="file-eyes-src-i18n-locales-tr-js"></a>
+### `eyes/src/i18n/locales/tr.js`
+
+土耳其语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/tr.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"tr","name":"Türkçe","shortName":"TR","englishName":"Turkish","intl":"tr-TR","moment":"tr","`。
+
+<a id="file-eyes-src-i18n-locales-uk-js"></a>
+### `eyes/src/i18n/locales/uk.js`
+
+乌克兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/uk.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"uk","name":"Українська","shortName":"UK","englishName":"Ukrainian","intl":"uk-UA","moment":`。
+
+<a id="file-eyes-src-i18n-locales-vi-js"></a>
+### `eyes/src/i18n/locales/vi.js`
+
+越南语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。。[源码](../../eyes/src/i18n/locales/vi.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review。
+
+直接引用者：[eyes/src/i18n/index.js](#file-eyes-src-i18n-index-js)。
+
+当前导出：`default` ← `{"code":"vi","name":"Tiếng Việt","shortName":"VI","englishName":"Vietnamese","intl":"vi-VN","moment"`。
 
 <a id="file-eyes-src-i18n-locales-zh-CN-js"></a>
 ### `eyes/src/i18n/locales/zh-CN.js`

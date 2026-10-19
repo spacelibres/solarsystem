@@ -11,7 +11,7 @@
  * Usage: node tools/i18n-apply.mjs <locale> [more locales...]
  */
 
-import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -81,7 +81,98 @@ const META = {
       utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
       local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY HH:mm:ss', 'D MMMM YYYY HH:mm'] }
     }
-  }
+  },
+  'it': {
+    name: 'Italiano', englishName: 'Italian', shortName: 'IT', intl: 'it-IT', moment: 'it', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'nl': {
+    name: 'Nederlands', englishName: 'Dutch', shortName: 'NL', intl: 'nl-NL', moment: 'nl', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'pl': {
+    name: 'Polski', englishName: 'Polish', shortName: 'PL', intl: 'pl-PL', moment: 'pl', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'tr': {
+    name: 'Türkçe', englishName: 'Turkish', shortName: 'TR', intl: 'tr-TR', moment: 'tr', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'vi': {
+    name: 'Tiếng Việt', englishName: 'Vietnamese', shortName: 'VI', intl: 'vi-VN', moment: 'vi', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'id': {
+    name: 'Bahasa Indonesia', englishName: 'Indonesian', shortName: 'ID', intl: 'id-ID', moment: 'id', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'uk': {
+    name: 'Українська', englishName: 'Ukrainian', shortName: 'UK', intl: 'uk-UA', moment: 'uk', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'cs': {
+    name: 'Čeština', englishName: 'Czech', shortName: 'CS', intl: 'cs-CZ', moment: 'cs', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D. MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D. MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D. MMMM YYYY' + ' HH:mm:ss', 'D. MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'sv': {
+    name: 'Svenska', englishName: 'Swedish', shortName: 'SV', intl: 'sv-SE', moment: 'sv', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'ro': {
+    name: 'Română', englishName: 'Romanian', shortName: 'RO', intl: 'ro-RO', moment: 'ro', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'el': {
+    name: 'Ελληνικά', englishName: 'Greek', shortName: 'EL', intl: 'el-GR', moment: 'el', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'hi': {
+    name: 'हिन्दी', englishName: 'Hindi', shortName: 'HI', intl: 'hi-IN', moment: 'hi', dir: 'ltr',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
+  'ar': {
+    name: 'العربية', englishName: 'Arabic', shortName: 'AR', intl: 'ar-SA', moment: 'ar', dir: 'rtl',
+    dateFormats: {
+      utc: { date: 'D MMMM YYYY', time: 'HH:mm:ss' },
+      local: { date: 'D MMMM YYYY', time: 'HH:mm:ss', meridiem: '[]', parse: ['D MMMM YYYY' + ' HH:mm:ss', 'D MMMM YYYY' + ' HH:mm'] }
+    }
+  },
 };
 
 function mergeSection(target, overrides, label, errors) {
@@ -106,6 +197,7 @@ async function applyLocale(code) {
   clone.shortName = meta.shortName;
   clone.intl = meta.intl;
   clone.moment = meta.moment;
+  clone.dir = meta.dir || 'ltr';
   clone.dateFormats = meta.dateFormats;
 
   // The checked-in translation source is tools/i18n/translations/<code>.json.
@@ -131,6 +223,13 @@ async function applyLocale(code) {
     }
   }
   const errors = [];
+
+  // Persist the merged translator-owned source so the checked-in catalogues can
+  // be regenerated without the temporary chunk files.
+  if (Object.keys(data).length) {
+    mkdirSync(path.join(ROOT, 'tools/i18n/translations'), { recursive: true });
+    writeFileSync(translationFile, JSON.stringify(data, null, 2) + '\n');
+  }
 
   mergeSection(clone.messages, data.messages, 'messages', errors);
   mergeSection(clone.entities, data.entities, 'entities', errors);

@@ -3,6 +3,22 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.51 - 2026-10-19
+
+Expand the adaptive display-language layer from 10 to 23 languages. New
+catalogues: Italian, Dutch, Polish, Turkish, Vietnamese, Indonesian, Ukrainian,
+Czech, Swedish, Romanian, Greek, Hindi and Arabic. Arabic ships right-to-left
+text direction and mirrored custom picker chrome; Greek, Devanagari and Arabic
+gain script-specific font fallbacks.
+
+All new locales include the full interface catalogue, dynamic patterns, entity
+and category names, units, onboarding HTML and metadata, with translator-owned
+JSON sources under `tools/i18n/translations/`. The language picker lists all 23
+languages in a scrollable panel and continues to persist the choice through the
+`lang` URL parameter. Verified with `npm ci`, `npm test`, `npm run check` and
+`npm run build`; all 23 catalogues pass the strict i18n parity/coverage audit and
+the Playwright browser audit covers the new scripts where the host allowed it.
+
 ## 0.2.50 - 2026-10-19
 
 Add an adaptive multi-language display layer to the recovered Eyes app:

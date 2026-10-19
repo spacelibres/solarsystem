@@ -15,6 +15,7 @@ type Catalogue = {
   englishName: string;
   intl: string;
   moment: string;
+  dir?: 'ltr' | 'rtl';
   messages: Record<string, string>;
   patterns: { id: string; re: string; to: string; entityGroups?: number[]; measurement?: string }[];
   entities: Record<string, string>;
@@ -34,15 +35,22 @@ const sameKeys = (left: Record<string, unknown>, right: Record<string, unknown>)
   expect(Object.keys(right).sort()).toEqual(Object.keys(left).sort());
 
 describe('locale catalogue', () => {
-  it('ships the English source plus nine translated catalogues', () => {
-    expect(supportedLocaleCodes()).toEqual(['en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt-BR', 'ru']);
+  it('ships the English source plus twenty-two translated catalogues', () => {
+    expect(supportedLocaleCodes()).toEqual([
+      'en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt-BR', 'ru',
+      'it', 'nl', 'pl', 'tr', 'vi', 'id', 'uk', 'cs', 'sv', 'ro', 'el', 'hi', 'ar'
+    ]);
     for (const locale of locales) {
       expect(locale.code).toBeTruthy();
       expect(locale.name).toBeTruthy();
       expect(locale.englishName).toBeTruthy();
       expect(locale.intl).toMatch(/^[a-z]{2,3}(-[A-Z]{2})?$/);
       expect(locale.moment).toBeTruthy();
+      expect(['ltr', 'rtl']).toContain(locale.dir || 'ltr');
     }
+    expect((getLocale('ar') as Catalogue | null)?.dir).toBe('rtl');
+    const rightToLeft = locales.filter(locale => locale.dir === 'rtl').map(locale => locale.code);
+    expect(rightToLeft).toEqual(['ar']);
   });
 
   it('keeps every locale structurally identical to the English catalogue', () => {
@@ -122,6 +130,20 @@ describe('locale negotiation', () => {
     expect(normalizeLocaleCode('fr-CA')).toBe('fr');
     expect(normalizeLocaleCode('de-AT')).toBe('de');
     expect(normalizeLocaleCode('ja-JP')).toBe('ja');
+    expect(normalizeLocaleCode('it-IT')).toBe('it');
+    expect(normalizeLocaleCode('nl-BE')).toBe('nl');
+    expect(normalizeLocaleCode('pl-PL')).toBe('pl');
+    expect(normalizeLocaleCode('tr-TR')).toBe('tr');
+    expect(normalizeLocaleCode('vi-VN')).toBe('vi');
+    expect(normalizeLocaleCode('id-ID')).toBe('id');
+    expect(normalizeLocaleCode('uk-UA')).toBe('uk');
+    expect(normalizeLocaleCode('cs-CZ')).toBe('cs');
+    expect(normalizeLocaleCode('sv-SE')).toBe('sv');
+    expect(normalizeLocaleCode('ro-RO')).toBe('ro');
+    expect(normalizeLocaleCode('el-GR')).toBe('el');
+    expect(normalizeLocaleCode('hi-IN')).toBe('hi');
+    expect(normalizeLocaleCode('ar-SA')).toBe('ar');
+    expect(normalizeLocaleCode('ar-EG')).toBe('ar');
     expect(normalizeLocaleCode('xx')).toBeNull();
     expect(normalizeLocaleCode('')).toBeNull();
   });

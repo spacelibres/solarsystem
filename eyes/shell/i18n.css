@@ -150,7 +150,62 @@ html[data-locale="pt-BR"] .menu-btn {
   letter-spacing: 0;
 }
 
+/* Greek, Devanagari and Arabic need script-specific fallbacks. */
+html:lang(el) body :not(.icon):not([class^="icon"]):not([class*=" icon"]) {
+  font-family: Metropolis, "Segoe UI", "Noto Sans", "DejaVu Sans", Arial, sans-serif;
+}
+html:lang(hi) body :not(.icon):not([class^="icon"]):not([class*=" icon"]) {
+  font-family: Metropolis, "Nirmala UI", "Noto Sans Devanagari", "Mangal", sans-serif;
+}
+html:lang(ar) body :not(.icon):not([class^="icon"]):not([class*=" icon"]) {
+  font-family: Metropolis, "Segoe UI", "Noto Naskh Arabic", "Noto Sans Arabic", "Arial", sans-serif;
+}
+html:lang(el) .spacelibre-lang-native,
+html:lang(hi) .spacelibre-lang-native,
+html:lang(ar) .spacelibre-lang-native {
+  font-family: "Segoe UI", "Noto Sans", "Noto Sans Devanagari", "Noto Naskh Arabic", sans-serif;
+}
+
+/* The recovered chrome is left-to-right; Arabic gets correct text direction and
+   mirrored custom surfaces without rotating the 3D viewport or absolute panels. */
+html[dir="rtl"] .spacelibre-lang-panel {
+  left: 56px;
+  right: auto;
+}
+html[dir="rtl"] .spacelibre-lang-title {
+  margin: 0 4px 10px 24px;
+  text-align: right;
+}
+html[dir="rtl"] .spacelibre-lang-option {
+  text-align: right;
+}
+html[dir="rtl"] .spacelibre-lang-close {
+  left: 10px;
+  right: auto;
+}
+html[dir="rtl"] .spacelibre-lang-trigger {
+  direction: rtl;
+}
+html[dir="rtl"] .breadcrumb .text,
+html[dir="rtl"] .breadcrumb h1 {
+  direction: rtl;
+  text-align: right;
+}
+
+/* More than twenty languages make the picker a scrollable list. */
+.spacelibre-lang-list {
+  scrollbar-color: var(--grayDark, #4a4a55) transparent;
+  scrollbar-width: thin;
+}
+.spacelibre-lang-option {
+  min-height: 34px;
+}
+
 @media (max-width: 900px) {
+  html[dir="rtl"] .spacelibre-lang-panel {
+    left: 16px;
+    right: 16px;
+  }
   .spacelibre-lang-panel {
     bottom: 92px;
     left: 16px;

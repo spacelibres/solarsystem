@@ -23,6 +23,7 @@ export default {
     }
   },
   "messages": {
+    "celestial bodies": "天体",
     "View": "视图",
     "telescope": "望远镜",
     "loading...": "加载中……",
@@ -514,17 +515,13 @@ export default {
       "re": "^See the relative size of (.+) compared to other (.+)$",
       "to": "查看$1与其他$2的相对大小",
       "entityGroups": [
-        1,
-        2
+        1
       ]
     },
     {
       "id": "featureOf",
       "re": "^Feature of (.+)$",
-      "to": "$1的特征",
-      "entityGroups": [
-        1
-      ]
+      "to": "$1的特征"
     },
     {
       "id": "genericModel",
@@ -1378,5 +1375,6 @@ export default {
   "meta": {
     "titlePrefix": "太阳系",
     "description": "探索太阳系的三维世界。了解过去与未来的任务。"
-  }
+  },
+  "dir": "ltr"
 };

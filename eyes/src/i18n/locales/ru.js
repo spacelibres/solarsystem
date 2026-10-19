@@ -23,6 +23,7 @@ export default {
     }
   },
   "messages": {
+    "celestial bodies": "небесные тела",
     "View": "Вид",
     "telescope": "телескоп",
     "loading...": "загрузка…",
@@ -514,17 +515,13 @@ export default {
       "re": "^See the relative size of (.+) compared to other (.+)$",
       "to": "Сравнить размер: $1 и другие ($2)",
       "entityGroups": [
-        1,
-        2
+        1
       ]
     },
     {
       "id": "featureOf",
       "re": "^Feature of (.+)$",
-      "to": "Особенность: $1",
-      "entityGroups": [
-        1
-      ]
+      "to": "Особенность: $1"
     },
     {
       "id": "genericModel",
@@ -1378,5 +1375,6 @@ export default {
   "meta": {
     "titlePrefix": "Солнечная система",
     "description": "Исследуйте Солнечную систему в 3D. Узнайте о прошлых и будущих миссиях."
-  }
+  },
+  "dir": "ltr"
 };

@@ -2,11 +2,11 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1131,
-    "javascript": 1046,
+    "files": 1144,
+    "javascript": 1059,
     "classes": 552,
     "methods": 5514,
-    "shortBindings": 21762,
+    "shortBindings": 21775,
     "templates": 56
   },
   "cycles": [
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "eebcf6847792d4f4553ba8bcfd6eae08410f1049231035d41e879e934b080ebe",
+      "sha256": "a0399288f4496e5db5994675558c660f0fcb073a0d15f945c6f46c074c73e379",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "296752b788b64f4620203600ee6df754914b846ffff1fd32112cbe807afbd469",
+      "sha256": "5b6b6340f905568386a2102e5625a83ac34d2f4f5fd3397d237e9ef4f48b69e6",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1410,8 +1410,8 @@
     },
     {
       "file": "eyes/shell/i18n.css",
-      "bytes": 4781,
-      "sha256": "10fac31a91e9872370949ae65d3b91fe82c11ac925f7d3311cb1e0f213deb099",
+      "bytes": 6517,
+      "sha256": "5758e1e5c7888fbfb7e236e01b6cc79b762835f2b92c7698f2b28128239975b4",
       "purpose": "语言层的补充样式：语言选择器、CJK 字体回退、德/俄长标签排版与 CSS 生成文案的本地化变量覆盖。",
       "confidence": "observed",
       "origin": null,
@@ -132568,8 +132568,8 @@
     },
     {
       "file": "eyes/src/i18n/core.js",
-      "bytes": 14021,
-      "sha256": "bd9f78076cdb6cb548491f31deaffc652db9cd9ef69ebde0dc7fa5e03d120cd1",
+      "bytes": 14783,
+      "sha256": "99cfd03a3d019a926401c18d1b823c78cdaf2ea1c9aeaa57f7c9cf5b03b53210",
       "purpose": "显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。",
       "confidence": "observed",
       "origin": null,
@@ -132601,42 +132601,42 @@
         {
           "exported": "translateText",
           "local": "translateText",
-          "line": 167
+          "line": 181
         },
         {
           "exported": "translateTitle",
           "local": "translateTitle",
-          "line": 176
+          "line": 190
         },
         {
           "exported": "translateHtml",
           "local": "translateHtml",
-          "line": 202
+          "line": 216
         },
         {
           "exported": "localizeAttributes",
           "local": "localizeAttributes",
-          "line": 224
+          "line": 238
         },
         {
           "exported": "localizeElement",
           "local": "localizeElement",
-          "line": 266
+          "line": 280
         },
         {
           "exported": "localizeDocument",
           "local": "localizeDocument",
-          "line": 285
+          "line": 299
         },
         {
           "exported": "translateLocaleMetadata",
           "local": "translateLocaleMetadata",
-          "line": 318
+          "line": 332
         },
         {
           "exported": "currentMessages",
           "local": "currentMessages",
-          "line": 338
+          "line": 353
         }
       ],
       "aliases": {},
@@ -132733,7 +132733,7 @@
           "name": "translateCore",
           "documentation": "",
           "line": 101,
-          "endLine": 139,
+          "endLine": 153,
           "async": false,
           "params": [
             "core",
@@ -132743,8 +132743,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 124,
-          "endLine": 124,
+          "line": 138,
+          "endLine": 138,
           "async": false,
           "params": [
             "groupIndex"
@@ -132753,8 +132753,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 128,
-          "endLine": 132,
+          "line": 142,
+          "endLine": 146,
           "async": false,
           "params": [
             "_",
@@ -132764,8 +132764,8 @@
         {
           "name": "translateMeasurement",
           "documentation": "Numbers and units are formatted by the app, so only the unit vocabulary moves.",
-          "line": 142,
-          "endLine": 165,
+          "line": 156,
+          "endLine": 179,
           "async": false,
           "params": [
             "core"
@@ -132774,8 +132774,8 @@
         {
           "name": "translateUnit",
           "documentation": "",
-          "line": 144,
-          "endLine": 144,
+          "line": 158,
+          "endLine": 158,
           "async": false,
           "params": [
             "unit"
@@ -132784,8 +132784,8 @@
         {
           "name": "translateText",
           "documentation": "",
-          "line": 167,
-          "endLine": 173,
+          "line": 181,
+          "endLine": 187,
           "async": false,
           "params": [
             "text",
@@ -132795,8 +132795,8 @@
         {
           "name": "translateTitle",
           "documentation": "Document titles join a localized prefix, current title and brand.",
-          "line": 176,
-          "endLine": 200,
+          "line": 190,
+          "endLine": 214,
           "async": false,
           "params": [
             "title"
@@ -132805,8 +132805,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 198,
-          "endLine": 198,
+          "line": 212,
+          "endLine": 212,
           "async": false,
           "params": [
             "part"
@@ -132815,8 +132815,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 198,
-          "endLine": 198,
+          "line": 212,
+          "endLine": 212,
           "async": false,
           "params": [
             "section"
@@ -132825,8 +132825,8 @@
         {
           "name": "translateHtml",
           "documentation": "",
-          "line": 202,
-          "endLine": 205,
+          "line": 216,
+          "endLine": 219,
           "async": false,
           "params": [
             "htmlKey"
@@ -132835,8 +132835,8 @@
         {
           "name": "refreshTippy",
           "documentation": "",
-          "line": 207,
-          "endLine": 212,
+          "line": 221,
+          "endLine": 226,
           "async": false,
           "params": [
             "element",
@@ -132846,8 +132846,8 @@
         {
           "name": "translateStyleVariable",
           "documentation": "",
-          "line": 214,
-          "endLine": 222,
+          "line": 228,
+          "endLine": 236,
           "async": false,
           "params": [
             "element",
@@ -132857,8 +132857,8 @@
         {
           "name": "localizeAttributes",
           "documentation": "",
-          "line": 224,
-          "endLine": 243,
+          "line": 238,
+          "endLine": 257,
           "async": false,
           "params": [
             "element"
@@ -132867,8 +132867,8 @@
         {
           "name": "localizeHtmlBlock",
           "documentation": "",
-          "line": 245,
-          "endLine": 251,
+          "line": 259,
+          "endLine": 265,
           "async": false,
           "params": [
             "element"
@@ -132877,8 +132877,8 @@
         {
           "name": "localizeCategorizedText",
           "documentation": "",
-          "line": 253,
-          "endLine": 264,
+          "line": 267,
+          "endLine": 278,
           "async": false,
           "params": [
             "element"
@@ -132887,8 +132887,8 @@
         {
           "name": "localizeElement",
           "documentation": "",
-          "line": 266,
-          "endLine": 283,
+          "line": 280,
+          "endLine": 297,
           "async": false,
           "params": [
             "root"
@@ -132897,8 +132897,8 @@
         {
           "name": "localizeDocument",
           "documentation": "",
-          "line": 285,
-          "endLine": 316,
+          "line": 299,
+          "endLine": 330,
           "async": false,
           "params": [
             "root=document.body"
@@ -132907,8 +132907,8 @@
         {
           "name": "translateLocaleMetadata",
           "documentation": "",
-          "line": 318,
-          "endLine": 336,
+          "line": 332,
+          "endLine": 351,
           "async": false,
           "params": [
             "locale"
@@ -132917,8 +132917,8 @@
         {
           "name": "currentMessages",
           "documentation": "",
-          "line": 338,
-          "endLine": 340,
+          "line": 353,
+          "endLine": 355,
           "async": false,
           "params": []
         }
@@ -132941,8 +132941,8 @@
         {
           "name": "_",
           "kind": "param",
-          "line": 128,
-          "scope": "callback@128:40",
+          "line": 142,
+          "scope": "callback@142:40",
           "references": 0,
           "constant": true,
           "uses": [],
@@ -132951,7 +132951,7 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 2,
-      "semanticHash": "394b1fa22ba73697f8e1f8e78ce93f399b8400e238db9e6961f652fb8c6d57a9",
+      "semanticHash": "22fb05b32add2919e986f9986ce545cc024cef67578ab5b4a3bcf2cd0960a4af",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/install.js",
@@ -132960,8 +132960,8 @@
     },
     {
       "file": "eyes/src/i18n/index.js",
-      "bytes": 3051,
-      "sha256": "d36e35d048723411bd1a7f3b829de1c5e60f5efd716254e4ac1686201a88adc5",
+      "bytes": 4200,
+      "sha256": "e307ce91cff7dc081510ea13d53849f346ceed75cc45d3b98492c158c69e23f5",
       "purpose": "支持语言的注册表、URL/存储/浏览器语言协商与区域标签归一化；只做纯数据解析，不接入 DOM。",
       "confidence": "observed",
       "origin": null,
@@ -133078,38 +133078,181 @@
               "imported": "default"
             }
           ]
+        },
+        {
+          "source": "./locales/it.js",
+          "kind": "import",
+          "line": 13,
+          "bindings": [
+            {
+              "local": "it",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/nl.js",
+          "kind": "import",
+          "line": 14,
+          "bindings": [
+            {
+              "local": "nl",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/pl.js",
+          "kind": "import",
+          "line": 15,
+          "bindings": [
+            {
+              "local": "pl",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/tr.js",
+          "kind": "import",
+          "line": 16,
+          "bindings": [
+            {
+              "local": "tr",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/vi.js",
+          "kind": "import",
+          "line": 17,
+          "bindings": [
+            {
+              "local": "vi",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/id.js",
+          "kind": "import",
+          "line": 18,
+          "bindings": [
+            {
+              "local": "id",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/uk.js",
+          "kind": "import",
+          "line": 19,
+          "bindings": [
+            {
+              "local": "uk",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/cs.js",
+          "kind": "import",
+          "line": 20,
+          "bindings": [
+            {
+              "local": "cs",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/sv.js",
+          "kind": "import",
+          "line": 21,
+          "bindings": [
+            {
+              "local": "sv",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/ro.js",
+          "kind": "import",
+          "line": 22,
+          "bindings": [
+            {
+              "local": "ro",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/el.js",
+          "kind": "import",
+          "line": 23,
+          "bindings": [
+            {
+              "local": "el",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/hi.js",
+          "kind": "import",
+          "line": 24,
+          "bindings": [
+            {
+              "local": "hi",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./locales/ar.js",
+          "kind": "import",
+          "line": 25,
+          "bindings": [
+            {
+              "local": "ar",
+              "imported": "default"
+            }
+          ]
         }
       ],
       "exports": [
         {
           "exported": "ENGLISH",
           "local": "ENGLISH",
-          "line": 14
+          "line": 27
         },
         {
           "exported": "LOCALES",
           "local": "LOCALES",
-          "line": 15
+          "line": 28
         },
         {
           "exported": "normalizeLocaleCode",
           "local": "normalizeLocaleCode",
-          "line": 30
+          "line": 52
         },
         {
           "exported": "getLocale",
           "local": "getLocale",
-          "line": 43
+          "line": 67
         },
         {
           "exported": "supportedLocaleCodes",
           "local": "supportedLocaleCodes",
-          "line": 48
+          "line": 72
         },
         {
           "exported": "detectLocale",
           "local": "detectLocale",
-          "line": 59
+          "line": 83
         }
       ],
       "aliases": {
@@ -133120,8 +133263,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 17,
-          "endLine": 17,
+          "line": 33,
+          "endLine": 33,
           "async": false,
           "params": [
             "locale"
@@ -133130,8 +133273,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 18,
-          "endLine": 18,
+          "line": 34,
+          "endLine": 34,
           "async": false,
           "params": [
             "locale"
@@ -133140,8 +133283,8 @@
         {
           "name": "normalizeLocaleCode",
           "documentation": "",
-          "line": 30,
-          "endLine": 41,
+          "line": 52,
+          "endLine": 65,
           "async": false,
           "params": [
             "value"
@@ -133150,8 +133293,8 @@
         {
           "name": "getLocale",
           "documentation": "",
-          "line": 43,
-          "endLine": 46,
+          "line": 67,
+          "endLine": 70,
           "async": false,
           "params": [
             "code"
@@ -133160,16 +133303,16 @@
         {
           "name": "supportedLocaleCodes",
           "documentation": "",
-          "line": 48,
-          "endLine": 50,
+          "line": 72,
+          "endLine": 74,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 49,
-          "endLine": 49,
+          "line": 73,
+          "endLine": 73,
           "async": false,
           "params": [
             "locale"
@@ -133178,8 +133321,8 @@
         {
           "name": "localeFromQuery",
           "documentation": "",
-          "line": 52,
-          "endLine": 56,
+          "line": 76,
+          "endLine": 80,
           "async": false,
           "params": [
             "search"
@@ -133188,8 +133331,8 @@
         {
           "name": "detectLocale",
           "documentation": "URL (both real search and the hash query) wins, then storage, then browser.",
-          "line": 59,
-          "endLine": 76,
+          "line": 83,
+          "endLine": 100,
           "async": false,
           "params": [
             "storageKey='spacelibre.locale'"
@@ -133206,7 +133349,7 @@
           "constant": true,
           "uses": [
             "ENGLISH=en",
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133218,7 +133361,7 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133230,7 +133373,7 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133242,7 +133385,7 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133254,7 +133397,7 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133266,7 +133409,7 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         },
@@ -133278,14 +133421,170 @@
           "references": 1,
           "constant": true,
           "uses": [
-            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru]"
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "it",
+          "kind": "module",
+          "line": 13,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "nl",
+          "kind": "module",
+          "line": 14,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "pl",
+          "kind": "module",
+          "line": 15,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "tr",
+          "kind": "module",
+          "line": 16,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "vi",
+          "kind": "module",
+          "line": 17,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "id",
+          "kind": "module",
+          "line": 18,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "uk",
+          "kind": "module",
+          "line": 19,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "cs",
+          "kind": "module",
+          "line": 20,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "sv",
+          "kind": "module",
+          "line": 21,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "ro",
+          "kind": "module",
+          "line": 22,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "el",
+          "kind": "module",
+          "line": 23,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "hi",
+          "kind": "module",
+          "line": 24,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
+          ],
+          "candidates": []
+        },
+        {
+          "name": "ar",
+          "kind": "module",
+          "line": 25,
+          "scope": "module@1:0",
+          "references": 1,
+          "constant": true,
+          "uses": [
+            "[en,zhCN,zhTW,ja,ko,fr,de,es,ptBR,ru,it,nl,pl,tr,vi,id,uk,cs,sv,ro,el,hi,ar]"
           ],
           "candidates": []
         }
       ],
       "topLevelEffects": [],
-      "shortBindingCount": 7,
-      "semanticHash": "a3b2a84b8c9ca56787286499d7a6921b32d9c5f801c7cad57e0510faf1bcdea9",
+      "shortBindingCount": 20,
+      "semanticHash": "8c51679b5950ce62ad2fb65a0958a0309bec4f5b1ded98d1aec23b73bc5ec495",
       "dependencies": [
         "eyes/src/i18n/locales/en.js",
         "eyes/src/i18n/locales/zh-CN.js",
@@ -133296,7 +133595,20 @@
         "eyes/src/i18n/locales/de.js",
         "eyes/src/i18n/locales/es.js",
         "eyes/src/i18n/locales/pt-BR.js",
-        "eyes/src/i18n/locales/ru.js"
+        "eyes/src/i18n/locales/ru.js",
+        "eyes/src/i18n/locales/it.js",
+        "eyes/src/i18n/locales/nl.js",
+        "eyes/src/i18n/locales/pl.js",
+        "eyes/src/i18n/locales/tr.js",
+        "eyes/src/i18n/locales/vi.js",
+        "eyes/src/i18n/locales/id.js",
+        "eyes/src/i18n/locales/uk.js",
+        "eyes/src/i18n/locales/cs.js",
+        "eyes/src/i18n/locales/sv.js",
+        "eyes/src/i18n/locales/ro.js",
+        "eyes/src/i18n/locales/el.js",
+        "eyes/src/i18n/locales/hi.js",
+        "eyes/src/i18n/locales/ar.js"
       ],
       "dependents": [
         "eyes/src/i18n/install.js"
@@ -133669,9 +133981,69 @@
       ]
     },
     {
+      "file": "eyes/src/i18n/locales/ar.js",
+      "bytes": 82663,
+      "sha256": "a1103ef2dcb934391d3e506586755e0f5fbacf3c9df05ca8aaf53ce3abc127a7",
+      "purpose": "阿拉伯语（RTL）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"ar\",\"name\":\"العربية\",\"shortName\":\"AR\",\"englishName\":\"Arabic\",\"intl\":\"ar-SA\",\"moment\":\"ar\",\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "87207642c0c0f658f80d9b2dcafe9fb0aff0b19d7e70dd5e18069093ed529c8e",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/cs.js",
+      "bytes": 69949,
+      "sha256": "c825d2a92203c3927a9c7c5b8af74dd65ec70c0ccf45642ce649988db50eaa9c",
+      "purpose": "捷克语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"cs\",\"name\":\"Čeština\",\"shortName\":\"CS\",\"englishName\":\"Czech\",\"intl\":\"cs-CZ\",\"moment\":\"cs\",\"d",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "f560dee3d1ff64b8b6d6745237ff5ddd99f07b39103a0374906fab359aca42fc",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
       "file": "eyes/src/i18n/locales/de.js",
-      "bytes": 71955,
-      "sha256": "b3c7cf62dec733c57c7623d9d0b7da389cf3704540106a3f4cdec4bb643999fd",
+      "bytes": 71959,
+      "sha256": "9c4260ee9eba5a8c7a357c2314c3fdff73b126c5ea1dfa1ef34b735388594151",
       "purpose": "德语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133692,7 +134064,37 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "8ae3eaac4593c3ea6021063686c295b236ca7403f70a4ea726a7175a09b5a3f8",
+      "semanticHash": "d9e53a0ea22f2101f9af7de685f0e394d80f49c74df238f8dd1b5aa19da34841",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/el.js",
+      "bytes": 97728,
+      "sha256": "b51dd841175d21e6e818beac705c818365ca40d55644bb85177bc8021ca20b94",
+      "purpose": "希腊语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"el\",\"name\":\"Ελληνικά\",\"shortName\":\"EL\",\"englishName\":\"Greek\",\"intl\":\"el-GR\",\"moment\":\"el\",\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "39fe286614d7a7554b991029b48692790f887307efc7e0602cc27dcf10dd15a0",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133700,8 +134102,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/en.js",
-      "bytes": 64513,
-      "sha256": "f1a6a4249eb20443aacfd8cbafaa2fad00913da8708557850c3cdd83c56e642d",
+      "bytes": 64536,
+      "sha256": "cb7f7bccb1ab32f6c1feb6453c5a66cfc5b722cd9d63566f977b31e762ba154d",
       "purpose": "英文源目录：界面消息、动态模式、实体与别名、类别/子类别、单位、入门 HTML 区块与站点描述；其他语言文件保持同构。",
       "confidence": "observed",
       "origin": null,
@@ -133722,7 +134124,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "b5b2b2dcba875a866184b04724b3e66ec92ae95573a104f5b66d68d9715ad576",
+      "semanticHash": "3d1a7baa05dc6fd30bb368a0596a020b91a4a810172027c67c157d626ec2be43",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133730,8 +134132,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/es.js",
-      "bytes": 72320,
-      "sha256": "e90c74572a3abd862c204414766eec6f4c9d36e4d5633333a7407019c7c19a8b",
+      "bytes": 72326,
+      "sha256": "601a134dc5524fa211ef803a0100c04979c0f79561d94d4e955c36ae8c956206",
       "purpose": "西班牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133752,7 +134154,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f7434686c608bc0f127965694613740105f4f03c9305a0fd825d0f01cb283452",
+      "semanticHash": "37b3062a6ee449d03246f33ceb1148c291cfd79a57c9ed7e34cfbe9882fff334",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133760,8 +134162,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/fr.js",
-      "bytes": 73492,
-      "sha256": "f651fe6cfd3c19e6baebafa676edbf547314e269c17471966ad6335f00258a36",
+      "bytes": 73497,
+      "sha256": "f2e467477ba5a967252b7296e261c08d97b028481619d772c3b602dec56dcb16",
       "purpose": "法语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133782,7 +134184,97 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "00a82ef5a20e827a9e230fb8bc2019aa90f24bdcf0c945a3a470a38ac5840ec8",
+      "semanticHash": "29395c7260eebbbd1beb35f25d62c033ca940fc84df2b6742b6a448faaf62209",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/hi.js",
+      "bytes": 106460,
+      "sha256": "8c3bc49beb7390ff52c4ec2411e3011db8909170f140e9f190491021f60c45b8",
+      "purpose": "印地语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"hi\",\"name\":\"हिन्दी\",\"shortName\":\"HI\",\"englishName\":\"Hindi\",\"intl\":\"hi-IN\",\"moment\":\"hi\",\"da",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "d159846f2e7bb31935fcb07bd11b6413489ea3e3b6e565a0176b44f62dd3d584",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/id.js",
+      "bytes": 69221,
+      "sha256": "f5c8731d672ff1c77a899d995a58f87aa8b50fbd43198957778d7e4e528c6704",
+      "purpose": "印度尼西亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"id\",\"name\":\"Bahasa Indonesia\",\"shortName\":\"ID\",\"englishName\":\"Indonesian\",\"intl\":\"id-ID\",\"m",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "c6daba5a3d0ea4fd1114c02ef5bfa38008638b8a7a78f24d4a96723cbcc680b2",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/it.js",
+      "bytes": 71356,
+      "sha256": "932526b6796fa3a4ce1637a32d1f8ab64f5d14f5aa5fd191df86676a09f35a4e",
+      "purpose": "意大利语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"it\",\"name\":\"Italiano\",\"shortName\":\"IT\",\"englishName\":\"Italian\",\"intl\":\"it-IT\",\"moment\":\"it\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "06a7086137021a1eb6077376c03c38fe0c99e4bd2b4df9f5598b0552fe0ddb13",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133790,8 +134282,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ja.js",
-      "bytes": 76363,
-      "sha256": "9a64ed8e8de84e455b1723da5ff03e57d4b89ce2397b4ffba35e1bbad296c255",
+      "bytes": 76359,
+      "sha256": "a47bfdd687f238856486df8ccd0ea6e50965505575e175b942bc3665c3baae23",
       "purpose": "日语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133812,7 +134304,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "3fdfedf50cd81281bd9ea71ca4e7f9b97762add69e8a6a7011f83bbea1b1b8fa",
+      "semanticHash": "49e004b8df74129cd95a3cb8c2129d11fcedddb19b3c4514557c79879bed7e09",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133820,8 +134312,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ko.js",
-      "bytes": 72538,
-      "sha256": "c968bee1487d347132d6f9e9f2136b69fa8c68b72002ff53435988b7547c7693",
+      "bytes": 72534,
+      "sha256": "4341f6dec676c0fc037ab557af039eb4df5b75eab6cd3de88d624ff0a6ee1617",
       "purpose": "韩语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133842,7 +134334,67 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "47863a95e13dbf1360629082f5fc85a33f260444bbd71454db69cfb5713eb8c1",
+      "semanticHash": "28ca09ad641304cffb4988bc95dc7dd77661ddff5375f3ecf0ffcb28647c5e32",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/nl.js",
+      "bytes": 70940,
+      "sha256": "87fa868b869f6cc3ce3271fc8b0fa0ffa4c83c82614bd5409428d9d5588f7154",
+      "purpose": "荷兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"nl\",\"name\":\"Nederlands\",\"shortName\":\"NL\",\"englishName\":\"Dutch\",\"intl\":\"nl-NL\",\"moment\":\"nl\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "a9dcfecf49ef7d81f0d8b199ea1c25720c611669ed3bd3f015f3a80d40d914b6",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/pl.js",
+      "bytes": 71632,
+      "sha256": "94aaa93e4bc4054d95a25a9e0cff06543e807947456a0d9c105c9742a6e510a9",
+      "purpose": "波兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"pl\",\"name\":\"Polski\",\"shortName\":\"PL\",\"englishName\":\"Polish\",\"intl\":\"pl-PL\",\"moment\":\"pl\",\"d",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "6eeadb99ace0f97a03d736e18be2c2687b21900b207de3a5bb93574642001827",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133850,8 +134402,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/pt-BR.js",
-      "bytes": 71310,
-      "sha256": "eca2f52fd24b6ee016a95b62c947f10806bd1ef581f59183d392bf5fff65f3ff",
+      "bytes": 71315,
+      "sha256": "369b4c5076e625d77444d0b515a34a96d1da5d22b881cd44d697570623e7a1e7",
       "purpose": "巴西葡萄牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133872,7 +134424,37 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "cd73fb9903369036c01d5dde276c49f6373f42b17370916ca27f92c458dd0a68",
+      "semanticHash": "68dd07a63198ed8151927a4a06f4a4c29b2fd5b456f0d1ec4d40c387eef739fb",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/ro.js",
+      "bytes": 72766,
+      "sha256": "86f446571e228bbcb640e4fc7452da8d17610650df7fb09c8bf88e4d05350900",
+      "purpose": "罗马尼亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"ro\",\"name\":\"Română\",\"shortName\":\"RO\",\"englishName\":\"Romanian\",\"intl\":\"ro-RO\",\"moment\":\"ro\",",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "45d595f2334fb0719ed8062e61d59994111bdfdcb32ba676dc3ef2e2ec9c875a",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133880,8 +134462,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ru.js",
-      "bytes": 91765,
-      "sha256": "ef66d571251a75cce975d057257305dee5812de88de36e3253de5afa375c7772",
+      "bytes": 91780,
+      "sha256": "f87f8391c2ee145d5aabab8addb53d8c1cbac53abfec2b1be94439c474bc1cbe",
       "purpose": "俄语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133902,7 +134484,127 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "28c497dbfc38f843dc48474c662f4b1cb3552aa958051770ead3eb57c4d663f7",
+      "semanticHash": "ff1ac02599a33e211b824ec97ad0988b2c14f5759c31e96d1cd3c0cc39bfa5ba",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/sv.js",
+      "bytes": 69518,
+      "sha256": "94e26a5daed1adac3dbd78373d748ac8f4781404d8e0bd07f75e14656b900a3c",
+      "purpose": "瑞典语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"sv\",\"name\":\"Svenska\",\"shortName\":\"SV\",\"englishName\":\"Swedish\",\"intl\":\"sv-SE\",\"moment\":\"sv\",",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "ae5cc251eb7d3827970fe7b912f391afa20801a863d1c4d31639cd134d0b9ae5",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/tr.js",
+      "bytes": 71830,
+      "sha256": "1737f725254734c2e265db9f17cea635c39821da5fe8131ed87035ecbe14114c",
+      "purpose": "土耳其语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"tr\",\"name\":\"Türkçe\",\"shortName\":\"TR\",\"englishName\":\"Turkish\",\"intl\":\"tr-TR\",\"moment\":\"tr\",\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "af38aa8a2314eaef8fc1946c532f18acbb713491da1318f5a0603e038e1cfab9",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/uk.js",
+      "bytes": 90913,
+      "sha256": "a9da27d90f0d5882971fef96a13cec5f69a623f1ef5812e7b0575abbed5fc31e",
+      "purpose": "乌克兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"uk\",\"name\":\"Українська\",\"shortName\":\"UK\",\"englishName\":\"Ukrainian\",\"intl\":\"uk-UA\",\"moment\":",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "c6862b9bc75d1cb0a852b6e5baa2cea8748345de7abc49c7c843cd2704793cd5",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/i18n/index.js"
+      ]
+    },
+    {
+      "file": "eyes/src/i18n/locales/vi.js",
+      "bytes": 77441,
+      "sha256": "9570b85c96b760bc5ecf7efa57904e03e32610745abb396890708c9fb9486516",
+      "purpose": "越南语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "default",
+          "local": "{\"code\":\"vi\",\"name\":\"Tiếng Việt\",\"shortName\":\"VI\",\"englishName\":\"Vietnamese\",\"intl\":\"vi-VN\",\"moment\"",
+          "line": 3
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "c2efd46b8facc8b1be6fe819a6623fffc55a5aa0b72ce1ba530945e6cf4cfb11",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133910,8 +134612,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/zh-CN.js",
-      "bytes": 65735,
-      "sha256": "e42060ed2bacaa786d7fa2ded677b239a866a46e0c3cb970d60e4741f0017e23",
+      "bytes": 65731,
+      "sha256": "ed22e45b0a816ac2dcf69b6ea5427fde7ebe3ae1ccfe67ae91093968571ee3ce",
       "purpose": "简体中文翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133932,7 +134634,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "db0eab24fb2225441ebbe4d931d9216ed6942abf51cf7383bf6aa9065ac30566",
+      "semanticHash": "ccd14d7e78dae1c5fc65bf5014a38cb1a0b6b49c4db95640c4e21ff48a752f61",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -133940,8 +134642,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/zh-TW.js",
-      "bytes": 65795,
-      "sha256": "f0e4985255c1d780b80b4dd53a6deac2b0a3c129b178366e1f7cd427ac0ba835",
+      "bytes": 65791,
+      "sha256": "b30c69ea91e5efda095883e4bdbc729ea0d0eb96ed321fef088426c2d27b8e80",
       "purpose": "繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -133962,7 +134664,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "766493c685a46b3c9b14c25dda4b060d381ea25b7e6154e70a5c1fbe9489513d",
+      "semanticHash": "212301aca28a0e86b512fb5dab920c08a20825511e1307d7d7083b9468aa12bd",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"

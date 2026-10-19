@@ -23,6 +23,7 @@ export default {
     }
   },
   "messages": {
+    "celestial bodies": "천체",
     "View": "보기",
     "telescope": "망원경",
     "loading...": "로드 중...",
@@ -514,17 +515,13 @@ export default {
       "re": "^See the relative size of (.+) compared to other (.+)$",
       "to": "$1와 다른 $2의 상대적 크기 보기",
       "entityGroups": [
-        1,
-        2
+        1
       ]
     },
     {
       "id": "featureOf",
       "re": "^Feature of (.+)$",
-      "to": "$1의 특징",
-      "entityGroups": [
-        1
-      ]
+      "to": "$1의 특징"
     },
     {
       "id": "genericModel",
@@ -1378,5 +1375,6 @@ export default {
   "meta": {
     "titlePrefix": "Solar System",
     "description": "태양계의 3D 세계를 탐험해 보세요. 과거와 미래의 임무에 대해 알아보세요."
-  }
+  },
+  "dir": "ltr"
 };

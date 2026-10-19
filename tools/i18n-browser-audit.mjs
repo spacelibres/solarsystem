@@ -42,8 +42,19 @@ const execFileAsync = promisify(execFile);
 const ROOT = path.resolve(import.meta.dirname, '..');
 const LOCALES_DIR = path.join(ROOT, 'eyes/src/i18n/locales');
 
-const ALL_CODES = ['en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt-BR', 'ru'];
-const MOBILE_CODES = ['zh-CN', 'de', 'ru'];
+const ALL_CODES = [
+  'en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt-BR', 'ru',
+  'it', 'nl', 'pl', 'tr', 'vi', 'id', 'uk', 'cs', 'sv', 'ro', 'el', 'hi', 'ar'
+];
+// Mobile home capture for the original set plus the new non-Latin scripts.
+const MOBILE_CODES = ['zh-CN', 'de', 'ru', 'hi', 'ar'];
+// Scripts that need explicit rendering checks: Greek, Devanagari and Arabic
+// (Arabic is also the RTL locale).
+const SCRIPT_RANGES = {
+  el: /\p{Script=Greek}/u,
+  hi: /\p{Script=Devanagari}/u,
+  ar: /\p{Script=Arabic}/u
+};
 const DESKTOP_VIEWPORT = { width: 1440, height: 900 };
 const MOBILE_VIEWPORT = { width: 390, height: 844 };
 
@@ -201,15 +212,58 @@ const FALLBACK_NAMES = {
   de: { name: 'Deutsch', englishName: 'German' },
   es: { name: 'Español', englishName: 'Spanish' },
   'pt-BR': { name: 'Português (Brasil)', englishName: 'Portuguese (Brazil)' },
-  ru: { name: 'Русский', englishName: 'Russian' }
+  ru: { name: 'Русский', englishName: 'Russian' },
+  it: { name: 'Italiano', englishName: 'Italian' },
+  nl: { name: 'Nederlands', englishName: 'Dutch' },
+  pl: { name: 'Polski', englishName: 'Polish' },
+  tr: { name: 'Türkçe', englishName: 'Turkish' },
+  vi: { name: 'Tiếng Việt', englishName: 'Vietnamese' },
+  id: { name: 'Bahasa Indonesia', englishName: 'Indonesian' },
+  uk: { name: 'Українська', englishName: 'Ukrainian' },
+  cs: { name: 'Čeština', englishName: 'Czech' },
+  sv: { name: 'Svenska', englishName: 'Swedish' },
+  ro: { name: 'Română', englishName: 'Romanian' },
+  el: { name: 'Ελληνικά', englishName: 'Greek' },
+  hi: { name: 'हिन्दी', englishName: 'Hindi' },
+  ar: { name: 'العربية', englishName: 'Arabic' }
 };
 const localeNames = {};
+const localeModules = {};
+const coverageByCode = {};
 for (const code of ALL_CODES) {
   const module = await loadLocaleModule(code);
+  localeModules[code] = module;
   localeNames[code] = module
     ? { name: module.name, englishName: module.englishName }
     : FALLBACK_NAMES[code];
+  const englishKeys = Object.keys(en.messages || {});
+  const localeMessages = (module && module.messages) || {};
+  const translated = englishKeys.filter(key => localeMessages[key] !== undefined && localeMessages[key] !== en.messages[key]).length;
+  const htmlKeys = Object.keys(en.html || {});
+  const htmlTranslated = htmlKeys.filter(key => module && module.html && module.html[key] !== undefined && module.html[key] !== en.html[key]).length;
+  const patternsTranslated = (en.patterns || []).filter((pattern, index) => module && module.patterns && module.patterns[index] && module.patterns[index].to !== pattern.to).length;
+  coverageByCode[code] = {
+    messagesPercent: englishKeys.length ? Math.round((100 * translated) / englishKeys.length) : 0,
+    messagesTranslated: translated,
+    messagesTotal: englishKeys.length,
+    htmlPercent: htmlKeys.length ? Math.round((100 * htmlTranslated) / htmlKeys.length) : 100,
+    patternsTranslated,
+    patternsTotal: (en.patterns || []).length,
+    name: module ? module.name : code
+  };
 }
+
+// Locales whose catalogue is still mostly English are skipped by default: the
+// browser evidence for them would only restate the missing translation. They are
+// listed explicitly as partially translated in the report. `--include-partial`
+// forces a browser pass for a locale whose coverage is below the threshold.
+const MIN_COVERAGE = Number(opt('min-coverage', '90'));
+const INCLUDE_PARTIAL = opt('include-partial') === 'true';
+const SKIPPED_PARTIAL = CODES.filter(code => code !== 'en' && !INCLUDE_PARTIAL && (coverageByCode[code] ? coverageByCode[code].messagesPercent : 0) < MIN_COVERAGE);
+const RUN_CODES = CODES.filter(code => !SKIPPED_PARTIAL.includes(code));
+if (!RUN_CODES.length) RUN_CODES.push(CODES[0]);
+const RUN_MOBILE = MOBILE.filter(code => RUN_CODES.includes(code) || code === 'en');
+const SKIPPED_MOBILE = MOBILE.filter(code => !RUN_MOBILE.includes(code));
 
 // ---------------------------------------------------------------------------
 // Dev-server preflight
@@ -431,6 +485,12 @@ async function inspectPage(page) {
         viewport: { width: innerWidth, height: innerHeight },
         i18nLocale: window.spacelibreI18n ? window.spacelibreI18n.locale : null,
         i18nEnabled: window.spacelibreI18n ? window.spacelibreI18n.enabled : null,
+        dir: document.documentElement.dir || null,
+        datasetDir: document.documentElement.dataset.dir || null,
+        pageOverflow: {
+          width: document.documentElement.scrollWidth - window.innerWidth,
+          height: document.documentElement.scrollHeight - window.innerHeight
+        },
         clock: {
           date: clockText(clockDate),
           time: clockText(clockTime),
@@ -554,6 +614,44 @@ function detectFormatDefects(meta, code, state, screenshot) {
     });
   }
   return defects;
+}
+
+/** Visible strings rendered in the locale's expected script (el/hi/ar). */
+function countScriptMatches(rawContent, code) {
+  const range = SCRIPT_RANGES[code];
+  if (!range) return null;
+  let count = 0;
+  const samples = [];
+  for (const item of rawContent) {
+    if (item.kind === 'htmlBlock') continue;
+    const text = normalizeText(item.text);
+    if (!text || !range.test(text)) continue;
+    count++;
+    if (samples.length < 6) samples.push(text.slice(0, 80));
+  }
+  return { count, samples };
+}
+
+function detectDirDefects(meta, code, state, screenshot) {
+  const defects = [];
+  if (!meta) return defects;
+  const expectedDir = code === 'ar' ? 'rtl' : 'ltr';
+  if (meta.dir !== expectedDir) {
+    defects.push({ state, expectedDir, dir: meta.dir, datasetDir: meta.datasetDir, kind: 'dir-mismatch', screenshot });
+  }
+  if (code === 'ar' && meta.datasetDir !== 'rtl') {
+    defects.push({ state, expectedDir: 'rtl', dir: meta.dir, datasetDir: meta.datasetDir, kind: 'dataset-dir-mismatch', screenshot });
+  }
+  return defects;
+}
+
+function detectPageOverflow(meta, code, state, screenshot) {
+  if (!meta || !meta.pageOverflow) return [];
+  const findings = [];
+  if (meta.pageOverflow.width > 2) {
+    findings.push({ state, kind: 'document-horizontal-overflow', deltaWidth: meta.pageOverflow.width, dir: meta.dir, screenshot });
+  }
+  return findings;
 }
 
 // Time-slider internals, the expanded time-controls wrappers and icon-only
@@ -846,6 +944,9 @@ async function auditLocaleDesktop(browser, code, shared) {
     layout: [],
     titleFindings: [],
     formatDefects: [],
+    scriptChecks: {},
+    dirDefects: [],
+    pageOverflow: [],
     network: null,
     stateErrors: [],
     meta: null,
@@ -867,11 +968,17 @@ async function auditLocaleDesktop(browser, code, shared) {
       const titleFinding = detectTitle(inspected.meta.title, code, shared.baselineTitle, shot);
       if (titleFinding) result.titleFindings.push(titleFinding);
       result.formatDefects.push(...detectFormatDefects(inspected.meta, code, state, shot));
+      result.dirDefects.push(...detectDirDefects(inspected.meta, code, state, shot));
+      result.pageOverflow.push(...detectPageOverflow(inspected.meta, code, state, shot));
+      const scriptCheck = countScriptMatches(inspected.content, code);
+      if (scriptCheck) result.scriptChecks[state] = scriptCheck;
       result.layout.push(...processLayout(inspected.layout, code, state, 'desktop-1440x900', shot, shared.baselineLayoutPaths));
       result.states[state] = {
         title: inspected.meta.title,
         htmlLang: inspected.meta.htmlLang,
         datasetLocale: inspected.meta.datasetLocale,
+        dir: inspected.meta.dir,
+        datasetDir: inspected.meta.datasetDir,
         bodyClass: inspected.meta.bodyClass,
         url: inspected.meta.url,
         languageTrigger: inspected.meta.languageTrigger,
@@ -879,7 +986,8 @@ async function auditLocaleDesktop(browser, code, shared) {
         layerPanelVisible: inspected.meta.layerPanel.visible,
         menuVisible: inspected.meta.menu.visible,
         untranslatedCount: processed.untranslated.length,
-        layoutCount: 0
+        layoutCount: 0,
+        scriptMatches: scriptCheck ? scriptCheck.count : null
       };
       process.stdout.write(
         ` done (untranslated=${processed.untranslated.length} layout=${result.layout.length} console=${result.network ? result.network.consoleErrors?.length : '?'})`
@@ -934,6 +1042,10 @@ async function auditLocaleDesktop(browser, code, shared) {
         result.otherCatalogue.push(...expandedContent.otherCatalogue);
         result.layout.push(...processLayout(expandedInspected.layout, code, 'settings', 'desktop-1440x900', expandedShot, shared.baselineLayoutPaths));
         result.formatDefects.push(...detectFormatDefects(expandedInspected.meta, code, 'settings', expandedShot));
+        result.dirDefects.push(...detectDirDefects(expandedInspected.meta, code, 'settings', expandedShot));
+        result.pageOverflow.push(...detectPageOverflow(expandedInspected.meta, code, 'settings', expandedShot));
+        const settingsScriptCheck = countScriptMatches(expandedInspected.content, code);
+        if (settingsScriptCheck) result.scriptChecks.settings = settingsScriptCheck;
 
         await jsClick(page, toggleSelector);
         await page.waitForTimeout(TIMING.settingsWait);
@@ -1028,6 +1140,9 @@ async function auditLocaleMobile(browser, code) {
     layout: [],
     titleFindings: [],
     formatDefects: [],
+    scriptChecks: {},
+    dirDefects: [],
+    pageOverflow: [],
     network: null,
     stateErrors: [],
     meta: null,
@@ -1045,6 +1160,10 @@ async function auditLocaleMobile(browser, code) {
     result.otherCatalogue.push(...processed.otherCatalogue);
     result.layout.push(...processLayout(inspected.layout, code, 'home-mobile', 'mobile-390x844', shot, null));
     result.formatDefects.push(...detectFormatDefects(inspected.meta, code, 'home-mobile', shot));
+    result.dirDefects.push(...detectDirDefects(inspected.meta, code, 'home-mobile', shot));
+    result.pageOverflow.push(...detectPageOverflow(inspected.meta, code, 'home-mobile', shot));
+    const mobileScriptCheck = countScriptMatches(inspected.content, code);
+    if (mobileScriptCheck) result.scriptChecks['home-mobile'] = mobileScriptCheck;
     result.meta = inspected.meta;
     result.applied =
       inspected.meta.htmlLang === code &&
@@ -1054,10 +1173,13 @@ async function auditLocaleMobile(browser, code) {
       title: inspected.meta.title,
       htmlLang: inspected.meta.htmlLang,
       datasetLocale: inspected.meta.datasetLocale,
+      dir: inspected.meta.dir,
+      datasetDir: inspected.meta.datasetDir,
       bodyClass: inspected.meta.bodyClass,
       url: inspected.meta.url,
       languageTrigger: inspected.meta.languageTrigger,
-      untranslatedCount: processed.untranslated.length
+      untranslatedCount: processed.untranslated.length,
+      scriptMatches: mobileScriptCheck ? mobileScriptCheck.count : null
     };
   } catch (error) {
     result.stateErrors.push({ state: 'home-mobile', error: String(error.message || error).slice(0, 400) });
@@ -1123,7 +1245,7 @@ async function auditLanguagePicker(browser) {
     result.steps.panelTitle = panel.title;
     result.options = panel.options;
     result.steps.optionCount = panel.optionCount;
-    result.steps.allTenListed = panel.optionCount === ALL_CODES.length;
+    result.steps.allListed = panel.optionCount === ALL_CODES.length;
     result.steps.allExpectedNames = ALL_CODES.every(code => {
       const expected = localeNames[code];
       return panel.options.some(option => {
@@ -1133,34 +1255,38 @@ async function auditLanguagePicker(browser) {
     });
     result.steps.panelRect = panel.rect;
 
-    // One real switch: English -> Japanese.
-    const japanese = localeNames.ja;
-    const optionClick = await jsClickOptionByText(page, '.spacelibre-lang-option', [japanese.englishName, japanese.name]);
+    // One real switch: English -> Arabic (also validates RTL activation).
+    const arabic = localeNames.ar;
+    const optionClick = await jsClickOptionByText(page, '.spacelibre-lang-option', [arabic.englishName, arabic.name]);
     result.steps.switchOptionText = optionClick.ok ? optionClick.text : null;
-    if (!optionClick.ok) throw new Error(`could not find the Japanese language option: ${JSON.stringify(optionClick.options)}`);
-    await page.waitForURL(/[?&]lang=ja(?:[&#]|$)/, { timeout: 30000 });
+    if (!optionClick.ok) throw new Error(`could not find the Arabic language option: ${JSON.stringify(optionClick.options)}`);
+    await page.waitForURL(/[?&]lang=ar(?:[&#]|$)/, { timeout: 30000 });
     await page.waitForLoadState('domcontentloaded').catch(() => {});
     await page.waitForTimeout(6000);
     const after = await inspectPage(page);
     result.switch = {
       url: after.meta.url,
-      urlHasLangJa: /[?&]lang=ja(?:[&#]|$)/.test(after.meta.url),
+      urlHasLangAr: /[?&]lang=ar(?:[&#]|$)/.test(after.meta.url),
       htmlLang: after.meta.htmlLang,
       datasetLocale: after.meta.datasetLocale,
+      dir: after.meta.dir,
+      datasetDir: after.meta.datasetDir,
       i18nLocale: after.meta.i18nLocale,
       triggerText: after.meta.languageTrigger ? after.meta.languageTrigger.text : null,
       title: after.meta.title
     };
     result.switch.passed =
-      result.switch.urlHasLangJa &&
-      result.switch.htmlLang === 'ja' &&
-      result.switch.datasetLocale === 'ja' &&
-      result.switch.i18nLocale === 'ja';
+      result.switch.urlHasLangAr &&
+      result.switch.htmlLang === 'ar' &&
+      result.switch.datasetLocale === 'ar' &&
+      result.switch.i18nLocale === 'ar' &&
+      result.switch.dir === 'rtl' &&
+      result.switch.datasetDir === 'rtl';
     result.passed =
       result.steps.triggerInSettingsCluster &&
       result.steps.triggerVisible &&
       result.steps.panelOpens &&
-      result.steps.allTenListed &&
+      result.steps.allListed &&
       result.steps.allExpectedNames &&
       result.switch.passed;
   } catch (error) {
@@ -1210,10 +1336,26 @@ function dedupeResult(result) {
     seenFormat.add(key);
     return true;
   });
+  const seenDir = new Set();
+  result.dirDefects = result.dirDefects.filter(entry => {
+    const key = `${entry.state}|${entry.kind}|${entry.dir}|${entry.datasetDir}`;
+    if (seenDir.has(key)) return false;
+    seenDir.add(key);
+    return true;
+  });
+  const seenPageOverflow = new Set();
+  result.pageOverflow = result.pageOverflow.filter(entry => {
+    const key = `${entry.state}|${entry.kind}|${entry.deltaWidth}`;
+    if (seenPageOverflow.has(key)) return false;
+    seenPageOverflow.add(key);
+    return true;
+  });
   result.untranslated = result.untranslated.slice(0, 500);
   result.layout = result.layout.slice(0, 150);
   result.otherCatalogue = result.otherCatalogue.slice(0, 100);
   result.formatDefects = result.formatDefects.slice(0, 20);
+  result.dirDefects = result.dirDefects.slice(0, 40);
+  result.pageOverflow = result.pageOverflow.slice(0, 20);
   if (result.network) {
     result.network.ignoredNetwork = result.network.ignoredNetwork.slice(0, 80);
     result.network.consoleErrors = result.network.consoleErrors.slice(0, 50);
@@ -1251,6 +1393,12 @@ function summarizeLocale(result) {
     htmlBlocks: result.htmlBlocks.length,
     otherCatalogue: result.otherCatalogue.length,
     formatDefects: result.formatDefects.length,
+    dirDefects: result.dirDefects.length,
+    pageOverflow: result.pageOverflow.length,
+    scriptStates: result.scriptChecks ? Object.keys(result.scriptChecks).length : 0,
+    scriptMatches: result.scriptChecks
+      ? Object.values(result.scriptChecks).reduce((total, entry) => total + entry.count, 0)
+      : 0,
     layoutClipped,
     layoutOverflow,
     layoutTotal: result.layout.length,
@@ -1319,8 +1467,11 @@ const mdCell = value =>
 const mdCode = value => '`' + String(value ?? '').replace(/`/g, "'").replace(/\r?\n/g, ' ') + '`';
 const mdLink = (label, href) => `[${mdCell(label)}](${href})`;
 
-function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, staticTable, baseline }) {
+function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, staticTable, baseline, runMeta }) {
   const lines = [];
+  const skippedPartial = (runMeta && runMeta.skippedPartial) || [];
+  const skippedMobile = (runMeta && runMeta.skippedMobile) || [];
+  const coverageByCodeMarkdown = (runMeta && runMeta.coverageByCode) || {};
   const summaryByCode = new Map();
   for (const result of resultsDesktop) summaryByCode.set(result.code, summarizeLocale(result));
 
@@ -1331,6 +1482,8 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
     if (!summary.applied || summary.stateErrors > 0 || summary.fatalError) failing.push(result.code);
     else if (result.code !== 'en' && (summary.untranslatedUnique > 0 || summary.htmlBlocks > 0)) failing.push(result.code);
     else if (result.code !== 'en' && summary.formatDefects > 0) failing.push(result.code);
+    else if (summary.dirDefects > 0 || summary.pageOverflow > 0) failing.push(result.code);
+    else if (SCRIPT_RANGES[result.code] && result.code !== 'en' && summary.untranslatedUnique === 0 && summary.scriptMatches === 0) failing.push(result.code);
     else if (summary.layoutTotal > 0 && result.code !== 'en') failing.push(result.code);
     else if (summary.consoleErrors > 0 || summary.pageErrors > 0) failing.push(result.code);
   }
@@ -1341,8 +1494,15 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
   lines.push(`- Harness: ${mdCode('tools/i18n-browser-audit.mjs')}`);
   lines.push(`- Command: ${mdCode('node tools/i18n-browser-audit.mjs')}`);
   lines.push(`- Server: ${BASE}`);
-  lines.push(`- Locales audited: ${CODES.map(code => mdCode(code)).join(', ')}`);
-  lines.push(`- Desktop viewport: 1440×900; mobile viewport: 390×844 (${MOBILE.join(', ') || 'none'})`);
+  const runCodesMarkdown = runMeta ? runMeta.runCodes : [];
+  const runMobileMarkdown = runMeta
+    ? MOBILE.filter(code => runMeta.runCodes.includes(code) || code === 'en')
+    : [];
+  lines.push(`- Locales audited: ${runCodesMarkdown.map(code => mdCode(code)).join(', ')}`);
+  lines.push(`- Desktop viewport: 1440×900; mobile viewport: 390×844 (${runMobileMarkdown.join(', ') || 'none'})`);
+  if (skippedPartial.length) {
+    lines.push(`- **Partially translated / not browser-audited:** ${skippedPartial.map(code => mdCode(code)).join(', ')} (below ${runMeta ? runMeta.minCoverage : 90}% message coverage at run start — see section 2).`);
+  }
   lines.push(`- Machine-readable evidence: ${mdCode(path.relative(ROOT, REPORT_JSON).split(path.sep).join('/'))}`);
   lines.push('');
   lines.push('## Verdict');
@@ -1383,21 +1543,38 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
   lines.push('</details>');
   lines.push('');
 
+  // Locales skipped because their catalogue is still mostly English.
+  if (skippedPartial.length) {
+    lines.push('### Partially translated locales (not browser-audited)');
+    lines.push('');
+    lines.push('These locales were below the message-coverage threshold when the run started, so browser evidence would only restate the missing translation. They are listed here so they are not mistaken for passing locales. `--include-partial` forces a browser pass.');
+    lines.push('');
+    lines.push('| Locale | messages | html | patterns |');
+    lines.push('| --- | --- | --- | --- |');
+    for (const code of skippedPartial) {
+      const coverage = coverageByCodeMarkdown[code] || {};
+      lines.push(`| ${mdCode(code)} | ${coverage.messagesPercent ?? '?'}% (${coverage.messagesTranslated ?? '?'}/${coverage.messagesTotal ?? '?'}) | ${coverage.htmlPercent ?? '?'}% | ${coverage.patternsTranslated ?? '?'}/${coverage.patternsTotal ?? '?'} |`);
+    }
+    lines.push('');
+  }
+
   // Summary table.
   lines.push('## 2. Summary');
   lines.push('');
-  lines.push('| Locale | Applied | Untranslated strings | HTML blocks | Clock format defect | Layout clipped | Layout overflow | Console errors | Page errors | Ignored asset/network | Screenshots |');
-  lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+  lines.push('| Locale | Applied | Dir | Script hits | Untranslated strings | HTML blocks | Clock format defect | Layout clipped | Layout overflow | Page overflow | Console errors | Page errors | Ignored asset/network | Screenshots |');
+  lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
   for (const result of resultsDesktop) {
     const summary = summaryByCode.get(result.code);
+    const home = result.states.home || {};
     lines.push(
-      `| ${mdCode(result.code)} | ${summary.applied ? 'yes' : '**NO**'} | ${summary.untranslatedUnique} | ${summary.htmlBlocks} | ${summary.formatDefects} | ${summary.layoutClipped} | ${summary.layoutOverflow} | ${summary.consoleErrors} | ${summary.pageErrors} | ${summary.ignoredNetwork} | ${result.screenshots.length} |`
+      `| ${mdCode(result.code)} | ${summary.applied ? 'yes' : '**NO**'} | ${mdCode(home.dir ?? '—')} | ${summary.scriptMatches} | ${summary.untranslatedUnique} | ${summary.htmlBlocks} | ${summary.formatDefects} | ${summary.layoutClipped} | ${summary.layoutOverflow} | ${summary.pageOverflow} | ${summary.consoleErrors} | ${summary.pageErrors} | ${summary.ignoredNetwork} | ${result.screenshots.length} |`
     );
   }
   for (const result of resultsMobile) {
     const summary = summarizeLocale(result);
+    const home = result.states['home-mobile'] || {};
     lines.push(
-      `| ${mdCode(result.code)} (mobile) | ${summary.applied ? 'yes' : '**NO**'} | ${summary.untranslatedUnique} | ${summary.htmlBlocks} | ${summary.formatDefects} | ${summary.layoutClipped} | ${summary.layoutOverflow} | ${summary.consoleErrors} | ${summary.pageErrors} | ${summary.ignoredNetwork} | ${result.screenshots.length} |`
+      `| ${mdCode(result.code)} (mobile) | ${summary.applied ? 'yes' : '**NO**'} | ${mdCode(home.dir ?? '—')} | ${summary.scriptMatches} | ${summary.untranslatedUnique} | ${summary.htmlBlocks} | ${summary.formatDefects} | ${summary.layoutClipped} | ${summary.layoutOverflow} | ${summary.pageOverflow} | ${summary.consoleErrors} | ${summary.pageErrors} | ${summary.ignoredNetwork} | ${result.screenshots.length} |`
     );
   }
   lines.push('');
@@ -1405,14 +1582,47 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
   // Locale activation + trigger.
   lines.push('## 3. Locale activation and language-picker trigger');
   lines.push('');
-  lines.push('| Locale | `<html lang>` | `data-locale` | `window.spacelibreI18n.locale` | Trigger in settings cluster | Trigger visible |');
-  lines.push('| --- | --- | --- | --- | --- | --- |');
+  lines.push('| Locale | `<html lang>` | `data-locale` | `html[dir]` | `data-dir` | `window.spacelibreI18n.locale` | Trigger in settings cluster | Trigger visible |');
+  lines.push('| --- | --- | --- | --- | --- | --- | --- | --- |');
   for (const result of resultsDesktop) {
     const home = result.states.home || {};
     const trigger = home.languageTrigger || {};
     lines.push(
-      `| ${mdCode(result.code)} | ${mdCode(home.htmlLang ?? '—')} | ${mdCode(home.datasetLocale ?? '—')} | ${mdCode((result.meta && result.meta.i18nLocale) ?? '—')} | ${trigger.present ? (trigger.firstChild ? 'yes (first child)' : 'yes') : '**MISSING**'} | ${trigger.visible ? 'yes' : 'no'} |`
+      `| ${mdCode(result.code)} | ${mdCode(home.htmlLang ?? '—')} | ${mdCode(home.datasetLocale ?? '—')} | ${mdCode(home.dir ?? '—')} | ${mdCode(home.datasetDir ?? '—')} | ${mdCode((result.meta && result.meta.i18nLocale) ?? '—')} | ${trigger.present ? (trigger.firstChild ? 'yes (first child)' : 'yes') : '**MISSING**'} | ${trigger.visible ? 'yes' : 'no'} |`
     );
+  }
+  lines.push('');
+  // Script / RTL rendering checks.
+  lines.push('### Script rendering and RTL checks');
+  lines.push('');
+  lines.push('For Greek (`el`), Devanagari (`hi`) and Arabic (`ar`) the harness counts visible text/attribute values rendered in the expected Unicode script and records `html[dir]` / `data-dir` plus document-level horizontal overflow. A translated locale with 0 script matches indicates the script did not reach the DOM; a non-zero `page overflow` means the document scrolls horizontally (RTL/Devanagari long-word risk).');
+  lines.push('');
+  lines.push('| Locale | State | Script matches | Sample | html[dir] | Page overflow Δw |');
+  lines.push('| --- | --- | --- | --- | --- | --- |');
+  let anyScript = false;
+  for (const result of resultsDesktop) {
+    if (!SCRIPT_RANGES[result.code]) continue;
+    const dirDefects = result.dirDefects.length;
+    const statesForScript = Object.keys(result.scriptChecks);
+    if (!statesForScript.length) {
+      anyScript = true;
+      lines.push(`| ${mdCode(result.code)} | — | 0 | — | ${result.states.home ? mdCode(result.states.home.dir ?? '—') : '—'}${dirDefects ? ' (dir defects: ' + dirDefects + ')' : ''} | — |`);
+      continue;
+    }
+    for (const state of statesForScript) {
+      anyScript = true;
+      const check = result.scriptChecks[state];
+      const overflow = result.pageOverflow.find(entry => entry.state === state);
+      const dir = result.states[state] ? result.states[state].dir : result.states['home-mobile'] ? result.states['home-mobile'].dir : result.states.home ? result.states.home.dir : null;
+      lines.push(`| ${mdCode(result.code)} | ${state} | ${check.count} | ${mdCell((check.samples[0] || '—').slice(0, 60))} | ${mdCode(dir ?? '—')} | ${overflow ? overflow.deltaWidth : 0} |`);
+    }
+    if (dirDefects) {
+      lines.push('');
+      lines.push(`_${mdCode(result.code)}: ${dirDefects} dir defect(s) (${result.dirDefects.map(entry => `${entry.state}:${entry.kind}`).join(', ')})._`);
+    }
+  }
+  if (!anyScript) {
+    lines.push('| — | — | — | — | — | — |');
   }
   lines.push('');
   lines.push('### Language picker interaction test');
@@ -1423,12 +1633,12 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
     lines.push(`- Trigger found exactly once in ${mdCode('.settings .container .content')}: **${picker.steps.triggerCount === 1 ? 'pass' : 'FAIL'}**`);
     lines.push(`- Trigger is first child of the settings cluster content: **${picker.steps.triggerInSettingsCluster ? 'pass' : 'FAIL'}**`);
     lines.push(`- Panel opens: **${picker.steps.panelOpens ? 'pass' : 'FAIL'}** (title: ${mdCode(picker.steps.panelTitle ?? '—')})`);
-    lines.push(`- Lists all ${ALL_CODES.length} languages: **${picker.steps.allTenListed ? 'pass' : 'FAIL'}** (${picker.steps.optionCount} options)`);
+    lines.push(`- Lists all ${ALL_CODES.length} languages: **${picker.steps.allListed ? 'pass' : 'FAIL'}** (${picker.steps.optionCount} options)`);
     lines.push(`- Each expected language name present: **${picker.steps.allExpectedNames ? 'pass' : 'FAIL'}**`);
-    lines.push(`- Selecting 日本語 reloads with ${mdCode('?lang=ja')} and applies locale: **${picker.switch.passed ? 'pass' : 'FAIL'}**`);
+    lines.push(`- Selecting العربية reloads with ${mdCode('?lang=ar')} and applies locale + RTL: **${picker.switch.passed ? 'pass' : 'FAIL'}**`);
     if (picker.switch.url) {
       lines.push(
-        `  - URL after switch: ${mdCode(picker.switch.url)}; \`<html lang>\`=${mdCode(picker.switch.htmlLang ?? '—')}; data-locale=${mdCode(picker.switch.datasetLocale ?? '—')}; trigger=${mdCode(picker.switch.triggerText ?? '—')}; title=${mdCode(picker.switch.title ?? '—')}`
+        `  - URL after switch: ${mdCode(picker.switch.url)}; \`<html lang>\`=${mdCode(picker.switch.htmlLang ?? '—')}; data-locale=${mdCode(picker.switch.datasetLocale ?? '—')}; html[dir]=${mdCode(picker.switch.dir ?? '—')}; data-dir=${mdCode(picker.switch.datasetDir ?? '—')}; trigger=${mdCode(picker.switch.triggerText ?? '—')}; title=${mdCode(picker.switch.title ?? '—')}`
       );
     }
     if (picker.errors.length) {
@@ -1607,7 +1817,7 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
   // Screenshots.
   lines.push('## 8. Screenshots');
   lines.push('');
-  lines.push('Desktop screenshots are 1440×900; mobile screenshots are 390×844. Required evidence: home, earth, info, story per locale plus mobile home for ' + (MOBILE.join(', ') || 'none') + '.');
+  lines.push('Desktop screenshots are 1440×900; mobile screenshots are 390×844. Required evidence: home, earth, info, story per locale plus mobile home for ' + (runMobileMarkdown.join(', ') || 'none') + '.');
   lines.push('');
   lines.push('| Locale | Home | Earth | Info | Story | Settings | Menu | Layers | Distance | Mobile home |');
   lines.push('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
@@ -1647,12 +1857,13 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
 
   lines.push('## 9. Method, exclusions and limitations');
   lines.push('');
-  lines.push('- Headless Chromium via Playwright; each locale gets a fresh browser context (fresh `localStorage`), loads `?lang=<code>`, waits 12 s for the scene to settle, then exercises home → info → settings (collapse/expand) → menu → layers → `#/earth` → `#/story/voyager_grand_tour` → `#/earth/distance`, sampling the DOM after each state.');
-  lines.push('- Untranslated matching is exact after whitespace normalisation against the 395 `messages` keys of `en.js` (the keys are the rendered English text). Excluded: entity names/aliases from `en.js` (proper nouns), international designations and keyboard keys (for example `3I/ATLAS`, `L1`, `SHIFT`, `W/A/S/D`), numeric/date-only strings, and the brand strings `spacelibre` / `NASA`. Remote NASA descriptions that are not in `en.js` are therefore not reported.');
-  lines.push('- The language picker itself carries `data-i18n-ignore` and is excluded from untranslated detection by design (language names stay in their own language).');
+  lines.push('- Headless Chromium via Playwright; each locale gets a fresh browser context (fresh `localStorage`), loads `?lang=<code>`, waits for the scene to settle (`--fast` uses 5-6 s), then exercises home → info → settings (collapse/expand) → menu → layers → `#/earth` → `#/story/voyager_grand_tour` → `#/earth/distance`, sampling the DOM after each state.');
+  lines.push('- Untranslated matching is exact after whitespace normalisation against the `messages` keys of `en.js` (the keys are the rendered English text). Excluded: entity names/aliases from `en.js` (proper nouns), international designations and keyboard keys (for example `3I/ATLAS`, `L1`, `SHIFT`, `W/A/S/D`), numeric/date-only strings, and the brand strings `spacelibre` / `NASA`. Remote NASA descriptions that are not in `en.js` are therefore not reported.');
+  lines.push('- Locale activation records `<html lang>`, `data-locale`, `<html dir>` and `data-dir` in every state; Arabic must be `rtl`. Greek, Devanagari and Arabic additionally count visible strings in their expected Unicode script, and document-level horizontal overflow is recorded per state for RTL/script layout.');
+  lines.push('- The language picker itself carries `data-i18n-ignore` and is excluded from untranslated detection by design (language names stay in their own language); the picker test verifies 23 options and a real English → Arabic switch, including RTL activation.');
   lines.push('- Layout detection samples buttons, labels, panels, the top nav, settings cluster and language picker; it reports `scrollWidth > clientWidth + 2` / `scrollHeight > clientHeight + 2` and skips the scrolling axis of `overflow: auto/scroll` containers. Findings marked as also present in the English baseline are general layout issues, not translation regressions.');
   lines.push('- Console error capture includes `console.error`, uncaught page errors and non-2xx/3xx responses. Remote `eyes.nasa.gov/assets/*` and YouTube requests are listed separately as known harmless network failures.');
-  lines.push('- Translators were still applying catalogues while this harness was built; the coverage snapshot in section 1 states exactly which locales were complete when the run finished. A partial translation is reported as untranslated UI, not as a harness failure.');
+  lines.push('- Translators may still be applying catalogues while this harness runs; the coverage snapshot in section 1 states exactly which locales were complete when the run finished. A partial translation is reported as untranslated UI, not as a harness failure.');
   lines.push('- The dev server watches `eyes/src`, so a rebuild triggered by a concurrent locale write can land mid-run; runs retry page loads and report any state error explicitly.');
   lines.push('');
   lines.push(`Layout findings also present in the English baseline: ${baseline ? baseline.size : 0} selector path(s).`);
@@ -1666,7 +1877,7 @@ function buildMarkdown({ resultsDesktop, resultsMobile, picker, staticAudit, sta
 async function main() {
   await ensureServer();
   await mkdir(OUT_DIR, { recursive: true });
-  console.log(`[setup] base=${BASE} locales=${CODES.join(',')} mobile=${MOBILE.join(',') || 'none'}`);
+  console.log(`[setup] base=${BASE} locales=${RUN_CODES.join(',')} skipped-partial=${SKIPPED_PARTIAL.join(',') || 'none'} mobile=${RUN_MOBILE.join(',') || 'none'}`);
 
   const browser = await chromium.launch({
     headless: true,
@@ -1677,6 +1888,24 @@ async function main() {
   const resultsDesktop = [];
   const resultsMobile = [];
   const CONCURRENCY = Math.max(1, Number(opt('concurrency', '3')) || 3);
+  const PARTIAL_JSON = path.join(path.dirname(REPORT_JSON), 'i18n-partial.json');
+  let partialWrite = Promise.resolve();
+  const persistPartial = () => {
+    const snapshot = {
+      generatedAt: GENERATED_AT,
+      phase: 'partial (written incrementally after each locale)',
+      allSupportedLocales: CODES,
+      runLocales: RUN_CODES,
+      skippedPartial: SKIPPED_PARTIAL.map(code => ({ code, ...coverageByCode[code] })),
+      desktop: [...resultsDesktop],
+      mobile: [...resultsMobile],
+      picker: null
+    };
+    partialWrite = partialWrite
+      .then(() => writeFile(PARTIAL_JSON, JSON.stringify(snapshot, null, 2), 'utf8'))
+      .catch(() => {});
+    return partialWrite;
+  };
 
   const runPool = async (items, limit, worker) => {
     const queue = [...items.keys()];
@@ -1695,7 +1924,7 @@ async function main() {
   let picker = null;
   try {
     // English first so its title and layout paths are available as a baseline.
-    const ordered = [...CODES].sort((left, right) => {
+    const ordered = [...RUN_CODES].sort((left, right) => {
       if (left === 'en') return -1;
       if (right === 'en') return 1;
       return ALL_CODES.indexOf(left) - ALL_CODES.indexOf(right);
@@ -1703,7 +1932,7 @@ async function main() {
     const logDesktopResult = result => {
       const summary = summarizeLocale(result);
       console.log(
-        `[desktop ${result.code}] applied=${summary.applied ? 'yes' : 'NO'} untranslated=${summary.untranslatedUnique} html=${summary.htmlBlocks} clock=${summary.formatDefects} layout=${summary.layoutClipped}c/${summary.layoutOverflow}o console=${summary.consoleErrors} page=${summary.pageErrors} ignored=${summary.ignoredNetwork} states=${Object.keys(result.states).length} errors=${summary.stateErrors} ${Math.round(result.durationMs / 1000)}s`
+        `[desktop ${result.code}] applied=${summary.applied ? 'yes' : 'NO'} dir=${result.states.home ? result.states.home.dir || '?' : '?'} script=${summary.scriptMatches} untranslated=${summary.untranslatedUnique} html=${summary.htmlBlocks} clock=${summary.formatDefects} layout=${summary.layoutClipped}c/${summary.layoutOverflow}o pageOverflow=${summary.pageOverflow} console=${summary.consoleErrors} page=${summary.pageErrors} ignored=${summary.ignoredNetwork} states=${Object.keys(result.states).length} errors=${summary.stateErrors} ${Math.round(result.durationMs / 1000)}s`
       );
       if (result.fatalError) console.log(`  fatal: ${result.fatalError}`);
       for (const stateError of result.stateErrors) console.log(`  state error [${result.code}/${stateError.state}]: ${stateError.error.split('\n')[0]}`);
@@ -1712,21 +1941,24 @@ async function main() {
     const english = await auditLocaleDesktop(browser, ordered[0], shared);
     resultsDesktop.push(english);
     logDesktopResult(english);
+    await persistPartial();
     const rest = ordered.slice(1);
-    const restResults = await runPool(rest, CONCURRENCY, async code => {
+    await runPool(rest, CONCURRENCY, async code => {
       const result = await auditLocaleDesktop(browser, code, shared);
       logDesktopResult(result);
+      resultsDesktop.push(result);
+      await persistPartial();
       return result;
     });
-    resultsDesktop.push(...restResults);
-
-    const mobileResults = await runPool(MOBILE, Math.min(2, CONCURRENCY), async code => {
+    const mobileResults = await runPool(RUN_MOBILE, Math.min(2, CONCURRENCY), async code => {
       const result = await auditLocaleMobile(browser, code);
       const summary = summarizeLocale(result);
-      console.log(`[mobile ${code}] applied=${summary.applied ? 'yes' : 'NO'} untranslated=${summary.untranslatedUnique} layout=${summary.layoutTotal} console=${summary.consoleErrors} ${Math.round(result.durationMs / 1000)}s`);
+      console.log(`[mobile ${code}] applied=${summary.applied ? 'yes' : 'NO'} dir=${result.states['home-mobile'] ? result.states['home-mobile'].dir || '?' : '?'} script=${summary.scriptMatches} untranslated=${summary.untranslatedUnique} layout=${summary.layoutTotal} console=${summary.consoleErrors} ${Math.round(result.durationMs / 1000)}s`);
+      resultsMobile.push(result);
+      await persistPartial();
       return result;
     });
-    resultsMobile.push(...mobileResults);
+    if (mobileResults.length !== resultsMobile.length) resultsMobile.push(...mobileResults.filter(Boolean));
 
     if (!SKIP_PICKER) {
       process.stdout.write('[picker] ');
@@ -1738,6 +1970,9 @@ async function main() {
     await browser.close().catch(() => {});
   }
 
+  resultsDesktop.sort((left, right) => RUN_CODES.indexOf(left.code) - RUN_CODES.indexOf(right.code));
+  resultsMobile.sort((left, right) => RUN_CODES.indexOf(left.code) - RUN_CODES.indexOf(right.code));
+
   const staticAudit = await runStaticAudit();
   const staticTable = parseAuditTable(staticAudit.stdout);
 
@@ -1748,8 +1983,13 @@ async function main() {
     command: 'node tools/i18n-browser-audit.mjs',
     playwrightImport: 'file:///C:/Users/stone/AppData/Local/npm-cache/_npx/420ff84f11983ee5/node_modules/playwright/index.mjs',
     viewports: { desktop: DESKTOP_VIEWPORT, mobile: MOBILE_VIEWPORT },
-    locales: CODES,
-    mobileLocales: MOBILE,
+    locales: RUN_CODES,
+    skippedPartialLocales: SKIPPED_PARTIAL.map(code => ({ code, ...coverageByCode[code] })),
+    skippedMobileLocales: SKIPPED_MOBILE,
+    minCoverage: MIN_COVERAGE,
+    allSupportedLocales: CODES,
+    mobileLocales: RUN_MOBILE,
+    coverage: coverageByCode,
     englishCatalogue: {
       messages: messageKeys.size,
       entities: Object.keys(en.entities || {}).length,
@@ -1783,7 +2023,15 @@ async function main() {
     picker,
     staticAudit,
     staticTable,
-    baseline: shared.baselineLayoutPaths
+    baseline: shared.baselineLayoutPaths,
+    runMeta: {
+      runCodes: RUN_CODES,
+      allCodes: CODES,
+      skippedPartial: SKIPPED_PARTIAL,
+      skippedMobile: SKIPPED_MOBILE,
+      coverageByCode,
+      minCoverage: MIN_COVERAGE
+    }
   });
   await writeFile(REPORT_MD, markdown, 'utf8');
 
@@ -1796,7 +2044,7 @@ async function main() {
       `${result.code.padEnd(6)} ${result.viewport.padEnd(16)} applied=${summary.applied ? 'yes' : 'NO '} untranslated=${String(summary.untranslatedUnique).padStart(3)} html=${summary.htmlBlocks} clipped=${summary.layoutClipped} overflow=${summary.layoutOverflow} console=${summary.consoleErrors} page=${summary.pageErrors} ignored=${summary.ignoredNetwork}`
     );
   }
-  if (picker) console.log(`picker  ${picker.passed ? 'PASS' : 'FAIL'} (10 options=${picker.steps.optionCount}, en->ja=${picker.switch.passed ? 'PASS' : 'FAIL'})`);
+  if (picker) console.log(`picker  ${picker.passed ? 'PASS' : 'FAIL'} (${picker.steps.optionCount} options, en->ar=${picker.switch.passed ? 'PASS' : 'FAIL'})`);
   console.log(`static audit: exit=${staticAudit.exitCode} (coverage table embedded in report)`);
   console.log(`report: ${path.relative(ROOT, REPORT_MD)}`);
   console.log(`json:   ${path.relative(ROOT, REPORT_JSON)}`);
@@ -1809,6 +2057,9 @@ async function main() {
       const summary = summarizeLocale(result);
       if (!summary.applied) problems.push(`${result.code}: locale not applied`);
       if (result.code !== 'en' && (summary.untranslatedUnique || summary.htmlBlocks)) problems.push(`${result.code}: untranslated UI`);
+      if (summary.dirDefects) problems.push(`${result.code}: dir mismatch`);
+      if (summary.pageOverflow) problems.push(`${result.code}: document horizontal overflow`);
+      if (SCRIPT_RANGES[result.code] && summary.untranslatedUnique === 0 && summary.scriptMatches === 0) problems.push(`${result.code}: expected script not rendered`);
       if (summary.layoutClipped) problems.push(`${result.code}: clipped layout`);
       if (summary.consoleErrors || summary.pageErrors) problems.push(`${result.code}: console errors`);
     }

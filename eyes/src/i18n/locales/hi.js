@@ -1,0 +1,1380 @@
+// हिन्दी (Hindi) — generated from en.js + tools/i18n/translations/hi.json
+// by tools/i18n-apply.mjs; edit the translation JSON and re-run rather than editing here.
+export default {
+  "code": "hi",
+  "name": "हिन्दी",
+  "shortName": "HI",
+  "englishName": "Hindi",
+  "intl": "hi-IN",
+  "moment": "hi",
+  "dateFormats": {
+    "utc": {
+      "date": "D MMMM YYYY",
+      "time": "HH:mm:ss"
+    },
+    "local": {
+      "date": "D MMMM YYYY",
+      "time": "HH:mm:ss",
+      "meridiem": "[]",
+      "parse": [
+        "D MMMM YYYY HH:mm:ss",
+        "D MMMM YYYY HH:mm"
+      ]
+    }
+  },
+  "messages": {
+    "celestial bodies": "खगोलीय पिंड",
+    "View": "देखें",
+    "telescope": "टेलीस्कोप",
+    "loading...": "लोड हो रहा है...",
+    "Expand time controls": "समय नियंत्रण फैलाएँ",
+    "Collapse time controls": "समय नियंत्रण समेटें",
+    "Expand featured stories panel": "चुनिंदा कहानियाँ पैनल फैलाएँ",
+    "Collapse featured stories panel": "चुनिंदा कहानियाँ पैनल समेटें",
+    "Your Solar System": "आपका सौर मंडल",
+    "Real-time, Real data": "वास्तविक समय, वास्तविक डेटा",
+    "« Select or search for a target »": "« कोई लक्ष्य चुनें या खोजें »",
+    "J2000 Ecliptic": "J2000 क्रांतिवृत्त",
+    "Language": "भाषा",
+    "Change language": "भाषा बदलें",
+    "‹ Select or search for a target ›": "‹ कोई लक्ष्य चुनें या खोजें ›",
+    "1977 - Today": "1977 - आज",
+    "1977 - Today: Voyager's Grand Tour": "1977 - आज: वॉयजर की भव्य यात्रा",
+    "2023 Annular Solar Eclipse": "2023 की वलयाकार सूर्य ग्रहण",
+    "2024 Total Solar Eclipse": "2024 का पूर्ण सूर्य ग्रहण",
+    "3D": "3D",
+    "A Major Announcement": "एक बड़ी घोषणा",
+    "Advanced Options": "उन्नत विकल्प",
+    "After visiting Neptune, Voyager 2 turned \"down\" or south of the ecliptic plane, while Voyager 1 turned \"up\" or north of the plane. Each spacecraft headed out in a different direction, and they will never stop. In August of 2012, it was determined that Voyager 1 had reached the edge of the sun's influence(the heliopause), which is the boundary where the solar wind is balanced by the interstellar wind. Voyager 2 reached the heliopause in 2018.": "नेपच्यून की यात्रा के बाद, वॉयजर 2 क्रांतिवृत्त तल के \"नीचे\" या दक्षिण की ओर मुड़ा, जबकि वॉयजर 1 तल के \"ऊपर\" या उत्तर की ओर मुड़ा। प्रत्येक अंतरिक्ष यान अलग दिशा में निकला, और वे कभी नहीं रुकेंगे। अगस्त 2012 में यह निर्धारित किया गया कि वॉयजर 1 सूर्य के प्रभाव के किनारे (हेलियोपॉज़) तक पहुँच गया था, जो वह सीमा है जहाँ सौर हवा को अंतरतारकीय हवा संतुलित करती है। वॉयजर 2 ने 2018 में हेलियोपॉज़ तक पहुँचा।",
+    "All Instruments": "सभी उपकरण",
+    "Allow External Links": "बाहरी लिंक की अनुमति दें",
+    "Allow Navigation": "नेविगेशन की अनुमति दें",
+    "Allows all external links to navigate away from the app to outside resources": "सभी बाहरी लिंक को ऐप से बाहर बाहरी संसाधनों तक ले जाने की अनुमति देता है",
+    "Allows the user to navigate to other entities": "उपयोगकर्ता को अन्य वस्तुओं तक जाने की अनुमति देता है",
+    "An annular solar eclipse occurs when the Moon passes between the Sun and Earth while at its farthest point from Earth. Because the Moon is farther away from Earth, it does not completely block the Sun. This creates a \"ring of fire\" effect in the sky for those standing in the path of annularity. During an annular eclipse, it is never safe to look directly at the Sun without specialized eye protection designed for solar viewing.": "वलयाकार सूर्य ग्रहण तब होता है जब चंद्रमा पृथ्वी से अपने सबसे दूर बिंदु पर होते हुए सूर्य और पृथ्वी के बीच से गुजरता है। चूँकि चंद्रमा पृथ्वी से अधिक दूर होता है, वह सूर्य को पूरी तरह नहीं ढकता। इससे वलयाकारता के पथ पर खड़े लोगों के लिए आकाश में \"अग्नि-वलय\" का प्रभाव बनता है। वलयाकार ग्रहण के दौरान, सौर अवलोकन के लिए डिज़ाइन किए गए विशेष नेत्र-सुरक्षा के बिना सूर्य को सीधे देखना कभी सुरक्षित नहीं है।",
+    "and JPL's": "और JPL के",
+    "Annular Solar Eclipse": "वलयाकार सूर्य ग्रहण",
+    "April 8, 2024": "8 अप्रैल 2024",
+    "April 8, 2024: 2024 Total Solar Eclipse": "8 अप्रैल 2024: 2024 का पूर्ण सूर्य ग्रहण",
+    "Asteroid and Comet Missions": "क्षुद्रग्रह और धूमकेतु मिशन",
+    "Asteroids": "क्षुद्रग्रह",
+    "At the end of a session, a forced restart means there is no option to continue the session. Requires a session time greater than zero": "सत्र के अंत में, बलपूर्वक पुनः आरंभ का अर्थ है कि सत्र जारी रखने का कोई विकल्प नहीं है। शून्य से अधिक सत्र समय आवश्यक है",
+    "Azimuth": "दिगंश",
+    "Back": "वापस",
+    "Back To Start": "शुरुआत पर वापस जाएँ",
+    "Behind Moon": "चंद्रमा के पीछे",
+    "Camera View": "कैमरा दृश्य",
+    "Cassini": "Cassini",
+    "Cassini and the Jets": "Cassini और जेट",
+    "Cassini scientists announced they have found evidence of liquid water reservoirs feeding the Enceladus plume, possibly in the form of geysers. After examining high-resolution Cassini images and other data showing icy jets ejecting large quantities of particles at high speed, scientists rule out the idea that the particles are produced by or blown off the moon's surface by vapor created when warm water ice converts to a gas. Instead, they find evidence that the jets might be erupting from near-surface pockets of liquid water.": "Cassini के वैज्ञानिकों ने घोषणा की कि उन्हें एन्सेलेडस की प्ल्यूम को पोषित करने वाले तरल जल भंडारों के प्रमाण मिले हैं, संभवतः गीज़रों के रूप में। उच्च-रिज़ॉल्यूशन वाली Cassini छवियों और अन्य डेटा की जाँच करने के बाद जो दिखाते हैं कि बर्फीले जेट उच्च गति से बड़ी मात्रा में कण उछाल रहे हैं, वैज्ञानिक इस विचार को खारिज करते हैं कि कण चंद्रमा की सतह से उत्पन्न होते हैं या उससे उड़ाए जाते हैं, जो गर्म पानी की बर्फ के गैस में बदलने से बनता है। इसके बजाय, उन्हें ऐसे प्रमाण मिलते हैं कि जेट सतह के निकट तरल जल की जेबों से फूट सकते हैं।",
+    "Cassini: Discovery at Enceladus": "Cassini: एन्सेलेडस पर खोज",
+    "center": "केंद्र",
+    "Center for Near-Earth Object Studies": "पृथ्वी के निकट की वस्तुओं के अध्ययन का केंद्र",
+    "CHANGE LOCATION": "स्थान बदलें",
+    "click & drag": "क्लिक करें और खींचें",
+    "Click or tap an event to start the animation": "एनिमेशन शुरू करने के लिए किसी घटना पर क्लिक या टैप करें",
+    "Close": "बंद करें",
+    "Close alert": "अलर्ट बंद करें",
+    "Close comparison": "तुलना बंद करें",
+    "Close story": "कहानी बंद करें",
+    "Close telescope mode": "टेलीस्कोप मोड बंद करें",
+    "Close tooltip": "टूलटिप बंद करें",
+    "Closest Approach to the Sun": "सूर्य के सबसे निकट पहुँच",
+    "Closest Approach to the Sun: Parker Solar Probe Perihelion": "सूर्य के सबसे निकट पहुँच: पार्कर सोलर प्रोब का सूर्य-निकटतम बिंदु",
+    "Collapse content panel": "सामग्री पैनल समेटें",
+    "Collapse content panel.": "सामग्री पैनल समेटें।",
+    "Collapse story panel": "कहानी पैनल समेटें",
+    "Collapse Time Controls": "समय नियंत्रण समेटें",
+    "Comets": "धूमकेतु",
+    "Compare size": "आकार की तुलना करें",
+    "Compare Size": "आकार की तुलना करें",
+    "Comparison": "तुलना",
+    "Comparison Overview": "तुलना का अवलोकन",
+    "Conceptual image of Parker Solar Probe about to enter the solar corona. Credit: NASA SVS": "पार्कर सोलर प्रोब के सौर कोरोना में प्रवेश करने वाली कल्पनात्मक छवि। श्रेय: NASA SVS",
+    "Conceptual image of Parker Solar Probe passing through the corona. Credit: NASA SVS": "पार्कर सोलर प्रोब के कोरोना से गुजरने की कल्पनात्मक छवि। श्रेय: NASA SVS",
+    "Constellations": "तारामंडल",
+    "CONTINUE": "जारी रखें",
+    "Copied to clipboard!": "क्लिपबोर्ड पर कॉपी किया गया!",
+    "Copy Embed Code": "एम्बेड कोड कॉपी करें",
+    "Copy Link": "लिंक कॉपी करें",
+    "Coronal streamers up close. Credit: NASA SVS": "कोरोनल स्ट्रीमर नज़दीक से। श्रेय: NASA SVS",
+    "Decrease time rate": "समय की दर घटाएँ",
+    "Default Map": "डिफ़ॉल्ट मानचित्र",
+    "Default Texture": "डिफ़ॉल्ट बनावट",
+    "Description": "विवरण",
+    "Determines whether the main menu is visible in the top right": "निर्धारित करता है कि मुख्य मेनू ऊपर दाईं ओर दिखाई देता है या नहीं",
+    "Determines whether the search bar is visible": "निर्धारित करता है कि खोज बार दिखाई देती है या नहीं",
+    "Determines whether the settings bar is expanded upon first load": "निर्धारित करता है कि पहली बार लोड होने पर सेटिंग्स बार फैली हुई होती है या नहीं",
+    "Determines whether the share button is visible": "निर्धारित करता है कि साझा करने का बटन दिखाई देता है या नहीं",
+    "Determines whether the time controls are collapsed by default": "निर्धारित करता है कि समय नियंत्रण डिफ़ॉल्ट रूप से समेटे हुए हैं या नहीं",
+    "Determines whether the time controls are disabled": "निर्धारित करता है कि समय नियंत्रण अक्षम हैं या नहीं",
+    "Did you mean...?": "क्या आपका मतलब था...?",
+    "Disable Time Controls": "समय नियंत्रण अक्षम करें",
+    "Discovery at Enceladus": "एन्सेलेडस पर खोज",
+    "Display Cities": "शहर दिखाएँ",
+    "Displays the detail panel for an entity on the left side of the screen": "स्क्रीन के बाईं ओर किसी वस्तु के विवरण पैनल को प्रदर्शित करता है",
+    "Displays the NASA logo in the top left corner": "ऊपरी बाएँ कोने में NASA का लोगो प्रदर्शित करता है",
+    "Distance to": "दूरी",
+    "Distance Tool": "दूरी उपकरण",
+    "Drag time slider thumb": "समय स्लाइडर के हैंडल को खींचें",
+    "During a total solar eclipse, the Moon completely blocks the Sun while it passes between the Sun and Earth. The sky darkens as if it were dawn or dusk and those standing in the path of totality may see the Sun's outer atmosphere (the corona) if weather permits.": "पूर्ण सूर्य ग्रहण के दौरान, चंद्रमा सूर्य और पृथ्वी के बीच से गुजरते हुए सूर्य को पूरी तरह ढक लेता है। आकाश ऐसे अंधेरा हो जाता है जैसे भोर या गोधूलि हो, और पूर्णता के पथ पर खड़े लोग मौसम अनुकूल होने पर सूर्य के बाहरी वायुमंडल (कोरोना) को देख सकते हैं।",
+    "During a very close flyby on March 12th, 2008, Cassini's instruments sample the plume directly, and detect a surprising brew of volatile gases, water vapor, carbon dioxide and carbon monoxide, as well as organic materials, some 20 times denser than expected. The brew is described as being 'like carbonated water with an essence of natural gas.' New heat maps of the surface show higher temperatures than previously known in the south polar region, with higher-than-expected temperatures running the length of the giant fissures near the south pole.": "12 मार्च 2008 को एक बहुत निकट उड़ान के दौरान, Cassini के उपकरण प्ल्यूम का सीधे नमूना लेते हैं और वाष्पशील गैसों, जल वाष्प, कार्बन डाइऑक्साइड और कार्बन मोनोऑक्साइड, तथा कार्बनिक पदार्थों का एक आश्चर्यजनक मिश्रण पाते हैं, जो अपेक्षा से लगभग 20 गुना अधिक घना है। मिश्रण को 'प्राकृतिक गैस के सार वाले सोडा वॉटर' जैसा बताया गया है। सतह के नए ताप मानचित्र दक्षिण ध्रुवीय क्षेत्र में पहले से ज्ञात तापमान से अधिक दर्शाते हैं, और दक्षिण ध्रुव के निकट विशाल दरारों की लंबाई में अपेक्षा से अधिक तापमान है।",
+    "During its closest approach, Parker Solar Probe was out of contact with Earth due to constraints on signal transmission so close to the Sun. It was not until December 27, 2024, that the spacecraft was able to send a beacon signal back to Earth, giving operators at the Johns Hopkins Applied Physics Laboratory – where the probe was designed and built – a hint of its condition after its closest pass of the Sun. When the spacecraft reached a position in its orbit with a clear view of Earth at the end of January 2025, it then sent back the science data it took on its closest flyby of the Sun.": "अपनी निकटतम पहुँच के दौरान, पार्कर सोलर प्रोब सूर्य के इतने निकट सिग्नल प्रसारण की बाधाओं के कारण पृथ्वी से संपर्क से बाहर था। 27 दिसंबर 2024 तक ही अंतरिक्ष यान पृथ्वी पर बीकन सिग्नल भेजने में सक्षम हुआ, जिससे जॉन्स हॉपकिन्स एप्लाइड फिजिक्स लेबोरेटरी — जहाँ साउंड का डिज़ाइन और निर्माण हुआ था — के ऑपरेटरों को सूर्य की अपनी निकटतम यात्रा के बाद इसकी स्थिति का संकेत मिला। जनवरी 2025 के अंत में जब अंतरिक्ष यान अपनी कक्षा में पृथ्वी के स्पष्ट दृश्य वाली स्थिति में पहुँचा, तब उसने सूर्य की अपनी निकटतम उड़ान के दौरान लिए गए विज्ञान डेटा को वापस भेजा।",
+    "During this pivotal flyby, the Cassini cameras obtain new, detailed images of the south polar region of Enceladus.To their amazement, Cassini scientists detect a huge cloud of water vapor over the area -- and relatively warm fractures in the crust that are supplying the cloud of water vapor and ice particles that extend into space. Cassini data also confirms that this activity is the major source of material in the E ring. Cassini has already made a major discovery, and something that no telescope could have seen.": "इस निर्णायक उड़ान के दौरान, Cassini के कैमरे एन्सेलेडस के दक्षिण ध्रुवीय क्षेत्र की नई, विस्तृत छवियाँ प्राप्त करते हैं। आश्चर्य के साथ, Cassini के वैज्ञानिक इस क्षेत्र पर जल वाष्प का विशाल बादल पाते हैं -- और परत में अपेक्षाकृत गर्म दरारें जो जल वाष्प और बर्फ के कणों के बादल को पोषित करती हैं जो अंतरिक्ष में फैलता है। Cassini डेटा यह भी पुष्टि करता है कि यह गतिविधि E वलय में सामग्री का प्रमुख स्रोत है। Cassini ने पहले ही एक बड़ी खोज की है, और ऐसी चीज़ जो कोई दूरबीन नहीं देख सकती थी।",
+    "Dwarf Planet": "बौना ग्रह",
+    "Dwarf Planets": "बौने ग्रह",
+    "Dwarf Planets & Asteroids": "बौने ग्रह और क्षुद्रग्रह",
+    "Elevation": "ऊँचाई",
+    "Embed": "एम्बेड",
+    "Embed Options": "एम्बेड विकल्प",
+    "Enable Contour Map": "समोच्च मानचित्र सक्षम करें",
+    "Enable HD Textures": "HD बनावट सक्षम करें",
+    "Enable Shadow Cones": "छाया शंकु सक्षम करें",
+    "Enable Spout Projection": "Spout प्रक्षेपण सक्षम करें",
+    "Enable Surface Texture Tiling": "सतह बनावट टाइलिंग सक्षम करें",
+    "Enables Spout projection onto a 3D sphere with relevant third party software": "संबंधित तृतीय-पक्ष सॉफ़्टवेयर के साथ 3D गोले पर Spout प्रक्षेपण सक्षम करता है",
+    "Enceladus cutaway": "एन्सेलेडस का कटाव दृश्य",
+    "Enceladus cutaway with description": "विवरण के साथ एन्सेलेडस का कटाव दृश्य",
+    "Enceladus cutaway with geysers": "गीज़रों के साथ एन्सेलेडस का कटाव दृश्य",
+    "Enceladus Icy Jets": "एन्सेलेडस के बर्फीले जेट",
+    "Enceladus Temperature": "एन्सेलेडस का तापमान",
+    "Enceladus Terrain": "एन्सेलेडस का भूभाग",
+    "Entry, Descent, and Landing": "प्रवेश, अवतरण और लैंडिंग",
+    "Event": "घटना",
+    "event end": "घटना समाप्ति",
+    "event start": "घटना प्रारंभ",
+    "Events": "घटनाएँ",
+    "Events Timeline": "घटना समयरेखा",
+    "Exit": "बाहर निकलें",
+    "Expand content panel": "सामग्री पैनल फैलाएँ",
+    "Expand content panel.": "सामग्री पैनल फैलाएँ।",
+    "Expand story panel": "कहानी पैनल फैलाएँ",
+    "Experience Curiosity": "Curiosity को जानें",
+    "Experience Insight": "Insight को जानें",
+    "Exploration": "अन्वेषण",
+    "Eyes on Asteroids": "Eyes on Asteroids",
+    "Eyes on Asteroids: Asteroid and Comet Missions": "Eyes on Asteroids: क्षुद्रग्रह और धूमकेतु मिशन",
+    "Featured Events": "विशेष घटनाएँ",
+    "Featured Moons": "विशेष चंद्रमा",
+    "Featured Stories": "विशेष कहानियाँ",
+    "Featured Stories and Events": "विशेष कहानियाँ और घटनाएँ",
+    "Features": "विशेषताएँ",
+    "Feb 16th, 2005": "16 फ़रवरी 2005",
+    "February 2005": "फ़रवरी 2005",
+    "Flood": "भरण",
+    "Flood Lighting": "भरण प्रकाश",
+    "Flood lighting allows for even lighting across all 3D entities": "भरण प्रकाश सभी 3D वस्तुओं पर समान प्रकाश की अनुमति देता है",
+    "Follow": "अनुसरण करें",
+    "for more information on how NASA monitors for potentially hazardous asteroids and comets.": "NASA संभावित खतरनाक क्षुद्रग्रहों और धूमकेतुओं की निगरानी कैसे करता है, इस पर अधिक जानकारी के लिए।",
+    "Force Restart Session": "सत्र बलपूर्वक पुनः आरंभ करें",
+    "from": "से",
+    "from the": "से",
+    "Global Color Mosaic of Triton": "ट्राइटन का वैश्विक रंगीन मोज़ेक",
+    "Global mosaic from the Lunar Reconnaissance Orbiter mission": "Lunar Reconnaissance Orbiter मिशन का वैश्विक मोज़ेक",
+    "Global mosaic from the Viking missions to Mars": "मंगल के लिए Viking मिशनों का वैश्विक मोज़ेक",
+    "GO": "जाएँ",
+    "Heliosphere": "हेलियोस्फीयर",
+    "Help": "सहायता",
+    "Help: Include the iframe HTML tags in the embed code": "सहायता: एम्बेड कोड में iframe HTML टैग शामिल करें",
+    "High Definition": "उच्च परिभाषा",
+    "High-quality global mosaic from yesterday": "कल का उच्च-गुणवत्ता वैश्विक मोज़ेक",
+    "Home": "होम",
+    "hour": "घंटा",
+    "Icons": "आइकन",
+    "in": "में",
+    "In": "में",
+    "in 3D": "3D में",
+    "Inactivity Time (minutes)": "निष्क्रियता समय (मिनट)",
+    "Include i-frame elements": "iframe तत्व शामिल करें",
+    "Include the fullscreen button in the settings bar": "सेटिंग्स बार में पूर्ण स्क्रीन बटन शामिल करें",
+    "Include the iframe HTML tags in the embed code": "एम्बेड कोड में iframe HTML टैग शामिल करें",
+    "Increase time rate": "समय की दर बढ़ाएँ",
+    "Info": "जानकारी",
+    "Instrument Field of View": "उपकरण का दृश्य क्षेत्र",
+    "Interactive": "इंटरैक्टिव",
+    "Interactive Preview": "इंटरैक्टिव पूर्वावलोकन",
+    "Interactive: Experience Curiosity": "इंटरैक्टिव: Curiosity को जानें",
+    "Interactive: Experience Insight": "इंटरैक्टिव: Insight को जानें",
+    "Io Rotation Movie": "Io के घूर्णन की फ़िल्म",
+    "Io with Loki Plume on Bright Limb": "चमकीले किनारे पर Loki प्ल्यूम के साथ Io",
+    "is represented by a generic model.": "को एक सामान्य मॉडल द्वारा दर्शाया गया है।",
+    "July 2005": "जुलाई 2005",
+    "Jupiter's Auroras": "बृहस्पति का ध्रुवीय प्रकाश",
+    "Jupiter's Great Red Spot": "बृहस्पति का महान लाल धब्बा",
+    "Jupiter's Magnetic Field": "बृहस्पति का चुंबकीय क्षेत्र",
+    "Jupiter's Radiation Belt": "बृहस्पति की विकिरण पट्टी",
+    "Kiosk/Museum Mode": "कियोस्क/संग्रहालय मोड",
+    "Labels": "लेबल",
+    "Landers": "लैंडर",
+    "Landing site": "लैंडिंग स्थल",
+    "Latitude": "अक्षांश",
+    "Layer Visibility": "परत दृश्यता",
+    "Layers": "परतें",
+    "Lighting": "प्रकाश",
+    "Link": "लिंक",
+    "Little Rock": "लिटिल रॉक",
+    "live": "लाइव",
+    "LIVE": "लाइव",
+    "Loading": "लोड हो रहा है",
+    "Loading 3D": "3D लोड हो रहा है",
+    "Loads high-definition textures, where available, for 3D entities": "जहाँ उपलब्ध हों, वहाँ 3D वस्तुओं के लिए उच्च-परिभाषा बनावट लोड करता है",
+    "Longitude": "देशांतर",
+    "Major Moons": "प्रमुख चंद्रमा",
+    "March 2006": "मार्च 2006",
+    "Menu": "मेनू",
+    "Minimize distance tool panel": "दूरी उपकरण पैनल छोटा करें",
+    "Minor Moons": "गौण चंद्रमा",
+    "Miranda's Geologic History (Variety of Terrain)": "मिरांडा का भूवैज्ञानिक इतिहास (भूभाग की विविधता)",
+    "mission end": "मिशन समाप्ति",
+    "Mission Events": "मिशन घटनाएँ",
+    "mission start": "मिशन प्रारंभ",
+    "Moons": "चंद्रमा",
+    "More": "अधिक",
+    "More Options": "अधिक विकल्प",
+    "most popular": "सबसे लोकप्रिय",
+    "Name of source": "स्रोत का नाम",
+    "Name of target": "लक्ष्य का नाम",
+    "NASA’s Parker Solar Probe is a mission to “touch” the Sun. Moving at up to 430,000 miles per hour (692,017 km per hour), the spacecraft endures temperatures up to 1,800 degrees Fahrenheit (982 degrees Celsius) as it flies through the tenuous outer atmosphere of the Sun called the corona to help scientists better understand our closest star. On Dec. 24, 2024, Parker Solar Probe made history with a record-breaking closest approach to the Sun.": "NASA का पार्कर सोलर प्रोब सूर्य को \"छूने\" का एक मिशन है। 430,000 मील प्रति घंटे (692,017 किमी प्रति घंटे) तक की गति से चलते हुए, अंतरिक्ष यान सूर्य के कोरोना नामक विरल बाहरी वायुमंडल से गुजरते समय 1,800 डिग्री फ़ारेनहाइट (982 डिग्री सेल्सियस) तक तापमान सहन करता है, ताकि वैज्ञानिक हमारे निकटतम तारे को बेहतर समझ सकें। 24 दिसंबर 2024 को, पार्कर सोलर प्रोब ने सूर्य के रिकॉर्ड-तोड़ निकटतम पहुँच के साथ इतिहास रचा।",
+    "Natural": "प्राकृतिक",
+    "Natural Lighting": "प्राकृतिक प्रकाश",
+    "Natural lighting allows for realistic lighting based on the sun's position": "प्राकृतिक प्रकाश सूर्य की स्थिति के आधार पर यथार्थवादी प्रकाश की अनुमति देता है",
+    "Navigation": "नेविगेशन",
+    "Nearby": "निकटवर्ती",
+    "Neptune Clouds Showing Vertical Relief": "ऊर्ध्वाधर उभार दिखाते नेपच्यून के बादल",
+    "Neptune's Blue-green Atmosphere": "नेपच्यून का नीला-हरा वायुमंडल",
+    "Next": "अगला",
+    "Next compare object": "अगली तुलना वस्तु",
+    "Next Event": "अगली घटना",
+    "no matches": "कोई मेल नहीं",
+    "No matches.": "कोई मेल नहीं।",
+    "October 14, 2023": "14 अक्टूबर 2023",
+    "October 14, 2023: 2023 Annular Solar Eclipse": "14 अक्टूबर 2023: 2023 की वलयाकार सूर्य ग्रहण",
+    "of": "का",
+    "OK, got it. Thanks!": "ठीक है, समझ गया! धन्यवाद!",
+    "OK, let's go!": "ठीक है, चलें!",
+    "On April 8, 2024, a total solar eclipse crossed North and Central America and created a path of totality.": "8 अप्रैल 2024 को, एक पूर्ण सूर्य ग्रहण उत्तरी और मध्य अमेरिका से गुजरा और पूर्णता का पथ बनाया।",
+    "On October 14, 2023, an annular solar eclipse crossed North, Central, and South America creating a path of annularity.": "14 अक्टूबर 2023 को, एक वलयाकार सूर्य ग्रहण उत्तरी, मध्य और दक्षिण अमेरिका से गुजरा और वलयाकारता का पथ बनाया।",
+    "On October 28th, 2015, the Cassini mission managers decided to boldly send the spacecraft directly through the plumes. This entailed a very small amount of risk of damage to Cassini, but since it was nearing the end of the mission, it was a chance they were willing to take. This flyby, informally called the “Cassini car wash” was a complete success.": "28 अक्टूबर 2015 को, Cassini मिशन प्रबंधकों ने अंतरिक्ष यान को साहसपूर्वक सीधे प्ल्यूमों के माध्यम से भेजने का निर्णय लिया। इसमें Cassini को नुकसान का बहुत कम जोखिम था, लेकिन चूँकि मिशन का अंत निकट आ रहा था, यह एक ऐसा अवसर था जिसे वे लेना चाहते थे। इस उड़ान, जिसे अनौपचारिक रूप से \"Cassini कार वॉश\" कहा गया, पूरी तरह सफल रही।",
+    "Orbiters": "ऑर्बिटर",
+    "Orbits": "कक्षाएँ",
+    "Outer": "बाहरी",
+    "Over the next nine years, Cassini completes 23 flybys of Enceladus, unlocking new clues with each event. In subsequent flybys, Cassini found that the ice fractures called “tiger stripes” are about 300 meters (980 feet) deep, with V-shaped inner walls. Cassini also found that the particles in the plume were water ice with a surprising amount of salt in addition to methane, ammonia and carbon dioxide. Gravitational measurements indicated that the jets are supplied by a global subsurface ocean, probably regional to the south pole. Tiny silica grains, also found in the plume, suggest that the ocean of Enceladus likely contains hydrothermal vents - one of the places scientists suspect life could have begun on Earth.": "अगले नौ वर्षों में, Cassini एन्सेलेडस की 23 उड़ानें पूरी करता है, प्रत्येक घटना के साथ नए सुराग खोलता है। बाद की उड़ानों में, Cassini ने पाया कि \"बाघ की धारियाँ\" नामक बर्फ की दरारें लगभग 300 मीटर (980 फीट) गहरी हैं, जिनकी आंतरिक दीवारें V-आकार की हैं। Cassini ने यह भी पाया कि प्ल्यूम में कण जल-बर्फ थे, जिनमें मीथेन, अमोनिया और कार्बन डाइऑक्साइड के अलावा आश्चर्यजनक मात्रा में नमक था। गुरुत्वीय मापों ने संकेत दिया कि जेट एक वैश्विक उपसतही महासागर द्वारा पोषित होते हैं, जो संभवतः दक्षिण ध्रुव क्षेत्र में है। प्ल्यूम में पाए गए सूक्ष्म सिलिका कण सुझाते हैं कि एन्सेलेडस के महासागर में संभवतः हाइड्रोथर्मल छिद्र हैं - उन स्थानों में से एक जहाँ वैज्ञानिक मानते हैं कि पृथ्वी पर जीवन की शुरुआत हो सकती थी।",
+    "Overview": "अवलोकन",
+    "Parker Solar Probe Perihelion": "पार्कर सोलर प्रोब का सूर्य-निकटतम बिंदु",
+    "Parker Solar Probe's Closest Pass by the Sun": "पार्कर सोलर प्रोब की सूर्य के पास निकटतम यात्रा",
+    "Parker Solar Probe’s first pass by the Sun after the final gravity assist of the mission occurred on Dec. 24, 2024, and brought the spacecraft to a record-breaking 3.8 million miles (6.1 million km) above the surface of the Sun. This distance put the spacecraft well within the corona, enabling Parker Solar Probe to conduct unrivaled scientific measurements with the potential to change our understanding of our closest star. When the spacecraft first passed into the solar atmosphere in 2021, it made unexpected findings about the boundary of the corona and imaged structures called coronal streamers, which previously had only been seen from afar.": "मिशन की अंतिम गुरुत्वीय सहायता के बाद सूर्य के पास पार्कर सोलर प्रोब की पहली यात्रा 24 दिसंबर 2024 को हुई और अंतरिक्ष यान को सूर्य की सतह से 3.8 मिलियन मील (6.1 मिलियन किमी) ऊपर रिकॉर्ड-तोड़ दूरी तक ले गई। इस दूरी ने अंतरिक्ष यान को कोरोना के भीतर अच्छी तरह रखा, जिससे पार्कर सोलर प्रोब हमारे निकटतम तारे की समझ को बदलने की क्षमता वाले बेजोड़ वैज्ञानिक माप कर सका। जब अंतरिक्ष यान पहली बार 2021 में सौर वायुमंडल में प्रवेश करता है, तो उसने कोरोना की सीमा के बारे में अप्रत्याशित निष्कर्ष निकाले और कोरोनल स्ट्रीमर नामक संरचनाओं की तस्वीरें लीं, जिन्हें पहले केवल दूर से देखा गया था।",
+    "Pause / play": "रोकें / चलाएँ",
+    "Pause or play": "रोकें या चलाएँ",
+    "Perseverance": "Perseverance",
+    "Perseverance: Entry, Descent, and Landing": "Perseverance: प्रवेश, अवतरण और लैंडिंग",
+    "Pick a location": "स्थान चुनें",
+    "Pick any location on the surface of the planet or moon to land there and see the sky from that spot.": "उस जगह उतरने और वहाँ से आकाश देखने के लिए ग्रह या चंद्रमा की सतह पर कोई भी स्थान चुनें।",
+    "Planetary Defense Coordination Office": "ग्रहीय रक्षा समन्वय कार्यालय",
+    "Planets": "ग्रह",
+    "Planets & Moons": "ग्रह और चंद्रमा",
+    "Positive inputs are North and East. Negative inputs are South and West.": "धनात्मक इनपुट उत्तर और पूर्व हैं। ऋणात्मक इनपुट दक्षिण और पश्चिम हैं।",
+    "Prev": "पिछला",
+    "Prev Event": "पिछली घटना",
+    "Previous": "पिछला",
+    "Previous compare object": "पिछली तुलना वस्तु",
+    "Radar Map of the Surface of Venus": "शुक्र की सतह का रडार मानचित्र",
+    "Radar Map of Titan's Surface": "टाइटन की सतह का रडार मानचित्र",
+    "rate": "दर",
+    "Re-framing follow camera": "फ़ॉलो कैमरा को पुनः फ़्रेम करना",
+    "Read": "पढ़ें",
+    "Read More": "और पढ़ें",
+    "real rate": "वास्तविक दर",
+    "Related": "संबंधित",
+    "Replay": "दोबारा चलाएँ",
+    "Replay Animation": "एनिमेशन दोबारा चलाएँ",
+    "Reset time to live.": "समय को लाइव पर रीसेट करें।",
+    "Reset Zoom": "ज़ूम रीसेट करें",
+    "Restart Story": "कहानी पुनः आरंभ करें",
+    "result": "परिणाम",
+    "results": "परिणाम",
+    "Return to real time speed": "वास्तविक समय गति पर लौटें",
+    "San Antonio": "सैन एंटोनियो",
+    "Satellite Group": "उपग्रह समूह",
+    "Saturn's Magnetic Field": "शनि का चुंबकीय क्षेत्र",
+    "Saturn's Ring System": "शनि का वलय तंत्र",
+    "Scroll to continue": "जारी रखने के लिए स्क्रॉल करें",
+    "Scroll/Click arrow for previous": "पिछले के लिए स्क्रॉल/क्लिक तीर",
+    "Scroll/Click arrow to continue": "जारी रखने के लिए स्क्रॉल/क्लिक तीर",
+    "Scroll/Click arrows to continue": "जारी रखने के लिए स्क्रॉल/क्लिक तीर",
+    "Search...": "खोजें...",
+    "Select an event below to learn more.": "अधिक जानने के लिए नीचे कोई घटना चुनें।",
+    "Select instruments to see their coverage. Instruments labeled \"AUTO\" will be enabled by default by the spacecraft when they are being used.": "उनकी कवरेज देखने के लिए उपकरण चुनें। \"AUTO\" लेबल वाले उपकरण उपयोग होने पर अंतरिक्ष यान द्वारा डिफ़ॉल्ट रूप से सक्षम किए जाएँगे।",
+    "Select the map you would like to be projected onto the surface of the globe.": "वह मानचित्र चुनें जिसे आप ग्लोब की सतह पर प्रक्षेपित करना चाहते हैं।",
+    "Select the related content you would like to be visible in the 3D view.": "3D दृश्य में वह संबंधित सामग्री चुनें जिसे आप दिखाना चाहते हैं।",
+    "Select your view": "अपना दृश्य चुनें",
+    "Session Time (minutes)": "सत्र समय (मिनट)",
+    "Shadow": "छाया",
+    "Shadow Lighting": "छाया प्रकाश",
+    "Shadow lighting allows for somewhat realistic lighting based on the sun's position, but highlights the shadows so they are not completely dark": "छाया प्रकाश सूर्य की स्थिति के आधार पर कुछ हद तक यथार्थवादी प्रकाश की अनुमति देता है, लेकिन छायाओं को उजागर करता है ताकि वे पूरी तरह अंधेरी न हों",
+    "Share": "साझा करें",
+    "Shoot the Plumes": "प्ल्यूमों पर निशाना साधें",
+    "Show Detail Panel": "विवरण पैनल दिखाएँ",
+    "Show Expanded Settings Bar": "विस्तारित सेटिंग्स बार दिखाएँ",
+    "Show Featured Stories/Events": "विशेष कहानियाँ/घटनाएँ दिखाएँ",
+    "Show Fullscreen Button": "पूर्ण स्क्रीन बटन दिखाएँ",
+    "show info panel": "जानकारी पैनल दिखाएँ",
+    "Show info panel": "जानकारी पैनल दिखाएँ",
+    "Show Interact Prompt on Load": "लोड पर इंटरैक्ट प्रॉम्प्ट दिखाएँ",
+    "Show landers on a celestial body, if any": "यदि हों, तो किसी खगोलीय पिंड पर लैंडर दिखाएँ",
+    "Show Less": "कम दिखाएँ",
+    "Show Main Menu": "मुख्य मेनू दिखाएँ",
+    "Show major moons of planets, if any": "यदि हों, तो ग्रहों के प्रमुख चंद्रमा दिखाएँ",
+    "Show minor moons of planets, if any": "यदि हों, तो ग्रहों के गौण चंद्रमा दिखाएँ",
+    "Show More": "अधिक दिखाएँ",
+    "Show NASA logo": "NASA लोगो दिखाएँ",
+    "show or hide settings": "सेटिंग्स दिखाएँ या छिपाएँ",
+    "Show or hide settings": "सेटिंग्स दिखाएँ या छिपाएँ",
+    "show or hide UI": "UI दिखाएँ या छिपाएँ",
+    "Show or hide UI": "UI दिखाएँ या छिपाएँ",
+    "Show Search": "खोज दिखाएँ",
+    "Show Share Button": "साझा बटन दिखाएँ",
+    "Show spacecraft orbiting a celestial body, if any": "यदि हों, तो किसी खगोलीय पिंड की कक्षा में अंतरिक्ष यान दिखाएँ",
+    "Show the heliosphere": "हेलियोस्फीयर दिखाएँ",
+    "Shows the featured stories panel on the left side of the home page": "होम पेज के बाईं ओर विशेष कहानियाँ पैनल दिखाता है",
+    "Since its launch in 2018, Parker Solar Probe has circled gradually closer to the Sun, using flybys of Venus to gravitationally move it into a tighter orbit. These flybys have also enabled new discoveries about Venus. One instrument aboard the spacecraft captured visible and near-infrared light from Venus, giving scientists a new way to see through the planet’s thick clouds to the Venusian surface below, which had only been done with radar and infrared imagery before. The last planned Venus flyby occurred on Nov. 6, 2024, and set the spacecraft up for its closest approach to the Sun.": "2018 में लॉन्च होने के बाद से, पार्कर सोलर प्रोब धीरे-धीरे सूर्य के और निकट चक्कर लगाता रहा है, शुक्र की उड़ानों का उपयोग करके गुरुत्वीय रूप से इसे अधिक कसी कक्षा में ले जाता है। इन उड़ानों ने शुक्र के बारे में नई खोजें भी संभव बनाई हैं। अंतरिक्ष यान पर एक उपकरण ने शुक्र से दृश्य और निकट-अवरक्त प्रकाश कैप्चर किया, जिससे वैज्ञानिकों को ग्रह के मोटे बादलों के पार नीचे शुक्र की सतह देखने का नया तरीका मिला, जो पहले केवल रडार और अवरक्त इमेजरी से किया गया था। शुक्र की अंतिम नियोजित उड़ान 6 नवंबर 2024 को हुई और अंतरिक्ष यान को सूर्य के अपने निकटतम पहुँच के लिए तैयार किया।",
+    "Solar System": "सौर मंडल",
+    "Solar System Dynamics": "सौर मंडल गतिकी",
+    "Spacecraft": "अंतरिक्ष यान",
+    "Special Features": "विशेष विशेषताएँ",
+    "Specifies the maximum duration of an individual session, represented by a countdown clock. A value of zero disables the session time limit": "किसी व्यक्तिगत सत्र की अधिकतम अवधि निर्दिष्ट करता है, जिसे उलटी गिनती घड़ी द्वारा दर्शाया जाता है। शून्य मान सत्र समय सीमा को अक्षम करता है",
+    "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "ऑटो-प्ले ट्रिगर होने से पहले निष्क्रियता का समय निर्दिष्ट करता है। शून्य मान ऑटो-प्ले को अक्षम करता है",
+    "Spout": "Spout",
+    "Star Field": "तारा क्षेत्र",
+    "START OVER": "फिर से शुरू करें",
+    "Starting experience...": "अनुभव शुरू हो रहा है...",
+    "Stories": "कहानियाँ",
+    "Story": "कहानी",
+    "suggestion": "सुझाव",
+    "suggestions": "सुझाव",
+    "surface": "सतह",
+    "Surface imagery of Titan from Cassini's Imaging Science Subsystem camera": "Cassini के Imaging Science Subsystem कैमरे से टाइटन की सतह की छवियाँ",
+    "Surface Map": "सतह मानचित्र",
+    "Swipe to continue": "जारी रखने के लिए स्वाइप करें",
+    "Table": "तालिका",
+    "Target": "लक्ष्य",
+    "Telescope Mode": "टेलीस्कोप मोड",
+    "Texture Quality": "बनावट गुणवत्ता",
+    "the": "वह",
+    "The": "वह",
+    "The Cassini mission spent 13 years orbiting Saturn and its moons, arriving at Saturn in 2004. But no one was expecting what was found on the moon named Enceladus.": "Cassini मिशन ने शनि और उसके चंद्रमाओं की कक्षा में 13 वर्ष बिताए, 2004 में शनि पर पहुँचा। लेकिन किसी को उम्मीद नहीं थी कि एन्सेलेडस नामक चंद्रमा पर क्या मिलेगा।",
+    "The data used to generate this visualization is from the": "इस विज़ुअलाइज़ेशन को बनाने के लिए उपयोग किया गया डेटा यहाँ से है",
+    "The Magellan mission used radar to see beneath the smog of Venus.": "Magellan मिशन ने शुक्र की धुंध के नीचे देखने के लिए रडार का उपयोग किया।",
+    "The magnetometer aboard NASA's robotic Cassini spacecraft discovers something -- perhaps an atmosphere -- is pushing against Saturn's magnetic field around Enceladus, a small, icy moon of Saturn barely 300 miles (500 kilometers) in diameter. There is evidence that gases may be originating from the moon's surface or interior. Cassini's cosmic dust analyzer records thousands of hits from tiny particles of dust or ice, possibly coming from a cloud around the moon or from the adjacent E ring, a broad ring of dust-sized ice particles in which Enceladus orbits. The science team makes plans to return to Enceladus for a closer look.": "NASA के रोबोटिक Cassini अंतरिक्ष यान पर लगा मैग्नेटोमीटर पाता है कि कुछ — शायद एक वायुमंडल — एन्सेलेडस के आसपास शनि के चुंबकीय क्षेत्र के विरुद्ध दबाव डाल रहा है, जो शनि का एक छोटा, बर्फीला चंद्रमा है जिसका व्यास मात्र 500 किलोमीटर (300 मील) है। ऐसे प्रमाण हैं कि गैसें चंद्रमा की सतह या आंतरिक भाग से उत्पन्न हो सकती हैं। Cassini का ब्रह्मांडीय धूल विश्लेषक धूल या बर्फ के सूक्ष्म कणों से हज़ारों टकराव दर्ज करता है, जो संभवतः चंद्रमा के चारों ओर एक बादल से या आसन्न E वलय से आते हैं, एक चौड़ा वलय जिसमें एन्सेलेडस परिक्रमा करता है। विज्ञान दल एन्सेलेडस पर नज़दीकी नज़र के लिए लौटने की योजना बनाता है।",
+    "The twin spacecraft Voyager 1 and Voyager 2 were launched by NASA in separate months in the summer of 1977. The Voyager mission was designed to take advantage of a rare geometric arrangement of the outer planets in the late 1970s and the 1980s which allowed for a four-planet tour for a minimum of propellant and trip time. This layout of Jupiter, Saturn, Uranus and Neptune, which occurs about every 175 years, allows a spacecraft on a particular flight path to swing from one planet to the next without the need for large onboard propulsion systems.": "जुड़वाँ अंतरिक्ष यान वॉयजर 1 और वॉयजर 2 को NASA ने 1977 की गर्मियों में अलग-अलग महीनों में लॉन्च किया था। वॉयजर मिशन को 1970 के दशक के अंत और 1980 के दशक में बाहरी ग्रहों की एक दुर्लभ ज्यामितीय व्यवस्था का लाभ उठाने के लिए डिज़ाइन किया गया था, जो न्यूनतम ईंधन और यात्रा समय के साथ चार ग्रहों की यात्रा की अनुमति देती थी। बृहस्पति, शनि, यूरेनस और नेपच्यून की यह व्यवस्था, जो लगभग हर 175 वर्षों में होती है, किसी विशेष उड़ान पथ पर अंतरिक्ष यान को बड़े ऑनबोर्ड प्रणोदन प्रणालियों की आवश्यकता के बिना एक ग्रह से दूसरे ग्रह तक जाने की अनुमति देती है।",
+    "The two Mars Viking Orbiters imaged the entire surface of Mars at a resolution of 150 to 300 meters.": "मंगल के दो Viking ऑर्बिटरों ने 150 से 300 मीटर के रिज़ॉल्यूशन पर मंगल की पूरी सतह की छवि ली।",
+    "The Voyager spacecraft are still sending back data to this day, and will wander the Milky Way forever. Each spacecraft carries a message, prepared by a team headed by Carl Sagan, in the form of a 12 inch (30-centimeter) diameter gold-plated copper disc for potential extraterrestrials who might find the spacecraft. Like the plaques on Pioneers 10 and 11, the record has symbols to show the location of Earth relative to several pulsars. The records also contain instructions to play them using a cartridge and a needle, much like a vinyl record player. The audio on the disc includes greetings in 55 languages, 35 sounds from life on Earth (such as whale songs, laughter, etc.), 90 minutes of generally Western music including everything from Mozart and Bach to Chuck Berry and Blind Willie Johnson. It also includes 115 images of life on Earth and recorded greetings.": "वॉयजर अंतरिक्ष यान आज भी डेटा वापस भेज रहे हैं और हमेशा आकाशगंगा में भटकते रहेंगे। प्रत्येक अंतरिक्ष यान एक संदेश ले जाता है, जिसे कार्ल सगन के नेतृत्व वाली टीम ने तैयार किया है, 30 सेंटीमीटर (12 इंच) व्यास की सोने की परत वाली तांबे की डिस्क के रूप में, उन संभावित बाहरी अंतरिक्षवासियों के लिए जो अंतरिक्ष यान को पा सकें। Pioneer 10 और 11 की पट्टिकाओं की तरह, डिस्क पर ऐसे प्रतीक हैं जो कई पल्सरों के सापेक्ष पृथ्वी की स्थिति दिखाते हैं। डिस्क में कार्ट्रिज और सुई का उपयोग करके उन्हें बजाने के निर्देश भी हैं, बिल्कुल विनाइल रिकॉर्ड प्लेयर की तरह। डिस्क का ऑडियो 55 भाषाओं में अभिवादन, पृथ्वी पर जीवन की 35 ध्वनियाँ (जैसे व्हेल के गीत, हँसी आदि), 90 मिनट का सामान्यतः पश्चिमी संगीत जिसमें मोज़ार्ट और बाख से लेकर चक बेरी और ब्लाइंड विली जॉनसन तक शामिल हैं। इसमें पृथ्वी पर जीवन की 115 छवियाँ और रिकॉर्ड किए गए अभिवादन भी शामिल हैं।",
+    "The Voyager spacecraft both used Jupiter's gravity as a free speed boost, or a \"slingshot\" to reach Saturn. At Saturn, the Voyagers discovered many new details about Saturn's rings, as well as new data about Saturn's large moon Titan, which has an atmosphere. After the Saturn encounter, Voyager 1 headed \"up\" from Saturn, out of the plane of the ecliptic, whereas Voyager 2 continued on towards Uranus and Neptune.": "वॉयजर अंतरिक्ष यान दोनों ने शनि तक पहुँचने के लिए बृहस्पति के गुरुत्वाकर्षण का मुफ़्त गति बढ़ावा, या \"स्लिंगशॉट\", उपयोग किया। शनि पर, वॉयजर ने शनि के वलयों के बारे में कई नए विवरण खोजे, साथ ही शनि के बड़े चंद्रमा टाइटन के बारे में नया डेटा, जिसका वायुमंडल है। शनि के साथ मुलाकात के बाद, वॉयजर 1 शनि से \"ऊपर\" क्रांतिवृत्त के तल से बाहर चला गया, जबकि वॉयजर 2 यूरेनस और नेपच्यून की ओर बढ़ता रहा।",
+    "The wide-angle camera on LRO mapped the entire moon at 100 meters/pixel.": "LRO पर लगे वाइड-एंगल कैमरे ने पूरे चंद्रमा को 100 मीटर/पिक्सेल पर मैप किया।",
+    "There is Something Happening on Enceladus": "एन्सेलेडस पर कुछ हो रहा है",
+    "This": "यह",
+    "This 351 meters/pixel map incorporates 104 Titan flybys by the Cassini mission.": "यह 351 मीटर/पिक्सेल मानचित्र Cassini मिशन की टाइटन की 104 उड़ानों को शामिल करता है।",
+    "This daily global mosaic is from the Visible Infrared Imaging Radiometer Suite (VIIRS), which is one of the key instruments onboard the Suomi National Polar-Orbiting Partnership (Suomi NPP) spacecraft.": "यह दैनिक वैश्विक मोज़ेक Visible Infrared Imaging Radiometer Suite (VIIRS) से है, जो Suomi National Polar-Orbiting Partnership (Suomi NPP) अंतरिक्ष यान पर सवार प्रमुख उपकरणों में से एक है।",
+    "This global mosaic is at 4 km/pixel, combining one hundred flybys of Titan by the Cassini mission": "यह वैश्विक मोज़ेक 4 किमी/पिक्सेल पर है, जो Cassini मिशन की टाइटन की सौ उड़ानों को जोड़ता है",
+    "This session has ended": "यह सत्र समाप्त हो गया है",
+    "Time Controls": "समय नियंत्रण",
+    "Time left:": "शेष समय:",
+    "time maximum": "अधिकतम समय",
+    "time minimum": "न्यूनतम समय",
+    "Timeline": "समयरेखा",
+    "Titan's Thick Haze Layer": "टाइटन की मोटी धुंध परत",
+    "Titania High-Resolution Color Composite": "टाइटेनिया का उच्च-रिज़ॉल्यूशन रंगीन मिश्रण",
+    "to": "तक",
+    "to rotate": "घुमाने के लिए",
+    "toggle auto camera": "ऑटो कैमरा टॉगल करें",
+    "Toggle auto camera": "ऑटो कैमरा टॉगल करें",
+    "toggle between metric and imperial units": "मीट्रिक और इम्पीरियल इकाइयों के बीच टॉगल करें",
+    "Toggle between metric and imperial units": "मीट्रिक और इम्पीरियल इकाइयों के बीच टॉगल करें",
+    "toggle between the center or the surface of the source": "स्रोत के केंद्र या सतह के बीच टॉगल करें",
+    "toggle between the center or the surface of the target": "लक्ष्य के केंद्र या सतह के बीच टॉगल करें",
+    "Toggle Constellations": "तारामंडल टॉगल करें",
+    "Toggle content panel.": "सामग्री पैनल टॉगल करें।",
+    "toggle fullscreen": "पूर्ण स्क्रीन टॉगल करें",
+    "Toggle fullscreen": "पूर्ण स्क्रीन टॉगल करें",
+    "toggle layers": "परतें टॉगल करें",
+    "Toggle layers": "परतें टॉगल करें",
+    "toggle light modes": "प्रकाश मोड टॉगल करें",
+    "Toggle light modes": "प्रकाश मोड टॉगल करें",
+    "Toolbox": "टूलबॉक्स",
+    "Total Solar Eclipse": "पूर्ण सूर्य ग्रहण",
+    "touch & drag": "स्पर्श करें और खींचें",
+    "TOUCH TO START": "शुरू करने के लिए स्पर्श करें",
+    "Trails": "निशान",
+    "Trajectory": "प्रक्षेप पथ",
+    "Type": "प्रकार",
+    "Uranus as seen by NASA's Voyager 2": "NASA के वॉयजर 2 से देखा गया यूरेनस",
+    "Uranus Rings": "यूरेनस के वलय",
+    "User Interface": "उपयोगकर्ता इंटरफ़ेस",
+    "Venus as seen by Parker Solar Probe. Credit: NASA": "पार्कर सोलर प्रोब से देखा गया शुक्र। श्रेय: NASA",
+    "View 3D": "3D देखें",
+    "View Options": "दृश्य विकल्प",
+    "Volcanic Explosion on Io": "Io पर ज्वालामुखी विस्फोट",
+    "Voyager 1 \"Blue Movie\"": "वॉयजर 1 की \"Blue Movie\"",
+    "Voyager 1 was the first to reach Jupiter, in March of 1979, followed by Voyager 2 in August. Discovery of active volcanism on the satellite Io was easily the greatest unexpected discovery at Jupiter. It was the first time active volcanoes had been seen on another body in the solar system. The Voyagers also discovered that the Great Red Spot was revealed as a complex storm moving in a counterclockwise direction, and a movie was made of it as Voyager 1 was inbound.": "वॉयजर 1 मार्च 1979 में बृहस्पति तक पहुँचने वाला पहला यान था, उसके बाद अगस्त में वॉयजर 2 आया। उपग्रह Io पर सक्रिय ज्वालामुखी गतिविधि की खोज बृहस्पति पर सबसे बड़ी अप्रत्याशित खोज थी। यह पहली बार था जब सौर मंडल के किसी अन्य पिंड पर सक्रिय ज्वालामुखी देखे गए थे। वॉयजर ने यह भी खोजा कि महान लाल धब्बा वामावर्त दिशा में चलने वाले एक जटिल तूफ़ान के रूप में प्रकट हुआ, और जब वॉयजर 1 अंदर की ओर आ रहा था तब उसकी एक फ़िल्म बनाई गई।",
+    "Voyager 2 makes its closest approach to Neptune, making it the first spacecraft to observe Neptune up close and the first to visit four planets beyond Earth. Highlights from the encounter include the discovery of six new moons, the first images of Neptune's rings, and the discovery of a huge, counter-clockwise rotating storm in Neptune's southern hemisphere, named \"The Great Dark Spot\".": "वॉयजर 2 नेपच्यून के अपने निकटतम पहुँच पर पहुँचता है, जिससे यह नेपच्यून को निकट से देखने वाला पहला अंतरिक्ष यान और पृथ्वी से परे चार ग्रहों का दौरा करने वाला पहला यान बनता है। इस मुलाकात की मुख्य बातों में छह नए चंद्रमाओं की खोज, नेपच्यून के वलयों की पहली छवियाँ, और नेपच्यून के दक्षिणी गोलार्ध में वामावर्त घूमने वाले एक विशाल तूफ़ान की खोज शामिल है, जिसका नाम \"द ग्रेट डार्क स्पॉट\" रखा गया।",
+    "Voyager's Golden Record": "वॉयजर की स्वर्ण डिस्क",
+    "Voyager's Golden Record Cover": "वॉयजर की स्वर्ण डिस्क का आवरण",
+    "Voyager's Grand Tour": "वॉयजर की भव्य यात्रा",
+    "Water Vapor at the South Pole": "दक्षिण ध्रुव पर जल वाष्प",
+    "website. Visit the": "वेबसाइट। देखें",
+    "What We Learned Along the Way": "रास्ते में हमने क्या सीखा",
+    "When the app is first loading, show an overlay to prompt the user to view and start interacting": "जब ऐप पहली बार लोड हो रहा हो, तो उपयोगकर्ता को देखने और इंटरैक्ट करना शुरू करने के लिए प्रेरित करने वाला ओवरले दिखाएँ",
+    "When zooming into 3D spherical surfaces, dynamically loads texture tiles in greater detail. Currently available for Earth/Moon/Mars only": "3D गोलाकार सतहों में ज़ूम करते समय, अधिक विस्तार में बनावट टाइलों को गतिशील रूप से लोड करता है। वर्तमान में केवल पृथ्वी/चंद्रमा/मंगल के लिए उपलब्ध है",
+    "With Voyager 1's primary science phase over, Voyager 2 made the long journey out to Uranus, arriving in January of 1986. The planet had never been visited before, and the encounter did not disappoint: Voyager 2 found eleven new moons and two new rings around the planet. This was the first-ever visit to Uranus.": "वॉयजर 1 का प्राथमिक विज्ञान चरण समाप्त होने के साथ, वॉयजर 2 ने यूरेनस तक की लंबी यात्रा की, जनवरी 1986 में वहाँ पहुँचा। इस ग्रह का पहले कभी दौरा नहीं हुआ था, और यह मुलाकात निराशाजनक नहीं रही: वॉयजर 2 ने ग्यारह नए चंद्रमा और ग्रह के चारों ओर दो नए वलय खोजे। यूरेनस की यह पहली यात्रा थी।",
+    "Year": "वर्ष",
+    "zoom in": "ज़ूम इन",
+    "Zoom in": "ज़ूम इन",
+    "zoom out": "ज़ूम आउट",
+    "Zoom out": "ज़ूम आउट"
+  },
+  "patterns": [
+    {
+      "id": "storySlide",
+      "re": "^(.+) - Slide (\\d+)$",
+      "to": "$1 - स्लाइड $2"
+    },
+    {
+      "id": "comparedTo",
+      "re": "^(.+) compared to (.+)$",
+      "to": "$1 की तुलना $2 से",
+      "entityGroups": [
+        1,
+        2
+      ]
+    },
+    {
+      "id": "telescopeMode",
+      "re": "^(.+) Telescope Mode$",
+      "to": "टेलीस्कोप मोड: $1",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "eventsHost",
+      "re": "^(.+) Events$",
+      "to": "घटनाएँ: $1",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "eventHost",
+      "re": "^(.+) Event$",
+      "to": "घटना: $1",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "comparisonHost",
+      "re": "^(.+) Comparison$",
+      "to": "तुलना: $1",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "possessive",
+      "re": "^(.+)'s (.+)$",
+      "to": "$1 का $2",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "moonsOf",
+      "re": "^Moons of (.+)$",
+      "to": "$1 के चंद्रमा",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "featuredMoonsOf",
+      "re": "^See (.+)'s featured moons\\.$",
+      "to": "$1 के विशेष चंद्रमा देखें",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "distanceBetween",
+      "re": "^Calculate the distance between (.+) and any other celestial body\\.$",
+      "to": "$1 और किसी भी अन्य खगोलीय पिंड के बीच की दूरी की गणना करें।",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "relativeSize",
+      "re": "^See the relative size of (.+) compared to other (.+)$",
+      "to": "$1 का आकार अन्य $2 की तुलना में देखें",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "featureOf",
+      "re": "^Feature of (.+)$",
+      "to": "$1 की विशेषता"
+    },
+    {
+      "id": "genericModel",
+      "re": "^(.+) is represented by a generic model\\.$",
+      "to": "$1 को एक सामान्य मॉडल द्वारा दर्शाया गया है।",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "loadingEntity",
+      "re": "^Loading (.+)\\.\\.\\.$",
+      "to": "$1 लोड हो रहा है…",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "loadingIn3d",
+      "re": "^Loading (.+) in 3D$",
+      "to": "$1 को 3D में लोड किया जा रहा है",
+      "entityGroups": [
+        1
+      ]
+    },
+    {
+      "id": "betweenEvents",
+      "re": "^Between (\\d+) events$",
+      "to": "$1 घटनाओं के बीच"
+    },
+    {
+      "id": "countEvents",
+      "re": "^(\\d+) events$",
+      "to": "$1 घटनाएँ"
+    },
+    {
+      "id": "countResults",
+      "re": "^(\\d+) results?$",
+      "to": "$1 परिणाम"
+    },
+    {
+      "id": "countSuggestions",
+      "re": "^(\\d+) suggestions?$",
+      "to": "$1 सुझाव"
+    },
+    {
+      "id": "helpPrefix",
+      "re": "^Help: (.+)$",
+      "to": "सहायता: $1"
+    },
+    {
+      "id": "scheduledLaunch",
+      "re": "^Scheduled launch in (.+)$",
+      "to": "$1 में निर्धारित लॉन्च"
+    },
+    {
+      "id": "scaleAmount",
+      "re": "^(~ )?([\\d.,\\s\\u00a0\\u202f]+) (thousand|million|billion)$",
+      "to": "$1$2 $3",
+      "measurement": "scale"
+    },
+    {
+      "id": "lightTimeTwo",
+      "re": "^([\\d.,\\s\\u00a0\\u202f]+) (hr|min|sec) ([\\d.,\\s\\u00a0\\u202f]+) (min|sec)$",
+      "to": "$1 $2 $3 $4",
+      "measurement": "lightTime"
+    },
+    {
+      "id": "lightTimeOne",
+      "re": "^([\\d.,\\s\\u00a0\\u202f]+) (hr|min|sec|ms)$",
+      "to": "$1 $2",
+      "measurement": "lightTime"
+    },
+    {
+      "id": "limitExceed",
+      "re": "^cannot exceed (.+)$",
+      "to": "\"$1 से अधिक नहीं हो सकता\""
+    },
+    {
+      "id": "limitPrecede",
+      "re": "^cannot precede (.+)$",
+      "to": "\"$1 से पहले नहीं हो सकता\""
+    }
+  ],
+  "entities": {
+    "observable_universe": "प्रेक्षणीय ब्रह्मांड",
+    "milky_way": "आकाशगंगा",
+    "l1": "L1",
+    "l2": "L2",
+    "sun": "सूर्य",
+    "mercury": "बुध",
+    "venus": "शुक्र",
+    "earth": "पृथ्वी",
+    "mars": "मंगल",
+    "jupiter": "बृहस्पति",
+    "saturn": "शनि",
+    "neptune": "नेपच्यून",
+    "uranus": "यूरेनस",
+    "134340_pluto": "प्लूटो",
+    "134340_pluto_barycenter": "प्लूटो तंत्र",
+    "617_patroclus_barycenter": "पैट्रोक्लस बेरिकेंद्र",
+    "21_lutetia": "लुटेटिया",
+    "253_mathilde": "मैथिल्डे",
+    "11351_leucus": "ल्यूकस",
+    "15094_polymele": "पोलीमेले",
+    "21900_orus": "ओरस",
+    "3548_eurybates": "यूरीबेट्स",
+    "5535_annefrank": "ऐनफ्रैंक",
+    "52246_donaldjohanson": "डोनाल्डजोहानसन",
+    "617_patroclus": "पैट्रोक्लस",
+    "951_gaspra": "गैस्प्रा",
+    "2867_steins": "स्टाइन्स",
+    "ariel": "एरियल",
+    "90377_sedna": "सेडना",
+    "99942_apophis": "एपोफिस",
+    "486958_arrokoth": "एरोकोथ",
+    "101955_bennu": "बेन्नू",
+    "152830_dinkinesh": "डिंकिनेश",
+    "16_psyche": "16 साइकी",
+    "1_ceres": "सीरीस",
+    "2_pallas": "पल्लास",
+    "3_juno": "जूनो",
+    "216_kleopatra": "क्लियोपेट्रा",
+    "243_ida": "इडा",
+    "1566_icarus": "इकारस",
+    "1620_geographos": "जियोग्राफोस",
+    "1862_apollo": "अपोलो",
+    "1981_midas": "मिडास",
+    "2063_bacchus": "बैकस",
+    "2101_adonis": "एडोनिस",
+    "2102_tantalus": "टैंटालस",
+    "2135_aristaeus": "अरिस्टियस",
+    "2340_hathor": "हाथोर",
+    "3122_florence": "फ्लोरेंस",
+    "3200_phaethon": "फेथॉन",
+    "3362_khufu": "खुफू",
+    "4015_wilson-harrington": "विल्सन-हैरिंगटन",
+    "4179_toutatis": "टूटाटिस",
+    "4183_cuno": "कुनो",
+    "4450_pan": "पैन",
+    "4486_mithra": "मिथ्रा",
+    "4769_castalia": "कैस्टेलिया",
+    "5011_ptah": "प्टा",
+    "6239_minos": "मिनोस",
+    "6489_golevka": "गोलेवका",
+    "9969_braille": "ब्रेल",
+    "12923_zephyr": "ज़ेफिर",
+    "14827_hypnos": "हिप्नोस",
+    "25143_itokawa": "इटोकावा",
+    "37655_illapa": "इलापा",
+    "65803_didymos": "डिडिमोस",
+    "69230_hermes": "हर्मीस",
+    "136199_eris": "एरिस",
+    "136108_haumea": "हौमेया",
+    "136472_makemake": "माकेमाके",
+    "162173_ryugu": "रयुगु",
+    "4_vesta": "वेस्टा",
+    "433_eros": "इरोस",
+    "callisto": "कैलिस्टो",
+    "charon": "खारोन",
+    "67p_churyumov_gerasimenko": "67P/Churyumov-Gerasimenko",
+    "1p_halley": "हैली",
+    "103p_hartley_2": "हार्टले 2",
+    "1i_oumuamua": "ओउमुआमुआ",
+    "9p_tempel_1": "टेम्पेल 1",
+    "19p_borrelly": "बोरेली",
+    "81p_wild_2": "वाइल्ड 2",
+    "c_2010_x1": "एलेनिन",
+    "c_2012_s1": "ISON",
+    "c_2025_n1": "3I/ATLAS (C/2025 N1)",
+    "dactyl": "डैक्टिल",
+    "deimos": "डीमोस",
+    "dimorphos": "डिमॉर्फोस",
+    "dione": "डायोन",
+    "dysnomia": "डिस्नोमिया",
+    "enceladus": "एन्सेलेडस",
+    "europa": "यूरोपा",
+    "ganymede": "गैनिमीड",
+    "c_1995_o1": "हेल-बॉप",
+    "hiiaka": "हीयाका",
+    "hydra": "हाइड्रा",
+    "iapetus": "आइएपेटस",
+    "io": "आयो",
+    "kerberos": "केर्बेरोस",
+    "menoetius": "मेनोइटियस",
+    "mimas": "मिमास",
+    "miranda": "मिरांडा",
+    "moon": "चंद्रमा",
+    "namaka": "नामाका",
+    "nix": "निक्स",
+    "oberon": "ओबेरॉन",
+    "phobos": "फोबोस",
+    "rhea": "रीया",
+    "styx": "स्टिक्स",
+    "tethys": "टेथिस",
+    "titan": "टाइटन",
+    "titania": "टाइटेनिया",
+    "triton": "ट्राइटन",
+    "umbriel": "अम्ब्रियल",
+    "sc_artemis_1": "आर्टेमिस I",
+    "sc_artemis_2": "आर्टेमिस II",
+    "sc_capstone": "CAPSTONE",
+    "sc_cassini": "Cassini",
+    "sc_dart": "DART",
+    "sc_dawn": "Dawn",
+    "sc_deep_impact_impactor_impact_site": "डीप इम्पैक्ट प्रभाव स्थल",
+    "sc_europa_clipper": "यूरोपा क्लिपर",
+    "sc_explorer_1": "एक्सप्लोरर 1",
+    "sc_galileo": "Galileo",
+    "sc_hubble_space_telescope": "हबल अंतरिक्ष दूरबीन",
+    "sc_huygens": "Huygens",
+    "sc_insight": "InSight",
+    "sc_iss": "अंतर्राष्ट्रीय अंतरिक्ष स्टेशन",
+    "sc_juice": "Juice",
+    "sc_juno": "जूनो",
+    "sc_jwst": "जेम्स वेब अंतरिक्ष दूरबीन",
+    "sc_lucy": "Lucy",
+    "sc_mars_2020": "मंगल 2020 (Perseverance)",
+    "sc_mars_2020_landing_site": "Perseverance रोवर लैंडिंग स्थल",
+    "sc_mars_exploration_rover_1_landing_site": "Opportunity रोवर लैंडिंग स्थल",
+    "sc_mars_exploration_rover_1": "ऑपर्च्युनिटी",
+    "sc_mars_exploration_rover_2_landing_site": "Spirit रोवर लैंडिंग स्थल",
+    "sc_mars_exploration_rover_2": "स्पिरिट",
+    "sc_mars_science_laboratory_landing_site": "Curiosity रोवर लैंडिंग स्थल",
+    "sc_mars_science_laboratory": "मंगल विज्ञान प्रयोगशाला (Curiosity)",
+    "sc_messenger": "MESSENGER",
+    "sc_messenger_impact_site": "MESSENGER प्रभाव स्थल",
+    "sc_new_horizons": "न्यू होराइजन्स",
+    "sc_osiris_rex": "OSIRIS-APEX",
+    "sc_parker_solar_probe": "पार्कर सोलर प्रोब",
+    "sc_phoenix_landing_site": "Phoenix लैंडिंग स्थल",
+    "sc_psyche": "साइकी",
+    "sc_roman_space_telescope": "नैन्सी ग्रेस रोमन अंतरिक्ष दूरबीन",
+    "sc_voyager_1": "वॉयजर 1",
+    "sc_voyager_2": "वॉयजर 2",
+    "scientist": "वैज्ञानिक",
+    "school_bus": "स्कूल बस",
+    "rose_bowl": "स्टेडियम"
+  },
+  "entityAliases": {
+    "observable_universe": [
+      "Observable universe"
+    ],
+    "milky_way": [
+      "Milky way"
+    ],
+    "l1": [
+      "L1"
+    ],
+    "l2": [
+      "L2"
+    ],
+    "sun": [
+      "Sun"
+    ],
+    "mercury": [
+      "Mercury"
+    ],
+    "venus": [
+      "Venus"
+    ],
+    "earth": [
+      "Earth"
+    ],
+    "mars": [
+      "Mars"
+    ],
+    "jupiter": [
+      "Jupiter"
+    ],
+    "saturn": [
+      "Saturn"
+    ],
+    "neptune": [
+      "Neptune"
+    ],
+    "uranus": [
+      "Uranus"
+    ],
+    "134340_pluto": [
+      "Pluto",
+      "134340 Pluto"
+    ],
+    "134340_pluto_barycenter": [
+      "Pluto system"
+    ],
+    "617_patroclus_barycenter": [
+      "Patroclus barycenter"
+    ],
+    "21_lutetia": [
+      "Lutetia",
+      "21 Lutetia"
+    ],
+    "253_mathilde": [
+      "Mathilde",
+      "253 Mathilde"
+    ],
+    "11351_leucus": [
+      "Leucus",
+      "11351 Leucus"
+    ],
+    "15094_polymele": [
+      "Polymele",
+      "15094 Polymele"
+    ],
+    "21900_orus": [
+      "Orus",
+      "21900 Orus"
+    ],
+    "3548_eurybates": [
+      "Eurybates",
+      "3548 Eurybates"
+    ],
+    "5535_annefrank": [
+      "Annefrank",
+      "5535 Annefrank"
+    ],
+    "52246_donaldjohanson": [
+      "Donaldjohanson",
+      "52246 Donaldjohanson"
+    ],
+    "617_patroclus": [
+      "Patroclus",
+      "617 Patroclus"
+    ],
+    "951_gaspra": [
+      "Gaspra",
+      "951 Gaspra"
+    ],
+    "2867_steins": [
+      "Steins",
+      "2867 Steins"
+    ],
+    "ariel": [
+      "Ariel"
+    ],
+    "90377_sedna": [
+      "Sedna",
+      "90377 Sedna"
+    ],
+    "99942_apophis": [
+      "Apophis",
+      "99942 Apophis"
+    ],
+    "486958_arrokoth": [
+      "Arrokoth",
+      "486958 Arrokoth"
+    ],
+    "101955_bennu": [
+      "Bennu",
+      "101955 Bennu"
+    ],
+    "152830_dinkinesh": [
+      "Dinkinesh",
+      "152830 Dinkinesh"
+    ],
+    "16_psyche": [
+      "16 Psyche"
+    ],
+    "1_ceres": [
+      "Ceres",
+      "1 Ceres"
+    ],
+    "2_pallas": [
+      "Pallas",
+      "2 Pallas"
+    ],
+    "3_juno": [
+      "Juno",
+      "3 Juno"
+    ],
+    "216_kleopatra": [
+      "Kleopatra",
+      "216 Kleopatra"
+    ],
+    "243_ida": [
+      "Ida",
+      "243 Ida"
+    ],
+    "1566_icarus": [
+      "Icarus",
+      "1566 Icarus"
+    ],
+    "1620_geographos": [
+      "Geographos",
+      "1620 Geographos"
+    ],
+    "1862_apollo": [
+      "Apollo",
+      "1862 Apollo"
+    ],
+    "1981_midas": [
+      "Midas",
+      "1981 Midas"
+    ],
+    "2063_bacchus": [
+      "Bacchus",
+      "2063 Bacchus"
+    ],
+    "2101_adonis": [
+      "Adonis",
+      "2101 Adonis"
+    ],
+    "2102_tantalus": [
+      "Tantalus",
+      "2102 Tantalus"
+    ],
+    "2135_aristaeus": [
+      "Aristaeus",
+      "2135 Aristaeus"
+    ],
+    "2340_hathor": [
+      "Hathor",
+      "2340 Hathor"
+    ],
+    "3122_florence": [
+      "Florence",
+      "3122 Florence"
+    ],
+    "3200_phaethon": [
+      "Phaethon",
+      "3200 Phaethon"
+    ],
+    "3362_khufu": [
+      "Khufu",
+      "3362 Khufu"
+    ],
+    "4015_wilson-harrington": [
+      "Wilson-Harrington",
+      "4015 Wilson-Harrington"
+    ],
+    "4179_toutatis": [
+      "Toutatis",
+      "4179 Toutatis"
+    ],
+    "4183_cuno": [
+      "Cuno",
+      "4183 Cuno"
+    ],
+    "4450_pan": [
+      "Pan",
+      "4450 Pan"
+    ],
+    "4486_mithra": [
+      "Mithra",
+      "4486 Mithra"
+    ],
+    "4769_castalia": [
+      "Castalia",
+      "4769 Castalia"
+    ],
+    "5011_ptah": [
+      "Ptah",
+      "5011 Ptah"
+    ],
+    "6239_minos": [
+      "Minos",
+      "6239 Minos"
+    ],
+    "6489_golevka": [
+      "Golevka",
+      "6489 Golevka"
+    ],
+    "9969_braille": [
+      "Braille",
+      "9969 Braille"
+    ],
+    "12923_zephyr": [
+      "Zephyr",
+      "12923 Zephyr"
+    ],
+    "14827_hypnos": [
+      "Hypnos",
+      "14827 Hypnos"
+    ],
+    "25143_itokawa": [
+      "Itokawa",
+      "25143 Itokawa"
+    ],
+    "37655_illapa": [
+      "Illapa",
+      "37655 Illapa"
+    ],
+    "65803_didymos": [
+      "Didymos",
+      "65803 Didymos"
+    ],
+    "69230_hermes": [
+      "Hermes",
+      "69230 Hermes"
+    ],
+    "136199_eris": [
+      "Eris",
+      "136199 Eris"
+    ],
+    "136108_haumea": [
+      "Haumea",
+      "136108 Haumea"
+    ],
+    "136472_makemake": [
+      "Makemake",
+      "136472 Makemake"
+    ],
+    "162173_ryugu": [
+      "Ryugu",
+      "162173 Ryugu"
+    ],
+    "4_vesta": [
+      "Vesta",
+      "4 Vesta"
+    ],
+    "433_eros": [
+      "Eros",
+      "433 Eros"
+    ],
+    "callisto": [
+      "Callisto"
+    ],
+    "charon": [
+      "Charon"
+    ],
+    "67p_churyumov_gerasimenko": [
+      "67P/Churyumov-Gerasimenko"
+    ],
+    "1p_halley": [
+      "Halley",
+      "1P/Halley"
+    ],
+    "103p_hartley_2": [
+      "Hartley 2",
+      "103P/Hartley"
+    ],
+    "1i_oumuamua": [
+      "Oumuamua",
+      "1I/'Oumuamua"
+    ],
+    "9p_tempel_1": [
+      "Tempel 1",
+      "9P/Tempel 1"
+    ],
+    "19p_borrelly": [
+      "Borrelly",
+      "19P/Borrelly"
+    ],
+    "81p_wild_2": [
+      "Wild 2",
+      "81P/Wild 2"
+    ],
+    "c_2010_x1": [
+      "Elenin",
+      "C/2010 X1"
+    ],
+    "c_2012_s1": [
+      "ISON",
+      "C/2012 S1"
+    ],
+    "c_2025_n1": [
+      "3I/ATLAS (C/2025 N1)",
+      "3I/ATLAS"
+    ],
+    "dactyl": [
+      "Dactyl",
+      "243 Ida I Dactyl"
+    ],
+    "deimos": [
+      "Deimos"
+    ],
+    "dimorphos": [
+      "Dimorphos"
+    ],
+    "dione": [
+      "Dione"
+    ],
+    "dysnomia": [
+      "Dysnomia"
+    ],
+    "enceladus": [
+      "Enceladus"
+    ],
+    "europa": [
+      "Europa"
+    ],
+    "ganymede": [
+      "Ganymede"
+    ],
+    "c_1995_o1": [
+      "Hale-Bopp",
+      "C/1995 O1"
+    ],
+    "hiiaka": [
+      "Hi'iaka"
+    ],
+    "hydra": [
+      "Hydra"
+    ],
+    "iapetus": [
+      "Iapetus"
+    ],
+    "io": [
+      "Io"
+    ],
+    "kerberos": [
+      "Kerberos"
+    ],
+    "menoetius": [
+      "Menoetius"
+    ],
+    "mimas": [
+      "Mimas"
+    ],
+    "miranda": [
+      "Miranda"
+    ],
+    "moon": [
+      "Moon"
+    ],
+    "namaka": [
+      "Namaka"
+    ],
+    "nix": [
+      "Nix"
+    ],
+    "oberon": [
+      "Oberon"
+    ],
+    "phobos": [
+      "Phobos"
+    ],
+    "rhea": [
+      "Rhea"
+    ],
+    "styx": [
+      "Styx"
+    ],
+    "tethys": [
+      "Tethys"
+    ],
+    "titan": [
+      "Titan"
+    ],
+    "titania": [
+      "Titania"
+    ],
+    "triton": [
+      "Triton"
+    ],
+    "umbriel": [
+      "Umbriel"
+    ],
+    "sc_artemis_1": [
+      "Artemis I"
+    ],
+    "sc_artemis_2": [
+      "Artemis II"
+    ],
+    "sc_capstone": [
+      "CAPSTONE"
+    ],
+    "sc_cassini": [
+      "Cassini"
+    ],
+    "sc_dart": [
+      "DART",
+      "boom"
+    ],
+    "sc_dawn": [
+      "Dawn"
+    ],
+    "sc_deep_impact_impactor_impact_site": [
+      "Deep Impact Impactor Impact Site"
+    ],
+    "sc_europa_clipper": [
+      "Europa Clipper"
+    ],
+    "sc_explorer_1": [
+      "Explorer 1"
+    ],
+    "sc_galileo": [
+      "Galileo"
+    ],
+    "sc_hubble_space_telescope": [
+      "Hubble Space Telescope"
+    ],
+    "sc_huygens": [
+      "Huygens"
+    ],
+    "sc_insight": [
+      "InSight"
+    ],
+    "sc_iss": [
+      "International Space Station",
+      "ISS"
+    ],
+    "sc_juice": [
+      "Juice"
+    ],
+    "sc_juno": [
+      "Juno"
+    ],
+    "sc_jwst": [
+      "James Webb Space Telescope"
+    ],
+    "sc_lucy": [
+      "Lucy"
+    ],
+    "sc_mars_2020": [
+      "Mars 2020 (Perseverance)",
+      "Percy"
+    ],
+    "sc_mars_2020_landing_site": [
+      "Perseverance Rover landing site"
+    ],
+    "sc_mars_exploration_rover_1_landing_site": [
+      "Opportunity Rover landing site"
+    ],
+    "sc_mars_exploration_rover_1": [
+      "Opportunity",
+      "Mars Exploration Rover B (Opportunity)"
+    ],
+    "sc_mars_exploration_rover_2_landing_site": [
+      "Spirit Rover landing site"
+    ],
+    "sc_mars_exploration_rover_2": [
+      "Spirit",
+      "Mars Exploration Rover A (Spirit)"
+    ],
+    "sc_mars_science_laboratory_landing_site": [
+      "Curiosity Rover landing site"
+    ],
+    "sc_mars_science_laboratory": [
+      "Mars Science Laboratory (Curiosity)",
+      "MSL"
+    ],
+    "sc_messenger": [
+      "MESSENGER"
+    ],
+    "sc_messenger_impact_site": [
+      "MESSENGER Impact Site"
+    ],
+    "sc_new_horizons": [
+      "New Horizons"
+    ],
+    "sc_osiris_rex": [
+      "OSIRIS-APEX",
+      "ORX"
+    ],
+    "sc_parker_solar_probe": [
+      "Parker Solar Probe",
+      "PSP"
+    ],
+    "sc_phoenix_landing_site": [
+      "Phoenix landing site"
+    ],
+    "sc_psyche": [
+      "Psyche"
+    ],
+    "sc_roman_space_telescope": [
+      "Nancy Grace Roman Space Telescope",
+      "Roman Space Telescope"
+    ],
+    "sc_voyager_1": [
+      "Voyager 1"
+    ],
+    "sc_voyager_2": [
+      "Voyager 2"
+    ],
+    "scientist": [
+      "Scientist"
+    ],
+    "school_bus": [
+      "School Bus"
+    ],
+    "rose_bowl": [
+      "Stadium"
+    ]
+  },
+  "categories": {
+    "Universe": "ब्रह्मांड",
+    "Galaxy": "आकाशगंगा",
+    "Lagrange Point": "लैग्रेंज बिंदु",
+    "Star": "तारा",
+    "Planet": "ग्रह",
+    "Dwarf Planet": "बौना ग्रह",
+    "Asteroid": "क्षुद्रग्रह",
+    "Moon": "चंद्रमा",
+    "Spacecraft": "अंतरिक्ष यान",
+    "Comet": "धूमकेतु",
+    "Landing site": "लैंडिंग स्थल",
+    "Instrument": "उपकरण",
+    "Human": "मानव",
+    "Vehicle": "वाहन",
+    "Building": "भवन"
+  },
+  "subcategories": {
+    "Yellow Dwarf Star": "पीला बौना तारा",
+    "Terrestrial": "स्थलीय",
+    "Gas Giant": "गैस दानव",
+    "Ice Giant": "बर्फीला दानव",
+    "Barycenter": "बेरिकेंद्र",
+    "Major Moon": "प्रमुख चंद्रमा",
+    "Minor Moon": "गौण चंद्रमा",
+    "Kuiper Belt Object": "काइपर बेल्ट वस्तु",
+    "B-Type Asteroid": "B-प्रकार क्षुद्रग्रह",
+    "M-Type Asteroid": "M-प्रकार क्षुद्रग्रह",
+    "S-Type Asteroid": "S-प्रकार क्षुद्रग्रह",
+    "Protoplanet": "प्राथमिक ग्रह",
+    "Orbiter": "ऑर्बिटर",
+    "Short-Period Comet": "अल्पकालिक धूमकेतु",
+    "Jupiter-Family Comet": "बृहस्पति-परिवार धूमकेतु",
+    "Long-Period Comet": "दीर्घकालिक धूमकेतु",
+    "Impactor": "प्रभावक",
+    "Flyby": "फ्लाईबाय",
+    "Lander": "लैंडर",
+    "Rover": "रोवर"
+  },
+  "units": {
+    "km": "किमी",
+    "mi": "मील",
+    "ft": "फीट",
+    "m": "मी",
+    "AU": "खगोलीय इकाई",
+    "light years": "प्रकाश वर्ष",
+    "thousand": "हज़ार",
+    "million": "मिलियन",
+    "billion": "अरब",
+    "hr": "घंटा",
+    "min": "मिनट",
+    "sec": "सेकंड",
+    "ms": "मि.से.",
+    "km/hr": "किमी/घंटा",
+    "mi/hr": "मील/घंटा",
+    "center": "केंद्र",
+    "surface": "सतह"
+  },
+  "html": {
+    "info.welcome": "<strong>Eyes on the Solar System में आपका स्वागत है!</strong> सौर मंडल का यह सिम्युलेटेड दृश्य आपको ग्रहों, उनके चंद्रमाओं, क्षुद्रग्रहों, धूमकेतुओं और उन्हें खोज रहे अंतरिक्ष यानों को देखने की सुविधा देता है। आप समय को आगे या पीछे भी कर सकते हैं और सौर मंडल को वैसे देख सकते हैं जैसा वह 1950 से 2050 तक दिखता था। Explorer 1 देखने के लिए 1958 की पृथ्वी पर वापस जाएँ, Cassini और Voyager जैसे मिशनों की पूरी अविश्वसनीय यात्रा देखने के लिए आगे बढ़ें, या क्षुद्रग्रह Bennu की सतह का नमूना लेते OSIRIS-REx को देखें। पृथ्वी पर अंतर्राष्ट्रीय अंतरिक्ष स्टेशन की वर्तमान स्थिति देखें, Perseverance रोवर के साथ मंगल पर उतरें, या बृहस्पति के उत्तरी ध्रुव की परिक्रमा करते Juno अंतरिक्ष यान को देखें।",
+    "info.about": "यहाँ घूमने के लिए सैकड़ों स्थान हैं और यह सब वास्तविक डेटा, छवियों, इंजीनियरिंग मॉडलों और घटनाओं का उपयोग करता है, बिल्कुल वैसे ही जैसे वे अंतरिक्ष और समय में घटे थे।",
+    "info.browser": "यह ऐप वेब ब्राउज़र में चलता है और मोबाइल व टैबलेट के अनुकूल है। ब्राउज़र और इंटरनेट कनेक्शन वाले अधिकांश डिवाइस इसे बिना किसी डाउनलोड के आनंद ले सकते हैं।",
+    "info.tips": "सौर मंडल में जल्दी से नेविगेट करने के लिए यहाँ कुछ सुझाव दिए गए हैं।",
+    "info.tip.time": "<strong>समय नियंत्रण।</strong> अंतरिक्ष और समय में आगे-पीछे जाने के लिए समय नियंत्रण का उपयोग करें। आप सीधे तारीख और समय पर क्लिक या टैप करके उसे अपनी इच्छानुसार बदल सकते हैं, या रिवाइंड, फ़ास्ट-फ़ॉरवर्ड और प्ले/पॉज़ बटन का उपयोग कर सकते हैं। अधिक बारीक नियंत्रण के लिए समय स्लाइडर को आगे-पीछे खींचकर देखें। यदि आप समय में खो जाएँ, तो वर्तमान समय पर जाने के लिए बस \"लाइव\" बटन पर क्लिक करें।",
+    "info.tip.move": "<strong>वस्तुओं के चारों ओर घूमना।</strong> डेस्कटॉप - क्लिक/खींचें, मोबाइल/टच - टैप/खींचें। कीबोर्ड: दिशा घुमाएँ - <strong>A/D</strong>, झुकाव घुमाएँ - <strong>Q/E</strong>, बैंक घुमाएँ - <strong>Z/C</strong>। तेज़ गति के लिए <strong>SHIFT</strong> जोड़ें।",
+    "info.tip.zoom": "<strong>ज़ूम इन और ज़ूम आउट।</strong> डेस्कटॉप - माउस व्हील, मोबाइल/टच - पिंच इन/आउट। कीबोर्ड: ज़ूम इन/आउट - <strong>W/S</strong>, तेज़ गति के लिए <strong>SHIFT</strong> जोड़ें।",
+    "info.tip.freefly": "<strong>फ़्री-फ़्लाई मोड।</strong> केवल डेस्कटॉप - फ़्री-फ़्लाई मोड में जाने के लिए <strong>K</strong> दबाएँ, माउस को वहाँ इंगित करें जहाँ जाना है, और <strong>W/A/S/D</strong> से मुड़ें, तथा तेज़ गति के लिए <strong>SHIFT</strong> जोड़ें। इस तरह आप सौर मंडल में कहीं भी उड़ सकते हैं, जैसे मंगल की सतह को छूते हुए। फ़्री-फ़्लाई मोड से बाहर निकलने के लिए फिर से <strong>K</strong> दबाएँ।",
+    "info.tip.labels": "<strong>किसी भी लेबल पर क्लिक करें</strong>। यदि आपको लेबल दिखे, तो उस वस्तु तक तुरंत यात्रा करने के लिए उस पर क्लिक या टैप करें। वहाँ पहुँचने पर आप विशेष घटनाएँ देख सकते हैं, आकार की तुलना अन्य खगोलीय पिंडों या अंतरिक्ष यानों से कर सकते हैं, दृश्य बदल सकते हैं, या अन्य संबंधित वस्तुओं पर जा सकते हैं।",
+    "info.tip.search": "<strong>मेनू और खोज।</strong> बस आवर्धक लेंस चुनें और जो खोजना है उसे टाइप करें। वैकल्पिक रूप से, मेनू का उपयोग करके ग्रहों, चंद्रमाओं, अंतरिक्ष यानों, क्षुद्रग्रहों और धूमकेतुओं सहित किसी भी वस्तु को नाम से चुनें। मोबाइल पर, खोज और मेनू ऊपर दाईं ओर स्थित \"हैमबर्गर\" मेनू से खोले जाते हैं।",
+    "info.tip.stories": "<strong>कहानियाँ।</strong> स्क्रीन के बाईं ओर (मोबाइल पर स्क्रीन के निचले भाग में) आपको कई कहानियाँ दिखाई देंगी। \"स्क्रॉली-टेलिंग\" का अनुभव करने के लिए किसी एक पर क्लिक करें। शनि के चंद्रमा एन्सेलेडस पर गीज़र खोजते Cassini अंतरिक्ष यान के बारे में जानें, मंगल पर उतरते Perseverance रोवर को देखें, या प्रसिद्ध Voyager अंतरिक्ष यानों की भव्य यात्रा का अनुसरण करें।",
+    "info.tip.layers": "<strong>सतही परतें।</strong> कई ग्रहों और चंद्रमाओं के लिए, आप उच्च-गुणवत्ता वाली बनावट सक्षम कर सकते हैं। बस वस्तु पर जाएँ, फिर पैनल में (लैपटॉप पर स्क्रीन के बाईं ओर, मोबाइल फ़ोन पर स्क्रीन के निचले भाग में) \"दृश्य विकल्प\" टैब खोलें। लैपटॉप पर आपको \"बनावट गुणवत्ता\" विकल्प दिखेगा, जहाँ आप \"उच्च परिभाषा\" चुन सकते हैं। मोबाइल पर, आप \"दृश्य विकल्प\" और फिर \"बनावट\" चुनें और वही विकल्प दिखेगा। पृथ्वी, मंगल और चंद्रमा के लिए, आप \"सतह मानचित्र\" अनुभाग के अंतर्गत और भी उच्च-गुणवत्ता वाली बनावट चुन सकते हैं, जिसमें स्रोत का विवरण होता है। पृथ्वी के मामले में, यह पिछले दिन की पृथ्वी का अत्यंत उच्च-रिज़ॉल्यूशन वैश्विक मोज़ेक है!",
+    "info.tip.settings": "<strong>सेटिंग्स।</strong> डेस्कटॉप और मोबाइल दोनों पर, सेटिंग्स दिखाने/छिपाने का बटन स्क्रीन के निचले दाईं ओर होता है। खुलने के बाद, आप प्रकाश (भरण, छाया और प्राकृतिक प्रकाश) बदल सकते हैं, पूर्ण स्क्रीन में फैला सकते हैं, और दृश्यता की विभिन्न परतों (तारामंडल, अंतरिक्ष यान, लेबल, निशान, क्षुद्रग्रह, धूमकेतु, और यहाँ तक कि उपयोगकर्ता इंटरफ़ेस) को बंद और चालू कर सकते हैं।",
+    "info.tip.telescope": "<strong>टेलीस्कोप मोड।</strong> जब आप किसी ग्रह पर हों, तो टेलीस्कोप मोड आज़माएँ! ग्रह पर कहीं भी क्लिक करें और आप उस स्थान पर उतर जाएँगे। फिर तारामंडल चालू करें और देखें कि इस समय आकाश में क्या है।"
+  },
+  "meta": {
+    "titlePrefix": "Solar System",
+    "description": "सौर मंडल की 3D दुनिया का अन्वेषण करें। पिछले और भविष्य के मिशनों के बारे में जानें।"
+  },
+  "dir": "ltr"
+};

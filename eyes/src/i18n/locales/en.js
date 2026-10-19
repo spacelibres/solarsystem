@@ -14,6 +14,7 @@ export default {
   moment: 'en',
   dateFormats: null,
   messages: {
+    "celestial bodies": "celestial bodies",
     "View": "View",
     "telescope": "telescope",
     "loading...": "loading...",
@@ -432,8 +433,8 @@ export default {
     { id: "moonsOf", re: "^Moons of (.+)$", to: "Moons of $1", entityGroups: [1] },
     { id: "featuredMoonsOf", re: "^See (.+)'s featured moons\\.$", to: "See $1's featured moons.", entityGroups: [1] },
     { id: "distanceBetween", re: "^Calculate the distance between (.+) and any other celestial body\\.$", to: "Calculate the distance between $1 and any other celestial body.", entityGroups: [1] },
-    { id: "relativeSize", re: "^See the relative size of (.+) compared to other (.+)$", to: "See the relative size of $1 compared to other $2", entityGroups: [1,2] },
-    { id: "featureOf", re: "^Feature of (.+)$", to: "Feature of $1", entityGroups: [1] },
+    { id: "relativeSize", re: "^See the relative size of (.+) compared to other (.+)$", to: "See the relative size of $1 compared to other $2", entityGroups: [1] },
+    { id: "featureOf", re: "^Feature of (.+)$", to: "Feature of $1" },
     { id: "genericModel", re: "^(.+) is represented by a generic model\\.$", to: "$1 is represented by a generic model.", entityGroups: [1] },
     { id: "loadingEntity", re: "^Loading (.+)\\.\\.\\.$", to: "Loading $1...", entityGroups: [1] },
     { id: "loadingIn3d", re: "^Loading (.+) in 3D$", to: "Loading $1 in 3D", entityGroups: [1] },
