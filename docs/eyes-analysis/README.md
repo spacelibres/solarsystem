@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1151 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1154 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -577,6 +577,9 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/data/ViewInfo.json](#file-eyes-src-data-ViewInfo-json) — 视图类、名称及启用组件列表的声明式映射
 - [eyes/src/data/starlink-launch-dates.json](#file-eyes-src-data-starlink-launch-dates-json) — Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推算的日期），用于 Explorer 的发射日期筛选。
 - [eyes/src/data/starlink-orbits.json](#file-eyes-src-data-starlink-orbits-json) — Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��
+- [eyes/src/dyn/starlink/starlink-gen1/def.dyn](#file-eyes-src-dyn-starlink-starlink-gen1-def-dyn) — Starlink Gen1 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。
+- [eyes/src/dyn/starlink/starlink-gen2/def.dyn](#file-eyes-src-dyn-starlink-starlink-gen2-def-dyn) — Starlink Gen2 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。
+- [eyes/src/dyn/starlink/starlink-gen3/def.dyn](#file-eyes-src-dyn-starlink-starlink-gen3-def-dyn) — Starlink Gen3 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。
 - [eyes/src/engine/components/AnnulusComponent.js](#file-eyes-src-engine-components-AnnulusComponent-js) — 生成可调整内外半径的平面环带网格，按实体姿态定位并通过颜色透明度淡出。
 - [eyes/src/engine/components/AtmosphereComponent.js](#file-eyes-src-engine-components-AtmosphereComponent-js) — 依赖同实体 SpheroidComponent 的半径，以自定义散射材质渲染大气壳；同步密度、日落色和光源。
 - [eyes/src/engine/components/BaseComponent.js](#file-eyes-src-engine-components-BaseComponent-js) — 所有渲染组件的资源状态机、相机投影半径、可见性和 Three.js 对象所有权基类。
@@ -1762,13 +1765,13 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 当前导出：`buildEyes` ← `buildEyes`。
 
-非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @8；`copyShell()` @12；`publishOutput()` @13；`anonymous(result)` @33；`anonymous()` @41；`anonymous()` @43。
+非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @8；`copyShell()` @12；`publishOutput()` @13；`anonymous(result)` @35；`anonymous()` @43；`anonymous()` @45。
 
 <details><summary>短名称作用域与使用证据（1 项）</summary>
 
 | 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
 | --- | --- | --- |
-| `cp` / `module@1:0` | module / 5 | `cp(path.join(project,'shell'),dist,{recursive:true})`、`cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))`、`cp(path.join(project,'src/models/starlink'),path.join(dist,'models/starlink'),{recursive:true})`、`cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})`、`cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})` |
+| `cp` / `module@1:0` | module / 6 | `cp(path.join(project,'shell'),dist,{recursive:true})`、`cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))`、`cp(path.join(project,'src/models/starlink'),path.join(dist,'models/starlink'),{recursive:true})`、`cp(path.join(project,'src/dyn/starlink'),path.join(dist,'dyn/starlink'),{recursive:true})`、`cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})`、`cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})` |
 
 </details>
 
@@ -2276,6 +2279,33 @@ Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ�
 语义依据：source review。
 
 数据类型 `object`；顶层条目 6；字段 `generatedAt`、`source`、`manifestSha256`、`count`、`manifestCount`、`satellites`。原始数据保留，不手工猜测字段单位。
+
+<a id="file-eyes-src-dyn-starlink-starlink-gen1-def-dyn"></a>
+### `eyes/src/dyn/starlink/starlink-gen1/def.dyn`
+
+Starlink Gen1 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen1/def.dyn)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；dynamo parser test。
+
+<a id="file-eyes-src-dyn-starlink-starlink-gen2-def-dyn"></a>
+### `eyes/src/dyn/starlink/starlink-gen2/def.dyn`
+
+Starlink Gen2 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen2/def.dyn)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；dynamo parser test。
+
+<a id="file-eyes-src-dyn-starlink-starlink-gen3-def-dyn"></a>
+### `eyes/src/dyn/starlink/starlink-gen3/def.dyn`
+
+Starlink Gen3 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen3/def.dyn)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+语义依据：source review；dynamo parser test。
 
 <a id="file-eyes-src-engine-components-AnnulusComponent-js"></a>
 ### `eyes/src/engine/components/AnnulusComponent.js`

@@ -1,4 +1,4 @@
-﻿import * as Pioneer from '../engine/pioneer/index.js';
+import * as Pioneer from '../engine/pioneer/index.js';
 
 const EARTH_GM_KM3_S2 = 398600.4418;
 const DATA_URL = 'data/starlink-orbits.json';
@@ -76,22 +76,8 @@ export async function attachStarlinkLayer(scene) {
         for (const object of model.getThreeJsObjects()) makeUnpickable(object);
       });
       model.setForceLoaded(true);
-      const elements = new Pioneer.OrbitalElements();
-      elements.setFromPositionAndVelocity(
-        new Pioneer.Vector3(sample.p[0], sample.p[1], sample.p[2]),
-        new Pioneer.Vector3(sample.v[0], sample.v[1], sample.v[2]),
-        Pioneer.TimeUtils.unixToEt(sample.e),
-        EARTH_GM_KM3_S2,
-      );
-      const controller = modelEntity.addController(Pioneer.OrbitalElementsController);
-      controller.addOrbitalElements(Pioneer.TimeUtils.unixToEt(sample.e), {
-        eccentricity: elements.eccentricity,
-        semiMajorAxis: elements.semiMajorAxis,
-        meanAngularMotion: elements.meanAngularMotion,
-        meanAnomalyAtEpoch: elements.meanAnomalyAtEpoch,
-        epoch: elements.epoch,
-        orientation: elements.orientation,
-      });
+      const controller = modelEntity.addController(Pioneer.DynamoController);
+      controller.setBaseUrl(`dyn/starlink/starlink-gen${generation}`);
       // Add the orientation controller after the position controller so the
       // dependency graph resolves position first and then points +Z at the Sun.
       const align = modelEntity.addController(Pioneer.AlignController);

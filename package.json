@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.60",
+  "version": "0.2.61",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "starlink:build": "node tools/starlink/build-catalog.mjs",
     "starlink:dates": "node tools/starlink/build-launch-dates.mjs",
     "starlink:models": "node tools/starlink/build-models.mjs",
+    "starlink:dyn": "node tools/starlink/build-dyn.mjs",
     "solar:catalog:check": "node tools/compile-solar-catalog.cjs --check"
   },
   "dependencies": {

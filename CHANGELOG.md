@@ -3,6 +3,17 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.61 - 2026-10-19
+
+Convert Starlink sample orbits to the recovered Eyes dynamo (pos .dyn)
+format and load them through the same DynamoController used by NASA objects.
+The new starlink:dyn exporter writes version-2 inline position/velocity
+samples in Earth-centred inertial km, generates one directory per generation,
+and is copied by the Eyes build. --all can produce a deploy-time pack for every
+catalogue entry. The 11,151-satellite overview remains a single point cloud
+because one dynamo controller per satellite would be prohibitive; selected and
+generation-sample satellites now use the shared format.
+
 ## 0.2.60 - 2026-10-19
 
 Remove the white flash when selecting Earth in the Explorer. Earth's spheroid

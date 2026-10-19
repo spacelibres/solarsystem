@@ -60,6 +60,24 @@ writes both that copy and `src/data/starlink-orbits.json`.
   to frame Earth and highlight that satellite's display orbit. Every number in
   the manifest is available without another network request at runtime.
 
+## Dynamo (.dyn) format
+
+Starlink detailed trajectories are exported to NASA Eyes' native dynamo pos
+format so they load through the same DynamoController as the rest of the app:
+
+- 
+ode tools/starlink/build-dyn.mjs writes three generation samples under
+  eyes/src/dyn/starlink/starlink-gen{1,2,3}/def.dyn.
+- Each file is dynamo v2: an inline pos block with 385 Hermite samples at
+  30-minute spacing over eight days, Earth-centred inertial km and km/s, and ET
+  timestamps.
+- The Eyes build publishes the files to public/eyes/dyn/starlink/.
+- --all --out public/eyes/dyn/starlink can generate a deploy-time pack for
+  every catalogue entry; it is intentionally not committed.
+- The 11,151-satellite overview remains one point cloud because 11k individual
+  dynamo controllers/downloads would be prohibitive. Selected satellites and the
+  three generation samples use the shared .dyn format.
+
 ## Satellite picker and filters
 
 The Explorer sidebar's **选择卫星** button opens a multi-select picker rather than

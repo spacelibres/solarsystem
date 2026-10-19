@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 258 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 261 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -140,6 +140,24 @@ Starlink 卫星发射日期映射（GCAT CC-BY，含 499 颗按相邻编号推�
 Starlink �����������ɵĽ���Ŀ¼��11,151 �ţ����� Eyes Earth ��ͼ�� OrbitalParticlesComponent ��ȡ������ʱ���Ƶ� public/eyes/data��。[源码](../../eyes/src/data/starlink-orbits.json)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-data-starlink-orbits-json)
+
+## `eyes/src/dyn/starlink/starlink-gen1/def.dyn`
+
+Starlink Gen1 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen1/def.dyn)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-dyn-starlink-starlink-gen1-def-dyn)
+
+## `eyes/src/dyn/starlink/starlink-gen2/def.dyn`
+
+Starlink Gen2 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen2/def.dyn)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-dyn-starlink-starlink-gen2-def-dyn)
+
+## `eyes/src/dyn/starlink/starlink-gen3/def.dyn`
+
+Starlink Gen3 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。。[源码](../../eyes/src/dyn/starlink/starlink-gen3/def.dyn)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-dyn-starlink-starlink-gen3-def-dyn)
 
 ## `eyes/src/framework/eyes/index.js`
 

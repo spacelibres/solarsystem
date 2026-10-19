@@ -48026,6 +48026,42 @@
       "notes": [],
       "renames": [],
       "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/dyn/starlink/starlink-gen1/def.dyn": {
+      "purpose": "Starlink Gen1 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "dynamo parser test"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/dyn/starlink/starlink-gen2/def.dyn": {
+      "purpose": "Starlink Gen2 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "dynamo parser test"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/dyn/starlink/starlink-gen3/def.dyn": {
+      "purpose": "Starlink Gen3 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "evidence": [
+        "source review",
+        "dynamo parser test"
+      ],
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

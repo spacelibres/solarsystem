@@ -2,7 +2,7 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1151,
+    "files": 1154,
     "javascript": 1060,
     "classes": 552,
     "methods": 5514,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "bf291aba81e0fb6af788aac02291ba8b08a711e1d434687eea582f1f4addf3ad",
+      "sha256": "40b1c53457ab689ea804c6f838b658b20b8f4ec616fbb1fc6fedbfccf5d3e95c",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "69984021c216287f8fe26e00c05feccfe240f4e6d1ab8cccb67b9d549354f7d8",
+      "sha256": "68e7737d5f952864141472af4791d4755e8d128088e38e12c068716253c7418d",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -737,8 +737,8 @@
     },
     {
       "file": "eyes/scripts/build.mjs",
-      "bytes": 2385,
-      "sha256": "b1bde901e380d54bc1e9f4d545b33214aeccb69d8d0d5cea1710e30bb51e14cf",
+      "bytes": 2555,
+      "sha256": "8d2e66e6538525fc22c20c8047d398db873b7edc92346bfe31c98fdd28ffce40",
       "purpose": "从可编辑 src 编译 ESM/CJS/HTML，校验解码器并发布 dist/public；正常构建不运行恢复",
       "confidence": "observed",
       "origin": null,
@@ -836,7 +836,7 @@
           "name": "buildEyes",
           "documentation": "",
           "line": 8,
-          "endLine": 46,
+          "endLine": 48,
           "async": true,
           "params": [
             "{watch=false,publish=false}={}"
@@ -854,15 +854,15 @@
           "name": "publishOutput",
           "documentation": "",
           "line": 13,
-          "endLine": 21,
+          "endLine": 23,
           "async": true,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 33,
-          "endLine": 33,
+          "line": 35,
+          "endLine": 35,
           "async": true,
           "params": [
             "result"
@@ -871,16 +871,16 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 41,
-          "endLine": 44,
+          "line": 43,
+          "endLine": 46,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 43,
-          "endLine": 43,
+          "line": 45,
+          "endLine": 45,
           "async": false,
           "params": []
         }
@@ -891,12 +891,13 @@
           "kind": "module",
           "line": 3,
           "scope": "module@1:0",
-          "references": 5,
+          "references": 6,
           "constant": true,
           "uses": [
             "cp(path.join(project,'shell'),dist,{recursive:true})",
             "cp(path.join(project,'src/data/starlink-orbits.json'),path.join(dist,'data/starlink-orbits.json'))",
             "cp(path.join(project,'src/models/starlink'),path.join(dist,'models/starlink'),{recursive:true})",
+            "cp(path.join(project,'src/dyn/starlink'),path.join(dist,'dyn/starlink'),{recursive:true})",
             "cp(cache.root,path.join(dist,'decoders',cache.revision),{recursive:true})",
             "cp(dist,path.resolve(project,'../public/eyes'),{recursive:true})"
           ],
@@ -905,7 +906,7 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 1,
-      "semanticHash": "5dbfd50b00220308d6ac9fc3a1c94e60d179bc74d97a92ab78ba86a2f3c9bf25",
+      "semanticHash": "66594b15777a5ebfcb772a8d277382011b113e01a6f824c72779f16c0677c506",
       "dependencies": [
         "eyes/scripts/decoder-cache.mjs"
       ],
@@ -2721,8 +2722,8 @@
     },
     {
       "file": "eyes/src/app/StarlinkLayer.js",
-      "bytes": 4901,
-      "sha256": "00175db43381baf2495c91d5b752bc7b86a185eef335830a4d9e71a0a4919a28",
+      "bytes": 4283,
+      "sha256": "eb91df2c50f07c53e55ff8be1137ee8b0b101470f4ef6617cba1cccbaeba4926",
       "purpose": "加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。",
       "confidence": "observed",
       "origin": null,
@@ -2792,7 +2793,7 @@
           "name": "attachStarlinkLayer",
           "documentation": "Add the public Starlink constellation to the recovered Eyes Earth entity.\n\nOrbitalParticlesComponent projects each particle from a Pioneer\nOrbitalElements record on every frame, so 11k satellites stay on one\ninstanced draw without creating 11k Eyes entities or labels.",
           "line": 18,
-          "endLine": 107,
+          "endLine": 93,
           "async": true,
           "params": [
             "scene"
@@ -2836,7 +2837,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f5df6f19f42662c8f557ce95cb3e9de96995894403a41abdb6d5422389267ea7",
+      "semanticHash": "ffd44a7fa32811210054e86ce4e784ef5d331764286505d2edac5edd706ac1e7",
       "dependencies": [
         "eyes/src/engine/pioneer/index.js"
       ],
@@ -5037,6 +5038,45 @@
           "manifestCount",
           "satellites"
         ]
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/dyn/starlink/starlink-gen1/def.dyn",
+      "bytes": 40763,
+      "sha256": "9b31be47fc52a78f329ef7b7ef13225112d5965195c3dd2069c652948435ebdb",
+      "purpose": "Starlink Gen1 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/dyn/starlink/starlink-gen2/def.dyn",
+      "bytes": 40758,
+      "sha256": "88a48d5ea7622a1521df6ec4183c2d30640ff8c360796db7c9e34e905b581759",
+      "purpose": "Starlink Gen2 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/dyn/starlink/starlink-gen3/def.dyn",
+      "bytes": 40715,
+      "sha256": "e4e885cb4891ab0d50d7d6d9713bfac2813246f7cfa552d7f7648cc80af6ef40",
+      "purpose": "Starlink Gen3 的 NASA dynamo pos 轨迹样例，供 Eyes 的 DynamoController 按统一格式加载。",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
       },
       "dependencies": [],
       "dependents": []
