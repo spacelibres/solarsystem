@@ -2028,7 +2028,7 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 当前导出：`attachStarlinkLayer` ← `attachStarlinkLayer`。
 
-非 class 函数（包括模块内回调）：`attachStarlinkLayer(scene)` @13：Add the public Starlink constellation to the recovered Eyes Earth entity. OrbitalParticlesComponent projects each particle from a Pioneer OrbitalElements record on every frame, so 11k satellites stay on one instanced draw without creating 11k Eyes entities or labels.；`anonymous()` @28；`anonymous(satellite)` @52。
+非 class 函数（包括模块内回调）：`makeUnpickable(object)` @6；`anonymous()` @7；`anonymous(child)` @8；`anonymous()` @8；`attachStarlinkLayer(scene)` @18：Add the public Starlink constellation to the recovered Eyes Earth entity. OrbitalParticlesComponent projects each particle from a Pioneer OrbitalElements record on every frame, so 11k satellites stay on one instanced draw without creating 11k Eyes entities or labels.；`anonymous()` @34；`anonymous()` @52；`anonymous(satellite)` @61；`anonymous()` @75。
 
 <a id="file-eyes-src-app-config-components-js"></a>
 ### `eyes/src/app/config/components.js`

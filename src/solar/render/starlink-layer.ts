@@ -61,6 +61,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   });
   const points = new THREE.Points(pointGeometry, pointMaterial);
   points.frustumCulled = false;
+  points.raycast = () => {};
   group.add(points);
 
   let lastPointTime = Number.NEGATIVE_INFINITY;
@@ -138,6 +139,7 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
           const model = scene.clone(true);
           model.scale.setScalar(35);
           model.name = `starlink-model-gen${generation}-${number}`;
+          model.traverse(object => { object.raycast = () => {}; });
           selectedModels.set(number, model);
           group.add(model);
         }).catch(error => console.warn('Starlink model unavailable:', error));

@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "84dc8bed7ee5a1cf651e9d64b329933d4ee01538279e1aefd8a00e9935d4eb73",
+      "sha256": "108b3e331ada79581e501fa9422121a3131ff9b38b2e4bf66a42b162fad2b158",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "fffff73322281814eab406cf8492de83299c7cb64009ffbfe7c61457e7320166",
+      "sha256": "2b796048768863286311cc2be45628bffbf57cb8cbc4dbdeb1be9f2a43fb7819",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -2721,8 +2721,8 @@
     },
     {
       "file": "eyes/src/app/StarlinkLayer.js",
-      "bytes": 4423,
-      "sha256": "ed6d35d8317e8eaed7b9a683e6573e423ce756aac87a35a74d96dfecebc6d84c",
+      "bytes": 4901,
+      "sha256": "00175db43381baf2495c91d5b752bc7b86a185eef335830a4d9e71a0a4919a28",
       "purpose": "加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。",
       "confidence": "observed",
       "origin": null,
@@ -2746,17 +2746,53 @@
         {
           "exported": "attachStarlinkLayer",
           "local": "attachStarlinkLayer",
-          "line": 13
+          "line": 18
         }
       ],
       "aliases": {},
       "classes": [],
       "functions": [
         {
+          "name": "makeUnpickable",
+          "documentation": "",
+          "line": 6,
+          "endLine": 9,
+          "async": false,
+          "params": [
+            "object"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 7,
+          "endLine": 7,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 8,
+          "endLine": 8,
+          "async": false,
+          "params": [
+            "child"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 8,
+          "endLine": 8,
+          "async": false,
+          "params": []
+        },
+        {
           "name": "attachStarlinkLayer",
           "documentation": "Add the public Starlink constellation to the recovered Eyes Earth entity.\n\nOrbitalParticlesComponent projects each particle from a Pioneer\nOrbitalElements record on every frame, so 11k satellites stay on one\ninstanced draw without creating 11k Eyes entities or labels.",
-          "line": 13,
-          "endLine": 94,
+          "line": 18,
+          "endLine": 107,
           "async": true,
           "params": [
             "scene"
@@ -2765,8 +2801,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 28,
-          "endLine": 45,
+          "line": 34,
+          "endLine": 51,
           "async": true,
           "params": []
         },
@@ -2774,17 +2810,33 @@
           "name": "anonymous",
           "documentation": "",
           "line": 52,
-          "endLine": 52,
+          "endLine": 54,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 61,
+          "endLine": 61,
           "async": false,
           "params": [
             "satellite"
           ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 75,
+          "endLine": 77,
+          "async": false,
+          "params": []
         }
       ],
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "0bd4f7510b4b2dfe9532125070fc38b899acdfda329bc978337aa926a3e8c781",
+      "semanticHash": "f5df6f19f42662c8f557ce95cb3e9de96995894403a41abdb6d5422389267ea7",
       "dependencies": [
         "eyes/src/engine/pioneer/index.js"
       ],

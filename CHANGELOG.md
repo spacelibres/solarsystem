@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.59 - 2026-10-19
+
+Prevent the Starlink display layer from interfering with scene selection. In
+Eyes the 11k particle shell and the three generation sample models are now
+non-occluding and their Three.js objects are unpickable, so a click near Earth
+cannot select the invisible/display-only Starlink entity and clear the route with
+a white selection flash. The Explorer points and selected models are likewise
+excluded from raycasting.
+
 ## 0.2.58 - 2026-10-19
 
 Fix body name labels drawing through Earth when their satellite is behind the

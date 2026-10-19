@@ -3,6 +3,11 @@
 const EARTH_GM_KM3_S2 = 398600.4418;
 const DATA_URL = 'data/starlink-orbits.json';
 
+const makeUnpickable = object => {
+  object.raycast = () => {};
+  object.traverse?.(child => { child.raycast = () => {}; });
+};
+
 /**
  * Add the public Starlink constellation to the recovered Eyes Earth entity.
  *
@@ -23,6 +28,7 @@ export async function attachStarlinkLayer(scene) {
     entity.setOrientation(Pioneer.Quaternion.Identity);
     entity.setExtentsRadius(7000);
     entity.setOcclusionRadius(0);
+    entity.setCanOcclude(false);
     const component = entity.addComponent(Pioneer.OrbitalParticlesComponent, 'starlink_particles');
     component.setScaleOfParticles(1);
     component.setLoadFunction(async () => {
@@ -43,6 +49,9 @@ export async function attachStarlinkLayer(scene) {
       }
       return { orbitalElements, colors, scales };
     });
+    component.setResourcesLoadedCallback(() => {
+      for (const object of component.getThreeJsObjects()) makeUnpickable(object);
+    });
     component.setForceLoaded(true);
 
     // One display model per generation, placed at the first satellite in that
@@ -56,12 +65,16 @@ export async function attachStarlinkLayer(scene) {
       modelEntity.setPosition(new Pioneer.Vector3(0, 0, 0));
       modelEntity.setOrientation(Pioneer.Quaternion.Identity);
       modelEntity.setOcclusionRadius(0);
+      modelEntity.setCanOcclude(false);
       modelEntity.setExtentsRadius(0.1);
       const model = modelEntity.addComponent(Pioneer.ModelComponent, `starlink_model_${generation}`);
       model.setUrl(`models/starlink/starlink-gen${generation}.glb`);
       // Model geometry is authored in metres; 35 yields a ~100 km display
       // marker at Earth close-up, not a physical-scale satellite.
       model.setScale(35);
+      model.setResourcesLoadedCallback(() => {
+        for (const object of model.getThreeJsObjects()) makeUnpickable(object);
+      });
       model.setForceLoaded(true);
       const elements = new Pioneer.OrbitalElements();
       elements.setFromPositionAndVelocity(
