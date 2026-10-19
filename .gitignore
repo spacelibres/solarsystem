@@ -39,3 +39,6 @@ eyes/node_modules/
 
 # Pinned local decoder dependencies (recreated by decoders:cache)
 eyes/.cache/
+
+# Starlink header cache (rebuilt by tools/starlink/build-catalog.mjs)
+.cache/

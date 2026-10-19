@@ -9,6 +9,8 @@ import { relativeEphemeris } from '../domain/observations';
 import { ExplorerRuntime, type ExplorerSnapshot } from '../runtime/explorer-runtime';
 import { createRenderWorld, type RenderDiagnostics, type RenderWorld } from '../render/render-world';
 import { etDateInput, formatEtUtc, utcInputToEt } from './format';
+import starlinkData from '../../data/starlink-orbits.json';
+import type { StarlinkOrbit } from '../domain/starlink';
 import styles from './Explorer.module.css';
 export interface ExplorerDebugApi {
     snapshot(): {
@@ -32,6 +34,7 @@ declare global {
         __SOLAR_EXPLORER__?: ExplorerDebugApi;
     }
 }
+const STARLINK = starlinkData as unknown as { count: number; manifestCount?: number; satellites: StarlinkOrbit[] };
 const MIN_DATE = '1949-12-31T00:00:00';
 const MAX_DATE = '2049-12-31T00:00:00';
 const MIN_ET = utcInputToEt(MIN_DATE);
@@ -44,7 +47,7 @@ function readyCount(snapshot: ExplorerSnapshot | null): number {
     return snapshot ? [...snapshot.frames.values()].filter(frame => frame.status === 'ready').length : 0;
 }
 export default function Explorer() {
-    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false });
+    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false, starlink: true });
     const navigationState = useRef<{
         id: string;
         mode: SceneMode;
@@ -59,6 +62,9 @@ export default function Explorer() {
     const [minorMoonsVisible, setMinorMoonsVisible] = useState(false);
     const [starsVisible, setStarsVisible] = useState(true);
     const [constellationsVisible, setConstellationsVisible] = useState(false);
+    const [starlinkVisible, setStarlinkVisible] = useState(true);
+    const [starlinkNumber, setStarlinkNumber] = useState('');
+    const [selectedStarlink, setSelectedStarlink] = useState<number | null>(null);
     const mount = useRef<HTMLDivElement>(null);
     const runtimeRef = useRef<ExplorerRuntime | null>(null);
     const worldRef = useRef<RenderWorld | null>(null);
@@ -92,7 +98,7 @@ export default function Explorer() {
             const current = runtime;
             runtime.select(navigationState.current.id);
             runtime.live(Date.now());
-            world = createRenderWorld(container, FULL_SCENE, { onSelect: id => navigateRef.current?.(id, 'body') });
+            world = createRenderWorld(container, FULL_SCENE, { onSelect: id => navigateRef.current?.(id, 'body'), starlink: STARLINK.satellites, starlinkVisible: layerState.current.starlink });
             const view = world;
             view.setLayers(layerState.current);
             view.setView(navigationState.current.mode, visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode, initialTime, [], layerState.current.minorMoons));
@@ -170,6 +176,21 @@ export default function Explorer() {
             worldRef.current = null;
         };
     }, [attempt]);
+    const loadStarlink = () => {
+        const match = /(\d+)/.exec(starlinkNumber);
+        const number = match ? Number(match[1]) : NaN;
+        if (!Number.isFinite(number) || !STARLINK.satellites.some(satellite => satellite.n === number)) {
+            setNotice('未找到该 Starlink 编号；请输入 STARLINK-34567 形式的公开编号。');
+            return;
+        }
+        setSelectedStarlink(number);
+        setStarlinkVisible(true);
+        layerState.current.starlink = true;
+        worldRef.current?.setLayers({ starlink: true });
+        worldRef.current?.setStarlinkSelection(number);
+        navigate('earth', 'body');
+        setNotice(`已高亮 STARLINK-${number} 的显示轨道（目录共 ${STARLINK.count.toLocaleString('zh-CN')} 颗）。`);
+    };
     const perform = (action: (runtime: ExplorerRuntime) => void) => {
         const runtime = runtimeRef.current;
         if (!runtime)
@@ -265,6 +286,13 @@ export default function Explorer() {
             <label><input type="checkbox" checked={minorMoonsVisible} onChange={event => { setMinorMoonsVisible(event.target.checked); layerState.current.minorMoons = event.target.checked; const nav = navigationState.current; const current = runtimeRef.current; const view = worldRef.current; if (current && view) { const state = current.renderFrame(); const visible = visibleSystemIds(FULL_SCENE, nav.id, nav.mode, state.clock.timeEt, view.expandedSystems(state), event.target.checked); current.setActive(visible); view.setVisible(visible); } }}/>小型天然卫星</label>
             <label><input type="checkbox" checked={starsVisible} onChange={event=>{setStarsVisible(event.target.checked);layerState.current.stars=event.target.checked;worldRef.current?.setLayers({stars:event.target.checked});}}/>恒星与星系</label>
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
+          </div>
+          <div className={styles.starlinkControls}>
+            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')})</label>
+            <div className={styles.starlinkPicker}>
+              <input type="text" value={starlinkNumber} placeholder="STARLINK-34567" aria-label="Starlink 编号" onChange={event => setStarlinkNumber(event.target.value)} onKeyDown={event => { if (event.key === 'Enter') loadStarlink(); }} />
+              <button onClick={loadStarlink}>定位轨道</button>
+            </div>
           </div>
           <div className={styles.hint}>拖动旋转 · 滚轮缩放<br />右键拖动平移</div>
         </aside>

@@ -43,8 +43,9 @@ src/components/    scene + UI components
 src/lib/dynamo/    the .dyn parser, loader and orbit geometry
 src/lib/nasa/      asset endpoints and catalog types
 src/lib/theme/     spacelibre palette roles
-src/data/          generated catalog.json (do not hand-edit)
+src/data/          generated catalog.json and starlink-orbits.json (do not hand-edit)
 tools/             research and capture helpers (not shipped)
+tools/starlink/    builds the compact all-Starlink orbit catalogue
 tests/             parser/geometry tests + real .dyn fixtures
 ```
 

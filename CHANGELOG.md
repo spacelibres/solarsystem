@@ -3,6 +3,22 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.52 - 2026-10-19
+
+Add the public Starlink constellation to the Explorer's Earth view. The new
+catalogue covers all 11,151 satellites in Starlink's current public manifest and
+is built from the official OCM ephemerides: `tools/starlink/build-catalog.mjs`
+reads `MANIFEST.txt` and fetches only the header/first-state Range window from
+each `ephemerides/STARLINK-<number>.txt` file (the complete set would be ~56 GB).
+ITRF2000 states are rotated into an inertial frame and stored as a 1.7 MB compact
+catalogue with attribution and refresh instructions in `docs/starlink.md`.
+
+The Explorer adds a single-draw-call point shell for all satellites, propagates
+them with a display two-body Kepler solver, and highlights any selected
+`STARLINK-34567`-style number through a sidebar lookup that frames Earth. Add
+unit tests for frame conversion, Kepler propagation, orbit rings, invalid states
+and full-manifest catalogue coverage.
+
 ## 0.2.51 - 2026-10-19
 
 Expand the adaptive display-language layer from 10 to 23 languages. New

@@ -28,11 +28,15 @@ import { cameraFitDistance, modelIsResolvable, spacecraftCameraBasis } from './c
 import { createSpheroidFace } from './spheroid';
 import { createRingGeometry, PLANET_RINGS } from './rings';
 import { createModelLibrary, type ModelLease } from './models';
+import { createStarlinkLayer } from './starlink-layer';
+import type { StarlinkOrbit } from '../domain/starlink';
 export interface RenderWorldOptions {
     readonly textureSize?: number;
     readonly maxTextureBytes?: number;
     readonly pixelRatioLimit?: number;
     readonly onSelect: (id: string) => void;
+    readonly starlink?: readonly StarlinkOrbit[];
+    readonly starlinkVisible?: boolean;
 }
 export interface RenderDiagnostics {
     readonly modelAnimations: Readonly<Record<string, { animations: readonly ModelAnimationDiagnostic[]; joints: ReturnType<typeof updateModelJoints> }>>;
@@ -56,7 +60,9 @@ export interface RenderWorld {
         orbits?: boolean;
         stars?: boolean;
         constellations?: boolean;
+        starlink?: boolean;
     }): void;
+    setStarlinkSelection(number: number | null): void;
     resize(): void;
     resetCamera(): void;
     snapshot(): RenderDiagnostics;
@@ -139,7 +145,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         const visuals = new Map<string, BodyVisual>(), trails = new Map<string, Trail>(), trailRequests = new Map<string, AbortController>();
         let orbitGeometryUpdates = 0;
         let mode: SceneMode = 'overview', visibleIds = new Set<string>(['sun', ...definitions.filter(body => body.groups?.includes('planets')).map(body => body.id)]);
-        let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, framedKey = '', selectedId = '', hoveredId = '', viewGeneration = 0;
+        let labelsEnabled = true, orbitsEnabled = true, starsEnabled = true, constellationsEnabled = false, starlinkEnabled = options.starlinkVisible ?? false, framedKey = '', selectedId = '', hoveredId = '', viewGeneration = 0;
         const overlay = document.createElement('div');
         overlay.className = 'solar-scene-labels';
         container.appendChild(overlay);
@@ -344,6 +350,12 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             })().finally(() => { if (trailRequests.get(definition.id) === controller)
                 trailRequests.delete(definition.id); });
         };
+        const starlink = options.starlink?.length ? createStarlinkLayer(options.starlink) : null;
+        if (starlink) {
+            scene.add(starlink.group);
+            starlink.setVisible(starlinkEnabled);
+            cleanup.push(() => starlink.dispose());
+        }
         const sky = new THREE.Group(), constellationSky = new THREE.Group();
         scene.add(sky, constellationSky);
         const skyGeometry: THREE.BufferGeometry[] = [], skyMaterials: THREE.Material[] = [];
@@ -438,8 +450,10 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             setLayers(layers) {
                 labelsEnabled=layers.labels??labelsEnabled;orbitsEnabled=layers.orbits??orbitsEnabled;
                 starsEnabled=layers.stars??starsEnabled;constellationsEnabled=layers.constellations??constellationsEnabled;
+                starlinkEnabled=layers.starlink??starlinkEnabled;starlink?.setVisible(starlinkEnabled);
                 if(constellationsEnabled)loadConstellations();
             },
+            setStarlinkSelection(number) { starlink?.setSelected(number); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;
                 const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);
@@ -448,6 +462,10 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     return;
                 selectedId = state.selectedId;
                 const focus = state.frames.get(selectedId), ready = focus?.status === 'ready';
+                if (starlink && starlinkEnabled && ready) {
+                    const earth = state.frames.get('earth');
+                    if (earth?.status === 'ready') starlink.update(state.clock.timeEt, earth.position, focus.position);
+                }
                 const key = `${selectedId}:${mode}`;
                 if (ready && framedKey !== key) {
                     const definition = byId.get(selectedId);

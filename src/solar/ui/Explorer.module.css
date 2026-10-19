@@ -141,7 +141,7 @@
 
 /* Empty HUD space passes gestures to the full-window canvas. */
 .headerActions, .sidebar input, .sidebar select, .targets, .bodyInfo button,
-.moreResults, .sceneActions, .ephemeris, .footer button, .footer select,
+.moreResults, .sceneActions, .starlinkControls, .ephemeris, .footer button, .footer select,
 .footer input, .footer label { pointer-events: auto; }
 .sidebar[hidden] { display: none; }
 .header, .sidebar, .footer, .debug, .loading, .errorPanel {
@@ -156,3 +156,10 @@
   .footer { bottom: 8px; padding: 0; }
   .debug { max-height: max(120px, calc(100% - 390px)); }
 }
+
+.starlinkPicker { display: flex; gap: 6px; margin-top: 8px; align-items: center; }
+.starlinkPicker input { flex: 1; min-width: 0; }
+.starlinkPicker button { padding: 6px 10px; }
+
+.starlinkControls { margin-top: 10px; }
+.starlinkControls label { display: flex; align-items: center; gap: 4px; font-size: 11px; }

@@ -18,6 +18,9 @@ retained; models, imagery, fonts and ephemerides load from NASA at runtime.
 - [Application entry](eyes/src/app/SolarSystemApp.js)
 - [Component layout](eyes/src/app/config/components.js), [views](eyes/src/app/config/views.js), [settings](eyes/src/app/config/settings.js)
 - [HTML templates](eyes/src/ui/templates/), [engine](eyes/src/engine/), [shared Eyes framework](eyes/src/framework/eyes/)
+- [Starlink constellation layer](docs/starlink.md): all 11,151 public Starlink
+  satellites as an Earth point shell, with `STARLINK-34567`-style number lookup
+  and a highlighted display orbit.
 - [Multi-language display layer](docs/i18n.md): 23 languages (English,
   Simplified/Traditional Chinese, Japanese, Korean, French, German, Spanish,
   Brazilian Portuguese, Russian, Italian, Dutch, Polish, Turkish, Vietnamese,
