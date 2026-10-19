@@ -63,6 +63,8 @@ export interface RenderWorld {
         starlink?: boolean;
     }): void;
     setStarlinkSelection(numbers: readonly number[]): void;
+    setStarlinkOrbits(orbits: readonly StarlinkOrbit[]): void;
+    clearStarlink(): void;
     setPalette(colors: { deep: string; primary: string; accent: string }): void;
     resize(): void;
     resetCamera(): void;
@@ -267,7 +269,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     if (definition.texture) {
                         const prefer = definition.id === selectedId && mode === 'body' ? options.textureSize ?? 512 : mode === 'overview' ? 256 : 16;
                         const url = textureUrl(definition.texture, pickSize(definition.texture.sizes, prefer), face);
-                        attachTexture(visual, url, texture => { material.map = texture; material.needsUpdate = true; });
+                        attachTexture(visual, url, texture => { material.map = texture; material.color.set(0xffffff); material.needsUpdate = true; });
                     }
                 }
             }
@@ -279,7 +281,7 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     const material = new THREE.MeshBasicMaterial({ side, transparent: true, depthWrite: false, opacity: .95 });
                     visual.materials.push(material);
                     group.add(new THREE.Mesh(geometry, material));
-                    attachTexture(visual, url, texture => { material.map = texture; material.needsUpdate = true; });
+                    attachTexture(visual, url, texture => { material.map = texture; material.color.set(0xffffff); material.needsUpdate = true; });
                 }
             }
             if (definition.id === 'sun') {
@@ -358,12 +360,19 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
             secondary: paletteStyle.getPropertyValue('--sl-secondary').trim() || '#ff3733',
             accent: paletteStyle.getPropertyValue('--sl-accent').trim() || '#f4f764',
         };
-        const starlink = options.starlink?.length ? createStarlinkLayer(options.starlink, starlinkColors) : null;
-        if (starlink) {
+        let starlink: ReturnType<typeof createStarlinkLayer> | null = null;
+        let starlinkSelection: readonly number[] = [];
+        cleanup.push(() => starlink?.dispose());
+        const mountStarlink = (orbits: readonly StarlinkOrbit[]) => {
+            starlink?.dispose();
+            starlink = null;
+            if (!orbits.length) return;
+            starlink = createStarlinkLayer(orbits, starlinkColors);
             scene.add(starlink.group);
             starlink.setVisible(starlinkEnabled);
-            cleanup.push(() => starlink.dispose());
-        }
+            starlink.setSelection(starlinkSelection);
+        };
+        if (options.starlink?.length) mountStarlink(options.starlink);
         const sky = new THREE.Group(), constellationSky = new THREE.Group();
         scene.add(sky, constellationSky);
         const skyGeometry: THREE.BufferGeometry[] = [], skyMaterials: THREE.Material[] = [];
@@ -461,7 +470,9 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 starlinkEnabled=layers.starlink??starlinkEnabled;starlink?.setVisible(starlinkEnabled);
                 if(constellationsEnabled)loadConstellations();
             },
-            setStarlinkSelection(numbers) { starlink?.setSelection(numbers); },
+            setStarlinkSelection(numbers) { starlinkSelection = numbers; starlink?.setSelection(numbers); },
+            setStarlinkOrbits(orbits) { mountStarlink(orbits); },
+            clearStarlink() { starlink?.dispose(); starlink = null; starlinkSelection = []; },
             setPalette(colors) { orbitPrimary = colors.primary; renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;

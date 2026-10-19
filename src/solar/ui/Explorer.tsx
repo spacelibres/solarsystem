@@ -56,7 +56,7 @@ function readyCount(snapshot: ExplorerSnapshot | null): number {
     return snapshot ? [...snapshot.frames.values()].filter(frame => frame.status === 'ready').length : 0;
 }
 export default function Explorer() {
-    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false, starlink: true });
+    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false, starlink: false });
     const navigationState = useRef<{
         id: string;
         mode: SceneMode;
@@ -71,7 +71,6 @@ export default function Explorer() {
     const [minorMoonsVisible, setMinorMoonsVisible] = useState(false);
     const [starsVisible, setStarsVisible] = useState(true);
     const [constellationsVisible, setConstellationsVisible] = useState(false);
-    const [starlinkVisible, setStarlinkVisible] = useState(true);
     const [starlinkPickerOpen, setStarlinkPickerOpen] = useState(false);
     const [selectedStarlinks, setSelectedStarlinks] = useState<number[]>([]);
     const mount = useRef<HTMLDivElement>(null);
@@ -123,11 +122,30 @@ export default function Explorer() {
             const current = runtime;
             runtime.select(navigationState.current.id);
             runtime.live(Date.now());
-            world = createRenderWorld(container, FULL_SCENE, { onSelect: id => navigateRef.current?.(id, 'body'), starlink: STARLINK.satellites, starlinkVisible: layerState.current.starlink });
+            world = createRenderWorld(container, FULL_SCENE, { onSelect: id => navigateRef.current?.(id, 'body'), starlinkVisible: layerState.current.starlink });
             const view = world;
             view.setLayers(layerState.current);
             view.setView(navigationState.current.mode, visibleSystemIds(FULL_SCENE, navigationState.current.id, navigationState.current.mode, initialTime, [], layerState.current.minorMoons));
-            navigateRef.current = (id, mode) => { navigationState.current = { id, mode }; const visible = visibleSystemIds(FULL_SCENE, id, mode,current.renderFrame().clock.timeEt, [], layerState.current.minorMoons); current.setActive(visible); current.select(id); view.setView(mode, visible); setSceneMode(mode); setSnapshot(current.snapshot()); };
+            if (navigationState.current.id === 'earth') { view.setStarlinkOrbits(STARLINK.satellites); view.setLayers({ starlink: true }); }
+            navigateRef.current = (id, mode) => {
+                navigationState.current = { id, mode };
+                const visible = visibleSystemIds(FULL_SCENE, id, mode, current.renderFrame().clock.timeEt, [], layerState.current.minorMoons);
+                current.setActive(visible);
+                current.select(id);
+                view.setView(mode, visible);
+                if (id === 'earth') {
+                    layerState.current.starlink = true;
+                    view.setStarlinkOrbits(STARLINK.satellites);
+                    view.setLayers({ starlink: true });
+                } else {
+                    layerState.current.starlink = false;
+                    view.clearStarlink();
+                    view.setLayers({ starlink: false });
+                    setSelectedStarlinks([]);
+                }
+                setSceneMode(mode);
+                setSnapshot(current.snapshot());
+            };
             runtimeRef.current = runtime;
             worldRef.current = world;
             const refresh = () => {
@@ -203,7 +221,6 @@ export default function Explorer() {
     }, [attempt]);
     const applyStarlinkSelection = (numbers: number[]) => {
         setSelectedStarlinks(numbers);
-        setStarlinkVisible(true);
         layerState.current.starlink = true;
         worldRef.current?.setLayers({ starlink: true });
         worldRef.current?.setStarlinkSelection(numbers);
@@ -262,6 +279,11 @@ export default function Explorer() {
               {PRESETS.map(preset => <option key={preset.name} value={preset.name}>{PALETTE_LABELS[preset.name] ?? preset.name}</option>)}
             </select>
           </label>
+          {selected?.id === 'earth' && (
+            <button aria-label="starlink-picker" onClick={() => setStarlinkPickerOpen(true)}>
+              星链卫星{selectedStarlinks.length > 0 ? `（${selectedStarlinks.length}）` : ''}
+            </button>
+          )}
           <button aria-expanded={showCatalog} onClick={() => setShowCatalog(value => !value)}>目录</button>
           <button onClick={() => navigate('sun', 'overview')} disabled={!snapshot}>太阳系总览</button>
           <button onClick={() => worldRef.current?.resetCamera()} disabled={!snapshot || !!fatal}>重置视角</button>
@@ -314,13 +336,6 @@ export default function Explorer() {
             <label><input type="checkbox" checked={minorMoonsVisible} onChange={event => { setMinorMoonsVisible(event.target.checked); layerState.current.minorMoons = event.target.checked; const nav = navigationState.current; const current = runtimeRef.current; const view = worldRef.current; if (current && view) { const state = current.renderFrame(); const visible = visibleSystemIds(FULL_SCENE, nav.id, nav.mode, state.clock.timeEt, view.expandedSystems(state), event.target.checked); current.setActive(visible); view.setVisible(visible); } }}/>小型天然卫星</label>
             <label><input type="checkbox" checked={starsVisible} onChange={event=>{setStarsVisible(event.target.checked);layerState.current.stars=event.target.checked;worldRef.current?.setLayers({stars:event.target.checked});}}/>恒星与星系</label>
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
-          </div>
-          <div className={styles.starlinkControls}>
-            <label><input type="checkbox" checked={starlinkVisible} onChange={event => { setStarlinkVisible(event.target.checked); layerState.current.starlink = event.target.checked; worldRef.current?.setLayers({ starlink: event.target.checked }); }}/>星链卫星 ({STARLINK.count.toLocaleString('zh-CN')})</label>
-            <button className={styles.starlinkPickerButton} aria-label="starlink-picker" onClick={() => setStarlinkPickerOpen(true)}>
-              选择卫星{selectedStarlinks.length > 0 ? `（已选 ${selectedStarlinks.length.toLocaleString('zh-CN')}）` : ''}
-            </button>
-            {selectedStarlinks.length > 0 && <span className={styles.starlinkSelectionHint}>多选 · 可按代级和发射日期筛选</span>}
           </div>
           <div className={styles.hint}>拖动旋转 · 滚轮缩放<br />右键拖动平移</div>
         </aside>

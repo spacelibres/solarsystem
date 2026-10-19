@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.66 - 2026-10-19
+
+Remove the blue veil on Earth: once a face texture arrives the material colour
+is reset to white instead of keeping the dark fallback tint. Starlink is no
+longer a permanent, default-loaded layer: its data and dots are mounted only
+when Earth is selected, the entry is a compact Earth-only header button rather
+than a sidebar checkbox, and leaving Earth disposes the layer and clears the
+selection.
+
 ## 0.2.65 - 2026-10-19
 
 Make the selected VI palette reach the remaining scene strokes. Planet orbit

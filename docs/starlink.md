@@ -87,6 +87,12 @@ selections also load their generation model, positioned by interpolating the
 same dynamo samples. Up to 60 selections get exact tracks; larger sets keep the
 point cloud and a catalogue-derived fallback ring.
 
+## Earth-only loading
+
+Starlink is not a default layer. Selecting Earth mounts its data/dots and
+shows the 星链卫星 header entry; navigating to any other body disposes the
+layer and clears the selection. No Starlink points are created on the overview.
+
 ## Satellite picker and filters
 
 The Explorer sidebar's **选择卫星** button opens a multi-select picker rather than
