@@ -130,6 +130,15 @@ third-party redistribution obligation.
   `public/eyes/data/starlink-orbits.json`; both are reproducible with
   `npm run eyes:build` / `npm run starlink:build`.
 
+## Occlusion and labels
+
+Starlink points, selected orbit lines and generation models use the normal WebGL
+depth buffer, so far-side geometry is hidden by Earth. Body name labels are DOM
+overlays and use labelOccludedBySphere: a label is hidden when the
+camera-to-label segment passes through a nearer body sphere, including its leader
+and marker. This prevents satellites that are actually behind Earth from showing
+their names in front.
+
 ## Limitations
 
 - The two-body propagation is a display approximation. It ignores drag, J2,

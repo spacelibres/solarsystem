@@ -23,7 +23,7 @@ import { RollingTrail } from '../domain/rolling-trail';
 import { projectedSystemVisible, type SceneMode } from '../ui/navigation';
 import { modelExtentRadius } from './model-bounds';
 import { applyFrameTransform } from './frame';
-import { placeScreenLabel } from './labels';
+import { labelOccludedBySphere, placeScreenLabel, type OccluderSphere } from './labels';
 import { cameraFitDistance, modelIsResolvable, spacecraftCameraBasis } from './camera';
 import { createSpheroidFace } from './spheroid';
 import { createRingGeometry, PLANET_RINGS } from './rings';
@@ -619,9 +619,19 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                     x: number;
                     y: number;
                 }[] = [];
+                const occluders: OccluderSphere[] = [...visuals]
+                    .filter(([, visual]) => visual.group.visible)
+                    .map(([id, visual]) => ({ id, center: visual.group.position, radiusKm: byId.get(id)?.radiusKm ?? 0 }))
+                    .filter(occluder => occluder.radiusKm > 0);
                 for (const [id, visual] of [...visuals].sort(([a], [b]) => a === selectedId ? -1 : b === selectedId ? 1 : 0)) {
                     if (!labelsEnabled || !visual.group.visible)
                         continue;
+                    if (labelOccludedBySphere(visual.group.position, camera.position, occluders, id)) {
+                        visual.label.hidden = true;
+                        visual.leader.hidden = true;
+                        visual.marker.hidden = true;
+                        continue;
+                    }
                     const projected = visual.group.position.clone().project(camera);
                     if (projected.z < -1 || projected.z > 1 || Math.abs(projected.x) > 1 || Math.abs(projected.y) > 1)
                         continue;

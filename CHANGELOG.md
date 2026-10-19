@@ -3,6 +3,15 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.58 - 2026-10-19
+
+Fix body name labels drawing through Earth when their satellite is behind the
+planet. Labels now share a camera-to-label segment versus occluder-sphere test
+with the scene, hiding the label, leader and marker for any object occluded by a
+nearer planet. The same helper is unit-tested for passing, in-front, behind and
+excluded-body cases. Starlink points, selected orbit lines and generation models
+continue to use the WebGL depth buffer.
+
 ## 0.2.57 - 2026-10-19
 
 Make the Starlink solar wings track the Sun instead of keeping a fixed
