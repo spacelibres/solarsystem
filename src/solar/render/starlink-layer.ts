@@ -64,6 +64,8 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
   group.add(points);
 
   let lastPointTime = Number.NEGATIVE_INFINITY;
+  const panelNormal = new THREE.Vector3(0, 0, 1);
+  const sunDirection = new THREE.Vector3();
   const byNumber = new Map(valid.map(entry => [entry.orbit.n, entry]));
   const modelLoader = new GLTFLoader();
   const modelCache = new Map<number, Promise<THREE.Group>>();
@@ -163,6 +165,10 @@ export function createStarlinkLayer(orbits: readonly StarlinkOrbit[]): StarlinkL
         if (!entry) continue;
         const satellite = starlinkPosition(entry.elements, timeEt);
         model.position.set(satellite.x, satellite.y, satellite.z);
+        // Solar wings are the XY planes of the generated model; point their
+        // +Z normal at the Sun so the panels track the light source.
+        sunDirection.set(-(earthPosition.x + satellite.x), -(earthPosition.y + satellite.y), -(earthPosition.z + satellite.z)).normalize();
+        if (sunDirection.lengthSq() > 0) model.quaternion.setFromUnitVectors(panelNormal, sunDirection);
       }
     },
     dispose() {

@@ -79,6 +79,12 @@ export async function attachStarlinkLayer(scene) {
         epoch: elements.epoch,
         orientation: elements.orientation,
       });
+      // Add the orientation controller after the position controller so the
+      // dependency graph resolves position first and then points +Z at the Sun.
+      const align = modelEntity.addController(Pioneer.AlignController);
+      align.setPrimaryAlignType("point");
+      align.setPrimaryTargetEntity("sun");
+      align.setPrimaryAxis(new Pioneer.Vector3(0, 0, 1));
     }
     return entity;
   } catch (error) {

@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "0c5a793bc6d6ec74b66ef54bedd0cded8b2531d884a733b3aff01eb0d84e35f1",
+      "sha256": "00ea3c50a36afcedfdc055252c148ae9be8dba04ed4a9092aecdd3212f09a1d9",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "bed86e094c16a558cd4cd1d263587229ef29e9c07b95aa414e7e5e59d81129ec",
+      "sha256": "b310a2cbbd7d4d726e97bc6708ddddbaf34d095393722f9ea43f75a5eff4ed15",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -2721,8 +2721,8 @@
     },
     {
       "file": "eyes/src/app/StarlinkLayer.js",
-      "bytes": 4050,
-      "sha256": "f1af5087836c1b17ad202c27a912b047263271ba696104b1eec0087dbda9631f",
+      "bytes": 4423,
+      "sha256": "ed6d35d8317e8eaed7b9a683e6573e423ce756aac87a35a74d96dfecebc6d84c",
       "purpose": "加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。",
       "confidence": "observed",
       "origin": null,
@@ -2756,7 +2756,7 @@
           "name": "attachStarlinkLayer",
           "documentation": "Add the public Starlink constellation to the recovered Eyes Earth entity.\n\nOrbitalParticlesComponent projects each particle from a Pioneer\nOrbitalElements record on every frame, so 11k satellites stay on one\ninstanced draw without creating 11k Eyes entities or labels.",
           "line": 13,
-          "endLine": 88,
+          "endLine": 94,
           "async": true,
           "params": [
             "scene"
@@ -2784,7 +2784,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "1ea0f90930ca76573a1b86f414df49f160b723a65bc4fd86ff4f406637594c55",
+      "semanticHash": "0bd4f7510b4b2dfe9532125070fc38b899acdfda329bc978337aa926a3e8c781",
       "dependencies": [
         "eyes/src/engine/pioneer/index.js"
       ],

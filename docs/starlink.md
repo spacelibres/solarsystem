@@ -117,6 +117,11 @@ third-party redistribution obligation.
 - **Eyes:** the first satellite of each generation gets a `ModelComponent`
   sample at its orbit position, while the full constellation stays a single
   instanced particle draw.
+- Both renderers point the model's local **+Z** (the solar-wing normal) at the
+  Sun. Eyes uses an `AlignController` with `point`/`sun`; the Explorer recomputes
+  the Sun direction from Earth + satellite position every frame. This gives the
+  wings single-axis solar tracking instead of a fixed orientation (the display
+  bus rotates with the wings).
 - Models are authored in metres and use a `35` display scale (a roughly 100-800
   km marker at Earth close-up) because real 3 m satellites are invisible at
   planetary scale. This is a visual marker, not a physical-scale claim.

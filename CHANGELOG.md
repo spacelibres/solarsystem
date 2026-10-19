@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.57 - 2026-10-19
+
+Make the Starlink solar wings track the Sun instead of keeping a fixed
+orientation. Eyes adds an AlignController (point / target sun) after the
+orbit position controller, and the Explorer recomputes the Sun direction from
+Earth and satellite positions each frame and rotates the model's local +Z solar
+wing normal toward it. Controller ordering is fixed to avoid an orientation
+dependency cycle, and the three generation samples now show distinct Sun-facing
+orientations.
+
 ## 0.2.56 - 2026-10-19
 
 Replace the single Starlink number input with a multi-select satellite picker in
