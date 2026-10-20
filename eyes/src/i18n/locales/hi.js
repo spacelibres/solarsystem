@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "ऑटो-प्ले ट्रिगर होने से पहले निष्क्रियता का समय निर्दिष्ट करता है। शून्य मान ऑटो-प्ले को अक्षम करता है",
     "Spout": "Spout",
     "Star Field": "तारा क्षेत्र",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "फिर से शुरू करें",
     "Starting experience...": "अनुभव शुरू हो रहा है...",
     "Stories": "कहानियाँ",

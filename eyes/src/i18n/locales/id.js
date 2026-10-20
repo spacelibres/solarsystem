@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Menentukan waktu tidak aktif sebelum putar otomatis dipicu. Nilai nol menonaktifkan putar otomatis",
     "Spout": "Spout",
     "Star Field": "Medan Bintang",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "MULAI ULANG",
     "Starting experience...": "Memulai pengalaman...",
     "Stories": "Cerita",

@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Určuje dobu nečinnosti před spuštěním automatického přehrávání. Hodnota 0 vypíná automatické přehrávání.",
     "Spout": "Spout",
     "Star Field": "Hvězdné pole",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "ZAČÍT ZNOVU",
     "Starting experience...": "Spouštění…",
     "Stories": "Příběhy",

@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 269 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 261 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -80,72 +80,6 @@
 保存恢复的 NASA 应用版本常量，不等于仓库发行版本。[源码](../../eyes/src/app/version.js)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-app-version-js)
-
-## `eyes/src/custom/constellation-art/app.js`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/app.js)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-app-js)
-
-### `ConstellationArtApp`
-
-精确业务语义尚未确认，以下提供声明与操作证据。。父类 `SolarSystemApp`。
-
-- `setUpComponents()` [源码:6](../../eyes/src/custom/constellation-art/app.js#L6)：当前操作：写入 无直接字段写入；返回 void。
-
-## `eyes/src/custom/constellation-art/component.js`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/component.js)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-component-js)
-
-### `ConstellationArtComponent`
-
-Independent extension: the recovered constellation parser is untouched.。父类 `Pioneer.BaseComponent`。
-
-- `constructor(name, entity)` [源码:41](../../eyes/src/custom/constellation-art/component.js#L41)：当前操作：写入 _artVisible、_controller、_fade、_lastTime、_meshes、onStatus；返回 无显式返回。
-- `setArtworkVisible(visible)` [源码:53](../../eyes/src/custom/constellation-art/component.js#L53)：当前操作：写入 _artVisible、_lastTime；返回 void。
-- `_loadArt()` [源码:61](../../eyes/src/custom/constellation-art/component.js#L61)：当前操作：写入 _controller、_meshes；返回 void。
-- `__prepareForRender()` [源码:139](../../eyes/src/custom/constellation-art/component.js#L139)：当前操作：写入 _fade、_lastTime；返回 无显式返回。
-- `_disposeMesh(mesh)` [源码:148](../../eyes/src/custom/constellation-art/component.js#L148)：当前操作：写入 无直接字段写入；返回 无显式返回。
-- `__unloadResources()` [源码:155](../../eyes/src/custom/constellation-art/component.js#L155)：当前操作：写入 _meshes；返回 无显式返回。
-- `__destroy()` [源码:161](../../eyes/src/custom/constellation-art/component.js#L161)：当前操作：写入 _artVisible、onStatus；返回 无显式返回。
-
-## `eyes/src/custom/constellation-art/loading.d.ts`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/loading.d.ts)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-loading-d-ts)
-
-## `eyes/src/custom/constellation-art/loading.js`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/loading.js)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-loading-js)
-
-## `eyes/src/custom/constellation-art/registration.d.ts`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/registration.d.ts)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-registration-d-ts)
-
-## `eyes/src/custom/constellation-art/registration.js`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/registration.js)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-registration-js)
-
-## `eyes/src/custom/constellation-art/vector-geometry.d.ts`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/vector-geometry.d.ts)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-vector-geometry-d-ts)
-
-## `eyes/src/custom/constellation-art/vector-geometry.js`
-
-Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/vector-geometry.js)。语义状态：`not-semantically-accepted`。
-
-[总文档中的完整条目](README.md#file-eyes-src-custom-constellation-art-vector-geometry-js)
 
 ## `eyes/src/data/EntityCatalog.json`
 

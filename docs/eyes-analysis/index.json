@@ -2,11 +2,11 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1256,
-    "javascript": 1065,
-    "classes": 554,
-    "methods": 5522,
-    "shortBindings": 21809,
+    "files": 1156,
+    "javascript": 1060,
+    "classes": 552,
+    "methods": 5514,
+    "shortBindings": 21775,
     "templates": 56
   },
   "cycles": [
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "224417c6190d066240061eecea2c3cc3e572d2734bfd5a1646250dbaf5b25798",
+      "sha256": "b72424dfba26ba4108fb8b1789149ed00b182db947fb3fea910aef1c1ee7cdc7",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "fab34d02ad479561b269d9f9608d94dd150c3d4334a08abca38471b4e0dfa671",
+      "sha256": "797f0d85194fbff3e334fa8495bdaa8343a769d07d4ac65c7f777c50d67f2b14",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1264,8 +1264,8 @@
     },
     {
       "file": "eyes/shell/app.css",
-      "bytes": 258994,
-      "sha256": "075ea7f478d3dcf53d2cc5f0880dd09f0ca504f0e9bdcee1a94f6f89b1c14578",
+      "bytes": 258647,
+      "sha256": "ce9361b2fc1893bd98064a4307facb41faa3cc7c12cd66b25d22b5228b778e33",
       "purpose": "从应用 bundle 提取的实际业务界面 CSS",
       "confidence": "observed",
       "origin": null,
@@ -1433,1222 +1433,6 @@
         "kind": "array",
         "entries": 11,
         "keys": []
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/LICENSE-CC-BY-SA-4.0.txt",
-      "bytes": 18375,
-      "sha256": "cde7883b9050a1104f4ac19a1572aafd6e5d7323b68351aaf51fbf4beba54966",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/LICENSE-ORIGINAL-SVG.txt",
-      "bytes": 1293,
-      "sha256": "66baa8c23ea0adcc127bd563fea5a54896a05800c4400759326fb6fb667479db",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/LICENSE-d3-celestial.txt",
-      "bytes": 1480,
-      "sha256": "a8c79239001ad4bea243d1796b85084e1fc39309c5c5a663930a1b46320254c6",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/README.md",
-      "bytes": 1140,
-      "sha256": "cb2c893c71b69612b711c595bab6e81c193e507e5e816e6e8dbbca2a7ff63bee",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/SOURCE-DESCRIPTION.md",
-      "bytes": 1185,
-      "sha256": "4ed438be7d445ad2464614780210da0ff3b6f49bebf6ca7682273d487c5036a3",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/andromeda.svg",
-      "bytes": 1593,
-      "sha256": "8c82df45082566c70a363ae754020461143ce885dad216fa28938340a22c39d7",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/antlia.svg",
-      "bytes": 1261,
-      "sha256": "ecaf31878266fba5ec2c43558d4202e45968e07fc4d5f696a130bb4cb01fb8c0",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/apus.svg",
-      "bytes": 1654,
-      "sha256": "3e533e5f594c49f113953ab2d6d5c3bbe69f2d9c30118af14faf44d34e18dd0b",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/aquarius.svg",
-      "bytes": 2110,
-      "sha256": "5c3fa555ed6e5d5fe6a215e8f63ca1220b311bdffea2af788a4559de58cd56b5",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/aquila.svg",
-      "bytes": 1485,
-      "sha256": "7884bf1a7ea4d5fbe3608c3794708898f1343f1b32ddb960b7a4611a3aee9a6e",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/ara.svg",
-      "bytes": 1239,
-      "sha256": "5223633d17cd652c41f6b0fe32de6bb57e297360847d31e6d5f1b818cdbb8748",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/argonavis.svg",
-      "bytes": 1514,
-      "sha256": "6833c3095a302efa49469fd7eefb11ce4bd7789444fb6edbf9f8e2ddbe28c6d4",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/aries.svg",
-      "bytes": 1487,
-      "sha256": "00f7a6944b6240fdf011558a891ec24fe24211fa4847e75e9578e216373001c7",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/auriga.svg",
-      "bytes": 1699,
-      "sha256": "d3c7e88e1948e073d52a40f804827bd5d5ed2543357403d24ca581a33dae307f",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/bootes.svg",
-      "bytes": 1510,
-      "sha256": "bfb9b1cce461e0436f84e98a3b6c2093036a8d3eee72d87509ac34576f23f2dc",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/caelum.svg",
-      "bytes": 1265,
-      "sha256": "c80ca85bd77088cfd3a52d64514546aa9dedf6668efa2cf9268bfa4cb59db3ef",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/camelopardalis.svg",
-      "bytes": 1242,
-      "sha256": "9f59b9e0d931ebc7166c97624496182b44c10b21c2dd9585c3ec46b93c87b31f",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/cancer.svg",
-      "bytes": 1801,
-      "sha256": "f3fe564769b32a27dc08eb11534abff7cc61e97911bbde436a702b274a067d3d",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/canes-venatici.svg",
-      "bytes": 1647,
-      "sha256": "f0830a2e4f0ca81b94c17e9d91b03fdcb22aed3295960d7151f471429c053962",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/canis-major.svg",
-      "bytes": 1125,
-      "sha256": "a68260f97a9d58d6870048dd41bc420833f3df843e001ddb54f898b67f788ee3",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/canis-minor.svg",
-      "bytes": 1501,
-      "sha256": "e26e5f384794e446456d727e566bc23bf5a41d4933ca2e671fb43aa187047c22",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/capricornus.svg",
-      "bytes": 1745,
-      "sha256": "eeea4aabdea120f0ceea00cd6f408fa04494559e3e29e1f0aeb04cd327bd7c19",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/cassiopeia.svg",
-      "bytes": 1614,
-      "sha256": "431596fdb3d33e6b0e57ff25d7b09a14a917fe9532c345807b713150e3259fd6",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/centaurus.svg",
-      "bytes": 1681,
-      "sha256": "867e747cd88539a6d3b28e2ef1358ca4df502c0a022c587e1249347e5cb15861",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/cepheus.svg",
-      "bytes": 1554,
-      "sha256": "e9b9b5398214cf99ed9e47a4c5228a1a70f2b46cb0044168888b3695abe478bb",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/cetus.svg",
-      "bytes": 1440,
-      "sha256": "af4320c61b36da83047a583817f88bff54db17d2bda1f019aeec1f7d5fe9552c",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/chamaeleon.svg",
-      "bytes": 1522,
-      "sha256": "067717b0b760dba4eaaf020fdb91a7af3aef6000d0116c5d4b3ca555a5ee8bf9",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/circinus.svg",
-      "bytes": 1401,
-      "sha256": "838ffd2be620f5e1211c3f82f8e51bb1b708073e94f81a832e4ddac72331f894",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/columba.svg",
-      "bytes": 1490,
-      "sha256": "7f9b59c481e3158c8ff802b952538a7338bebbe8cd0abf71fe950df33746194c",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/coma-berenices.svg",
-      "bytes": 1747,
-      "sha256": "a664b290f966f7bff95c01b2dbb2336b3c10547fedf1a40a92a31401e0735612",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/corona-australis.svg",
-      "bytes": 1740,
-      "sha256": "30faa562829d1c20ca16214bb62630f863d4ea4e4b067453c707c8ac575f291f",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/corona-borealis.svg",
-      "bytes": 1557,
-      "sha256": "73d6c8e17c2b18d08527a85a3517243d17fd6484df20a9e0d3e223e1a5f92aeb",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/corvus.svg",
-      "bytes": 1481,
-      "sha256": "db90fe74664d1ff08a837dbc84937472c422b2575a244348f0e477d0f27913ba",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/crater.svg",
-      "bytes": 1395,
-      "sha256": "fd430ef8f16f14834bc7973d879c6527554248c33f37bd3f85c54b51b0fa1da3",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/crux.svg",
-      "bytes": 1571,
-      "sha256": "00aa26b11ccffc986b478902df7408c4badb82238c08859e2a9611218f339cfd",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/cygnus.svg",
-      "bytes": 1796,
-      "sha256": "22d88ca17c2a76b35ea72dbcff0e83b24a90d37adc159367c8ca22296641dbc1",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/delphinus.svg",
-      "bytes": 1014,
-      "sha256": "c1826e9243c5adb34665d16dc88135a8eb011c5a1d35dde5129e12cddeb63d3f",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/dorado.svg",
-      "bytes": 1087,
-      "sha256": "c30e93806d7f6b299b53c61e276af47c37e02a901a0c9c28c67599f038af4b3d",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/draco.svg",
-      "bytes": 1370,
-      "sha256": "bcfe26c1908ad4d504751166d95e68687f3bb7e5ec4cd11a55a2c96248e5e0bb",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/equuleus.svg",
-      "bytes": 1492,
-      "sha256": "6fd5fa68df4806574022f84d7c4094adf49204dfc1263cff22864a8f9a7bd875",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/eridanus.svg",
-      "bytes": 1156,
-      "sha256": "4b4f812ad8a7ba6af87eea071e0cba3870eaefe93f9db94ebb34c01dcd6977e8",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/fornax.svg",
-      "bytes": 1143,
-      "sha256": "08419a6ed26c5b903be3d356841c0dc04708cb90e67d07b4b5f7705d97e652df",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/gemini.svg",
-      "bytes": 1847,
-      "sha256": "a4ce4af7c18f06aee95d2b3c4f839365ce6351aae1bd27e98a5d450c4c0be3a8",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/grus.svg",
-      "bytes": 1457,
-      "sha256": "9f6925a8043b29ac7af93bb9d64d7477c388489d4406ba18b1b5b938f435d5a9",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/hercules.svg",
-      "bytes": 1554,
-      "sha256": "3d3943d0fe0204b9cd37a8e90b7c36b62af42a7c143f109606ccefaba5f34e7c",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/horlogium.svg",
-      "bytes": 1240,
-      "sha256": "18636350909d2a050c0a7387c618432e1dda8dea793d17d2bd09a7b667eb788d",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/hydra.svg",
-      "bytes": 1355,
-      "sha256": "c382feec2438eb0fcc3d0e1a4720f625cc4de694aba02a71420c1f776916276b",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/hydrus.svg",
-      "bytes": 1173,
-      "sha256": "01886bc67dee31d4af68c0f2652b00be5ec5b1a7752185175eaf8cffb2da49ac",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/index.json",
-      "bytes": 89103,
-      "sha256": "75b7e0868e5312d6ce6b22dbd214ea0f919bd8126df66b5292ea16ab6ec1dbd5",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "data": {
-        "kind": "object",
-        "entries": 3,
-        "keys": [
-          "schemaVersion",
-          "frame",
-          "artworks"
-        ]
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/indus.svg",
-      "bytes": 1503,
-      "sha256": "3a84a2bf737f677ef7970914a9b3a4b6b530987b0bddb07909fff06a2ab6b2b8",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/lacerta.svg",
-      "bytes": 1325,
-      "sha256": "d31ed1e5272839781707e074db3f18a73b7a490c254c417080d7d9f259297ac2",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/leo-minor.svg",
-      "bytes": 1618,
-      "sha256": "ecb1753c7f88980282677e867e73e34225822ec8c0ae8ee11fd391a80dbe27d1",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/leo.svg",
-      "bytes": 3231,
-      "sha256": "6f3ef5996804f272dee6089bb1c1b02312ed9d80c5d4118ff421307523373f97",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/lepus.svg",
-      "bytes": 1199,
-      "sha256": "97f2fbd97191d158045a9c729298947d9f0f9517946a0bfff29bc6056c0c92cc",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/libra.svg",
-      "bytes": 1333,
-      "sha256": "54dd5e18949a39f8adb3d6751039e285ca09383004350fec70b3886abfc1e128",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/lupus.svg",
-      "bytes": 1123,
-      "sha256": "7f5af8aae78c3ffeb83509d619bf8c5e9139ea6d5886d252d54d3c83272646d8",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/lynx.svg",
-      "bytes": 1384,
-      "sha256": "15b453c7968895835903257a8b4153272b1fcc835dbcb04a1fea85100d03fd6d",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/lyra.svg",
-      "bytes": 1442,
-      "sha256": "23d8d9d7da99273b73d50531e2acd1c3e8fbefdc8d91b411c6a20bbd59cb542c",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/mensa.svg",
-      "bytes": 1637,
-      "sha256": "739507fea14bcb063fa6aba44dc9c09a6fcc49787fe822e57bd7101981ce4562",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/microscopium.svg",
-      "bytes": 1299,
-      "sha256": "4370f4450f31537c6ae06df896cd7fdd6c920f3627e8bcbe2105ad5b9c235d27",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/monoceros.svg",
-      "bytes": 1273,
-      "sha256": "d073250fa026e7ef31c1a1dcd7e40a82887b633eba326df1b06ad2e1e7a3b6b2",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/musca.svg",
-      "bytes": 1520,
-      "sha256": "19e4a30742dec6d4bce15be13ceda2ce8fbc9e34a1da7b93fa3ae076946cc0c9",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/norma.svg",
-      "bytes": 973,
-      "sha256": "83e3041251e43c8c41211f3bbb59fe152755bb7b7130f5d87a53a22fd03dcf58",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/octans.svg",
-      "bytes": 1149,
-      "sha256": "b348104ff1ddb6183b045e53c56a9786236b8eeff2759edd9d9ff93a8fc72eac",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/ophiuchus.svg",
-      "bytes": 2141,
-      "sha256": "6e5e0cf6b5d5a3b9ee395c700658d71fab89941a5b18ff7567c02fb4e71b4a6a",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/orion.svg",
-      "bytes": 2488,
-      "sha256": "897c74ad0b60df3a59530304433143a285335e5b6526f95f1720ed589656ae4b",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/pavo.svg",
-      "bytes": 2372,
-      "sha256": "e93363b4e0e334f084d3c7ef7341cc56b85d9237eab530695c948d098f178bef",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/pegasus.svg",
-      "bytes": 1868,
-      "sha256": "9d9cc6044ffec510e69fa8370b62b8198340c045f38168e2ddc72306318641e7",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/perseus.svg",
-      "bytes": 2180,
-      "sha256": "c8b86bd8ce3592f08d256b2ac75ec7d7326dad080fba6746ea3362944d06a3ca",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/phoenix.svg",
-      "bytes": 1615,
-      "sha256": "031364e7f3fec71a738cd5bf529d34fb329cc3f57f6101bf7bb1164cf8564fa7",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/pictor.svg",
-      "bytes": 1639,
-      "sha256": "2ffe4e94b0be32eb31e20b376937fbc6ea871f2ba2436a73750bc50631501cc0",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/pisces.svg",
-      "bytes": 1658,
-      "sha256": "cac915db4d9abb2787c46f4d3f5a4dee0d810720f7199fd6986ab4f99eaf3558",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/piscis-austrinus.svg",
-      "bytes": 1463,
-      "sha256": "af22ed2de8b6830ff5fbafb982705a377e2ea7b37f1e4fcd4028e431e7fffb77",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/provenance.json",
-      "bytes": 13935,
-      "sha256": "b34374d60f6d0b8c8d38e0afa80edcf3953dc2dfc9fc82834ae55c6af475a8c7",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "data": {
-        "kind": "object",
-        "entries": 5,
-        "keys": [
-          "illustrations",
-          "placement",
-          "metadata",
-          "anchorStars",
-          "assets"
-        ]
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/pyxis.svg",
-      "bytes": 1521,
-      "sha256": "ae0056b228cf7e2e41437af3683e344fca3abf6fe015f766a1c8346e1d192ea6",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/reticulum.svg",
-      "bytes": 1540,
-      "sha256": "2934e1b752b4e1696fb321b938846de6c16c1b26cedbeb36a9e62c6b9f56382b",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/sagitta.svg",
-      "bytes": 831,
-      "sha256": "331cc82de20b6d1ca0d802efd6c69f9c7c1709460be77087089aec1b4a20ba0e",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/sagittarius.svg",
-      "bytes": 2122,
-      "sha256": "8886164c9a1cb1d2fd64f122b04a026117ee2b212ab286e7aad2b18670263efd",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/scorpius.svg",
-      "bytes": 2380,
-      "sha256": "1a95d7ed90c7ee1ebf460ab62be1cd98e78f10e8917f7f0646add5e50810574c",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/sculptor.svg",
-      "bytes": 1439,
-      "sha256": "36b1b9680dc9296d5f85b1fcdf5218eb71115499f98d7036af8779b425bc47ed",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/scutum.svg",
-      "bytes": 1359,
-      "sha256": "7e95dafb8cd82546a0900718d9049bb2a6adabb9a92665fb8f6e0aa8806bba5f",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/sextans.svg",
-      "bytes": 1509,
-      "sha256": "fa1bea4ee32a2ee1642ba3aa7507b82f9372767eedceb995c9580980c5f8be14",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/taurus.svg",
-      "bytes": 1996,
-      "sha256": "6c76e38d065eeadf38d9261d65d47760af4431ed1795e93470ac6c022691bb41",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/telescopium.svg",
-      "bytes": 1561,
-      "sha256": "52a19db558ab2ac0530b07b4c7e2ca3b6190f03f207a542f9febcf3aaa409875",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/triangulum-australe.svg",
-      "bytes": 1669,
-      "sha256": "f529643530d6d2a0522c9624890c71f0d9ffabd437c1d379c6bc764dbdb5f6cd",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/triangulum.svg",
-      "bytes": 1528,
-      "sha256": "2ddf26b1897d8fb9c354fde01d3cbd886953cfd2d795f6ffe3ecc946e3267e9e",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/tucana.svg",
-      "bytes": 1475,
-      "sha256": "d4d26ef6cbff3792a03ea74f95fc44af59c195bc65d076b0f92c1e883b33e7bd",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/ursa-major.svg",
-      "bytes": 1171,
-      "sha256": "965429a2c747ba0c73893c7052a379adfe60a1a36dea71583097ba2f3c545c39",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/ursa-minor.svg",
-      "bytes": 1478,
-      "sha256": "eba7126c90b8a497c19fb1eabcf891fe24c6fdc58962b5d46a7d2b1398f375a6",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/virgo.svg",
-      "bytes": 2197,
-      "sha256": "330d75f84072ef933dc305a745069e30e91e1a5049b58c3cb917e4a89a8a862b",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/volans.svg",
-      "bytes": 1266,
-      "sha256": "f4024c532ac9563d96915de8e8c9ed771317cc55f10bd859ec8705e9c5e4846e",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/shell/constellation-art/vulpecula.svg",
-      "bytes": 1581,
-      "sha256": "2ea127d61a7befdc3446bb6f2fb2c01d77a40d1d8c51a11abf427936b3dabbf3",
-      "purpose": "Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
       },
       "dependencies": [],
       "dependents": []
@@ -3959,7 +2743,6 @@
       ],
       "dependents": [
         "eyes/src/app/public-api.js",
-        "eyes/src/custom/constellation-art/app.js",
         "eyes/src/main.js"
       ]
     },
@@ -5219,1510 +4002,6 @@
       "dependencies": [],
       "dependents": [
         "eyes/src/app/public-api.js"
-      ]
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/app.js",
-      "bytes": 1567,
-      "sha256": "456dfaa7a95f9bee75b8b90636efb0ddc2a127ba0db87678d33596ac2cebc56a",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "imports": [
-        {
-          "source": "../../app/SolarSystemApp.js",
-          "kind": "import",
-          "line": 1,
-          "bindings": [
-            {
-              "local": "SolarSystemApp",
-              "imported": "SolarSystemApp"
-            }
-          ]
-        },
-        {
-          "source": "./component.js",
-          "kind": "import",
-          "line": 2,
-          "bindings": [
-            {
-              "local": "ConstellationArtComponent",
-              "imported": "ConstellationArtComponent"
-            }
-          ]
-        },
-        {
-          "source": "../../i18n/core.js",
-          "kind": "import",
-          "line": 3,
-          "bindings": [
-            {
-              "local": "translateText",
-              "imported": "translateText"
-            }
-          ]
-        }
-      ],
-      "exports": [],
-      "aliases": {},
-      "classes": [
-        {
-          "name": "ConstellationArtApp",
-          "binding": "ConstellationArtApp",
-          "documentation": "",
-          "ordinal": 1,
-          "line": 5,
-          "endLine": 32,
-          "extends": "SolarSystemApp",
-          "methods": [
-            {
-              "name": "setUpComponents",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": true,
-              "generator": false,
-              "line": 6,
-              "endLine": 31,
-              "params": [],
-              "reads": [
-                "getComponent",
-                "getComponent('layerPanel').element",
-                "getComponent('layerPanel').element.querySelectorAll",
-                "scene",
-                "scene.getEntity",
-                "scene.getEntity('sun').addComponent"
-              ],
-              "writes": [],
-              "calls": [
-                "component.setArtworkVisible",
-                "component.setForceLoaded",
-                "document.createElement",
-                "input.addEventListener",
-                "item.append",
-                "label.append",
-                "list.append",
-                "status.setAttribute",
-                "super.setUpComponents",
-                "this.getComponent",
-                "this.getComponent('layerPanel').element.querySelectorAll",
-                "this.scene.getEntity",
-                "this.scene.getEntity('sun').addComponent",
-                "translateText"
-              ],
-              "returns": [
-                "void"
-              ],
-              "throws": [],
-              "managers": [],
-              "components": [
-                "layerPanel"
-              ],
-              "literals": [
-                "sun",
-                "western_constellation_art",
-                "layerPanel",
-                "ul.layers",
-                "li",
-                "layer-panel-layer item constellation-art-control",
-                "label",
-                "input",
-                "checkbox",
-                "western-constellation-art",
-                "span",
-                "Western constellation art",
-                "constellation-art-status",
-                "role",
-                "status",
-                "loading",
-                "Loading",
-                "error",
-                "Artwork unavailable; toggle to retry",
-                "change"
-              ],
-              "branches": 3,
-              "loops": 0,
-              "awaits": 1
-            }
-          ],
-          "fields": [],
-          "nested": false,
-          "exportedAs": [],
-          "parentResolved": {
-            "file": "eyes/src/app/SolarSystemApp.js",
-            "className": "SolarSystemApp",
-            "line": 16
-          }
-        }
-      ],
-      "functions": [],
-      "shortBindings": [],
-      "topLevelEffects": [
-        "ConstellationArtApp.setAppClass()"
-      ],
-      "shortBindingCount": 0,
-      "semanticHash": "9bae45578100632a993f3a6186c38727998f09385629d185f24b542b5598b91f",
-      "dependencies": [
-        "eyes/src/app/SolarSystemApp.js",
-        "eyes/src/custom/constellation-art/component.js",
-        "eyes/src/i18n/core.js"
-      ],
-      "dependents": [
-        "eyes/src/main.js"
-      ]
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/component.js",
-      "bytes": 7890,
-      "sha256": "8b3768fcab631e5a87dea316cc4ba885e12c3b155f8250994db6126244481472",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "imports": [
-        {
-          "source": "../../engine/pioneer/index.js",
-          "kind": "import",
-          "line": 1,
-          "bindings": [
-            {
-              "local": "Pioneer",
-              "imported": "*"
-            }
-          ]
-        },
-        {
-          "source": "./registration.js",
-          "kind": "import",
-          "line": 2,
-          "bindings": [
-            {
-              "local": "createArtworkPatch",
-              "imported": "createArtworkPatch"
-            }
-          ]
-        },
-        {
-          "source": "./loading.js",
-          "kind": "import",
-          "line": 3,
-          "bindings": [
-            {
-              "local": "loadArtworkBatch",
-              "imported": "loadArtworkBatch"
-            }
-          ]
-        },
-        {
-          "source": "./vector-geometry.js",
-          "kind": "import",
-          "line": 4,
-          "bindings": [
-            {
-              "local": "createArtworkVectorGeometry",
-              "imported": "createArtworkVectorGeometry"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "exported": "ConstellationArtComponent",
-          "local": "ConstellationArtComponent",
-          "line": 40
-        }
-      ],
-      "aliases": {},
-      "classes": [
-        {
-          "name": "ConstellationArtComponent",
-          "binding": "ConstellationArtComponent",
-          "documentation": "Independent extension: the recovered constellation parser is untouched.",
-          "ordinal": 1,
-          "line": 40,
-          "endLine": 167,
-          "extends": "Pioneer.BaseComponent",
-          "methods": [
-            {
-              "name": "constructor",
-              "documentation": "",
-              "kind": "constructor",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 41,
-              "endLine": 51,
-              "params": [
-                "name",
-                "entity"
-              ],
-              "reads": [
-                "__setRadius",
-                "setRenderingEnabled"
-              ],
-              "writes": [
-                "_artVisible",
-                "_controller",
-                "_fade",
-                "_lastTime",
-                "_meshes",
-                "onStatus"
-              ],
-              "calls": [
-                "performance.now",
-                "super",
-                "this.__setRadius",
-                "this.setRenderingEnabled"
-              ],
-              "returns": [],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 0,
-              "loops": 0,
-              "awaits": 0
-            },
-            {
-              "name": "setArtworkVisible",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 53,
-              "endLine": 59,
-              "params": [
-                "visible"
-              ],
-              "reads": [
-                "_controller",
-                "_controller?.abort",
-                "_fade",
-                "_loadArt",
-                "_meshes",
-                "_meshes.length",
-                "setRenderingEnabled"
-              ],
-              "writes": [
-                "_artVisible",
-                "_lastTime"
-              ],
-              "calls": [
-                "performance.now",
-                "this._controller?.abort",
-                "this._loadArt",
-                "this.setRenderingEnabled"
-              ],
-              "returns": [
-                "void"
-              ],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 2,
-              "loops": 0,
-              "awaits": 0
-            },
-            {
-              "name": "_loadArt",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": true,
-              "generator": false,
-              "line": 61,
-              "endLine": 137,
-              "params": [],
-              "reads": [
-                "_artVisible",
-                "_controller",
-                "_disposeMesh",
-                "_loadArt",
-                "getThreeJsMaterials",
-                "getThreeJsMaterials().push",
-                "getThreeJsObjects",
-                "getThreeJsObjects().push",
-                "isDestroyed",
-                "onStatus"
-              ],
-              "writes": [
-                "_controller",
-                "_meshes"
-              ],
-              "calls": [
-                "Array.isArray",
-                "Pioneer.ThreeJsHelper.setupObject",
-                "console.warn",
-                "controller.signal.throwIfAborted",
-                "createArtworkPatch",
-                "createArtworkVectorGeometry",
-                "fetch",
-                "geometry.setAttribute",
-                "geometry.setIndex",
-                "geometry?.dispose",
-                "loadArtworkBatch",
-                "loadTexture",
-                "material?.dispose",
-                "meshes.forEach",
-                "new AbortController",
-                "new Error",
-                "new Promise",
-                "new THREE.BufferAttribute",
-                "new THREE.BufferGeometry",
-                "new THREE.Mesh",
-                "new THREE.ShaderMaterial",
-                "new URL",
-                "response.json",
-                "response.text",
-                "setTimeout",
-                "texture?.dispose",
-                "this._disposeMesh",
-                "this._loadArt",
-                "this.getThreeJsMaterials",
-                "this.getThreeJsMaterials().push",
-                "this.getThreeJsObjects",
-                "this.getThreeJsObjects().push",
-                "this.isDestroyed",
-                "this.onStatus"
-              ],
-              "returns": [
-                "void"
-              ],
-              "throws": [
-                "new Error(`Artwork catalogue HTTP ${response.status}`)",
-                "new Error('Unsupported artwork catalogue')",
-                "new Error(`Artwork HTTP ${response.status}`)",
-                "error"
-              ],
-              "managers": [],
-              "components": [],
-              "literals": [
-                "loading",
-                "index.json",
-                "ICRS/J2000",
-                "Unsupported artwork catalogue",
-                "vector",
-                "position",
-                "artColor",
-                "uv",
-                "attribute vec4 artColor;varying vec4 artPixel;",
-                "varying vec2 artUv;",
-                "artPixel=artColor;",
-                "artUv=uv;",
-                "varying vec4 artPixel;",
-                "uniform sampler2D map;varying vec2 artUv;",
-                "artPixel",
-                "texture2D(map,artUv)",
-                "ready",
-                "error",
-                "Constellation artwork unavailable:"
-              ],
-              "branches": 14,
-              "loops": 1,
-              "awaits": 7
-            },
-            {
-              "name": "__prepareForRender",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 139,
-              "endLine": 146,
-              "params": [],
-              "reads": [
-                "_artVisible",
-                "_fade",
-                "_lastTime",
-                "_meshes",
-                "setRenderingEnabled"
-              ],
-              "writes": [
-                "_fade",
-                "_lastTime"
-              ],
-              "calls": [
-                "Math.max",
-                "Math.min",
-                "performance.now",
-                "this.setRenderingEnabled"
-              ],
-              "returns": [],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 2,
-              "loops": 1,
-              "awaits": 0
-            },
-            {
-              "name": "_disposeMesh",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 148,
-              "endLine": 153,
-              "params": [
-                "mesh"
-              ],
-              "reads": [],
-              "writes": [],
-              "calls": [
-                "mesh.geometry.dispose",
-                "mesh.material.dispose",
-                "mesh.material.uniforms.map?.value.dispose",
-                "mesh.removeFromParent"
-              ],
-              "returns": [],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 0,
-              "loops": 0,
-              "awaits": 0
-            },
-            {
-              "name": "__unloadResources",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 155,
-              "endLine": 159,
-              "params": [],
-              "reads": [
-                "_controller",
-                "_controller?.abort",
-                "_disposeMesh",
-                "_meshes"
-              ],
-              "writes": [
-                "_meshes"
-              ],
-              "calls": [
-                "this._controller?.abort",
-                "this._disposeMesh"
-              ],
-              "returns": [],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 0,
-              "loops": 1,
-              "awaits": 0
-            },
-            {
-              "name": "__destroy",
-              "documentation": "",
-              "kind": "method",
-              "static": false,
-              "async": false,
-              "generator": false,
-              "line": 161,
-              "endLine": 166,
-              "params": [],
-              "reads": [
-                "_controller",
-                "_controller?.abort"
-              ],
-              "writes": [
-                "_artVisible",
-                "onStatus"
-              ],
-              "calls": [
-                "super.__destroy",
-                "this._controller?.abort"
-              ],
-              "returns": [],
-              "throws": [],
-              "managers": [],
-              "components": [],
-              "literals": [],
-              "branches": 0,
-              "loops": 0,
-              "awaits": 0
-            }
-          ],
-          "fields": [],
-          "nested": false,
-          "exportedAs": [
-            "ConstellationArtComponent"
-          ],
-          "parentResolved": {
-            "file": "eyes/src/engine/components/BaseComponent.js",
-            "className": "BaseComponent",
-            "line": 4
-          }
-        }
-      ],
-      "functions": [
-        {
-          "name": "loadTexture",
-          "documentation": "",
-          "line": 9,
-          "endLine": 37,
-          "async": true,
-          "params": [
-            "url",
-            "signal"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 15,
-          "endLine": 23,
-          "async": false,
-          "params": [
-            "resolve",
-            "reject"
-          ]
-        },
-        {
-          "name": "cleanup",
-          "documentation": "",
-          "line": 16,
-          "endLine": 16,
-          "async": false,
-          "params": []
-        },
-        {
-          "name": "abort",
-          "documentation": "",
-          "line": 17,
-          "endLine": 17,
-          "async": false,
-          "params": []
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 18,
-          "endLine": 18,
-          "async": false,
-          "params": []
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 19,
-          "endLine": 19,
-          "async": false,
-          "params": []
-        }
-      ],
-      "shortBindings": [],
-      "topLevelEffects": [],
-      "shortBindingCount": 0,
-      "semanticHash": "a09382bd882273603f0aca3f08cf67e2fbaaf4180bdbf490726d70c9318246ba",
-      "dependencies": [
-        "eyes/src/engine/pioneer/index.js",
-        "eyes/src/custom/constellation-art/registration.js",
-        "eyes/src/custom/constellation-art/loading.js",
-        "eyes/src/custom/constellation-art/vector-geometry.js"
-      ],
-      "dependents": [
-        "eyes/src/custom/constellation-art/app.js"
-      ]
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/loading.d.ts",
-      "bytes": 196,
-      "sha256": "72b17d7ce13713f473ee1eac8bcd5c77b5f544c843226f3a6a030dea88073e7a",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/loading.js",
-      "bytes": 901,
-      "sha256": "31e67e2a08d7ea7fe83fffadc1bbb080a0c3a9dfa21ec4b652760ce1fc3c3a39",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "imports": [],
-      "exports": [
-        {
-          "exported": "loadArtworkBatch",
-          "local": "loadArtworkBatch",
-          "line": 2
-        }
-      ],
-      "aliases": {},
-      "classes": [],
-      "functions": [
-        {
-          "name": "loadArtworkBatch",
-          "documentation": "A batch transfers ownership only after all workers finish successfully.",
-          "line": 2,
-          "endLine": 19,
-          "async": true,
-          "params": [
-            "items",
-            "load",
-            "dispose",
-            "signal",
-            "concurrency=4"
-          ]
-        },
-        {
-          "name": "worker",
-          "documentation": "",
-          "line": 6,
-          "endLine": 12,
-          "async": true,
-          "params": []
-        }
-      ],
-      "shortBindings": [],
-      "topLevelEffects": [],
-      "shortBindingCount": 0,
-      "semanticHash": "31c18bb1b175a6ce3b3ca79223aed64aa7c65f0b69c940ef409304c4946c5ebc",
-      "dependencies": [],
-      "dependents": [
-        "eyes/src/custom/constellation-art/component.js"
-      ]
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/registration.d.ts",
-      "bytes": 839,
-      "sha256": "3374e6660bfa55ca3d522034a5e6623189fa9e41a2b0d5399982d70f1ee9e1d9",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/registration.js",
-      "bytes": 2898,
-      "sha256": "66be05dc11bec735ee2b65de5e5e52d7d98a24d510a223bbc3c9966c2f8a928e",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "imports": [],
-      "exports": [
-        {
-          "exported": "createRegistration",
-          "local": "createRegistration",
-          "line": 11
-        },
-        {
-          "exported": "createArtworkPatch",
-          "local": "createArtworkPatch",
-          "line": 27
-        }
-      ],
-      "aliases": {},
-      "classes": [],
-      "functions": [
-        {
-          "name": "finiteVector",
-          "documentation": "",
-          "line": 1,
-          "endLine": 1,
-          "async": false,
-          "params": [
-            "value",
-            "length"
-          ]
-        },
-        {
-          "name": "cross",
-          "documentation": "",
-          "line": 2,
-          "endLine": 2,
-          "async": false,
-          "params": [
-            "a",
-            "b"
-          ]
-        },
-        {
-          "name": "subtract",
-          "documentation": "",
-          "line": 3,
-          "endLine": 3,
-          "async": false,
-          "params": [
-            "a",
-            "b"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 3,
-          "endLine": 3,
-          "async": false,
-          "params": [
-            "value",
-            "index"
-          ]
-        },
-        {
-          "name": "normalize",
-          "documentation": "",
-          "line": 4,
-          "endLine": 8,
-          "async": false,
-          "params": [
-            "value"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 7,
-          "endLine": 7,
-          "async": false,
-          "params": [
-            "component"
-          ]
-        },
-        {
-          "name": "createRegistration",
-          "documentation": "Affine image plane through the three unit star directions, normalized onto\nthe celestial sphere. The image Y convention is supplied by the anchors.",
-          "line": 11,
-          "endLine": 26,
-          "async": false,
-          "params": [
-            "anchors"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 14,
-          "endLine": 14,
-          "async": false,
-          "params": [
-            "anchor"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 20,
-          "endLine": 20,
-          "async": false,
-          "params": [
-            "sum",
-            "value",
-            "index"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 21,
-          "endLine": 25,
-          "async": false,
-          "params": [
-            "x",
-            "y"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 24,
-          "endLine": 24,
-          "async": false,
-          "params": [
-            "value",
-            "index"
-          ]
-        },
-        {
-          "name": "createArtworkPatch",
-          "documentation": "",
-          "line": 27,
-          "endLine": 42,
-          "async": false,
-          "params": [
-            "artwork",
-            "subdivisions=16"
-          ]
-        }
-      ],
-      "shortBindings": [
-        {
-          "name": "a",
-          "kind": "param",
-          "line": 2,
-          "scope": "cross@2:14",
-          "references": 6,
-          "constant": true,
-          "uses": [
-            "a[1]",
-            "a[2]",
-            "a[0]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "b",
-          "kind": "param",
-          "line": 2,
-          "scope": "cross@2:14",
-          "references": 6,
-          "constant": true,
-          "uses": [
-            "b[2]",
-            "b[1]",
-            "b[0]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "a",
-          "kind": "param",
-          "line": 3,
-          "scope": "subtract@3:17",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "a.map"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "b",
-          "kind": "param",
-          "line": 3,
-          "scope": "subtract@3:17",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "b[index]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "a",
-          "kind": "const",
-          "line": 14,
-          "scope": "createRegistration@11:7",
-          "references": 4,
-          "constant": true,
-          "uses": [
-            "a.pixel"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "b",
-          "kind": "const",
-          "line": 14,
-          "scope": "createRegistration@11:7",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "b.pixel"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "c",
-          "kind": "const",
-          "line": 14,
-          "scope": "createRegistration@11:7",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "c.pixel"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "ab",
-          "kind": "const",
-          "line": 15,
-          "scope": "createRegistration@11:7",
-          "references": 5,
-          "constant": true,
-          "uses": [
-            "ab[0]",
-            "ab[1]",
-            "...ab"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "ac",
-          "kind": "const",
-          "line": 15,
-          "scope": "createRegistration@11:7",
-          "references": 5,
-          "constant": true,
-          "uses": [
-            "ac[1]",
-            "ac[0]",
-            "...ac"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "db",
-          "kind": "const",
-          "line": 18,
-          "scope": "createRegistration@11:7",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "cross(db,dc)",
-            "db[index]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "dc",
-          "kind": "const",
-          "line": 18,
-          "scope": "createRegistration@11:7",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "cross(db,dc)",
-            "dc[index]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "x",
-          "kind": "param",
-          "line": 21,
-          "scope": "callback@21:9",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "Number.isFinite(x)",
-            "x-a.pixel[0]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "y",
-          "kind": "param",
-          "line": 21,
-          "scope": "callback@21:9",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "Number.isFinite(y)",
-            "y-a.pixel[1]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "dx",
-          "kind": "const",
-          "line": 23,
-          "scope": "callback@21:9",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "dx*ac[1]",
-            "ab[1]*dx"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "dy",
-          "kind": "const",
-          "line": 23,
-          "scope": "callback@21:9",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "dy*ac[0]",
-            "ab[0]*dy"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "u",
-          "kind": "const",
-          "line": 23,
-          "scope": "callback@21:9",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "u*db[index]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "v",
-          "kind": "const",
-          "line": 23,
-          "scope": "callback@21:9",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "v*dc[index]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "y",
-          "kind": "let",
-          "line": 32,
-          "scope": "module@32:2",
-          "references": 4,
-          "constant": false,
-          "uses": [
-            "y<=subdivisions",
-            "y++",
-            "y*stride",
-            "y/subdivisions"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "x",
-          "kind": "let",
-          "line": 32,
-          "scope": "module@32:34",
-          "references": 4,
-          "constant": false,
-          "uses": [
-            "x<=subdivisions",
-            "x++",
-            "y*stride+x",
-            "x/subdivisions"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "u",
-          "kind": "const",
-          "line": 33,
-          "scope": "module@32:66",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "u*artwork.width",
-            "[u,1-v]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "v",
-          "kind": "const",
-          "line": 33,
-          "scope": "module@32:66",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "v*artwork.height",
-            "1-v"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "y",
-          "kind": "let",
-          "line": 37,
-          "scope": "module@37:2",
-          "references": 3,
-          "constant": false,
-          "uses": [
-            "y<subdivisions",
-            "y++",
-            "y*stride"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "x",
-          "kind": "let",
-          "line": 37,
-          "scope": "module@37:33",
-          "references": 3,
-          "constant": false,
-          "uses": [
-            "x<subdivisions",
-            "x++",
-            "y*stride+x"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "a",
-          "kind": "const",
-          "line": 38,
-          "scope": "module@37:64",
-          "references": 3,
-          "constant": true,
-          "uses": [
-            "a+1",
-            "a+stride",
-            "[a,c,b,b,c,d]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "b",
-          "kind": "const",
-          "line": 38,
-          "scope": "module@37:64",
-          "references": 2,
-          "constant": true,
-          "uses": [
-            "[a,c,b,b,c,d]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "c",
-          "kind": "const",
-          "line": 38,
-          "scope": "module@37:64",
-          "references": 3,
-          "constant": true,
-          "uses": [
-            "c+1",
-            "[a,c,b,b,c,d]"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "d",
-          "kind": "const",
-          "line": 38,
-          "scope": "module@37:64",
-          "references": 1,
-          "constant": true,
-          "uses": [
-            "[a,c,b,b,c,d]"
-          ],
-          "candidates": []
-        }
-      ],
-      "topLevelEffects": [],
-      "shortBindingCount": 27,
-      "semanticHash": "b4787c404241166daaf84d0991ed7ec507f14d6a435b20476b887983e0f67920",
-      "dependencies": [],
-      "dependents": [
-        "eyes/src/custom/constellation-art/component.js",
-        "eyes/src/custom/constellation-art/vector-geometry.js"
-      ]
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/vector-geometry.d.ts",
-      "bytes": 322,
-      "sha256": "3baf59875bfc110e21193d8155b574b5149ac4bfd84aaa1872387b7efb88b373",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "dependencies": [],
-      "dependents": []
-    },
-    {
-      "file": "eyes/src/custom/constellation-art/vector-geometry.js",
-      "bytes": 4671,
-      "sha256": "1345d2aaee3e0c14b0c9853ddee8c4f821b77451560057ede333b5256a54ecdd",
-      "purpose": "Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md",
-      "confidence": "verified-source",
-      "origin": null,
-      "semanticReview": {
-        "status": "not-semantically-accepted"
-      },
-      "imports": [
-        {
-          "source": "three",
-          "kind": "import",
-          "line": 1,
-          "bindings": [
-            {
-              "local": "ShapeGeometry",
-              "imported": "ShapeGeometry"
-            }
-          ]
-        },
-        {
-          "source": "three/addons/loaders/SVGLoader.js",
-          "kind": "import",
-          "line": 2,
-          "bindings": [
-            {
-              "local": "SVGLoader",
-              "imported": "SVGLoader"
-            }
-          ]
-        },
-        {
-          "source": "./registration.js",
-          "kind": "import",
-          "line": 3,
-          "bindings": [
-            {
-              "local": "createRegistration",
-              "imported": "createRegistration"
-            }
-          ]
-        }
-      ],
-      "exports": [
-        {
-          "exported": "createArtworkVectorGeometry",
-          "local": "createArtworkVectorGeometry",
-          "line": 7
-        }
-      ],
-      "aliases": {},
-      "classes": [],
-      "functions": [
-        {
-          "name": "clamp",
-          "documentation": "",
-          "line": 4,
-          "endLine": 4,
-          "async": false,
-          "params": [
-            "value"
-          ]
-        },
-        {
-          "name": "createArtworkVectorGeometry",
-          "documentation": "SVGLoader bakes nested SVG transforms into its paths and scales stroke widths.\nOnly numeric buffers cross the boundary between the two Three runtimes.",
-          "line": 7,
-          "endLine": 67,
-          "async": false,
-          "params": [
-            "svgText",
-            "artwork",
-            "{curveSegments=32}={}"
-          ]
-        },
-        {
-          "name": "appendTriangle",
-          "documentation": "",
-          "line": 13,
-          "endLine": 24,
-          "async": false,
-          "params": [
-            "a",
-            "b",
-            "c",
-            "alpha",
-            "depth=0"
-          ]
-        },
-        {
-          "name": "appendGeometry",
-          "documentation": "",
-          "line": 25,
-          "endLine": 36,
-          "async": false,
-          "params": [
-            "geometry",
-            "alpha"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 32,
-          "endLine": 32,
-          "async": false,
-          "params": [
-            "offset"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 52,
-          "endLine": 52,
-          "async": false,
-          "params": [
-            "subpath"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 53,
-          "endLine": 53,
-          "async": false,
-          "params": [
-            "point"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 53,
-          "endLine": 53,
-          "async": false,
-          "params": [
-            "point"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 53,
-          "endLine": 53,
-          "async": false,
-          "params": [
-            "point"
-          ]
-        },
-        {
-          "name": "anonymous",
-          "documentation": "",
-          "line": 53,
-          "endLine": 53,
-          "async": false,
-          "params": [
-            "point"
-          ]
-        }
-      ],
-      "shortBindings": [
-        {
-          "name": "a",
-          "kind": "param",
-          "line": 13,
-          "scope": "appendTriangle@13:25",
-          "references": 13,
-          "constant": true,
-          "uses": [
-            "a[0]",
-            "a[1]",
-            "appendTriangle(a,mid,c,alpha,depth+1)",
-            "appendTriangle(a,b,mid,alpha,depth+1)"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "b",
-          "kind": "param",
-          "line": 13,
-          "scope": "appendTriangle@13:25",
-          "references": 13,
-          "constant": true,
-          "uses": [
-            "b[0]",
-            "b[1]",
-            "appendTriangle(mid,b,c,alpha,depth+1)"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "c",
-          "kind": "param",
-          "line": 13,
-          "scope": "appendTriangle@13:25",
-          "references": 13,
-          "constant": true,
-          "uses": [
-            "c[0]",
-            "c[1]",
-            "appendTriangle(a,mid,c,alpha,depth+1)",
-            "appendTriangle(mid,b,c,alpha,depth+1)"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "ab",
-          "kind": "const",
-          "line": 14,
-          "scope": "appendTriangle@13:25",
-          "references": 3,
-          "constant": true,
-          "uses": [
-            "Math.max(ab,bc,ca)",
-            "ab>=bc",
-            "ab>=ca"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "bc",
-          "kind": "const",
-          "line": 14,
-          "scope": "appendTriangle@13:25",
-          "references": 3,
-          "constant": true,
-          "uses": [
-            "Math.max(ab,bc,ca)",
-            "ab>=bc",
-            "bc>=ca"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "ca",
-          "kind": "const",
-          "line": 14,
-          "scope": "appendTriangle@13:25",
-          "references": 3,
-          "constant": true,
-          "uses": [
-            "Math.max(ab,bc,ca)",
-            "ab>=ca",
-            "bc>=ca"
-          ],
-          "candidates": []
-        },
-        {
-          "name": "i",
-          "kind": "let",
-          "line": 31,
-          "scope": "module@31:12",
-          "references": 3,
-          "constant": false,
-          "uses": [
-            "i<attribute.count",
-            "i+offset"
-          ],
-          "candidates": []
-        }
-      ],
-      "topLevelEffects": [],
-      "shortBindingCount": 7,
-      "semanticHash": "0122ac94054d97115ce55bb5f57c52fc350ebab75a0a2bd3f594935bfba0a7ac",
-      "dependencies": [
-        "eyes/src/custom/constellation-art/registration.js"
-      ],
-      "dependents": [
-        "eyes/src/custom/constellation-art/component.js"
       ]
     },
     {
@@ -131704,7 +128983,6 @@
       ],
       "dependents": [
         "eyes/src/app/StarlinkLayer.js",
-        "eyes/src/custom/constellation-art/component.js",
         "eyes/src/engine/components/AnnulusComponent.js",
         "eyes/src/engine/components/ConstellationsComponent.js",
         "eyes/src/engine/components/DiscGridComponent.js",
@@ -135546,8 +132824,8 @@
     },
     {
       "file": "eyes/src/i18n/core.js",
-      "bytes": 15274,
-      "sha256": "189a119b3a2fdfa3be6be191f3499385d1eae9848b3429cb8ef618bab0636e2d",
+      "bytes": 14895,
+      "sha256": "9de4b14b59c5326c9a9b3f10efc5599ad2dad36decd8cbd0ff988fd8a84e02b2",
       "purpose": "显示层翻译引擎：以英文原文为键的字典、动态模式、实体/单位名称、DOM 文本与属性替换、标题与 HTML 区块翻译；英文时短路。",
       "confidence": "observed",
       "origin": null,
@@ -135604,17 +132882,17 @@
         {
           "exported": "localizeDocument",
           "local": "localizeDocument",
-          "line": 301
+          "line": 299
         },
         {
           "exported": "translateLocaleMetadata",
           "local": "translateLocaleMetadata",
-          "line": 335
+          "line": 332
         },
         {
           "exported": "currentMessages",
           "local": "currentMessages",
-          "line": 356
+          "line": 353
         }
       ],
       "aliases": {},
@@ -135866,7 +133144,7 @@
           "name": "localizeElement",
           "documentation": "",
           "line": 280,
-          "endLine": 299,
+          "endLine": 297,
           "async": false,
           "params": [
             "root"
@@ -135875,8 +133153,8 @@
         {
           "name": "localizeDocument",
           "documentation": "",
-          "line": 301,
-          "endLine": 333,
+          "line": 299,
+          "endLine": 330,
           "async": false,
           "params": [
             "root=document.body"
@@ -135885,8 +133163,8 @@
         {
           "name": "translateLocaleMetadata",
           "documentation": "",
-          "line": 335,
-          "endLine": 354,
+          "line": 332,
+          "endLine": 351,
           "async": false,
           "params": [
             "locale"
@@ -135895,8 +133173,8 @@
         {
           "name": "currentMessages",
           "documentation": "",
-          "line": 356,
-          "endLine": 358,
+          "line": 353,
+          "endLine": 355,
           "async": false,
           "params": []
         }
@@ -135929,10 +133207,9 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 2,
-      "semanticHash": "60aa02116831ac096d79833662be84dc239da0593de019f551ea39a1b8ae62b2",
+      "semanticHash": "3fd4b9eb1d4a25398fa91b857dfd3e67a8d5c50b784d3da960080549028db8fd",
       "dependencies": [],
       "dependents": [
-        "eyes/src/custom/constellation-art/app.js",
         "eyes/src/i18n/install.js",
         "eyes/src/i18n/switcher.js"
       ]
@@ -136961,8 +134238,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ar.js",
-      "bytes": 82809,
-      "sha256": "b7b76667305150d9454abc3c2e8064f14fd4ec9b62bb875d6b429eccfc1dcc38",
+      "bytes": 82663,
+      "sha256": "a1103ef2dcb934391d3e506586755e0f5fbacf3c9df05ca8aaf53ce3abc127a7",
       "purpose": "阿拉伯语（RTL）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -136983,7 +134260,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "ff458606bbe85376a7a9590e050984e3122ced1c7418d85850d5b8a37c64293f",
+      "semanticHash": "87207642c0c0f658f80d9b2dcafe9fb0aff0b19d7e70dd5e18069093ed529c8e",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -136991,8 +134268,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/cs.js",
-      "bytes": 70095,
-      "sha256": "0202d10ee3fc291c0e9ca33a76c9669dc97a11429a85f253488cebb2e522403f",
+      "bytes": 69949,
+      "sha256": "c825d2a92203c3927a9c7c5b8af74dd65ec70c0ccf45642ce649988db50eaa9c",
       "purpose": "捷克语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137013,7 +134290,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "a7d7f90287882cad60f3f1582e01c4bc042887fbd36738f3a90731cacc63484e",
+      "semanticHash": "f560dee3d1ff64b8b6d6745237ff5ddd99f07b39103a0374906fab359aca42fc",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137021,8 +134298,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/de.js",
-      "bytes": 72105,
-      "sha256": "e4e154a5009bf3f558cc2e0fffdfdbade1f268e3e772608a8cc84b1549316c64",
+      "bytes": 71959,
+      "sha256": "9c4260ee9eba5a8c7a357c2314c3fdff73b126c5ea1dfa1ef34b735388594151",
       "purpose": "德语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137043,7 +134320,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "96edde76748dd6f4f90a4666d37babae4b7bf310a993985b0ebed8a55ecb93a5",
+      "semanticHash": "d9e53a0ea22f2101f9af7de685f0e394d80f49c74df238f8dd1b5aa19da34841",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137051,8 +134328,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/el.js",
-      "bytes": 97874,
-      "sha256": "30a0a3c150769554b034c2e79660484c3e4acd195db6b202c17f0b5e0956d3af",
+      "bytes": 97728,
+      "sha256": "b51dd841175d21e6e818beac705c818365ca40d55644bb85177bc8021ca20b94",
       "purpose": "希腊语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137073,7 +134350,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "395eca68ed57bef9ea69492e596deb6a3fcfcf5cf4ffbaabdd816b38f8686d0f",
+      "semanticHash": "39fe286614d7a7554b991029b48692790f887307efc7e0602cc27dcf10dd15a0",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137081,8 +134358,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/en.js",
-      "bytes": 64682,
-      "sha256": "7b9ad23bd059fb3587076deb80e476aa844617e701392638d9c1268d0db2c094",
+      "bytes": 64536,
+      "sha256": "cb7f7bccb1ab32f6c1feb6453c5a66cfc5b722cd9d63566f977b31e762ba154d",
       "purpose": "英文源目录：界面消息、动态模式、实体与别名、类别/子类别、单位、入门 HTML 区块与站点描述；其他语言文件保持同构。",
       "confidence": "observed",
       "origin": null,
@@ -137103,7 +134380,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "afadeebacad581735ea7663268668de61be02d5b337000784049f46790448c27",
+      "semanticHash": "3d1a7baa05dc6fd30bb368a0596a020b91a4a810172027c67c157d626ec2be43",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137111,8 +134388,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/es.js",
-      "bytes": 72472,
-      "sha256": "432da0ef3ec149b461c439415c058ccc66d83cdd4d1f83b6924240dd75b4afe1",
+      "bytes": 72326,
+      "sha256": "601a134dc5524fa211ef803a0100c04979c0f79561d94d4e955c36ae8c956206",
       "purpose": "西班牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137133,7 +134410,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "7d226eed58510e871222ecb5182d48504d1d7a013d96688fb4526dd6b939e5de",
+      "semanticHash": "37b3062a6ee449d03246f33ceb1148c291cfd79a57c9ed7e34cfbe9882fff334",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137141,8 +134418,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/fr.js",
-      "bytes": 73643,
-      "sha256": "bf93d66042bd277da7b6fb9294cfa39fd43f1697a79129b6cac584d22c15f0f6",
+      "bytes": 73497,
+      "sha256": "f2e467477ba5a967252b7296e261c08d97b028481619d772c3b602dec56dcb16",
       "purpose": "法语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137163,7 +134440,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "385e9a17eebc34b3b62435168f4822c97fbcc6f7e135787ab1a072a27718c831",
+      "semanticHash": "29395c7260eebbbd1beb35f25d62c033ca940fc84df2b6742b6a448faaf62209",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137171,8 +134448,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/hi.js",
-      "bytes": 106606,
-      "sha256": "670918ecfeb64e6e77d1c307b9f7d014849a33302197c5b0d9c0beedc0fff5f2",
+      "bytes": 106460,
+      "sha256": "8c3bc49beb7390ff52c4ec2411e3011db8909170f140e9f190491021f60c45b8",
       "purpose": "印地语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137193,7 +134470,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "85fffcdeb1a60255a25c39664ec0a57826258703c0cd54a156f3e398437bfd51",
+      "semanticHash": "d159846f2e7bb31935fcb07bd11b6413489ea3e3b6e565a0176b44f62dd3d584",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137201,8 +134478,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/id.js",
-      "bytes": 69367,
-      "sha256": "4cd78d51a6d0d15dda4225b48a105956f62303fd77aafd0f555280f8d48bf436",
+      "bytes": 69221,
+      "sha256": "f5c8731d672ff1c77a899d995a58f87aa8b50fbd43198957778d7e4e528c6704",
       "purpose": "印度尼西亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137223,7 +134500,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "a2ff449ec26c9205ba7050cf1cc6315916b7d322cc05d2f682397e9493f12a42",
+      "semanticHash": "c6daba5a3d0ea4fd1114c02ef5bfa38008638b8a7a78f24d4a96723cbcc680b2",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137231,8 +134508,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/it.js",
-      "bytes": 71502,
-      "sha256": "610721fcaabeed6945b1ce53b8db10f0a2c4d933e0e58a2c34de935985cbcb9a",
+      "bytes": 71356,
+      "sha256": "932526b6796fa3a4ce1637a32d1f8ab64f5d14f5aa5fd191df86676a09f35a4e",
       "purpose": "意大利语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137253,7 +134530,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "4a6ac9592dbb9623f154797a612ca4ee2e2f592af491207bc228470b44df1a79",
+      "semanticHash": "06a7086137021a1eb6077376c03c38fe0c99e4bd2b4df9f5598b0552fe0ddb13",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137261,8 +134538,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ja.js",
-      "bytes": 76505,
-      "sha256": "2099261065a0cab5d83fbcb1100f2092decd24b4e01f6df0981db1dc8e90768c",
+      "bytes": 76359,
+      "sha256": "a47bfdd687f238856486df8ccd0ea6e50965505575e175b942bc3665c3baae23",
       "purpose": "日语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137283,7 +134560,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "feaac23062b1ecc51e118f9da0efd757bede6f7da7307427396a5fd1142609d0",
+      "semanticHash": "49e004b8df74129cd95a3cb8c2129d11fcedddb19b3c4514557c79879bed7e09",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137291,8 +134568,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ko.js",
-      "bytes": 72680,
-      "sha256": "6a5d918c41ae93792806cd5e03f9334b7c437f2561d37bb941da564d426783b3",
+      "bytes": 72534,
+      "sha256": "4341f6dec676c0fc037ab557af039eb4df5b75eab6cd3de88d624ff0a6ee1617",
       "purpose": "韩语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137313,7 +134590,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f4f0890011a14c0fe7d6c68e8d8124712dbff6b53dd6b8e04503dcec55e56726",
+      "semanticHash": "28ca09ad641304cffb4988bc95dc7dd77661ddff5375f3ecf0ffcb28647c5e32",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137321,8 +134598,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/nl.js",
-      "bytes": 71086,
-      "sha256": "856f209cd3659bd94b8c20e5f5573dc1601899e3382727f7a3a54714741603ee",
+      "bytes": 70940,
+      "sha256": "87fa868b869f6cc3ce3271fc8b0fa0ffa4c83c82614bd5409428d9d5588f7154",
       "purpose": "荷兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137343,7 +134620,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f65debd45cf38da7b50431a81ea96c1741a6622c57219f5152b1e87089ee3d46",
+      "semanticHash": "a9dcfecf49ef7d81f0d8b199ea1c25720c611669ed3bd3f015f3a80d40d914b6",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137351,8 +134628,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/pl.js",
-      "bytes": 71778,
-      "sha256": "dbf629f6a7f9e7869280a2cccd9a824d6f53cd9894cb3bd545dfb33989f3fe76",
+      "bytes": 71632,
+      "sha256": "94aaa93e4bc4054d95a25a9e0cff06543e807947456a0d9c105c9742a6e510a9",
       "purpose": "波兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137373,7 +134650,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f8f1b9f2e19ad478bc2919d971f67b0acd14e191b8cee3061d317cb5eafe0de6",
+      "semanticHash": "6eeadb99ace0f97a03d736e18be2c2687b21900b207de3a5bb93574642001827",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137381,8 +134658,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/pt-BR.js",
-      "bytes": 71461,
-      "sha256": "bb807783054ec50164a8bcfeeabdfadb8612ab07d933dbc7c95ff176f384bfac",
+      "bytes": 71315,
+      "sha256": "369b4c5076e625d77444d0b515a34a96d1da5d22b881cd44d697570623e7a1e7",
       "purpose": "巴西葡萄牙语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137403,7 +134680,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "51e68518a44f0a187a87a5b21bbb1279f5f4ac8614bdb1431082b251ccc1b003",
+      "semanticHash": "68dd07a63198ed8151927a4a06f4a4c29b2fd5b456f0d1ec4d40c387eef739fb",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137411,8 +134688,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ro.js",
-      "bytes": 72912,
-      "sha256": "d6817ab7a72c5d4932ebadc0a644a2818accc1a747f71fb7b03ef2c24f18acfe",
+      "bytes": 72766,
+      "sha256": "86f446571e228bbcb640e4fc7452da8d17610650df7fb09c8bf88e4d05350900",
       "purpose": "罗马尼亚语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137433,7 +134710,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "1391c4b286520da23993a31a8512fe54efe125be9378a389d353e59c88afe724",
+      "semanticHash": "45d595f2334fb0719ed8062e61d59994111bdfdcb32ba676dc3ef2e2ec9c875a",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137441,8 +134718,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/ru.js",
-      "bytes": 91926,
-      "sha256": "35257d96dc2bd6779b3b01d26530bf02688005cecc28f65a7f481693f851a4ad",
+      "bytes": 91780,
+      "sha256": "f87f8391c2ee145d5aabab8addb53d8c1cbac53abfec2b1be94439c474bc1cbe",
       "purpose": "俄语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137463,7 +134740,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "fc694823f333451f5de951d4b5e67f8fa1e0019455994cdcc1d30471dcb4a57b",
+      "semanticHash": "ff1ac02599a33e211b824ec97ad0988b2c14f5759c31e96d1cd3c0cc39bfa5ba",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137471,8 +134748,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/sv.js",
-      "bytes": 69664,
-      "sha256": "d1f865314a5a6191edae47cee563a720007ec124cb0045ebaa4a963c663d2027",
+      "bytes": 69518,
+      "sha256": "94e26a5daed1adac3dbd78373d748ac8f4781404d8e0bd07f75e14656b900a3c",
       "purpose": "瑞典语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137493,7 +134770,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "ea546cc08db7fd0cdde23e9caa855b23d50116a3b92471ca37289716736bd473",
+      "semanticHash": "ae5cc251eb7d3827970fe7b912f391afa20801a863d1c4d31639cd134d0b9ae5",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137501,8 +134778,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/tr.js",
-      "bytes": 71976,
-      "sha256": "911013d297c1ef369d077c19fe57a648e34850d63bff1affc7e7031afa27d2f4",
+      "bytes": 71830,
+      "sha256": "1737f725254734c2e265db9f17cea635c39821da5fe8131ed87035ecbe14114c",
       "purpose": "土耳其语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137523,7 +134800,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "d885ebcd876b10214a31798787d9bbabd9e4e1944f71670603ca1ac945993141",
+      "semanticHash": "af38aa8a2314eaef8fc1946c532f18acbb713491da1318f5a0603e038e1cfab9",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137531,8 +134808,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/uk.js",
-      "bytes": 91059,
-      "sha256": "8ab3f3bd452fad140e9ae0f4d5cc4399f2922b6d346c45988dddd2ee043ae38a",
+      "bytes": 90913,
+      "sha256": "a9da27d90f0d5882971fef96a13cec5f69a623f1ef5812e7b0575abbed5fc31e",
       "purpose": "乌克兰语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137553,7 +134830,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "688f90259580ca6e8849223e881a4d53cee7b2eddb51d62143752623ed3b793f",
+      "semanticHash": "c6862b9bc75d1cb0a852b6e5baa2cea8748345de7abc49c7c843cd2704793cd5",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137561,8 +134838,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/vi.js",
-      "bytes": 77587,
-      "sha256": "e1d6266d3b85d7010a29331286a2ac07a2d609b2a6b74539bc8901cd305fd208",
+      "bytes": 77441,
+      "sha256": "9570b85c96b760bc5ecf7efa57904e03e32610745abb396890708c9fb9486516",
       "purpose": "越南语翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137583,7 +134860,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "f5f3ac8ae08c38b58e23eddf17f7baf638716039742eb173fa2a4e1dda0e7f4c",
+      "semanticHash": "c2efd46b8facc8b1be6fe819a6623fffc55a5aa0b72ce1ba530945e6cf4cfb11",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137591,8 +134868,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/zh-CN.js",
-      "bytes": 65876,
-      "sha256": "2fc640ab4b57353452c99b52cc84f0bf438f5c12a00eabd4459562495f83462d",
+      "bytes": 65731,
+      "sha256": "ed22e45b0a816ac2dcf69b6ea5427fde7ebe3ae1ccfe67ae91093968571ee3ce",
       "purpose": "简体中文翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137613,7 +134890,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "4d91541613acc982ed2c2e1b9ff50b2e13f13e8ad23cf49e8489ed5397ef2e28",
+      "semanticHash": "ccd14d7e78dae1c5fc65bf5014a38cb1a0b6b49c4db95640c4e21ff48a752f61",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137621,8 +134898,8 @@
     },
     {
       "file": "eyes/src/i18n/locales/zh-TW.js",
-      "bytes": 65936,
-      "sha256": "8bd0d7ed61d57000a673941bc00b35d58f04cfdb5a4d334f4afbdbdb73eaae04",
+      "bytes": 65791,
+      "sha256": "b30c69ea91e5efda095883e4bdbc729ea0d0eb96ed321fef088426c2d27b8e80",
       "purpose": "繁体中文（台湾）翻译目录；由 tools/i18n-apply.mjs 生成，结构与 en.js 同构。",
       "confidence": "observed",
       "origin": null,
@@ -137643,7 +134920,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "91d02fc5a71ddf1ce6bb532237fc168a4a2b4e6f26c98ae11a060fe8648bb806",
+      "semanticHash": "212301aca28a0e86b512fb5dab920c08a20825511e1307d7d7083b9468aa12bd",
       "dependencies": [],
       "dependents": [
         "eyes/src/i18n/index.js"
@@ -137841,8 +135118,8 @@
     },
     {
       "file": "eyes/src/main.js",
-      "bytes": 378,
-      "sha256": "aca89687abda9eb6ce75c9423f4667be5b719eeae6cf4bcd2a572e49d57d6ba1",
+      "bytes": 334,
+      "sha256": "7e767d8edeca135d74198a6e7275bf861f848b4dac2404656e674e8f5772cdcb",
       "purpose": "启动入口：先加载 preload，再初始化应用依赖图",
       "confidence": "observed",
       "origin": null,
@@ -137880,12 +135157,6 @@
           "kind": "import",
           "line": 7,
           "bindings": []
-        },
-        {
-          "source": "./custom/constellation-art/app.js",
-          "kind": "import",
-          "line": 8,
-          "bindings": []
         }
       ],
       "exports": [],
@@ -137895,14 +135166,13 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "cd777422cc0d04a8fba976e8878306d194727d28a2aa385957693f8f805b80db",
+      "semanticHash": "0f7026efee10304f689fe27e6797da6f07f0f0876781bb57760cdc1f3f21ae28",
       "dependencies": [
         "eyes/src/i18n/install.js",
         "eyes/src/app/PreloadManager.js",
         "eyes/src/styles/extracted/PreloadStyles.js",
         "eyes/src/styles/extracted/VendorStyles.js",
-        "eyes/src/app/SolarSystemApp.js",
-        "eyes/src/custom/constellation-art/app.js"
+        "eyes/src/app/SolarSystemApp.js"
       ],
       "dependents": []
     },

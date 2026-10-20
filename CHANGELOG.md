@@ -3,16 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
-## 0.2.67 - 2026-10-20
+## 0.2.68 - 2026-10-20
 
-Add independent Western constellation artwork layers to Eyes and Explorer.
-Draw 85 original transparent SVG figures covering 88 constellation names and
-render their paths as actual celestial vector geometry. Retain separately
-attributed J2000 star registration metadata and editable local drawing sources.
-Bound loading, support cancellation/retry/fade and release GPU resources on
-teardown. Clear recovered artwork errors after retry. Preserve Latin constellation
-labels when a planetary moon has the same name. No external illustration library,
-raster tracing or 512px artwork texture conversion is used by the new catalogue.
+Withdraw the Western constellation artwork feature at the owner's request.
+Revert its SVG assets, authoring scripts, independent controls and both runtime
+integrations, restoring the application behavior from v0.2.66.
+
+## 0.2.67 - 2026-10-20 (withdrawn)
+
+Introduced Western constellation artwork. This feature was rejected and fully
+reverted in v0.2.68.
 
 ## 0.2.66 - 2026-10-19
 

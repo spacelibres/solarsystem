@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "指定触发自动播放前的无操作时间。值为零表示禁用自动播放",
     "Spout": "Spout",
     "Star Field": "星空背景",
-    "Western constellation art": "西方星座图案",
-    "Artwork unavailable; toggle to retry": "图案加载失败，重新开关可重试",
     "START OVER": "重新开始",
     "Starting experience...": "正在启动体验……",
     "Stories": "故事",

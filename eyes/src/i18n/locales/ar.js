@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "يحدد فترة عدم النشاط قبل تفعيل التشغيل التلقائي. القيمة صفر تعطل التشغيل التلقائي",
     "Spout": "Spout",
     "Star Field": "حقل النجوم",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "البدء من جديد",
     "Starting experience...": "جارٍ بدء التجربة…",
     "Stories": "القصص",

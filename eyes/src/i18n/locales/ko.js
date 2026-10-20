@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "자동 재생이 시작되기 전의 비활성 시간을 지정합니다. 값을 0으로 설정하면 자동 재생이 비활성화됩니다",
     "Spout": "Spout",
     "Star Field": "별 필드",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "처음부터 다시 시작",
     "Starting experience...": "체험 시작 중...",
     "Stories": "스토리",

@@ -345,8 +345,6 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Chỉ định thời gian không hoạt động trước khi tự động phát được kích hoạt. Giá trị bằng 0 sẽ vô hiệu hóa tự động phát",
     "Spout": "Spout",
     "Star Field": "Trường sao",
-    "Western constellation art": "Western constellation art",
-    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "BẮT ĐẦU LẠI",
     "Starting experience...": "Đang bắt đầu trải nghiệm...",
     "Stories": "Câu chuyện",

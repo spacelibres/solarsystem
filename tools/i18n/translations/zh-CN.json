@@ -406,9 +406,7 @@
     "Zoom in": "放大",
     "zoom out": "缩小",
     "Zoom out": "缩小",
-    "celestial bodies": "天体",
-    "Western constellation art": "西方星座图案",
-    "Artwork unavailable; toggle to retry": "图案加载失败，重新开关可重试"
+    "celestial bodies": "天体"
   },
   "entities": {
     "observable_universe": "可观测宇宙",
