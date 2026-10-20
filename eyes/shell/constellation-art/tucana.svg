@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Tucana</title>
+  <desc>A perched toucan with an immense curved bill, bright eye contour, folded feathered wing and gripping toes. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M229 153 C242 115 282 99 314 118 C362 100 414 109 457 136 C435 175 372 193 321 183 C316 210 306 225 286 239 C296 284 277 329 244 345 L215 414 L191 422 L197 346 C169 326 155 294 167 257 L194 213 C182 192 195 160 229 153 Z"/>
+    <path d="M229 240 C201 262 193 306 209 334 C242 334 270 301 271 268 Q261 241 229 240 Z M221 343 L228 375 L244 380 M244 340 L252 372 L272 375"/>
+    <path d="M107 391 C215 375 337 374 412 385 L414 397 C300 387 213 391 108 403 Z"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M267 151 C263 137 282 129 291 141 C301 155 279 167 267 151 M275 147 Q280 141 285 147 M317 126 Q337 149 321 176 M325 152 Q385 156 446 137 M338 172 Q397 173 434 153 M201 185 Q220 193 232 213 M205 226 Q225 242 249 232 M225 255 Q213 293 215 320 M240 253 Q235 295 223 325 M255 260 Q254 290 236 318 M202 348 L216 348 M201 365 L211 365 M198 384 L207 384 M229 374 L232 386 L241 388 M240 377 L243 388 L252 388 M253 373 L257 385 L266 387 M264 375 L269 386 L278 387"/>
+  </g>
+</svg>

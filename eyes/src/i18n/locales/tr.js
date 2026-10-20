@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Otomatik oynatma tetiklenmeden önceki hareketsizlik süresini belirtir. Sıfır değeri otomatik oynatmayı devre dışı bırakır",
     "Spout": "Spout",
     "Star Field": "Yıldız Alanı",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "BAŞTAN BAŞLA",
     "Starting experience...": "Deneyim başlatılıyor...",
     "Stories": "Hikâyeler",

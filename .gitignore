@@ -42,3 +42,7 @@ eyes/.cache/
 
 # Starlink header cache (rebuilt by tools/starlink/build-catalog.mjs)
 .cache/
+
+# Python authoring caches
+__pycache__/
+*.py[cod]

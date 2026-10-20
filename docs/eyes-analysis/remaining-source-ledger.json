@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "release": "0.2.49",
-  "basis": "v0.2.34 source-contract analysis plus the v0.2.49 package-version and presentation branding updates; no new recovered-source behavioral acceptance",
+  "release": "0.2.67",
+  "basis": "Original source contracts retained; v0.2.67 adds independent constellation artwork adapters and licensed SVG assets, not new recovered-source equivalence claims.",
   "meaning": "Source-contract coverage and file identity; not a declaration of full behavioral equivalence, original-name recovery or device/GPU acceptance.",
   "counts": {
     "boot-support": 26,
@@ -34,14 +34,14 @@
     "eyes/package-lock.json": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "f8f54a7fd00033028d66cd77706da8414468a5a75e3991761485a30a4c638049",
+      "sourceSha256": "224417c6190d066240061eecea2c3cc3e572d2734bfd5a1646250dbaf5b25798",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
     "eyes/package.json": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "4d85e3c5039d362fb7b1f5ec2d593b1b7fa1f39ae009894ddf9d746b214bca35",
+      "sourceSha256": "fab34d02ad479561b269d9f9608d94dd150c3d4334a08abca38471b4e0dfa671",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
@@ -62,7 +62,7 @@
     "eyes/scripts/build.mjs": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "5b1cb8db25265a881e3af0ab9812267233c79adcd0c6b074ee3bb5f044749b6e",
+      "sourceSha256": "8d2e66e6538525fc22c20c8047d398db873b7edc92346bfe31c98fdd28ffce40",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
@@ -90,14 +90,14 @@
     "eyes/shell/app.css": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "b1662442c813a0454748ab43a1f7bef4e3f5ccaf840d49f1910fc1271366c7ed",
+      "sourceSha256": "075ea7f478d3dcf53d2cc5f0880dd09f0ca504f0e9bdcee1a94f6f89b1c14578",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
     "eyes/shell/index.html": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "70ba370fca7a82cf59cecec2b81dd9d1f2ac34c62b82c0bd77c6aeab62442773",
+      "sourceSha256": "a6da0f225906fe1bbd41d8ebc2e2b423319fde3a9e33cac6b68f444569abc538",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
@@ -223,7 +223,7 @@
     "eyes/src/main.js": {
       "category": "boot-support",
       "contractDocument": "docs/eyes-analysis/remaining-boot-runtime-contracts.md",
-      "sourceSha256": "749c108ef23faac2df09c29f28800784a5fbc197a57e9fd2ba5318aa6953cd97",
+      "sourceSha256": "aca89687abda9eb6ce75c9423f4667be5b719eeae6cf4bcd2a572e49d57d6ba1",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },
@@ -1028,7 +1028,7 @@
     "eyes/src/ui/templates/InfoPanelTemplate.html": {
       "category": "ui-data-stubs",
       "contractDocument": "docs/eyes-analysis/remaining-ui-data-contracts.md",
-      "sourceSha256": "d4c53b79ae1eea5b6a639fe37bb8494fceb24f0fb6fe537e1abb0ea4ad92e2ad",
+      "sourceSha256": "8c84293549eb37763bd4d18ca2489c940991dd3e4ba09d17b966d16ff34d24ad",
       "coverage": "source-contract-documented",
       "runtimeAcceptance": "not-semantically-accepted"
     },

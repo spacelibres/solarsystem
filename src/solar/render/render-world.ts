@@ -5,6 +5,7 @@ import { pickSize, starfieldUrl, textureUrl, SPRITES, GALAXIES_URL, CONSTELLATIO
 import { eyesOrbitStyle, eyesOrbitFade, eyesTrailFade } from '../config/eyes-display';
 import { parseConstellations } from '../domain/sky';
 import { createSkyStars } from './sky';
+import { createConstellationArt } from './constellation-art';
 import type { ExplorerBodyDefinition } from '../config/default-scene';
 import type { ExplorerRenderFrame } from '../runtime/explorer-runtime';
 import type { Vec3 } from '../../lib/dynamo/math';
@@ -60,6 +61,7 @@ export interface RenderWorld {
         orbits?: boolean;
         stars?: boolean;
         constellations?: boolean;
+        constellationsArt?: boolean;
         starlink?: boolean;
     }): void;
     setStarlinkSelection(numbers: readonly number[]): void;
@@ -375,6 +377,9 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
         if (options.starlink?.length) mountStarlink(options.starlink);
         const sky = new THREE.Group(), constellationSky = new THREE.Group();
         scene.add(sky, constellationSky);
+        const constellationArt=createConstellationArt({onError:message=>{errors['constellation-art']=message;},onReady:()=>{delete errors['constellation-art'];}});
+        constellationArt.setColor(orbitPrimary);scene.add(constellationArt.group);
+        cleanup.push(()=>constellationArt.dispose());
         const skyGeometry: THREE.BufferGeometry[] = [], skyMaterials: THREE.Material[] = [];
         const constellationLabels: {element:HTMLSpanElement;direction:THREE.Vector3}[] = [];
         const starMaterials: THREE.ShaderMaterial[] = [];
@@ -469,15 +474,17 @@ export function createRenderWorld(container: HTMLElement, definitions: readonly 
                 starsEnabled=layers.stars??starsEnabled;constellationsEnabled=layers.constellations??constellationsEnabled;
                 starlinkEnabled=layers.starlink??starlinkEnabled;starlink?.setVisible(starlinkEnabled);
                 if(constellationsEnabled)loadConstellations();
+                if(layers.constellationsArt!==undefined)constellationArt.setVisible(layers.constellationsArt);
             },
             setStarlinkSelection(numbers) { starlinkSelection = numbers; starlink?.setSelection(numbers); },
             setStarlinkOrbits(orbits) { mountStarlink(orbits); },
             clearStarlink() { starlink?.dispose(); starlink = null; starlinkSelection = []; },
-            setPalette(colors) { orbitPrimary = colors.primary; renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
+            setPalette(colors) { constellationArt.setColor(colors.primary); orbitPrimary = colors.primary; renderer.setClearColor(colors.deep); starlink?.setColors({ primary: colors.primary, secondary: colors.accent, accent: colors.accent }); },
             update(state) {
                 latestTimeEt = state.clock.timeEt;
                 const animationTime = performance.now(), animationDelta = Math.max(0, (animationTime-previousAnimationTime)/1000);
                 previousAnimationTime = animationTime;
+                constellationArt.update(animationDelta);
                 if (disposed)
                     return;
                 selectedId = state.selectedId;

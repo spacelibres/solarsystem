@@ -279,6 +279,8 @@ function localizeCategorizedText(element) {
 
 export function localizeElement(root) {
   if (!enabled || !root) return;
+  // IAU Latin sky labels can coincide with body names (Hydra is also a moon).
+  if ((root.nodeType === Node.TEXT_NODE ? root.parentElement : root)?.closest?.('.pioneer-constellation-label')) return;
   if (root.nodeType === Node.TEXT_NODE) {
     const translated = translateText(root.nodeValue);
     if (translated !== null && translated !== root.nodeValue) root.nodeValue = translated;
@@ -298,6 +300,7 @@ export function localizeElement(root) {
 
 export function localizeDocument(root = document.body) {
   if (!enabled || !root) return;
+  if ((root.nodeType === Node.TEXT_NODE ? root.parentElement : root)?.closest?.('.pioneer-constellation-label')) return;
   if (root.nodeType === Node.TEXT_NODE) {
     const translated = translateText(root.nodeValue);
     if (translated !== null && translated !== root.nodeValue) root.nodeValue = translated;
@@ -309,7 +312,7 @@ export function localizeDocument(root = document.body) {
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
     acceptNode(node) {
       if (node.nodeType === Node.ELEMENT_NODE) {
-        if (SKIP_TAGS.has(node.tagName) || node.hasAttribute(SKIP_ATTRIBUTE)) return NodeFilter.FILTER_REJECT;
+        if (SKIP_TAGS.has(node.tagName) || node.hasAttribute(SKIP_ATTRIBUTE) || node.classList.contains('pioneer-constellation-label')) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       }
       return NodeFilter.FILTER_ACCEPT;

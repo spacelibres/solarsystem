@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Triangulum Australe</title>
+  <desc>An equilateral navigational triangle suspended from a ring, with engraved wave ornament and a hanging plumb bob. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M255 93 L438 397 L72 397 Z M255 132 L401 376 L109 376 Z M255 93 L255 132 M438 397 L401 376 M72 397 L109 376"/>
+    <path d="M246 93 L246 79 C225 69 227 40 248 35 C270 29 286 49 277 68 L265 80 L265 93 M247 66 C236 55 248 42 258 48 C269 53 262 69 253 68"/>
+    <path d="M255 139 L255 311 M255 311 L240 344 L255 365 L270 344 Z"/>
+    <path d="M109 410 Q132 396 155 410 Q178 424 201 410 Q224 396 247 410 Q270 424 293 410 Q316 396 339 410 Q362 424 385 410 Q407 396 430 410"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M232 154 L240 160 M219 176 L227 182 M206 198 L214 204 M193 220 L201 226 M180 242 L188 248 M167 264 L175 270 M154 286 L162 292 M141 308 L149 314 M128 330 L136 336 M115 352 L123 358"/>
+    <path d="M278 154 L270 160 M291 176 L283 182 M304 198 L296 204 M317 220 L309 226 M330 242 L322 248 M343 264 L335 270 M356 286 L348 292 M369 308 L361 314 M382 330 L374 336 M395 352 L387 358"/>
+    <path d="M141 384 L141 394 M168 384 L168 394 M195 384 L195 394 M222 384 L222 394 M249 384 L249 394 M276 384 L276 394 M303 384 L303 394 M330 384 L330 394 M357 384 L357 394 M384 384 L384 394 M246 344 L255 350 L264 344 M255 322 L255 340"/>
+  </g>
+</svg>

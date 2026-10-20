@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Задаёт время бездействия до запуска автовоспроизведения. Значение 0 отключает автовоспроизведение.",
     "Spout": "Spout",
     "Star Field": "Звёздное поле",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "НАЧАТЬ ЗАНОВО",
     "Starting experience...": "Запуск…",
     "Stories": "Истории",

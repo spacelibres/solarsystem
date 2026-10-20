@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Piscis Austrinus</title>
+  <desc>A long southern fish swimming into a curling stream, with fringed fins, gill covers and patterned scales. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M77 239 C138 153 285 153 369 226 L443 173 L424 245 L449 311 L371 276 C282 352 148 343 77 258 L57 247 Z"/>
+    <path d="M155 184 Q196 125 252 145 L282 182 M156 313 L195 360 L231 329 M298 312 L336 345 L353 299"/>
+    <path d="M65 240 C38 218 39 191 67 184 C92 176 99 157 82 141 M60 254 C22 274 27 305 60 312"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M103 238 C100 225 116 219 122 231 C128 244 109 250 103 238 M144 202 Q180 247 143 298 M156 212 Q181 247 160 287 M186 196 Q209 211 192 230 M218 186 Q241 205 222 224 M249 188 Q271 207 253 226 M281 198 Q303 217 285 236 M314 213 Q338 230 321 247 M190 240 Q212 259 194 279 M224 232 Q245 251 227 271 M257 234 Q278 252 260 273 M291 245 Q314 261 294 280 M214 278 Q235 293 220 312 M250 278 Q272 296 256 315 M284 282 Q303 296 289 307"/>
+    <path d="M177 177 L194 151 M196 176 L213 146 M216 177 L231 149 M183 328 L197 349 M200 331 L210 347 M376 237 L427 193 M381 250 L425 246 M376 264 L433 297"/>
+  </g>
+</svg>

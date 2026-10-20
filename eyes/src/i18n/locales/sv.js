@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Anger hur länge inaktivitet får råda innan automatisk uppspelning utlöses. Värdet noll inaktiverar automatisk uppspelning",
     "Spout": "Spout",
     "Star Field": "Stjärnfält",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "BÖRJA OM",
     "Starting experience...": "Startar upplevelsen…",
     "Stories": "Berättelser",

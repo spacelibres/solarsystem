@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Sextans</title>
+  <desc>A sextant with a curved graduated limb, sighting telescope, hinged index arm and adjustment screw. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M256 95 L81 362 C175 432 331 433 431 360 L256 95 Z M256 130 L117 353 C198 404 312 406 396 354 Z"/>
+    <path d="M242 117 L298 378 L317 375 L265 112 Z M282 371 L330 361 L337 395 L290 407 Z"/>
+    <path d="M181 211 L335 240 L330 264 L175 236 Z M164 209 L182 212 L176 239 L158 236 Z M335 237 L348 240 L343 268 L330 265 Z"/>
+    <path d="M240 84 L274 84 L274 111 L240 111 Z M228 169 L263 169 L263 187 L228 187 Z"/>
+    <path d="M309 406 L314 433 L337 427 L333 399 M306 435 L344 426 L347 436 L310 446 Z"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M95 359 Q255 467 418 358 M111 370 L116 361 M128 380 L133 372 M148 389 L152 381 M169 397 L172 388 M191 402 L194 393 M214 407 L215 398 M237 409 L238 400 M261 410 L261 401 M285 408 L284 399 M308 404 L306 395 M330 398 L327 389 M351 389 L347 381 M372 379 L367 371 M392 367 L386 360"/>
+    <path d="M194 223 L320 247 M251 123 L302 367 M299 380 L324 374 M301 387 L325 381 M302 394 L327 388 M248 90 L264 90 M249 101 L265 101 M318 413 L331 410 M319 420 L333 417"/>
+  </g>
+</svg>

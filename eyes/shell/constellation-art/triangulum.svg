@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Triangulum</title>
+  <desc>A carved triangular surveyor&#x27;s frame with bevelled edges, scroll finials and an engraved measuring scale. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M89 116 L432 369 L78 392 Z M107 151 L385 359 L100 377 Z M89 116 L107 151 M432 369 L385 359 M78 392 L100 377"/>
+    <path d="M88 116 C72 104 56 116 63 130 C69 143 89 137 86 125 M429 370 C448 366 459 382 448 393 C436 405 421 392 431 385 M79 389 C59 390 49 405 60 416 C72 427 88 411 77 405"/>
+    <path d="M180 226 L291 308 M169 242 L280 324 M181 226 L169 242 M291 308 L280 324"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M99 177 L109 176 M98 201 L108 200 M96 225 L107 224 M95 249 L106 248 M93 273 L104 272 M92 297 L102 296 M90 321 L101 320 M89 345 L100 344"/>
+    <path d="M134 380 L133 368 M159 379 L158 367 M184 378 L183 366 M209 377 L208 365 M234 375 L233 364 M259 374 L258 363 M284 373 L283 362 M309 372 L308 361 M334 371 L333 360"/>
+    <path d="M139 162 L144 155 M162 180 L167 173 M185 197 L190 190 M208 214 L213 207 M231 231 L236 224 M254 248 L259 241 M277 265 L282 258 M300 282 L305 275 M323 299 L328 292 M346 316 L351 309 M369 333 L374 326"/>
+    <path d="M183 237 L277 308 M178 246 L272 317"/>
+  </g>
+</svg>

@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1156 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1256 个文件、1065 个 JavaScript 文件、554 个显式类、5522 个方法/访问器/可调用字段及静态块、21809 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -556,6 +556,98 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/shell/brand/icon-reverse.svg](#file-eyes-shell-brand-icon-reverse-svg) — VI 1.5.34 深色背景 REVERSE 标志母版，供 Eyes 导航/紧凑位置使用。
 - [eyes/shell/brand/icon-white.svg](#file-eyes-shell-brand-icon-white-svg) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/brand/sources.json](#file-eyes-shell-brand-sources-json) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
+- [eyes/shell/constellation-art/LICENSE-CC-BY-SA-4.0.txt](#file-eyes-shell-constellation-art-LICENSE-CC-BY-SA-4-0-txt) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/LICENSE-ORIGINAL-SVG.txt](#file-eyes-shell-constellation-art-LICENSE-ORIGINAL-SVG-txt) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/LICENSE-d3-celestial.txt](#file-eyes-shell-constellation-art-LICENSE-d3-celestial-txt) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/README.md](#file-eyes-shell-constellation-art-README-md) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/SOURCE-DESCRIPTION.md](#file-eyes-shell-constellation-art-SOURCE-DESCRIPTION-md) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/andromeda.svg](#file-eyes-shell-constellation-art-andromeda-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/antlia.svg](#file-eyes-shell-constellation-art-antlia-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/apus.svg](#file-eyes-shell-constellation-art-apus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/aquarius.svg](#file-eyes-shell-constellation-art-aquarius-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/aquila.svg](#file-eyes-shell-constellation-art-aquila-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/ara.svg](#file-eyes-shell-constellation-art-ara-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/argonavis.svg](#file-eyes-shell-constellation-art-argonavis-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/aries.svg](#file-eyes-shell-constellation-art-aries-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/auriga.svg](#file-eyes-shell-constellation-art-auriga-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/bootes.svg](#file-eyes-shell-constellation-art-bootes-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/caelum.svg](#file-eyes-shell-constellation-art-caelum-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/camelopardalis.svg](#file-eyes-shell-constellation-art-camelopardalis-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/cancer.svg](#file-eyes-shell-constellation-art-cancer-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/canes-venatici.svg](#file-eyes-shell-constellation-art-canes-venatici-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/canis-major.svg](#file-eyes-shell-constellation-art-canis-major-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/canis-minor.svg](#file-eyes-shell-constellation-art-canis-minor-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/capricornus.svg](#file-eyes-shell-constellation-art-capricornus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/cassiopeia.svg](#file-eyes-shell-constellation-art-cassiopeia-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/centaurus.svg](#file-eyes-shell-constellation-art-centaurus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/cepheus.svg](#file-eyes-shell-constellation-art-cepheus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/cetus.svg](#file-eyes-shell-constellation-art-cetus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/chamaeleon.svg](#file-eyes-shell-constellation-art-chamaeleon-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/circinus.svg](#file-eyes-shell-constellation-art-circinus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/columba.svg](#file-eyes-shell-constellation-art-columba-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/coma-berenices.svg](#file-eyes-shell-constellation-art-coma-berenices-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/corona-australis.svg](#file-eyes-shell-constellation-art-corona-australis-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/corona-borealis.svg](#file-eyes-shell-constellation-art-corona-borealis-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/corvus.svg](#file-eyes-shell-constellation-art-corvus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/crater.svg](#file-eyes-shell-constellation-art-crater-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/crux.svg](#file-eyes-shell-constellation-art-crux-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/cygnus.svg](#file-eyes-shell-constellation-art-cygnus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/delphinus.svg](#file-eyes-shell-constellation-art-delphinus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/dorado.svg](#file-eyes-shell-constellation-art-dorado-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/draco.svg](#file-eyes-shell-constellation-art-draco-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/equuleus.svg](#file-eyes-shell-constellation-art-equuleus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/eridanus.svg](#file-eyes-shell-constellation-art-eridanus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/fornax.svg](#file-eyes-shell-constellation-art-fornax-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/gemini.svg](#file-eyes-shell-constellation-art-gemini-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/grus.svg](#file-eyes-shell-constellation-art-grus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/hercules.svg](#file-eyes-shell-constellation-art-hercules-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/horlogium.svg](#file-eyes-shell-constellation-art-horlogium-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/hydra.svg](#file-eyes-shell-constellation-art-hydra-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/hydrus.svg](#file-eyes-shell-constellation-art-hydrus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/index.json](#file-eyes-shell-constellation-art-index-json) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/indus.svg](#file-eyes-shell-constellation-art-indus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/lacerta.svg](#file-eyes-shell-constellation-art-lacerta-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/leo-minor.svg](#file-eyes-shell-constellation-art-leo-minor-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/leo.svg](#file-eyes-shell-constellation-art-leo-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/lepus.svg](#file-eyes-shell-constellation-art-lepus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/libra.svg](#file-eyes-shell-constellation-art-libra-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/lupus.svg](#file-eyes-shell-constellation-art-lupus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/lynx.svg](#file-eyes-shell-constellation-art-lynx-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/lyra.svg](#file-eyes-shell-constellation-art-lyra-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/mensa.svg](#file-eyes-shell-constellation-art-mensa-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/microscopium.svg](#file-eyes-shell-constellation-art-microscopium-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/monoceros.svg](#file-eyes-shell-constellation-art-monoceros-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/musca.svg](#file-eyes-shell-constellation-art-musca-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/norma.svg](#file-eyes-shell-constellation-art-norma-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/octans.svg](#file-eyes-shell-constellation-art-octans-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/ophiuchus.svg](#file-eyes-shell-constellation-art-ophiuchus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/orion.svg](#file-eyes-shell-constellation-art-orion-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/pavo.svg](#file-eyes-shell-constellation-art-pavo-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/pegasus.svg](#file-eyes-shell-constellation-art-pegasus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/perseus.svg](#file-eyes-shell-constellation-art-perseus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/phoenix.svg](#file-eyes-shell-constellation-art-phoenix-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/pictor.svg](#file-eyes-shell-constellation-art-pictor-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/pisces.svg](#file-eyes-shell-constellation-art-pisces-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/piscis-austrinus.svg](#file-eyes-shell-constellation-art-piscis-austrinus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/provenance.json](#file-eyes-shell-constellation-art-provenance-json) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/pyxis.svg](#file-eyes-shell-constellation-art-pyxis-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/reticulum.svg](#file-eyes-shell-constellation-art-reticulum-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/sagitta.svg](#file-eyes-shell-constellation-art-sagitta-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/sagittarius.svg](#file-eyes-shell-constellation-art-sagittarius-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/scorpius.svg](#file-eyes-shell-constellation-art-scorpius-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/sculptor.svg](#file-eyes-shell-constellation-art-sculptor-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/scutum.svg](#file-eyes-shell-constellation-art-scutum-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/sextans.svg](#file-eyes-shell-constellation-art-sextans-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/taurus.svg](#file-eyes-shell-constellation-art-taurus-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/telescopium.svg](#file-eyes-shell-constellation-art-telescopium-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/triangulum-australe.svg](#file-eyes-shell-constellation-art-triangulum-australe-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/triangulum.svg](#file-eyes-shell-constellation-art-triangulum-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/tucana.svg](#file-eyes-shell-constellation-art-tucana-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/ursa-major.svg](#file-eyes-shell-constellation-art-ursa-major-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/ursa-minor.svg](#file-eyes-shell-constellation-art-ursa-minor-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/virgo.svg](#file-eyes-shell-constellation-art-virgo-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/volans.svg](#file-eyes-shell-constellation-art-volans-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
+- [eyes/shell/constellation-art/vulpecula.svg](#file-eyes-shell-constellation-art-vulpecula-svg) — Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md
 - [eyes/shell/i18n.css](#file-eyes-shell-i18n-css) — 语言层的补充样式：语言选择器、CJK 字体回退、德/俄长标签排版与 CSS 生成文案的本地化变量覆盖。
 - [eyes/shell/index.html](#file-eyes-shell-index-html) — 应用宿主 DOM、配置及启动脚本；保持 NASA 原界面容器
 - [eyes/shell/preload.css](#file-eyes-shell-preload-css) — 从预加载 bundle 提取的加载/嵌入界面 CSS
@@ -569,6 +661,14 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/app/config/views.js](#file-eyes-src-app-config-views-js) — 视图构造器注册表，与 ViewInfo class 字段对应
 - [eyes/src/app/public-api.js](#file-eyes-src-app-public-api-js) — 公共导出适配层，将已恢复模块按应用接口重新导出
 - [eyes/src/app/version.js](#file-eyes-src-app-version-js) — 保存恢复的 NASA 应用版本常量，不等于仓库发行版本
+- [eyes/src/custom/constellation-art/app.js](#file-eyes-src-custom-constellation-art-app-js) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/loading.d.ts](#file-eyes-src-custom-constellation-art-loading-d-ts) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/loading.js](#file-eyes-src-custom-constellation-art-loading-js) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/registration.d.ts](#file-eyes-src-custom-constellation-art-registration-d-ts) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/registration.js](#file-eyes-src-custom-constellation-art-registration-js) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/vector-geometry.d.ts](#file-eyes-src-custom-constellation-art-vector-geometry-d-ts) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
+- [eyes/src/custom/constellation-art/vector-geometry.js](#file-eyes-src-custom-constellation-art-vector-geometry-js) — Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md
 - [eyes/src/data/EntityCatalog.json](#file-eyes-src-data-EntityCatalog-json) — 实体索引：名称、类别、可搜索性等元数据；供内容与搜索管理器使用
 - [eyes/src/data/SceneInfo.json](#file-eyes-src-data-SceneInfo-json) — 场景配置：静态组、动态实体、实体选项及 metadata URL
 - [eyes/src/data/StoryCatalog.json](#file-eyes-src-data-StoryCatalog-json) — 故事卡片与 slide 目录；故事 id 与 STORIES 注册键对应
@@ -1913,6 +2013,654 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 数据类型 `array`；顶层条目 11；字段 —。原始数据保留，不手工猜测字段单位。
 
+<a id="file-eyes-shell-constellation-art-LICENSE-CC-BY-SA-4-0-txt"></a>
+### `eyes/shell/constellation-art/LICENSE-CC-BY-SA-4.0.txt`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/LICENSE-CC-BY-SA-4.0.txt)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-LICENSE-ORIGINAL-SVG-txt"></a>
+### `eyes/shell/constellation-art/LICENSE-ORIGINAL-SVG.txt`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/LICENSE-ORIGINAL-SVG.txt)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-LICENSE-d3-celestial-txt"></a>
+### `eyes/shell/constellation-art/LICENSE-d3-celestial.txt`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/LICENSE-d3-celestial.txt)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-README-md"></a>
+### `eyes/shell/constellation-art/README.md`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/README.md)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-SOURCE-DESCRIPTION-md"></a>
+### `eyes/shell/constellation-art/SOURCE-DESCRIPTION.md`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/SOURCE-DESCRIPTION.md)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-andromeda-svg"></a>
+### `eyes/shell/constellation-art/andromeda.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/andromeda.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-antlia-svg"></a>
+### `eyes/shell/constellation-art/antlia.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/antlia.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-apus-svg"></a>
+### `eyes/shell/constellation-art/apus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/apus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-aquarius-svg"></a>
+### `eyes/shell/constellation-art/aquarius.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/aquarius.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-aquila-svg"></a>
+### `eyes/shell/constellation-art/aquila.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/aquila.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-ara-svg"></a>
+### `eyes/shell/constellation-art/ara.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/ara.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-argonavis-svg"></a>
+### `eyes/shell/constellation-art/argonavis.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/argonavis.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-aries-svg"></a>
+### `eyes/shell/constellation-art/aries.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/aries.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-auriga-svg"></a>
+### `eyes/shell/constellation-art/auriga.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/auriga.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-bootes-svg"></a>
+### `eyes/shell/constellation-art/bootes.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/bootes.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-caelum-svg"></a>
+### `eyes/shell/constellation-art/caelum.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/caelum.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-camelopardalis-svg"></a>
+### `eyes/shell/constellation-art/camelopardalis.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/camelopardalis.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-cancer-svg"></a>
+### `eyes/shell/constellation-art/cancer.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/cancer.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-canes-venatici-svg"></a>
+### `eyes/shell/constellation-art/canes-venatici.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/canes-venatici.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-canis-major-svg"></a>
+### `eyes/shell/constellation-art/canis-major.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/canis-major.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-canis-minor-svg"></a>
+### `eyes/shell/constellation-art/canis-minor.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/canis-minor.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-capricornus-svg"></a>
+### `eyes/shell/constellation-art/capricornus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/capricornus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-cassiopeia-svg"></a>
+### `eyes/shell/constellation-art/cassiopeia.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/cassiopeia.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-centaurus-svg"></a>
+### `eyes/shell/constellation-art/centaurus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/centaurus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-cepheus-svg"></a>
+### `eyes/shell/constellation-art/cepheus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/cepheus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-cetus-svg"></a>
+### `eyes/shell/constellation-art/cetus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/cetus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-chamaeleon-svg"></a>
+### `eyes/shell/constellation-art/chamaeleon.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/chamaeleon.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-circinus-svg"></a>
+### `eyes/shell/constellation-art/circinus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/circinus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-columba-svg"></a>
+### `eyes/shell/constellation-art/columba.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/columba.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-coma-berenices-svg"></a>
+### `eyes/shell/constellation-art/coma-berenices.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/coma-berenices.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-corona-australis-svg"></a>
+### `eyes/shell/constellation-art/corona-australis.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/corona-australis.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-corona-borealis-svg"></a>
+### `eyes/shell/constellation-art/corona-borealis.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/corona-borealis.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-corvus-svg"></a>
+### `eyes/shell/constellation-art/corvus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/corvus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-crater-svg"></a>
+### `eyes/shell/constellation-art/crater.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/crater.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-crux-svg"></a>
+### `eyes/shell/constellation-art/crux.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/crux.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-cygnus-svg"></a>
+### `eyes/shell/constellation-art/cygnus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/cygnus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-delphinus-svg"></a>
+### `eyes/shell/constellation-art/delphinus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/delphinus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-dorado-svg"></a>
+### `eyes/shell/constellation-art/dorado.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/dorado.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-draco-svg"></a>
+### `eyes/shell/constellation-art/draco.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/draco.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-equuleus-svg"></a>
+### `eyes/shell/constellation-art/equuleus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/equuleus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-eridanus-svg"></a>
+### `eyes/shell/constellation-art/eridanus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/eridanus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-fornax-svg"></a>
+### `eyes/shell/constellation-art/fornax.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/fornax.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-gemini-svg"></a>
+### `eyes/shell/constellation-art/gemini.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/gemini.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-grus-svg"></a>
+### `eyes/shell/constellation-art/grus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/grus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-hercules-svg"></a>
+### `eyes/shell/constellation-art/hercules.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/hercules.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-horlogium-svg"></a>
+### `eyes/shell/constellation-art/horlogium.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/horlogium.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-hydra-svg"></a>
+### `eyes/shell/constellation-art/hydra.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/hydra.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-hydrus-svg"></a>
+### `eyes/shell/constellation-art/hydrus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/hydrus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-index-json"></a>
+### `eyes/shell/constellation-art/index.json`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/index.json)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+数据类型 `object`；顶层条目 3；字段 `schemaVersion`、`frame`、`artworks`。原始数据保留，不手工猜测字段单位。
+
+<a id="file-eyes-shell-constellation-art-indus-svg"></a>
+### `eyes/shell/constellation-art/indus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/indus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-lacerta-svg"></a>
+### `eyes/shell/constellation-art/lacerta.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/lacerta.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-leo-minor-svg"></a>
+### `eyes/shell/constellation-art/leo-minor.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/leo-minor.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-leo-svg"></a>
+### `eyes/shell/constellation-art/leo.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/leo.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-lepus-svg"></a>
+### `eyes/shell/constellation-art/lepus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/lepus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-libra-svg"></a>
+### `eyes/shell/constellation-art/libra.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/libra.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-lupus-svg"></a>
+### `eyes/shell/constellation-art/lupus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/lupus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-lynx-svg"></a>
+### `eyes/shell/constellation-art/lynx.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/lynx.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-lyra-svg"></a>
+### `eyes/shell/constellation-art/lyra.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/lyra.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-mensa-svg"></a>
+### `eyes/shell/constellation-art/mensa.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/mensa.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-microscopium-svg"></a>
+### `eyes/shell/constellation-art/microscopium.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/microscopium.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-monoceros-svg"></a>
+### `eyes/shell/constellation-art/monoceros.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/monoceros.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-musca-svg"></a>
+### `eyes/shell/constellation-art/musca.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/musca.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-norma-svg"></a>
+### `eyes/shell/constellation-art/norma.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/norma.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-octans-svg"></a>
+### `eyes/shell/constellation-art/octans.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/octans.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-ophiuchus-svg"></a>
+### `eyes/shell/constellation-art/ophiuchus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/ophiuchus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-orion-svg"></a>
+### `eyes/shell/constellation-art/orion.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/orion.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-pavo-svg"></a>
+### `eyes/shell/constellation-art/pavo.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/pavo.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-pegasus-svg"></a>
+### `eyes/shell/constellation-art/pegasus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/pegasus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-perseus-svg"></a>
+### `eyes/shell/constellation-art/perseus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/perseus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-phoenix-svg"></a>
+### `eyes/shell/constellation-art/phoenix.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/phoenix.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-pictor-svg"></a>
+### `eyes/shell/constellation-art/pictor.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/pictor.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-pisces-svg"></a>
+### `eyes/shell/constellation-art/pisces.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/pisces.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-piscis-austrinus-svg"></a>
+### `eyes/shell/constellation-art/piscis-austrinus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/piscis-austrinus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-provenance-json"></a>
+### `eyes/shell/constellation-art/provenance.json`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/provenance.json)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+数据类型 `object`；顶层条目 5；字段 `illustrations`、`placement`、`metadata`、`anchorStars`、`assets`。原始数据保留，不手工猜测字段单位。
+
+<a id="file-eyes-shell-constellation-art-pyxis-svg"></a>
+### `eyes/shell/constellation-art/pyxis.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/pyxis.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-reticulum-svg"></a>
+### `eyes/shell/constellation-art/reticulum.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/reticulum.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-sagitta-svg"></a>
+### `eyes/shell/constellation-art/sagitta.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/sagitta.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-sagittarius-svg"></a>
+### `eyes/shell/constellation-art/sagittarius.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/sagittarius.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-scorpius-svg"></a>
+### `eyes/shell/constellation-art/scorpius.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/scorpius.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-sculptor-svg"></a>
+### `eyes/shell/constellation-art/sculptor.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/sculptor.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-scutum-svg"></a>
+### `eyes/shell/constellation-art/scutum.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/scutum.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-sextans-svg"></a>
+### `eyes/shell/constellation-art/sextans.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/sextans.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-taurus-svg"></a>
+### `eyes/shell/constellation-art/taurus.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/taurus.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-telescopium-svg"></a>
+### `eyes/shell/constellation-art/telescopium.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/telescopium.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-triangulum-australe-svg"></a>
+### `eyes/shell/constellation-art/triangulum-australe.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/triangulum-australe.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-triangulum-svg"></a>
+### `eyes/shell/constellation-art/triangulum.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/triangulum.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-tucana-svg"></a>
+### `eyes/shell/constellation-art/tucana.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/tucana.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-ursa-major-svg"></a>
+### `eyes/shell/constellation-art/ursa-major.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/ursa-major.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-ursa-minor-svg"></a>
+### `eyes/shell/constellation-art/ursa-minor.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/ursa-minor.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-virgo-svg"></a>
+### `eyes/shell/constellation-art/virgo.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/virgo.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-volans-svg"></a>
+### `eyes/shell/constellation-art/volans.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/volans.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-shell-constellation-art-vulpecula-svg"></a>
+### `eyes/shell/constellation-art/vulpecula.svg`
+
+Original editable SVG drawing, original-art license or separately attributed J2000 catalogue; see docs/constellation-art.md。[源码](../../eyes/shell/constellation-art/vulpecula.svg)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
 <a id="file-eyes-shell-i18n-css"></a>
 ### `eyes/shell/i18n.css`
 
@@ -2005,7 +2753,7 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 
 直接依赖：[eyes/src/framework/eyes/index.js](#file-eyes-src-framework-eyes-index-js)、[eyes/src/styles/index.js](#file-eyes-src-styles-index-js)、[eyes/src/app/config/components.js](#file-eyes-src-app-config-components-js)、[eyes/src/data/TimeInfo.json](#file-eyes-src-data-TimeInfo-json)、[eyes/src/data/SceneInfo.json](#file-eyes-src-data-SceneInfo-json)、[eyes/src/data/ViewInfo.json](#file-eyes-src-data-ViewInfo-json)、[eyes/src/app/config/views.js](#file-eyes-src-app-config-views-js)、[eyes/src/engine/core/STORIES.js](#file-eyes-src-engine-core-STORIES-js)、[eyes/src/ui/templates/SolarSystemAppTemplate.html](#file-eyes-src-ui-templates-SolarSystemAppTemplate-html)、[eyes/src/app/public-api.js](#file-eyes-src-app-public-api-js)、[eyes/src/engine/solar-system/public-api.js](#file-eyes-src-engine-solar-system-public-api-js)、[eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js)、[eyes/src/app/StarlinkLayer.js](#file-eyes-src-app-StarlinkLayer-js)。
 
-直接引用者：[eyes/src/app/public-api.js](#file-eyes-src-app-public-api-js)、[eyes/src/main.js](#file-eyes-src-main-js)。
+直接引用者：[eyes/src/app/public-api.js](#file-eyes-src-app-public-api-js)、[eyes/src/custom/constellation-art/app.js](#file-eyes-src-custom-constellation-art-app-js)、[eyes/src/main.js](#file-eyes-src-main-js)。
 
 当前导出：`SolarSystemApp` ← `SolarSystemApp`。
 
@@ -2141,6 +2889,175 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 直接引用者：[eyes/src/app/public-api.js](#file-eyes-src-app-public-api-js)。
 
 当前导出：`version` ← `version`。
+
+<a id="file-eyes-src-custom-constellation-art-app-js"></a>
+### `eyes/src/custom/constellation-art/app.js`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/app.js)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接依赖：[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)、[eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js)、[eyes/src/i18n/core.js](#file-eyes-src-i18n-core-js)。
+
+直接引用者：[eyes/src/main.js](#file-eyes-src-main-js)。
+
+模块求值副作用（源码表达式）：`ConstellationArtApp.setAppClass()`。
+
+#### 类 `ConstellationArtApp`（声明 1）
+
+本模块中的类声明；详见下列结构证据，业务角色未进一步确认。[源码:5](../../eyes/src/custom/constellation-art/app.js#L5)；父类 `SolarSystemApp`；顶层声明；导出 —。
+
+父类解析：`SolarSystemApp` → [源码:16](../../eyes/src/app/SolarSystemApp.js#L16)（跟随当前具名导入/再导出；动态 mixin 不作静态断言）。
+
+| 方法 / 签名 | 职责与可观察行为 | 状态写入 / 返回 | 调用证据 |
+| --- | --- | --- | --- |
+| `setUpComponents()` [源码:6](../../eyes/src/custom/constellation-art/app.js#L6) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 3 / 循环 0 / await 1 | 写：—；返回：`void` | `component.setArtworkVisible`、`component.setForceLoaded`、`document.createElement`、`input.addEventListener`、`item.append`、`label.append`、`list.append`、`status.setAttribute`、`super.setUpComponents`、`this.getComponent`、`this.getComponent('layerPanel').element.querySelectorAll`、`this.scene.getEntity`、`this.scene.getEntity('sun').addComponent`、`translateText` |
+| ↳ 查询依赖 | managers: —；components: `layerPanel` | 读：`getComponent`、`getComponent('layerPanel').element`、`getComponent('layerPanel').element.querySelectorAll`、`scene`、`scene.getEntity`、`scene.getEntity('sun').addComponent` | 抛出：— |
+
+读写/调用为句法证据：包含嵌套回调，跳过嵌套类；返回列只计本方法函数边界。成员别名、动态键、调用者的跨模块副作用不在该静态结果中。
+
+<a id="file-eyes-src-custom-constellation-art-component-js"></a>
+### `eyes/src/custom/constellation-art/component.js`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/component.js)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接依赖：[eyes/src/engine/pioneer/index.js](#file-eyes-src-engine-pioneer-index-js)、[eyes/src/custom/constellation-art/registration.js](#file-eyes-src-custom-constellation-art-registration-js)、[eyes/src/custom/constellation-art/loading.js](#file-eyes-src-custom-constellation-art-loading-js)、[eyes/src/custom/constellation-art/vector-geometry.js](#file-eyes-src-custom-constellation-art-vector-geometry-js)。
+
+直接引用者：[eyes/src/custom/constellation-art/app.js](#file-eyes-src-custom-constellation-art-app-js)。
+
+当前导出：`ConstellationArtComponent` ← `ConstellationArtComponent`。
+
+非 class 函数（包括模块内回调）：`loadTexture(url, signal)` @9；`anonymous(resolve, reject)` @15；`cleanup()` @16；`abort()` @17；`anonymous()` @18；`anonymous()` @19。
+
+#### 类 `ConstellationArtComponent`（声明 1）
+
+Independent extension: the recovered constellation parser is untouched.。[源码:40](../../eyes/src/custom/constellation-art/component.js#L40)；父类 `Pioneer.BaseComponent`；顶层声明；导出 `ConstellationArtComponent`。
+
+父类解析：`BaseComponent` → [源码:4](../../eyes/src/engine/components/BaseComponent.js#L4)（跟随当前具名导入/再导出；动态 mixin 不作静态断言）。
+
+| 方法 / 签名 | 职责与可观察行为 | 状态写入 / 返回 | 调用证据 |
+| --- | --- | --- | --- |
+| `constructor(name, entity)` [源码:41](../../eyes/src/custom/constellation-art/component.js#L41) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 0 / 循环 0 / await 0 | 写：`_artVisible`、`_controller`、`_fade`、`_lastTime`、`_meshes`、`onStatus`；返回：— | `performance.now`、`super`、`this.__setRadius`、`this.setRenderingEnabled` |
+| `setArtworkVisible(visible)` [源码:53](../../eyes/src/custom/constellation-art/component.js#L53) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 2 / 循环 0 / await 0 | 写：`_artVisible`、`_lastTime`；返回：`void` | `performance.now`、`this._controller?.abort`、`this._loadArt`、`this.setRenderingEnabled` |
+| `_loadArt()` [源码:61](../../eyes/src/custom/constellation-art/component.js#L61) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 14 / 循环 1 / await 7 | 写：`_controller`、`_meshes`；返回：`void` | `Array.isArray`、`Pioneer.ThreeJsHelper.setupObject`、`console.warn`、`controller.signal.throwIfAborted`、`createArtworkPatch`、`createArtworkVectorGeometry`、`fetch`、`geometry.setAttribute`、`geometry.setIndex`、`geometry?.dispose`、`loadArtworkBatch`、`loadTexture`、`material?.dispose`、`meshes.forEach`、`new AbortController`、`new Error`、`new Promise`、`new THREE.BufferAttribute`、`new THREE.BufferGeometry`、`new THREE.Mesh`、`new THREE.ShaderMaterial`、`new URL`、`response.json`、`response.text`、`setTimeout`、`texture?.dispose`、`this._disposeMesh`、`this._loadArt`、`this.getThreeJsMaterials`、`this.getThreeJsMaterials().push`、`this.getThreeJsObjects`、`this.getThreeJsObjects().push`、`this.isDestroyed`、`this.onStatus` |
+| `__prepareForRender()` [源码:139](../../eyes/src/custom/constellation-art/component.js#L139) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 2 / 循环 1 / await 0 | 写：`_fade`、`_lastTime`；返回：— | `Math.max`、`Math.min`、`performance.now`、`this.setRenderingEnabled` |
+| `_disposeMesh(mesh)` [源码:148](../../eyes/src/custom/constellation-art/component.js#L148) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 0 / 循环 0 / await 0 | 写：—；返回：— | `mesh.geometry.dispose`、`mesh.material.dispose`、`mesh.material.uniforms.map?.value.dispose`、`mesh.removeFromParent` |
+| `__unloadResources()` [源码:155](../../eyes/src/custom/constellation-art/component.js#L155) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 0 / 循环 1 / await 0 | 写：`_meshes`；返回：— | `this._controller?.abort`、`this._disposeMesh` |
+| `__destroy()` [源码:161](../../eyes/src/custom/constellation-art/component.js#L161) | 依下列 AST 状态/调用证据阅读；精确业务语义待确认；分支 0 / 循环 0 / await 0 | 写：`_artVisible`、`onStatus`；返回：— | `super.__destroy`、`this._controller?.abort` |
+
+读写/调用为句法证据：包含嵌套回调，跳过嵌套类；返回列只计本方法函数边界。成员别名、动态键、调用者的跨模块副作用不在该静态结果中。
+
+<a id="file-eyes-src-custom-constellation-art-loading-d-ts"></a>
+### `eyes/src/custom/constellation-art/loading.d.ts`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/loading.d.ts)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-src-custom-constellation-art-loading-js"></a>
+### `eyes/src/custom/constellation-art/loading.js`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/loading.js)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js)。
+
+当前导出：`loadArtworkBatch` ← `loadArtworkBatch`。
+
+非 class 函数（包括模块内回调）：`loadArtworkBatch(items, load, dispose, signal, concurrency=4)` @2：A batch transfers ownership only after all workers finish successfully.；`worker()` @6。
+
+<a id="file-eyes-src-custom-constellation-art-registration-d-ts"></a>
+### `eyes/src/custom/constellation-art/registration.d.ts`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/registration.d.ts)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-src-custom-constellation-art-registration-js"></a>
+### `eyes/src/custom/constellation-art/registration.js`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/registration.js)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js)、[eyes/src/custom/constellation-art/vector-geometry.js](#file-eyes-src-custom-constellation-art-vector-geometry-js)。
+
+当前导出：`createRegistration` ← `createRegistration`；`createArtworkPatch` ← `createArtworkPatch`。
+
+非 class 函数（包括模块内回调）：`finiteVector(value, length)` @1；`cross(a, b)` @2；`subtract(a, b)` @3；`anonymous(value, index)` @3；`normalize(value)` @4；`anonymous(component)` @7；`createRegistration(anchors)` @11：Affine image plane through the three unit star directions, normalized onto the celestial sphere. The image Y convention is supplied by the anchors.；`anonymous(anchor)` @14；`anonymous(sum, value, index)` @20；`anonymous(x, y)` @21；`anonymous(value, index)` @24；`createArtworkPatch(artwork, subdivisions=16)` @27。
+
+<details><summary>短名称作用域与使用证据（27 项）</summary>
+
+| 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
+| --- | --- | --- |
+| `a` / `cross@2:14` | param / 6 | `a[1]`、`a[2]`、`a[0]` |
+| `b` / `cross@2:14` | param / 6 | `b[2]`、`b[1]`、`b[0]` |
+| `a` / `subtract@3:17` | param / 1 | `a.map` |
+| `b` / `subtract@3:17` | param / 1 | `b[index]` |
+| `a` / `createRegistration@11:7` | const / 4 | `a.pixel` |
+| `b` / `createRegistration@11:7` | const / 1 | `b.pixel` |
+| `c` / `createRegistration@11:7` | const / 1 | `c.pixel` |
+| `ab` / `createRegistration@11:7` | const / 5 | `ab[0]`、`ab[1]`、`...ab` |
+| `ac` / `createRegistration@11:7` | const / 5 | `ac[1]`、`ac[0]`、`...ac` |
+| `db` / `createRegistration@11:7` | const / 2 | `cross(db,dc)`、`db[index]` |
+| `dc` / `createRegistration@11:7` | const / 2 | `cross(db,dc)`、`dc[index]` |
+| `x` / `callback@21:9` | param / 2 | `Number.isFinite(x)`、`x-a.pixel[0]` |
+| `y` / `callback@21:9` | param / 2 | `Number.isFinite(y)`、`y-a.pixel[1]` |
+| `dx` / `callback@21:9` | const / 2 | `dx*ac[1]`、`ab[1]*dx` |
+| `dy` / `callback@21:9` | const / 2 | `dy*ac[0]`、`ab[0]*dy` |
+| `u` / `callback@21:9` | const / 1 | `u*db[index]` |
+| `v` / `callback@21:9` | const / 1 | `v*dc[index]` |
+| `y` / `module@32:2` | let / 4 | `y<=subdivisions`、`y++`、`y*stride`、`y/subdivisions` |
+| `x` / `module@32:34` | let / 4 | `x<=subdivisions`、`x++`、`y*stride+x`、`x/subdivisions` |
+| `u` / `module@32:66` | const / 2 | `u*artwork.width`、`[u,1-v]` |
+| `v` / `module@32:66` | const / 2 | `v*artwork.height`、`1-v` |
+| `y` / `module@37:2` | let / 3 | `y<subdivisions`、`y++`、`y*stride` |
+| `x` / `module@37:33` | let / 3 | `x<subdivisions`、`x++`、`y*stride+x` |
+| `a` / `module@37:64` | const / 3 | `a+1`、`a+stride`、`[a,c,b,b,c,d]` |
+| `b` / `module@37:64` | const / 2 | `[a,c,b,b,c,d]` |
+| `c` / `module@37:64` | const / 3 | `c+1`、`[a,c,b,b,c,d]` |
+| `d` / `module@37:64` | const / 1 | `[a,c,b,b,c,d]` |
+
+</details>
+
+<a id="file-eyes-src-custom-constellation-art-vector-geometry-d-ts"></a>
+### `eyes/src/custom/constellation-art/vector-geometry.d.ts`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/vector-geometry.d.ts)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-src-custom-constellation-art-vector-geometry-js"></a>
+### `eyes/src/custom/constellation-art/vector-geometry.js`
+
+Independent constellation SVG extension: numeric registration/triangulation, cancellable bounded loading and separate recovered Three adapter; see docs/constellation-art.md。[源码](../../eyes/src/custom/constellation-art/vector-geometry.js)。证据等级：verified-source。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接依赖：[eyes/src/custom/constellation-art/registration.js](#file-eyes-src-custom-constellation-art-registration-js)。
+
+直接引用者：[eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js)。
+
+当前导出：`createArtworkVectorGeometry` ← `createArtworkVectorGeometry`。
+
+非 class 函数（包括模块内回调）：`clamp(value)` @4；`createArtworkVectorGeometry(svgText, artwork, {curveSegments=32}={})` @7：SVGLoader bakes nested SVG transforms into its paths and scales stroke widths. Only numeric buffers cross the boundary between the two Three runtimes.；`appendTriangle(a, b, c, alpha, depth=0)` @13；`appendGeometry(geometry, alpha)` @25；`anonymous(offset)` @32；`anonymous(subpath)` @52；`anonymous(point)` @53；`anonymous(point)` @53；`anonymous(point)` @53；`anonymous(point)` @53。
+
+<details><summary>短名称作用域与使用证据（7 项）</summary>
+
+| 绑定 / 作用域 | 类型 / 引用次数 | 使用样本及建议 |
+| --- | --- | --- |
+| `a` / `appendTriangle@13:25` | param / 13 | `a[0]`、`a[1]`、`appendTriangle(a,mid,c,alpha,depth+1)`、`appendTriangle(a,b,mid,alpha,depth+1)` |
+| `b` / `appendTriangle@13:25` | param / 13 | `b[0]`、`b[1]`、`appendTriangle(mid,b,c,alpha,depth+1)` |
+| `c` / `appendTriangle@13:25` | param / 13 | `c[0]`、`c[1]`、`appendTriangle(a,mid,c,alpha,depth+1)`、`appendTriangle(mid,b,c,alpha,depth+1)` |
+| `ab` / `appendTriangle@13:25` | const / 3 | `Math.max(ab,bc,ca)`、`ab>=bc`、`ab>=ca` |
+| `bc` / `appendTriangle@13:25` | const / 3 | `Math.max(ab,bc,ca)`、`ab>=bc`、`bc>=ca` |
+| `ca` / `appendTriangle@13:25` | const / 3 | `Math.max(ab,bc,ca)`、`ab>=ca`、`bc>=ca` |
+| `i` / `module@31:12` | let / 3 | `i<attribute.count`、`i+offset` |
+
+</details>
 
 <a id="file-eyes-src-data-EntityCatalog-json"></a>
 ### `eyes/src/data/EntityCatalog.json`
@@ -11510,7 +12427,7 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 直接依赖：[eyes/src/engine/pioneer/public-api.js](#file-eyes-src-engine-pioneer-public-api-js)。
 
-直接引用者：[eyes/src/app/StarlinkLayer.js](#file-eyes-src-app-StarlinkLayer-js)、[eyes/src/engine/components/AnnulusComponent.js](#file-eyes-src-engine-components-AnnulusComponent-js)、[eyes/src/engine/components/ConstellationsComponent.js](#file-eyes-src-engine-components-ConstellationsComponent-js)、[eyes/src/engine/components/DiscGridComponent.js](#file-eyes-src-engine-components-DiscGridComponent-js)、[eyes/src/engine/components/DistanceLineComponent.js](#file-eyes-src-engine-components-DistanceLineComponent-js)、[eyes/src/engine/components/FrustumComponent.js](#file-eyes-src-engine-components-FrustumComponent-js)、[eyes/src/engine/components/OrbitLineComponent.js](#file-eyes-src-engine-components-OrbitLineComponent-js)、[eyes/src/engine/components/OrbiterLineOfSightComponent.js](#file-eyes-src-engine-components-OrbiterLineOfSightComponent-js)、[eyes/src/engine/components/ShadowConeComponent.js](#file-eyes-src-engine-components-ShadowConeComponent-js)、[eyes/src/engine/components/TorusComponent.js](#file-eyes-src-engine-components-TorusComponent-js)、[eyes/src/engine/components/WMTSComponent.js](#file-eyes-src-engine-components-WMTSComponent-js)、[eyes/src/engine/controllers/KeyframePointingController.js](#file-eyes-src-engine-controllers-KeyframePointingController-js)、[eyes/src/engine/controllers/KeyframeSpinController.js](#file-eyes-src-engine-controllers-KeyframeSpinController-js)、[eyes/src/engine/controllers/PositionSumController.js](#file-eyes-src-engine-controllers-PositionSumController-js)、[eyes/src/engine/controllers/ZoomFitController.js](#file-eyes-src-engine-controllers-ZoomFitController-js)、[eyes/src/engine/core/Animation.js](#file-eyes-src-engine-core-Animation-js)、[eyes/src/engine/core/AnnularSolarEclipseStory.js](#file-eyes-src-engine-core-AnnularSolarEclipseStory-js)、[eyes/src/engine/core/BaseApp.js](#file-eyes-src-engine-core-BaseApp-js)、[eyes/src/engine/core/CameraScripts.js](#file-eyes-src-engine-core-CameraScripts-js)、[eyes/src/engine/core/Cameras.js](#file-eyes-src-engine-core-Cameras-js)、[eyes/src/engine/core/Capabilities-584.js](#file-eyes-src-engine-core-Capabilities-584-js)、[eyes/src/engine/core/DateTime.js](#file-eyes-src-engine-core-DateTime-js)、[eyes/src/engine/core/EnceladusDiscoveryStory.js](#file-eyes-src-engine-core-EnceladusDiscoveryStory-js)、[eyes/src/engine/core/Entity-567.js](#file-eyes-src-engine-core-Entity-567-js)、[eyes/src/engine/core/EntityUtils.js](#file-eyes-src-engine-core-EntityUtils-js)、[eyes/src/engine/core/Features.js](#file-eyes-src-engine-core-Features-js)、[eyes/src/engine/core/KioskMode.js](#file-eyes-src-engine-core-KioskMode-js)、[eyes/src/engine/core/LabelQuadtree.js](#file-eyes-src-engine-core-LabelQuadtree-js)、[eyes/src/engine/core/Mapping.js](#file-eyes-src-engine-core-Mapping-js)、[eyes/src/engine/core/Parenting.js](#file-eyes-src-engine-core-Parenting-js)、[eyes/src/engine/core/Placemarks.js](#file-eyes-src-engine-core-Placemarks-js)、[eyes/src/engine/core/Quadtree.js](#file-eyes-src-engine-core-Quadtree-js)、[eyes/src/engine/core/SceneHelpers.js](#file-eyes-src-engine-core-SceneHelpers-js)、[eyes/src/engine/core/TotalSolarEclipseStory.js](#file-eyes-src-engine-core-TotalSolarEclipseStory-js)、[eyes/src/engine/core/Transitions.js](#file-eyes-src-engine-core-Transitions-js)、[eyes/src/engine/core/Unidentified1069.js](#file-eyes-src-engine-core-Unidentified1069-js)、[eyes/src/engine/core/Unidentified694.js](#file-eyes-src-engine-core-Unidentified694-js)、[eyes/src/engine/core/Unidentified695.js](#file-eyes-src-engine-core-Unidentified695-js)、[eyes/src/engine/core/Unidentified696.js](#file-eyes-src-engine-core-Unidentified696-js)、[eyes/src/engine/core/Unidentified697.js](#file-eyes-src-engine-core-Unidentified697-js)、[eyes/src/engine/core/Unidentified701.js](#file-eyes-src-engine-core-Unidentified701-js)、[eyes/src/engine/core/Unidentified703.js](#file-eyes-src-engine-core-Unidentified703-js)、[eyes/src/engine/core/Unidentified704.js](#file-eyes-src-engine-core-Unidentified704-js)、[eyes/src/engine/core/Unidentified705.js](#file-eyes-src-engine-core-Unidentified705-js)、[eyes/src/engine/core/Unidentified707.js](#file-eyes-src-engine-core-Unidentified707-js)、[eyes/src/engine/core/Unidentified708.js](#file-eyes-src-engine-core-Unidentified708-js)、[eyes/src/engine/core/Unidentified709.js](#file-eyes-src-engine-core-Unidentified709-js)、[eyes/src/engine/core/Unidentified710.js](#file-eyes-src-engine-core-Unidentified710-js)、[eyes/src/engine/core/Unidentified711.js](#file-eyes-src-engine-core-Unidentified711-js)、[eyes/src/engine/core/Unidentified712.js](#file-eyes-src-engine-core-Unidentified712-js)、[eyes/src/engine/core/Unidentified713.js](#file-eyes-src-engine-core-Unidentified713-js)、[eyes/src/engine/core/Unidentified715.js](#file-eyes-src-engine-core-Unidentified715-js)、[eyes/src/engine/core/Unidentified716.js](#file-eyes-src-engine-core-Unidentified716-js)、[eyes/src/engine/core/Unidentified717.js](#file-eyes-src-engine-core-Unidentified717-js)、[eyes/src/engine/core/VoyagerGrandTourStory.js](#file-eyes-src-engine-core-VoyagerGrandTourStory-js)、[eyes/src/engine/managers/AutoplayManager.js](#file-eyes-src-engine-managers-AutoplayManager-js)、[eyes/src/engine/managers/BaseManager.js](#file-eyes-src-engine-managers-BaseManager-js)、[eyes/src/engine/managers/CameraFollowManager.js](#file-eyes-src-engine-managers-CameraFollowManager-js)、[eyes/src/engine/managers/CameraManager.js](#file-eyes-src-engine-managers-CameraManager-js)、[eyes/src/engine/managers/ComparisonManager.js](#file-eyes-src-engine-managers-ComparisonManager-js)、[eyes/src/engine/managers/ContentManager.js](#file-eyes-src-engine-managers-ContentManager-js)、[eyes/src/engine/managers/DistanceManager.js](#file-eyes-src-engine-managers-DistanceManager-js)、[eyes/src/engine/managers/LabelManager-563.js](#file-eyes-src-engine-managers-LabelManager-563-js)、[eyes/src/engine/managers/LayerManager.js](#file-eyes-src-engine-managers-LayerManager-js)、[eyes/src/engine/managers/SceneManager.js](#file-eyes-src-engine-managers-SceneManager-js)、[eyes/src/engine/managers/SelectionManager-562.js](#file-eyes-src-engine-managers-SelectionManager-562-js)、[eyes/src/engine/managers/SpoutManager.js](#file-eyes-src-engine-managers-SpoutManager-js)、[eyes/src/engine/managers/TimeManager-728.js](#file-eyes-src-engine-managers-TimeManager-728-js)、[eyes/src/engine/managers/TrailManager.js](#file-eyes-src-engine-managers-TrailManager-js)、[eyes/src/engine/managers/TrajectoryManager.js](#file-eyes-src-engine-managers-TrajectoryManager-js)、[eyes/src/engine/managers/WMTSManager.js](#file-eyes-src-engine-managers-WMTSManager-js)、[eyes/src/ui/components/CameraViewBlock.js](#file-eyes-src-ui-components-CameraViewBlock-js)、[eyes/src/ui/components/Comparison.js](#file-eyes-src-ui-components-Comparison-js)、[eyes/src/ui/components/ContentPanel.js](#file-eyes-src-ui-components-ContentPanel-js)、[eyes/src/ui/components/InstrumentFOVBlock.js](#file-eyes-src-ui-components-InstrumentFOVBlock-js)、[eyes/src/ui/components/KioskBase.js](#file-eyes-src-ui-components-KioskBase-js)、[eyes/src/ui/components/LayersBlock.js](#file-eyes-src-ui-components-LayersBlock-js)、[eyes/src/ui/components/OverviewBlock.js](#file-eyes-src-ui-components-OverviewBlock-js)、[eyes/src/ui/components/Settings.js](#file-eyes-src-ui-components-Settings-js)、[eyes/src/ui/components/SurfaceMapBlock.js](#file-eyes-src-ui-components-SurfaceMapBlock-js)、[eyes/src/ui/components/Telescope.js](#file-eyes-src-ui-components-Telescope-js)、[eyes/src/ui/views/BaseView.js](#file-eyes-src-ui-views-BaseView-js)、[eyes/src/ui/views/ObjectView.js](#file-eyes-src-ui-views-ObjectView-js)。
+直接引用者：[eyes/src/app/StarlinkLayer.js](#file-eyes-src-app-StarlinkLayer-js)、[eyes/src/custom/constellation-art/component.js](#file-eyes-src-custom-constellation-art-component-js)、[eyes/src/engine/components/AnnulusComponent.js](#file-eyes-src-engine-components-AnnulusComponent-js)、[eyes/src/engine/components/ConstellationsComponent.js](#file-eyes-src-engine-components-ConstellationsComponent-js)、[eyes/src/engine/components/DiscGridComponent.js](#file-eyes-src-engine-components-DiscGridComponent-js)、[eyes/src/engine/components/DistanceLineComponent.js](#file-eyes-src-engine-components-DistanceLineComponent-js)、[eyes/src/engine/components/FrustumComponent.js](#file-eyes-src-engine-components-FrustumComponent-js)、[eyes/src/engine/components/OrbitLineComponent.js](#file-eyes-src-engine-components-OrbitLineComponent-js)、[eyes/src/engine/components/OrbiterLineOfSightComponent.js](#file-eyes-src-engine-components-OrbiterLineOfSightComponent-js)、[eyes/src/engine/components/ShadowConeComponent.js](#file-eyes-src-engine-components-ShadowConeComponent-js)、[eyes/src/engine/components/TorusComponent.js](#file-eyes-src-engine-components-TorusComponent-js)、[eyes/src/engine/components/WMTSComponent.js](#file-eyes-src-engine-components-WMTSComponent-js)、[eyes/src/engine/controllers/KeyframePointingController.js](#file-eyes-src-engine-controllers-KeyframePointingController-js)、[eyes/src/engine/controllers/KeyframeSpinController.js](#file-eyes-src-engine-controllers-KeyframeSpinController-js)、[eyes/src/engine/controllers/PositionSumController.js](#file-eyes-src-engine-controllers-PositionSumController-js)、[eyes/src/engine/controllers/ZoomFitController.js](#file-eyes-src-engine-controllers-ZoomFitController-js)、[eyes/src/engine/core/Animation.js](#file-eyes-src-engine-core-Animation-js)、[eyes/src/engine/core/AnnularSolarEclipseStory.js](#file-eyes-src-engine-core-AnnularSolarEclipseStory-js)、[eyes/src/engine/core/BaseApp.js](#file-eyes-src-engine-core-BaseApp-js)、[eyes/src/engine/core/CameraScripts.js](#file-eyes-src-engine-core-CameraScripts-js)、[eyes/src/engine/core/Cameras.js](#file-eyes-src-engine-core-Cameras-js)、[eyes/src/engine/core/Capabilities-584.js](#file-eyes-src-engine-core-Capabilities-584-js)、[eyes/src/engine/core/DateTime.js](#file-eyes-src-engine-core-DateTime-js)、[eyes/src/engine/core/EnceladusDiscoveryStory.js](#file-eyes-src-engine-core-EnceladusDiscoveryStory-js)、[eyes/src/engine/core/Entity-567.js](#file-eyes-src-engine-core-Entity-567-js)、[eyes/src/engine/core/EntityUtils.js](#file-eyes-src-engine-core-EntityUtils-js)、[eyes/src/engine/core/Features.js](#file-eyes-src-engine-core-Features-js)、[eyes/src/engine/core/KioskMode.js](#file-eyes-src-engine-core-KioskMode-js)、[eyes/src/engine/core/LabelQuadtree.js](#file-eyes-src-engine-core-LabelQuadtree-js)、[eyes/src/engine/core/Mapping.js](#file-eyes-src-engine-core-Mapping-js)、[eyes/src/engine/core/Parenting.js](#file-eyes-src-engine-core-Parenting-js)、[eyes/src/engine/core/Placemarks.js](#file-eyes-src-engine-core-Placemarks-js)、[eyes/src/engine/core/Quadtree.js](#file-eyes-src-engine-core-Quadtree-js)、[eyes/src/engine/core/SceneHelpers.js](#file-eyes-src-engine-core-SceneHelpers-js)、[eyes/src/engine/core/TotalSolarEclipseStory.js](#file-eyes-src-engine-core-TotalSolarEclipseStory-js)、[eyes/src/engine/core/Transitions.js](#file-eyes-src-engine-core-Transitions-js)、[eyes/src/engine/core/Unidentified1069.js](#file-eyes-src-engine-core-Unidentified1069-js)、[eyes/src/engine/core/Unidentified694.js](#file-eyes-src-engine-core-Unidentified694-js)、[eyes/src/engine/core/Unidentified695.js](#file-eyes-src-engine-core-Unidentified695-js)、[eyes/src/engine/core/Unidentified696.js](#file-eyes-src-engine-core-Unidentified696-js)、[eyes/src/engine/core/Unidentified697.js](#file-eyes-src-engine-core-Unidentified697-js)、[eyes/src/engine/core/Unidentified701.js](#file-eyes-src-engine-core-Unidentified701-js)、[eyes/src/engine/core/Unidentified703.js](#file-eyes-src-engine-core-Unidentified703-js)、[eyes/src/engine/core/Unidentified704.js](#file-eyes-src-engine-core-Unidentified704-js)、[eyes/src/engine/core/Unidentified705.js](#file-eyes-src-engine-core-Unidentified705-js)、[eyes/src/engine/core/Unidentified707.js](#file-eyes-src-engine-core-Unidentified707-js)、[eyes/src/engine/core/Unidentified708.js](#file-eyes-src-engine-core-Unidentified708-js)、[eyes/src/engine/core/Unidentified709.js](#file-eyes-src-engine-core-Unidentified709-js)、[eyes/src/engine/core/Unidentified710.js](#file-eyes-src-engine-core-Unidentified710-js)、[eyes/src/engine/core/Unidentified711.js](#file-eyes-src-engine-core-Unidentified711-js)、[eyes/src/engine/core/Unidentified712.js](#file-eyes-src-engine-core-Unidentified712-js)、[eyes/src/engine/core/Unidentified713.js](#file-eyes-src-engine-core-Unidentified713-js)、[eyes/src/engine/core/Unidentified715.js](#file-eyes-src-engine-core-Unidentified715-js)、[eyes/src/engine/core/Unidentified716.js](#file-eyes-src-engine-core-Unidentified716-js)、[eyes/src/engine/core/Unidentified717.js](#file-eyes-src-engine-core-Unidentified717-js)、[eyes/src/engine/core/VoyagerGrandTourStory.js](#file-eyes-src-engine-core-VoyagerGrandTourStory-js)、[eyes/src/engine/managers/AutoplayManager.js](#file-eyes-src-engine-managers-AutoplayManager-js)、[eyes/src/engine/managers/BaseManager.js](#file-eyes-src-engine-managers-BaseManager-js)、[eyes/src/engine/managers/CameraFollowManager.js](#file-eyes-src-engine-managers-CameraFollowManager-js)、[eyes/src/engine/managers/CameraManager.js](#file-eyes-src-engine-managers-CameraManager-js)、[eyes/src/engine/managers/ComparisonManager.js](#file-eyes-src-engine-managers-ComparisonManager-js)、[eyes/src/engine/managers/ContentManager.js](#file-eyes-src-engine-managers-ContentManager-js)、[eyes/src/engine/managers/DistanceManager.js](#file-eyes-src-engine-managers-DistanceManager-js)、[eyes/src/engine/managers/LabelManager-563.js](#file-eyes-src-engine-managers-LabelManager-563-js)、[eyes/src/engine/managers/LayerManager.js](#file-eyes-src-engine-managers-LayerManager-js)、[eyes/src/engine/managers/SceneManager.js](#file-eyes-src-engine-managers-SceneManager-js)、[eyes/src/engine/managers/SelectionManager-562.js](#file-eyes-src-engine-managers-SelectionManager-562-js)、[eyes/src/engine/managers/SpoutManager.js](#file-eyes-src-engine-managers-SpoutManager-js)、[eyes/src/engine/managers/TimeManager-728.js](#file-eyes-src-engine-managers-TimeManager-728-js)、[eyes/src/engine/managers/TrailManager.js](#file-eyes-src-engine-managers-TrailManager-js)、[eyes/src/engine/managers/TrajectoryManager.js](#file-eyes-src-engine-managers-TrajectoryManager-js)、[eyes/src/engine/managers/WMTSManager.js](#file-eyes-src-engine-managers-WMTSManager-js)、[eyes/src/ui/components/CameraViewBlock.js](#file-eyes-src-ui-components-CameraViewBlock-js)、[eyes/src/ui/components/Comparison.js](#file-eyes-src-ui-components-Comparison-js)、[eyes/src/ui/components/ContentPanel.js](#file-eyes-src-ui-components-ContentPanel-js)、[eyes/src/ui/components/InstrumentFOVBlock.js](#file-eyes-src-ui-components-InstrumentFOVBlock-js)、[eyes/src/ui/components/KioskBase.js](#file-eyes-src-ui-components-KioskBase-js)、[eyes/src/ui/components/LayersBlock.js](#file-eyes-src-ui-components-LayersBlock-js)、[eyes/src/ui/components/OverviewBlock.js](#file-eyes-src-ui-components-OverviewBlock-js)、[eyes/src/ui/components/Settings.js](#file-eyes-src-ui-components-Settings-js)、[eyes/src/ui/components/SurfaceMapBlock.js](#file-eyes-src-ui-components-SurfaceMapBlock-js)、[eyes/src/ui/components/Telescope.js](#file-eyes-src-ui-components-Telescope-js)、[eyes/src/ui/views/BaseView.js](#file-eyes-src-ui-views-BaseView-js)、[eyes/src/ui/views/ObjectView.js](#file-eyes-src-ui-views-ObjectView-js)。
 
 当前导出：`AER` ← `AER` from `./public-api.js`；`AlignController` ← `AlignController` from `./public-api.js`；`AtmosphereComponent` ← `AtmosphereComponent` from `./public-api.js`；`BaseComponent` ← `BaseComponent` from `./public-api.js`；`BaseController` ← `BaseController` from `./public-api.js`；`BaseRef` ← `BaseRef` from `./public-api.js`；`CMTSComponent` ← `CMTSComponent` from `./public-api.js`；`CameraComponent` ← `CameraComponent` from `./public-api.js`；`CanceledError` ← `CanceledError` from `./public-api.js`；`Capabilities` ← `Capabilities` from `./public-api.js`；`Collection` ← `Collection` from `./public-api.js`；`CollectionItem` ← `CollectionItem` from `./public-api.js`；`Color` ← `Color` from `./public-api.js`；`CometTailComponent` ← `CometTailComponent` from `./public-api.js`；`ComponentRef` ← `ComponentRef` from `./public-api.js`；`Config` ← `Config` from `./public-api.js`；`ConnectedSpriteComponent` ← `ConnectedSpriteComponent` from `./public-api.js`；`ControllerRef` ← `ControllerRef` from `./public-api.js`；`CoverageController` ← `CoverageController` from `./public-api.js`；`CubeMap` ← `CubeMap` from `./public-api.js`；`DependencyGraph` ← `DependencyGraph` from `./public-api.js`；`Devices` ← `Devices` from `./public-api.js`；`DivComponent` ← `DivComponent` from `./public-api.js`；`Downloader` ← `Downloader` from `./public-api.js`；`DynamicEnvironmentMapComponent` ← `DynamicEnvironmentMapComponent` from `./public-api.js`；`DynamoController` ← `DynamoController` from `./public-api.js`；`Engine` ← `Engine` from `./public-api.js`；`Entity` ← `Entity` from `./public-api.js`；`EntityItem` ← `EntityItem` from `./public-api.js`；`EntityRef` ← `EntityRef` from `./public-api.js`；`FPS` ← `FPS` from `./public-api.js`；`FastIterable` ← `FastIterable` from `./public-api.js`；`FastMap` ← `FastMap` from `./public-api.js`；`FastSet` ← `FastSet` from `./public-api.js`；`FixedController` ← `FixedController` from `./public-api.js`；`FixedToParentController` ← `FixedToParentController` from `./public-api.js`；`FreeFlyController` ← `FreeFlyController` from `./public-api.js`；`Geometry` ← `Geometry` from `./public-api.js`；`GizmoComponent` ← `GizmoComponent` from `./public-api.js`；`GroundClampController` ← `GroundClampController` from `./public-api.js`；`IndicatorComponent` ← `IndicatorComponent` from `./public-api.js`；`Input` ← `Input` from `./public-api.js`；`Interval` ← `Interval` from `./public-api.js`；`JsonHelper` ← `JsonHelper` from `./public-api.js`；`KeyframeController` ← `KeyframeController` from `./public-api.js`；`LabelComponent` ← `LabelComponent` from `./public-api.js`；`LatLonAlt` ← `LatLonAlt` from `./public-api.js`；`LightSourceComponent` ← `LightSourceComponent` from `./public-api.js`；`LineMesh` ← `LineMesh` from `./public-api.js`；`LookController` ← `LookController` from `./public-api.js`；`MaterialManager` ← `MaterialManager` from `./public-api.js`；`MaterialUtils` ← `MaterialUtils` from `./public-api.js`；`MaterialUtilsPhong` ← `MaterialUtilsPhong` from `./public-api.js`；`MaterialUtilsStandard` ← `MaterialUtilsStandard` from `./public-api.js`；`MathUtils` ← `MathUtils` from `./public-api.js`；`ModelAnimateController` ← `ModelAnimateController` from `./public-api.js`；`ModelComponent` ← `ModelComponent` from `./public-api.js`；`ObjectUtils` ← `ObjectUtils` from `./public-api.js`；`OrbitController` ← `OrbitController` from `./public-api.js`；`OrbitKeyframeController` ← `OrbitKeyframeController` from `./public-api.js`；`OrbitalElements` ← `OrbitalElements` from `./public-api.js`；`OrbitalElementsController` ← `OrbitalElementsController` from `./public-api.js`；`OrbitalElementsKeyframe` ← `OrbitalElementsKeyframe` from `./public-api.js`；`OrbitalParticlesComponent` ← `OrbitalParticlesComponent` from `./public-api.js`；`ParticleSprayComponent` ← `ParticleSprayComponent` from `./public-api.js`；`PickController` ← `PickController` from `./public-api.js`；`Pool` ← `Pool` from `./public-api.js`；`Quaternion` ← `Quaternion` from `./public-api.js`；`RandomString` ← `RandomString` from `./public-api.js`；`Reader` ← `Reader` from `./public-api.js`；`Rect` ← `Rect` from `./public-api.js`；`ResourceManager` ← `ResourceManager` from `./public-api.js`；`RingsComponent` ← `RingsComponent` from `./public-api.js`；`RollController` ← `RollController` from `./public-api.js`；`RotateByEntityOrientationController` ← `RotateByEntityOrientationController` from `./public-api.js`；`RotateController` ← `RotateController` from `./public-api.js`；`ScaleController` ← `ScaleController` from `./public-api.js`；`Scene` ← `Scene` from `./public-api.js`；`SelectController` ← `SelectController` from `./public-api.js`；`SetParentController` ← `SetParentController` from `./public-api.js`；`ShaderChunkLogDepth` ← `ShaderChunkLogDepth` from `./public-api.js`；`SkyboxComponent` ← `SkyboxComponent` from `./public-api.js`；`Sort` ← `Sort` from `./public-api.js`；`SphereGridComponent` ← `SphereGridComponent` from `./public-api.js`；`SpheroidComponent` ← `SpheroidComponent` from `./public-api.js`；`SpheroidLODComponent` ← `SpheroidLODComponent` from `./public-api.js`；`SpinController` ← `SpinController` from `./public-api.js`；`SpoutComponent` ← `SpoutComponent` from `./public-api.js`；`SpriteComponent` ← `SpriteComponent` from `./public-api.js`；`SpriteParticles` ← `SpriteParticles` from `./public-api.js`；`StarfieldComponent` ← `StarfieldComponent` from `./public-api.js`；`THREE` ← `THREE` from `./public-api.js`；`TapController` ← `TapController` from `./public-api.js`；`TextureLOD` ← `TextureLOD` from `./public-api.js`；`TextureLoader` ← `TextureLoader` from `./public-api.js`；`ThreeJsHelper` ← `ThreeJsHelper` from `./public-api.js`；`Tile` ← `Tile` from `./public-api.js`；`TimeUtils` ← `TimeUtils` from `./public-api.js`；`TrailComponent` ← `TrailComponent` from `./public-api.js`；`TransitionController` ← `TransitionController` from `./public-api.js`；`TranslateController` ← `TranslateController` from `./public-api.js`；`Tuple` ← `Tuple` from `./public-api.js`；`Vector2` ← `Vector2` from `./public-api.js`；`Vector3` ← `Vector3` from `./public-api.js`；`Version` ← `Version` from `./public-api.js`；`Viewport` ← `Viewport` from `./public-api.js`；`VisibleInterval` ← `VisibleInterval` from `./public-api.js`；`ZoomController` ← `ZoomController` from `./public-api.js`；`assertIsShader` ← `assertIsShader` from `./public-api.js`；`credits` ← `credits` from `./public-api.js`；`waitUntil` ← `waitUntil` from `./public-api.js`。
 
@@ -11599,11 +12516,11 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 语义依据：source review。
 
-直接引用者：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/i18n/switcher.js](#file-eyes-src-i18n-switcher-js)。
+直接引用者：[eyes/src/custom/constellation-art/app.js](#file-eyes-src-custom-constellation-art-app-js)、[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/i18n/switcher.js](#file-eyes-src-i18n-switcher-js)。
 
 当前导出：`configure` ← `configure`；`getLocaleModule` ← `getLocaleModule`；`getEnglishModule` ← `getEnglishModule`；`isEnabled` ← `isEnabled`；`translateText` ← `translateText`；`translateTitle` ← `translateTitle`；`translateHtml` ← `translateHtml`；`localizeAttributes` ← `localizeAttributes`；`localizeElement` ← `localizeElement`；`localizeDocument` ← `localizeDocument`；`translateLocaleMetadata` ← `translateLocaleMetadata`；`currentMessages` ← `currentMessages`。
 
-非 class 函数（包括模块内回调）：`compilePattern(pattern)` @22；`addMessages(target, source)` @27；`buildDictionary(locale, english)` @34；`anonymous(pattern)` @71；`configure(locale, english)` @75；`getLocaleModule()` @83；`getEnglishModule()` @87；`isEnabled()` @91；`splitWhitespace(text)` @96：Preserve surrounding whitespace so inline fragments keep their spacing.；`translateCore(core, depth)` @101；`anonymous(groupIndex)` @138；`anonymous(_, groupIndex)` @142；`translateMeasurement(core)` @156：Numbers and units are formatted by the app, so only the unit vocabulary moves.；`translateUnit(unit)` @158；`translateText(text, depth=0)` @181；`translateTitle(title)` @190：Document titles join a localized prefix, current title and brand.；`anonymous(part)` @212；`anonymous(section)` @212；`translateHtml(htmlKey)` @216；`refreshTippy(element, content)` @221；`translateStyleVariable(element, name)` @228；`localizeAttributes(element)` @238；`localizeHtmlBlock(element)` @259；`localizeCategorizedText(element)` @267；`localizeElement(root)` @280；`localizeDocument(root=document.body)` @299；`translateLocaleMetadata(locale)` @332；`currentMessages()` @353。
+非 class 函数（包括模块内回调）：`compilePattern(pattern)` @22；`addMessages(target, source)` @27；`buildDictionary(locale, english)` @34；`anonymous(pattern)` @71；`configure(locale, english)` @75；`getLocaleModule()` @83；`getEnglishModule()` @87；`isEnabled()` @91；`splitWhitespace(text)` @96：Preserve surrounding whitespace so inline fragments keep their spacing.；`translateCore(core, depth)` @101；`anonymous(groupIndex)` @138；`anonymous(_, groupIndex)` @142；`translateMeasurement(core)` @156：Numbers and units are formatted by the app, so only the unit vocabulary moves.；`translateUnit(unit)` @158；`translateText(text, depth=0)` @181；`translateTitle(title)` @190：Document titles join a localized prefix, current title and brand.；`anonymous(part)` @212；`anonymous(section)` @212；`translateHtml(htmlKey)` @216；`refreshTippy(element, content)` @221；`translateStyleVariable(element, name)` @228；`localizeAttributes(element)` @238；`localizeHtmlBlock(element)` @259；`localizeCategorizedText(element)` @267；`localizeElement(root)` @280；`localizeDocument(root=document.body)` @301；`translateLocaleMetadata(locale)` @335；`currentMessages()` @356。
 
 <details><summary>短名称作用域与使用证据（2 项）</summary>
 
@@ -12000,7 +12917,7 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 语义依据：imports: ./app/PreloadManager.js, ./styles/extracted/PreloadStyles.js, ./styles/extracted/VendorStyles.js, ./app/SolarSystemApp.js。
 
-直接依赖：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js)、[eyes/src/styles/extracted/PreloadStyles.js](#file-eyes-src-styles-extracted-PreloadStyles-js)、[eyes/src/styles/extracted/VendorStyles.js](#file-eyes-src-styles-extracted-VendorStyles-js)、[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)。
+直接依赖：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js)、[eyes/src/styles/extracted/PreloadStyles.js](#file-eyes-src-styles-extracted-PreloadStyles-js)、[eyes/src/styles/extracted/VendorStyles.js](#file-eyes-src-styles-extracted-VendorStyles-js)、[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)、[eyes/src/custom/constellation-art/app.js](#file-eyes-src-custom-constellation-art-app-js)。
 
 <a id="file-eyes-src-models-starlink-manifest-json"></a>
 ### `eyes/src/models/starlink/manifest.json`

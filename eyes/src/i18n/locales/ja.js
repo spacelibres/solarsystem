@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "自動再生が開始されるまでの非操作時間を指定します。値を0にすると自動再生が無効になります",
     "Spout": "Spout",
     "Star Field": "星空",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "最初からやり直す",
     "Starting experience...": "体験を開始しています...",
     "Stories": "ストーリー",

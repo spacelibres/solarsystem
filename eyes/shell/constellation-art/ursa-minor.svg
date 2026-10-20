@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Ursa Minor</title>
+  <desc>A compact walking bear with round ears, broad paws, layered shoulder fur and a long curling celestial tail. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M156 190 C139 168 115 161 95 175 Q75 160 70 177 L75 194 L55 214 L58 235 L84 246 L105 263 C110 285 117 302 135 312 L129 368 L103 387 L107 405 L151 403 L163 347 L183 320 L220 326 L219 376 L208 397 L246 400 L259 333 C286 333 309 323 326 307 L339 352 L330 386 L364 391 L379 351 L365 292 C379 252 360 211 323 195 C272 173 211 180 175 205 Z"/>
+    <path d="M357 229 C389 212 420 194 428 164 C435 137 422 113 400 103 C422 105 444 120 449 144 C463 185 424 230 371 250"/>
+    <path d="M118 276 Q145 258 164 273 Q182 289 181 320 M301 257 Q327 257 337 281 Q343 299 326 307"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M88 183 Q97 177 104 186 M71 213 L84 215 M59 229 Q78 225 92 233 M110 220 Q124 234 132 251 M150 205 L162 218 L153 230 L169 234 L162 247 M189 213 Q231 192 277 203 M213 232 Q257 216 300 235 M199 306 Q228 319 258 313 M132 384 L137 402 M119 389 L122 403 M226 385 L229 399 M240 385 L243 399 M345 376 L345 388 M357 375 L359 390 M391 211 Q414 196 424 178"/>
+  </g>
+</svg>

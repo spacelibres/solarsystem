@@ -56,7 +56,7 @@ function readyCount(snapshot: ExplorerSnapshot | null): number {
     return snapshot ? [...snapshot.frames.values()].filter(frame => frame.status === 'ready').length : 0;
 }
 export default function Explorer() {
-    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, minorMoons: false, starlink: false });
+    const layerState = useRef({ labels: true, orbits: true, stars: true, constellations: false, constellationsArt: false, minorMoons: false, starlink: false });
     const navigationState = useRef<{
         id: string;
         mode: SceneMode;
@@ -71,6 +71,7 @@ export default function Explorer() {
     const [minorMoonsVisible, setMinorMoonsVisible] = useState(false);
     const [starsVisible, setStarsVisible] = useState(true);
     const [constellationsVisible, setConstellationsVisible] = useState(false);
+    const [constellationsArtVisible, setConstellationsArtVisible] = useState(false);
     const [starlinkPickerOpen, setStarlinkPickerOpen] = useState(false);
     const [selectedStarlinks, setSelectedStarlinks] = useState<number[]>([]);
     const mount = useRef<HTMLDivElement>(null);
@@ -335,6 +336,7 @@ export default function Explorer() {
             <label><input type="checkbox" checked={orbitsVisible} onChange={event => { setOrbitsVisible(event.target.checked); layerState.current.orbits = event.target.checked; worldRef.current?.setLayers({ orbits: event.target.checked }); }}/>轨道与轨迹</label>
             <label><input type="checkbox" checked={minorMoonsVisible} onChange={event => { setMinorMoonsVisible(event.target.checked); layerState.current.minorMoons = event.target.checked; const nav = navigationState.current; const current = runtimeRef.current; const view = worldRef.current; if (current && view) { const state = current.renderFrame(); const visible = visibleSystemIds(FULL_SCENE, nav.id, nav.mode, state.clock.timeEt, view.expandedSystems(state), event.target.checked); current.setActive(visible); view.setVisible(visible); } }}/>小型天然卫星</label>
             <label><input type="checkbox" checked={starsVisible} onChange={event=>{setStarsVisible(event.target.checked);layerState.current.stars=event.target.checked;worldRef.current?.setLayers({stars:event.target.checked});}}/>恒星与星系</label>
+            <label><input type="checkbox" checked={constellationsArtVisible} onChange={event=>{setConstellationsArtVisible(event.target.checked);layerState.current.constellationsArt=event.target.checked;worldRef.current?.setLayers({constellationsArt:event.target.checked});}}/>西方星座图案</label>
             <label><input type="checkbox" checked={constellationsVisible} onChange={event=>{setConstellationsVisible(event.target.checked);layerState.current.constellations=event.target.checked;worldRef.current?.setLayers({constellations:event.target.checked});}}/>星座连线与名称</label>
           </div>
           <div className={styles.hint}>拖动旋转 · 滚轮缩放<br />右键拖动平移</div>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Canis Minor</title>
+  <desc>An alert little hound in mid-stride with hanging ears, pointed muzzle, articulated paws and a lifted curved tail. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M143 177 L132 142 C115 137 92 148 86 165 L57 180 L63 200 L88 207 L105 232 L115 269 L126 320 L112 381 L129 389 L147 325 L152 291 L186 306 L196 355 L224 382 L239 371 L215 345 L217 303 C256 322 293 311 320 287 L350 310 L360 363 L382 367 L380 303 L346 261 C361 230 340 205 309 205 L225 214 L183 197 Z"/>
+    <path d="M312 209 C338 175 367 151 395 162 C425 174 429 214 408 227 C420 205 409 185 391 187 C373 188 361 216 347 238 M132 150 C162 143 177 165 168 193 L151 225 C132 221 126 199 133 177"/>
+    <path d="M127 385 L113 398 L143 401 L143 393 M224 380 L218 395 L249 392 L239 375 M361 363 L353 381 L390 381 L383 369"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M88 170 Q97 164 107 172 L99 177 M61 184 L74 186 M68 198 Q88 193 100 200 M112 219 Q125 216 134 206 M146 163 Q158 173 150 197 M162 240 Q178 263 171 290 M216 241 Q255 228 287 244 M302 248 Q326 259 321 283 M134 315 L146 321 M199 351 L214 346 M361 346 L380 347 M121 393 L124 400 M229 386 L233 393 M369 374 L371 380"/>
+  </g>
+</svg>

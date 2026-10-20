@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Καθορίζει τον χρόνο αδράνειας πριν ενεργοποιηθεί η αυτόματη αναπαραγωγή. Η τιμή μηδέν απενεργοποιεί την αυτόματη αναπαραγωγή",
     "Spout": "Spout",
     "Star Field": "Πεδίο αστεριών",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "ΞΕΚΙΝΗΣΤΕ ΑΠΟ ΤΗΝ ΑΡΧΗ",
     "Starting experience...": "Έναρξη εμπειρίας...",
     "Stories": "Ιστορίες",

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import {
   ENGLISH,
@@ -7,7 +7,7 @@ import {
   normalizeLocaleCode,
   supportedLocaleCodes
 } from '../eyes/src/i18n/index.js';
-import { configure, translateTitle, translateText, translateHtml } from '../eyes/src/i18n/core.js';
+import { configure, translateTitle, translateText, translateHtml, localizeElement } from '../eyes/src/i18n/core.js';
 
 type Catalogue = {
   code: string;
@@ -35,6 +35,16 @@ const sameKeys = (left: Record<string, unknown>, right: Record<string, unknown>)
   expect(Object.keys(right).sort()).toEqual(Object.keys(left).sort());
 
 describe('locale catalogue', () => {
+  it('keeps IAU constellation labels distinct from same-named solar-system bodies', () => {
+    configure(getLocale('zh-CN')!, english);
+    vi.stubGlobal('Node', { TEXT_NODE: 3 });
+    const text = { nodeType: 3, nodeValue: 'Hydra', parentElement: { closest: () => ({}) } };
+    try {
+      localizeElement(text);
+      expect(text.nodeValue).toBe('Hydra');
+      expect(translateText('Hydra')).toBe('冥卫三');
+    } finally { vi.unstubAllGlobals(); }
+  });
   it('ships the English source plus twenty-two translated catalogues', () => {
     expect(supportedLocaleCodes()).toEqual([
       'en', 'zh-CN', 'zh-TW', 'ja', 'ko', 'fr', 'de', 'es', 'pt-BR', 'ru',

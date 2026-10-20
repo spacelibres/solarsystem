@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Phoenix</title>
+  <desc>A phoenix rising on two broad feathered wings, its crested head turned left and long flame-like tail streaming down. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M236 232 C219 205 212 180 227 159 L214 147 L234 142 Q241 117 258 128 L271 119 L267 138 Q282 149 274 173 L269 197 L284 223 C326 186 335 130 393 75 L379 121 L429 91 L408 137 L453 120 L430 168 L465 157 C447 201 409 243 354 260 L298 276 C290 308 276 327 260 332 C242 328 226 310 216 277 C162 267 109 240 69 196 L104 201 L54 151 L101 167 L75 117 L122 145 L111 94 C174 129 179 194 236 232 Z"/>
+    <path d="M239 323 C224 357 213 389 184 435 Q224 418 245 385 L235 472 C264 434 273 398 268 359 C291 395 309 414 340 427 C307 388 293 349 277 321"/>
+    <path d="M246 291 L218 322 L202 329 M273 291 L301 319 L321 325"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M241 151 L249 151 M233 168 Q246 178 264 167 M246 185 Q244 210 258 232 M229 248 Q253 263 282 249 M231 275 Q254 289 285 273 M243 301 Q259 313 274 299"/>
+    <path d="M223 255 Q146 199 126 124 M208 258 Q143 230 94 174 M194 263 L100 213 M289 254 Q347 190 380 108 M305 259 Q375 201 410 135 M322 264 Q398 222 438 173"/>
+    <path d="M241 341 Q224 391 205 413 M256 353 L247 440 M277 344 Q297 383 319 404 M213 322 L215 336 M307 321 L310 335"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" data-origin="spacelibre-original">
+  <title>Leo Minor</title>
+  <desc>A reclining young lion with rounded ears, expressive muzzle, oversized paws and a tufted tail. Original AI-assisted vector illustration.</desc>
+  <g fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M133 195 C114 183 105 157 114 137 L107 119 Q113 102 129 114 L144 126 Q165 122 182 132 Q200 113 209 132 L205 153 C212 181 193 203 174 213 L190 245 C227 223 268 221 314 237 C352 252 370 292 356 320 L372 346 L365 373 L312 374 L293 356 L208 360 L174 373 L106 374 Q89 365 103 351 L141 345 L147 311 L127 277 L115 238 Z"/>
+    <path d="M347 307 C384 323 406 303 403 277 C401 249 421 230 444 245 L452 264 L432 274 L423 261 C413 271 425 293 416 315 C401 346 376 351 356 338"/>
+    <path d="M175 274 Q180 312 163 346 L186 348 Q202 352 193 365 M294 267 Q327 278 323 306 Q320 323 303 330 L317 353 L350 352"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M122 143 Q130 135 139 141 M182 143 Q189 138 198 144 M131 164 Q142 157 151 165 M170 164 Q182 157 190 165 M149 179 L169 178 L160 190 Z M160 190 L161 199 M137 198 Q148 207 161 199 Q176 205 186 195 M127 189 L105 185 M129 195 L106 199 M187 186 L208 180 M187 193 L211 195"/>
+    <path d="M133 222 Q143 245 163 249 M202 253 Q241 238 277 250 M213 344 Q251 335 288 345 M111 355 L113 371 M125 352 L128 373 M141 350 L143 372 M323 356 L326 372 M340 355 L343 373 M432 250 L441 262"/>
+  </g>
+</svg>

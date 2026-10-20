@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Bepaalt de tijd van inactiviteit voordat automatisch afspelen wordt geactiveerd. Een waarde van nul schakelt automatisch afspelen uit",
     "Spout": "Spout",
     "Star Field": "Sterrenveld",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "OPNIEUW BEGINNEN",
     "Starting experience...": "Ervaring wordt gestart...",
     "Stories": "Verhalen",

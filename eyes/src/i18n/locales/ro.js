@@ -345,6 +345,8 @@ export default {
     "Specifies the time of inactivity before auto-play is triggered. A value of zero disables auto-play": "Specifică timpul de inactivitate înainte de declanșarea redării automate. Valoarea zero dezactivează redarea automată",
     "Spout": "Spout",
     "Star Field": "Câmp de stele",
+    "Western constellation art": "Western constellation art",
+    "Artwork unavailable; toggle to retry": "Artwork unavailable; toggle to retry",
     "START OVER": "ÎNCEPE DIN NOU",
     "Starting experience...": "Se pornește experiența…",
     "Stories": "Povești",
