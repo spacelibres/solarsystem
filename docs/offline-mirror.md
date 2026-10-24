@@ -1,7 +1,16 @@
 # Current local resource deployment (2026-10-24)
 
 The active recovered source is `eyes/`; normal builds never recover or replace
-it. Runtime resource requests use `/nasa/` and never fall back upstream.
+it. Browser resource requests use `/nasa/` and never fall back upstream.
+With `NASA_MIRROR_FILL=1`, the server fills missing files from approved upstream
+hosts, then serves the current request from disk. This is online provisioning,
+not a claim of a fully offline library. Downloads deduplicate by path, run at
+most four at once, time out after 25 seconds and back off failures for 60 seconds.
+The queue is capped at 128 paths; files are capped at 64 MiB and written atomically.
+HTML/error responses are rejected. `[mirror-fill]` service logs record successful
+source URLs, byte counts and SHA-256 hashes, plus failures. Disable the setting
+for strict disk-only operation. External host URLs are allowlisted, not arbitrary
+user-controlled proxy destinations.
 Set `MIRROR_ROOT=/srv/solarsystem-mirror` on the VPS. The local default is the
 sibling `.solarsystem-mirror` directory, outside the checkout and Git.
 

@@ -179,6 +179,7 @@ Environment=HOSTNAME=127.0.0.1
 # The mirror lives outside the project tree so Next's build never walks its
 # 90k+ files (that scan is what exhausted this host's memory).
 Environment=MIRROR_ROOT=$MIRROR_DIR
+Environment=NASA_MIRROR_FILL=1
 Environment=NODE_OPTIONS=--max-old-space-size=1536
 ExecStart=$(command -v npm) run start -- --hostname 127.0.0.1
 Restart=always

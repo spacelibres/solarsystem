@@ -17,6 +17,24 @@ beforeEach(async () => {
 afterEach(async () => { vi.unstubAllEnvs(); await rm(root, { recursive: true, force: true }); });
 
 describe('disk asset route', () => {
+  it('fills an authorized missing asset and serves the first request from disk', async () => {
+    vi.stubEnv('NASA_MIRROR_FILL', '1');
+    const fetcher = vi.fn(async () => new Response('downloaded dyn'));
+    vi.stubGlobal('fetch', fetcher);
+    try {
+      vi.resetModules();
+      const fresh = await import('../src/app/nasa/[...path]/route');
+      const response = await fresh.GET(request(), context(['dynamic', 'missing.dyn']));
+      expect(response.status).toBe(200);
+      expect(await response.text()).toBe('downloaded dyn');
+      expect(await readFile(join(root, 'dynamic/missing.dyn'), 'utf8')).toBe('downloaded dyn');
+      expect(fetcher).toHaveBeenCalledTimes(1);
+      const head = await fresh.HEAD(request(undefined, 'HEAD'), context(['dynamic', 'head-first.dyn']));
+      expect(head.status).toBe(200);
+      expect(await head.text()).toBe('');
+      expect(head.headers.get('content-length')).toBe('14');
+    } finally { vi.unstubAllGlobals(); }
+  });
   it('serves exact file bytes and a bodyless HEAD', async () => {
     const response = await route.GET(request(), context(['sample.bin']));
     expect(await response.text()).toBe('0123456789');

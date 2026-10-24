@@ -3,6 +3,17 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.70 - 2026-10-24
+
+Fill missing mirrored assets on the server when NASA_MIRROR_FILL=1. Coalesce
+concurrent requests, bound downloads and payload sizes, reject error/HTML
+responses, atomically cache successful files and log source hashes. Serve the
+initial request from disk after filling it. Keep browser traffic same-origin
+and upstream hosts allowlisted; retain strict disk-only mode when disabled.
+Fix missing live dynamo windows such as GRACE-FO 101_024.dyn.
+
+Validation: npm ci, npm test, npm run check and npm run build.
+
 ## 0.2.69 - 2026-10-24
 
 Serve Eyes resources from the same-origin disk mirror, including nested model

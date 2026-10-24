@@ -1,10 +1,11 @@
-/** Local runtime assets only: missing files never trigger an upstream request. */
+/** Same-origin assets with explicitly enabled server-side cache filling. */
 import { createReadStream } from 'node:fs';
 import { readFile, realpath, stat } from 'node:fs/promises';
 import { extname, relative, isAbsolute } from 'node:path';
 import { Readable } from 'node:stream';
 import { localizeAssetUrls } from '../../../../eyes/scripts/local-assets.mjs';
 import { MIRROR_ROOT, mirrorPath } from '../../../lib/nasa/mirror';
+import { fillMirrorAsset } from '../../../lib/nasa/mirror-fill';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -22,7 +23,7 @@ const CONTENT_TYPES: Record<string, string> = {
 };
 type Context = { params: Promise<{ path: string[] }> };
 
-async function serve(request: Request, context: Context, head: boolean): Promise<Response> {
+async function serve(request: Request, context: Context, head: boolean, attempted = false): Promise<Response> {
   const { path: segments } = await context.params;
   let abs: string;
   try {
@@ -89,7 +90,12 @@ async function serve(request: Request, context: Context, head: boolean): Promise
     const stream = Readable.toWeb(nodeStream) as ReadableStream<Uint8Array>;
     if (request.signal.aborted) abort();
     return new Response(stream, { status, headers });
-  } catch { return new Response(head ? null : 'not found', { status: 404 }); }
+  } catch (error) {
+    if (!attempted && process.env.NASA_MIRROR_FILL === '1' && (error as NodeJS.ErrnoException).code === 'ENOENT' && await fillMirrorAsset(segments.join('/'))) {
+      return serve(request, context, head, true);
+    }
+    return new Response(head ? null : 'not found', { status: 404 });
+  }
 }
 
 export async function GET(request: Request, context: Context) { return serve(request, context, false); }
