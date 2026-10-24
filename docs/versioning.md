@@ -71,7 +71,6 @@ committing rather than guessing.
 
 ## Scope note: third-party data
 
-The app consumes NASA Eyes assets over the network at runtime. It does not
-mirror the asset library. Only minimal `.dyn` fixtures used by tests are
-committed, and they carry NASA attribution (see `README.md`). The project is not
-affiliated with or endorsed by NASA.
+Runtime assets are served from an out-of-tree disk mirror under the owner's
+2026-10-24 instruction. The library is not committed to Git. Minimal test
+fixtures retain NASA attribution. This project is not affiliated with NASA.

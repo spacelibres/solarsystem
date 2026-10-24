@@ -48084,6 +48084,46 @@
       "notes": [],
       "renames": [],
       "analysisLevel": "structural-source-review"
+    },
+    "eyes/scripts/local-assets.mjs": {
+      "purpose": "构建期资源 URL 本地化和同源 CSP 策略",
+      "confidence": "observed",
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/scripts/local-assets.d.mts": {
+      "purpose": "本地化模块 TypeScript 声明",
+      "confidence": "observed",
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/snapshots/earth.json": {
+      "purpose": "地球离线影像固定日期与来源",
+      "confidence": "observed",
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/runtime/local-entry.js": {
+      "purpose": "独立本地运行入口并安装影像日期策略",
+      "confidence": "observed",
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
+    },
+    "eyes/src/runtime/snapshot-policy.js": {
+      "purpose": "固定地球 WMTS 日期，保留其他天体时间策略",
+      "confidence": "observed",
+      "classes": {},
+      "notes": [],
+      "renames": [],
+      "analysisLevel": "structural-source-review"
     }
   },
   "reviewMethod": "所有文件以源码结构读取；66 个类及 AST 924 个方法/访问器已索引。核心启动、组件和路由生命周期经过人工语义复核；其余方法是精确调用/写入证据摘要，不等于逐分支人工正确性验证。"

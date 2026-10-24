@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1156,
-    "javascript": 1060,
+    "files": 1161,
+    "javascript": 1063,
     "classes": 552,
     "methods": 5514,
     "shortBindings": 21775,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "b72424dfba26ba4108fb8b1789149ed00b182db947fb3fea910aef1c1ee7cdc7",
+      "sha256": "e2624996c4693dcaf3049d562d2980a0eefa7971a17f27b4edd6ce82d8b41ad6",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "797f0d85194fbff3e334fa8495bdaa8343a769d07d4ac65c7f777c50d67f2b14",
+      "sha256": "6423f7d7c3aeef3ba0b4121fa9859b59882e5c78f5a0cbe14dd1f0f9c4a11dac",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -737,8 +737,8 @@
     },
     {
       "file": "eyes/scripts/build.mjs",
-      "bytes": 2555,
-      "sha256": "8d2e66e6538525fc22c20c8047d398db873b7edc92346bfe31c98fdd28ffce40",
+      "bytes": 2902,
+      "sha256": "6a93b3c1c3a3c362cc1970c9f055698330eb76b465e7c4efe9cf4ad6ad97199d",
       "purpose": "从可编辑 src 编译 ESM/CJS/HTML，校验解码器并发布 dist/public；正常构建不运行恢复",
       "confidence": "observed",
       "origin": null,
@@ -759,9 +759,24 @@
           ]
         },
         {
-          "source": "esbuild",
+          "source": "./local-assets.mjs",
           "kind": "import",
           "line": 2,
+          "bindings": [
+            {
+              "local": "localAssetsPlugin",
+              "imported": "localAssetsPlugin"
+            },
+            {
+              "local": "localizeShell",
+              "imported": "localizeShell"
+            }
+          ]
+        },
+        {
+          "source": "esbuild",
+          "kind": "import",
+          "line": 3,
           "bindings": [
             {
               "local": "build",
@@ -776,7 +791,7 @@
         {
           "source": "node:fs/promises",
           "kind": "import",
-          "line": 3,
+          "line": 4,
           "bindings": [
             {
               "local": "mkdir",
@@ -791,7 +806,7 @@
         {
           "source": "node:fs",
           "kind": "import",
-          "line": 4,
+          "line": 5,
           "bindings": [
             {
               "local": "watchDirectory",
@@ -802,7 +817,7 @@
         {
           "source": "node:url",
           "kind": "import",
-          "line": 5,
+          "line": 6,
           "bindings": [
             {
               "local": "fileURLToPath",
@@ -813,7 +828,7 @@
         {
           "source": "node:path",
           "kind": "import",
-          "line": 6,
+          "line": 7,
           "bindings": [
             {
               "local": "path",
@@ -826,7 +841,7 @@
         {
           "exported": "buildEyes",
           "local": "buildEyes",
-          "line": 8
+          "line": 9
         }
       ],
       "aliases": {},
@@ -835,34 +850,42 @@
         {
           "name": "buildEyes",
           "documentation": "",
-          "line": 8,
-          "endLine": 48,
+          "line": 9,
+          "endLine": 55,
           "async": true,
           "params": [
             "{watch=false,publish=false}={}"
           ]
         },
         {
-          "name": "copyShell",
+          "name": "publishOutput",
           "documentation": "",
-          "line": 12,
-          "endLine": 12,
-          "async": true,
+          "line": 14,
+          "endLine": 30,
+          "async": false,
           "params": []
         },
         {
-          "name": "publishOutput",
+          "name": "anonymous",
           "documentation": "",
-          "line": 13,
-          "endLine": 23,
+          "line": 15,
+          "endLine": 26,
           "async": true,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 35,
-          "endLine": 35,
+          "line": 28,
+          "endLine": 28,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 42,
+          "endLine": 42,
           "async": true,
           "params": [
             "result"
@@ -871,16 +894,16 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 43,
-          "endLine": 46,
+          "line": 50,
+          "endLine": 53,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 45,
-          "endLine": 45,
+          "line": 52,
+          "endLine": 52,
           "async": false,
           "params": []
         }
@@ -889,7 +912,7 @@
         {
           "name": "cp",
           "kind": "module",
-          "line": 3,
+          "line": 4,
           "scope": "module@1:0",
           "references": 6,
           "constant": true,
@@ -906,9 +929,10 @@
       ],
       "topLevelEffects": [],
       "shortBindingCount": 1,
-      "semanticHash": "66594b15777a5ebfcb772a8d277382011b113e01a6f824c72779f16c0677c506",
+      "semanticHash": "ff72561e4925bfba4281ca5dbb6e1f533ce2f0afd03de7fee4005440872c0dc1",
       "dependencies": [
-        "eyes/scripts/decoder-cache.mjs"
+        "eyes/scripts/decoder-cache.mjs",
+        "eyes/scripts/local-assets.mjs"
       ],
       "dependents": [
         "eyes/scripts/dev-next.mjs",
@@ -1153,6 +1177,144 @@
         "eyes/scripts/build.mjs"
       ],
       "dependents": []
+    },
+    {
+      "file": "eyes/scripts/local-assets.d.mts",
+      "bytes": 221,
+      "sha256": "80276c39fbde6edae993ac4cc47c95486460344010eb513ad03c218c507d5b08",
+      "purpose": "本地化模块 TypeScript 声明",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "dependencies": [],
+      "dependents": []
+    },
+    {
+      "file": "eyes/scripts/local-assets.mjs",
+      "bytes": 3000,
+      "sha256": "1ea77e335cb58cdd0f60e7c45afba3952246a9d4ac6367131b32a79683964da8",
+      "purpose": "构建期资源 URL 本地化和同源 CSP 策略",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "node:fs/promises",
+          "kind": "import",
+          "line": 1,
+          "bindings": [
+            {
+              "local": "readFile",
+              "imported": "readFile"
+            },
+            {
+              "local": "writeFile",
+              "imported": "writeFile"
+            },
+            {
+              "local": "readdir",
+              "imported": "readdir"
+            }
+          ]
+        },
+        {
+          "source": "node:path",
+          "kind": "import",
+          "line": 2,
+          "bindings": [
+            {
+              "local": "path",
+              "imported": "default"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "exported": "localizeAssetUrls",
+          "local": "localizeAssetUrls",
+          "line": 14
+        },
+        {
+          "exported": "localAssetsPlugin",
+          "local": "localAssetsPlugin",
+          "line": 30
+        },
+        {
+          "exported": "localizeShell",
+          "local": "localizeShell",
+          "line": 43
+        },
+        {
+          "exported": "eyesResourcePolicy",
+          "local": "eyesResourcePolicy",
+          "line": 53
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "localizeAssetUrls",
+          "documentation": "Preserve source provenance while compiling resource references to this host.",
+          "line": 14,
+          "endLine": 28,
+          "async": false,
+          "params": [
+            "text"
+          ]
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 20,
+          "endLine": 24,
+          "async": false,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "localAssetsPlugin",
+          "documentation": "",
+          "line": 30,
+          "endLine": 41,
+          "async": false,
+          "params": []
+        },
+        {
+          "name": "anonymous",
+          "documentation": "",
+          "line": 32,
+          "endLine": 39,
+          "async": true,
+          "params": [
+            "args"
+          ]
+        },
+        {
+          "name": "localizeShell",
+          "documentation": "",
+          "line": 43,
+          "endLine": 51,
+          "async": true,
+          "params": [
+            "root"
+          ]
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "b244b4b13aeb7bbb954dbcf4cd978f9bc9c5d6d242f891b75e3992ce2ecacb0b",
+      "dependencies": [],
+      "dependents": [
+        "eyes/scripts/build.mjs"
+      ]
     },
     {
       "file": "eyes/scripts/serve.mjs",
@@ -1512,6 +1674,31 @@
       },
       "dependencies": [],
       "dependents": []
+    },
+    {
+      "file": "eyes/snapshots/earth.json",
+      "bytes": 214,
+      "sha256": "4655779b8da0985e5bb52b66b8cd53572c2f81d4ee9c36a9b994b953fd50699d",
+      "purpose": "地球离线影像固定日期与来源",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "data": {
+        "kind": "object",
+        "entries": 4,
+        "keys": [
+          "date",
+          "layerId",
+          "sourceManifest",
+          "policy"
+        ]
+      },
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/runtime/local-entry.js"
+      ]
     },
     {
       "file": "eyes/src/app/PreloadManager.js",
@@ -37158,7 +37345,8 @@
         "eyes/src/engine/core/Capabilities-584.js"
       ],
       "dependents": [
-        "eyes/src/engine/solar-system/public-api.js"
+        "eyes/src/engine/solar-system/public-api.js",
+        "eyes/src/runtime/local-entry.js"
       ]
     },
     {
@@ -99926,7 +100114,8 @@
       "semanticHash": "78299e7fac36b5e6ad58e3d3c5b5f885ebcff374057ca6f1f4ea7bab19209f27",
       "dependencies": [],
       "dependents": [
-        "eyes/src/engine/core/BaseApp.js"
+        "eyes/src/engine/core/BaseApp.js",
+        "eyes/src/runtime/local-entry.js"
       ]
     },
     {
@@ -128157,7 +128346,8 @@
         "eyes/src/framework/eyes/public-api.js"
       ],
       "dependents": [
-        "eyes/src/framework/eyes/public-api.js"
+        "eyes/src/framework/eyes/public-api.js",
+        "eyes/src/runtime/local-entry.js"
       ]
     },
     {
@@ -135174,7 +135364,9 @@
         "eyes/src/styles/extracted/VendorStyles.js",
         "eyes/src/app/SolarSystemApp.js"
       ],
-      "dependents": []
+      "dependents": [
+        "eyes/src/runtime/local-entry.js"
+      ]
     },
     {
       "file": "eyes/src/models/starlink/manifest.json",
@@ -135373,6 +135565,162 @@
       "dependents": [
         "eyes/src/vendor/modules/MomentPrimary.cjs",
         "eyes/src/vendor/modules/MomentSecondary.cjs"
+      ]
+    },
+    {
+      "file": "eyes/src/runtime/local-entry.js",
+      "bytes": 417,
+      "sha256": "37b9b920a0e2adef862590d6f1357efe31469e85d971a948714a5a6f99367963",
+      "purpose": "独立本地运行入口并安装影像日期策略",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [
+        {
+          "source": "../main.js",
+          "kind": "import",
+          "line": 1,
+          "bindings": []
+        },
+        {
+          "source": "../engine/managers/WMTSManager.js",
+          "kind": "import",
+          "line": 2,
+          "bindings": [
+            {
+              "local": "WMTSManager",
+              "imported": "WMTSManager"
+            }
+          ]
+        },
+        {
+          "source": "../engine/components/WMTSComponent.js",
+          "kind": "import",
+          "line": 3,
+          "bindings": [
+            {
+              "local": "WMTSComponent",
+              "imported": "WMTSComponent"
+            }
+          ]
+        },
+        {
+          "source": "../engine/core/Unidentified752.js",
+          "kind": "import",
+          "line": 4,
+          "bindings": [
+            {
+              "local": "layers",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "../../snapshots/earth.json",
+          "kind": "import",
+          "line": 5,
+          "bindings": [
+            {
+              "local": "snapshot",
+              "imported": "default"
+            }
+          ]
+        },
+        {
+          "source": "./snapshot-policy.js",
+          "kind": "import",
+          "line": 6,
+          "bindings": [
+            {
+              "local": "installEarthSnapshot",
+              "imported": "installEarthSnapshot"
+            }
+          ]
+        }
+      ],
+      "exports": [],
+      "aliases": {},
+      "classes": [],
+      "functions": [],
+      "shortBindings": [],
+      "topLevelEffects": [
+        "installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)"
+      ],
+      "shortBindingCount": 0,
+      "semanticHash": "6573bed6a56e3a0de27cf27fea65116c4ce828f3a4254de95cc61de57764b406",
+      "dependencies": [
+        "eyes/src/main.js",
+        "eyes/src/engine/managers/WMTSManager.js",
+        "eyes/src/engine/components/WMTSComponent.js",
+        "eyes/src/engine/core/Unidentified752.js",
+        "eyes/snapshots/earth.json",
+        "eyes/src/runtime/snapshot-policy.js"
+      ],
+      "dependents": []
+    },
+    {
+      "file": "eyes/src/runtime/snapshot-policy.js",
+      "bytes": 964,
+      "sha256": "8823d6d8c5875f3b035c42065799098d382a315a32d6488aebfc960e9a1ff750",
+      "purpose": "固定地球 WMTS 日期，保留其他天体时间策略",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "installEarthSnapshot",
+          "local": "installEarthSnapshot",
+          "line": 2
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "installEarthSnapshot",
+          "documentation": "Pin only Earth image selection; simulation time and other body layers stay independent.",
+          "line": 2,
+          "endLine": 13,
+          "async": false,
+          "params": [
+            "{manager,component,layers}",
+            "snapshot"
+          ]
+        },
+        {
+          "name": "getImageDate",
+          "documentation": "",
+          "line": 5,
+          "endLine": 7,
+          "async": false,
+          "params": [
+            "requestedTime"
+          ]
+        },
+        {
+          "name": "setDimensionValue",
+          "documentation": "",
+          "line": 9,
+          "endLine": 11,
+          "async": false,
+          "params": [
+            "name",
+            "value"
+          ]
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "e350dc5cb076734f675bcd0647ece7c36ef53e6e9af435ba6c64867c645570f9",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/runtime/local-entry.js"
       ]
     },
     {

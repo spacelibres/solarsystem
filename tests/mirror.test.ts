@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 
 /**
  * `MIRROR_ROOT` is read when the module is first evaluated, so each case needs a
@@ -23,9 +23,9 @@ afterEach(() => {
 });
 
 describe('mirror root', () => {
-  it('defaults to data/mirror inside the project when MIRROR_ROOT is unset', async () => {
+  it('defaults to a mirror outside the project when MIRROR_ROOT is unset', async () => {
     const mirror = await loadMirrorModule({ MIRROR_ROOT: undefined });
-    expect(mirror.MIRROR_ROOT).toBe(join(process.cwd(), 'data', 'mirror'));
+    expect(mirror.MIRROR_ROOT).toBe(join(process.cwd(), '..', '.solarsystem-mirror'));
   });
 
   it('honours MIRROR_ROOT so production can keep the mirror out of the build tree', async () => {
@@ -39,14 +39,14 @@ describe('mirror root', () => {
   it('resolves mirror-relative paths under the configured root', async () => {
     const mirror = await loadMirrorModule({ MIRROR_ROOT: '/srv/solarsystem-mirror' });
     expect(mirror.mirrorPath('static/maps/earth/color_512_0.png')).toBe(
-      join('/srv/solarsystem-mirror', 'static/maps/earth/color_512_0.png'),
+      resolve('/srv/solarsystem-mirror', 'static/maps/earth/color_512_0.png'),
     );
   });
 
   it('tolerates a leading slash on the relative path', async () => {
     const mirror = await loadMirrorModule({ MIRROR_ROOT: '/srv/solarsystem-mirror' });
     expect(mirror.mirrorPath('/dynamic/dynamo/moon/earth/orb/def.dyn')).toBe(
-      join('/srv/solarsystem-mirror', 'dynamic/dynamo/moon/earth/orb/def.dyn'),
+      resolve('/srv/solarsystem-mirror', 'dynamic/dynamo/moon/earth/orb/def.dyn'),
     );
   });
 

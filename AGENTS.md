@@ -14,8 +14,11 @@ format directly and renders NASA's own planetary imagery, presented with the
 1. **Research before building.** When touching the `.dyn` format or NASA asset
    paths, verify against real assets first (see `tools/capture-assets.cjs`).
    Never guess a stride, path or field order.
-2. **Never mirror NASA's asset library.** Reference assets by exact URL at
-   runtime. Keep only the small `.dyn` test fixtures under `tests/fixtures/`.
+2. **Serve Eyes runtime resources locally.** The owner's 2026-10-24 instruction
+   supersedes the older remote-only rule: fonts, UI assets, textures, models,
+   ephemerides and image snapshots must be served from the same origin. Keep the
+   provisioned mirror outside the source/build tree and out of Git. Preserve
+   provenance; never silently fall back to NASA/Google at viewer runtime.
 3. **Never imply NASA endorsement.** Keep the attribution in `README.md` and the
    footer intact.
 4. **Follow the visual standard.** Palette roles come from

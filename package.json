@@ -1,6 +1,6 @@
 {
   "name": "spacelibre-solarsystem",
-  "version": "0.2.68",
+  "version": "0.2.69",
   "private": true,
   "description": "Independent source reconstruction of NASA Eyes Solar System with its original UI and engine.",
   "license": "MIT",
@@ -13,7 +13,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "pretest": "npm run eyes:build",
-    "test": "vitest run && node --test --test-concurrency=2 tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs tools/semantic-*.node-check.cjs",
+    "test": "vitest run && node --test --test-concurrency=2 tools/eyes-recovery.node-check.cjs tools/native-eyes.node-check.cjs tools/decoder-cache.node-check.cjs tools/eyes-analysis.node-check.cjs tools/semantic-*.node-check.cjs tools/local-assets.node-check.cjs tools/cmts-snapshot.node-check.cjs tools/wmts-snapshot.node-check.cjs",
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run lint && npm run eyes:check && npm run eyes:analyze:check && npm run i18n:check",
     "mirror:park": "node scripts/park-mirror.mjs park",
@@ -33,7 +33,9 @@
     "starlink:dates": "node tools/starlink/build-launch-dates.mjs",
     "starlink:models": "node tools/starlink/build-models.mjs",
     "starlink:dyn": "node tools/starlink/build-dyn.mjs",
-    "solar:catalog:check": "node tools/compile-solar-catalog.cjs --check"
+    "solar:catalog:check": "node tools/compile-solar-catalog.cjs --check",
+    "assets:inventory": "node tools/local-assets/manifest.cjs",
+    "assets:download": "node tools/local-assets/download.cjs"
   },
   "dependencies": {
     "next": "16.4.1",

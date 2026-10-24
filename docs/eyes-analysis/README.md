@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1156 个文件、1060 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1161 个文件、1063 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -542,6 +542,8 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/scripts/build.mjs](#file-eyes-scripts-build-mjs) — 从可编辑 src 编译 ESM/CJS/HTML，校验解码器并发布 dist/public；正常构建不运行恢复
 - [eyes/scripts/decoder-cache.mjs](#file-eyes-scripts-decoder-cache-mjs) — 按清单验证本地解码器的大小、摘要和 WASM 头，缺失时下载并原子写入
 - [eyes/scripts/dev-next.mjs](#file-eyes-scripts-dev-next-mjs) — 启动 Eyes 监听构建与 Next 开发子进程；信号退出时释放监听器
+- [eyes/scripts/local-assets.d.mts](#file-eyes-scripts-local-assets-d-mts) — 本地化模块 TypeScript 声明
+- [eyes/scripts/local-assets.mjs](#file-eyes-scripts-local-assets-mjs) — 构建期资源 URL 本地化和同源 CSP 策略
 - [eyes/scripts/serve.mjs](#file-eyes-scripts-serve-mjs) — 提供独立工程 HTTP 开发服务器及 MIME/路径限制，伴随源码监听构建
 - [eyes/shell/app.css](#file-eyes-shell-app-css) — 从应用 bundle 提取的实际业务界面 CSS
 - [eyes/shell/brand/apple-touch-icon.png](#file-eyes-shell-brand-apple-touch-icon-png) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
@@ -561,6 +563,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/shell/preload.css](#file-eyes-shell-preload-css) — 从预加载 bundle 提取的加载/嵌入界面 CSS
 - [eyes/shell/site.webmanifest](#file-eyes-shell-site-webmanifest) — Official spacelibre VI branding asset and provenance manifest; see docs/eyes-branding.md
 - [eyes/shell/vendors.css](#file-eyes-shell-vendors-css) — 第三方组件的实际 CSS；不是 styles 中的空 JS 占位
+- [eyes/snapshots/earth.json](#file-eyes-snapshots-earth-json) — 地球离线影像固定日期与来源
 - [eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js) — 在应用依赖图加载前显示普通或嵌入模式加载界面并更新进度
 - [eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js) — 装配太阳系应用的路由、管理器、组件配置和启动实例
 - [eyes/src/app/StarlinkLayer.js](#file-eyes-src-app-StarlinkLayer-js) — 加载紧凑 Starlink 目录，在地球实体下创建 OrbitalParticlesComponent，用单次实例化绘制显示 11,151 颗卫星。
@@ -851,6 +854,8 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/models/starlink/starlink-gen3.glb](#file-eyes-src-models-starlink-starlink-gen3-glb) — Gen3（V3）干净房低模，Starship 级包络。
 - [eyes/src/runtime/decoder-paths.js](#file-eyes-src-runtime-decoder-paths-js) — 按 decoder manifest revision 构造解码器资源绝对 URL
 - [eyes/src/runtime/interop.cjs](#file-eyes-src-runtime-interop-cjs) — 兼容 CommonJS/ESModule 默认导出访问器
+- [eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js) — 独立本地运行入口并安装影像日期策略
+- [eyes/src/runtime/snapshot-policy.js](#file-eyes-src-runtime-snapshot-policy-js) — 固定地球 WMTS 日期，保留其他天体时间策略
 - [eyes/src/styles/extracted/AppUtilsStyles.js](#file-eyes-src-styles-extracted-AppUtilsStyles-js) — 恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出
 - [eyes/src/styles/extracted/BaseContentBlockStyles.js](#file-eyes-src-styles-extracted-BaseContentBlockStyles-js) — 恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出
 - [eyes/src/styles/extracted/BreadcrumbStyles.js](#file-eyes-src-styles-extracted-BreadcrumbStyles-js) — 恢复的样式模块占位；当前文件只有来源注释，没有 CSS 注入或导出
@@ -1761,13 +1766,13 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 实际源码验收状态：`not-semantically-accepted`；
 
-直接依赖：[eyes/scripts/decoder-cache.mjs](#file-eyes-scripts-decoder-cache-mjs)。
+直接依赖：[eyes/scripts/decoder-cache.mjs](#file-eyes-scripts-decoder-cache-mjs)、[eyes/scripts/local-assets.mjs](#file-eyes-scripts-local-assets-mjs)。
 
 直接引用者：[eyes/scripts/dev-next.mjs](#file-eyes-scripts-dev-next-mjs)、[eyes/scripts/serve.mjs](#file-eyes-scripts-serve-mjs)。
 
 当前导出：`buildEyes` ← `buildEyes`。
 
-非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @8；`copyShell()` @12；`publishOutput()` @13；`anonymous(result)` @35；`anonymous()` @43；`anonymous()` @45。
+非 class 函数（包括模块内回调）：`buildEyes({watch=false,publish=false}={})` @9；`publishOutput()` @14；`anonymous()` @15；`anonymous()` @28；`anonymous(result)` @42；`anonymous()` @50；`anonymous()` @52。
 
 <details><summary>短名称作用域与使用证据（1 项）</summary>
 
@@ -1802,6 +1807,26 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 非 class 函数（包括模块内回调）：`stop(code=0)` @8；`anonymous()` @15；`anonymous()` @16；`anonymous(code)` @17；`anonymous(error)` @18。
 
 模块求值副作用（源码表达式）：`process.on('SIGINT',()=>{void stop();})`、`process.on('SIGTERM',()=>{void stop();})`、`child.on('exit',code=>{void stop(code??1);})`、`child.on('error',error=>{console.error(error);void stop(1);})`。
+
+<a id="file-eyes-scripts-local-assets-d-mts"></a>
+### `eyes/scripts/local-assets.d.mts`
+
+本地化模块 TypeScript 声明。[源码](../../eyes/scripts/local-assets.d.mts)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+<a id="file-eyes-scripts-local-assets-mjs"></a>
+### `eyes/scripts/local-assets.mjs`
+
+构建期资源 URL 本地化和同源 CSP 策略。[源码](../../eyes/scripts/local-assets.mjs)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/scripts/build.mjs](#file-eyes-scripts-build-mjs)。
+
+当前导出：`localizeAssetUrls` ← `localizeAssetUrls`；`localAssetsPlugin` ← `localAssetsPlugin`；`localizeShell` ← `localizeShell`；`eyesResourcePolicy` ← `eyesResourcePolicy`。
+
+非 class 函数（包括模块内回调）：`localizeAssetUrls(text)` @14：Preserve source provenance while compiling resource references to this host.；`anonymous(value)` @20；`localAssetsPlugin()` @30；`anonymous(args)` @32；`localizeShell(root)` @43。
 
 <a id="file-eyes-scripts-serve-mjs"></a>
 ### `eyes/scripts/serve.mjs`
@@ -1951,6 +1976,17 @@ Official spacelibre VI branding asset and provenance manifest; see docs/eyes-bra
 第三方组件的实际 CSS；不是 styles 中的空 JS 占位。[源码](../../eyes/shell/vendors.css)。证据等级：observed。
 
 实际源码验收状态：`not-semantically-accepted`；
+
+<a id="file-eyes-snapshots-earth-json"></a>
+### `eyes/snapshots/earth.json`
+
+地球离线影像固定日期与来源。[源码](../../eyes/snapshots/earth.json)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
+
+数据类型 `object`；顶层条目 4；字段 `date`、`layerId`、`sourceManifest`、`policy`。原始数据保留，不手工猜测字段单位。
 
 <a id="file-eyes-src-app-PreloadManager-js"></a>
 ### `eyes/src/app/PreloadManager.js`
@@ -4090,7 +4126,7 @@ KTX2 的 GLTF 接口只转发到同一纹理资源通道，不另建一份下载
 
 直接依赖：[eyes/src/engine/pioneer/index.js](#file-eyes-src-engine-pioneer-index-js)、[eyes/src/engine/core/Capabilities-584.js](#file-eyes-src-engine-core-Capabilities-584-js)。
 
-直接引用者：[eyes/src/engine/solar-system/public-api.js](#file-eyes-src-engine-solar-system-public-api-js)。
+直接引用者：[eyes/src/engine/solar-system/public-api.js](#file-eyes-src-engine-solar-system-public-api-js)、[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
 
 当前导出：`WMTSComponent` ← `WMTSComponent`。
 
@@ -9746,7 +9782,7 @@ TelescopeHelper：建立地面观察相机目标、经纬地标、飞行过渡�
 
 约束/疑点：本文件无 class 声明；不能以文件名凭空补造类。顶层效果/配置项见 evidence。。
 
-直接引用者：[eyes/src/engine/core/BaseApp.js](#file-eyes-src-engine-core-BaseApp-js)。
+直接引用者：[eyes/src/engine/core/BaseApp.js](#file-eyes-src-engine-core-BaseApp-js)、[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
 
 当前导出：`default` ← `defaultExport`。
 
@@ -11473,7 +11509,7 @@ MaterialManager 单项材质/着色器资源的状态记录。。[源码:13](../
 
 直接依赖：[eyes/src/engine/pioneer/index.js](#file-eyes-src-engine-pioneer-index-js)、[eyes/src/engine/solar-system/public-api.js](#file-eyes-src-engine-solar-system-public-api-js)、[eyes/src/framework/eyes/public-api.js](#file-eyes-src-framework-eyes-public-api-js)。
 
-直接引用者：[eyes/src/framework/eyes/public-api.js](#file-eyes-src-framework-eyes-public-api-js)。
+直接引用者：[eyes/src/framework/eyes/public-api.js](#file-eyes-src-framework-eyes-public-api-js)、[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
 
 当前导出：`WMTSManager` ← `WMTSManager`。
 
@@ -12002,6 +12038,8 @@ Pioneer 公共出口：转发引擎类型、控制器和组件；index 与 publi
 
 直接依赖：[eyes/src/i18n/install.js](#file-eyes-src-i18n-install-js)、[eyes/src/app/PreloadManager.js](#file-eyes-src-app-PreloadManager-js)、[eyes/src/styles/extracted/PreloadStyles.js](#file-eyes-src-styles-extracted-PreloadStyles-js)、[eyes/src/styles/extracted/VendorStyles.js](#file-eyes-src-styles-extracted-VendorStyles-js)、[eyes/src/app/SolarSystemApp.js](#file-eyes-src-app-SolarSystemApp-js)。
 
+直接引用者：[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
+
 <a id="file-eyes-src-models-starlink-manifest-json"></a>
 ### `eyes/src/models/starlink/manifest.json`
 
@@ -12071,6 +12109,30 @@ Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/mo
 非 class 函数（包括模块内回调）：`anonymous(value)` @1；`anonymous()` @1；`anonymous()` @1；`anonymous(module)` @2。
 
 模块求值副作用（源码表达式）：`exports.getDefaultExport=value=>value&&(value.__esModule\|\|value[Symbol.toStringTag]==='Module')?()=>value.default:()=>value`、`exports.nodeModule=module=>{module.paths=[];module.children\|\|=[];return module;}`。
+
+<a id="file-eyes-src-runtime-local-entry-js"></a>
+### `eyes/src/runtime/local-entry.js`
+
+独立本地运行入口并安装影像日期策略。[源码](../../eyes/src/runtime/local-entry.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接依赖：[eyes/src/main.js](#file-eyes-src-main-js)、[eyes/src/engine/managers/WMTSManager.js](#file-eyes-src-engine-managers-WMTSManager-js)、[eyes/src/engine/components/WMTSComponent.js](#file-eyes-src-engine-components-WMTSComponent-js)、[eyes/src/engine/core/Unidentified752.js](#file-eyes-src-engine-core-Unidentified752-js)、[eyes/snapshots/earth.json](#file-eyes-snapshots-earth-json)、[eyes/src/runtime/snapshot-policy.js](#file-eyes-src-runtime-snapshot-policy-js)。
+
+模块求值副作用（源码表达式）：`installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)`。
+
+<a id="file-eyes-src-runtime-snapshot-policy-js"></a>
+### `eyes/src/runtime/snapshot-policy.js`
+
+固定地球 WMTS 日期，保留其他天体时间策略。[源码](../../eyes/src/runtime/snapshot-policy.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
+
+当前导出：`installEarthSnapshot` ← `installEarthSnapshot`。
+
+非 class 函数（包括模块内回调）：`installEarthSnapshot({manager,component,layers}, snapshot)` @2：Pin only Earth image selection; simulation time and other body layers stay independent.；`getImageDate(requestedTime)` @5；`setDimensionValue(name, value)` @9。
 
 <a id="file-eyes-src-styles-extracted-AppUtilsStyles-js"></a>
 ### `eyes/src/styles/extracted/AppUtilsStyles.js`

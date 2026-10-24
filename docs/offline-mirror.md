@@ -1,3 +1,26 @@
+# Current local resource deployment (2026-10-24)
+
+The active recovered source is `eyes/`; normal builds never recover or replace
+it. Runtime resource requests use `/nasa/` and never fall back upstream.
+Set `MIRROR_ROOT=/srv/solarsystem-mirror` on the VPS. The local default is the
+sibling `.solarsystem-mirror` directory, outside the checkout and Git.
+
+The existing VPS library was verified at 107,179 files / 1,380,016,998 bytes.
+Reuse it rather than redownloading it. Generate an inventory with
+`npm run assets:inventory -- --mirror /srv/solarsystem-mirror --out tools/out/local-assets.json`
+and provision missing files with
+`npm run assets:download -- --mirror /srv/solarsystem-mirror --manifest tools/out/local-assets.json`.
+Reports record failures and hashes; a missing local file returns 404.
+The Earth snapshot policy is `eyes/snapshots/earth.json` (2026-10-23).
+This policy fixes request dates; it does not prove all image tiles are present.
+CMTS/WMTS enumeration tools are optional research/provisioning tools, not a
+mandatory full-library download or a storage requirement for this release.
+
+The sections below document the older capture workflow and are historical;
+in-tree mirrors must be moved outside the checkout before any build.
+
+---
+
 # Local mirror and de-obfuscation
 
 How to get a **complete, runnable, offline copy** of NASA Eyes on the Solar

@@ -1,6 +1,5 @@
 {
   "eyes/scripts/audit.mjs": "fd651147adf15889b5f9d5bfa835a35d718e5eb56f68fe5171c94206f058d800",
-  "eyes/scripts/build.mjs": "66594b15777a5ebfcb772a8d277382011b113e01a6f824c72779f16c0677c506",
   "eyes/scripts/decoder-cache.mjs": "9c933747403fa69923aa97046e6aec38ae3fd6f707b5cd9c825370a0ac6aa6c1",
   "eyes/scripts/dev-next.mjs": "9c571c13b43337e9679e40bf4a00bfc15fb7b8482734671e820ba23f7b0f7f46",
   "eyes/scripts/serve.mjs": "7df2a998ca7a618ce467fa198c9fb9a9533099c69e198e408eb5ec2ef60d24b4",

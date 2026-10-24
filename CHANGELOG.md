@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.69 - 2026-10-24
+
+Serve Eyes resources from the same-origin disk mirror, including nested model
+and metadata references, with no upstream runtime fallback. Add safe HEAD/range
+serving, a fixed 2026-10-23 Earth imagery policy, resumable provisioning tools
+and a strict Eyes resource policy. Reuse the existing VPS mirror. Complete
+highest-resolution surface tile coverage is outside this release's scope.
+
+Validation: npm ci, npm test, npm run check and npm run build.
+
 ## 0.2.68 - 2026-10-20
 
 Withdraw the Western constellation artwork feature at the owner's request.

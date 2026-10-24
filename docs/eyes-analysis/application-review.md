@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 261 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 263 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -374,6 +374,18 @@ Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/mo
 兼容 CommonJS/ESModule 默认导出访问器。[源码](../../eyes/src/runtime/interop.cjs)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-runtime-interop-cjs)
+
+## `eyes/src/runtime/local-entry.js`
+
+独立本地运行入口并安装影像日期策略。[源码](../../eyes/src/runtime/local-entry.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-runtime-local-entry-js)
+
+## `eyes/src/runtime/snapshot-policy.js`
+
+固定地球 WMTS 日期，保留其他天体时间策略。[源码](../../eyes/src/runtime/snapshot-policy.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-runtime-snapshot-policy-js)
 
 ## `eyes/src/styles/extracted/AppUtilsStyles.js`
 

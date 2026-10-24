@@ -1,4 +1,5 @@
 import { ensureDecoderCache } from './decoder-cache.mjs';
+import { localAssetsPlugin, localizeShell } from './local-assets.mjs';
 import { build, context } from 'esbuild';
 import { mkdir, cp } from 'node:fs/promises';
 import { watch as watchDirectory } from 'node:fs';
@@ -9,21 +10,27 @@ export async function buildEyes({ watch = false, publish = false } = {}) {
   const cache = await ensureDecoderCache();
   const dist = path.join(project, 'dist');
   await mkdir(dist, { recursive: true });
-  const copyShell = async () => cp(path.join(project, 'shell'), dist, { recursive: true });
-  const publishOutput = async () => {
-    await copyShell();
-    await mkdir(path.join(dist, 'data'), { recursive: true });
-    await cp(path.join(project, 'src/data/starlink-orbits.json'), path.join(dist, 'data/starlink-orbits.json'));
-    await mkdir(path.join(dist, 'models'), { recursive: true });
-    await cp(path.join(project, 'src/models/starlink'), path.join(dist, 'models/starlink'), { recursive: true });
-    await mkdir(path.join(dist, 'dyn'), { recursive: true });
-    await cp(path.join(project, 'src/dyn/starlink'), path.join(dist, 'dyn/starlink'), { recursive: true });
-    await cp(cache.root, path.join(dist, 'decoders', cache.revision), { recursive: true });
-    if (publish) await cp(dist, path.resolve(project, '../public/eyes'), { recursive: true });
+  let publishing = Promise.resolve();
+  const publishOutput = () => {
+    const pending = publishing.then(async () => {
+      await cp(path.join(project, 'shell'), dist, { recursive: true });
+      await localizeShell(dist);
+      await mkdir(path.join(dist, 'data'), { recursive: true });
+      await cp(path.join(project, 'src/data/starlink-orbits.json'), path.join(dist, 'data/starlink-orbits.json'));
+      await mkdir(path.join(dist, 'models'), { recursive: true });
+      await cp(path.join(project, 'src/models/starlink'), path.join(dist, 'models/starlink'), { recursive: true });
+      await mkdir(path.join(dist, 'dyn'), { recursive: true });
+      await cp(path.join(project, 'src/dyn/starlink'), path.join(dist, 'dyn/starlink'), { recursive: true });
+      await cp(cache.root, path.join(dist, 'decoders', cache.revision), { recursive: true });
+      if (publish) await cp(dist, path.resolve(project, '../public/eyes'), { recursive: true });
+    });
+    // A failed copy must not poison subsequent watch rebuilds.
+    publishing = pending.catch(() => {});
+    return pending;
   };
   const options = {
     absWorkingDir: project,
-    entryPoints: ['src/main.js'],
+    entryPoints: ['src/runtime/local-entry.js'],
     outfile: 'dist/application.js',
     bundle: true,
     format: 'iife',
@@ -31,7 +38,7 @@ export async function buildEyes({ watch = false, publish = false } = {}) {
     keepNames: true,
     target: 'es2020',
     loader: { '.html': 'text' },
-    plugins: [{ name: 'application-shell', setup(builder) {
+    plugins: [localAssetsPlugin(), { name: 'application-shell', setup(builder) {
       builder.onEnd(async result => { if (!result.errors.length) await publishOutput(); });
     } }],
   };
@@ -44,7 +51,7 @@ export async function buildEyes({ watch = false, publish = false } = {}) {
     clearTimeout(timer);
     timer = setTimeout(() => { publishOutput().catch(console.error); }, 100);
   });
-  return { async dispose() { clearTimeout(timer); shellWatcher.close(); await builder.dispose(); } };
+  return { async dispose() { clearTimeout(timer); shellWatcher.close(); await builder.dispose(); await publishing; } };
 }
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   await buildEyes({ publish: process.argv.includes('--publish'), watch: process.argv.includes('--watch') });
