@@ -5,6 +5,11 @@ const fs=require('node:fs/promises');
 const os=require('node:os');
 const {build}=require('esbuild');
 const modulePromise=import('../eyes/scripts/local-assets.mjs');
+test('dynamic resources use a fresh namespace to bypass previously immutable browser entries',async()=>{
+ const {localizeAssetUrls}=await modulePromise;
+ assert.equal(localizeAssetUrls('https://eyes.nasa.gov/assets/dynamic'),'/nasa/live/dynamic');
+ assert.equal(localizeAssetUrls('https://eyes.nasa.gov/assets/dynamic/dynamo/a/def.dyn'),'/nasa/live/dynamic/dynamo/a/def.dyn');
+});
 test('compiled resources stay same-origin while source files and navigation remain intact',async()=>{
  const {localAssetsPlugin}=await modulePromise;
  const root=await fs.mkdtemp(path.join(os.tmpdir(),'eyes-local-build-'));

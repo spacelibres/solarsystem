@@ -217,3 +217,14 @@ output names a segment the downloader has not reached yet, not a broken link.
 Known-benign failures in `tools/out/download-failures.txt`: the `wasm/draco/`
 and `wasm/ktx2/` entries are *directories*, which the server answers with 403.
 Their contents are listed individually in the manifest and download normally.
+
+## Mutable dynamic indexes
+
+Dynamic `.dyn` and JSON metadata are refreshed on access after 60 seconds when
+provisioning is enabled. Dynamic responses use no-cache instead of immutable.
+Compiled resource URLs use `/nasa/live/dynamic/`, mapping to the same physical
+`dynamic/` directory. This bypasses browser entries from older releases that
+incorrectly cached indexes for one year. Reload the application after upgrading;
+already-running controllers retain their previously loaded index tree.
+GRACE-FO2 was verified with a changed upstream def.dyn (756 bytes vs cached828),
+while the stale tree's `90.dyn` and `90_33.dyn` returned upstream403.

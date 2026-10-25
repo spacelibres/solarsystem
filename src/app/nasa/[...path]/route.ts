@@ -24,7 +24,8 @@ const CONTENT_TYPES: Record<string, string> = {
 type Context = { params: Promise<{ path: string[] }> };
 
 async function serve(request: Request, context: Context, head: boolean, attempted = false): Promise<Response> {
-  const { path: segments } = await context.params;
+  const { path: requestedSegments } = await context.params;
+  const segments = requestedSegments[0] === 'live' && requestedSegments[1] === 'dynamic' ? requestedSegments.slice(1) : requestedSegments;
   let abs: string;
   try {
     // Next decodes route parameters once; reject residual escapes as well as
@@ -39,6 +40,11 @@ async function serve(request: Request, context: Context, head: boolean, attempte
     if (rel === '..' || rel.startsWith('..\\') || rel.startsWith('../') || isAbsolute(rel)) {
       return new Response(head ? null : 'bad path', { status: 400 });
     }
+    // Dynamic indexes describe a changing upstream tree, not immutable media.
+    if (!attempted && process.env.NASA_MIRROR_FILL === '1' && segments[0] === 'dynamic' && /\.(dyn|json)$/.test(abs)) {
+      const cached = await stat(file);
+      if (Date.now() - cached.mtimeMs > 60000) await fillMirrorAsset(segments.join('/'));
+    }
     const info = await stat(file);
     if (!info.isFile()) return new Response(head ? null : 'not found', { status: 404 });
     const extension = extname(file).toLowerCase();
@@ -50,7 +56,7 @@ async function serve(request: Request, context: Context, head: boolean, attempte
     const headers = new Headers({
       'Content-Type': CONTENT_TYPES[extension] ?? 'application/octet-stream',
       'Content-Length': String(size), 'Accept-Ranges': 'bytes',
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': segments[0] === 'dynamic' ? 'no-cache, max-age=0, must-revalidate' : 'public, max-age=31536000, immutable',
       'X-Content-Type-Options': 'nosniff',
     });
     let start = 0;

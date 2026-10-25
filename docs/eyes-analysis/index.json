@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "d65cbdf78dcf345b59b291132e90f02cd1eaeee7aedf672eae29560a503a3659",
+      "sha256": "8b99eb2932aed5e4f2d659ff8e4d910031e35ffab1c8e1181b68a8083034bdf2",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "4dfb69cf523a61f479b009bc4006c01cf4e0682924a31ef055ca5315dfa662ad",
+      "sha256": "24456b8c904ed9c6f3e9c7c77e6368840fa8d94dd00637817883c684f17d1055",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -1193,8 +1193,8 @@
     },
     {
       "file": "eyes/scripts/local-assets.mjs",
-      "bytes": 3000,
-      "sha256": "1ea77e335cb58cdd0f60e7c45afba3952246a9d4ac6367131b32a79683964da8",
+      "bytes": 3066,
+      "sha256": "551402895ea0c638257392876a12a04f4d7091aeb248a5b31c634247697f9b5d",
       "purpose": "构建期资源 URL 本地化和同源 CSP 策略",
       "confidence": "observed",
       "origin": null,
@@ -1237,22 +1237,22 @@
         {
           "exported": "localizeAssetUrls",
           "local": "localizeAssetUrls",
-          "line": 14
+          "line": 15
         },
         {
           "exported": "localAssetsPlugin",
           "local": "localAssetsPlugin",
-          "line": 30
+          "line": 31
         },
         {
           "exported": "localizeShell",
           "local": "localizeShell",
-          "line": 43
+          "line": 44
         },
         {
           "exported": "eyesResourcePolicy",
           "local": "eyesResourcePolicy",
-          "line": 53
+          "line": 54
         }
       ],
       "aliases": {},
@@ -1261,8 +1261,8 @@
         {
           "name": "localizeAssetUrls",
           "documentation": "Preserve source provenance while compiling resource references to this host.",
-          "line": 14,
-          "endLine": 28,
+          "line": 15,
+          "endLine": 29,
           "async": false,
           "params": [
             "text"
@@ -1271,8 +1271,8 @@
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 20,
-          "endLine": 24,
+          "line": 21,
+          "endLine": 25,
           "async": false,
           "params": [
             "value"
@@ -1281,16 +1281,16 @@
         {
           "name": "localAssetsPlugin",
           "documentation": "",
-          "line": 30,
-          "endLine": 41,
+          "line": 31,
+          "endLine": 42,
           "async": false,
           "params": []
         },
         {
           "name": "anonymous",
           "documentation": "",
-          "line": 32,
-          "endLine": 39,
+          "line": 33,
+          "endLine": 40,
           "async": true,
           "params": [
             "args"
@@ -1299,8 +1299,8 @@
         {
           "name": "localizeShell",
           "documentation": "",
-          "line": 43,
-          "endLine": 51,
+          "line": 44,
+          "endLine": 52,
           "async": true,
           "params": [
             "root"
@@ -1310,7 +1310,7 @@
       "shortBindings": [],
       "topLevelEffects": [],
       "shortBindingCount": 0,
-      "semanticHash": "b244b4b13aeb7bbb954dbcf4cd978f9bc9c5d6d242f891b75e3992ce2ecacb0b",
+      "semanticHash": "9bae65999bea26c3d753fac3b836c883f5530a220b5e1602e59a0ff01e8a124a",
       "dependencies": [],
       "dependents": [
         "eyes/scripts/build.mjs"

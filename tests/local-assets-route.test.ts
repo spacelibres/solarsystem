@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { mkdtemp, writeFile, rm, mkdir, symlink, readFile } from 'node:fs/promises';
+import { mkdtemp, writeFile, rm, mkdir, symlink, readFile, utimes } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
@@ -17,6 +17,26 @@ beforeEach(async () => {
 afterEach(async () => { vi.unstubAllEnvs(); await rm(root, { recursive: true, force: true }); });
 
 describe('disk asset route', () => {
+  it('refreshes stale live indexes instead of keeping an immutable obsolete tree', async () => {
+    const file = join(root, 'dynamic/dynamo/sc_grace_fo2/def.dyn');
+    await mkdir(join(root, 'dynamic/dynamo/sc_grace_fo2'), { recursive: true });
+    await writeFile(file, 'obsolete index');
+    await utimes(file, new Date(0), new Date(0));
+    vi.stubEnv('NASA_MIRROR_FILL', '1');
+    const fetcher = vi.fn(async () => new Response('current index'));
+    vi.stubGlobal('fetch', fetcher);
+    try {
+      vi.resetModules();
+      const fresh = await import('../src/app/nasa/[...path]/route');
+      const path = ['live', 'dynamic', 'dynamo', 'sc_grace_fo2', 'def.dyn'];
+      const response = await fresh.GET(request(), context(path));
+      expect(await response.text()).toBe('current index');
+      expect(response.headers.get('cache-control')).toContain('no-cache');
+      expect(await readFile(file, 'utf8')).toBe('current index');
+      await fresh.GET(request(), context(path));
+      expect(fetcher).toHaveBeenCalledTimes(1);
+    } finally { vi.unstubAllGlobals(); }
+  });
   it('fills an authorized missing asset and serves the first request from disk', async () => {
     vi.stubEnv('NASA_MIRROR_FILL', '1');
     const fetcher = vi.fn(async () => new Response('downloaded dyn'));

@@ -2,6 +2,7 @@ import { readFile, writeFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const prefixes = [
+  ['https://eyes.nasa.gov/assets/dynamic', '/nasa/live/dynamic'],
   ['https://eyes.nasa.gov/assets/', '/nasa/'],
   ['https://eyes.nasa.gov/apps/solar-system/', '/nasa/site/'],
   ['https://trek.nasa.gov/', '/nasa/external/trek.nasa.gov/'],

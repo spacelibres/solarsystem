@@ -3,6 +3,16 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.72 - 2026-10-25
+
+Refresh cached dynamic dynamo indexes and metadata after 60 seconds when server
+provisioning is enabled. Stop marking dynamic responses immutable. Compile a new
+same-origin live resource namespace so browsers bypass older year-long entries.
+Fix obsolete GRACE-FO indexes requesting windows removed upstream; do not
+fabricate unavailable ephemeris segments.
+
+Validation: npm ci, npm test, npm run check and npm run build.
+
 ## 0.2.71 - 2026-10-25
 
 Start the home page with Featured Stories and Events collapsed. Keep the
