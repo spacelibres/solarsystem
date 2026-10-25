@@ -2,7 +2,7 @@
 
 > 依据：当前检入的可运行工程、AST 逐声明清点和分领域源码复核。本文覆盖每个受版本控制的 Eyes 文件与显式 class 声明；不能据此声称恢复 NASA 未发布的原始仓库、所有局部名称或逐分支正确性证明。
 
-覆盖：**1161 个文件、1063 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
+覆盖：**1162 个文件、1064 个 JavaScript 文件、552 个显式类、5514 个方法/访问器/可调用字段及静态块、21775 个短名称绑定**。短名称包含正常数学参数、循环变量、导入别名和压缩遗留，不能全部视为混淆。
 
 ## 实际源码整理进度
 
@@ -853,6 +853,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 - [eyes/src/models/starlink/starlink-gen2.glb](#file-eyes-src-models-starlink-starlink-gen2-glb) — Gen2（v2 Mini）干净房低模，双太阳翼。
 - [eyes/src/models/starlink/starlink-gen3.glb](#file-eyes-src-models-starlink-starlink-gen3-glb) — Gen3（V3）干净房低模，Starship 级包络。
 - [eyes/src/runtime/decoder-paths.js](#file-eyes-src-runtime-decoder-paths-js) — 按 decoder manifest revision 构造解码器资源绝对 URL
+- [eyes/src/runtime/home-panel-policy.js](#file-eyes-src-runtime-home-panel-policy-js) — 首页精选故事面板默认收起，保留已有展开入口与内容
 - [eyes/src/runtime/interop.cjs](#file-eyes-src-runtime-interop-cjs) — 兼容 CommonJS/ESModule 默认导出访问器
 - [eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js) — 独立本地运行入口并安装影像日期策略
 - [eyes/src/runtime/snapshot-policy.js](#file-eyes-src-runtime-snapshot-policy-js) — 固定地球 WMTS 日期，保留其他天体时间策略
@@ -12095,6 +12096,19 @@ Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/mo
 
 非 class 函数（包括模块内回调）：`localDecoderUrl(resource, baseUrl=document.baseURI)` @2。
 
+<a id="file-eyes-src-runtime-home-panel-policy-js"></a>
+### `eyes/src/runtime/home-panel-policy.js`
+
+首页精选故事面板默认收起，保留已有展开入口与内容。[源码](../../eyes/src/runtime/home-panel-policy.js)。证据等级：observed。
+
+实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
+
+直接引用者：[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
+
+当前导出：`installHomePanelPolicy` ← `installHomePanelPolicy`。
+
+非 class 函数（包括模块内回调）：`installHomePanelPolicy(HomeView)` @2：Keep the original panel populated and enabled so its expand controls still work.；`updateHomeComponents(...args)` @4。
+
 <a id="file-eyes-src-runtime-interop-cjs"></a>
 ### `eyes/src/runtime/interop.cjs`
 
@@ -12117,9 +12131,9 @@ Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/mo
 
 实际源码验收状态：`not-semantically-accepted`；仅有结构清点，不能当作语义整理完成。
 
-直接依赖：[eyes/src/main.js](#file-eyes-src-main-js)、[eyes/src/engine/managers/WMTSManager.js](#file-eyes-src-engine-managers-WMTSManager-js)、[eyes/src/engine/components/WMTSComponent.js](#file-eyes-src-engine-components-WMTSComponent-js)、[eyes/src/engine/core/Unidentified752.js](#file-eyes-src-engine-core-Unidentified752-js)、[eyes/snapshots/earth.json](#file-eyes-snapshots-earth-json)、[eyes/src/runtime/snapshot-policy.js](#file-eyes-src-runtime-snapshot-policy-js)。
+直接依赖：[eyes/src/main.js](#file-eyes-src-main-js)、[eyes/src/engine/managers/WMTSManager.js](#file-eyes-src-engine-managers-WMTSManager-js)、[eyes/src/engine/components/WMTSComponent.js](#file-eyes-src-engine-components-WMTSComponent-js)、[eyes/src/engine/core/Unidentified752.js](#file-eyes-src-engine-core-Unidentified752-js)、[eyes/snapshots/earth.json](#file-eyes-snapshots-earth-json)、[eyes/src/runtime/snapshot-policy.js](#file-eyes-src-runtime-snapshot-policy-js)、[eyes/src/ui/views/HomeView.js](#file-eyes-src-ui-views-HomeView-js)、[eyes/src/runtime/home-panel-policy.js](#file-eyes-src-runtime-home-panel-policy-js)。
 
-模块求值副作用（源码表达式）：`installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)`。
+模块求值副作用（源码表达式）：`installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)`、`installHomePanelPolicy(HomeView)`。
 
 <a id="file-eyes-src-runtime-snapshot-policy-js"></a>
 ### `eyes/src/runtime/snapshot-policy.js`
@@ -17224,7 +17238,7 @@ TutorialOverlayTemplate 静态 DOM 模板；为配套组件提供节点、事件
 
 直接依赖：[eyes/src/framework/eyes/index.js](#file-eyes-src-framework-eyes-index-js)、[eyes/src/ui/views/ExtendedBaseView.js](#file-eyes-src-ui-views-ExtendedBaseView-js)。
 
-直接引用者：[eyes/src/app/config/views.js](#file-eyes-src-app-config-views-js)。
+直接引用者：[eyes/src/app/config/views.js](#file-eyes-src-app-config-views-js)、[eyes/src/runtime/local-entry.js](#file-eyes-src-runtime-local-entry-js)。
 
 当前导出：`HomeView` ← `HomeView`。
 

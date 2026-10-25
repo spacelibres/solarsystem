@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.71 - 2026-10-25
+
+Start the home page with Featured Stories and Events collapsed. Keep the
+populated panel and existing desktop/mobile expand controls available so users
+can open it on demand. Preserve the recovered upstream view implementation.
+
+Validation: npm ci, npm test, npm run check and npm run build.
+
 ## 0.2.70 - 2026-10-24
 
 Fill missing mirrored assets on the server when NASA_MIRROR_FILL=1. Coalesce

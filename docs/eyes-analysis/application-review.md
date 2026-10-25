@@ -1,6 +1,6 @@
 # 应用当前源码逐文件参考
 
-当前 263 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
+当前 264 个文件。所有签名、行号、读写证据来自当前源码；[架构研究基线](application-architecture.md) 与 [实际语义进度](semantic-progress.json) 分开记录。完整短名、调用和反向依赖见 [总文档](README.md)。
 
 ## `eyes/src/app/PreloadManager.js`
 
@@ -368,6 +368,12 @@ Gen3（V3）干净房低模，Starship 级包络。。[源码](../../eyes/src/mo
 按 decoder manifest revision 构造解码器资源绝对 URL。[源码](../../eyes/src/runtime/decoder-paths.js)。语义状态：`not-semantically-accepted`。
 
 [总文档中的完整条目](README.md#file-eyes-src-runtime-decoder-paths-js)
+
+## `eyes/src/runtime/home-panel-policy.js`
+
+首页精选故事面板默认收起，保留已有展开入口与内容。[源码](../../eyes/src/runtime/home-panel-policy.js)。语义状态：`not-semantically-accepted`。
+
+[总文档中的完整条目](README.md#file-eyes-src-runtime-home-panel-policy-js)
 
 ## `eyes/src/runtime/interop.cjs`
 

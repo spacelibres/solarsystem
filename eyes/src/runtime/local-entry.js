@@ -4,4 +4,7 @@ import { WMTSComponent } from '../engine/components/WMTSComponent.js';
 import layers from '../engine/core/Unidentified752.js';
 import snapshot from '../../snapshots/earth.json';
 import { installEarthSnapshot } from './snapshot-policy.js';
+import { HomeView } from '../ui/views/HomeView.js';
+import { installHomePanelPolicy } from './home-panel-policy.js';
 installEarthSnapshot({ manager: WMTSManager, component: WMTSComponent, layers }, snapshot);
+installHomePanelPolicy(HomeView);

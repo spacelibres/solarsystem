@@ -2,8 +2,8 @@
   "schema": 1,
   "scope": "git ls-files eyes; excludes generated output, node_modules and decoder binaries",
   "counts": {
-    "files": 1161,
-    "javascript": 1063,
+    "files": 1162,
+    "javascript": 1064,
     "classes": 552,
     "methods": 5514,
     "shortBindings": 21775,
@@ -532,7 +532,7 @@
     {
       "file": "eyes/package-lock.json",
       "bytes": 16372,
-      "sha256": "bae33eabbe7f799071606073ae82288a714b424fdbad26036218e57bd2e7e61d",
+      "sha256": "d65cbdf78dcf345b59b291132e90f02cd1eaeee7aedf672eae29560a503a3659",
       "purpose": "独立工程构建依赖的精确解析锁定，不代表原始 bundle 的库版本",
       "confidence": "observed",
       "origin": null,
@@ -557,7 +557,7 @@
     {
       "file": "eyes/package.json",
       "bytes": 379,
-      "sha256": "c61b3c04b87950497f68756a5d8217d6c88b363c37c8b211616a094c095744e4",
+      "sha256": "4dfb69cf523a61f479b009bc4006c01cf4e0682924a31ef055ca5315dfa662ad",
       "purpose": "独立 Eyes 工程脚本及构建期依赖声明",
       "confidence": "observed",
       "origin": null,
@@ -135489,6 +135489,57 @@
       ]
     },
     {
+      "file": "eyes/src/runtime/home-panel-policy.js",
+      "bytes": 439,
+      "sha256": "0b5fc3aa82bc4f58358df7882a94ec1e0a75ff248fd85f86c002ec9c783fe5a6",
+      "purpose": "首页精选故事面板默认收起，保留已有展开入口与内容",
+      "confidence": "observed",
+      "origin": null,
+      "semanticReview": {
+        "status": "not-semantically-accepted"
+      },
+      "imports": [],
+      "exports": [
+        {
+          "exported": "installHomePanelPolicy",
+          "local": "installHomePanelPolicy",
+          "line": 2
+        }
+      ],
+      "aliases": {},
+      "classes": [],
+      "functions": [
+        {
+          "name": "installHomePanelPolicy",
+          "documentation": "Keep the original panel populated and enabled so its expand controls still work.",
+          "line": 2,
+          "endLine": 9,
+          "async": false,
+          "params": [
+            "HomeView"
+          ]
+        },
+        {
+          "name": "updateHomeComponents",
+          "documentation": "",
+          "line": 4,
+          "endLine": 8,
+          "async": true,
+          "params": [
+            "...args"
+          ]
+        }
+      ],
+      "shortBindings": [],
+      "topLevelEffects": [],
+      "shortBindingCount": 0,
+      "semanticHash": "cdcea4e9f5f17d6065d4ebf2ac3a2a983fefa62f56eac6dbf8294ecdadf37839",
+      "dependencies": [],
+      "dependents": [
+        "eyes/src/runtime/local-entry.js"
+      ]
+    },
+    {
       "file": "eyes/src/runtime/interop.cjs",
       "bytes": 237,
       "sha256": "a275b750297a770c40b21ab97d8fc8b2b7a91f608754082726928b57b54ec048",
@@ -135569,8 +135620,8 @@
     },
     {
       "file": "eyes/src/runtime/local-entry.js",
-      "bytes": 417,
-      "sha256": "37b9b920a0e2adef862590d6f1357efe31469e85d971a948714a5a6f99367963",
+      "bytes": 568,
+      "sha256": "04d397c1d73ceb637fe79c71940b14ac42d06613536f04f31d1dc0a8531a8479",
       "purpose": "独立本地运行入口并安装影像日期策略",
       "confidence": "observed",
       "origin": null,
@@ -135638,6 +135689,28 @@
               "imported": "installEarthSnapshot"
             }
           ]
+        },
+        {
+          "source": "../ui/views/HomeView.js",
+          "kind": "import",
+          "line": 7,
+          "bindings": [
+            {
+              "local": "HomeView",
+              "imported": "HomeView"
+            }
+          ]
+        },
+        {
+          "source": "./home-panel-policy.js",
+          "kind": "import",
+          "line": 8,
+          "bindings": [
+            {
+              "local": "installHomePanelPolicy",
+              "imported": "installHomePanelPolicy"
+            }
+          ]
         }
       ],
       "exports": [],
@@ -135646,17 +135719,20 @@
       "functions": [],
       "shortBindings": [],
       "topLevelEffects": [
-        "installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)"
+        "installEarthSnapshot({manager:WMTSManager,component:WMTSComponent,layers},snapshot)",
+        "installHomePanelPolicy(HomeView)"
       ],
       "shortBindingCount": 0,
-      "semanticHash": "6573bed6a56e3a0de27cf27fea65116c4ce828f3a4254de95cc61de57764b406",
+      "semanticHash": "9615ede69cc18a72863c3010b6be2033dd6073c911fd0e522640d32f6d7ca87c",
       "dependencies": [
         "eyes/src/main.js",
         "eyes/src/engine/managers/WMTSManager.js",
         "eyes/src/engine/components/WMTSComponent.js",
         "eyes/src/engine/core/Unidentified752.js",
         "eyes/snapshots/earth.json",
-        "eyes/src/runtime/snapshot-policy.js"
+        "eyes/src/runtime/snapshot-policy.js",
+        "eyes/src/ui/views/HomeView.js",
+        "eyes/src/runtime/home-panel-policy.js"
       ],
       "dependents": []
     },
@@ -185609,7 +185685,8 @@
         "eyes/src/ui/views/ExtendedBaseView.js"
       ],
       "dependents": [
-        "eyes/src/app/config/views.js"
+        "eyes/src/app/config/views.js",
+        "eyes/src/runtime/local-entry.js"
       ]
     },
     {
