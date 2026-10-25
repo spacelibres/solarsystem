@@ -250,10 +250,7 @@ $APP_DOMAIN {
 		reverse_proxy 127.0.0.1:$APP_PORT
 	}
 
-	# NASA's textures, models and ephemerides are immutable, so let browsers and
-	# Caddy keep them for a year instead of revalidating every load.
-	@immutable path /nasa/*
-	header @immutable Cache-Control "public, max-age=31536000, immutable"
+	# The application sets cache policy: dynamic indexes must revalidate.
 
 	header {
 		X-Content-Type-Options nosniff

@@ -1827,7 +1827,7 @@ PreloadManager 两次写入 stars1 的缺陷已复现并修复，故不能把所
 
 当前导出：`localizeAssetUrls` ← `localizeAssetUrls`；`localAssetsPlugin` ← `localAssetsPlugin`；`localizeShell` ← `localizeShell`；`eyesResourcePolicy` ← `eyesResourcePolicy`。
 
-非 class 函数（包括模块内回调）：`localizeAssetUrls(text)` @14：Preserve source provenance while compiling resource references to this host.；`anonymous(value)` @20；`localAssetsPlugin()` @30；`anonymous(args)` @32；`localizeShell(root)` @43。
+非 class 函数（包括模块内回调）：`localizeAssetUrls(text)` @15：Preserve source provenance while compiling resource references to this host.；`anonymous(value)` @21；`localAssetsPlugin()` @31；`anonymous(args)` @33；`localizeShell(root)` @44。
 
 <a id="file-eyes-scripts-serve-mjs"></a>
 ### `eyes/scripts/serve.mjs`

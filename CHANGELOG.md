@@ -3,6 +3,14 @@
 All notable changes to this project are recorded here. Every released version
 has an entry; the version matches `VERSION` and its annotated tag.
 
+## 0.2.73 - 2026-10-25
+
+Include the complete regenerated Eyes analysis ledger omitted from v0.2.72,
+allowing clean-checkout CI and VPS deployment checks to pass. Retain the dynamic
+index freshness and browser cache migration fix from v0.2.72.
+
+Validation: npm ci, npm test, npm run check and npm run build.
+
 ## 0.2.72 - 2026-10-25
 
 Refresh cached dynamic dynamo indexes and metadata after 60 seconds when server
